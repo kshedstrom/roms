@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -52,9 +52,6 @@
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
-# ifdef TS_PSOURCE
-      USE mod_sources
-# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -75,13 +72,6 @@
      &                         kstp(ng), knew(ng),                      &
 # endif
      &                         nrhs(ng), nstp(ng), nnew(ng),            &
-# ifdef TS_PSOURCE
-     &                         Msrc(ng), Nsrc(ng),                      &
-     &                         SOURCES(ng) % Isrc,                      &
-     &                         SOURCES(ng) % Jsrc,                      &
-     &                         SOURCES(ng) % Dsrc,                      &
-     &                         SOURCES(ng) % Tsrc,                      &
-# endif
 # ifdef MASKING
      &                         GRID(ng) % rmask,                        &
      &                         GRID(ng) % umask,                        &
@@ -156,11 +146,6 @@
      &                               kstp, knew,                        &
 # endif
      &                               nrhs, nstp, nnew,                  &
-# ifdef TS_PSOURCE
-     &                               Msrc, Nsrc,                        &
-     &                               Isrc, Jsrc, Dsrc,                  &
-     &                               Tsrc,                              &
-# endif
 # ifdef MASKING
      &                               rmask, umask, vmask,               &
 # endif
@@ -202,6 +187,7 @@
 !
       USE mod_param
       USE mod_scalars
+      USE mod_sources
 !
       USE ad_exchange_3d_mod, ONLY : ad_exchange_r3d_tile
 # ifdef DISTRIBUTE
@@ -218,17 +204,8 @@
       integer, intent(in) :: kstp, knew
 # endif
       integer, intent(in) :: nrhs, nstp, nnew
-# ifdef TS_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef TS_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-      real(r8), intent(in) :: Dsrc(:)
-      real(r8), intent(in) :: Tsrc(:,:,:)
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
@@ -309,12 +286,6 @@
 
 # else
 
-#  ifdef TS_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-      real(r8), intent(in) :: Dsrc(Msrc)
-      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
@@ -381,7 +352,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, indx, is, itrc, j, k, ltrc
+      integer :: i, ic, indx, is, itrc, j, k, ltrc
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -479,8 +450,12 @@
      &                       ad_t(:,:,:,3,:))
 !
 #  endif
-
+!
+      ic=0
       DO itrc=1,NT(ng)
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
 !>        CALL exchange_r3d_tile (ng, tile,                             &
 !>   &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
@@ -490,13 +465,13 @@
      &                               LBi, UBi, LBj, UBj, 1, N(ng),      &
      &                               ad_t(:,:,:,3,itrc))
         END IF
-!>      CALL tl_t3dbc_tile (ng, tile, itrc,                             &
+!>      CALL tl_t3dbc_tile (ng, tile, itrc, ic,                         &
 !>   &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
 !>   &                      IminS, ImaxS, JminS, JmaxS,                 &
 !>   &                      nstp, 3,                                    &
 !>   &                      tl_t)
 !>
-        CALL ad_t3dbc_tile (ng, tile, itrc,                             &
+        CALL ad_t3dbc_tile (ng, tile, itrc, ic,                         &
      &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp, 3,                                    &
@@ -974,7 +949,7 @@
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay
-!  decay penetration function based on Jerlow water type.
+!  decay penetration function based on Jerlov water type.
 !
           IF (itrc.eq.itemp) THEN
             DO k=1,N(ng)-1
@@ -1601,7 +1576,8 @@
             ad_FC(i,0)=0.0_r8
 #   endif
           END DO
-            DO k=1,N(ng)-1
+          DO k=1,N(ng)-1
+            DO i=Istr,Iend
               cff1=MAX(W(i,j,k),0.0_r8)
               cff2=MIN(W(i,j,k),0.0_r8)
 !>            tl_FC(i,k)=tl_cff1*t(i,j,k  ,nstp,itrc)+                  &
@@ -1611,7 +1587,7 @@
 !>
               ad_t(i,j,k  ,nstp,itrc)=ad_t(i,j,k  ,nstp,itrc)+          &
      &                                cff1*ad_FC(i,k)
-              ad_t(i,j,k+1,nstp,itrc)=ad_t(i,j,k+1,nstp,itrc)+
+              ad_t(i,j,k+1,nstp,itrc)=ad_t(i,j,k+1,nstp,itrc)+          &
      &                                cff2*ad_FC(i,k)
               ad_cff1=ad_cff1+t(i,j,k  ,nstp,itrc)*ad_FC(i,k)
               ad_cff2=ad_cff2+t(i,j,k+1,nstp,itrc)*ad_FC(i,k)
@@ -1814,33 +1790,37 @@
               ad_t(i,j,k,3,itrc)=0.0_r8
             END DO
           END DO
-
-#  if defined TS_PSOURCE && !defined Q_PSOURCE
 !
-!  Apply tracers point sources to the horizontal advection terms.
+!  Apply tracers point sources to the horizontal advection terms,
+!  if any.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (LtracerSrc(itrc,ng).and.                                &
-     &          ((Istr.le.i).and.(i.le.Iend+1)).and.                    &
-     &          ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-              IF (INT(Dsrc(is)).eq.0) THEN
-!>              tl_FX(i,j)=tl_Huon(i,j,k)*Tsrc(is,k,itrc)
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
+     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+                IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+!>                tl_FX(i,j)=tl_Huon(i,j,k)*                            &
+!>   &                       SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                ad_Huon(i,j,k)=ad_Huon(i,j,k)+                          &
-     &                         Tsrc(is,k,itrc)*ad_FX(i,j)
-                ad_FX(i,j)=0.0_r8
-              ELSE
-!>              tl_FE(i,j)=tl_Hvom(i,j,k)*Tsrc(is,k,itrc)
+                  ad_Huon(i,j,k)=ad_Huon(i,j,k)+                        &
+     &                           SOURCES(ng)%Tsrc(is,k,itrc)*           &
+     &                           ad_FX(i,j)
+                  ad_FX(i,j)=0.0_r8
+                ELSE
+!>                tl_FE(i,j)=tl_Hvom(i,j,k)*                            &
+!>   &                       SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                          &
-     &                         Tsrc(is,k,itrc)*ad_FE(i,j)
-                ad_FE(i,j)=0.0_r8
+                  ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                        &
+     &                           SOURCES(ng)%Tsrc(is,k,itrc)*           &
+     &                           ad_FE(i,j)
+                  ad_FE(i,j)=0.0_r8
+                END IF
               END IF
-            END IF
-          END DO
-#  endif
+            END DO
+          END IF
 
 #  if defined TS_C2HADVECTION_TL
 !
@@ -1968,18 +1948,18 @@
 #   endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jstr-1)=FE(i,Jstr)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jend+2)=FE(i,Jend+1)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jstr-1)=FE(i,Jstr)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jend+2)=FE(i,Jend+1)
+              END DO
             END IF
           END IF
 !
@@ -2113,24 +2093,24 @@
 #   endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-!>                tl_FE(i,Jend+2)=tl_FE(i,Jend+1)
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+!>              tl_FE(i,Jend+2)=tl_FE(i,Jend+1)
 !>
-                  ad_FE(i,Jend+1)=ad_FE(i,Jend+1)+ad_FE(i,Jend+2)
-                  ad_FE(i,Jend+2)=0.0_r8
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-!>                tl_FE(i,Jstr-1)=tl_FE(i,Jstr)
+                ad_FE(i,Jend+1)=ad_FE(i,Jend+1)+ad_FE(i,Jend+2)
+                ad_FE(i,Jend+2)=0.0_r8
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+!>              tl_FE(i,Jstr-1)=tl_FE(i,Jstr)
 !>
-                  ad_FE(i,Jstr)=ad_FE(i,Jstr)+ad_FE(i,Jstr-1)
-                  ad_FE(i,Jstr-1)=0.0_r8
-                END DO
-              END IF
+                ad_FE(i,Jstr)=ad_FE(i,Jstr)+ad_FE(i,Jstr-1)
+                ad_FE(i,Jstr-1)=0.0_r8
+              END DO
             END IF
           END IF
 !
@@ -2159,18 +2139,18 @@
 #   endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Istr-1,j)=FX(Istr,j)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Iend+2,j)=FX(Iend+1,j)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Istr-1,j)=FX(Istr,j)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Iend+2,j)=FX(Iend+1,j)
+              END DO
             END IF
           END IF
 !
@@ -2305,24 +2285,24 @@
               ad_cff=0.0_r8
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-!>                tl_FX(Iend+2,j)=tl_FX(Iend+1,j)
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+!>              tl_FX(Iend+2,j)=tl_FX(Iend+1,j)
 !>
-                  ad_FX(Iend+1,j)=ad_FX(Iend+1,j)+ad_FX(Iend+2,j)
-                  ad_FX(Iend+2,j)=0.0_r8
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-!>                tl_FX(Istr-1,j)=tl_FX(Istr,j)
+                ad_FX(Iend+1,j)=ad_FX(Iend+1,j)+ad_FX(Iend+2,j)
+                ad_FX(Iend+2,j)=0.0_r8
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+!>              tl_FX(Istr-1,j)=tl_FX(Istr,j)
 !>
-                  ad_FX(Istr,j)=ad_FX(Istr,j)+ad_FX(Istr-1,j)
-                  ad_FX(Istr-1,j)=0.0_r8
-                END DO
-              END IF
+                ad_FX(Istr,j)=ad_FX(Istr,j)+ad_FX(Istr-1,j)
+                ad_FX(Istr-1,j)=0.0_r8
+              END DO
             END IF
           END IF
 !

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -183,51 +183,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
-#ifdef ARRAY_MODES
-      IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
-     &   'Stabilized Representer Matrix Array Modes.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' ARRAY_MODES,'
-      idriver=idriver+1
-# ifdef ARRAY_MODES_SPLIT
-      IF (Master) WRITE (stdout,20) 'ARRAY_MODES_SPLIT',                &
-     &   'Separate analysis due to IC, surface forcing, and OBC'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' ARRAY_MODES_SPLIT,'
-# endif
-#endif
-#ifdef ATM_PRESS
-      IF (Master) WRITE (stdout,20) 'ATM_PRESS',                        &
-     &   'Impose atmospheric pressure onto sea surface.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' ATM_PRESS,'
-#endif
-#ifdef BALANCE_OPERATOR
-      IF (Master) WRITE (stdout,20) 'BALANCE_OPERATOR',                 &
-     &   'Error Covariance Multivariate Balance Operator.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' BALANCE_OPERATOR,'
-#endif
-#ifdef CLIPPING
-      IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
-     &   'Stabilized Representer Matrix clipping spectrum analysis.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+10)=' CLIPPING,'
-      idriver=idriver+1
-# ifdef CLIPPING_SPLIT
-      IF (Master) WRITE (stdout,20) 'CLIPPING_SPLIT',                   &
-     &   'Separate analysis due to IC, surface forcing, and OBC'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' CLIPPING_SPLIT,'
-# endif
-#endif
-#ifdef CORRELATION
-      IF (Master) WRITE (stdout,20) 'CORRELATION',                      &
-     &   'Background-error Correlation Model.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' CORRELATION,'
-      idriver=idriver+1
-#endif
 #if defined BIOLOGY && defined ANA_BIOLOGY
       IF (Master) WRITE (stdout,20) 'ANA_BIOLOGY',                      &
      &   'Analytical biology initial conditions.'
@@ -277,6 +232,12 @@
      &   'Customized diagnostics.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_DIAG,'
+#endif
+#if defined ANA_DQDSST && defined QCORRECTION
+      IF (Master) WRITE (stdout,20) 'ANA_DQDSST',                          &
+     &   'Analytical surface heat flux sensitivity to SST.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' ANA_DQDSST,'
 #endif
 #ifdef ANA_FSOBC
       IF (Master) WRITE (stdout,20) 'ANA_FSOBC',                        &
@@ -337,6 +298,14 @@
      &   'Analytical Land/Sea Masking.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_MASK,'
+#endif
+#ifdef ANA_NUDGCOEF
+      IF (ANY(Lnudging(:))) THEN
+        IF (Master) WRITE (stdout,20) 'ANA_NUDGCOEF',                   &
+     &     'Analytical spatially varying nudging time-scales.'
+        is=LEN_TRIM(Coptions)+1
+        Coptions(is:is+14)=' ANA_NUDGCOEF,'
+      END IF
 #endif
 #if defined ANA_PAIR && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ANA_PAIR',                         &
@@ -409,6 +378,14 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ANA_SPINNING,'
 #endif
+#ifdef ANA_SPONGE
+      IF (ANY(Lsponge)) THEN
+        IF (Master) WRITE (stdout,20) 'ANA_SPONGE',                     &
+     &     'Analytical enhanced viscosity/diffusion sponge.'
+        is=LEN_TRIM(Coptions)+1
+        Coptions(is:is+12)=' ANA_SPONGE,'
+      END IF
+#endif
 #ifdef ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ANA_SRFLUX',                       &
      &   'Analytical kinematic shortwave radiation flux.'
@@ -427,9 +404,9 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ANA_SSS,'
 #endif
-#ifdef ANA_SST
+#if defined ANA_SST && defined QCORRECTION
       IF (Master) WRITE (stdout,20) 'ANA_SST',                          &
-     &   'Analytical SST and dQdSST.'
+     &   'Analytical sea surface temperature, SST.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ANA_SST,'
 #endif
@@ -476,9 +453,10 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WINDS,'
 #endif
-#if defined ANA_WTYPE
-      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                         &
-     &   'Analytical Jerlov water type.'
+#if defined ANA_WTYPE && defined WTYPE_GRID    && \
+   (defined LMD_SKPP  || defined SOLAR_SOURCE)
+      IF (Master) WRITE (stdout,20) 'ANA_WTYPE',                        &
+     &   'Analytical spatially varying Jerlov water type index.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WTYPE,'
 #endif
@@ -488,11 +466,30 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WWAVE,'
 #endif
+#ifdef ARRAY_MODES
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &
+     &   'Stabilized Representer Matrix Array Modes.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ARRAY_MODES,'
+      idriver=idriver+1
+# ifdef ARRAY_MODES_SPLIT
+      IF (Master) WRITE (stdout,20) 'ARRAY_MODES_SPLIT',                &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ARRAY_MODES_SPLIT,'
+# endif
+#endif
 #ifdef ASSUMED_SHAPE
       IF (Master) WRITE (stdout,20) 'ASSUMED_SHAPE',                    &
      &   'Using assumed-shape arrays.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ASSUMED_SHAPE,'
+#endif
+#ifdef ATM_PRESS
+      IF (Master) WRITE (stdout,20) 'ATM_PRESS',                        &
+     &   'Impose atmospheric pressure onto sea surface.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ATM_PRESS,'
 #endif
 #ifdef AVERAGES
       IF (Master) WRITE (stdout,20) 'AVERAGES',                         &
@@ -517,6 +514,12 @@
      &   'Include background cost function.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' BACKGROUND,'
+#endif
+#ifdef BALANCE_OPERATOR
+      IF (Master) WRITE (stdout,20) 'BALANCE_OPERATOR',                 &
+     &   'Error Covariance Multivariate Balance Operator.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' BALANCE_OPERATOR,'
 #endif
 #if defined SEDIMENT && defined BEDLOAD_MPM
       IF (Master) WRITE (stdout,20) 'BEDLOAD_MPM',                      &
@@ -624,6 +627,26 @@
      &   'Write out radiation celerity in forward file.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' CELERITY_WRITE,'
+#endif
+#ifdef CLIPPING
+      IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
+     &   'Stabilized Representer Matrix clipping spectrum analysis.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' CLIPPING,'
+      idriver=idriver+1
+# ifdef CLIPPING_SPLIT
+      IF (Master) WRITE (stdout,20) 'CLIPPING_SPLIT',                   &
+     &   'Separate analysis due to IC, surface forcing, and OBC'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' CLIPPING_SPLIT,'
+# endif
+#endif
+#ifdef CORRELATION
+      IF (Master) WRITE (stdout,20) 'CORRELATION',                      &
+     &   'Background-error Correlation Model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' CORRELATION,'
+      idriver=idriver+1
 #endif
 #if defined DATALESS_LOOPS && defined W4DVAR
       IF (Master) WRITE (stdout,20) 'DATALESS_LOOPS',                   &
@@ -733,6 +756,12 @@
      &   'Computing and writing momentum diagnostic terms.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' DIAGNOSTICS_UV,'
+#endif
+#ifdef DIAPAUSE
+      IF (Master) WRITE (stdout,20) 'DIAPAUSE',                   &
+     &   'Floats moving vertically to simulate diapause.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' DIAPAUSE,'
 #endif
 #if defined DIFF_3DCOEF
       IF (Master) WRITE (stdout,20) 'DIFF_3DCOEF',                      &
@@ -959,6 +988,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' HESSIAN_SV,'
 #endif
+# ifdef HISTORY2
+      IF (Master) WRITE (stdout,20) 'HISTORY2',                        &
+     &   'Writing out secondary surface fields.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' HISTORY2,'
+# endif
 #if defined HOLLING_GRAZING && defined NEMURO
       IF (Master) WRITE (stdout,20) 'HOLLING_GRAZING',                  &
      &   'Holling-type s-shaped grazing algorithm, Implicit.'
@@ -1025,11 +1060,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_SMOLAR,'
 #endif
-#ifdef ICE_SMOOTH
-      IF (Master) WRITE (stdout,20) 'ICE_SMOOTH',                       &
-     &   'Include smoothing of ice.'
+#ifdef ICE_STRENGTH_QUAD
+      IF (Master) WRITE (stdout,20) 'ICE_STRENGTH_QUAD',                &
+     &   'Ice strength a quadratic function of thickness.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' ICE_SMOOTH,'
+      Coptions(is:is+19)=' ICE_STRENGTH_QUAD,'
 #endif
 #ifdef ICE_THERMO
       IF (Master) WRITE (stdout,20) 'ICE_THERMO',                       &
@@ -1199,35 +1234,11 @@
       Coptions(is:is+11)=' MIN_STRAT,'
 # endif
 #endif
-#ifdef M2CLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'M2CLIMATOLOGY',                    &
-     &   'Processing 2D momentum climatology data.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' M2CLIMATOLOGY,'
-#endif
-#ifdef M2CLM_NUDGING
-      IF (Master) WRITE (stdout,20) 'M2CLM_NUDGING',                    &
-     &   'Nudging toward 2D momentum climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' M2CLM_NUDGING,'
-#endif
 #ifdef M2TIDE_DIFF
       IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
      &   'Add barotropic tidal mixing parameterization.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' M2TIDE_DIFF,'
-#endif
-#if defined M3CLIMATOLOGY && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'M3CLIMATOLOGY',                    &
-     &   'Processing 3D momentum climatology data.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' M3CLIMATOLOGY,'
-#endif
-#if defined M3CLM_NUDGING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'M3CLM_NUDGING',                    &
-     &   'Nudging toward 3D momentum climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' M3CLM_NUDGING,'
 #endif
 #ifdef MASKING
       IF (Master) WRITE (stdout,20) 'MASKING',                          &
@@ -1388,6 +1399,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NEMURO_SED1,'
 #endif
+#ifdef NESTING
+      IF (Master) WRITE (stdout,20) 'NESTING',                          &
+     &   'Nesting grids: Composite and Refinement.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' NESTING,'
+#endif
 #if defined NL_BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'NL_BULK_FLUXES',                   &
      &   'Using bulk fluxes computed by nonlinear model.'
@@ -1406,12 +1423,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' NONLINEAR,'
 #endif
-#ifdef OUTFLOW_MASK
-      IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
-     &   'Hibler-style outflow ice cells.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' OUTFLOW_MASK,'
-#endif
 #ifdef SOLVE3D
 # if defined NONLIN_EOS
       IF (Master) WRITE (stdout,20) 'NONLIN_EOS',                       &
@@ -1425,6 +1436,18 @@
       Coptions(is:is+13)=' !NONLIN_EOS,'
 # endif
 #endif
+#if defined NO_CORRECT_TRACER && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'NO_CORRECT_TRACER',                &
+     &   'Avoid two-way correction of coaser grid boundary tracer.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' NO_CORRECT_TRACER,'
+#endif
+#ifdef NO_HIS
+      IF (Master) WRITE (stdout,20) 'NO_HIS',                           &
+     &   'Turn off writing of history files.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+8)=' NO_HIS,'
+#endif
 #ifdef NO_LBC_ATT
       IF (Master) WRITE (stdout,20) 'NO_LBC_ATT',                       &
      &   'Not checking NetCDF global attribute NLM_LBC during restart.'
@@ -1432,10 +1455,16 @@
       Coptions(is:is+12)=' NO_LBC_ATT,'
 #endif
 #if defined NO_READ_GHOST && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'NO_READ_GRID',                     &
+      IF (Master) WRITE (stdout,20) 'NO_READ_GHOST',                    &
      &   'Not including ghost points during scattering read data.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' NO_READ_GRID,'
+      Coptions(is:is+15)=' NO_READ_GHOST,'
+#endif
+#if defined NO_SCORRECTION_ICE
+      IF (Master) WRITE (stdout,20) 'NO_SCORRECTION_ICE',               &
+     &   'Not including SCORRECTION under the ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' NO_SCORRECTION_ICE,'
 #endif
 #ifdef NO_WRITE_GRID
       IF (Master) WRITE (stdout,20) 'NO_WRITE_GRID',                    &
@@ -1506,23 +1535,35 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OFFLINE_BIOLOGY,'
 #endif
+#if defined ONE_TRACER_SOURCE
+      IF (Master) WRITE (stdout,20) 'ONE_TRACER_SOURCE',                &
+     &   'One value per tracer for all sources.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ONE_TRACER_SOURCE,'
+#endif
+#if defined ONE_WAY && defined NESTING
+      IF (Master) WRITE (stdout,20) 'ONE_WAY',                          &
+     &   'One-way nesting in refinement grids.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' ONE_WAY,'
+#endif
 #ifdef OUT_DOUBLE
       IF (Master) WRITE (stdout,20) 'OUT_DOUBLE',                       &
      &   'Double precision output fields in NetCDF files.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' OUT_DOUBLE,'
 #endif
+#ifdef OUTFLOW_MASK
+      IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
+     &   'Hibler-style outflow ice cells.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' OUTFLOW_MASK,'
+#endif
 #ifdef _OPENMP
       IF (Master) WRITE (stdout,20) '_OPENMP',                          &
      &   'OpenMP parallel shared-memory directives.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' _OPENMP,'
-#endif
-#ifdef OPP_SUBDOMAIN
-      IF (Master) WRITE (stdout,20) 'OPP_SUBDOMAIN',                    &
-     &   'subdomain optimal observation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' OPP_SUBDOMAIN,'
 #endif
 #ifdef OPT_OBSERVATIONS
       IF (Master) WRITE (stdout,20) 'OPT_OBSERVATIONS',                 &
@@ -1665,17 +1706,17 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' QCORRECTION,'
 #endif
-#if defined Q_PSOURCE
-      IF (Master) WRITE (stdout,20) 'Q_PSOURCE',                        &
-     &   'Mass point sources, volume influx.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' Q_PSOURCE,'
-#endif
 #if defined RUNOFF
       IF (Master) WRITE (stdout,20) 'RUNOFF',                           &
      &   'Surface flux of ungauged river runoff.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' RUNOFF,'
+#endif
+#if defined RUNOFF_SSH
+      IF (Master) WRITE (stdout,20) 'RUNOFF_SSH',                       &
+     &   'Surface flux of ungauged river runoff affecting SSH.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' RUNOFF_SSH,'
 #endif
 #if defined GLS_MIXING || defined MY25_MIXING
 # if defined K_C2ADVECTION
@@ -1926,12 +1967,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SPHERICAL,'
 #endif
-#ifdef SPONGE
-      IF (Master) WRITE (stdout,20) 'SPONGE',                           &
-     &   'Enhanced horizontal mixing in the sponge areas.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+8)=' SPONGE,'
-#endif
 #if defined SSH_TIDES
       IF (Master) WRITE (stdout,20) 'SSH_TIDES',                        &
      &   'Add tidal elevation to SSH climatology.'
@@ -2042,35 +2077,17 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' TANGENT,'
 #endif
-#if defined TCLIMATOLOGY && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'TCLIMATOLOGY',                     &
-     &   'Processing tracer climatology data.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' TCLIMATOLOGY,'
-#endif
-#if defined TCLM_NUDGING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'TCLM_NUDGING',                     &
-     &   'Nudging toward tracer climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' TCLM_NUDGING,'
-#endif
-#if defined BCLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'BCLIMATOLOGY',                     &
-     &   'Processing biological tracer climatology data.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' BCLIMATOLOGY,'
-#endif
-#if defined BCLM_NUDGING
-      IF (Master) WRITE (stdout,20) 'BCLM_NUDGING',                     &
-     &   'Nudging toward biological tracer climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' BCLM_NUDGING,'
-#endif
 #if defined TIDES_ASTRO
       IF (Master) WRITE (stdout,20) 'TIDES_ASTRO',                      &
      &   'Compute astronomical (long-period tide) corrections.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
+#endif
+#if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP_FLUX',                 &
+     &   'Time interpolate coaser grid mass flux in refinement .'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TIME_INTERP_FLUX,'
 #endif
 #if defined TL_AVERAGES && defined TANGENT
       IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
@@ -2287,12 +2304,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' TS_FIXED,'
 #endif
-#if defined TS_PSOURCE && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'TS_PSOURCE',                       &
-     &   'Tracers point sources and sinks.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' TS_PSOURCE,'
-#endif
 #if defined TS_SMAGORINSKY && (defined TS_DIF2 || defined TS_DIF4)
       IF (Master) WRITE (stdout,20) 'TS_SMAGORINSKY',                   &
      &   'Smagorinksy-like time-dependent diffusion coefficients.'
@@ -2392,12 +2403,6 @@
       Coptions(is:is+10)=' UV_QDRAG,'
       ibbl=ibbl+1
 #endif
-#ifdef UV_PSOURCE
-      IF (Master) WRITE (stdout,20) 'UV_PSOURCE',                       &
-     &   'Mass point sources and sinks.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' UV_PSOURCE,'
-#endif
 #if defined UV_TIDES
       IF (Master) WRITE (stdout,20) 'UV_TIDES',                         &
      &   'Add tidal currents to 2D momentum climatologies.'
@@ -2421,6 +2426,12 @@
      &   'Smagorinksy-like time-dependent viscosity coefficients.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' UV_SMAGORINSKY,'
+#endif
+#ifdef UV_WAVEDRAG
+      IF (Master) WRITE (stdout,20) 'UV_WAVEDRAG',                      &
+     &   'Linear bottom stress from internal tidal wave drag.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' UV_WAVEDRAG,'
 #endif
 #if defined VAR_RHO_2D && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'VAR_RHO_2D',                       &
@@ -2538,17 +2549,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' WRF_COUPLING,'
 #endif
-#if defined WTYPE_GRID
-      IF (Master) WRITE (stdout,20) 'WTYPE_GRID',                        &
-     &   'Spatially varying Jerlov water type.'
+#if defined WTYPE_GRID && \
+   (defined LMD_SKPP   || defined SOLAR_SOURCE) && \
+   !defined ANA_WTYPE
+      IF (Master) WRITE (stdout,20) 'WTYPE_GRID',                       &
+     &   'Spatially varying Jerlov water type index.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' WTYPE_GRID,'
-#endif
-#ifdef ZCLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'ZCLIMATOLOGY',                     &
-     &   'Processing sea surface height climatology data.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ZCLIMATOLOGY,'
 #endif
 #if defined ZETA_ELLIPTIC && defined BALANCE_OPERATOR && \
     defined FOUR_DVAR
@@ -2862,6 +2869,45 @@
  210    FORMAT (/,' CHECKDEFS - cannot activate option: ',a,           &
      &          /,13x,'in serial with partitions or shared-memory...', &
      &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
+      END IF
+#endif
+#ifdef Q_PSOURCE
+!
+!  Stop if activating obsolete mass point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LwSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,220) uppercase('q_psource'), 'LwSrc'
+ 220    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
+      END IF
+#endif
+#if defined TS_PSOURCE && defined SOLVE3D
+!
+!  Stop if activating obsolete tracers point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LtracerSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,230) uppercase('ts_psource'), 'LtracerSrc'
+ 230    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
+      END IF
+#endif
+#ifdef UV_PSOURCE
+!
+!  Stop if activating obsolete mass point Sources/Sinks option. This
+!  capability is now activated with standard input switch "LwSrc".
+!
+      IF (Master) THEN
+        WRITE (stdout,240) uppercase('uv_psource'), 'LuvSrc'
+ 240    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
+     &          /,13x,'Use instead standard input switch: ',a,          &
+     &          /,13x,'Edit header file or build script!')
+        exit_flag=5
       END IF
 #endif
 

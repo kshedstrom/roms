@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -31,6 +31,9 @@
       USE mod_grid
       USE mod_forces
       USE mod_ocean
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -48,6 +51,9 @@
      &                   LBi, UBi, LBj, UBj,                            &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nrhs(ng),                                      &
+#  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+     &                   liold(ng),                                     &
+#  endif
      &                   GRID(ng) % Hz,                                 &
 #  if defined UV_LOGDRAG
      &                   GRID(ng) % ZoBot,                              &
@@ -62,6 +68,9 @@
 #  endif
 #  ifdef MASKING
      &                   GRID(ng) % rmask,                              &
+#  endif
+#  ifdef WET_DRY
+     &                   GRID(ng) % rmask_wet,                          &
 #  endif
 #  ifdef ICESHELF
      &                   GRID(ng) % zice,                               &
@@ -103,6 +112,9 @@
 #  endif
 #  ifdef ICE_MODEL
      &                   FORCES(ng) % qao_n,                            &
+#    ifdef NO_SCORRECTION_ICE
+     &                   ICE(ng) % ai,                                  &
+#    endif
 #  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
@@ -118,6 +130,9 @@
      &                         LBi, UBi, LBj, UBj,                      &
      &                         IminS, ImaxS, JminS, JmaxS,              &
      &                         nrhs,                                    &
+#  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+     &                         liold,                                   &
+#  endif
      &                         Hz,                                      &
 #  if defined UV_LOGDRAG
      &                         ZoBot,                                   &
@@ -131,6 +146,9 @@
 #  endif
 #  if defined MASKING
      &                         rmask,                                   &
+#  endif
+#  ifdef WET_DRY
+     &                         rmask_wet,                               &
 #  endif
 #  ifdef ICESHELF
      &                         zice,                                    &
@@ -168,6 +186,9 @@
 #  endif
 #  ifdef ICE_MODEL
      &                         qao_n,                                   &
+#    ifdef NO_SCORRECTION_ICE
+     &                         ai,                                      &
+#    endif
 #  endif
      &                         stflx, btflx)
 !***********************************************************************
@@ -186,6 +207,9 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs
+# if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+      integer, intent(in) :: liold
+# endif
 !
 #  ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -202,6 +226,9 @@
 #   endif
 #   if defined MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
+#   endif
+#   ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
 #   endif
 #   ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
@@ -243,6 +270,9 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:,LBj:)
+#    ifdef NO_SCORRECTION_ICE
+      real(r8), intent(in) :: ai(LBi:,LBj:,:)
+#    endif
 #   endif
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
       real(r8), intent(inout) :: btflx(LBi:,LBj:,:)
@@ -261,6 +291,9 @@
 #   endif
 #   if defined MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#   endif
+#   ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #   endif
 #   ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
@@ -302,6 +335,9 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:UBi,LBj:UBj)
+#    ifdef NO_SCORRECTION_ICE
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+#    endif
 #   endif
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(inout) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
@@ -340,9 +376,12 @@
 #  if defined SCORRECTION || defined SRELAXATION
 #   if defined CORAL
       real(r8), parameter :: sss_mismatch_threshold = 0.2_r8
-#   elif defined NEP6 || defined NWA
+#   elif defined NEP6 || defined NWA || defined AA_10KM
       real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
 #   endif
+#  endif
+#  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+      real(r8) :: fac_ice
 #  endif
       real(r8), parameter :: eps = 1.e-20_r8
 
@@ -377,16 +416,24 @@
         DO i=IstrR,IendR
 #   if defined SCORRECTION
 #     ifdef ICE_THERMO
+#      ifdef NO_SCORRECTION_ICE
+          fac_ice = 1.0_r8
+          IF(ai(i,j,liold).GE.0.1_r8) fac_ice = 0.0_r8
+#      endif
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
+#     ifdef NO_SCORRECTION_ICE
+     &                     fac_ice*                                     &
+#     endif
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+
 #       if defined NEP5 || defined BERING || defined CHUKCHI
 ! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA
+#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
 ! 90 days from Tnudg of 360 days
      &                     4.0_r8*                                      &
 #       endif
-#       if defined CORAL || defined NEP6 || defined NWA
+#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -412,7 +459,9 @@
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #       endif
 #     endif
-#     ifdef MASKING
+#     ifdef WET_DRY
+          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
+#     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   elif defined SRELAXATION
@@ -431,7 +480,9 @@
 #     else
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     endif
-#     ifdef MASKING
+#     ifdef WET_DRY
+          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
+#     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   else
@@ -440,13 +491,17 @@
 #     else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
 #     endif
-#     ifdef MASKING
+#     ifdef WET_DRY
+          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
+#     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   endif
 #   ifdef SSSFLX
           stflx(i,j,isalt)=stflx(i,j,isalt)+sssflx(i,j)
-#     ifdef MASKING
+#     ifdef WET_DRY
+          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
+#     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 
@@ -455,7 +510,9 @@
         defined SSSFLX
           sssflx(i,j) = -Tnudg(isalt,ng)*Hz(i,j,N(ng))*                 &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
-#     ifdef MASKING
+#     ifdef WET_DRY
+          sssflx(i,j) = rmask_wet(i,j)*sssflx(i,j)
+#     elif defined MASKING
           sssflx(i,j) = rmask(i,j)*sssflx(i,j)
 #     endif
 #   endif
@@ -641,7 +698,7 @@
 !  Compute transfer coefficients
 
             IF (uStar .gt. 1.0E-4_r8 .and. ABS(f(i,j)) .gt. 1.0E-8) THEN
-              gturb = 2.5*LOG10(5300.0_r8*uStar*uStar/ABS(f(i,j))) +    &
+              gturb = 2.5*LOG(5300.0_r8*uStar*uStar/ABS(f(i,j))) +      &
      &                7.12
             ELSE
               gturb = 0.0_r8

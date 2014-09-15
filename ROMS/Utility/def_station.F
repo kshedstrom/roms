@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -76,9 +76,9 @@
 !
       IF (Master) THEN
         IF (ldef) THEN
-          WRITE (stdout,10) TRIM(ncname)
+          WRITE (stdout,10) ng, TRIM(ncname)
         ELSE
-          WRITE (stdout,20) TRIM(ncname)
+          WRITE (stdout,20) ng, TRIM(ncname)
         END IF
       END IF
 !
@@ -1669,6 +1669,65 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 # endif
+# ifdef WET_DRY
+!
+!  Define wet/dry mask on RHO-points.
+!
+        IF (Sout(idRwet,ng)) THEN
+          Vinfo( 1)=Vname(1,idRwet)
+          Vinfo( 2)=Vname(2,idRwet)
+          Vinfo( 3)=Vname(3,idRwet)
+          Vinfo( 9)='land'
+          Vinfo(10)='water'
+          Vinfo(14)=Vname(4,idRwet)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idRwet,ng),r8)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idRwet),     &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .FALSE.,                          &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define wet/dry mask on U-points.
+!
+        IF (Sout(idUwet,ng)) THEN
+          Vinfo( 1)=Vname(1,idUwet)
+          Vinfo( 2)=Vname(2,idUwet)
+          Vinfo( 3)=Vname(3,idUwet)
+          Vinfo( 9)='land'
+          Vinfo(10)='water'
+          Vinfo(14)=Vname(4,idUwet)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idUwet,ng),r8)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUwet),   &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .FALSE.,                          &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define wet/dry mask on V-points.
+!
+        IF (Sout(idVwet,ng)) THEN
+          Vinfo( 1)=Vname(1,idVwet)
+          Vinfo( 2)=Vname(2,idVwet)
+          Vinfo( 3)=Vname(3,idVwet)
+          Vinfo(14)=Vname(4,idVwet)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo( 9)='land'
+          Vinfo(10)='water'
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idVwet,ng),r8)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVwet),   &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .FALSE.,                          &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+# endif
 # ifdef ICE_MODEL
 !
 !  Define 2D ice momentum in the XI-direction.
@@ -1902,36 +1961,6 @@
           Vinfo(14)=Vname(4,idChuiw)
           Vinfo(16)=Vname(1,idtime)
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idChuiw),  &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define under-ice temperature
-!
-        IF (Sout(idT0mk,ng)) THEN
-          Vinfo( 1)=Vname(1,idT0mk)
-          Vinfo( 2)=Vname(2,idT0mk)
-          Vinfo( 3)=Vname(3,idT0mk)
-          Vinfo(14)=Vname(4,idT0mk)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idT0mk),   &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define under-ice salinity
-!
-        IF (Sout(idS0mk,ng)) THEN
-          Vinfo( 1)=Vname(1,idS0mk)
-          Vinfo( 2)=Vname(2,idS0mk)
-          Vinfo( 3)=Vname(3,idS0mk)
-          Vinfo(14)=Vname(4,idS0mk)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idS0mk),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
      &                   SetParAccess = .FALSE.)
@@ -2301,6 +2330,17 @@
             got_var(idVbvr)=.TRUE.
             STA(ng)%Vid(idVbvr)=var_id(i)
 #  endif
+#  if defined WET_DRY
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRwet))) THEN
+            got_var(idRwet)=.TRUE.
+            STA(ng)%Vid(idRwet)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUwet))) THEN
+            got_var(idUwet)=.TRUE.
+            STA(ng)%Vid(idUwet)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVwet))) THEN
+            got_var(idVwet)=.TRUE.
+            STA(ng)%Vid(idVwet)=var_id(i)
+#  endif
 #  ifdef ICE_MODEL
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
             got_var(idUice)=.TRUE.
@@ -2344,12 +2384,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
             got_var(idChuiw)=.TRUE.
             STA(ng)%Vid(idChuiw)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
-            got_var(idT0mk)=.TRUE.
-            STA(ng)%Vid(idT0mk)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
-            got_var(idS0mk)=.TRUE.
-            STA(ng)%Vid(idS0mk)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
             got_var(idWfr)=.TRUE.
             STA(ng)%Vid(idWfr)=var_id(i)
@@ -3145,6 +3179,26 @@
         END DO
 #  endif
 # endif
+# if defined WET_DRY
+        IF (.not.got_var(idRwet).and.Sout(idRwet,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idRwet)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idUwet).and.Sout(idUwet,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUwet)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVwet).and.Sout(idVwet,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVwet)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# endif
 # ifdef ICE_MODEL
         IF (.not.got_var(idUice).and.Sout(idUice,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUice)),          &
@@ -3230,18 +3284,6 @@
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idT0mk).and.Sout(idT0mk,ng)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idT0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idS0mk).and.Sout(idS0mk,ng)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idS0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
         IF (.not.got_var(idWfr).and.Sout(idWfr,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWfr)),           &
      &                                  TRIM(ncname)
@@ -3298,8 +3340,10 @@
         STA(ng)%Rindex=(ntstart(ng)-1)/nSTA(ng)
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_STATION - creating stations file: ',a)
-  20  FORMAT (6x,'DEF_STATION - inquiring stations file: ',a)
+  10  FORMAT (6x,'DEF_STATION - creating stations file, Grid ',i2.2,    &
+     &        ': ',a)
+  20  FORMAT (6x,'DEF_STATION - inquiring stations file, Grid ',i2.2,   &
+     &        ': ',a)
   30  FORMAT (/,' DEF_STATION - unable to create stations NetCDF ',     &
      &        'file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')

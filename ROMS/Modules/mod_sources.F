@@ -1,10 +1,9 @@
 #include "cppdefs.h"
       MODULE mod_sources
-#if defined UV_PSOURCE || defined TS_PSOURCE || defined Q_PSOURCE
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -61,14 +60,22 @@
           real(r8), pointer :: Qbar(:)
           real(r8), pointer :: Qshape(:,:)
           real(r8), pointer :: Qsrc(:,:)
+#ifdef ONE_TRACER_SOURCE
+          real(r8), pointer :: Tsrc(:)
+#else
           real(r8), pointer :: Tsrc(:,:,:)
+#endif
           real(r8), pointer :: Xsrc(:)
           real(r8), pointer :: Ysrc(:)
 
-# ifndef ANA_PSOURCE
+#ifndef ANA_PSOURCE
           real(r8), pointer :: QbarG(:,:)
+# ifdef ONE_TRACER_SOURCE
+          real(r8), pointer :: TsrcG(:,:)
+# else
           real(r8), pointer :: TsrcG(:,:,:,:)
 # endif
+#endif
 
         END TYPE T_SOURCES
 
@@ -86,16 +93,16 @@
 !=======================================================================
 !
       USE mod_param
-# if defined BIO_GOANPZ
+#if defined BIO_GOANPZ
       USE mod_scalars
-# endif
-# ifndef ANA_PSOURCE
+#endif
+#ifndef ANA_PSOURCE
       USE mod_parallel
       USE mod_iounits
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars
-# endif
+#endif
 !
 !  Imported variable declarations.
 !
@@ -103,11 +110,11 @@
 !
 !  Local variable declarations.
 !
-# ifndef ANA_PSOURCE
+#ifndef ANA_PSOURCE
       logical :: foundit
 
       integer :: Vid, ifile, nvatt, nvdim
-# endif
+#endif
       integer :: is, itrc, k, mg
 
       real(r8), parameter :: IniVal = 0.0_r8
@@ -121,17 +128,15 @@
         allocate ( Nsrc(Ngrids) )
       END IF
 
-# if !defined ANA_PSOURCE && (defined UV_PSOURCE || \
-                              defined TS_PSOURCE || defined Q_PSOURCE)
+#ifndef ANA_PSOURCE
 !
 !  Inquire about the number of point sources.
 !
       IF (ng.eq.1) THEN
         DO mg=1,Ngrids
           foundit=.FALSE.
-
-          QUERY : DO ifile=1,nFfiles(mg)
-            CALL netcdf_inq_var (ng, iNLM, FRC(ifile,mg)%name,          &
+          IF (LuvSrc(mg).or.LwSrc(mg).or.ANY(LtracerSrc(:,mg))) THEN
+            CALL netcdf_inq_var (ng, iNLM, SSF(mg)%name,                &
      &                           MyVarName = TRIM(Vname(1,idRxpo)),     &
      &                           SearchVar = foundit,                   &
      &                           VarID = Vid,                           &
@@ -142,19 +147,18 @@
             IF (foundit) THEN
               Nsrc(mg)=var_Dsize(1)         ! first dimension
               Msrc(mg)=Nsrc(mg)
-              EXIT QUERY
             END IF
-          END DO QUERY
+          END IF
         END DO
       END IF
-# else
+#else
 !
 !  Set number of point sources to maximum number of analytical sources.
 !  Notice that a maximum of 200 analytical sources are set-up here.
 !
       Msrc(ng)=200
       Nsrc(ng)=Msrc(ng)
-# endif
+#endif
 !
 !  Allocate structure.
 !
@@ -176,17 +180,25 @@
 
       allocate ( SOURCES(ng) % Qsrc(Nsrc(ng),N(ng)) )
 
+#ifdef ONE_TRACER_SOURCE
+      allocate ( SOURCES(ng) % Tsrc(NT(ng)) )
+#else
       allocate ( SOURCES(ng) % Tsrc(Nsrc(ng),N(ng),NT(ng)) )
+#endif
 
       allocate ( SOURCES(ng) % Xsrc(Nsrc(ng)) )
 
       allocate ( SOURCES(ng) % Ysrc(Nsrc(ng)) )
 
-# ifndef ANA_PSOURCE
+#ifndef ANA_PSOURCE
       allocate ( SOURCES(ng) % QbarG(Nsrc(ng),2) )
 
+# ifdef ONE_TRACER_SOURCE
+      allocate ( SOURCES(ng) % TsrcG(2,NT(ng)) )
+# else
       allocate ( SOURCES(ng) % TsrcG(Nsrc(ng),N(ng),2,NT(ng)) )
 # endif
+#endif
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.
@@ -200,10 +212,10 @@
         SOURCES(ng) % Xsrc(is) = IniVal
         SOURCES(ng) % Ysrc(is) = IniVal
         SOURCES(ng) % Qbar(is) = IniVal
-# ifndef ANA_PSOURCE
+#ifndef ANA_PSOURCE
         SOURCES(ng) % QbarG(is,1) = IniVal
         SOURCES(ng) % QbarG(is,2) = IniVal
-# endif
+#endif
       END DO
       DO k=1,N(ng)
         DO is=1,Nsrc(ng)
@@ -212,6 +224,13 @@
         END DO
       END DO
       DO itrc=1,NT(ng)
+#ifdef ONE_TRACER_SOURCE
+        SOURCES(ng) % Tsrc(itrc) = IniVal
+# ifndef ANA_PSOURCE
+        SOURCES(ng) % TsrcG(1,itrc) = IniVal
+        SOURCES(ng) % TsrcG(2,itrc) = IniVal
+# endif
+#else
         DO k=1,N(ng)
           DO is=1,Nsrc(ng)
             SOURCES(ng) % Tsrc(is,k,itrc) = IniVal
@@ -221,9 +240,16 @@
 # endif
           END DO
         END DO
+#endif
       END DO
-# ifdef BIO_GOANPZ
+#ifdef BIO_GOANPZ
 !     River runoff has low nutrient, high iron
+# ifdef ONE_TRACER_SOURCE
+      SOURCES(ng) % Tsrc(iNO3) = 2._r8
+#  ifdef IRON_LIMIT
+      SOURCES(ng) % Tsrc(iFe) = 2._r8
+#  endif
+# else
       DO is=1,Nsrc(ng)
         DO k=1,N(ng)
             SOURCES(ng) % Tsrc(is,k,iNO3) = 2._r8
@@ -233,8 +259,8 @@
         END DO
       END DO
 # endif
+#endif
 
       RETURN
       END SUBROUTINE allocate_sources
-#endif
       END MODULE mod_sources

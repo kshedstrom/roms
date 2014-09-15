@@ -3,7 +3,7 @@
       SUBROUTINE seaice
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This is the main driver routine for the sea ice portion of the
@@ -22,9 +22,6 @@
       USE ice_vbc_mod, ONLY : ice_vbc
 # ifdef ICE_THERMO
       USE ice_thermo_mod, ONLY : ice_thermo
-#  ifdef ICE_SMOOTH
-      USE ice_smoother_mod, ONLY : ice_smoother
-#  endif
 # endif
 # if defined ICE_MOMENTUM && defined ICE_EVP
       USE ice_evp_mod, ONLY : ice_evp
@@ -42,30 +39,34 @@
       implicit none
 
       integer :: tile
-      integer :: ng, my_ievp, nelas
+      integer :: ig, ng, nl, my_ievp, nelas
       real(r8), parameter :: dt_large = 1.0E+23_r8
 
-      DO ng=1,Ngrids
-        liold(ng) = linew(ng)
-        linew(ng) = 3-liold(ng)
+      NEST_LAYER : DO nl=1,NestLayers
+
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          liold(ng) = linew(ng)
+          linew(ng) = 3-liold(ng)
 
 ! ----------------------------------------------------------------------
 !  Compute the ice-ocean shear.
 ! ----------------------------------------------------------------------
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ice_spdiw(ng, TILE)
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ice_spdiw(ng, TILE)
+          END DO
         END DO
 !$OMP BARRIER
-      END DO
 ! ----------------------------------------------------------------------
 !  Compute the stresses on the ice from the air and water.
 ! ----------------------------------------------------------------------
-      DO ng=1,Ngrids
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ice_vbc(ng, TILE)
-        END DO
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ice_vbc(ng, TILE)
+          END DO
 !$OMP BARRIER
-      END DO
+        END DO
 
 #undef ACTIVE
 #ifdef ACTIVE
@@ -79,39 +80,40 @@
 !  Elastic-Viscous-Plastic rheology (EVP).
 ! ----------------------------------------------------------------------
 
-      DO ng=1,Ngrids
-        nelas = nevp(ng)
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          nelas = nevp(ng)
 
-        liuol(ng) = liunw(ng)
-        liunw(ng) = 3-liuol(ng)
+          liuol(ng) = liunw(ng)
+          liunw(ng) = 3-liuol(ng)
 
-        dte(ng) = dtice(ng)/FLOAT(nevp(ng))
+          dte(ng) = dtice(ng)/FLOAT(nevp(ng))
 
-        DO my_ievp=1,nelas
+          DO my_ievp=1,nelas
 
-          lieol(ng) = lienw(ng)
-          lienw(ng) = 3-lieol(ng)
+            lieol(ng) = lienw(ng)
+            lienw(ng) = 3-lieol(ng)
 
-          ievp(ng)=my_ievp
-          DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ice_evp(ng, TILE)
-          END DO
+            ievp(ng)=my_ievp
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ice_evp(ng, TILE)
+            END DO
 !$OMP BARRIER
-          DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ice_evp_sig(ng, TILE)
-          END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ice_evp_sig(ng, TILE)
+            END DO
 !$OMP BARRIER
-          DO tile=first_tile(ng),last_tile(ng),+1
-            CALL ice_elastic(ng, TILE)
-          END DO
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ice_elastic(ng, TILE)
+            END DO
 !$OMP BARRIER
+          END DO
         END DO
-      END DO
 
 # else
-      write(*,*) 'An ice rheology must be defined if ICE_MOMENTUM',     &
+        write(*,*) 'An ice rheology must be defined if ICE_MOMENTUM',     &
      &           ' option is specified'
-      stop
+        stop
 # endif
 #endif
 
@@ -119,39 +121,41 @@
 ! ----------------------------------------------------------------------
 !  Compute the ice enthalpi before advection.
 ! ----------------------------------------------------------------------
-      DO ng=1,Ngrids
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ice_enthalpi(ng, TILE)
-        END DO
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ice_enthalpi(ng, TILE)
+          END DO
 !$OMP BARRIER
-      END DO
+        END DO
 ! ----------------------------------------------------------------------
 !  Compute the advection of the ice tracer fields.
 ! ----------------------------------------------------------------------
-      DO ng=1,Ngrids
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ice_advect(ng, TILE)
-          CALL ice_limit(ng, TILE)
-        END DO
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ice_advect(ng, TILE)
+            CALL ice_limit(ng, TILE)
+          END DO
 !$OMP BARRIER
-      END DO
+        END DO
 #endif
 
 #ifdef ICE_THERMO
 ! ----------------------------------------------------------------------
 !  Compute the ice thermodynamics.
 ! ----------------------------------------------------------------------
-      DO ng=1,Ngrids
-        DO tile=first_tile(ng),last_tile(ng),+1
-          CALL ice_thermo (ng, TILE)
-# ifdef ICE_SMOOTH
-          CALL ice_smoother(ng, TILE)
-# endif
-!         CALL ice_limit(ng, TILE)
-        END DO
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL ice_thermo (ng, TILE)
+            CALL ice_limit(ng, TILE)
+          END DO
 !$OMP BARRIER
-      END DO
+        END DO
 #endif
+
+      END DO NEST_LAYER
 
 #else
       SUBROUTINE seaice

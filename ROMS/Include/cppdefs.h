@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -43,9 +43,7 @@
 ** UV_LOGDRAG          use to turn ON or OFF logarithmic bottom friction     **
 ** UV_LDRAG            use to turn ON or OFF linear bottom friction          **
 ** UV_QDRAG            use to turn ON or OFF quadratic bottom friction       **
-** DRAG_LIMITIER       use to turn ON or OFF bottom drag limiter             **
-** UV_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
-** Q_PSOURCE           use to turn ON or OFF mass point Sources              **
+** UV_WAVEDRAG         use to turn ON or OFF extra linear bottom wave drag   **
 **                                                                           **
 ** OPTION to not allow the bottom stress components to change the direction  **
 ** of bottom momentum (change sign of velocity components.                   **
@@ -91,10 +89,11 @@
 ** SCORRECTION         use if freshwater flux correction                     **
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
-** TS_PSOURCE          use to turn ON or OFF point Sources/Sinks             **
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
+** ONE_TRACER_SOURCE   use if one value per tracer for all sources           **
 ** AGE_PASSIVE         use if aging of inert passive tracers                 **
 ** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
+** WTYPE_GRID          use to turn ON spatially varying Jerlov water type    **
 **                                                                           **
 ** Tracer advection OPTIONS for adjoint-based algorithms:                    **
 **                                                                           **
@@ -159,6 +158,9 @@
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
+** EMINUSP_SSH         use if computing changes in SSH due to E-P            **
+** RUNOFF              use if adding runoff as a second rain field           **
+** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
@@ -186,6 +188,8 @@
 ** BODYFORCE           use if applying stresses as bodyforces                **
 ** PROFILE             use if time profiling                                 **
 ** AVERAGES            use if writing out NLM time-averaged data             **
+** AVERAGES2           use if writing out secondary time-averaged data       **
+** HISTORY2            use if writing out secondary history data             **
 ** AVERAGES_DETIDE     use if writing out NLM time-averaged detided fields   **
 ** AD_AVERAGES         use if writing out ADM time-averaged data             **
 ** RP_AVERAGES         use if writing out TLM time-averaged data             **
@@ -209,6 +213,7 @@
 ** FLOAT_STICKY        use to reflect/stick floats that hit surface/bottom   **
 ** FLOAT_VWALK         use if vertical random walk                           **
 ** VWALK_FORWARD       use if forward time stepping vertical random walk     **
+** DIAPAUSE            use to simulate diapause                              **
 **                                                                           **
 ** OPTION to activate conservative, parabolic spline reconstruction of       **
 ** vertical derivatives. Notice that there also options (see above) for      **
@@ -226,6 +231,7 @@
 ** ANA_BTFLUX          use if analytical bottom temperature flux             **
 ** ANA_CLOUD           use if analytical cloud fraction                      **
 ** ANA_DIAG            use if customized diagnostics                         **
+** ANA_DQDSST          use if analytical surface heat flux sensitivity to SST**
 ** ANA_DRAG            use if analytical spatially varying drag parameters   **
 ** ANA_FSOBC           use if analytical free-surface boundary conditions    **
 ** ANA_GRID            use if analytical model grid set-up                   **
@@ -237,6 +243,7 @@
 ** ANA_M3CLIMA         use if analytical 3D momentum climatology             **
 ** ANA_M3OBC           use if analytical 3D momentum boundary conditions     **
 ** ANA_MASK            use if analytical Land/Sea masking                    **
+** ANA_NUDGCOEF        use if analytical climatology nudging coefficients    **
 ** ANA_PAIR            use if analytical surface air pressure                **
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
@@ -247,11 +254,12 @@
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
 ** ANA_SPFLUX          use if analytical surface passive tracers fluxes      **
 ** ANA_SPINNING        use if analytical time-varying rotation force         **
+** ANA_SPONGE          use if analytical enhanced viscosity/diffusion sponge **
 ** ANA_SRFLUX          use if analytical surface shortwave radiation flux    **
 ** ANA_SSFLUX          use if analytical surface salinity flux               **
 ** ANA_SSH             use if analytical sea surface height                  **
 ** ANA_SSS             use if analytical sea surface salinity                **
-** ANA_SST             use if analytical SST and dQdSST                      **
+** ANA_SST             use if analytical sea surface temperature, SST        **
 ** ANA_STFLUX          use if analytical surface net heat flux               **
 ** ANA_TAIR            use if analytical surface air temperature             **
 ** ANA_TCLIMA          use if analytical tracers climatology                 **
@@ -320,7 +328,6 @@
 ** LMD_SHAPIRO         use if Shapiro filtering boundary layer depth         **
 ** LMD_SKPP            use if surface boundary layer KPP mixing              **
 ** M2TIDE_DIFF         use to add simulated tidal diffusion                  **
-** WTYPE_GRID          use if spatial variation on Jerlov water type         **
 **                                                                           **
 ** OPTIONS to activate smoothing of Richardson number, if SPLINES is not     **
 ** activated:                                                                **
@@ -361,10 +368,6 @@
 **                                                                           **
 ** RADIATION_2D        use if tangential phase speed in radiation conditions **
 **                                                                           **
-** OPTION to impose a sponge layer near the lateral boundary:                **
-**                                                                           **
-** SPONGE              use if enhanced viscosity/diffusion areas             **
-**                                                                           **
 ** OPTIONS for tidal forcing at open boundaries:                             **
 **                                                                           **
 **   The tidal data is processed in terms of tidal components, classified by **
@@ -383,6 +386,7 @@
 **                                                                           **
 ** SSH_TIDES           use if imposing tidal elevation                       **
 ** UV_TIDES            use if imposing tidal currents                        **
+** POT_TIDES           use if imposing potential tides                       **
 ** RAMP_TIDES          use if ramping (over one day) tidal forcing           **
 ** FSOBC_REDUCED       use if SSH data and reduced physics conditions        **
 ** ADD_FSOBC           use to add tidal elevation to processed OBC data      **
@@ -390,20 +394,8 @@
 **                                                                           **
 ** OPTIONS for reading and processing of climatological fields:              **
 **                                                                           **
-** M2CLIMATOLOGY       use if processing 2D momentum climatology             **
-** M3CLIMATOLOGY       use if processing 3D momentum climatology             **
 ** OCLIMATOLOGY        use if processing 3D vertical momentum climatology    **
 ** AKTCLIMATOLOGY      use if processing 3D vertical salinity diffustion     **
-** TCLIMATOLOGY        use if processing tracers climatology                 **
-** BTCLIMATOLOGY       use if processing biological tracers climatology      **
-** ZCLIMATOLOGY        use if processing SSH climatology                     **
-**                                                                           **
-** OPTIONS to nudge climatology data (primarily in sponge areas):            **
-**                                                                           **
-** M2CLM_NUDGING       use if nudging 2D momentum climatology                **
-** M3CLM_NUDGING       use if nudging 3D momentum climatology                **
-** TCLM_NUDGING        use if nudging tracers climatology                    **
-** BCLM_NUDGING        use if nudging biological tracers climatology         **
 **                                                                           **
 ** ROMS/TOMS driver OPTIONS:                                                 **
 **                                                                           **
@@ -533,6 +525,13 @@
 ** SED_MORPH           use to allow bottom model elevation to evolve         **
 ** SUSPLOAD            use to activate suspended load transport              **
 **                                                                           **
+** OPTIONS for grid nesting:                                                 **
+**                                                                           **
+** NESTING             use to activate grid nesting: composite/refinement    **
+** NO_CORRECT_TRACER   use to avoid two-way correction of boundary tracer    **
+** ONE_WAY             use if one-way nesting in refinement grids            **
+** TIME_INTERP_FLUX    time interpolate coarse mass flux instead of persist  **
+**                                                                           **
 ** OPTIONS for two-way coupling to other models:                             **
 **                                                                           **
 ** REFDIF_COUPLING     use if coupling to REFDIT wave model                  **
@@ -577,7 +576,6 @@
 ** ICE_MODEL           use for sea-ice model
 ** ICE_THERMO          use for thermodynamic component
 ** ICE_MK              use for Mellor-Kantha thermodynamics (no other choice)
-** ICE_SMOOTH          use for smoothing some ice fields
 ** ICE_ALB_EC92        use for albedo computation from Ebert and Curry
 ** ICE_MOMENTUM        use for momentum component
 ** ICE_MOM_BULK        hmmm, some option for ice-water stress computation
@@ -587,6 +585,8 @@
 ** ICE_UPWIND          use for upwind advection scheme
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
 ** ICE_CONVSNOW        use for conversion of flooded snow to ice
+** ICE_STRENGTH_QUAD   use for ice strength a quadratic function of thickness
+** NO_SCORRECTION_ICE  use for no scorrection under the ice
 ** OUTFLOW_MASK        use for Hibler style outflow cells
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
@@ -611,6 +611,7 @@
 ** CANYON              Coastal form stress Canyon Test                       **
 ** CHANNEL_NECK        Channel with a Constriction                           **
 ** COUPLING_TEST       Two-way Atmosphere-Ocean Coupling Test                **
+** DOGBONE             Idealize nesting grids (Composite and Refinement) Test**
 ** DOUBLE_GYRE         Idealized Double-gyre Example                         **
 ** ESTUARY_TEST        Test Estuary for Sediment                             **
 ** FLT_TEST            Float Tracking Example                                **
@@ -619,6 +620,7 @@
 ** ISOMIP              ISOMIP 2.01 Ice Shelf test case                       **
 ** KELVIN              Kelvin wave test                                      **
 ** LAB_CANYON          Lab Canyon, Polar Coordinates Example                 **
+** LAKE_JERSEY         Lake Jersey Nesting Test Case                         **
 ** LAKE_SIGNELL        Lake Signell Sediment Test Case                       **
 ** LMD_TEST            Test for LMD and KPP                                  **
 ** OVERFLOW            Gravitational/Overflow Example                        **

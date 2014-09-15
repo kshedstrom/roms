@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -245,53 +245,57 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idMtke,:))
             CASE ('Sout(idMtls)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idMtls,:))
+#  ifdef WET_DRY
+            CASE ('Sout(idRwet)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idRwet,:))
+            CASE ('Sout(idUwet)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idUwet,:))
+            CASE ('Sout(idVwet)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idVwet,:))
+#  endif
 #  ifdef ICE_MODEL
             CASE ('Sout(idUice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idUice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idUice,:))
             CASE ('Sout(idVice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idVice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idVice,:))
             CASE ('Sout(idUiceE)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idUiceE,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idUiceE,:))
             CASE ('Sout(idViceN)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idViceN,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idViceN,:))
             CASE ('Sout(idAice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idAice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idAice,:))
             CASE ('Sout(idHice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idHice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idHice,:))
             CASE ('Sout(idTice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,:))
             CASE ('Sout(idTimid)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,:))
             CASE ('Sout(idSfwat)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,:))
             CASE ('Sout(idAgeice)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,:))
             CASE ('Sout(idIomflx)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idIomflx,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idIomflx,:))
             CASE ('Sout(idSig11)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig11,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig11,:))
             CASE ('Sout(idSig12)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig12,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig12,:))
             CASE ('Sout(idSig22)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig22,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSig22,:))
             CASE ('Sout(idTauiw)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,:))
             CASE ('Sout(idChuiw)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,1))
-            CASE ('Sout(idT0mk)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idT0mk,1))
-            CASE ('Sout(idS0mk)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idS0mk,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,:))
             CASE ('Sout(idWfr)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,:))
             CASE ('Sout(idWai)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWai,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWai,:))
             CASE ('Sout(idWao)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWao,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWao,:))
             CASE ('Sout(idWio)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWio,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWio,:))
             CASE ('Sout(idWro)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,1))
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,:))
 #  endif
 #  if defined BBL_MODEL || defined SEDIMENT
             CASE ('Sout(idBott)')
@@ -652,6 +656,17 @@
      &          'Sout(idMtls)',                                         &
      &          'Write out turbulent generic length-scale.'
 #  endif
+#  ifdef WET_DRY
+            IF (Sout(idRwet,ng)) WRITE (out,80) Sout(idRwet,ng),        &
+     &          'Sout(idRwet)',                                         &
+     &          'Write out rho point wet-dry mask.'
+            IF (Sout(idUwet,ng)) WRITE (out,80) Sout(idUwet,ng),        &
+     &          'Sout(idUwet)',                                         &
+     &          'Write out u point wet-dry mask.'
+            IF (Sout(idVwet,ng)) WRITE (out,80) Sout(idVwet,ng),        &
+     &          'Sout(idVwet)',                                         &
+     &          'Write out v point wet-dry mask.'
+#  endif
 #  ifdef ICE_MODEL
           IF (Sout(idUice,ng)) WRITE (out,80) Sout(idUice,ng),          &
      &       'Sout(idUice)',                                            &
@@ -704,12 +719,6 @@
           IF (Sout(idChuiw,ng)) WRITE (out,80) Sout(idChuiw,ng),        &
      &       'Hout(idChuiw)',                                           &
      &       'Write out ice-water momentum transfer coefficient.'
-          IF (Sout(idT0mk,ng)) WRITE (out,80) Sout(idT0mk,ng),          &
-     &       'Sout(idT0mk)',                                            &
-     &       'Write out temperature of molecular sublayer under ice.'
-          IF (Sout(idS0mk,ng)) WRITE (out,80) Sout(idS0mk,ng),          &
-     &       'Sout(idS0mk)',                                            &
-     &       'Write out salinity of molecular sublayer under ice.'
           IF (Sout(idWfr,ng)) WRITE (out,80) Sout(idWfr,ng),            &
      &       'Sout(idWfr)',                                             &
      &       'Write out frazil ice growth rate.'

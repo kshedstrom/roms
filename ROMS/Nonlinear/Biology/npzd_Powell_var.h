@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -28,16 +28,6 @@
                 idTvar(iZoop)=varid
               CASE ('idTvar(iSDet)')
                 idTvar(iSDet)=varid
-
-! Do it again for climatologies
-              CASE ('idTclm(iNO3_)')
-                idTclm(iNO3_)=varid
-              CASE ('idTclm(iPhyt)')
-                idTclm(iPhyt)=varid
-              CASE ('idTclm(iZoop)')
-                idTclm(iZoop)=varid
-              CASE ('idTclm(iSDet)')
-                idTclm(iSDet)=varid
 
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -97,7 +87,6 @@
               CASE ('idTbry(inorth,iSDet)')
                 idTbry(inorth,iSDet)=varid
 
-#ifdef TS_PSOURCE
 
 /*
 **  Biological tracers point Source/Sinks (river runoff).
@@ -112,4 +101,3 @@
                 idRtrc(iZoop)=varid
               CASE ('idRtrc(iSDet)')
                 idRtrc(iSDet)=varid
-#endif

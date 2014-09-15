@@ -2,7 +2,7 @@
 !  ROMS/TOMS Standard Input parameters.
 !
 !==============================================================================
-!  Copyright (c) 2002-2010 The ROMS/TOMS Group                              ===
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                              ===
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -404,8 +404,6 @@ Hout(idAgeice) == T
 Hout(idSig11) == T
 Hout(idSig12) == T
 Hout(idSig22) == T
-Hout(idS0mk) == T
-Hout(idT0mk) == T
 Hout(idWfr) == T
 Hout(idWai) == T
 Hout(idWao) == T
@@ -488,8 +486,6 @@ Aout2(idAgeice) == T
 Aout2(idSig11) == F
 Aout2(idSig12) == F
 Aout2(idSig22) == F
-Aout2(idS0mk) == F
-Aout2(idT0mk) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -601,8 +597,6 @@ Aout(idAgeice) == T
 Aout(idSig11) == T
 Aout(idSig12) == T
 Aout(idSig22) == T
-Aout(idS0mk) == T
-Aout(idT0mk) == T
 Aout(idWfr) == T
 Aout(idWai) == T
 Aout(idWao) == T

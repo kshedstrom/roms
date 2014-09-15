@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -30,8 +30,6 @@
 #define ICESHELF
 #define AVERAGES
 #define RADIATION_2D
-#define ZCLIMATOLOGY
-#define M2CLIMATOLOGY
 #define ANA_GRID
 #define ANA_INITIAL
 #define ANA_FSOBC

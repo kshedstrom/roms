@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !=================================================== Andrew M. Moore ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -427,6 +427,15 @@
       Litl=1          ! TLM initial conditions record
       Lweak=.FALSE.
       DO ng=1,Ngrids
+#if defined ADJUST_BOUNDARY || defined ADJUST_STFLUX || \
+    defined ADJUST_WSTRESS
+        Lfinp(ng)=1         ! forcing index for input
+        Lfout(ng)=1         ! forcing index for output history files
+#endif
+#ifdef ADJUST_BOUNDARY
+        Lbinp(ng)=1         ! boundary index for input
+        Lbout(ng)=1         ! boundary index for output history files
+#endif
         Lnew(ng)=1
       END DO
 !
@@ -439,11 +448,12 @@
         RST(ng)%Rindex=0
         Fcount=RST(ng)%Fcount
         RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 
 #if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
 !
@@ -631,11 +641,12 @@
         INI(ng)%Rindex=Lbck
         Fcount=RST(ng)%Fcount
         RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 !
 !  Run nonlinear model for the combined assimilation plus forecast
 !  period, t=t0 to t2. Save nonlinear (basic state) tracjectory, xb(t),

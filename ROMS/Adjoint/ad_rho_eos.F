@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -677,9 +677,9 @@
 !>
             ad_pden(i,j,k)=ad_pden(i,k)*rmask(i,j)
 #   endif
-!>          tl_pden(i,j,k)=tl_den1(i,k)
-!>
-            ad_den1(i,k)=ad_den1(i,k)+ad_pden(i,j,k)
+!>          tl_pden(i,j,k)=tl_den1(i,k)             ! This gives a fatal
+!>                                                  ! result in 4D-Var
+            ad_den1(i,k)=ad_den1(i,k)+ad_pden(i,j,k)! posterior error...
             ad_pden(i,j,k)=0.0_r8
 #  endif
 !>          tl_rho(i,j,k)=tl_den(i,k)

@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -192,12 +192,10 @@
 !  if applicable.
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
 !$OMP PARALLEL
-        CALL initial (ng)
+      CALL initial
 !$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
-      END DO
+      IF (exit_flag.ne.NoError) RETURN
 !
 !  Initialize run or ensemble counter.
 !
@@ -250,11 +248,13 @@
 !  Time-step nonlinear model over all nested grids, if applicable.
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
-        IF (Master) THEN
+      IF (Master) THEN
+        WRITE (stdout,'(1x)')
+        DO ng=1,Ngrids
           WRITE (stdout,10) 'NL', ng, ntstart(ng), ntend(ng)
-        END IF
-      END DO
+        END DO
+        WRITE (stdout,'(1x)')
+      END IF
 
 !$OMP PARALLEL
 #ifdef SOLVE3D
@@ -270,8 +270,8 @@
 
       IF (exit_flag.ne.NoError) RETURN
 !
- 10   FORMAT (/,1x,a,1x,'ROMS/TOMS: started time-stepping:',            &
-     &        ' (Grid: ',i2.2,' TimeSteps: ',i8.8,' - ',i8.8,')',/)
+ 10   FORMAT (1x,a,1x,'ROMS/TOMS: started time-stepping:',              &
+     &        ' (Grid: ',i2.2,' TimeSteps: ',i8.8,' - ',i8.8,')')
 
       RETURN
       END SUBROUTINE ROMS_run

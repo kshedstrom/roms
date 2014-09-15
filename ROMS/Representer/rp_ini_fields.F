@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -187,7 +187,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, itrc, j, k
+      integer :: i, ic, itrc, j, k
 
       real(r8) :: cff1
       real(r8) :: tl_cff1, tl_cff2
@@ -709,7 +709,11 @@
 !  Initialize other time levels for tracers.
 !-----------------------------------------------------------------------
 !
+      ic=0
       DO itrc=1,NT(ng)
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
         DO k=1,N(ng)
           DO j=JstrB,JendB
             DO i=IstrB,IendB
@@ -730,24 +734,24 @@
 !
 !  Apply boundary conditions.
 !
-!>      CALL t3dbc_tile (ng, tile, itrc,                                &
+!>      CALL t3dbc_tile (ng, tile, itrc, ic,                            &
 !>   &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
 !>   &                   IminS, ImaxS, JminS, JmaxS,                    &
 !>   &                   nstp, nstp,                                    &
 !>   &                   t)
 !>
-        CALL rp_t3dbc_tile (ng, tile, itrc,                             &
+        CALL rp_t3dbc_tile (ng, tile, itrc, ic,                         &
      &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp, nstp,                                 &
      &                      tl_t)
-!>      CALL t3dbc_tile (ng, tile, itrc,                                &
+!>      CALL t3dbc_tile (ng, tile, itrc, ic,                            &
 !>   &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
 !>   &                   IminS, ImaxS, JminS, JmaxS,                    &
 !>   &                   nstp, nnew,                                    &
 !>   &                   t)
 !>
-        CALL rp_t3dbc_tile (ng, tile, itrc,                             &
+        CALL rp_t3dbc_tile (ng, tile, itrc, ic,                         &
      &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp, nnew,                                 &

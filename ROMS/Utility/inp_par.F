@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -24,6 +24,9 @@
 #ifdef DISTRIBUTE
       USE mod_strings
 #endif
+# ifdef UV_WAVEDRAG
+      USE mod_tides, ONLY : nstep_hour
+# endif
 !
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
@@ -46,8 +49,8 @@
 #ifdef DISTRIBUTE
       integer :: MaxHaloLenI, MaxHaloLenJ
 #endif
-      integer :: inp, out, i, ic, ifield, itrc, j, ng, npts
-      integer :: ifile, sequence
+      integer :: ibry, inp, out, i, ic, ifield, itrc, j, ng, npts
+      integer :: ifile, sequence, varid
 
       real(r8) :: cff
       real(r8), parameter :: epsilon = 1.0E-8_r8
@@ -140,6 +143,14 @@
       CALL mp_bcasti (1, model, exit_flag)
 #endif
       IF (exit_flag.ne.NoError) RETURN
+#ifdef NESTING
+!
+!  Read in nesting contact points NetCDF file and allocate and
+!  initialize several structures and variables.
+!
+      CALL set_contact (1, model)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
 !
 !-----------------------------------------------------------------------
 !  Set lower and upper bounds indices per domain partition for all
@@ -153,19 +164,9 @@
 #else
       NghostPoints=2
 #endif
-      IF (ANY(ComposedGrid).or.ANY(RefinedGrid)) THEN
+      IF (ANY(CompositeGrid).or.ANY(RefinedGrid)) THEN
         NghostPoints=MAX(3,NghostPoints)
       END IF
-!
-!  Set switch to processing nudging coefficients for passive/active
-!  boundary conditions.
-!
-      DO ng=1,Ngrids
-        NudgingCoeff(ng)=ANY(LBC(:,:,ng)%nudging)
-#if defined ADJOINT || defined TANGENT || defined TL_IOMS
-        NudgingCoeff(ng)=NudgingCoeff(ng).or.ANY(ad_LBC(:,:,ng)%nudging)
-#endif
-      END DO
 !
 !  Set boundary edge I- or J-indices for each variable type.
 !
@@ -634,7 +635,7 @@
 !
       DO ng=1,Ngrids
         IF (Master) THEN
-          WRITE (stdout,90)
+          WRITE (stdout,90) ng
           DO tile=0,NtileI(ng)*NtileJ(ng)-1
             WRITE (stdout,100) tile,                                    &
      &                         DOMAIN(ng)%Xmin_rho(tile),               &
@@ -658,8 +659,8 @@
      &                         DOMAIN(ng)%Ymin_v(tile),                 &
      &                         DOMAIN(ng)%Ymax_v(tile), '  V-points'
           END DO
- 90       FORMAT (/,' Tile minimum and maximum fractional grid ',       &
-     &            'coordinates:',/,                                     &
+ 90       FORMAT (/,' Tile minimum and maximum fractional coordinates', &
+     &            ' for Grid ',i2.2,':'/,                               &
 #ifdef FULL_GRID
      &            '   (interior and boundary points)',/,/,              &
 #else
@@ -805,19 +806,6 @@
         END DO
 #endif
       END IF
-!
-!-----------------------------------------------------------------------
-!  Check C-preprocessing options and definitions.
-!-----------------------------------------------------------------------
-!
-      IF (Master) THEN
-        CALL checkdefs
-        CALL my_flush (out)
-      END IF
-#ifdef DISTRIBUTE
-      CALL mp_bcasti (1, model, exit_flag)
-      CALL mp_bcasts (1, model, Coptions)
-#endif
       IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
@@ -903,6 +891,14 @@
         END DO
 # endif
 #endif
+#ifdef UV_WAVEDRAG
+        IF (MOD(3600,INT(dt(ng))).ne.0) THEN
+          IF (Master) print *,                                          &
+     &                'Model timesteps must fall on hour interval'
+          exit_flag=2
+        END IF
+        nstep_hour = nw*3600/INT(dt(ng))
+#endif
 !
 !  Take the square root of the biharmonic coefficients so it can
 !  be applied to each harmonic operator.
@@ -916,6 +912,60 @@
 #endif
         tkenu4(ng)=SQRT(ABS(tkenu4(ng)))
 !
+!  Set internal switch for activating sponge areas.
+!
+#ifdef SOLVE3D
+        IF (LuvSponge(ng).or.                                           &
+     &      ANY(LtracerSponge(:,ng))) THEN
+          Lsponge(ng)=.TRUE.
+        END IF
+#else
+        IF (LuvSponge(ng)) THEN
+          Lsponge(ng)=.TRUE.
+        END IF
+#endif
+!
+!  Set switch to processing nudging coefficients for passive/active
+!  boundary conditions.
+!
+        NudgingCoeff(ng)=ANY(LBC(:,:,ng)%nudging)
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+        NudgingCoeff(ng)=NudgingCoeff(ng).or.ANY(ad_LBC(:,:,ng)%nudging)
+#endif
+!
+!  Set internal switch for processing climatology data.
+!
+#ifdef SOLVE3D
+# if defined CLIMA_TS_MIX && (defined TS_DIF2 || defined TS_DIF4)
+        Lclimatology(ng)=.TRUE.
+# endif
+        IF (LsshCLM(ng).or.                                             &
+            Lm2CLM (ng).or.LnudgeM2CLM(ng).or.                          &
+            Lm3CLM (ng).or.LnudgeM3CLM(ng).or.                          &
+            ANY(LtracerCLM(:,ng)).or.ANY(LnudgeTCLM(:,ng))) THEN
+          Lclimatology(ng)=.TRUE.
+        END IF
+#else
+        IF (LsshCLM(ng).or.                                             &
+            Lm2CLM (ng).or.LnudgeM2CLM(ng)) THEN
+          Lclimatology(ng)=.TRUE.
+        END IF
+#endif
+!
+!  Set internal switch for nudging to climatology fields.
+!
+#ifdef SOLVE3D
+        IF (LnudgeM3CLM(ng).or.                                         &
+     &      LnudgeM3CLM(ng).or.                                         &
+     &      ANY(LnudgeTCLM(:,ng))) THEN
+          Lnudging(ng)=.TRUE.
+        END IF
+#else
+        IF (LnudgeM2CLM(ng)) THEN
+          Lnudging(ng)=.TRUE.
+        END IF
+#endif
+!
 !  Compute inverse nudging coefficients (1/s) used in various tasks.
 !
         IF (Znudg(ng).gt.0.0_r8) THEN
@@ -923,18 +973,58 @@
         ELSE
           Znudg(ng)=0.0_r8
         END IF
+!
         IF (M2nudg(ng).gt.0.0_r8) THEN
           M2nudg(ng)=1.0_r8/(M2nudg(ng)*86400.0_r8)
         ELSE
           M2nudg(ng)=0.0_r8
         END IF
 #ifdef SOLVE3D
+!
         IF (M3nudg(ng).gt.0.0_r8) THEN
           M3nudg(ng)=1.0_r8/(M3nudg(ng)*86400.0_r8)
         ELSE
           M3nudg(ng)=0.0_r8
         END IF
 #endif
+!
+!  Set nudging coefficients (1/s) for passive/active (outflow/inflow)
+!  open boundary conditions.  Weak nudging is expected in passive
+!  outflow conditions and strong nudging is expected in active inflow
+!  conditions. If nudging to climatology fields, these values are
+!  replaced by spatial nudging coefficients distribution in the
+!  open boundary condition routines.
+!
+        IF (NudgingCoeff(ng)) THEN
+          DO ibry=1,4
+            IF (LBC(ibry,isFsur,ng)%nudging) THEN
+              FSobc_out(ng,ibry)=Znudg(ng)
+              FSobc_in (ng,ibry)=obcfac(ng)*Znudg(ng)
+            END IF
+!
+            IF (LBC(ibry,isUbar,ng)%nudging.or.                         &
+     &          LBC(ibry,isVbar,ng)%nudging) THEN
+              M2obc_out(ng,ibry)=M2nudg(ng)
+              M2obc_in (ng,ibry)=obcfac(ng)*M2nudg(ng)
+            END IF
+#ifdef SOLVE3D
+!
+            IF (LBC(ibry,isUvel,ng)%nudging.or.                         &
+     &          LBC(ibry,isVvel,ng)%nudging) THEN
+              M3obc_out(ng,ibry)=M3nudg(ng)
+              M3obc_in (ng,ibry)=obcfac(ng)*M3nudg(ng)
+            END IF
+!
+            DO itrc=1,NT(ng)
+              IF (LBC(ibry,isTvar(itrc),ng)%nudging) THEN
+                Tobc_out(itrc,ng,ibry)=Tnudg(itrc,ng)
+                Tobc_in (itrc,ng,ibry)=obcfac(ng)*Tnudg(itrc,ng)
+              END IF
+            END DO
+#endif
+          END DO
+        END IF
+
 #if defined SO_SEMI        || \
    (defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE)
        SO_decay(ng)=SO_decay(ng)*86400.0_r8
@@ -972,17 +1062,19 @@
         Fscale(iddQdT,ng)=cff*Fscale(iddQdT,ng)
 #endif
 
-#if defined SOLVE3D && defined TCLIMATOLOGY
+#ifdef SOLVE3D
 !
 !  Determine the number of climatology tracers to process.
 !
-        ic=0
-        DO itrc=1,NT(ng)
-          IF (LtracerCLM(itrc,ng)) THEN
-            ic=ic+1
-          END IF
-        END DO
-        NTCLM(ng)=ic
+        IF (ANY(LtracerCLM(:,ng)).or.ANY(LnudgeTCLM(:,ng))) THEN
+          ic=0
+          DO itrc=1,NT(ng)
+            IF (LtracerCLM(itrc,ng)) THEN
+              ic=ic+1
+            END IF
+          END DO
+          NTCLM(ng)=ic
+        END IF
 #endif
 
 #if defined TANGENT || defined TL_IOMS
@@ -1012,6 +1104,93 @@
 #endif
 
       END DO
+!
+!-----------------------------------------------------------------------
+!  Set climatology tracers (active and passive) metadata.  It needs to
+!  be done here because information is needed from all input scripts.
+!  The variable name and units are the same as the basic tracers. The
+!  default time-variable name is the same as the variable name but with
+!  the "_time" suffix.  Recall that other time-variables names are
+!  allowed provided that the input NetCDF variable has the "time"
+!  attribute with the appropriate value.
+!-----------------------------------------------------------------------
+!
+      varid=last_varid
+      IF (ANY(LtracerCLM).or.ANY(LnudgeTCLM)) THEN
+        DO i=1,MT
+          varid=varid+1
+          IF (varid.gt.MV) THEN
+            WRITE (stdout,130) MV, varid
+            STOP
+          END IF
+          idTclm(i)=varid
+          DO ng=1,Ngrids
+            Fscale(varid,ng)=1.0_r8
+            Iinfo(1,varid,ng)=r3dvar
+          END DO
+          WRITE (Vname(1,varid),'(a)')                                  &
+     &          TRIM(ADJUSTL(Vname(1,idTvar(i))))
+          WRITE (Vname(2,varid),'(a,a)')                                &
+     &          TRIM(ADJUSTL(Vname(2,idTvar(i)))), ' climatology'
+          WRITE (Vname(3,varid),'(a)')                                  &
+     &          TRIM(ADJUSTL(Vname(3,idTvar(i))))
+          WRITE (Vname(4,varid),'(a,a)')                                &
+     &          TRIM(Vname(1,varid)), ', scalar, series'
+          WRITE (Vname(5,varid),'(a,a)')                                &
+     &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
+        END DO
+      END IF
+!
+!-----------------------------------------------------------------------
+!  Set tracers inverse nudging coeffcients metadata.  It needs to be
+!  done here because information is needed from all input scripts.
+!  The variable name is the same as the basic tracer but with the
+!  "_NudgeCoef" suffix.
+!-----------------------------------------------------------------------
+!
+      DO i=1,MT
+        IF (ANY(LnudgeTCLM(i,:))) THEN
+          varid=varid+1
+          IF (varid.gt.MV) THEN
+            WRITE (stdout,130) MV, varid
+ 130        FORMAT (/,' INP_PAR - too small dimension ',                &
+     &              'parameter, MV = ',2i5,/,15x,                       &
+     &              'change file  mod_ncparam.F  and recompile.')
+            STOP
+          END IF
+          idTnud(i)=varid
+          DO ng=1,Ngrids
+            Fscale(varid,ng)=1.0_r8/86400        ! default units: 1/day
+            Iinfo(1,varid,ng)=r3dvar
+          END DO
+          WRITE (Vname(1,varid),'(a,a)')                                &
+     &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_NudgeCoef'
+          WRITE (Vname(2,varid),'(a,a)')                                &
+     &          TRIM(ADJUSTL(Vname(2,idTvar(i)))),                      &
+     &          ', inverse nudging coefficients'
+          WRITE (Vname(3,varid),'(a,1x,a)')                             &
+     &          TRIM(ADJUSTL(Vname(3,idTvar(i)))), 'day-1'
+          WRITE (Vname(4,varid),'(a,a)')                                &
+     &        TRIM(Vname(1,varid)), ', scalar'
+          WRITE (Vname(5,varid),'(a)') 'nulvar'
+        ELSE
+          idTnud(i)=0
+        END IF
+      END DO
+!
+!-----------------------------------------------------------------------
+!  Check C-preprocessing options and definitions.
+!-----------------------------------------------------------------------
+!
+      IF (Master) THEN
+        CALL checkdefs
+        CALL my_flush (out)
+      END IF
+#ifdef DISTRIBUTE
+      CALL mp_bcasti (1, model, exit_flag)
+      CALL mp_bcasts (1, model, Coptions)
+#endif
+      IF (exit_flag.ne.NoError) RETURN
 !
 !-----------------------------------------------------------------------
 !  Initialize random number sequence so we can get identical results
@@ -1237,7 +1416,7 @@
       RETURN
       END FUNCTION decode_line
 
-      FUNCTION find_file (ng, fname) RESULT (foundit)
+      FUNCTION find_file (ng, fname, KeyWord) RESULT (foundit)
 !
 !=======================================================================
 !                                                                      !
@@ -1247,6 +1426,7 @@
 !                                                                      !
 !     ng         Nested grid number.                                   !
 !     fname      File name (path and name).                            !
+!     KeyWord    Keyword associated with file name (string,OPTIONAL).  !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
@@ -1257,6 +1437,7 @@
 !
       USE mod_kinds
       USE mod_param
+      USE mod_parallel
       USE mod_iounits
       USE mod_netcdf
       USE mod_scalars
@@ -1268,6 +1449,7 @@
       integer, intent(in) :: ng
 
       character (len=*), intent(in) :: fname
+      character (len=*), intent(in) :: KeyWord
 !
 !  Local variable declarations.
 !
@@ -1282,6 +1464,17 @@
 !-----------------------------------------------------------------------
 !
       foundit=.FALSE.
+!
+!  Check for empty file name string.
+!
+      IF (LEN_TRIM(fname).eq.0) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(KeyWord)
+ 10       FORMAT (/,' INP_PAR - empty file name string for ',           &
+     &            'input script KeyWord: ',a)
+        END IF
+        exit_flag=5
+      END IF
 !
 !  Check if provided file is a URL.  This implies the file is a NetCDF
 !  file on Data Access Protocol (DAP) server (like OPeNDAP).
@@ -1552,10 +1745,10 @@
               S(ibry,ifield,igrid)%acquire = .TRUE.
               S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE ('GRA')
-              S(ibry,ifield,igrid)%gradient  = .TRUE.
+              S(ibry,ifield,igrid)%gradient = .TRUE.
             CASE ('MIX')
-              S(ibry,ifield,igrid)%mixed     = .TRUE.
-              S(ibry,ifield,igrid)%acquire   = .TRUE.
+              S(ibry,ifield,igrid)%mixed   = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('NES')
               S(ibry,ifield,igrid)%nested = .TRUE.
             CASE ('PER')
@@ -1595,8 +1788,8 @@
 !  unspecified tracer values to the last tracer entry.
 !
         IF ((iTrcStr.gt.0).and.(iTrcEnd.gt.0)) THEN
-          IF ((Icont.eq.0).and.(ifield.lt.iTrcEnd)) THEN
-            DO i=ifield+1,iTrcEnd
+          IF ((Icont.eq.0).and.(ifield.lt.isTvar(iTrcEnd))) THEN
+            DO i=ifield+1,isTvar(iTrcEnd)
               DO ibry=1,4
                 S(ibry,i,igrid)%clamped   = S(ibry,ifield,igrid)%clamped
                 S(ibry,i,igrid)%closed    = S(ibry,ifield,igrid)%closed
@@ -1617,7 +1810,7 @@
 !
       IF ((Icont.gt.0).and.(Ngrids.gt.1)) THEN
         IF ((iTrcStr.gt.0).and.(iTrcEnd.gt.0)) THEN
-          IF ((ifield.eq.iTrcEnd).or.(ic.gt.1)) THEN
+          IF ((ifield.eq.isTvar(iTrcEnd)).or.(ic.gt.1)) THEN
             igrid=igrid+MIN(1,Icont)
           END IF
         ELSE
@@ -1753,9 +1946,9 @@
 !
 !  Local variable declarations.
 !
-      logical :: load
+      logical :: load, persist
 
-      integer :: Icont, Ipipe, i, j, lstr, ng
+      integer :: Icont, Ipipe, i, j, lstr, my_Ngrids, ng
       integer :: load_s1d
 
       character (len=1 ), parameter :: blank = ' '
@@ -1801,6 +1994,21 @@
 !
       IF (load) THEN
 !
+!  If nesting and the number of file name entries is less than Ngrids,
+!  persist the last values provided.  This is the case when not enough
+!  entries are provided by "==" plural symbol after the KEYWORD.
+!
+        IF (igrid.lt.Ngrids) THEN
+          DO i=igrid+1,Ngrids
+            Nfiles(i)=Nfiles(igrid)
+          END DO
+          my_Ngrids=igrid
+          persist=.TRUE.
+        ELSE
+          my_Ngrids=Ngrids
+          persist=.FALSE.
+        END IF
+!
 !  Allocate various fields in structure, if not continuation or pipe
 !  symbol is found which indicates end of input data.
 !
@@ -1836,7 +2044,7 @@
 !  Initialize and load fields into structure.
 !
         i=0
-        DO ng=1,Ngrids
+        DO ng=1,my_Ngrids
           S(ng)%Nfiles=Nfiles(ng)              ! number of multi-files
           S(ng)%Fcount=1                       ! multi-file counter
           S(ng)%Rindex=0                       ! time index
@@ -1857,6 +2065,29 @@
           Nfiles(ng)=0                         ! clean file counter
         END DO
 !
+!  If appropriate, persist last value(s).
+!
+        IF (persist) THEN
+          DO ng=igrid+1,Ngrids
+            S(ng)%Nfiles=S(igrid)%Nfiles
+            S(ng)%Fcount=1
+            S(ng)%Rindex=0
+            S(ng)%ncid=-1
+            S(ng)%Vid=-1
+            S(ng)%Tid=-1
+            DO j=1,S(igrid)%Nfiles
+              S(ng)%files(j)=S(igrid)%files(j)
+              S(ng)%Nrec(j)=0
+              S(ng)%time_min(j)=0.0_r8
+              S(ng)%time_max(j)=0.0_r8
+            END DO
+            S(ng)%label=TRIM(label)
+            S(ng)%name=S(igrid)%name
+            S(ng)%base=S(igrid)%base
+            Nfiles(ng)=0
+          END DO
+        END IF
+!
 !  Reset counters and clean label.
 !
         igrid=1
@@ -1869,14 +2100,14 @@
       END IF
       load_s1d=Nval
 
- 10   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
+ 10   FORMAT (/,' LOAD_S1D - incorrect continuation symbol in line:',/, &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN
       END FUNCTION load_s1d
 
       FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
-     &                   Nfiles, idim, NFF, S)
+     &                   Nfiles, Ncount, idim, S)
 !
 !=======================================================================
 !                                                                      !
@@ -1891,7 +2122,8 @@
 !     label      I/O structure label (string)                          !
 !     ifile      File structure counter (integer)                      !
 !     igrid      Nested grid counter (integer)                         !
-!     Nfiles     Number of files per grid counter (integer array)      !
+!     Nfiles     Number of input files per grid (integer vector)       !
+!     Ncount     Number of files per grid counter (integer array)      !
 !     idim       Size of structure inner dimension (integer)           !
 !     S          Derived type structure, TYPE(T_IO)                    !
 !                                                                      !
@@ -1915,11 +2147,11 @@
 !  Imported variable declarations.
 !
       integer, intent(in)    :: Nval, idim
+      integer, intent(in)    :: Nfiles(Ngrids)
       integer, intent(inout) :: ifile, igrid
-      integer, intent(inout) :: Nfiles(idim,Ngrids)
-      integer, intent(inout) :: NFF(Ngrids)
+      integer, intent(inout) :: Ncount(idim,Ngrids)
 
-      character (len=256), intent(in) :: line
+      character (len=*),   intent(in) :: line
       character (len=256), intent(in) :: Fname(100)
       character (len=*),   intent(inout) :: label
 
@@ -1927,9 +2159,9 @@
 !
 !  Local variable declarations.
 !
-      logical :: load
+      logical :: load, persist
 
-      integer :: Icont, Ipipe, i, j, k, lstr, ng
+      integer :: Icont, Ipipe, i, j, k, lstr, my_Ngrids, ng
       integer :: load_s2d
 
       character (len=1 ), parameter :: blank = ' '
@@ -1944,12 +2176,6 @@
 !  to separate multi-string values for split input files. User may
 !  split the records for a particular input field into several files.
 !
-!     IF (Master) THEN
-!       print *, 'In load_s2d'
-!       print *, line
-!       print *, label
-!       print *, 'Numbers:', idim, NFF, igrid
-!     END IF
       Icont=INDEX(TRIM(line),CHAR(92) ,BACK=.FALSE.)
       Ipipe=INDEX(TRIM(line),CHAR(124),BACK=.FALSE.)
       IF ((Icont.eq.0).and.(Ipipe.eq.0)) THEN
@@ -1960,13 +2186,13 @@
 !
 !  Accumulate number of multi-files per each grid.
 !
-      Nfiles(ifile,igrid)=Nfiles(ifile,igrid)+1
+      Ncount(ifile,igrid)=Ncount(ifile,igrid)+1
 !
 !  Set counters for next processing file, if any.  The continuation
 !  symbol in the input "line" is used to advance the counters.
 !
       IF (.not.load) THEN
-        IF ((ifile.lt.NFF(igrid)).or.(Ipipe.ne.0)) THEN
+        IF ((ifile.lt.Nfiles(igrid)).or.(Ipipe.ne.0)) THEN
           ifile=ifile+MIN(1,Icont)
         ELSE
           ifile=1
@@ -1994,17 +2220,35 @@
 !
       IF (load) THEN
 !
+!  If nesting and the number of file name entries is less than Ngrids,
+!  persist the last values provided.  This is the case when not enough
+!  entries are provided by "==" plural symbol after the KEYWORD.
+!
+        IF (igrid.lt.Ngrids) THEN
+          DO j=igrid+1,Ngrids
+            DO i=1,idim
+              Ncount(i,j)=Ncount(i,igrid)
+            END DO
+          END DO
+          my_Ngrids=igrid
+          persist=.TRUE.
+        ELSE
+          my_Ngrids=Ngrids
+          persist=.FALSE.
+        END IF
+
+!
 !  Allocate various fields in structure, if not continuation or pipe
 !  symbol is found which indicates end of input data.
 !
         DO ng=1,Ngrids
           DO i=1,idim
-            allocate ( S(i,ng)%Nrec(Nfiles(i,ng)) )
-            allocate ( S(i,ng)%time_min(Nfiles(i,ng)) )
-            allocate ( S(i,ng)%time_max(Nfiles(i,ng)) )
+            allocate ( S(i,ng)%Nrec(Ncount(i,ng)) )
+            allocate ( S(i,ng)%time_min(Ncount(i,ng)) )
+            allocate ( S(i,ng)%time_max(Ncount(i,ng)) )
             allocate ( S(i,ng)%Vid(NV) )
             allocate ( S(i,ng)%Tid(MT) )
-            allocate ( S(i,ng)%files(Nfiles(i,ng)) )
+            allocate ( S(i,ng)%files(Ncount(i,ng)) )
           END DO
         END DO
 !
@@ -2017,7 +2261,7 @@
               S(i,ng)%base(j:j)=blank
               S(i,ng)%name(j:j)=blank
             END DO
-            DO k=1,Nfiles(i,ng)
+            DO k=1,Ncount(i,ng)
               DO j=1,lstr
                 S(i,ng)%files(k)(j:j)=blank
               END DO
@@ -2028,15 +2272,15 @@
 !  Initialize and load fields into structure.
 !
         k=0
-        DO ng=1,Ngrids
-          DO i=1,idim
-            S(i,ng)%Nfiles=Nfiles(i,ng)         ! number of multi-files
+        DO ng=1,my_Ngrids
+          DO i=1,Nfiles(ng)
+            S(i,ng)%Nfiles=Ncount(i,ng)         ! number of multi-files
             S(i,ng)%Fcount=1                    ! multi-file counter
             S(i,ng)%Rindex=0                    ! time index
             S(i,ng)%ncid=-1                     ! closed NetCDF state
             S(i,ng)%Vid=-1                      ! NetCDF variables IDs
             S(i,ng)%Tid=-1                      ! NetCDF tracers IDs
-            DO j=1,Nfiles(i,ng)
+            DO j=1,Ncount(i,ng)
               k=k+1
               S(i,ng)%files(j)=TRIM(Fname(k))   ! load multi-files
               S(i,ng)%Nrec(j)=0                 ! record counter
@@ -2050,13 +2294,38 @@
           END DO
         END DO
 !
+!  If appropriate, persist last value(s).
+!
+        IF (persist) THEN
+          DO ng=igrid+1,Ngrids
+            DO i=1,Nfiles(ng)
+              S(i,ng)%Nfiles=S(i,igrid)%Nfiles
+              S(i,ng)%Fcount=1
+              S(i,ng)%Rindex=0
+              S(i,ng)%ncid=-1
+              S(i,ng)%Vid=-1
+              S(i,ng)%Tid=-1
+              DO j=1,S(i,igrid)%Nfiles
+                S(i,ng)%files(j)=S(i,igrid)%files(j)
+                S(i,ng)%Nrec(j)=0
+                S(i,ng)%time_min(j)=0.0_r8
+                S(i,ng)%time_max(j)=0.0_r8
+              END DO
+              S(i,ng)%label=TRIM(label)
+              S(i,ng)%name=S(i,igrid)%name
+              S(i,ng)%base=S(i,igrid)%base
+              Ncount(i,ng)=0
+            END DO
+          END DO
+        END IF
+!
 !  Reset counters and clean label.
 !
         igrid=1
         ifile=1
         DO ng=1,Ngrids
           DO i=1,idim
-            Nfiles(i,ng)=0
+            Ncount(i,ng)=0
           END DO
         END DO
         DO i=1,LEN(label)

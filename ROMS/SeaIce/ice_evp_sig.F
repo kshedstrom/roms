@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !================================================ W. Paul Budgell ======
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine time steps the EVP stresses                            !
@@ -196,7 +196,7 @@
         END DO 
       END DO
 
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &
@@ -205,7 +205,7 @@
      &                  BOUNDARY(ng)%sig11_north(LBi:UBi),              &
      &                  BOUNDARY(ng)%sig11_south(LBi:UBi),              &
      &                  uie, vie, sig11, LBC(:,isSig11,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &
@@ -214,7 +214,7 @@
      &                  BOUNDARY(ng)%sig22_north(LBi:UBi),              &
      &                  BOUNDARY(ng)%sig22_south(LBi:UBi),              &
      &                  uie, vie, sig22, LBC(:,isSig22,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  lieol, lienw,                                   &

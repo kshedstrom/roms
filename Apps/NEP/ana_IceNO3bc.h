@@ -1,8 +1,8 @@
-      SUBROUTINE ana_IceNO3bc (ng, tile)
+      SUBROUTINE ana_IceNO3bc (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -18,11 +18,11 @@
 !
 ! Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_IceNO3bc_tile (ng, tile,                                   &
+      CALL ana_IceNO3bc_tile (ng, tile, model,                            &
      &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
@@ -39,7 +39,7 @@
       END SUBROUTINE ana_IceNO3bc
 !
 !***********************************************************************
-      SUBROUTINE ana_IceNO3bc_tile (ng, tile,                             &
+      SUBROUTINE ana_IceNO3bc_tile (ng, tile, model,                      &
      &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
@@ -50,7 +50,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 !
 !  Local variable declarations.
@@ -65,22 +65,22 @@
 !-----------------------------------------------------------------------
 !
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%IceNO3_east(j)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%IceNO3_west(j)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%IceNO3_south(i)=0.0_r8
         END DO
       END IF
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%IceNO3_north(i)=0.0_r8
         END DO
       END IF

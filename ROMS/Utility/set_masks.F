@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -14,10 +14,8 @@
 !  are replaced by the _FillValue in the output files to  facilitate   !
 !  post-processing with generic tools.                                 !
 !                                                                      !
-# ifdef UV_PSOURCE
 !  If point sources, insure that masks at point source locations are   !
 !  set to water to avoid masking with _FillValue at those locations.   !
-# endif
 # ifdef WET_DRY
 !
 !  If wetting and drying, masks array are time dependent and changed   !
@@ -47,9 +45,6 @@
 !
       USE mod_param
       USE mod_grid
-# ifdef UV_PSOURCE
-      USE mod_sources
-# endif
 !
 !  Imported variable declarations.
 !
@@ -65,17 +60,11 @@
       CALL set_masks_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
-# ifdef UV_PSOURCE
-     &                     Msrc(ng), Nsrc(ng),                          &
-     &                     SOURCES(ng) % Isrc,                          &
-     &                     SOURCES(ng) % Jsrc,                          &
-     &                     SOURCES(ng) % Dsrc,                          &
-# endif
      &                     GRID(ng) % pmask,                            &
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
-# if defined PERFECT_RESTART && WET_DRY
+# if defined PERFECT_RESTART && defined WET_DRY
      &                     GRID(ng) % rmask_wet,                        &
      &                     GRID(ng) % umask_wet,                        &
      &                     GRID(ng) % vmask_wet,                        &
@@ -119,13 +108,9 @@
       SUBROUTINE set_masks_tile (ng, tile, model,                       &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           IminS, ImaxS, JminS, JmaxS,            &
-# ifdef UV_PSOURCE
-     &                           Msrc, Nsrc,                            &
-     &                           Isrc, Jsrc, Dsrc,                      &
-# endif
      &                           pmask, rmask,                          &
      &                           umask, vmask,                          &
-# if defined PERFECT_RESTART && WET_DRY
+# if defined PERFECT_RESTART && defined WET_DRY
      &                           rmask_wet,                             &
      &                           umask_wet, vmask_wet,                  &
 # endif
@@ -153,6 +138,7 @@
 !
       USE mod_param
       USE mod_scalars
+      USE mod_sources
 !
       USE exchange_2d_mod
 # ifdef DISTRIBUTE
@@ -164,22 +150,13 @@
       integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-# ifdef UV_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef UV_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-
-      real(r8), intent(in) :: Dsrc(:)
-#  endif
       real(r8), intent(in) :: pmask(LBi:,LBj:)
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
-#  if defined PERFECT_RESTART && WET_DRY
+#  if defined PERFECT_RESTART && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(in) :: umask_wet(LBi:,LBj:)
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
@@ -213,17 +190,11 @@
       real(r8), intent(inout) :: umask_io(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_io(LBi:,LBj:)
 # else
-#  ifdef UV_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-
-      real(r8), intent(in) :: Dsrc(Msrc)
-#  endif
       real(r8), intent(in) :: pmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
-#  if defined PERFECT_RESTART && WET_DRY
+#  if defined PERFECT_RESTART && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
@@ -260,12 +231,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j
+      integer :: i, is, j
 # ifdef OUTFLOW_MASK
       real(r8) :: cff
-# endif
-# ifdef UV_PSOURCE
-      integer :: is
 # endif
 
 # include "set_bounds.h"
@@ -275,57 +243,58 @@
 !  application grid mask.
 !-----------------------------------------------------------------------
 !
-# if defined PERFECT_RESTART && WET_DRY
-      rmask_io(LBi:UBi,LBj:UBj) = 0
-      umask_io(LBi:UBi,LBj:UBj) = 0
-      vmask_io(LBi:UBi,LBj:UBj) = 0
-
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+!# if defined PERFECT_RESTART && defined WET_DRY
+!!      rmask_io(LBi:UBi,LBj:UBj) = 0
+!!      umask_io(LBi:UBi,LBj:UBj) = 0
+!!      vmask_io(LBi:UBi,LBj:UBj) = 0
+!
+!      DO j=JstrP,JendP
+!        DO i=IstrP,IendP
+!          pmask_io(i,j)=pmask(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrT,JendT
+!        DO i=IstrT,IendT
+!          rmask_io(i,j)=rmask(i,j) * rmask_wet(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrT,JendT
+!        DO i=IstrP,IendT
+!          umask_io(i,j)=umask(i,j) * umask_wet(i,j)
+!        END DO
+!      END DO
+!      DO j=JstrP,JendT
+!        DO i=IstrT,IendT
+!          vmask_io(i,j)=vmask(i,j) * vmask_wet(i,j)
+!        END DO
+!      END DO
+!# else
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
           pmask_io(i,j)=pmask(i,j)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
-          rmask_io(i,j)=rmask(i,j) * rmask_wet(i,j)
-        END DO
-      END DO
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          umask_io(i,j)=umask(i,j) * umask_wet(i,j)
-        END DO
-      END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vmask_io(i,j)=vmask(i,j) * vmask_wet(i,j)
-        END DO
-      END DO
-# else
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
-          pmask_io(i,j)=pmask(i,j)
-        END DO
-      END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           rmask_io(i,j)=rmask(i,j)
         END DO
       END DO
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
           umask_io(i,j)=umask(i,j)
         END DO
       END DO
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
           vmask_io(i,j)=vmask(i,j)
         END DO
       END DO
-# endif
+!# endif
 
 # ifdef OUTFLOW_MASK
 !
 !  Set outflow mask for the ice model.
+!  The ice strength, etc. get multiplied by this mask.
 !
       DO j=JstrR,JendR
         DO i=IstrR,IendR
@@ -361,10 +330,33 @@
 #  elif defined ARCTIC
 ! Just off Greenland
       cff = 0.5_r8
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=MAX(JstrR,Mm(ng)/2),JendR
-          mask_outflow(Lm(ng),j) = cff
-          mask_outflow(Lm(ng)+1,j) = cff
+! Old ARCTIC domain
+!      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+!        DO j=MAX(JstrR,Mm(ng)/2),JendR
+!          mask_outflow(Lm(ng),j) = cff
+!          mask_outflow(Lm(ng)+1,j) = cff
+!        END DO
+!      END IF
+! New ARCTIC domain
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+        DO i=IstrR,IendR
+          mask_outflow(i,Mm(ng)) = cff
+          mask_outflow(i,Mm(ng)+1) = cff
+        END DO
+      END IF
+#  elif defined SVALBARD
+      cff = 0.5_r8
+! We want outflow south of Greenland but not north of it.
+      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+        DO i=IstrR,MIN(IendR,65)
+          mask_outflow(i,Mm(ng)) = cff
+          mask_outflow(i,Mm(ng)+1) = cff
+        END DO
+      END IF
+      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+        DO j=JstrR,JendR
+          mask_outflow(0,j) = cff
+          mask_outflow(1,j) = cff
         END DO
       END IF
 #  else
@@ -372,24 +364,24 @@
 #  endif
 # endif
 
-# ifdef UV_PSOURCE
 !
 !  Insure that masks at mass point source locations are set to water
 !  to avoid masking with _FillValue at those locations.
 !
-      DO is=1,Nsrc
-        i=Isrc(is)
-        j=Jsrc(is)
-        IF (((IstrR.le.i).and.(i.le.IendR)).and.                        &
-     &      ((JstrR.le.j).and.(j.le.JendR))) THEN
-          IF (INT(Dsrc(is)).eq.0) THEN
-            umask_io(i,j)=1.0_r8
-          ELSE
-            vmask_io(i,j)=1.0_r8
+      IF (LuvSrc(ng)) THEN
+        DO is=1,Nsrc(ng)
+          i=SOURCES(ng)%Isrc(is)
+          j=SOURCES(ng)%Jsrc(is)
+          IF (((IstrT.le.i).and.(i.le.IendT)).and.                        &
+     &        ((JstrT.le.j).and.(j.le.JendT))) THEN
+            IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+              umask_io(i,j)=1.0_r8
+            ELSE
+              vmask_io(i,j)=1.0_r8
+            END IF
           END IF
-        END IF
-      END DO
-# endif
+        END DO
+      END IF
 !
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_p2d_tile (ng, tile,                               &
@@ -423,8 +415,8 @@
 !  Initialize average file Land/Sea masks for time-averaged fields.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
 #  ifdef WET_DRY
           pmask_avg(i,j)=0.0_r8
 #  else
@@ -433,8 +425,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           rmask_avg(i,j)=0.0_r8
 #  else
@@ -443,8 +435,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
 #  ifdef WET_DRY
           umask_avg(i,j)=0.0_r8
 #  else
@@ -453,8 +445,8 @@
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           vmask_avg(i,j)=0.0_r8
 #  else
@@ -564,8 +556,8 @@
 !  Initialize diagnostic file Land/Sea masks for time-averaged fields.
 !-----------------------------------------------------------------------
 !
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
+      DO j=JstrP,JendP
+        DO i=IstrP,IendP
 #  ifdef WET_DRY
           pmask_dia(i,j)=0.0_r8
 #  else
@@ -574,8 +566,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           rmask_dia(i,j)=0.0_r8
 #  else
@@ -584,8 +576,8 @@
         END DO
       END DO
 
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
+      DO j=JstrT,JendT
+        DO i=IstrP,IendT
 #  ifdef WET_DRY
           umask_dia(i,j)=0.0_r8
 #  else
@@ -594,8 +586,8 @@
         END DO
       END DO
 
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
+      DO j=JstrP,JendT
+        DO i=IstrT,IendT
 #  ifdef WET_DRY
           vmask_dia(i,j)=0.0_r8
 #  else
@@ -697,23 +689,23 @@
      &    (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                           &
      &    ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
 
-        DO j=Jstr,JendR
-          DO i=Istr,IendR
+        DO j=JstrP,JendP
+          DO i=IstrP,IendP
             pmask_avg(i,j)=MIN(1.0_r8, pmask_avg(i,j))
           END DO
         END DO
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             rmask_avg(i,j)=MIN(1.0_r8, rmask_avg(i,j))
           END DO
         END DO
-        DO j=JstrR,JendR
-          DO i=Istr,IendR
+        DO j=JstrT,JendT
+          DO i=IstrP,IendT
             umask_avg(i,j)=MIN(1.0_r8, umask_avg(i,j))
           END DO
         END DO
-        DO j=Jstr,JendR
-          DO i=IstrR,IendR
+        DO j=JstrP,JendT
+          DO i=IstrT,IendT
             vmask_avg(i,j)=MIN(1.0_r8, vmask_avg(i,j))
           END DO
         END DO

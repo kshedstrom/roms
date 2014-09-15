@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -98,35 +98,34 @@
           END IF
         END DO
       END IF
-
-#ifdef CLM_FILE
 !
-!  If appropriate, close boundary files.
+!  If appropriate, close climatology files.
 !
-      DO i=1,nCLMfiles(ng)
-        IF ((CLM(i,ng)%Nfiles.gt.1).and.(CLM(i,ng)%ncid.ge.0)) THEN
-          IF (model.eq.iADM) THEN
-            DO j=1,CLM(i,ng)%Nfiles
-              IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.             &
-     &          (tdays(ng).le.CLM(i,ng)%time_max(i))) THEN
-                Fcount=j
-                EXIT
-              END IF
-            END DO
-          ELSE
-            Fcount=1
-          END IF
-          CLM(i,ng)%Fcount=Fcount
-          CLM(i,ng)%name=TRIM(CLM(i,ng)%files(Fcount))
-          lstr=LEN_TRIM(CLM(i,ng)%name)
-          CLM(i,ng)%base=CLM(i,ng)%name(1:lstr-3)
-          CALL netcdf_close (ng, model, CLM(i,ng)%ncid,                 &
+      IF (CLM_FILE(ng)) THEN
+        DO i=1,nCLMfiles(ng)
+          IF ((CLM(i,ng)%Nfiles.gt.1).and.(CLM(i,ng)%ncid.ge.0)) THEN
+            IF (model.eq.iADM) THEN
+              DO j=1,CLM(i,ng)%Nfiles
+                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.             &
+     &            (tdays(ng).le.CLM(i,ng)%time_max(i))) THEN
+                  Fcount=j
+                  EXIT
+                END IF
+              END DO
+            ELSE
+              Fcount=1
+            END IF
+            CLM(i,ng)%Fcount=Fcount
+            CLM(i,ng)%name=TRIM(CLM(i,ng)%files(Fcount))
+            lstr=LEN_TRIM(CLM(i,ng)%name)
+            CLM(i,ng)%base=CLM(i,ng)%name(1:lstr-3)
+            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,                 &
      &                     CLM(i,ng)%files(i),  .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-      END DO
-#endif
-
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+        END DO
+      END IF
+!
       RETURN
       END SUBROUTINE close_inp
 !
@@ -250,6 +249,11 @@
           CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid)
         END IF
 #endif
+#ifdef HISTORY2
+        IF (HIS2(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, HIS2(ng)%ncid)
+        END IF
+#endif
 #ifdef FILTERED_RST
         DO ifile=1,nfile
           IF (FIL(ifile,ng)%ncid.ne.-1) THEN
@@ -357,6 +361,14 @@
             END IF
           END IF
 #endif
+#ifdef HISTORY2
+          IF (associated(HIS2(ng)%Nrec)) THEN
+            Fcount=HIS2(ng)%Fcount
+            IF (HIS2(ng)%Nrec(Fcount).gt.0) THEN
+              WRITE (stdout,20) 'HISTORY2', HIS2(ng)%Nrec(Fcount)
+            END IF
+          END IF
+#endif
 #ifdef FILTERED_RST
           DO ifile=1,nfile
             IF (associated(FIL(ifile,ng)%Nrec)) THEN
@@ -396,7 +408,7 @@
 !
       IF (Master) THEN
         First=.TRUE.
-        DO i=1,49
+        DO i=1,51
           IF ((LEN_TRIM(ANANAME(i)).gt.0).and.(exit_flag.ne.5)) THEN
             IF (First) THEN
               First=.FALSE.

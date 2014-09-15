@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,8 +71,8 @@
 !  Maximum number of variables in a generic NetCDF file (MV) and
 !  maximum number of variables in information arrays (NV).
 !
-        integer, parameter :: MV = 950
-        integer, parameter :: NV = 950
+        integer, parameter :: MV = 1300
+        integer, parameter :: NV = 1300
 !
 !  Input/output grid-type variables.
 !
@@ -145,6 +145,7 @@
         logical, allocatable :: Aout2(:,:)    ! average2 file switches
         logical, allocatable :: Dout(:,:)     ! diagnostic file switches
         logical, allocatable :: Hout(:,:)     ! history file switches
+        logical, allocatable :: Hout2(:,:)    ! surface file switches
         logical, allocatable :: Sout(:,:)     ! station file switches
 !
 !  Grid identification indices.
@@ -191,6 +192,8 @@
         integer  :: idFsuD        ! detided free-surface
         integer  :: idFsuH        ! free-surface tide harmonics
         integer  :: idGhat(2)     ! KPP nonlocal transport
+        integer  :: idgTnc        ! generic tracer nudging coefficients
+        integer  :: idJWTy        ! Jerlov water type
         integer  :: idHbbl        ! depth of bottom boundary layer
         integer  :: idHice        ! depth of ice cover
         integer  :: idHsbl        ! depth of surface boundary layer
@@ -206,6 +209,8 @@
         integer  :: idMOMf        ! final model-observation misfit
         integer  :: idMtke        ! turbulent kinetic energy
         integer  :: idMtls        ! turbulent length scale
+        integer  :: idM2nc        ! 2D momentum nudging coefficients
+        integer  :: idM3nc        ! 2D momentum nudging coefficients
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
@@ -247,18 +252,15 @@
         integer  :: idrain        ! rainfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
+        integer  :: idragW        ! bottom drag coefficient for internal tide
         integer  :: idSdif        ! vertical S-diffusion coefficient
         integer  :: idSinW        ! SIN(omega(k)*t)
         integer  :: idSin2        ! SIN(omega(k)*t)*SIN(omega(l)*t)
         integer  :: idSrad        ! net shortwave radiation flux
         integer  :: idSSHc        ! SSH climatology
-        integer  :: idSSHe        ! SSH error variance
-        integer  :: idSSHo        ! SSH observations
         integer  :: idSSSc        ! SSS climatology
         integer  :: idSSSf        ! SSS flux correction
         integer  :: idSSTc        ! SST climatology
-        integer  :: idSSTe        ! SST error variance
-        integer  :: idSSTo        ! SST observations
         integer  :: idShea        ! net sensible heat flux
         integer  :: idSWCW        ! SIN(omega(k)*t)*COS(omega(l)*t)
         integer  :: idsfwf        ! surface freswater flux
@@ -300,12 +302,8 @@
         integer  :: idUfx2        ! time averaged U-flux for 3D
         integer  :: idUice        ! ice U-velocity
         integer  :: idUiceE       ! ice U-velocity
-        integer  :: idUobs        ! 3D U-velocity observations
         integer  :: idUsms        ! surface U-momentum stress
-        integer  :: idUsur        ! surface U-velocity observations
         integer  :: idUtlf        ! 3D U-velocity impulse forcing
-        integer  :: idUVer        ! 3D velocity error variance
-        integer  :: idUVse        ! surface velocity error variance
         integer  :: idUvel        ! 3D U-velocity
         integer  :: idUwet        ! wet/dry mask on U-points
         integer  :: idu2dD        ! detided 2D U-velocity
@@ -340,9 +338,7 @@
         integer  :: idVmLS        ! vertical mixing length scale
         integer  :: idVmKK        ! Kinetic energy vertical mixing
         integer  :: idVmKP        ! Length scale vertical mixing
-        integer  :: idVobs        ! 3D V-velocity observations
         integer  :: idVsms        ! surface V-momentum stress
-        integer  :: idVsur        ! surface V-velocity observations
         integer  :: idVtlf        ! 3D V-velocity impulse forcing
         integer  :: idVvel        ! 3D V-velocity
         integer  :: idVvis        ! vertical viscosity coefficient
@@ -379,6 +375,10 @@
         integer  :: id3dPV        ! 3D potential vorticity
         integer  :: id3dRV        ! 3D relative vorticity
 !
+!  Last used variable ID counter.
+!
+        integer  :: last_varid
+!
 !  Input/output identification tracer indices.
 !
         integer  :: idRunoff       ! Surface freshwater runoff rate
@@ -397,6 +397,7 @@
         integer  :: idWao          ! ice growth/melt rate
         integer  :: idWio          ! ice growth/melt rate
         integer  :: idWro          ! ice pond runoff
+        integer  :: idWdiv         ! ice advective change
         integer  :: idSfwat        ! surface melt water thickness on ice
         integer  :: idAgeice       ! age of sea ice (time since formation)
         integer  :: idIomflx       ! ice-ocean mass flux
@@ -492,8 +493,7 @@
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
         integer, allocatable :: idTbry(:,:)  ! tracers boundary
         integer, allocatable :: idTclm(:)    ! tracers climatology
-        integer, allocatable :: idTerr(:)    ! tracers error variance
-        integer, allocatable :: idTobs(:)    ! tracers observations
+        integer, allocatable :: idTnud(:)    ! tracers nudge coefficient
         integer, allocatable :: idTsur(:)    ! surface flux for tracers
         integer, allocatable :: idTtlf(:)    ! tracers impulse forcing
 !
@@ -612,6 +612,7 @@
         integer, allocatable :: idefPRED(:)   ! preadator file
         integer, allocatable :: idefFLEET(:)  ! fishing fleet file
         integer, allocatable :: idefHIS(:)    ! history file
+        integer, allocatable :: idefHIS2(:)   ! history2 file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !
 !  Output NetCDF variables IDs.
@@ -633,7 +634,7 @@
 
         real(r8), allocatable :: Vtime(:,:,:)
 
-        character (len=5  ) :: version = '3.6  '
+        character (len=5  ) :: version = '3.7  '
         character (len=40 ) :: varnam(MV)
         character (len=44 ) :: date_str
         character (len=46 ) :: Tname(0:NV)
@@ -654,7 +655,7 @@
 !
         logical :: Lanafile
 
-        character (len=256), dimension(49) :: ANANAME
+        character (len=256), dimension(51) :: ANANAME
 
 #ifdef BIOLOGY
 !
@@ -728,6 +729,7 @@
       allocate ( Aout2(NV,Ngrids) )
       allocate ( Dout(NV,Ngrids) )
       allocate ( Hout(NV,Ngrids) )
+      allocate ( Hout2(NV,Ngrids) )
       allocate ( Sout(NV,Ngrids) )
 
       allocate ( idRtrc(MT) )
@@ -735,8 +737,7 @@
       allocate ( idTbot(MT) )
       allocate ( idTbry(4,MT) )
       allocate ( idTclm(MT) )
-      allocate ( idTerr(MT) )
-      allocate ( idTobs(MT) )
+      allocate ( idTnud(MT) )
       allocate ( idTsur(MT) )
       allocate ( idTtlf(MT) )
 
@@ -774,6 +775,7 @@
       allocate ( idefFLEET(Ngrids) )
 
       allocate ( idefHIS(Ngrids) )
+      allocate ( idefHIS2(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -886,13 +888,14 @@
         idefPRED(ng)=-1
         idefFLEET(ng)=-1
         idefHIS(ng)=-1
+        idefHIS2(ng)=-1
         idefTLM(ng)=-1
       END DO
 !
 !  Analytical files switch and names.
 !
       Lanafile=.TRUE.
-      DO i=1,49
+      DO i=1,SIZE(ANANAME)
         DO j=1,LEN(ANANAME(1))
           ANANAME(i)(j:j)=' '
         END DO
@@ -933,6 +936,9 @@
       END DO
 #endif
 #ifdef ICE_MODEL
+#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+      ic=ic+1
+#endif
       isUice=ic+1
       isVice=ic+2
       isAice=ic+3
@@ -961,7 +967,7 @@
       isBv3d=isVvel                           ! 3D V-variables
       isBw3d=isTvar(1)                        ! 3D W-variables
 #if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
-      isMtke=ic+1                             ! turbulent variables
+      isMtke=isTvar(MT)+1                     ! turbulent variables
 #endif
 !
 !  Initialize IO information variables.
@@ -976,6 +982,7 @@
           Aout2(i,ng)=.FALSE.
           Dout(i,ng)=.FALSE.
           Hout(i,ng)=.FALSE.
+          Hout2(i,ng)=.FALSE.
           Sout(i,ng)=.FALSE.
           Iinfo(1,i,ng)=0
           Iinfo(2,i,ng)=-1
@@ -1481,6 +1488,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
+# ifdef UV_WAVEDRAG
+            CASE ('idragW')
+              idragW=varid
+# endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')
@@ -1509,10 +1520,6 @@
               idSSSc=varid
             CASE ('idSSTc')
               idSSTc=varid
-            CASE ('idTclm(itemp)')
-              idTclm(itemp)=varid
-            CASE ('idTclm(isalt)')
-              idTclm(isalt)=varid
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -1547,34 +1554,12 @@
             CASE ('idTtlf(isalt)')
               idTtlf(isalt)=varid
 #endif
-            CASE ('idSSHo')
-              idSSHo=varid
-            CASE ('idSSHe')
-              idSSHe=varid
-            CASE ('idUobs')
-              idUobs=varid
-            CASE ('idVobs')
-              idVobs=varid
-            CASE ('idUVer')
-              idUVer=varid
-            CASE ('idUsur')
-              idUsur=varid
-            CASE ('idVsur')
-              idVsur=varid
-            CASE ('idUVse')
-              idUVse=varid
-            CASE ('idSSTo')
-              idSSTo=varid
-            CASE ('idSSTe')
-              idSSTe=varid
-            CASE ('idTobs(itemp)')
-              idTobs(itemp)=varid
-            CASE ('idTerr(itemp)')
-              idTerr(itemp)=varid
-            CASE ('idTobs(isalt)')
-              idTobs(isalt)=varid
-            CASE ('idTerr(isalt)')
-              idTerr(isalt)=varid
+            CASE ('idM2nc')
+              idM2nc=varid
+            CASE ('idM3nc')
+              idM3nc=varid
+            CASE ('idgTnc')
+              idgTnc=varid
 #ifdef AVERAGES_DETIDE
             CASE ('idCosW')
               idCosW=varid
@@ -1644,18 +1629,6 @@
               idUVav=varid
             CASE ('idVVav')
               idVVav=varid
-# ifdef SALINITY
-            CASE ('idTTav(isalt)')
-              idTTav(isalt)=varid
-            CASE ('iHUTav(isalt)')
-              iHUTav(isalt)=varid
-            CASE ('iHVTav(isalt)')
-              iHVTav(isalt)=varid
-            CASE ('idUTav(isalt)')
-              idUTav(isalt)=varid
-            CASE ('idVTav(isalt)')
-              idVTav(isalt)=varid
-# endif
 #endif
 #ifdef T_PASSIVE
             CASE ('idTvar(inert(i))')
@@ -1668,10 +1641,8 @@
               load=.TRUE.
             CASE ('idTbry(inorth,inert(i))')
               load=.TRUE.
-# ifdef TS_PSOURCE
             CASE ('idRtrc(inert(i))')
               load=.TRUE.
-# endif
 #endif
             CASE ('id2dPV')
               id2dPV=varid
@@ -1950,6 +1921,8 @@
                 idWio=varid
               CASE ('idWro')
                 idWro=varid
+              CASE ('idWdiv')
+                idWdiv=varid
               CASE ('idSfwat')
                 idSfwat=varid
               CASE ('idAgeice')
@@ -2168,7 +2141,6 @@
                     END DO
                   END IF
 # endif
-# ifdef TS_PSOURCE
               CASE ('idRtrc(inert(i))')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
@@ -2191,7 +2163,6 @@
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
                 END IF
-# endif
             END SELECT
 # if defined AGE_PASSIVE || defined RESIDENCE_TIME
             SELECT CASE (Vinfo(1))
@@ -2602,7 +2573,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  TRIM(ADJUSTL(Vname(1,idTvar(i)))), '2'
+     &                  TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_2'
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged squared',                        &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
@@ -2629,7 +2600,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'Huon', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'Huon_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
      &                  'time-averaged',                                &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
@@ -2658,7 +2629,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'u', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'u_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged u-momentum times',               &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
@@ -2686,7 +2657,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'Hvom', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'Hvom_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a,1x,a)')                &
      &                  'time-averaged',                                &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i)))),              &
@@ -2715,7 +2686,7 @@
                     Iinfo(1,varid,ng)=gtype
                   END DO
                   WRITE (Vname(1,varid),'(a,a)')                        &
-     &                  'v', TRIM(ADJUSTL(Vname(1,idTvar(i))))
+     &                  'v_', TRIM(ADJUSTL(Vname(1,idTvar(i))))
                   WRITE (Vname(2,varid),'(a,1x,a)')                     &
      &                  'time-averaged v-momentum times',               &
      &                  TRIM(ADJUSTL(Vname(2,idTvar(i))))
@@ -2826,6 +2797,10 @@
         idBvar(isTvar(i))=idTvar(i)
         ic=ic+1
       END DO
+# if defined GLS_MIXING || defined MY25_MIXING
+      ic=ic+1
+      idBvar(ic)=idMtke
+# endif
 # ifdef ICE_MODEL
       ic=ic+10
       idBvar(isUice)=idUice
@@ -2838,10 +2813,6 @@
       idBvar(isSig11)=idSig11
       idBvar(isSig12)=idSig12
       idBvar(isSig22)=idSig22
-# endif
-# if defined GLS_MIXING || defined MY25_MIXING
-      ic=ic+1
-      idBvar(ic)=idMtke
 # endif
 #endif
 !
@@ -2901,6 +2872,10 @@
      &        TRIM(ADJUSTL(Vname(5,idSvar(i))))
       END DO
 #endif
+!
+!  Save last variable ID counter used.
+!
+      last_varid=varid
 !
   50  FORMAT (/,' MOD_NCPARAM - Unable to open variable information',   &
      &        ' file: ',/,15x,a,/,15x,'Default file is located in',     &

@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -342,13 +342,12 @@
           real(r8), pointer :: avgsig11(:,:)
           real(r8), pointer :: avgsig12(:,:)
           real(r8), pointer :: avgsig22(:,:)
-          real(r8), pointer :: avgT0mk(:,:)
-          real(r8), pointer :: avgS0mk(:,:)
           real(r8), pointer :: avgWfr(:,:)
           real(r8), pointer :: avgWai(:,:)
           real(r8), pointer :: avgWao(:,:)
           real(r8), pointer :: avgWio(:,:)
           real(r8), pointer :: avgWro(:,:)
+          real(r8), pointer :: avgWdiv(:,:)
           real(r8), pointer :: avgchu_iw(:,:)
           real(r8), pointer :: avgutau_iw(:,:)
 #  endif
@@ -740,12 +739,6 @@
       IF (Aout(idSig22,ng)) THEN
         allocate ( AVERAGE(ng) % avgsig22(LBi:UBi,LBj:UBj) )
       END IF
-      IF (Aout(idT0mk,ng)) THEN
-        allocate ( AVERAGE(ng) % avgT0mk(LBi:UBi,LBj:UBj) )
-      END IF
-      IF (Aout(idS0mk,ng)) THEN
-        allocate ( AVERAGE(ng) % avgS0mk(LBi:UBi,LBj:UBj) )
-      END IF
       IF (Aout(idWfr,ng)) THEN
         allocate ( AVERAGE(ng) % avgWfr(LBi:UBi,LBj:UBj) )
       END IF
@@ -760,6 +753,9 @@
       END IF
       IF (Aout(idWro,ng)) THEN
         allocate ( AVERAGE(ng) % avgWro(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idWdiv,ng)) THEN
+        allocate ( AVERAGE(ng) % avgWdiv(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout(idTauiw,ng)) THEN
         allocate ( AVERAGE(ng) % avgutau_iw(LBi:UBi,LBj:UBj) )
@@ -800,20 +796,20 @@
       END IF
 
       IF (ANY(Aout(idTTav(:),ng))) THEN
-        allocate ( AVERAGE(ng) % avgTT(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( AVERAGE(ng) % avgTT(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
       IF (ANY(Aout(idUTav(:),ng))) THEN
-        allocate ( AVERAGE(ng) % avgUT(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( AVERAGE(ng) % avgUT(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
       IF (ANY(Aout(idVTav(:),ng))) THEN
-        allocate ( AVERAGE(ng) % avgVT(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( AVERAGE(ng) % avgVT(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
 
       IF (ANY(Aout(iHUTav(:),ng))) THEN
-        allocate ( AVERAGE(ng) % avgHuonT(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( AVERAGE(ng)% avgHuonT(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
       IF (ANY(Aout(iHVTav(:),ng))) THEN
-        allocate ( AVERAGE(ng) % avgHvomT(LBi:UBi,LBj:UBj,N(ng),NAT) )
+        allocate ( AVERAGE(ng)% avgHvomT(LBi:UBi,LBj:UBj,N(ng),NT(ng)) )
       END IF
 # endif
 !
@@ -1833,20 +1829,6 @@
           END DO
         END DO
       END IF
-      IF (Aout(idT0mk,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avgT0mk(i,j) = IniVal
-          END DO
-        END DO
-      END IF
-      IF (Aout(idS0mk,ng)) THEN
-        DO j=Jmin,Jmax
-          DO i=Imin,Imax
-            AVERAGE(ng) % avgS0mk(i,j) = IniVal
-          END DO
-        END DO
-      END IF
       IF (Aout(idWfr,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -1879,6 +1861,13 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgWro(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idWdiv,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgWdiv(i,j) = IniVal
           END DO
         END DO
       END IF

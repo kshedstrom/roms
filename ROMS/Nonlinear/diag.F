@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -507,10 +507,14 @@
           avgkp=avgke+avgpe
           IF (first_time(ng).eq.0) THEN
             first_time(ng)=1
-            IF (Master) THEN
+            IF (Master.and.(ng.eq.1)) THEN
               WRITE (stdout,10) 'STEP', 'Day HH:MM:SS',                 &
      &                          'KINETIC_ENRG', 'POTEN_ENRG',           &
+#ifdef NESTING
+     &                          'TOTAL_ENRG', 'NET_VOLUME', 'Grid'
+#else
      &                          'TOTAL_ENRG', 'NET_VOLUME'
+#endif
 #ifdef SOLVE3D
               WRITE (stdout,20) 'C => (i,j,k)', 'Cu', 'Cv',             &
      &                          '  Cw  ', 'Max Speed'
@@ -518,13 +522,21 @@
               WRITE (stdout,20) '  C => (i,j)', 'Cu', 'Cv',             &
      &                          ' C Max', 'Max Speed'
 #endif
+#ifdef NESTING
+ 10           FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a,2x,a)
+#else
  10           FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a)
+#endif
  20           FORMAT (10x,a,7x,a,12x,a,10x,a,7x,a,/)
             END IF
           END IF
           IF (Master) THEN
             WRITE (stdout,30) iic(ng)-1, time_code(ng),                 &
+#ifdef NESTING
+     &                        avgke, avgpe, avgkp, volume, ng
+#else
      &                        avgke, avgpe, avgkp, volume
+#endif
 #ifdef SOLVE3D
             ispace=24-(6+Idigits(ng)+Jdigits(ng)+Kdigits(ng))
             WRITE (frmt,40) ispace,                                     &
@@ -544,7 +556,11 @@
      &                          maxspeed(ng)
 #endif
             CALL my_flush (stdout)
- 30         FORMAT (i8,1x,a,4(1pe14.6))
+#ifdef NESTING
+ 30         FORMAT (i7,1x,a,4(1pe14.6),2x,i2.2)
+#else
+ 30         FORMAT (i7,1x,a,4(1pe14.6))
+#endif
  40         FORMAT ('(',i2.2,'x,',a,',i',i1,'.',i1,',',                 &
      &                            a,',i',i1,'.',i1,',',                 &
 #ifdef SOLVE3D

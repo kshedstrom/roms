@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1863,48 +1863,6 @@
         END IF
       END IF
 !
-! Write out temperature of molecular sublayer under ice.
-!
-      IF (Aout(idT0mk,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idT0mk), &
-     &                   AVG(ng)%Rindex, gtype,                         &
-     &                   LBi, UBi, LBj, UBj, scale,                     &
-#   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
-#   endif
-     &                   AVERAGE(ng) % avgT0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), AVG(ng)%Rindex
-          END IF
-          exit_flag=3
-          RETURN
-        END IF
-      END IF
-!
-! Write out salinity of molecular sublayer under ice.
-!
-      IF (Aout(idS0mk,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idS0mk), &
-     &                   AVG(ng)%Rindex, gtype,                         &
-     &                   LBi, UBi, LBj, UBj, scale,                     &
-#   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
-#   endif
-     &                   AVERAGE(ng) % avgS0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), AVG(ng)%Rindex
-          END IF
-          exit_flag=3
-          RETURN
-        END IF
-      END IF
-!
 ! Write out frazil ice growth rate.
 !
       IF (Aout(idWfr,ng)) THEN
@@ -2004,6 +1962,27 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idWro)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out ice divergence rate.
+!
+      IF (Aout(idWdiv,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idWdiv), &
+     &                   AVG(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#   ifdef MASKING
+     &                   GRID(ng) % rmask_avg,                          &
+#   endif
+     &                   AVERAGE(ng) % avgWdiv)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWdiv)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -3005,12 +2984,20 @@
       CALL netcdf_sync (ng, iNLM, AVG(ng)%name, AVG(ng)%ncid)
       IF (exit_flag.ne.NoError) RETURN
 
+#ifdef NESTING
+      IF (Master) WRITE (stdout,20) AVG(ng)%Rindex, ng
+#else
       IF (Master) WRITE (stdout,20) AVG(ng)%Rindex
+#endif
 !
   10  FORMAT (/,' WRT_AVG - error while writing variable: ',a,/,11x,    &
      &        'into averages NetCDF file for time record: ',i4)
   20  FORMAT (6x,'WRT_AVG   - wrote averaged fields into time ',        &
+# ifdef NESTING
+     &        'record =',t72,i7.7,2x,i2.2)
+# else
      &        'record =',t72,i7.7)
+# endif
 #else
       SUBROUTINE wrt_avg
 #endif

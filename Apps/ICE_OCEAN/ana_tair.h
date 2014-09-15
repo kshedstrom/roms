@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -77,28 +77,28 @@
 !-----------------------------------------------------------------------
 !
 #if defined BENCHMARK
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Tair(i,j)=4.0_r8
         END DO
       END DO
 #elif defined BL_TEST
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Tair(i,j)=23.567_r8
         END DO
       END DO
 #elif defined ICE_OCEAN_1D
       CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Tair(i,j)=-5.0_r8 - 15.0_r8*                                  &
      &               COS(2.0_r8*pi*(yday-60.0_r8)/365.25_r8)
         END DO
       END DO
 #elif defined MEDDY
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           Tair(i,j)=14.0_r8
         END DO
       END DO

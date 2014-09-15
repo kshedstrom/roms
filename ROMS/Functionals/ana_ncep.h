@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -111,8 +111,8 @@
 
 #include "set_bounds.h"
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
            nustr(i,j) = 0.2_r8
            nvstr(i,j) = 0.2_r8
            cloud(i,j) = 0.3_r8

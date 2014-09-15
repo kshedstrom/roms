@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -200,7 +200,7 @@
 !  On Ouput:                                                           !
 !                                                                      !
 !     DimSize      Size of requested dimension (integer, OPTIONAL)     !
-!     DimID        ID od requested dimension (integer, OPTIONAL)       !
+!     DimID        ID of requested dimension (integer, OPTIONAL)       !
 !                                                                      !
 !  Other information stored in this module:                            !
 !                                                                      !
@@ -1581,7 +1581,7 @@
 !     ng           Nested grid number (integer)                        !
 !     model        Calling model identifier (integer)                  !
 !     ncname       NetCDF file name (string)                           !
-!     varid        Variabke ID of the attribute's variable, or         !
+!     varid        Variable ID for variable attribute or               !
 !                    NF90_GLOBAL for a global attribute (integer)      !
 !     AttName      Attribute name to read (string array)               !
 !     ncid         NetCDF file ID (integer, OPTIONAL)                  !

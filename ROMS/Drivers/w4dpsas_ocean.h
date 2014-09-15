@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -295,10 +295,11 @@
       logical :: Ltrace
 #endif
       integer :: my_inner, my_outer
-      integer :: Lbck, Lini, Rec, Rec1, Rec2, indxSave
+      integer :: Lbck, Lini, Rec, Rec1, Rec2
       integer :: i, ng, status, tile
       integer :: Fcount, NRMrec
 
+      integer, dimension(Ngrids) :: indxSave
       integer, dimension(Ngrids) :: Nrec
 
       character (len=7 ) :: driver
@@ -349,11 +350,12 @@
         wrtNLmod(ng)=.TRUE.
         wrtRPmod(ng)=.FALSE.
         wrtTLmod(ng)=.FALSE.
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 !
 !  Save nonlinear initial conditions (currently in time index 1,
 !  background) into record "Lbck" of INI(ng)%name NetCDF file. The
@@ -1019,13 +1021,17 @@
 !  counter is used to write initial conditions.
 !
         DO ng=1,Ngrids
-          indxSave=INI(ng)%Rindex
+          indxSave(ng)=INI(ng)%Rindex
           INI(ng)%Rindex=outer+2
+        END DO
+
 !$OMP PARALLEL
-          CALL initial (ng)
+        CALL initial
 !$OMP END PARALLEL
-          IF (exit_flag.ne.NoError) RETURN
-          INI(ng)%Rindex=indxSave
+        IF (exit_flag.ne.NoError) RETURN
+
+        DO ng=1,Ngrids
+          INI(ng)%Rindex=indxSave(ng)
         END DO
 !
 !  Activate switch to write out final misfit between model and
@@ -1355,7 +1361,7 @@
  20   FORMAT (/,1x,a,1x,'ROMS/TOMS: started time-stepping:',            &
      &        ' (Grid: ',i2.2,' TimeSteps: ',i8.8,' - ',i8.8,')',/)
  30   FORMAT (' (',i3.3,',',i3.3,'): ',a,' data penalty, Jdata = ',     &
-     &        1p,e16.10,0p,t68,a)
+     &        1p,e17.10,0p,t68,a)
  40   FORMAT (/,' Converting Convolved Adjoint Trajectory to',          &
      &          ' Impulses: Outer = ',i3.3,' Inner = ',i3.3,/)
 #ifdef POSTERIOR_EOFS

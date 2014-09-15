@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -268,6 +268,8 @@
 !
         ad_PAR=0.0_r8
         ad_Att=0.0_r8
+        ad_ExpAtt=0.0_r8
+        ad_Itop=0.0_r8
         ad_dltL=0.0_r8
         ad_dltR=0.0_r8
         ad_cu=0.0_r8
@@ -897,7 +899,7 @@
 !>   &                              tl_cff*Hz(i,j,k)+cff*tl_Hz(i,j,k)
 !>
               ad_Hz(i,j,k)=ad_Hz(i,j,k)+cff*ad_t(i,j,k,nnew,ibio)
-              ad_cff=add_cff+Hz(i,j,k)*ad_t(i,j,k,nnew,ibio)
+              ad_cff=ad_cff+Hz(i,j,k)*ad_t(i,j,k,nnew,ibio)
 !>            tl_cff=tl_Bio(i,k,ibio)-tl_Bio_old(i,k,ibio)
 !>
               ad_Bio_old(i,k,ibio)=ad_Bio_old(i,k,ibio)-ad_cff
@@ -2760,17 +2762,17 @@
 #ifdef IRON_LIMIT
 !>            tl_Bio(i,k,iFdis)=tl_Bio(i,k,iFdis)+                      &
 !>   &                          (tl_Bio(i,k,iFphy)*cff+                 &
-!>   &                           Bio(i,k,iFphy)*tl_cff)*FeRR(ng)
+!>   &                           Bio2(i,k,iFphy)*tl_cff)*FeRR(ng)
 !>
               ad_Bio(i,k,iFphy)=ad_Bio(i,k,iFphy)+cff*FeRR(ng)*         &
      &                          ad_Bio(i,k,iFdis)
-              ad_cff=ad_cff+Bio(i,k,iFphy)*FeRR(ng)*ad_Bio(i,k,iFdis)
+              ad_cff=ad_cff+Bio2(i,k,iFphy)*FeRR(ng)*ad_Bio(i,k,iFdis)
 !>            tl_Bio(i,k,iFphy)=(tl_Bio(i,k,iFphy)-                     &
-!>   &                           tl_cff*Bio(i,k,iFphy))/                &
+!>   &                           tl_cff*Bio2(i,k,iFphy))/               &
 !>   &                          (1.0_r8+cff)
 !>
               adfac=ad_Bio(i,k,iFphy)/(1.0_r8+cff)
-              ad_cff=ad_cff-Bio(i,k,iFphy)*adfac
+              ad_cff=ad_cff-Bio2(i,k,iFphy)*adfac
               ad_Bio(i,k,iFphy)=adfac
 #endif
 !>            tl_Bio(i,k,iSDet)=tl_Bio(i,k,iSDet)+                      &
@@ -3432,17 +3434,17 @@
               fac=cff*Bio(i,k,iNO3_)*FNratio*fac2
 !>            tl_Bio(i,k,iFphy)=tl_Bio(i,k,iFphy)+                      &
 !>   &                          tl_Bio(i,k,iFdis)*fac+                  &
-!>   &                          Bio(i,k,iFdis)*tl_fac
+!>   &                          Bio2(i,k,iFdis)*tl_fac
 !>
-              ad_fac=ad_fac+Bio(i,k,iFdis)*ad_Bio(i,k,iFphy)
+              ad_fac=ad_fac+Bio2(i,k,iFdis)*ad_Bio(i,k,iFphy)
               ad_Bio(i,k,iFdis)=ad_Bio(i,k,iFdis)+                      &
      &                          fac*ad_Bio(i,k,iFphy)
 !>            tl_Bio(i,k,iFdis)=(tl_Bio(i,k,iFdis)-                     &
-!>   &                           tl_fac*Bio(i,k,iFdis))/                &
+!>   &                           tl_fac*Bio2(i,k,iFdis))/               &
 !>   &                          (1.0_r8+fac)
 !>
               adfac=ad_Bio(i,k,iFdis)/(1.0_r8+fac)
-              ad_fac=ad_fac-Bio(i,k,iFdis)*adfac
+              ad_fac=ad_fac-Bio2(i,k,iFdis)*adfac
               ad_Bio(i,k,iFdis)=adfac
 !>            tl_fac=FNratio*fac2*(tl_cff*Bio(i,k,iNO3_)+               &
 !>   &                             cff*ad_Bio(i,k,iNO3_))+              &

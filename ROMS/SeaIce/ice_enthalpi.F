@@ -76,8 +76,8 @@
 
 #include "set_bounds.h"
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           enthalpi(i,j,liold(ng)) = hi(i,j,liold(ng))*                  &
      &                                      ti(i,j,liold(ng))
           enthalpi(i,j,linew(ng)) = hi(i,j,linew(ng))*                  &

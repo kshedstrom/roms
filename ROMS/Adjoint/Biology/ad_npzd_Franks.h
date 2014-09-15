@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -651,7 +651,7 @@
 !>   &                              tl_cff*Hz(i,j,k)+cff*tl_Hz(i,j,k)
 !>
               ad_Hz(i,j,k)=ad_Hz(i,j,k)+cff*ad_t(i,j,k,nnew,ibio)
-              ad_cff=add_cff+Hz(i,j,k)*ad_t(i,j,k,nnew,ibio)
+              ad_cff=ad_cff+Hz(i,j,k)*ad_t(i,j,k,nnew,ibio)
 !>            tl_cff=tl_Bio(i,k,ibio)-tl_Bio_old(i,k,ibio)
 !>
               ad_Bio_old(i,k,ibio)=ad_Bio_old(i,k,ibio)-ad_cff

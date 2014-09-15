@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !==================================================== John C. Warner ===
@@ -21,10 +21,6 @@
       SUBROUTINE wetdry_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
-# ifdef UV_PSOURCE
-     &                        Msrc, Nsrc,                               &
-     &                        Isrc, Jsrc, Dsrc,                         &
-# endif
 # ifdef MASKING
      &                        pmask, rmask, umask, vmask,               &
 # endif
@@ -32,6 +28,7 @@
 # ifdef SOLVE3D
      &                        DU_avg1, DV_avg1,                         &
      &                        rmask_wet_avg,                            &
+     &                        umask_diff, vmask_diff,                   &
 # endif
      &                        pmask_wet, pmask_io,                      &
      &                        rmask_wet, rmask_io,                      &
@@ -42,6 +39,7 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+      USE mod_sources
 !
       USE exchange_2d_mod
 # ifdef DISTRIBUTE
@@ -53,17 +51,8 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-# ifdef UV_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef UV_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-
-      real(r8), intent(in) :: Dsrc(:)
-#  endif
       real(r8), intent(in) :: h(LBi:,LBj:)
 #  ifdef MASKING
       real(r8), intent(in) :: pmask(LBi:,LBj:)
@@ -76,6 +65,8 @@
       real(r8), intent(in) :: DU_avg1(LBi:,LBj:)
       real(r8), intent(in) :: DV_avg1(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:,LBj:)
+      real(r8), intent(out) :: umask_diff(LBi:,LBj:)
+      real(r8), intent(out) :: vmask_diff(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: pmask_io(LBi:,LBj:)
       real(r8), intent(out) :: rmask_io(LBi:,LBj:)
@@ -89,12 +80,6 @@
 
 # else
 
-#  ifdef UV_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-
-      real(r8), intent(in) :: Dsrc(Msrc)
-#  endif
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
 #  ifdef MASKING
       real(r8), intent(in) :: pmask(LBi:UBi,LBj:UBj)
@@ -107,6 +92,8 @@
       real(r8), intent(in) :: DU_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: DV_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask_wet_avg(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: umask_diff(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: vmask_diff(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: pmask_io(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rmask_io(LBi:UBi,LBj:UBj)
@@ -123,7 +110,7 @@
 !
       integer :: i, is, j
 
-      real(r8) :: cff
+      real(r8) :: cff, cff1, cff2, cff5, cff6, cff7
       real(r8), parameter :: eps = 1.0E-10_r8
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wetdry
@@ -172,6 +159,7 @@
             IF (umask_wet(i,j).eq.1.0_r8) THEN
               umask_wet(i,j)=wetdry(i-1,j)-wetdry(i,j)
             END IF
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -183,6 +171,7 @@
             IF (vmask_wet(i,j).eq.1.0_r8) THEN
               vmask_wet(i,j)=wetdry(i,j-1)-wetdry(i,j)
             END IF
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
@@ -237,12 +226,28 @@
 !
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_wet(i,j)=1.0_r8
+            cff1=wetdry(i-1,j)+wetdry(i,j)
+#  ifdef SOLVE3D
+            umask_diff(i,j) = 1.0_r8
+            IF (cff1.lt.2.0_r8) THEN
+              umask_diff(i,j) = 0.0_r8
+            END IF
+#  endif
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=wetdry(i-1,j)-wetdry(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,DU_avg1(i,j))*cff1
+            umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+!
+!  Additional catch here to stop lone ponds.
+!
             IF (DU_avg1(i,j).eq.0.0_r8) THEN
               IF ((wetdry(i-1,j)+wetdry(i,j)).le.1.0_r8) THEN
                 umask_wet(i,j)=0.0_r8
               END IF
             END IF
+            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
 !
@@ -250,16 +255,92 @@
 !
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_wet(i,j)=1.0_r8
+            cff1=wetdry(i,j-1)+wetdry(i,j)
+#  ifdef SOLVE3D
+            vmask_diff(i,j) = 1.0_r8
+            IF (cff1.lt.2.0_r8) THEN
+              vmask_diff(i,j) = 0.0_r8
+            END IF
+#  endif
+            IF (cff1.eq.1.0_r8) THEN
+              cff1=wetdry(i,j-1)-wetdry(i,j)
+            END IF
+            cff5=ABS(ABS(cff1)-1.0_r8)
+            cff6=0.5_r8+DSIGN(0.5_r8,DV_avg1(i,j))*cff1
+            vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
+!
+!  Additional catch here to stop lone ponds.
+!
             IF (DV_avg1(i,j).eq.0.0_r8) THEN
               IF ((wetdry(i,j-1)+wetdry(i,j)).le.1.0_r8) THEN
                 vmask_wet(i,j)=0.0_r8
               END IF
             END IF
+            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
       END IF
 # endif
+!
+! Set no-slip boundary conditions on land-mask boundaries regardless of
+! supplied value of gamma2. 
+! 
+      IF (iif(ng).gt.nfast(ng)) THEN
+        cff1=1.0_r8
+        cff2=2.0_r8
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i  ,j  ).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i-1,j-1).gt.0.5_r8).and.                     &
+     &          (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=1.0_r8
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff1
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
+     &               (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
+     &               (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
+              pmask_wet(i,j)=cff2
+            ELSE
+              pmask_wet(i,j)=0.0_r8
+            END IF
+          END DO
+        END DO
+      END IF
 !
 !  Exchange boundary data.
 !
@@ -277,6 +358,12 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          vmask_wet)
 # ifdef SOLVE3D
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          umask_diff)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          vmask_diff)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          rmask_wet_avg)
@@ -290,10 +377,11 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    pmask_wet, rmask_wet, umask_wet, vmask_wet)
 #  ifdef SOLVE3D
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    umask_diff, vmask_diff,                       &
      &                    rmask_wet_avg)
 #  endif
 # endif
@@ -319,33 +407,32 @@
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_io(i,j)=umask_wet(i,j)*umask(i,j)
+            umask_io(i,j)=umask_wet(i,j)
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_io(i,j)=vmask_wet(i,j)*vmask(i,j)
+            vmask_io(i,j)=vmask_wet(i,j)
           END DO
         END DO
-
-# ifdef UV_PSOURCE
 !
 !  Insure that masks at mass point source locations are set to water
 !  to avoid writting output with FillValue at those locations.
 !
-        DO is=1,Nsrc
-          i=Isrc(is)
-          j=Jsrc(is)
-          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
-     &        ((JstrR.le.j).and.(j.le.JendR))) THEN
-            IF (INT(Dsrc(is)).eq.0) THEN
-              umask_io(i,j)=1.0_r8
-            ELSE
-              vmask_io(i,j)=1.0_r8
+        IF (LuvSrc(ng)) THEN
+          DO is=1,Nsrc(ng)
+            i=SOURCES(ng)%Isrc(is)
+            j=SOURCES(ng)%Jsrc(is)
+            IF (((IstrR.le.i).and.(i.le.IendR)).and.                    &
+     &          ((JstrR.le.j).and.(j.le.JendR))) THEN
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+                umask_io(i,j)=1.0_r8
+              ELSE
+                vmask_io(i,j)=1.0_r8
+              END IF
             END IF
-          END IF
-        END DO
-# endif
+          END DO
+        END IF
 !
 !  Exchange boundary data.
 !

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -672,24 +672,6 @@
   'transfer coefficient, scalar, series'
   'ocean_time'
   'idChuiw'
-  'r2dvar'
-  1.0d0
-
-'s0mk'
-  'salinity of molecular sub-layer under ice'
-  'nondimensional'
-  'salinity, scalar, series'
-  'ocean_time'
-  'idS0mk'
-  'r2dvar'
-  1.0d0
-
-'t0mk'
-  'temperature of molecular sub-layer under ice'
-  'degrees Celsius'
-  'temperature, scalar, series'
-  'ocean_time'
-  'idT0mk'
   'r2dvar'
   1.0d0
 

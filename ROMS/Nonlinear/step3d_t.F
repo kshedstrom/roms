@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -37,18 +37,12 @@
 !***********************************************************************
 !
       USE mod_param
-# ifdef CLIMATOLOGY
-      USE mod_clima
-# endif
 # ifdef DIAGNOSTICS_TS
       USE mod_diags
 # endif
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
-# if defined TS_PSOURCE
-      USE mod_sources
-# endif
 # if defined TRC_PSOURCE
       USE mod_trc_sources
 # endif
@@ -69,18 +63,6 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
      &                    nrhs(ng), nstp(ng), nnew(ng),                 &
-# if defined TS_PSOURCE || defined Q_PSOURCE
-     &                    Msrc(ng), Nsrc(ng),                           &
-     &                    SOURCES(ng) % Isrc,                           &
-     &                    SOURCES(ng) % Jsrc,                           &
-     &                    SOURCES(ng) % Tsrc,                           &
-# endif
-# if defined TS_PSOURCE
-     &                    SOURCES(ng) % Dsrc,                           &
-# endif
-# ifdef Q_PSOURCE
-     &                    SOURCES(ng) % Qsrc,                           &
-# endif
 # if defined TRC_PSOURCE
      &                    Msrcpt(ng), Nsrcpt(ng),                       &
      &                    TRC_SOURCES(ng) % Isrcpt,                     &
@@ -111,10 +93,6 @@
      &                    GRID(ng) % Huon,                              &
      &                    GRID(ng) % Hvom,                              &
      &                    GRID(ng) % z_r,                               &
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
-     &                    CLIMA(ng) % Tnudgcof,                         &
-     &                    CLIMA(ng) % tclm,                             &
-# endif
      &                    MIXING(ng) % Akt,                             &
      &                    OCEAN(ng) % W,                                &
 # if defined FLOATS && defined FLOAT_VWALK
@@ -148,16 +126,6 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          nrhs, nstp, nnew,                       &
-# if defined TS_PSOURCE || defined Q_PSOURCE
-     &                          Msrc, Nsrc,                             &
-     &                          Isrc, Jsrc, Tsrc,                       &
-# endif
-# if defined TS_PSOURCE
-     &                          Dsrc,                                   &
-# endif
-# ifdef Q_PSOURCE
-     &                          Qsrc,                                   &
-# endif
 # if defined TRC_PSOURCE
      &                          Msrcpt, Nsrcpt,                         &
      &                          Isrcpt, Jsrcpt, Tsrcpt, Lsrcpt,         &
@@ -174,9 +142,6 @@
      &                          pm, pn,                                 &
      &                          Hz, Huon, Hvom,                         &
      &                          z_r,                                    &
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
-     &                          Tnudgcof, tclm,                         &
-# endif
      &                          Akt,                                    &
      &                          W,                                      &
 # if defined FLOATS && defined FLOAT_VWALK
@@ -201,7 +166,11 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_clima
       USE mod_ncparam
+# if defined NESTING && !defined ONE_WAY
+      USE mod_nesting
+# endif
       USE mod_scalars
 # ifdef SOGLOBEC
       USE mod_clima
@@ -212,6 +181,7 @@
 # if defined ICE_MODEL && defined ICE_THERMO
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
+      USE mod_sources
 !
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
@@ -222,6 +192,9 @@
 # endif
 # ifdef TS_MPDATA
       USE mpdata_adiff_mod
+# endif
+# ifdef NESTING
+      USE nesting_mod, ONLY : bry_fluxes
 # endif
       USE t3dbc_mod, ONLY : t3dbc_tile
 # ifdef T_PASSIVE
@@ -234,29 +207,15 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
-# if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 # if defined TRC_PSOURCE
       integer, intent(in) :: Msrcpt, Nsrcpt
 # endif
-!
+
 # ifdef ASSUMED_SHAPE
-#  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-      real(r8), intent(in) :: Tsrc(:,:,:)
-#  endif
-#  if defined TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(:)
-#  endif
-#  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(:,:)
-#  endif
 #  if defined TRC_PSOURCE
-      logical, intent(in) :: Lsrcpt(:,:)
-      integer, intent(in) :: Isrcpt(:)
-      integer, intent(in) :: Jsrcpt(:)
+      logical, intent(in)  :: Lsrcpt(:,:)
+      integer, intent(in)  :: Isrcpt(:)
+      integer, intent(in)  :: Jsrcpt(:)
       real(r8), intent(in) :: Tsrcpt(:,:,:)
 #  endif
 #  ifdef MASKING
@@ -278,10 +237,6 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
-#  if defined TCLM_NUDGING && defined TCLIMATOLOGY
-      real(r8), intent(in) :: Tnudgcof(LBi:,LBj:,:)
-      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
-#  endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: Huon(LBi:,LBj:,:)
       real(r8), intent(in) :: Hvom(LBi:,LBj:,:)
@@ -319,17 +274,6 @@
 
 # else
 
-#  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
-#  endif
-#  ifdef TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(Msrc)
-#  endif
-#  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
-#  endif
 #  if defined TRC_PSOURCE
       logical, intent(in) :: Lsrcpt(Msrcpt,NT(ng))
       integer, intent(in) :: Isrcpt(Msrcpt)
@@ -355,10 +299,6 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
-#  if defined TCLM_NUDGING && defined TCLIMATOLOGY
-      real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng))
-#  endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Huon(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Hvom(LBi:UBi,LBj:UBj,N(ng))
@@ -390,6 +330,10 @@
 !
 !  Local variable declarations.
 !
+# ifdef NESTING
+      integer :: ILB, IUB, JLB, JUB
+      integer :: dg, cr, rg
+# endif
       integer :: i, ibt, ic, is, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
@@ -428,6 +372,17 @@
 # endif
 !
 # include "set_bounds.h"
+
+# ifdef NESTING
+!
+!  Notice that the trace flux boundary arrays are dimensioned with the
+!  global dimensions of grid to facilitate processing.
+!
+      ILB=BOUNDS(ng)%LBi(-1)
+      IUB=BOUNDS(ng)%UBi(-1)
+      JLB=BOUNDS(ng)%LBj(-1)
+      JUB=BOUNDS(ng)%UBj(-1)
+# endif
 !
 !-----------------------------------------------------------------------
 !  Time-step horizontal advection term.
@@ -550,18 +505,18 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Istr-1,j)=FX(Istr,j)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Iend+2,j)=FX(Iend+1,j)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Istr-1,j)=FX(Istr,j)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Iend+2,j)=FX(Iend+1,j)
+              END DO
             END IF
           END IF
 !
@@ -611,18 +566,18 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jstr-1)=FE(i,Jstr)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jend+2)=FE(i,Jend+1)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jstr-1)=FE(i,Jstr)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jend+2)=FE(i,Jend+1)
+              END DO
             END IF
           END IF
 !
@@ -663,59 +618,94 @@
             END DO
           END DO
 # endif
-# if defined TS_PSOURCE && !defined Q_PSOURCE
 !
-!  Apply tracers point sources to the horizontal advection terms.
+!  Apply tracers point sources to the horizontal advection terms,
+!  if any.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (INT(Dsrc(is)).eq.0) THEN
-#  ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.               &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#  else
-              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
-#  endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
-#  ifdef MASKING
-                ELSE
-                  IF ((rmask(i  ,j).eq.0.0_r8).and.                     &
-     &                (rmask(i-1,j).eq.1.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
-                  ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.                &
-     &                     (rmask(i-1,j).eq.0.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+# ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.             &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+# else
+                IF (((Istr.le.i).and.(i.le.Iend+1)).and.                &
+     &              ((Jstr.le.j).and.(j.le.Jend))) THEN
+# endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FX(i,j)=Huon(i,j,k)*                                &
+# ifdef ONE_TRACER_SOURCE
+     &                      SOURCES(ng)%Tsrc(itrc)
+# else
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+# endif
+# ifdef MASKING
+                  ELSE
+                    IF ((rmask(i  ,j).eq.0.0_r8).and.                   &
+     &                  (rmask(i-1,j).eq.1.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
+                    ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.              &
+     &                       (rmask(i-1,j).eq.0.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
+                    END IF
+# endif
                   END IF
-#  endif
+                END IF
+              ELSE IF (INT(SOURCES(ng)%Dsrc(is)).eq.1) THEN
+# ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.            &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
+# else
+                IF (((Istr.le.i).and.(i.le.Iend)).and.                  &
+     &              ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+# endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FE(i,j)=Hvom(i,j,k)*                                &
+# ifdef ONE_TRACER_SOURCE
+     &                      SOURCES(ng)%Tsrc(itrc)
+# else
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+# endif
+# ifdef MASKING
+                  ELSE
+                    IF ((rmask(i,j  ).eq.0.0_r8).and.                   &
+     &                  (rmask(i,j-1).eq.1.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
+                    ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.              &
+     &                       (rmask(i,j-1).eq.0.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
+                    END IF
+# endif
+                  END IF
                 END IF
               END IF
-            ELSE IF (INT(Dsrc(is)).eq.1) THEN
-#  ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
-#  else
-              IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-#  endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
-#  ifdef MASKING
-                ELSE
-                  IF ((rmask(i,j  ).eq.0.0_r8).and.                     &
-     &                (rmask(i,j-1).eq.1.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
-                  ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.                &
-     &                     (rmask(i,j-1).eq.0.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
-                  END IF
-#  endif
-                END IF
-              END IF
-            END IF
-          END DO
+            END DO
+          END IF
+
+# if defined NESTING && !defined ONE_WAY
+!
+!  If refinement grids, extract tracer horizontal advection fluxes
+!  (Hz*u*T/n, Hz*v*T/m) at the grid contact boundary (physical
+!  domain period) to be used in two-way nesting.
+!
+         IF (RefinedGrid(ng)) THEN
+           DO cr=1,Ncontact
+             dg=Rcontact(cr)%donor_grid
+             rg=Rcontact(cr)%receiver_grid
+             IF (ng.eq.rg) THEN
+               CALL bry_fluxes (dg, rg, cr, iNLM, tile,                 &
+     &                          IminS, ImaxS, JminS, JmaxS,             &
+     &                          ILB, IUB, JLB, JUB,                     &
+     &                          dt(ng), FX, FE,                         &
+     &                          BRY_CONTACT(iwest, cr)%Tflux(:,k,itrc), &
+     &                          BRY_CONTACT(ieast, cr)%Tflux(:,k,itrc), &
+     &                          BRY_CONTACT(isouth,cr)%Tflux(:,k,itrc), &
+     &                          BRY_CONTACT(inorth,cr)%Tflux(:,k,itrc))
+             END IF
+           END DO
+         END IF
 # endif
 !
 # ifdef TS_MPDATA
@@ -987,13 +977,12 @@
           DO i=I_RANGE
             CF(i,0)=dt(ng)*pm(i,j)*pn(i,j)
           END DO
-# ifdef Q_PSOURCE
 !
-!  Apply mass point sources - Volume influx.
+!  Apply mass point sources (volume vertical influx), if any.
 !
-          DO is=1,Nsrc
-            IF (LtracerSrc(itrc,ng)) THEN
-              i=Isrc(is)
+          IF (LwSrc(ng)) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
 #  ifdef TS_MPDATA
               IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
      &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
@@ -1001,17 +990,27 @@
               IF (((IstrR.le.i).and.(i.le.IendR)).and.                  &
      &            ((JstrR.le.j).and.(j.le.JendR))) THEN
 #  endif
-                IF (j.eq.Jsrc(is)) THEN
+                IF (j.eq.SOURCES(ng)%Jsrc(is)) THEN
                   DO k=1,N(ng)-1
+#  ifdef ONE_TRACER_SOURCE
                     FC(i,k)=FC(i,k)+0.5_r8*                             &
-     &                      (Qsrc(is,k  )*Tsrc(is,k  ,itrc)+            &
-     &                       Qsrc(is,k+1)*Tsrc(is,k+1,itrc))
+     &                      (SOURCES(ng)%Qsrc(is,k  )*                  &
+     &                       SOURCES(ng)%Tsrc(itrc)+                    &
+     &                       SOURCES(ng)%Qsrc(is,k+1)*                  &
+     &                       SOURCES(ng)%Tsrc(itrc) )
+#  else
+                    FC(i,k)=FC(i,k)+0.5_r8*                             &
+     &                      (SOURCES(ng)%Qsrc(is,k  )*                  &
+     &                       SOURCES(ng)%Tsrc(is,k  ,itrc)+             &
+     &                       SOURCES(ng)%Qsrc(is,k+1)*                  &
+     &                       SOURCES(ng)%Tsrc(is,k+1,itrc))
+#  endif
                   END DO
                 END IF
               END IF
-            END IF
-          END DO
-# endif
+            END DO
+          END IF
+!
           DO k=1,N(ng)
             DO i=I_RANGE
               cff1=CF(i,0)*(FC(i,k)-FC(i,k-1))
@@ -1386,26 +1385,31 @@
 !  equation.
 !------Added by W.G.Zhang
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      iactrc=inert(3)
+      iactrc=inert(2)
       iwctrc=inert(1)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
             t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
      &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
+!            t(i,j,k,nnew,inert(3))=t(i,j,k,nnew,inert(3))+              &
+!     &                           dt(ng)*3.168808781402895e-08
+!            t(i,j,k,nnew,inert(4))=t(i,j,k,nnew,inert(4))+              &
+!     &                           dt(ng)*3.168808781402895e-08
           END DO
         END DO
       END DO
-      iactrc=inert(4)
-      iwctrc=inert(2)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
-     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
-          END DO
-        END DO
-      END DO
+!      iactrc=inert(4)
+!      iwctrc=inert(2)
+!      DO k=1,N(ng)
+!        DO j=Jstr,Jend
+!          DO i=Istr,Iend
+!            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
+!     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
+!          END DO
+!        END DO
+!      END DO
 # endif
 # ifdef AGE_DISTRIBUTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1440,23 +1444,29 @@
 !  to tracer data and apply Land/Sea mask.
 !-----------------------------------------------------------------------
 !
+      ic=0
 #ifdef OFFLINE_BIOLOGY
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #else
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
-      ic=0
-# endif
+!  Initialize tracer counter index. The "tclm" array is only allocated
+!  to the NTCLM fields that need to be processed. This is done to
+!  reduce memory.
+!
+!
       DO itrc=1,NT(ng)
 #endif
 !
+!  Set compact reduced memory tracer index for nudging coefficients and
+!  climatology arrays.
+!
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
+!
 !  Set lateral boundary conditions.
 !
-!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!       IF (itrc.le.NAT) THEN
-!!    added by Weifeng Zhang for passive tracer boundary condition
-!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        CALL t3dbc_tile (ng, tile, itrc,                                &
+        CALL t3dbc_tile (ng, tile, itrc, ic,                            &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, nnew,                                    &
@@ -1464,37 +1474,23 @@
      &                   tclm,                                          &
 # endif
      &                   t)
-!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!# ifdef T_PASSIVE
-!       ELSE
-!!       else condition added by Weifeng Zhang for passive tracer
-!!       boundary condition
-!        CALL pt3dbc_tile (ng, tile, itrc,                               &
-!     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
-!     &                    IminS, ImaxS, JminS, JmaxS,                   &
-!     &                    nstp, nnew,                                   &
-!     &                    t)
-!# endif
-!       END IF
-!!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
 !
 !  Nudge towards tracer climatology.
 !
-        IF (LtracerCLM(itrc,ng)) THEN
-          ic=ic+1
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
           DO k=1,N(ng)
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+                  &
-     &                             dt(ng)*Tnudgcof(i,j,itrc)*           &
-     &                             (tclm(i,j,k,ic)-t(i,j,k,nnew,itrc))
+     &                             dt(ng)*                              &
+     &                             CLIMA(ng)%Tnudgcof(i,j,k,ic)*        &
+     &                             (CLIMA(ng)%tclm(i,j,k,ic)-           &
+     &                              t(i,j,k,nnew,itrc))
               END DO
             END DO
           END DO
         END IF
-# endif
+
 # ifdef MASKING
 !
 !  Apply Land/Sea mask.

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -215,10 +215,15 @@
         get_var(idSig11)=.true.
         get_var(idSig22)=.true.
         get_var(idSig12)=.true.
-        get_var(idTauiw)=.true.
-        get_var(idChuiw)=.true.
         get_var(idS0mk)=.true.
         get_var(idT0mk)=.true.
+#  ifdef PERFECT_RESTART
+        get_var(idUsms)=.true.
+        get_var(idVsms)=.true.
+        DO itrc=1,NT(ng)
+          get_var(idTsur(itrc))=.TRUE.
+        END DO
+#  endif
 # endif
 # ifdef NCEP_FLUXES
         get_var(idWg2d)=.true.
@@ -497,10 +502,6 @@
           have_var(idSig22)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
           have_var(idSig12)=.true.
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
-          have_var(idTauiw)=.true.
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
-          have_var(idChuiw)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
           have_var(idS0mk)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
@@ -508,13 +509,13 @@
         END IF
 #  if defined PERFECT_RESTART
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
-          get_var(idUsms)=.true.
+          have_var(idUsms)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
-          get_var(idVsms)=.true.
+          have_var(idVsms)=.true.
         END IF
         DO itrc=1,NT(ng)
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTsur(itrc)))) THEN
-            get_var(idTsur(itrc))=.TRUE.
+            have_var(idTsur(itrc))=.TRUE.
           END IF
         END DO
 #  endif
@@ -922,20 +923,6 @@
       IF (.not.have_var(idSig12)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idSig12)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-      IF (.not.have_var(idTauiw)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idTauiw)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-      IF (.not.have_var(idChuiw)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idChuiw)),           &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN

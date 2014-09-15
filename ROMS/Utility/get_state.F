@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -95,7 +95,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: Perfect2D, Perfect3D, foundit
+      logical :: Perfect2D, Perfect3D, foundit, read_ice
 #if defined ADJUST_BOUNDARY || \
     defined ADJUST_WSTRESS  || defined ADJUST_STFLUX
       logical :: get_adjust
@@ -114,7 +114,7 @@
 
       real(r8) :: Fmax, Fmin, INPtime, Tmax, scale, time_scale
 
-      real(r8), allocatable :: myTime(:)
+      real(r8), allocatable :: TimeVar(:)
 
       character (len=6 ) :: string
       character (len=14) :: t_code
@@ -217,7 +217,7 @@
 
 #ifdef NO_LBC_ATT
 !
-!  Lateral boundary conditions attributed not checked in restart file.
+!  Lateral boundary conditions attribute not checked in restart file.
 !
       IF (((model.eq.0).or.(model.eq.iNLM)).and.(nrrec(ng).ne.0)) THEN
         IF (Master) WRITE (stdout,20) string, 'NLM_LBC', TRIM(ncname)
@@ -248,8 +248,8 @@
 !  values.
 !
       mySize=var_Dsize(1)
-      IF (.not.allocated(myTime)) allocate (myTime(mySize))
-      CALL netcdf_get_fvar (ng, IDmod, ncname, TRIM(tvarnam), myTime)
+      IF (.not.allocated(TimeVar)) allocate (TimeVar(mySize))
+      CALL netcdf_get_fvar (ng, IDmod, ncname, TRIM(tvarnam), TimeVar)
       IF (exit_flag.ne.NoError) RETURN
 !
 !  If using the latest time record from input NetCDF file as the
@@ -258,8 +258,8 @@
       IF (LastRec(ng)) THEN
         Tmax=-1.0_r8
         DO i=1,mySize
-          IF (myTime(i).gt.Tmax) THEN
-            Tmax=myTime(i)
+          IF (TimeVar(i).gt.Tmax) THEN
+            Tmax=TimeVar(i)
             IniRec=i
           END IF
         END DO
@@ -277,9 +277,9 @@
         ELSE
           InpRec=1
         END IF
-        INPtime=myTime(InpRec)
+        INPtime=TimeVar(InpRec)
       END IF
-      IF (allocated(myTime)) deallocate ( myTime )
+      IF (allocated(TimeVar)) deallocate ( TimeVar )
 !
 !  Set input time scale by looking at the "units" attribute.
 !
@@ -345,6 +345,15 @@
       filtindx = InpRec
 #endif
 !
+!  Set current input time, io_time .  Notice that the model time,
+!  time(ng), is reset above.  This is a THREADPRIVATE variable in
+!  shared-memory and this routine is only processed by the MASTER
+!  thread since it is an I/O routine. Therefore, we need to update
+!  time(ng) somewhere else in a parallel region. This will be done
+!  with io_time variable.
+!
+      io_time=INPtime
+!
 !  Report information.
 !
       lstr=SCAN(ncname,'/',BACK=.TRUE.)+1
@@ -352,10 +361,10 @@
       IF (Master) THEN
         CALL time_string (INPtime, t_code)
         IF (ERend.gt.ERstr) THEN
-          WRITE (stdout,40) string, TRIM(StateMsg(msg)), t_code, Nrun,  &
-     &                      ncname(lstr:lend), InpRec, Tindex
+          WRITE (stdout,40) string, TRIM(StateMsg(msg)), t_code, ng,    &
+     &                      Nrun, ncname(lstr:lend), InpRec, Tindex
         ELSE
-          WRITE (stdout,50) string, TRIM(StateMsg(msg)), t_code,        &
+          WRITE (stdout,50) string, TRIM(StateMsg(msg)), t_code, ng,    &
      &                      ncname(lstr:lend), InpRec, Tindex
         END IF
       END IF
@@ -483,7 +492,7 @@
      &                      GRID(ng) % h)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idbath)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idbath)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -530,7 +539,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -559,7 +568,7 @@
      &                        GRID(ng) % rmask_wet)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRwet)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRwet)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -587,7 +596,7 @@
      &                        GRID(ng) % umask_wet)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUwet)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUwet)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -615,7 +624,7 @@
      &                        GRID(ng) % vmask_wet)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVwet)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVwet)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -646,7 +655,7 @@
      &                      OCEAN(ng) % rzeta)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRzet)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRzet)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -692,7 +701,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -722,7 +731,7 @@
      &                      OCEAN(ng) % rubar)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRu2d)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRu2d)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -768,7 +777,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -798,7 +807,7 @@
      &                      OCEAN(ng) % rvbar)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRv2d)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRv2d)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -842,7 +851,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -872,7 +881,7 @@
      &                      OCEAN(ng) % ru)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRu3d)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRu3d)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -914,7 +923,7 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -944,7 +953,7 @@
      &                      OCEAN(ng) % rv)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRv3d)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRv3d)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -987,7 +996,7 @@
             END IF
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1021,7 +1030,7 @@
      &                      OCEAN(ng) % PONsed)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idPONsed)),        &
+              WRITE (stdout,60) string, TRIM(Vname(1,idPONsed)),        &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1050,7 +1059,7 @@
      &                      OCEAN(ng) % OPALsed)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idOPALsed)),       &
+              WRITE (stdout,60) string, TRIM(Vname(1,idOPALsed)),       &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1079,7 +1088,7 @@
      &                      OCEAN(ng) % DENITsed)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idDENITsed)),      &
+              WRITE (stdout,60) string, TRIM(Vname(1,idDENITsed)),      &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1108,7 +1117,7 @@
      &                      OCEAN(ng) % PON_burial)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idPONbur)),        &
+              WRITE (stdout,60) string, TRIM(Vname(1,idPONbur)),        &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1137,7 +1146,7 @@
      &                      OCEAN(ng) % OPAL_burial)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idOPALbur)),       &
+              WRITE (stdout,60) string, TRIM(Vname(1,idOPALbur)),       &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1171,7 +1180,7 @@
      &                      MIXING(ng) % AKv)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvis)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvis)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1208,7 +1217,7 @@
      &                      MIXING(ng) % AKt(:,:,:,itemp))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idTdif)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idTdif)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1246,7 +1255,7 @@
      &                      MIXING(ng) % AKt(:,:,:,isalt))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idSdif)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idSdif)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1286,7 +1295,7 @@
      &                      MIXING(ng) % Hsbl)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idHsbl)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idHsbl)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1318,7 +1327,7 @@
      &                      MIXING(ng) % Hbbl)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idHbbl)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idHbbl)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1351,7 +1360,7 @@
      &                      MIXING(ng) % Ghats(:,:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idGhat(itrc))),    &
+              WRITE (stdout,60) string, TRIM(Vname(1,idGhat(itrc))),    &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -1391,7 +1400,7 @@
      &                      MIXING(ng) % tke)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idMtke)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idMtke)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1421,7 +1430,7 @@
      &                      MIXING(ng) % gls)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idMtls)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idMtls)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1451,7 +1460,7 @@
      &                      MIXING(ng) % Lscale)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVmLS)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVmLS)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1481,7 +1490,7 @@
      &                      MIXING(ng) % Akk)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVmKK)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVmKK)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1512,7 +1521,7 @@
      &                      MIXING(ng) % Akp)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVmKP)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVmKP)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -1547,7 +1556,7 @@
      &                        SEDBED(ng) % bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idfrac(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1577,7 +1586,7 @@
      &                        SEDBED(ng) % bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBmas(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1609,7 +1618,7 @@
      &                        SEDBED(ng) % bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idSbed(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1643,7 +1652,7 @@
      &                        SEDBED(ng) % bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idUbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1671,7 +1680,7 @@
      &                        SEDBED(ng) % bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idVbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1707,7 +1716,7 @@
      &                        SEDBED(ng) % bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBott(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1752,7 +1761,7 @@
             END IF
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1767,10 +1776,17 @@
           END IF
         END DO
 #  endif
-#  if defined ICE_MODEL && !defined ANA_ICE
+#  ifdef ICE_MODEL
+        read_ice = .true.
+#   ifdef ANA_ICE
+        IF (nrrec(ng).eq.0) THEN
+          read_ice = .false.
+        END IF
+#   endif
 !
 !  Read in 2D ice momentum component (m/s) in the XI-direction.
 !
+      IF (read_ice) THEN
         foundit=find_string(var_name, n_var, TRIM(Vname(1,idUice)),     &
      &                        varid)
           IF (Perfect2D) THEN
@@ -1800,7 +1816,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idUice)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idUice)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -1844,7 +1860,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idVice)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idVice)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -1887,7 +1903,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idAice)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idAice)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -1930,7 +1946,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idHice)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idHice)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -1973,7 +1989,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idHsno)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idHsno)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2000,7 +2016,7 @@
      &                ICE(ng) % tis)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idTice)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idTice)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2043,7 +2059,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idSfwat)),           &
+            WRITE (stdout,60) string, TRIM(Vname(1,idSfwat)),           &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2086,7 +2102,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idAgeice)),          &
+            WRITE (stdout,60) string, TRIM(Vname(1,idAgeice)),          &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2129,7 +2145,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idTimid)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idTimid)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2172,7 +2188,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idSig11)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idSig11)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2215,7 +2231,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idSig22)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idSig22)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2258,7 +2274,7 @@
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idSig12)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idSig12)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2269,62 +2285,6 @@
             WRITE (stdout,70) TRIM(Vname(2,idSig12)), Fmin, Fmax
           END IF
         END IF
-#ifdef FOOO
-!
-!  Read in ice-water friction velocity.
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idTauiw)),    &
-     &                        varid)
-        gtype=var_flag(varid)*r2dvar
-        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idTauiw), varid, InpRec, gtype,           &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-       &                ICE(ng) % utau_iw)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idTauiw)),            &
-     &                        InpRec, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idTauiw)), Fmin, Fmax
-          END IF
-        END IF
-!
-!  Read in ice-water momentum transfer coefficient.
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),    &
-     &                        varid)
-        gtype=var_flag(varid)*r2dvar
-        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idChuiw), varid, InpRec, gtype,           &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                ICE(ng) % chu_iw)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idChuiw)),           &
-     &                        InpRec, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idChuiw)), Fmin, Fmax
-          END IF
-        END IF
-#endif
 !
 !  Read in salinity of molecular sub-layer under ice
 !
@@ -2341,7 +2301,7 @@
      &                ICE(ng) % s0mk)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idS0mk)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idS0mk)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2368,7 +2328,7 @@
      &                ICE(ng) % t0mk)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,30) string, TRIM(Vname(1,idT0mk)),            &
+            WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),            &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2379,28 +2339,62 @@
             WRITE (stdout,70) TRIM(Vname(2,idT0mk)), Fmin, Fmax
           END IF
         END IF
-#   if defined PERFECT_RESTART && defined ICE_MODEL
+#   ifdef PERFECT_RESTART
 !
 !  Read in surface tracers flux.
 !
-        DO itrc=1,NAT
-          IF (get_var(idTsur(itrc))) THEN
-            foundit=find_string(var_name, n_var,                        &
+        IF (Perfect2D) THEN
+          DO itrc=1,NAT
+            IF (get_var(idTsur(itrc))) THEN
+              foundit=find_string(var_name, n_var,                      &
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
-            gtype=var_flag(varid)*r2dvar
+              gtype=var_flag(varid)*r2dvar
+              scale=1.0_r8
+              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idTsur(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          scale, Fmin, Fmax,                      &
+#   ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#   endif
+     &                          FORCES(ng)% stflx_save(:,:,itrc))
+              IF (status.ne.nf90_noerr) THEN
+                IF (Master) THEN
+                  WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),&
+     &                              InpRec, TRIM(ncname)
+                END IF
+                exit_flag=2
+                ioerror=status
+                RETURN
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//       &
+     &                               ', saved stflx', Fmin, Fmax
+                END IF
+              END IF
+            END IF
+          END DO
+!
+!  Read in surface U-momentum stress.
+!
+          IF (get_var(idUsms)) THEN
+            foundit=find_string(var_name, n_var, TRIM(Vname(1,idUsms)), &
+     &                          varid)
+            gtype=var_flag(varid)*u2dvar
             scale=1.0_r8
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
-     &                        Vname(1,idTsur(itrc)), varid,             &
+     &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        scale, Fmin, Fmax,                        &
-#   ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
-#   endif
-     &                        FORCES(ng)% stflx_save(:,:,itrc))
+#  ifdef MASKING
+     &                        GRID(ng) % umask,                         &
+#  endif
+     &                        FORCES(ng) % sustr_save)
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -2408,77 +2402,46 @@
               RETURN
             ELSE
               IF (Master) THEN
-                WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//        &
-     &                             ', saved stflx', Fmin, Fmax
+                WRITE (stdout,70) TRIM(Vname(2,idUsms))//               &
+     &                             ', saved sustr', Fmin, Fmax
               END IF
             END IF
           END IF
-        END DO
-!
-!  Read in surface U-momentum stress.
-!
-        IF (get_var(idUsms)) THEN
-          foundit=find_string(var_name, n_var, TRIM(Vname(1,idUsms)),   &
-     &                        varid)
-          gtype=var_flag(varid)*u2dvar
-          scale=1.0_r8
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idUsms), varid,                     &
-     &                      InpRec, gtype, Vsize,                       &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
-#  ifdef MASKING
-     &                      GRID(ng) % umask,                           &
-#  endif
-     &                      FORCES(ng) % sustr_save)
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)),          &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idUsms))//                &
-     &                           ', saved sustr', Fmin, Fmax
-            END IF
-          END IF
-        END IF
 !
 !  Read in surface V-momentum stress.
 !
-        IF (get_var(idVsms)) THEN
-          foundit=find_string(var_name, n_var, TRIM(Vname(1,idVsms)),   &
-     &                        varid)
-          gtype=var_flag(varid)*v2dvar
-          scale=1.0_r8
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idVsms), varid,                     &
-     &                      InpRec, gtype, Vsize,                       &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, Fmin, Fmax,                          &
+          IF (get_var(idVsms)) THEN
+            foundit=find_string(var_name, n_var, TRIM(Vname(1,idVsms)), &
+     &                          varid)
+            gtype=var_flag(varid)*v2dvar
+            scale=1.0_r8
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idVsms), varid,                   &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        scale, Fmin, Fmax,                        &
 #  ifdef MASKING
-     &                      GRID(ng) % vmask,                           &
+     &                        GRID(ng) % vmask,                         &
 #  endif
-     &                      FORCES(ng) % svstr_save)
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)),          &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idVsms))//                &
-     &                           ', saved svstr', Fmin, Fmax
+     &                        FORCES(ng) % svstr_save)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),        &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,idVsms))//               &
+     &                             ', saved svstr', Fmin, Fmax
+              END IF
             END IF
           END IF
         END IF
 #   endif
+      END IF
 !
 #  endif
 #  ifdef NCEP_FLUXES
@@ -2499,7 +2462,7 @@
      &                      FORCES(ng) % wg2_d)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idWg2d)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idWg2d)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2528,7 +2491,7 @@
      &                      FORCES(ng) % cd_d)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idCdd)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idCdd)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2557,7 +2520,7 @@
      &                      FORCES(ng) % ch_d)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idChd)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idChd)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2586,7 +2549,7 @@
      &                      FORCES(ng) % ce_d)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idCed)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idCed)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2615,7 +2578,7 @@
      &                      FORCES(ng) % wg2_m)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idWg2m)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idWg2m)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2644,7 +2607,7 @@
      &                      FORCES(ng) % cd_m)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idCdm)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idCdm)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2673,7 +2636,7 @@
      &                      FORCES(ng) % ch_m)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idChm)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idChm)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2702,7 +2665,7 @@
      &                      FORCES(ng) % ce_m)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idCem)), InpRec,   &
+              WRITE (stdout,60) string, TRIM(Vname(1,idCem)), InpRec,   &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2731,7 +2694,7 @@
      &                      FORCES(ng) % rhoa_n)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idRhoa)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idRhoa)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2806,7 +2769,7 @@
      &                      OCEAN(ng) % tl_zeta(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2836,7 +2799,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2867,7 +2830,7 @@
      &                      OCEAN(ng) % tl_ubar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2897,7 +2860,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2928,7 +2891,7 @@
      &                      OCEAN(ng) % tl_vbar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2958,7 +2921,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -2991,7 +2954,7 @@
      &                      FORCES(ng) % tl_ustr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)),          &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),          &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -3000,7 +2963,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idUsms))//                 &
-     &                           ', adjusted tl_ustr', Fmin, Fmax
+     &                          ', adjusted tl_ustr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -3023,7 +2986,7 @@
      &                      FORCES(ng) % tl_vstr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)),          &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),          &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -3032,7 +2995,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idVsms))//                 &
-     &                           ', adjusted tl_vstr', Fmin, Fmax
+     &                          ', adjusted tl_vstr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -3056,7 +3019,7 @@
      &                      OCEAN(ng) % tl_u(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3086,7 +3049,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3117,7 +3080,7 @@
      &                      OCEAN(ng) % tl_v(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3147,7 +3110,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3179,7 +3142,7 @@
      &                        OCEAN(ng) % tl_t(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3188,7 +3151,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTvar(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
           END IF
@@ -3212,7 +3175,7 @@
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,ifield)),        &
+                WRITE (stdout,60) string, TRIM(Vname(1,ifield)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3248,7 +3211,7 @@
      &                        FORCES(ng)% tl_tflux(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3257,7 +3220,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//         &
-     &                             ', adjusted tl_tflux', Fmin, Fmax
+     &                            ', adjusted tl_tflux', Fmin, Fmax
               END IF
             END IF
           END IF
@@ -3284,7 +3247,7 @@
      &                        SEDBED(ng) % tl_bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idfrac(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3315,7 +3278,7 @@
      &                        SEDBED(ng) % tl_bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBmas(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3347,7 +3310,7 @@
      &                        SEDBED(ng) % tl_bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idSbed(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3381,7 +3344,7 @@
      &                        SEDBED(ng) % tl_bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idUbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3409,7 +3372,7 @@
      &                        SEDBED(ng) % tl_bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idVbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3445,7 +3408,7 @@
      &                        SEDBED(ng) % tl_bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBott(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3488,7 +3451,7 @@
      &                      OCEAN(ng) % ad_zeta(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3518,7 +3481,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3549,7 +3512,7 @@
      &                      OCEAN(ng) % ad_ubar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3579,7 +3542,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3610,7 +3573,7 @@
      &                      OCEAN(ng) % ad_vbar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3640,7 +3603,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3673,7 +3636,7 @@
      &                      FORCES(ng) % ad_ustr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3682,7 +3645,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idUsms))//                 &
-     &                           ', adjusted ad_ustr', Fmin, Fmax
+     &                          ', adjusted ad_ustr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -3705,7 +3668,7 @@
      &                      FORCES(ng) % ad_vstr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3714,7 +3677,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idVsms))//                 &
-     &                           ', adjusted ad_vstr', Fmin, Fmax
+     &                          ', adjusted ad_vstr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -3738,7 +3701,7 @@
      &                      OCEAN(ng) % ad_u(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3768,7 +3731,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3799,7 +3762,7 @@
      &                      OCEAN(ng) % ad_v(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3829,7 +3792,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -3861,7 +3824,7 @@
      &                        OCEAN(ng) % ad_t(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3870,7 +3833,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTvar(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
           END IF
@@ -3894,7 +3857,7 @@
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,ifield)),        &
+                WRITE (stdout,60) string, TRIM(Vname(1,ifield)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3929,7 +3892,7 @@
      &                        FORCES(ng) % ad_tflux(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3938,7 +3901,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//         &
-     &                             ', adjusted ad_tflux', Fmin, Fmax
+     &                            ', adjusted ad_tflux', Fmin, Fmax
               END IF
             END IF
           END IF
@@ -3965,7 +3928,7 @@
      &                        SEDBED(ng) % ad_bed_frac(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idfrac(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idfrac(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3995,7 +3958,7 @@
      &                        SEDBED(ng) % ad_bed_mass(:,:,:,Tindex,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBmas(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBmas(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4027,7 +3990,7 @@
      &                        SEDBED(ng) % ad_bed(:,:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idSbed(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idSbed(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4060,7 +4023,7 @@
      &                        SEDBED(ng) % ad_bedldu(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idUbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idUbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4088,7 +4051,7 @@
      &                        SEDBED(ng) % ad_bedldv(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idVbld(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idVbld(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4123,7 +4086,7 @@
      &                        SEDBED(ng) % ad_bottom(:,:,i))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idBott(i))),     &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBott(i))),     &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4168,7 +4131,7 @@
      &                      OCEAN(ng) % b_zeta(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4205,7 +4168,7 @@
      &                      OCEAN(ng) % b_ubar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4242,7 +4205,7 @@
      &                      OCEAN(ng) % b_vbar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4280,7 +4243,7 @@
      &                      OCEAN(ng) % b_u(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4317,7 +4280,7 @@
      &                      OCEAN(ng) % b_v(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4355,7 +4318,7 @@
      &                        OCEAN(ng) % b_t(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4364,7 +4327,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTvar(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
 #  ifdef DISTRIBUTE
@@ -4393,7 +4356,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isFsur))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4411,7 +4374,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isUbar))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4429,7 +4392,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isVbar))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 #  ifdef SOLVE3D
@@ -4448,7 +4411,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isUvel))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4466,7 +4429,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isVvel))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4486,7 +4449,7 @@
             IF (exit_flag.ne.NoError) RETURN
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(1,idSbry(isTvar(itrc)))),    &
-     &                           Fmin, Fmax
+     &                          Fmin, Fmax
             END IF
           END IF
         END DO
@@ -4511,7 +4474,7 @@
      &                      FORCES(ng) % b_sustr)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4548,7 +4511,7 @@
      &                      FORCES(ng) % b_svstr)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4589,7 +4552,7 @@
      &                        FORCES(ng) % b_stflx(:,:,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4598,7 +4561,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
 #  ifdef DISTRIBUTE
@@ -4648,7 +4611,7 @@
      &                      OCEAN(ng) % e_zeta(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4685,7 +4648,7 @@
      &                      OCEAN(ng) % e_ubar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4722,7 +4685,7 @@
      &                      OCEAN(ng) % e_vbar(:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4760,7 +4723,7 @@
      &                      OCEAN(ng) % e_u(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4797,7 +4760,7 @@
      &                      OCEAN(ng) % e_v(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4835,7 +4798,7 @@
      &                        OCEAN(ng) % e_t(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -4844,7 +4807,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTvar(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
 #  ifdef DISTRIBUTE
@@ -4875,7 +4838,7 @@
      &                      MIXING(ng) % Kh)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idKhor)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idKhor)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4884,7 +4847,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idKhor)), KhMin(ng),       &
-     &                           KhMax(ng)
+     &                          KhMax(ng)
             END IF
           END IF
 # ifdef DISTRIBUTE
@@ -4914,7 +4877,7 @@
      &                      MIXING(ng) % Kv)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idKver)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idKver)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -4923,7 +4886,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idKver)), KvMin(ng),       &
-     &                           KvMax(ng)
+     &                          KvMax(ng)
             END IF
           END IF
 #  ifdef DISTRIBUTE
@@ -4951,7 +4914,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isFsur))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4969,7 +4932,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isUbar))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -4987,7 +4950,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isVbar))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 #  ifdef SOLVE3D
@@ -5006,7 +4969,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isUvel))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -5024,7 +4987,7 @@
           IF (exit_flag.ne.NoError) RETURN
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(1,idSbry(isVvel))),            &
-     &                         Fmin, Fmax
+     &                        Fmin, Fmax
           END IF
         END IF
 !
@@ -5044,7 +5007,7 @@
             IF (exit_flag.ne.NoError) RETURN
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(1,idSbry(isTvar(itrc)))),    &
-     &                           Fmin, Fmax
+     &                          Fmin, Fmax
             END IF
           END IF
         END DO
@@ -5070,7 +5033,7 @@
      &                      FORCES(ng) % e_sustr)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5108,7 +5071,7 @@
      &                      FORCES(ng) % e_svstr)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVsms)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5154,7 +5117,7 @@
      &                        FORCES(ng) % e_stflx(:,:,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -5163,7 +5126,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
 #  ifdef DISTRIBUTE
@@ -5217,7 +5180,7 @@
      &                      OCEAN(ng) % f_zeta)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idFsur)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idFsur)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5249,7 +5212,7 @@
      &                      OCEAN(ng) % f_ubar)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5279,7 +5242,7 @@
      &                      OCEAN(ng) % f_vbar)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVbar)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVbar)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5311,7 +5274,7 @@
      &                      OCEAN(ng) % f_u)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5341,7 +5304,7 @@
      &                      OCEAN(ng) % f_v)
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVvel)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVvel)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5372,7 +5335,7 @@
      &                        OCEAN(ng) % f_t(:,:,:,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -5381,7 +5344,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTvar(itrc))),          &
-     &                             Fmin, Fmax
+     &                            Fmin, Fmax
               END IF
             END IF
           END IF
@@ -5424,7 +5387,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5453,7 +5416,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5482,7 +5445,7 @@
      &                                                      Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5513,7 +5476,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5542,7 +5505,7 @@
      &                                                   Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,ifield)), InpRec,  &
+              WRITE (stdout,60) string, TRIM(Vname(1,ifield)), InpRec,  &
      &                          TRIM(ncname)
             END IF
             exit_flag=2
@@ -5572,7 +5535,7 @@
      &                                                     Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,ifield)),        &
+                WRITE (stdout,60) string, TRIM(Vname(1,ifield)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -5607,7 +5570,7 @@
      &                      FORCES(ng) % tl_ustr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idUsms)),          &
+              WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),          &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -5616,7 +5579,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idUsms))//                 &
-     &                           ', adjusted tl_ustr', Fmin, Fmax
+     &                          ', adjusted tl_ustr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -5639,7 +5602,7 @@
      &                      FORCES(ng) % tl_vstr(:,:,:,Tindex))
           IF (status.ne.nf90_noerr) THEN
             IF (Master) THEN
-              WRITE (stdout,30) string, TRIM(Vname(1,idVsms)),          &
+              WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),          &
      &                          InpRec, TRIM(ncname)
             END IF
             exit_flag=2
@@ -5648,7 +5611,7 @@
           ELSE
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idVsms))//                 &
-     &                           ', adjusted tl_vstr', Fmin, Fmax
+     &                          ', adjusted tl_vstr', Fmin, Fmax
             END IF
           END IF
         END IF
@@ -5675,7 +5638,7 @@
      &                        FORCES(ng)% tl_tflux(:,:,:,Tindex,itrc))
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,30) string, TRIM(Vname(1,idTsur(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idTsur(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -5684,7 +5647,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//         &
-     &                             ', adjusted tl_tflux', Fmin, Fmax
+     &                            ', adjusted tl_tflux', Fmin, Fmax
               END IF
             END IF
           END IF
@@ -5707,11 +5670,15 @@
      &        18x,'not found in input NetCDF: ',a,/,                    &
      &        18x,'number of available records = ',i3)
   40  FORMAT (/,a,'GET_STATE - ',a,t62,'t = ',a,                        &
-     &        /,19x,'(Iter=',i4.4,', File: ',a,', Rec=',i4.4,           &
-     &        ', Index=',i1,')')
+     &        /,19x,'(Grid ',i2.2,', Iter=',i4.4,', File: ',a,          &
+     &        ', Rec=',i4.4,', Index=',i1,')')
   50  FORMAT (/,a,'GET_STATE - ',a,t62,'t = ',a,                        &
-     &        /,19x,'(File: ',a,', Rec=',i4.4,', Index=',i1,')')
+     &        /,19x,'(Grid ',i2.2,', File: ',a,', Rec=',i4.4,           &
+     &        ', Index=',i1,')')
+  60  FORMAT (/,a,'GET_STATE - error while reading variable: ',a,2x,    &
+     &        'at time record = ',i3,/,18x,'in input NetCDF file: ',a)
   70  FORMAT (16x,'- ',a,/,19x,'(Min = ',1p,e15.8,                      &
      &        ' Max = ',1p,e15.8,')')
+
       RETURN
       END SUBROUTINE get_state

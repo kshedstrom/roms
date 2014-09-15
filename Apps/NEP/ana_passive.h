@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -75,8 +75,8 @@
 !
 #if defined NEP6 || defined  NEP5 || defined NEP4
 !     DO k=1,N(ng)
-!       DO j=JstrR,JendR
-!         DO i=IstrR,IendR
+!       DO j=JstrT,JendT
+!         DO i=IstrT,IendT
 !           t(i,j,k,1,inert(1)) = i
 !           t(i,j,k,1,inert(2)) = j
 !           t(i,j,k,1,inert(3)) = -1 * GRID(ng) % z_r(i,j,k)
@@ -94,8 +94,8 @@
 !       END DO
 !     END DO
       DO k=1,N(ng)
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
             DO ip=1,NPT
               itrc=inert(ip)
               t(i,j,k,1,itrc) = 0.

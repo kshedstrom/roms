@@ -14,7 +14,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE tibc (ng, tile)
+      SUBROUTINE tibc (ng, tile, model)
 !***********************************************************************
 !
       USE mod_param
@@ -22,11 +22,11 @@
       USE mod_stepping
       USE mod_scalars
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 # include "tile.h"
 !
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, model,                                  &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold(ng), linew(ng),                             &
      &                ICE(ng) % ui,                                     &
@@ -39,7 +39,7 @@
 
 !
 !***********************************************************************
-      SUBROUTINE tibc_tile (ng, tile,                                   &
+      SUBROUTINE tibc_tile (ng, tile, model,                            &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           liold, linew,                          &
      &                           ui, vi, hi, ti, enthalpi)
@@ -56,7 +56,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: liold, linew
 

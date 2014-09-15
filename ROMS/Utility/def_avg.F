@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -91,9 +91,9 @@
 !
       IF (Master) THEN
         IF (ldef) THEN
-          WRITE (stdout,10) TRIM(ncname)
+          WRITE (stdout,10) ng, TRIM(ncname)
         ELSE
-          WRITE (stdout,20) TRIM(ncname)
+          WRITE (stdout,20) ng, TRIM(ncname)
         END IF
       END IF
 # ifdef ADJOINT
@@ -288,7 +288,7 @@
 #  endif
 # endif
 !
-!  Define dimension vectors for staggered u-momemtum type variables.
+!  Define dimension vectors for staggered u-momentum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
         u2dgrd(1)=DimIDs(18)
@@ -309,7 +309,7 @@
 #  endif
 # endif
 !
-!  Define dimension vectors for staggered v-momemtum type variables.
+!  Define dimension vectors for staggered v-momentum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
         v2dgrd(1)=DimIDs(19)
@@ -352,7 +352,7 @@
 # endif
 # ifdef SOLVE3D
 !
-!  Define dimension vector for staggered w-momemtum type variables.
+!  Define dimension vector for staggered w-momentum type variables.
 !
 #  if defined WRITE_WATER && defined MASKING
         w3dgrd(1)=DimIDs(23)
@@ -2387,44 +2387,6 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
-!  Define temperature of molecular sublayer under ice.
-!
-        IF (Aout(idT0mk,ng)) THEN
-          Vinfo( 1)=Vname(1,idT0mk)
-          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idT0mk))
-          Vinfo( 3)=Vname(3,idT0mk)
-          Vinfo(14)=Vname(4,idT0mk)
-          Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#  endif
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid,                       &
-     &                   AVG(ng)%Vid(idT0mk), NF_FOUT,                  &
-     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define salinity of molecular sublayer under ice.
-!
-        IF (Aout(idS0mk,ng)) THEN
-          Vinfo( 1)=Vname(1,idS0mk)
-          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idS0mk))
-          Vinfo( 3)=Vname(3,idS0mk)
-          Vinfo(14)=Vname(4,idS0mk)
-          Vinfo(16)=Vname(1,idtime)
-#  if defined WRITE_WATER && defined MASKING
-          Vinfo(20)='mask_rho'
-#  endif
-          Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid,                       &
-     &                   AVG(ng)%Vid(idS0mk), NF_FOUT,                  &
-     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
 !  Define frazil ice growth rate.
 !
         IF (Aout(idWfr,ng)) THEN
@@ -2516,6 +2478,25 @@
           Aval(5)=REAL(Iinfo(1,idWro,ng),r8)
           status=def_var(ng, model, AVG(ng)%ncid,                       &
      &                   AVG(ng)%Vid(idWro), NF_FOUT,                   &
+     &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define ice divergence rate.
+!
+        IF (Aout(idWdiv,ng)) THEN
+          Vinfo( 1)=Vname(1,idWdiv)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idWdiv))
+          Vinfo( 3)=Vname(3,idWdiv)
+          Vinfo(14)=Vname(4,idWdiv)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWdiv,ng),r8)
+          status=def_var(ng, model, AVG(ng)%ncid,                       &
+     &                   AVG(ng)%Vid(idWdiv), NF_FOUT,                  &
      &                   nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -3078,12 +3059,6 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
             got_var(idChuiw)=.true.
             AVG(ng)%Vid(idChuiw)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
-            got_var(idT0mk)=.true.
-            AVG(ng)%Vid(idT0mk)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
-            got_var(idS0mk)=.true.
-            AVG(ng)%Vid(idS0mk)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
             got_var(idWfr)=.true.
             AVG(ng)%Vid(idWfr)=var_id(i)
@@ -3099,6 +3074,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWro))) THEN
             got_var(idWro)=.true.
             AVG(ng)%Vid(idWro)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdiv))) THEN
+            got_var(idWdiv)=.true.
+            AVG(ng)%Vid(idWdiv)=var_id(i)
 #  endif
 #  if defined RUNOFF
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRunoff))) THEN
@@ -3697,18 +3675,6 @@
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idT0mk).and.Aout(idT0mk,ng)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idT0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idS0mk).and.Aout(idS0mk,ng)) THEN
-          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idS0mk)),          &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
         IF (.not.got_var(idWfr).and.Aout(idWfr,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWfr)),           &
      &                                  TRIM(ncname)
@@ -3735,6 +3701,12 @@
         END IF
         IF (.not.got_var(idWro).and.Aout(idWro,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWro)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idWdiv).and.Aout(idWdiv,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWdiv)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -4057,8 +4029,10 @@
       END IF
 # endif
 !
-  10  FORMAT (6x,'DEF_AVG   - creating average file: ',a)
-  20  FORMAT (6x,'DEF_AVG   - inquiring average file: ',a)
+  10  FORMAT (6x,'DEF_AVG   - creating average file, Grid ',i2.2,': ',  &
+     &        a)
+  20  FORMAT (6x,'DEF_AVG   - inquiring average file, Grid ',i2.2,': ', &
+     &        a)
   30  FORMAT (/,' DEF_AVG - unable to create averages NetCDF file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')
   50  FORMAT (/,' DEF_AVG - unable to open averages NetCDF file: ',a)

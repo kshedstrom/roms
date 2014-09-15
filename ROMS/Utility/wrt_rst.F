@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -470,7 +470,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), 1, 2, scale,     &
 #  ifdef MASKING
-     &                   GRID(ng) % umask_io,                           &
+     &                   GRID(ng) % umask,                              &
 #  endif
      &                   OCEAN(ng) % ru)
       IF (status.ne.nf90_noerr) THEN
@@ -522,7 +522,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), 1, 2, scale,     &
 #  ifdef MASKING
-     &                   GRID(ng) % vmask_io,                           &
+     &                   GRID(ng) % vmask,                              &
 #  endif
      &                   OCEAN(ng) % rv)
       IF (status.ne.nf90_noerr) THEN
@@ -545,7 +545,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), 1, 2, scale,   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % t(:,:,:,:,itrc))
 # else
@@ -553,7 +553,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % t(:,:,:,NOUT,itrc))
 # endif
@@ -577,9 +577,9 @@
      &                     RST(ng)%Vid(idTsur(itrc)),                   &
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
-# ifdef MASKING
+#  ifdef MASKING
      &                     GRID(ng) % rmask_io,                         &
-# endif
+#  endif
      &                     FORCES(ng) % stflx(:,:,itrc))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
@@ -597,12 +597,13 @@
       scale=1.0_r8
       gtype=gfactor*u2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUsms),   &
-     &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
-#endif
-     &                     FORCES(ng) % sustr)
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % umask_io,                           &
+#  endif
+     &                   FORCES(ng) % sustr,                            &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idUsms)), RST(ng)%Rindex
@@ -617,12 +618,13 @@
       scale=1.0_r8
       gtype=gfactor*v2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVsms),   &
-     &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
-#endif
-     &                     FORCES(ng) % svstr)
+     &                   RST(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#  ifdef MASKING
+     &                   GRID(ng) % vmask_io,                           &
+#  endif
+     &                   FORCES(ng) % svstr,                            &
+     &                   SetFillVal = .FALSE.)
       IF (status.ne.nf90_noerr) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(Vname(1,idVsms)), RST(ng)%Rindex
@@ -662,7 +664,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   OCEAN(ng) % PONsed)
       IF (status.ne.nf90_noerr) THEN
@@ -682,7 +684,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   OCEAN(ng) % OPALsed)
       IF (status.ne.nf90_noerr) THEN
@@ -703,7 +705,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   OCEAN(ng) % DENITsed)
       IF (status.ne.nf90_noerr) THEN
@@ -723,7 +725,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   OCEAN(ng) % PON_burial)
       IF (status.ne.nf90_noerr) THEN
@@ -743,7 +745,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   OCEAN(ng) % OPAL_burial)
       IF (status.ne.nf90_noerr) THEN
@@ -765,7 +767,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % hsbl)
       IF (status.ne.nf90_noerr) THEN
@@ -787,7 +789,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % hbbl)
       IF (status.ne.nf90_noerr) THEN
@@ -811,7 +813,7 @@
      &                       RST(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 0, N(ng), scale,       &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_io,                       &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       MIXING(ng) % ghats(:,:,:,i))
         IF (status.ne.nf90_noerr) THEN
@@ -898,25 +900,25 @@
 !
 !  Write out ice 2D momentum component (m/s) in the XI-direction.
 !
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*u3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUice),   &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % umask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % umask,                              &
+#   endif
      &                 ICE (ng) % ui)
-#else
+#  else
       gtype=gfactor*u2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idUice),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % umask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % umask,                                &
+#   endif
      &                 ICE (ng) % ui(:,:,IUOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idUice)), RST(ng)%Rindex
         exit_flag=3
@@ -927,25 +929,25 @@
 !  Write out ice 2D momentum component (m/s) in the ETA-direction.
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*v3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVice),   &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % vmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % vmask,                              &
+#   endif
      &                   ICE (ng) % vi)
-#else
+#  else
       gtype=gfactor*v2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idVice),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % vmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % vmask,                                &
+#   endif
      &                 ICE (ng) % vi(:,:,IUOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idVice)), RST(ng)%Rindex
         exit_flag=3
@@ -956,25 +958,25 @@
 !  Write out ice concentration
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAice),   &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                 ICE (ng) % ai)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAice),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % ai(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idAice)), RST(ng)%Rindex
         exit_flag=3
@@ -985,25 +987,25 @@
 !  Write out ice average thickness
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHice),   &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                 ICE (ng) % hi)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHice),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % hi(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idHice)), RST(ng)%Rindex
         exit_flag=3
@@ -1014,25 +1016,25 @@
 !  Write out snow average thickness
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHsno),   &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % hsn)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHsno),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % hsn(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idHsno)), RST(ng)%Rindex
         exit_flag=3
@@ -1043,25 +1045,25 @@
 !  Write out surface water thickness (on ice)
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),  &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % sfwat)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % sfwat(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idSfwat)), RST(ng)%Rindex
         exit_flag=3
@@ -1072,25 +1074,25 @@
 !  Write out ice age
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAgeice), &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % ageice)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idAgeice), &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % ageice(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idAgeice)), RST(ng)%Rindex
         exit_flag=3
@@ -1105,9 +1107,9 @@
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTice),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-#endif
+#  ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#  endif
      &                 ICE (ng) % tis)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idTice)), RST(ng)%Rindex
@@ -1119,25 +1121,25 @@
 !  Write out ice interior temperature
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTimid),  &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % ti)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTimid),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % ti(:,:,IOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idTimid)), RST(ng)%Rindex
         exit_flag=3
@@ -1148,25 +1150,25 @@
 !  Write out internal ice stress component 11
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig11),  &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % sig11)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig11),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % sig11(:,:,IEOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idSig11)), RST(ng)%Rindex
         exit_flag=3
@@ -1177,25 +1179,25 @@
 !  Write out internal ice stress component 22
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig22),  &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % sig22)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig22),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % sig22(:,:,IEOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idSig22)), RST(ng)%Rindex
         exit_flag=3
@@ -1206,25 +1208,25 @@
 !  Write out internal ice stress component 12
 !
       scale=1.0_r8
-#ifdef PERFECT_RESTART
+#  ifdef PERFECT_RESTART
       gtype=gfactor*r3dvar
       status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig12),  &
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 1, 2, scale,               &
-# ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
-# endif
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
      &                   ICE (ng) % sig12)
-#else
+#  else
       gtype=gfactor*r2dvar
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSig12),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-# ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-# endif
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
      &                 ICE (ng) % sig12(:,:,IEOUT))
-#endif
+#  endif
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idSig12)), RST(ng)%Rindex
         exit_flag=3
@@ -1239,9 +1241,9 @@
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idTauiw),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
+#  ifdef MASKING
      &                 GRID(ng) % rmask_io,                             &
-#endif
+#  endif
      &                 ICE (ng) % utau_iw)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idTauiw)), RST(ng)%Rindex
@@ -1257,9 +1259,9 @@
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idChuiw),  &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
+#  ifdef MASKING
      &                 GRID(ng) % rmask_io,                             &
-#endif
+#  endif
      &                 ICE (ng) % chu_iw)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idChuiw)), RST(ng)%Rindex
@@ -1275,9 +1277,9 @@
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idS0mk),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-#endif
+#  ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#  endif
      &                 ICE (ng) % s0mk)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idS0mk)), RST(ng)%Rindex
@@ -1293,9 +1295,9 @@
       status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idT0mk),   &
      &                 RST(ng)%Rindex, gtype,                           &
      &                 LBi, UBi, LBj, UBj, scale,                       &
-#ifdef MASKING
-     &                 GRID(ng) % rmask_io,                             &
-#endif
+#  ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#  endif
      &                 ICE (ng) % t0mk)
       IF (OutThread.and.(status.ne.nf90_noerr)) THEN
         WRITE (stdout,10) TRIM(Vname(1,idT0mk)), RST(ng)%Rindex
@@ -1316,7 +1318,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), 1, 2, scale,     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % tke,                              &
      &                   SetFillVal = .FALSE.)
@@ -1338,7 +1340,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), 1, 2, scale,     &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % gls,                              &
      &                   SetFillVal = .FALSE.)
@@ -1359,7 +1361,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,           &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % Lscale)
       IF (status.ne.nf90_noerr) THEN
@@ -1379,7 +1381,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,           &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % Akk)
       IF (status.ne.nf90_noerr) THEN
@@ -1400,7 +1402,7 @@
      &                   RST(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,           &
 #  ifdef MASKING
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask,                              &
 #  endif
      &                   MIXING(ng) % Akp)
       IF (status.ne.nf90_noerr) THEN
@@ -1836,19 +1838,35 @@
       IF (exit_flag.ne.NoError) RETURN
 
 #ifdef SOLVE3D
+# ifdef NESTING
+      IF (Master) WRITE (stdout,20) KOUT, NOUT, RST(ng)%Rindex, ng
+# else
       IF (Master) WRITE (stdout,20) KOUT, NOUT, RST(ng)%Rindex
+# endif
 #else
+# ifdef NESTING
+      IF (Master) WRITE (stdout,20) KOUT, RST(ng)%Rindex, ng
+# else
       IF (Master) WRITE (stdout,20) KOUT, RST(ng)%Rindex
+# endif
 #endif
 !
   10  FORMAT (/,' WRT_RST - error while writing variable: ',a,/,11x,    &
      &        'into restart NetCDF file for time record: ',i4)
 #ifdef SOLVE3D
   20  FORMAT (6x,'WRT_RST   - wrote re-start fields (Index=', i1,       &
+# ifdef NESTING
+     &        ',',i1,') into time record = ',i7.7,2x,i2.2)
+# else
      &        ',',i1,') into time record = ',i7.7)
+# endif
 #else
   20  FORMAT (6x,'WRT_RST   - wrote re-start fields (Index=', i1,       &
+# ifdef NESTING
+     &        ') into time record = ',i7.7,2x,i2.2)
+# else
      &        ') into time record = ',i7.7)
+# endif
 #endif
 
       RETURN

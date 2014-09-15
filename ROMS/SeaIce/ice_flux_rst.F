@@ -2,7 +2,7 @@
       MODULE ice_flux_mod
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2013 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2014 ROMS/TOMS Group                             !
 !***************************************************** Kate Hedstrom ***
 !                                                                      !
 !  The purpose of this routine is to provide the ice-water fluxes      !

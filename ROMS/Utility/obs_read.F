@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,7 +47,11 @@
 !
       IF (ProcessObs(ng)) THEN
 # if defined TLM_OBS
+#  if defined IS4DVAR_SENSITIVITY
+        readNLmod=.FALSE.
+#  else
         readNLmod=.TRUE.
+#  endif
         readTLmod=.TRUE.
 # else
         readNLmod=.FALSE.

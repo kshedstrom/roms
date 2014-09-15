@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -174,6 +174,7 @@
 #  endif
 # endif
 #endif
+
 !
 !-----------------------------------------------------------------------
 !  Time stepping indices, variables, and clocks.
@@ -191,6 +192,7 @@
 !    dtfast        Size barotropic timestep (s).
 !    dtau          Size of age increment
 !    run_time      Total run time for all nested grids (s).
+!    io_time       Current I/O time (s) processed in "get_state".
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
 !    time_code     Model time clock (string, Day HH:MM:SS)
@@ -215,7 +217,6 @@
 !    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
 !    r_text        Model initialization reference text (string).
 !
-
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
 !$OMP THREADPRIVATE (PREDICTOR_2D_STEP)
@@ -228,10 +229,13 @@
         integer, allocatable :: ndtfast(:)
         integer, allocatable :: nfast(:)
 
-        real(r8), allocatable :: dt(:)                   ! seconds
-        real(r8), allocatable :: dtfast(:)               ! seconds
         real(r8), allocatable :: tdays(:)                ! days
         real(r8), allocatable :: time(:)                 ! seconds
+!$OMP THREADPRIVATE (tdays, time)
+
+        real(r8), allocatable :: dt(:)                   ! seconds
+        real(r8), allocatable :: dtfast(:)               ! seconds
+
         real(r8), allocatable :: TimeEnd(:)              ! seconds
         real(r8), allocatable :: AVGtime(:)              ! seconds
         real(r8), allocatable :: AVG2time(:)             ! seconds
@@ -248,12 +252,15 @@
 
         real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
+        real(r8) :: io_time = 0.0_r8                     ! seconds
         real(r8) :: run_time = 0.0_r8                    ! seconds
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
         real(r8) :: days_year = 365.25_r8                 ! days per year
 
         character (len=14), allocatable :: time_code(:)  ! DD HH:MM:SS
+!$OMP THREADPRIVATE (time_code)
+
         character (len=19) :: r_text
 
 #if defined POWER_LAW && defined SOLVE3D
@@ -299,6 +306,12 @@
 !
         integer, allocatable :: ntimes(:)
 !
+!  Step counter for current execution time-window.
+!
+        integer, allocatable :: step_counter(:)
+
+!$OMP THREADPRIVATE (step_counter)
+!
 !  Number of time interval divisions for Stochastic Optimals.  It must
 !  a multiple of "ntimes".
 !
@@ -322,6 +335,7 @@
         integer, allocatable :: ntfirst(:)      ! Forward-Euler step
         integer, allocatable :: ntstart(:)      ! Start step
         integer, allocatable :: ntend(:)        ! End step
+!!$OMP THREADPRIVATE (ntfirst, ntstart, ntend)
 !
 !  Adjoint model or tangent linear model impulse forcing time record
 !  counter and number of records available.
@@ -335,7 +349,8 @@
 !  Control switches.
 !-----------------------------------------------------------------------
 !
-!  Switch to proccess nudging coefficients.
+!  Switch to proccess nudging coefficients for radiation open boundary
+!  conditions.
 !
         logical, allocatable :: NudgingCoeff(:)
 !
@@ -419,7 +434,7 @@
 !
 !  Composite grid a refined grids switches. They are .FALSE. by default.
 !
-        logical, allocatable :: ComposedGrid(:)
+        logical, allocatable :: CompositeGrid(:,:)
         logical, allocatable :: RefinedGrid(:)
 !
 !  Refinement grid scale factor from donor grid.
@@ -447,15 +462,30 @@
         logical, allocatable :: tl_VolCons(:,:)
 #endif
 !
-!  Switch indicating which tracer field needs to be processed for
-!  climatology.
+!  Switches to read and process climatology fields.
 !
-        logical, allocatable :: LtracerCLM(:,:)
+        logical, allocatable :: CLM_FILE(:)          ! Process NetCDF
+        logical, allocatable :: Lclimatology(:)      ! any field
+        logical, allocatable :: LsshCLM(:)           ! free-surface
+        logical, allocatable :: Lm2CLM(:)            ! 2D momentum
+        logical, allocatable :: Lm3CLM(:)            ! 3D momentum
+        logical, allocatable :: LtracerCLM(:,:)      ! tracers
 !
-!  Switch indicating which tracer field needs to be processed for
-!  Sources/Sinks terms.
+!  Switched to nudge to climatology fields.
 !
-        logical, allocatable :: LtracerSrc(:,:)
+        logical, allocatable :: Lnudging(:)          ! any field
+        logical, allocatable :: LnudgeM2CLM(:)       ! 2D momentum
+        logical, allocatable :: LnudgeM3CLM(:)       ! 3D momentum
+        logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
+!
+!  Switches to activate point Source/Sinks in an application:
+!    * Horizontal momentum transport (u or v)
+!    * Vertical mass transport (w)
+!    * Tracer transport
+!
+        logical, allocatable :: LuvSrc(:)            ! momentum
+        logical, allocatable :: LwSrc(:)             ! mass
+        logical, allocatable :: LtracerSrc(:,:)      ! tracers
 !
 !  Execution termination flag.
 !
@@ -479,7 +509,11 @@
         real(r8), allocatable :: maxspeed(:)
         real(r8), allocatable :: maxrho(:)
 !
+#ifdef NWGOA
+        real(r8) :: max_speed = 80.0_r8         ! m/s
+#else
         real(r8) :: max_speed = 20.0_r8         ! m/s
+#endif
         real(r8) :: max_rho = 200.0_r8          ! kg/m3
 #ifdef BIOLOGY
         real(r8), allocatable :: maxbio(:,:)
@@ -493,7 +527,7 @@
 !
         integer :: InterpFlag = cubic          ! interpolation flag
 !
-!  Shallowest and Deepest levels to apply bottom momemtum stresses as
+!  Shallowest and Deepest levels to apply bottom momentum stresses as
 !  a bodyforce
 !
         integer, allocatable :: levsfrc(:)
@@ -826,6 +860,14 @@
 
         real(r8), allocatable :: ad_Akt_fac(:,:)     ! ADM tracers
         real(r8), allocatable :: tl_Akt_fac(:,:)     ! TLM tracers
+
+!
+!  Switches to increase/decrease horizontal viscosity and/or diffusion
+!  in specific areas of the application domain (like sponge areas).
+!
+        logical, allocatable :: Lsponge(:)
+        logical, allocatable :: LuvSponge(:)         ! viscosity
+        logical, allocatable :: LtracerSponge(:,:)   ! diffusion
 !
 !-----------------------------------------------------------------------
 !  IO parameters.
@@ -842,6 +884,7 @@
         logical, allocatable :: LdefFLEET(:)     ! Fishing fleet file
         logical, allocatable :: LdefFLT(:)       ! Floats file
         logical, allocatable :: LdefHIS(:)       ! History file
+        logical, allocatable :: LdefHIS2(:)      ! History2 file
         logical, allocatable :: LdefHSS(:)       ! Hessian file
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
@@ -863,6 +906,7 @@
         logical, allocatable :: LwrtPRED(:)      ! Write predator file
         logical, allocatable :: LwrtFLEET(:)     ! Write fishing fleet file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
+        logical, allocatable :: LwrtHIS2(:)      ! Write history2 file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
         logical, allocatable :: LwrtRST(:)       ! Write restart file
         logical, allocatable :: LwrtTLM(:)       ! Write tangent file
@@ -907,6 +951,7 @@
         integer, allocatable :: ndefPRED(:)      ! Predator file
         integer, allocatable :: ndefFLEET(:)     ! Fishing fleet file
         integer, allocatable :: ndefHIS(:)       ! History file
+        integer, allocatable :: ndefHIS2(:)      ! History2 file
         integer, allocatable :: ndefTLM(:)       ! Tangent linear file
 !
 !  Starting timestep for accumulation of output.
@@ -926,6 +971,7 @@
         integer, allocatable :: nFSH(:)          ! Fish file
         integer, allocatable :: nHIS(:)          ! History file
         integer, allocatable :: nPRE(:)          ! Predator file
+        integer, allocatable :: nHIS2(:)         ! History2 file
         integer, allocatable :: nRST(:)          ! Restart file
         integer, allocatable :: nSTA(:)          ! Stations file
         integer, allocatable :: nTLM(:)          ! Tangent linear file
@@ -1016,6 +1062,7 @@
 !  applications.
 !
         logical, allocatable :: synchro_flag(:)
+!$OMP THREADPRIVATE (synchro_flag)
 !
 !  Switch to inialize model with latest time record from initial
 !  (restart/history) NetCDF file.
@@ -1343,6 +1390,23 @@
 !  Water clarity parameters.
 !-----------------------------------------------------------------------
 !
+!  The water type classification is based on Jerlov water type using
+!  a double exponential function for light absorption:
+!
+!    Array
+!    Index   WaterType   Examples
+!    -----   ---------   --------
+!
+!      1         I       Open Pacific
+!      2         IA      Eastern Mediterranean, Indian Ocean
+!      3         IB      Western Mediterranean, Open Atlantic
+!      4         II      Coastal waters, Azores
+!      5         III     Coastal waters, North Sea
+!      6         1       Skagerrak Strait
+!      7         3       Baltic
+!      8         5       Black Sea
+!      9         7       Dark coastal water
+!
 !    lmd_mu1       Reciprocal of the absorption coefficient for solar
 !                    wavelength band 1 as a function of the Jerlov
 !                    water type.
@@ -1352,14 +1416,17 @@
 !    lmd_r1        Fraction of total radiance for wavelength band 1 as
 !                    a function of the Jerlov water type.
 !
-        real(r8), dimension(5) :: lmd_mu1 =                             &
-     &            (/ 0.35_r8, 0.6_r8, 1.0_r8, 1.5_r8, 1.4_r8 /)
+        real(r8), dimension(9) :: lmd_mu1 =                             &
+     &            (/ 0.35_r8, 0.6_r8,  1.0_r8,  1.5_r8, 1.4_r8,         &
+     &               0.42_r8, 0.37_r8, 0.33_r8, 0.0_r8 /)
 
-        real(r8), dimension(5) :: lmd_mu2 =                             &
-     &            (/ 23.0_r8, 20.0_r8, 17.0_r8, 14.0_r8, 7.9_r8 /)
+        real(r8), dimension(9) :: lmd_mu2 =                             &
+     &            (/ 23.0_r8,  20.0_r8,  17.0_r8,  14.0_r8, 7.9_r8,     &
+     &                5.13_r8,  3.54_r8,  2.34_r8,  1.51_r8 /)
 
-        real(r8), dimension(5) :: lmd_r1 =                              &
-     &            (/ 0.58_r8, 0.62_r8, 0.67_r8, 0.77_r8, 0.78_r8 /)
+        real(r8), dimension(9) :: lmd_r1 =                              &
+     &            (/ 0.58_r8, 0.62_r8, 0.67_r8, 0.77_r8, 0.78_r8,       &
+     &               0.57_r8, 0.57_r8, 0.57_r8, 0.55_r8 /)
 #endif
 
 #ifdef LMD_MIXING
@@ -1685,6 +1752,7 @@
         real(r8), allocatable :: rhosnow_dry(:)
         real(r8), allocatable :: rhosnow_wet(:)
         real(r8), allocatable :: pstar(:)
+        real(r8), allocatable :: pstar_e(:)
         real(r8), allocatable :: zetamax(:)
         real(r8), allocatable :: zetamin(:)
         real(r8), allocatable :: ellip_sq(:)
@@ -1713,7 +1781,6 @@
       integer :: ng
 
       real(r8), parameter :: IniVal = 0.0_r8
-
 !
 !-----------------------------------------------------------------------
 !  Allocate and initialize variables in module structure.
@@ -1794,8 +1861,6 @@
 
       allocate ( dt(Ngrids) )
       allocate ( dtfast(Ngrids) )
-      allocate ( tdays(Ngrids) )
-      allocate ( time(Ngrids) )
       allocate ( TimeEnd(Ngrids) )
       allocate ( AVGtime(Ngrids) )
       allocate ( AVG2time(Ngrids) )
@@ -1810,12 +1875,19 @@
       allocate ( dtau(Ngrids) )
 #endif
 
-      allocate ( time_code(Ngrids) )
-
       allocate ( ntimes(Ngrids) )
+      allocate ( first_time(Ngrids) )
+
       allocate ( ntfirst(Ngrids) )
       allocate ( ntstart(Ngrids) )
       allocate ( ntend(Ngrids) )
+!$OMP PARALLEL
+      allocate ( synchro_flag(Ngrids) )
+      allocate ( step_counter(Ngrids) )
+      allocate ( tdays(Ngrids) )
+      allocate ( time(Ngrids) )
+      allocate ( time_code(Ngrids) )
+!$OMP END PARALLEL
 
       allocate ( NrecFrc(Ngrids) )
 
@@ -1841,8 +1913,10 @@
 # endif
 #endif
 
-      allocate ( ComposedGrid(Ngrids) )
+      allocate ( CompositeGrid(4,Ngrids) )
       allocate ( RefinedGrid(Ngrids) )
+      allocate ( RefineScale(Ngrids) )
+      allocate ( GetDonorData(Ngrids) )
 
       allocate ( EWperiodic(Ngrids) )
       allocate ( NSperiodic(Ngrids) )
@@ -1853,8 +1927,24 @@
       allocate ( tl_VolCons(4,Ngrids) )
 #endif
 
+      allocate ( Lsponge(Ngrids) )
+      allocate ( LuvSponge(Ngrids) )
+      allocate ( LtracerSponge(MT,Ngrids) )
+
+      allocate ( CLM_FILE(Ngrids) )
+      allocate ( Lclimatology(Ngrids) )
+      allocate ( LsshCLM(Ngrids) )
+      allocate ( Lm2CLM(Ngrids) )
+      allocate ( Lm3CLM(Ngrids) )
       allocate ( LtracerCLM(MT,Ngrids) )
 
+      allocate ( Lnudging(Ngrids) )
+      allocate ( LnudgeM2CLM(Ngrids) )
+      allocate ( LnudgeM3CLM(Ngrids) )
+      allocate ( LnudgeTCLM(MT,Ngrids) )
+
+      allocate ( LuvSrc(Ngrids) )
+      allocate ( LwSrc(Ngrids) )
       allocate ( LtracerSrc(MT,Ngrids) )
 
       allocate ( maxspeed(Ngrids) )
@@ -1887,8 +1977,6 @@
 #ifdef SOLVE3D
       allocate ( Kdigits(Ngrids) )
 #endif
-
-      allocate ( first_time(Ngrids) )
 
       allocate ( DXmin(Ngrids) )
       allocate ( DXmax(Ngrids) )
@@ -1983,6 +2071,7 @@
       allocate ( LdefFLEET(Ngrids) )
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
+      allocate ( LdefHIS2(Ngrids) )
       allocate ( LdefHSS(Ngrids) )
       allocate ( LdefINI(Ngrids) )
       allocate ( LdefIRP(Ngrids) )
@@ -2004,6 +2093,7 @@
       allocate ( LwrtPRED(Ngrids) )
       allocate ( LwrtFLEET(Ngrids) )
       allocate ( LwrtHIS(Ngrids) )
+      allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
       allocate ( LwrtTLM(Ngrids) )
@@ -2034,6 +2124,7 @@
       allocate ( ndefPRED(Ngrids) )
       allocate ( ndefFLEET(Ngrids) )
       allocate ( ndefHIS(Ngrids) )
+      allocate ( ndefHIS2(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
       allocate ( ntsAVG(Ngrids) )
@@ -2049,6 +2140,7 @@
       allocate ( nFSH(Ngrids) )
       allocate ( nHIS(Ngrids) )
       allocate ( nPRE(Ngrids) )
+      allocate ( nHIS2(Ngrids) )
       allocate ( nRST(Ngrids) )
       allocate ( nSTA(Ngrids) )
       allocate ( nTLM(Ngrids) )
@@ -2078,7 +2170,6 @@
       allocate ( fleetrrec(Ngrids) )
 #endif
 
-      allocate ( synchro_flag(Ngrids) )
       allocate ( LastRec(Ngrids) )
 
       allocate ( LcycleADJ(Ngrids) )
@@ -2187,6 +2278,7 @@
      allocate ( rhosnow_dry(Ngrids) )
      allocate ( rhosnow_wet(Ngrids) )
      allocate ( pstar(Ngrids) )
+     allocate ( pstar_e(Ngrids) )
      allocate ( zetamax(Ngrids) )
      allocate ( zetamin(Ngrids) )
      allocate ( ellip_sq(Ngrids) )
@@ -2340,8 +2432,9 @@
 !
       DO ng=1,Ngrids
         LastRec(ng)=.FALSE.
-        ComposedGrid(ng)=.FALSE.
+        CompositeGrid(1:4,ng)=.FALSE.
         RefinedGrid(ng)=.FALSE.
+        GetDonorData(ng)=.FALSE.
         Lbiology(ng)=.TRUE.
         LcycleADJ(ng)=.FALSE.
         LcycleRST(ng)=.FALSE.
@@ -2416,9 +2509,7 @@
         NSperiodic(ng)=.FALSE.
         NudgingCoeff(ng)=.FALSE.
         ObcData(ng)=.FALSE.
-        ntfirst(ng)=1
-        ntstart(ng)=1
-        ntend(ng)=0
+        RefineScale(ng)=0
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1
@@ -2437,9 +2528,23 @@
 #ifdef SOLVE3D
         Kdigits(ng)=INT(LOG10(REAL(N (ng),r8)))+1
 #endif
+        CLM_FILE(ng)=.FALSE.
+        Lnudging(ng)=.FALSE.
+        LnudgeM2CLM(ng)=.FALSE.
+        LnudgeM3CLM(ng)=.FALSE.
+        Lclimatology(ng)=.FALSE.
+        Lm2CLM(ng)=.FALSE.
+        Lm3CLM(ng)=.FALSE.
+        LsshCLM(ng)=.FALSE.
+        Lsponge(ng)=.FALSE.
+        LuvSponge(ng)=.FALSE.
+        LuvSrc(ng)=.FALSE.
+        LwSrc(ng)=.FALSE.
         DO itrc=1,MT
+          LnudgeTCLM(itrc,ng)=.FALSE.
           LtracerCLM(itrc,ng)=.FALSE.
           LtracerSrc(itrc,ng)=.FALSE.
+          LtracerSponge(itrc,ng)=.FALSE.
           ad_Akt_fac(itrc,ng)=1.0_r8
           tl_Akt_fac(itrc,ng)=1.0_r8
           ad_tnu2(itrc,ng)=IniVal
@@ -2486,6 +2591,18 @@
       Tobc_in = IniVal
       Tobc_out = IniVal
 #endif
+!
+!  Initialize thread private variables.
+!
+!$OMP PARALLEL
+      synchro_flag=.FALSE.
+
+      ntfirst=1
+      ntstart=1
+      ntend=0
+      step_counter=0
+!$OMP END PARALLEL
+
 #if defined LMD_SKPP || defined LMD_BKPP
 !
 !  Proportionality coefficient parameterizing boundary layer
@@ -2539,6 +2656,7 @@
 # endif
 #endif
         LdefHIS(ng)=.TRUE.
+        LdefHIS2(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
@@ -2563,6 +2681,7 @@
         LwrtFLEET(ng)=.FALSE.
 # endif
         LwrtHIS(ng)=.FALSE.
+        LwrtHIS2(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.
@@ -2574,8 +2693,6 @@
 #endif
         LwrtTime(ng)=.TRUE.
         ldefout(ng)=.FALSE.
-
-        synchro_flag(ng)=.FALSE.
 
       END DO
 #ifdef BIOLOGY

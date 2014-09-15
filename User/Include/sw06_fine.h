@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -49,12 +49,9 @@
 # define SALINITY
 # define NONLIN_EOS
 # define CURVGRID
-# define SPONGE
 # undef  AVERAGES
 # define MASKING
 # define SPLINES
-# undef  UV_PSOURCE
-# undef  TS_PSOURCE
 # define SOLAR_SOURCE
 
 # define GLS_MIXING
@@ -81,10 +78,6 @@
 # if defined UV_TIDES || defined SSH_TIDES
 #  define ADD_M2OBC
 # endif
-
-# undef  TCLIMATOLOGY
-# undef  TCLM_NUDGING
-# undef  M3CLM_NUDGING
 
 # define ANA_BSFLUX
 # define ANA_BTFLUX
@@ -113,12 +106,9 @@
 # define SALINITY
 # define NONLIN_EOS
 # define CURVGRID
-# define SPONGE
 # undef  AVERAGES
 # define MASKING
 # define SPLINES
-# undef  UV_PSOURCE
-# undef  TS_PSOURCE
 # define SOLAR_SOURCE
 
 # define GLS_MIXING
@@ -138,10 +128,6 @@
 # if defined UV_TIDES || defined SSH_TIDES
 #  define ADD_M2OBC
 # endif
-
-# undef  TCLIMATOLOGY
-# undef  TCLM_NUDGING
-# undef  M3CLM_NUDGING
 
 # define ANA_BSFLUX
 # define ANA_BTFLUX

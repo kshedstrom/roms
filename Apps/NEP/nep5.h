@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -47,7 +47,6 @@
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  undef   ICE_ALB_EC92
-#  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
@@ -164,9 +163,7 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
 # undef ANA_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 /* tides */

@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -75,6 +75,11 @@ contains
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+     &                     GRID(ng) % umask_wet,                        &
+     &                     GRID(ng) % vmask_wet,                        &
+# endif
      &                     OCEAN(ng) % t,                               &
      &                     OCEAN(ng) % u,                               &
      &                     OCEAN(ng) % v,                               &
@@ -123,6 +128,7 @@ contains
      &                     ICE(ng) % hi,                                &
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
+     &                     FORCES(ng) % qswi_n,                         &
      &                     ICE(ng) % hsn,                               &
      &                     ICE(ng) % tis,                               &
      &                     ICE(ng) % sfwat,                             &
@@ -172,6 +178,9 @@ contains
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
 # endif
+# ifdef WET_DRY
+     &                           rmask_wet, umask_wet, vmask_wet,       &
+# endif
      &                           t, u, v,                               &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
 # if defined CLOUDS
@@ -208,6 +217,7 @@ contains
      &                           ai, hi,                                &
 #  ifdef ICE_THERMO
      &                           qai_n,                                 &
+     &                           qswi_n,                                &
      &                           hsn, tis, sfwat,                       &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
@@ -268,6 +278,11 @@ contains
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
@@ -321,6 +336,7 @@ contains
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
+      real(r8), intent(out) :: qswi_n(LBi:,LBj:)
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
       real(r8), intent(in) :: sfwat(LBi:,LBj:,:)
@@ -354,6 +370,11 @@ contains
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),3)
@@ -408,6 +429,7 @@ contains
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qswi_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sfwat(LBi:UBi,LBj:UBj,2)
@@ -785,6 +807,9 @@ contains
 
           tau = rhoAir(i) * ustar * ustar
           SRad(i,j) = srflx(i,j) * Hscale
+# if defined ICE_MODEL && defined ICE_THERMO
+          qswi_n(i,j) = SRad(i,j)
+# endif
 
           !--- momentum flux ---
           Taux(i,j) = tau * (Uwind(i,j)-u(i,j,N(ng),nrhs)) / vmag
@@ -839,6 +864,7 @@ contains
           albsn=0._r8
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             thki_n = ice_thick(i,j)
+            thki_n = MAX(thki_n,0.00001_r8)
             thksn_n = snow_thick(i,j)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
@@ -908,7 +934,7 @@ contains
 #   endif
 !
 ! Short-wave radiation to ice
-          qswi = (1._r8-albs)*SRad(i,j)
+          qswi = (1._r8-albs)*qswi_n(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
@@ -1000,7 +1026,13 @@ contains
           END IF
 #  endif
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+#   ifdef EMINUSP
+          evap(i,j)=evap(i,j)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#   endif
+# elif defined MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
 #   ifdef EMINUSP
           evap(i,j)=evap(i,j)*rmask(i,j)
@@ -1010,7 +1042,9 @@ contains
 # ifdef RUNOFF
           stflx(i,j,isalt) = stflx(i,j,isalt) -                         &
      &                        cff*runoff(i,j)
-#  ifdef MASKING
+#  ifdef WET_DRY
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#  elif defined MASKING
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
 #  endif
 # endif
@@ -1115,7 +1149,9 @@ contains
       DO j=JstrR,JendR
         DO i=Istr,IendR
           sustr(i,j)=Taux(i,j)*Hscale
-# ifdef MASKING
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# elif defined MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1127,7 +1163,9 @@ contains
       DO j=Jstr,JendR
         DO i=IstrR,IendR
           svstr(i,j)=Tauy(i,j)*Hscale
-# ifdef MASKING
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# elif defined MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
 # endif
 # ifdef ICE_MODEL

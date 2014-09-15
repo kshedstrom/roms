@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -22,10 +22,6 @@
 #define TS_C4VADVECTION
 #define SOLVE3D
 #define SPLINES
-#define EASTERN_WALL
-#define WESTERN_WALL
-#define SOUTHERN_WALL
-#define NORTHERN_WALL
 #define BODYFORCE
 #define ANA_GRID
 #define ANA_INITIAL

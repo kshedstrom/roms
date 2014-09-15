@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !=======================================================================
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the parameters for elastic-viscous-plastic    !
@@ -51,6 +51,9 @@
      &                   ICE(ng) % ai,                                  &
      &                   ICE(ng) % hi,                                  &
      &                   ICE(ng) % pice,                                &
+# ifdef ICE_STRENGTH_QUAD
+     &                   ICE(ng) % pstar_grid,                          &
+# endif
      &                   ICE(ng) % zetai,                               &
      &                   ICE(ng) % eta                                  &
      &                   )
@@ -69,7 +72,11 @@
      &                        mask_outflow,                             &
 # endif
      &                        pm, pn, ui, vi, uie, vie,                 &
-     &                        ai, hi, pice, zetai, eta)
+     &                        ai, hi, pice,                             &
+#ifdef ICE_STRENGTH_QUAD
+     &                        pstar_grid,                               &
+#endif
+     &                        zetai, eta)
 !***********************************************************************
 !
 
@@ -102,6 +109,9 @@
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
       real(r8), intent(out) :: pice(LBi:,LBj:)
+#  ifdef ICE_STRENGTH_QUAD
+      real(r8), intent(in) :: pstar_grid(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: zetai(LBi:,LBj:)
       real(r8), intent(out) :: eta(LBi:,LBj:)
 # else
@@ -117,6 +127,9 @@
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: pice(LBi:UBi,LBj:UBj)
+#  ifdef ICE_STRENGTH_QUAD
+      real(r8), intent(in) :: pstar_grid(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(out) :: zetai(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: eta(LBi:UBi,LBj:UBj)
 # endif
@@ -144,12 +157,12 @@
 !
       IF (ievp(ng).eq.1) THEN
         DO j=Jstr,Jend
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
             uie(i,j,1) = ui(i,j,liuol)
             uie(i,j,2) = ui(i,j,liuol)
           END DO
         END DO
-        DO j=JstrV,Jend
+        DO j=JstrP,Jend
           DO i=Istr,Iend
              vie(i,j,1) = vi(i,j,liuol)
              vie(i,j,2) = vi(i,j,liuol)
@@ -160,7 +173,7 @@
              uie(1,j,1) = ui(1,j,liuol)
              uie(1,j,2) = ui(1,j,liuol)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
              vie(0,j,1) = vi(0,j,liuol)
              vie(0,j,2) = vi(0,j,liuol)
           END DO
@@ -170,13 +183,13 @@
              uie(Lm(ng)+1,j,1) = ui(Lm(ng)+1,j,liuol)
              uie(Lm(ng)+1,j,2) = ui(Lm(ng)+1,j,liuol)
           END DO
-          DO j=JstrV,Jend
+          DO j=JstrP,Jend
              vie(Lm(ng)+1,j,1) = vi(Lm(ng)+1,j,liuol)
              vie(Lm(ng)+1,j,2) = vi(Lm(ng)+1,j,liuol)
           END DO
         ENDIF
         IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
              uie(i,0,1) = ui(i,0,liuol)
              uie(i,0,2) = ui(i,0,liuol)
           END DO
@@ -186,7 +199,7 @@
           END DO
         ENDIF
         IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-          DO i=IstrU,Iend
+          DO i=IstrP,Iend
              uie(i,Mm(ng)+1,1) = ui(i,Mm(ng)+1,liuol)
              uie(i,Mm(ng)+1,2) = ui(i,Mm(ng)+1,liuol)
           END DO
@@ -251,8 +264,13 @@
 ! 
           delta=abs(eone**2+e2r*etwos)
           delta=max(sqrt(delta),epso)
+#ifdef ICE_STRENGTH_QUAD
+          pice(i,j)=pstar_grid(i,j)*hi(i,j,liold)**2                    &
+     &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
+#else
           pice(i,j)=pstar(ng)*hi(i,j,liold)                             &
      &                *exp(-astren(ng)*(1.0_r8-ai(i,j,liold)))
+#endif
           zetai(i,j)=pice(i,j)/(2.0_r8*delta)
           zmax = 2.5E+8_r8*pice(i,j)
           zetai(i,j)= min(zetai(i,j),zetamax(ng))
@@ -277,8 +295,8 @@
      &                    pice, zetai, eta)
 #endif
 
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
 # ifdef OUTFLOW_MASK
           pice(i,j)=pice(i,j)*mask_outflow(i,j)
           zetai(i,j)=zetai(i,j)*mask_outflow(i,j)

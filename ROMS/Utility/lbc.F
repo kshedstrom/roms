@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,7 +71,7 @@
 !
 ! Local variable declarations
 !
-      integer :: i, ibry, ie, ifield, is, lstr, lvar, status
+      integer :: i, ibry, ie, ifield, is, ne, lstr, lvar, status
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
@@ -120,6 +120,12 @@
       B(isouth)='southern'
       B(ieast )='eastern '
       B(inorth)='northern'
+      DO i=1,LEN(Bstring)
+        Bstring(i:i)=' '
+      END DO
+      DO i=1,LEN(line)
+        line(i:i)=' '
+      END DO
 !
       DO ifield=1,nLBCvar
         BryVar1=TRIM(Vname(1,idBvar(ifield))) // ':'
@@ -134,12 +140,15 @@
           line=lbc_att(is:ie)
           is=INDEX(line, ':')+1               ! find colon location
           ie=INDEX(line, CHAR(10))-1          ! find Line Feed location
-          IF (ie.le.0) ie=LEN_TRIM(line)      ! last attribute entry
+          IF (ie.le.0) THEN
+            ie=LEN_TRIM(line)                 ! last attribute entry
+          END IF
           Bstring=TRIM(ADJUSTL(line(is:ie)))  ! extract boundary string
+          ne=MIN(LEN_TRIM(Bstring), 28)       ! north keyword < 7 chars
           string(1)=Bstring( 1: 7)            ! west  keyword
           string(2)=Bstring( 8:14)            ! south keyword
           string(3)=Bstring(15:21)            ! east  keyword
-          string(4)=Bstring(22:28)            ! north keyword
+          string(4)=Bstring(22:ne)            ! north keyword
           DO ibry=1,4
             SELECT CASE (TRIM(string(ibry)))
               CASE ('Cha')
@@ -505,6 +514,7 @@
 !
       USE mod_param
       USE mod_ncparam
+      USE mod_scalars
 !
       implicit none
 !
@@ -539,9 +549,9 @@
           ELSE IF (S(ibry,ifield,ng)%Flather) THEN
             string(ibry,ng)='Flather    '
           ELSE IF (S(ibry,ifield,ng)%gradient) THEN
-            string(ibry,ng)='Gradient  '
+            string(ibry,ng)='Gradient   '
           ELSE IF (S(ibry,ifield,ng)%mixed) THEN
-            string(ibry,ng)='Mixed     '
+            string(ibry,ng)='Mixed      '
           ELSE IF (S(ibry,ifield,ng)%nested) THEN
             string(ibry,ng)='Nested     '
           ELSE IF (S(ibry,ifield,ng)%periodic) THEN
@@ -577,9 +587,39 @@
      &                     TRIM(string(4,ng))
         END IF
       END DO
+!
+!  Check periodic bounadry conditions: both east and west or north and
+!  need to be specified.
+!
+      DO ng=1,Ngrids
+        IF (.not.S(iwest,ifield,ng)%periodic.and.                       &
+     &           S(ieast,ifield,ng)%periodic) THEN
+          WRITE (iunit,30) 'Western Edge boundary',                     &
+     &                     TRIM(Vname(1,idBvar(ifield))), ng
+          exit_flag=5
+        ELSE IF (.not.S(ieast,ifield,ng)%periodic.and.                  &
+     &                S(iwest,ifield,ng)%periodic) THEN
+          WRITE (iunit,30) 'Eastern Edge boundary',                     &
+     &                     TRIM(Vname(1,idBvar(ifield))), ng
+          exit_flag=5
+        ELSE IF (.not.S(inorth,ifield,ng)%periodic.and.                 &
+     &                S(isouth,ifield,ng)%periodic) THEN
+          WRITE (iunit,30) 'Northern Edge boundary',                    &
+     &                     TRIM(Vname(1,idBvar(ifield))), ng
+          exit_flag=5
+        ELSE IF (.not.S(isouth,ifield,ng)%periodic.and.                 &
+     &                S(inorth,ifield,ng)%periodic) THEN
+          WRITE (iunit,30) 'Southern Edge boundary',                    &
+     &                     TRIM(Vname(1,idBvar(ifield))), ng
+          exit_flag=5
+        END IF
+      END DO
 
  10   FORMAT (/,1x,a,t26,i2,t31,a,t44,a,t57,a,t70,a)
  20   FORMAT (t26,i2,t31,a,t44,a,t57,a,t70,a)
+ 30   FORMAT (/,' LBC_REPORT - illegal configuration: The ',a,          &
+     &        ' needs to be periodic too!',/,14x,'Variable: ',a,3x,     &
+     &        'Grid = ',i2.2)
 
       RETURN
       END SUBROUTINE lbc_report

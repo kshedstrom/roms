@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -22,7 +22,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE t3dbc (ng, tile, nout, itrc)
+      SUBROUTINE t3dbc (ng, tile, nout, itrc, ic)
 !***********************************************************************
 !
       USE mod_param
@@ -31,13 +31,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile, nout, itrc
+      integer, intent(in) :: ng, tile, nout, itrc, ic
 !
 !  Local variable declarations.
 !
 # include "tile.h"
 !
-      CALL t3dbc_tile (ng, tile, itrc,                                  &
+      CALL t3dbc_tile (ng, tile, itrc, ic,                              &
      &                 LBi, UBi, LBj, UBj, N(ng), NT(ng),               &
      &                 IminS, ImaxS, JminS, JmaxS,                      &
      &                 nstp(ng), nout,                                  &
@@ -48,7 +48,7 @@
 
 !
 !***********************************************************************
-      SUBROUTINE t3dbc_tile (ng, tile, itrc,                            &
+      SUBROUTINE t3dbc_tile (ng, tile, itrc, ic,                        &
      &                       LBi, UBi, LBj, UBj, UBk, UBt,              &
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       nstp, nout,                                &
@@ -57,6 +57,7 @@
 !
       USE mod_param
       USE mod_boundary
+      USE mod_clima
       USE mod_grid
       USE mod_ncparam
       USE mod_scalars
@@ -80,7 +81,8 @@
 
       real(r8), parameter :: eps =1.0E-20_r8
 
-      real(r8) :: Ce, Cx, cff, dTde, dTdt, dTdx, tau
+      real(r8) :: Ce, Cx, cff, dTde, dTdt, dTdx
+      real(r8) :: obc_in, obc_out, tau
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -116,12 +118,19 @@
                 dTdx=t(Istr,j,k,nstp,itrc)-t(Istr+1,j,k,nstp,itrc)
 
                 IF (LBC(iwest,isTvar(itrc),ng)%nudging) THEN
-                  tau=Tobc_out(itrc,ng,iwest)
-                  IF ((dTdt*dTdx).lt.0.0_r8) THEN
-                    tau=Tobc_in(itrc,ng,iwest)
+                  IF (LnudgeTCLM(itrc,ng)) THEN
+                    obc_out=CLIMA(ng)%Tnudgcof(Istr-1,j,k,ic)
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=tau*dt(ng)
+                    obc_out=Tobc_out(itrc,ng,iwest)
+                    obc_in =Tobc_in (itrc,ng,iwest)
                   END IF
+                  IF ((dTdt*dTdx).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
+                  END IF
+                  tau=tau*dt(ng)
                 END IF
 
                 IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
@@ -243,12 +252,19 @@
                 dTdx=t(Iend,j,k,nstp,itrc)-t(Iend-1,j,k,nstp,itrc)
 
                 IF (LBC(ieast,isTvar(itrc),ng)%nudging) THEN
-                  tau=Tobc_out(itrc,ng,ieast)
-                  IF ((dTdt*dTdx).lt.0.0_r8) THEN
-                    tau=Tobc_in(itrc,ng,ieast)
+                  IF (LnudgeTCLM(itrc,ng)) THEN
+                    obc_out=CLIMA(ng)%Tnudgcof(Iend+1,j,k,ic)
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=tau*dt(ng)
+                    obc_out=Tobc_out(itrc,ng,ieast)
+                    obc_in =Tobc_in (itrc,ng,ieast)
                   END IF
+                  IF ((dTdt*dTdx).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
+                  END IF
+                  tau=tau*dt(ng)
                 END IF
 
                 IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
@@ -370,12 +386,19 @@
                 dTde=t(i,Jstr,k,nstp,itrc)-t(i,Jstr+1,k,nstp,itrc)
 
                 IF (LBC(isouth,isTvar(itrc),ng)%nudging) THEN
-                  tau=Tobc_out(itrc,ng,isouth)
-                  IF ((dTdt*dTde).lt.0.0_r8) THEN
-                    tau=Tobc_in(itrc,ng,isouth)
+                  IF (LnudgeTCLM(itrc,ng)) THEN
+                    obc_out=CLIMA(ng)%Tnudgcof(i,Jstr-1,k,ic)
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=tau*dt(ng)
+                    obc_out=Tobc_out(itrc,ng,isouth)
+                    obc_in =Tobc_in (itrc,ng,isouth)
                   END IF
+                  IF ((dTdt*dTde).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
+                  END IF
+                  tau=tau*dt(ng)
                 END IF
 
                 IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
@@ -497,12 +520,19 @@
                 dTde=t(i,Jend,k,nstp,itrc)-t(i,Jend-1,k,nstp,itrc)
 
                 IF (LBC(inorth,isTvar(itrc),ng)%nudging) THEN
-                  tau=Tobc_out(itrc,ng,inorth)
-                  IF ((dTdt*dTde).lt.0.0_r8) THEN
-                    tau=Tobc_in(itrc,ng,inorth)
+                  IF (LnudgeTCLM(itrc,ng)) THEN
+                    obc_out=CLIMA(ng)%Tnudgcof(i,Jend+1,k,ic)
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=tau*dt(ng)
+                    obc_out=Tobc_out(itrc,ng,inorth)
+                    obc_in =Tobc_in (itrc,ng,inorth)
                   END IF
+                  IF ((dTdt*dTde).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
+                  END IF
+                  tau=tau*dt(ng)
                 END IF
 
                 IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8

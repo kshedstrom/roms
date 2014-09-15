@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -47,9 +47,6 @@
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
-# ifdef TS_PSOURCE
-      USE mod_sources
-# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -67,17 +64,13 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nrhs(ng), nstp(ng), nnew(ng),               &
-# ifdef TS_PSOURCE
-     &                      Msrc(ng), Nsrc(ng),                         &
-     &                      SOURCES(ng) % Isrc,                         &
-     &                      SOURCES(ng) % Jsrc,                         &
-     &                      SOURCES(ng) % Dsrc,                         &
-     &                      SOURCES(ng) % Tsrc,                         &
-# endif
 # ifdef MASKING
      &                      GRID(ng) % rmask,                           &
      &                      GRID(ng) % umask,                           &
      &                      GRID(ng) % vmask,                           &
+# endif
+# ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
 # endif
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -127,13 +120,11 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            nrhs, nstp, nnew,                     &
-# ifdef TS_PSOURCE
-     &                            Msrc, Nsrc,                           &
-     &                            Isrc, Jsrc, Dsrc,                     &
-     &                            Tsrc,                                 &
-# endif
 # ifdef MASKING
      &                            rmask, umask, vmask,                  &
+# endif
+# ifdef WET_DRY
+     &                            rmask_wet,                            &
 # endif
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
@@ -167,6 +158,7 @@
 # if defined OFFLINE_BIOLOGY || defined BEST_NPZ
       USE mod_biology
 # endif
+      USE mod_sources
 !
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
@@ -183,22 +175,15 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
-# ifdef TS_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  ifdef TS_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-
-      real(r8), intent(in) :: Dsrc(:)
-      real(r8), intent(in) :: Tsrc(:,:,:)
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
@@ -247,17 +232,13 @@
 
 # else
 
-#  ifdef TS_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-
-      real(r8), intent(in) :: Dsrc(Msrc)
-      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -300,7 +281,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ibt, indx, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -432,18 +413,18 @@
 #   endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Istr-1,j)=FX(Istr,j)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Iend+2,j)=FX(Iend+1,j)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Istr-1,j)=FX(Istr,j)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Iend+2,j)=FX(Iend+1,j)
+              END DO
             END IF
           END IF
 !
@@ -488,23 +469,20 @@
             DO i=Istr,Iend
               FE(i,j)=t(i,j  ,k,nstp,itrc)-                             &
      &                t(i,j-1,k,nstp,itrc)
-#   ifdef MASKING
-              FE(i,j)=FE(i,j)*vmask(i,j)
-#   endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jstr-1)=FE(i,Jstr)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jend+2)=FE(i,Jend+1)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jstr-1)=FE(i,Jstr)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jend+2)=FE(i,Jend+1)
+              END DO
             END IF
           END IF
 !
@@ -545,25 +523,35 @@
             END DO
           END DO
 #  endif
-
-#  if defined TS_PSOURCE && !defined Q_PSOURCE
 !
-!  Apply tracers point sources to the horizontal advection terms.
+!  Apply tracers point sources to the horizontal advection terms,
+!  if any.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (LtracerSrc(itrc,ng).and.                                &
-     &          ((Istr.le.i).and.(i.le.Iend+1)).and.                    &
-     &          ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-              IF (INT(Dsrc(is)).eq.0) THEN
-                FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
-              ELSE
-                FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
-              END IF
-            END IF
-          END DO
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
+     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+                IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+                  FX(i,j)=Huon(i,j,k)*                                  &
+#  ifdef ONE_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(itrc)
+#  else
+     &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
+                ELSE
+                  FE(i,j)=Hvom(i,j,k)*                                  &
+#  ifdef ONE_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(itrc)
+#  else
+     &                    SOURCES(ng)%Tsrc(is,k,itrc)
+#  endif
+                END IF
+              END IF
+            END DO
+          END IF
 !
 !  Time-step horizontal advection (m Tunits).
 !
@@ -600,27 +588,32 @@
         cff=(1.0_r8-Gamma)*dt(ng)
       END IF
 
-      iactrc=inert(3)
+      iactrc=inert(2)
       iwctrc=inert(1)
       DO k=1,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
             t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
      &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
+!            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
+!     &                           cff*3.168808781402895e-08
+!            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
+!     &                           cff*3.168808781402895e-08
           END DO
         END DO
       END DO
 
-      iactrc=inert(4)
-      iwctrc=inert(2)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-          END DO
-        END DO
-      END DO
+!      iactrc=inert(4)
+!      iwctrc=inert(2)
+!      DO k=1,N(ng)
+!        DO j=Jstr,Jend
+!          DO i=Istr,Iend
+!            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
+!     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
+!          END DO
+!        END DO
+!      END DO
 #   endif
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #   ifdef AGE_DISTRIBUTION
@@ -916,12 +909,16 @@
 #  ifdef SOLAR_SOURCE
 !
 !  Add in incoming solar radiation at interior W-points using decay
-!  decay penetration function based on Jerlow water type.
+!  decay penetration function based on Jerlov water type.
 !
           IF (itrc.eq.itemp) THEN
             DO k=1,N(ng)-1
               DO i=Istr,Iend
-                FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)*swdk(i,j,k)
+                FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)                       &
+#   ifdef WET_DRY
+     &                *rmask_wet(i,j)                                   &
+#   endif
+     &               *swdk(i,j,k)
               END DO
             END DO
           END IF
@@ -1197,16 +1194,17 @@
 !  Apply intermediate tracers lateral boundary conditions.
 !=======================================================================
 !
+      ic=0
 #  ifdef OFFLINE_BIOLOGY
       DO ibt=1,NBT
         itrc=idbio(ibt)
 #  else
       DO itrc=1,NT(ng)
 #  endif
-#  ifdef T_PASSIVE
-       IF (itrc.lt.inert(1) .or. itrc.gt.inert(NPT)) THEN
-#  endif
-        CALL t3dbc_tile (ng, tile, itrc,                                &
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
+        CALL t3dbc_tile (ng, tile, itrc, ic,                            &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp, 3,                                       &
@@ -1222,16 +1220,16 @@
         END IF
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  ifdef T_PASSIVE
-       ELSE
 !       else condition added by Weifeng Zhang for passive tracer
 !       boundary condition
-        CALL pt3dbc_tile (ng, tile, itrc,                               &
-     &                    LBi, UBi, LBj, UBj, N(ng), NT(ng),            &
-     &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    nstp, 3,                                      &
-     &                    t)
+        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
+          CALL pt3dbc_tile (ng, tile, itrc,                             &
+     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nstp, 3,                                    &
+     &                      t)
+        END IF
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       END IF
 #  endif
       END DO
 

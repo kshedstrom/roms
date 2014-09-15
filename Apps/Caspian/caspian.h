@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -148,10 +148,6 @@
 #undef  NCEP_FLUXES
 
 #undef  RUNOFF
-
-#define UV_PSOURCE
-#define TS_PSOURCE
-#undef  Q_PSOURCE
 
 #define SOLAR_SOURCE
 #undef  SLP_GRAD

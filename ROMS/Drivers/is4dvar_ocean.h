@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -371,11 +371,12 @@
           RST(ng)%Rindex=0
           Fcount=RST(ng)%Fcount
           RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-          CALL initial (ng)
-!$OMP END PARALLEL
-          IF (exit_flag.ne.NoError) RETURN
         END DO
+
+!$OMP PARALLEL
+        CALL initial
+!$OMP END PARALLEL
+        IF (exit_flag.ne.NoError) RETURN
 !
 !  If first pass, save nonlinear initial conditions (currently in time
 !  index 1, background) into next record (Lbck) of INI(ng)%name NetCDF
@@ -1182,11 +1183,12 @@
         RST(ng)%Rindex=0
         Fcount=RST(ng)%Fcount
         RST(ng)%Nrec(Fcount)=0
-!$OMP PARALLEL
-        CALL initial (ng)
-!$OMP END PARALLEL
-        IF (exit_flag.ne.NoError) RETURN
       END DO
+
+!$OMP PARALLEL
+      CALL initial
+!$OMP END PARALLEL
+      IF (exit_flag.ne.NoError) RETURN
 !
 ! Clear NLobsCost.
 !
@@ -1269,13 +1271,13 @@
  20   FORMAT (/,1x,a,1x,'ROMS/TOMS: started time-stepping:',            &
      &        ' (Grid: ',i2.2,' TimeSteps: ',i8.8,' - ',i8.8,')',/)
  30   FORMAT (/,' (',i3.3,',',i3.3,'): TLM Cost Jb, J  = ',             &
-     &        1p,e16.10,0p,1x,1p,e16.10,0p,t68,1p,e10.4,' %')
+     &        1p,e17.10,0p,1x,1p,e17.10,0p,t68,1p,e11.4,' %')
  40   FORMAT (/,'>(',i3.3,',',i3.3,'): NLM Cost     J  = ',             &
-     &        17x,1p,e16.10,0p)
+     &        18x,1p,e17.10,0p)
  50   FORMAT (' (',i3.3,',',i3.3,'): NLM Cost     J  = ',               &
-     &        17x,1p,e16.10,0p,t68,a)
+     &        18x,1p,e17.10,0p,t69,a)
  60   FORMAT (/,1x,'(',i3.3,',',i3.3,'): Optimality (2*J/Nobs) = ',     &
-     &        1p,e16.10,/)
+     &        1p,e17.10,/)
 
       RETURN
       END SUBROUTINE ROMS_run

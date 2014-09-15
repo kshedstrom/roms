@@ -1,7 +1,7 @@
        SUBROUTINE ice_advect (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine performs advection of ice scalars using the         !
@@ -94,7 +94,7 @@
      &                      ICE(ng) % ai                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -134,7 +134,7 @@
      &                      ICE(ng) % hi                                &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -145,6 +145,15 @@
      &                  ICE(ng)%ui,                                     &
      &                  ICE(ng)%vi,                                     &
      &                  ICE(ng)%hi, LBC(:,isHice,ng))
+!
+! Store ice divergence rate
+!
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          ICE(ng)%wdiv(i,j) = (ICE(ng)%hi(i,j,linew(ng))-               &
+       &                       ICE(ng)%hi(i,j,liold(ng)))/dt(ng)
+        ENDDO
+      ENDDO
 !
 ! ---------------------------------------------------------------------
 !  Advect the snow thickness.
@@ -175,7 +184,7 @@
      &                      ICE(ng) % hsn                               &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -329,7 +338,7 @@ FOOOO
      &                      ICE(ng) % sfwat                             &
      &                      )
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
@@ -370,8 +379,8 @@ FOOOO
      &                      ICE(ng) % enthalpi                          &
      &                      )
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%ti(i,j,linew(ng)) = ICE(ng)%enthalpi(i,j,linew(ng))/  &
        &                  MAX(ICE(ng)%hi(i,j,linew(ng)),1.0E-6_r8)
           IF (ICE(ng)%hi(i,j,linew(ng)).LE.min_h(ng)) THEN
@@ -381,7 +390,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, iNLM,                                   &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold(ng), linew(ng),                             &
      &                ICE(ng)%ui,                                       &
@@ -394,8 +403,8 @@ FOOOO
 !  Advect the ice age.
 ! ---------------------------------------------------------------------
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%hage(i,j,liold(ng)) = ICE(ng)%hi(i,j,liold(ng))*      &
      &                       ICE(ng)%ageice(i,j,liold(ng))
           ICE(ng)%hage(i,j,linew(ng)) = ICE(ng)%hi(i,j,linew(ng))*      &
@@ -431,8 +440,8 @@ FOOOO
      &                      ICE(ng) % hage                              &
      &                      )
 !
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           ICE(ng)%ageice(i,j,linew(ng)) = ICE(ng)%hage(i,j,linew(ng))/  &
      &                  MAX(ICE(ng)%hi(i,j,linew(ng)),1.0E-6_r8)
           IF (ICE(ng)%hi(i,j,linew(ng)).LE.min_h(ng)) THEN
@@ -442,7 +451,7 @@ FOOOO
         ENDDO
       ENDDO
 !
-!        CALL i2d_bc_tile (ng, tile,                                     &
+!        CALL i2d_bc_tile (ng, tile, iNLM,                               &
 !     &                    LBi, UBi, LBj, UBj,                           &
 !     &                    IminS, ImaxS, JminS, JmaxS,                   &
 !     &                    liold(ng), linew(ng),                         &
@@ -731,30 +740,28 @@ FOOOO
 !
 ! mask ???
 !
-#ifdef FOO
 #ifdef MASKING
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask(i,j)
         END DO
       END DO
 #endif
 #ifdef WET_DRY
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask_wet(i,j)
         END DO
       END DO
 #endif
 #ifdef ICESHELF
-      DO j=J_RANGE
-        DO i=I_RANGE
+  DO j=Jmin,Jmax
+  DO i=Imin,Jmax
           IF (zice(i,j).ne.0.0_r8) THEN
             aif(i,j) = 0.0_r8
           END IF
         END DO
       END DO
-#endif
 #endif
 
 #ifndef ICE_UPWIND
@@ -849,7 +856,7 @@ FOOOO
           aif(i,j)=aif(i,j)*rmask_wet(i,j)
 #  endif
 #  ifdef ICESHELF
-          IF (zice(i,j).ne.0.) aif(i,j)=0.
+          IF (zice(i,j).ne.0.0_r8) aif(i,j)=0.
 #  endif
         END DO
       END DO

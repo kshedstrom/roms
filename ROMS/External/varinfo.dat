@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -667,7 +667,7 @@
   'bwf_time'
   'idTbot(isalt)'
   'r2dvar'
-  1.157407d-7                                     ! 0.01/86400
+  1.157407d-7                                      ! 0.01/86400
 
 !
 !------------------------------------------------------------------------------
@@ -837,24 +837,6 @@
   'r2dvar'
   1.0d0
 
-'s0mk'
-  'salinity of molecular sub-layer under ice'
-  'nondimensional'
-  'salinity, scalar, series'
-  'ocean_time'
-  'idS0mk'
-  'r2dvar'
-  1.0d0
-
-'t0mk'
-  'temperature of molecular sub-layer under ice'
-  'degrees Celsius'
-  'temperature, scalar, series'
-  'ocean_time'
-  'idT0mk'
-  'r2dvar'
-  1.0d0
-
 'wfr'
   'rate of frazil ice growth'
   'm^3 s-1'
@@ -897,6 +879,15 @@
   'melt runoff rate, scalar, series'
   'ocean_time'
   'idWro'
+  'r2dvar'
+  1.0d0
+
+'wdiv'
+  'rate of ice divergence'
+  'm^3 s-1'
+  'ice divergence rate, scalar, series'
+  'ocean_time'
+  'idWdiv'
   'r2dvar'
   1.0d0
 
@@ -2795,7 +2786,8 @@
 
 !
 !------------------------------------------------------------------------------
-!  Climatotogy variables.
+!  Climatotogy variables.  Active and passive climatology tracers variable
+!  metadata is set internally in "mod_ncparam".
 !------------------------------------------------------------------------------
 !
 
@@ -2871,23 +2863,77 @@
   'r2dvar'
   1.0d0
 
-'temp'                                             ! Input
-  'potential temperature climatology'
-  'Celsius'                                        ! [Celsius]
-  'temp, scalar, series'
-  'temp_time'
-  'idTclm(itemp)'
-  'r3dvar'
-  1.0d0
+!
+!------------------------------------------------------------------------------
+!  Nudging to climatology time scales. We can have a generic variable for all
+!  tracer nudging time scales or individual variables for each active and
+!  passive tracer. The metadata for the individual variables is set internally
+!  in "mod_ncparam".
+!------------------------------------------------------------------------------
+!
 
-'salt'                                             ! Input
-  'salinity climatology'
-  'nondimensional'                                 ! [PSU]
-  'salt, scalar, series'
-  'salt_time'
-  'idTclm(isalt)'
+'M2_NudgeCoef'                                     ! Input
+  '2D momentum inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'M2_NudgeCoef, scalar'
+  'nulvar'
+  'idM2nc'
+  'r2dvar'
+  1.157407d-5                                      ! 1/86400
+
+'M3_NudgeCoef'                                     ! Input
+  '3D momentum inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'M3_NudgeCoef, scalar'
+  'nulvar'
+  'idM3nc'
   'r3dvar'
-  1.0d0
+  1.157407d-5                                      ! 1/86400
+
+'tracer_NudgeCoef'                                 ! Input
+  'generic tracer inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'tracer_NudgeCoef, scalar'
+  'nulvar'
+  'idgTnc'
+  'r3dvar'
+  1.157407d-5                                      ! 1/86400
+
+!
+!------------------------------------------------------------------------------
+!  Nudging to climatology time scales. We can have a generic variable for all
+!  tracer nudging time scales or individual variables for each active and
+!  passive tracer. The metadata for the individual variables is set internally
+!  in "mod_ncparam".
+!------------------------------------------------------------------------------
+!
+
+'M2_NudgeCoef'                                     ! Input
+  '2D momentum inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'M2_NudgeCoef, scalar'
+  'nulvar'
+  'idM2nc'
+  'r2dvar'
+  1.157407d-5                                      ! 1/86400
+
+'M3_NudgeCoef'                                     ! Input
+  '3D momentum inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'M3_NudgeCoef, scalar'
+  'nulvar'
+  'idM3nc'
+  'r3dvar'
+  1.157407d-5                                      ! 1/86400
+
+'tracer_NudgeCoef'                                 ! Input
+  'generic tracer inverse nudging coefficients'
+  'day-1'                                          ! [1/s]
+  'tracer_NudgeCoef, scalar'
+  'nulvar'
+  'idgTnc'
+  'r3dvar'
+  1.157407d-5                                      ! 1/86400
 
 !
 !------------------------------------------------------------------------------
@@ -3031,138 +3077,6 @@
   'salt_time, scalar, series'
   'salt_time'
   'idTtlf(isalt)'
-  'r3dvar'
-  1.0d0
-
-!
-!------------------------------------------------------------------------------
-!  Observation variables: Optimal Interpolation and Nudging.
-!------------------------------------------------------------------------------
-!
-
-'SSH'                                              ! Input
-  'sea surface height observations'
-  'meter'                                          ! [m]
-  'SSHobs, scalar, series'
-  'SSHobs_time'
-  'idSSHo'
-  'r2dvar'
-  1.0d0
-
-'SSH_err'                                          ! Input
-  'sea surface height error variance'
-  'nondimensional'                                 ! [nondimenisional]
-  'SSH_err, scalar, series'
-  'SSHobs_time'
-  'idSSHe'
-  'r2dvar'
-  1.0d0
-
-'u'                                                ! Input
-  'u-momentum component observations'
-  'meter second-1'                                 ! [m/s]
-  'Uobs, scalar, series'
-  'Vobs_time'
-  'idUobs'
-  'u3dvar'
-  1.0d0
-
-'v'                                                ! Input
-  'v-momentum component observations'
-  'meter second-1'                                 ! [m/s]
-  'Vobs, scalar, series'
-  'Vobs_time'
-  'idVobs'
-  'v3dvar'
-  1.0d0
-
-'Evel'                                             ! Input
-  'horizontal velocity error variance'
-  'nondimensional'                                 ! [nondimensional]
-  'Evel, scalar, series'
-  'Vobs_time'
-  'idUVer'
-  'r3dvar'
-  1.0d0
-
-'Usur'                                             ! Input
-  'surface u-momentum component observations'
-  'meter second-1'                                 ! [m/s]
-  'Usur, scalar, series'
-  'Vsur_time'
-  'idUsur'
-  'u2dvar'
-  1.0d0
-
-'Vsur'                                             ! Input
-  'surface v-momentum component observations'
-  'meter second-1'                                 ! [m/s]
-  'Vsur, scalar, series'
-  'Vsur_time'
-  'idVsur'
-  'v2dvar'
-  1.0d0
-
-'Esur'                                             ! Input
-  'surface velocity error variance'
-  'nondimensional'                                 ! [nondimensional]
-  'Esur, scalar, series'
-  'Vsur_time'
-  'idUVse'
-  'r2dvar'
-  1.0d0
-
-'SST'                                              ! Input
-  'sea surface temperature observations'
-  'Celsius'                                        ! [Celsius]
-  'SSTobs, scalar, series'
-  'SSTobs_time'
-  'idSSTo'
-  'r2dvar'
-  1.0d0
-
-'SST_err'                                          ! Input
-  'sea surface temperature error variance'
-  'nondimensional'                                 ! [nondimensional]
-  'SST_err, scalar, series'
-  'SSTobs_time'
-  'idSSTe'
-  'r2dvar'
-  1.0d0
-
-'temp'                                             ! Input
-  'potential temperature observations'
-  'Celsius'                                        ! [nondimensional]
-  'Tobs, scalar, series'
-  'Tobs_time'
-  'idTobs(itemp)'
-  'r3dvar'
-  1.0d0
-
-'temp_err'                                         ! Input
-  'potential temperature error variance'
-  'nondimensional'                                 ! [nondimensional]
-  'temp_err, scalar, series'
-  'Tobs_time'
-  'idTerr(itemp)'
-  'r3dvar'
-  1.0d0
-
-'salt'                                             ! Input
-  'salinity observations'
-  'nondimensional'                                 ! [PSU]
-  'Sobs, scalar, series'
-  'Sobs_time'
-  'idTobs(isalt)'
-  'r3dvar'
-  1.0d0
-
-'salt_err'                                         ! Input
-  'salinity error variance'
-  'nondimensional'                                 ! [nondimensional]
-  'salt_err, scalar, series'
-  'Sobs_time'
-  'idTerr(isalt)'
   'r3dvar'
   1.0d0
 
@@ -7871,11 +7785,20 @@
   1.0d0
 
 'obs_type'                                         ! Input
-  'associated model state variable type'
+  'model state variable associated with observation'
   'nondimensional'                                 ! [nondimensional]
   'nulvar'
   'datum'
   'idOtyp'
+  'nulvar'
+  1.0d0
+
+'obs_provenance'                                   ! Input
+  'observation origin'
+  'nondimensional'                                 ! [nondimensional]
+  'nulvar'
+  'datum'
+  'idOpro'
   'nulvar'
   1.0d0
 

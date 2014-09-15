@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -29,9 +29,6 @@
 !***********************************************************************
 !
       USE mod_param
-# ifdef CLIMATOLOGY
-      USE mod_clima
-# endif
       USE mod_coupling
 # ifdef DIAGNOSTICS_UV
       USE mod_diags
@@ -155,11 +152,6 @@
      &                    FORCES(ng) % tl_sustr,                        &
      &                    FORCES(ng) % svstr,                           &
      &                    FORCES(ng) % tl_svstr,                        &
-# ifdef M3CLM_NUDGING
-     &                    CLIMA(ng) % M3nudgcof,                        &
-     &                    CLIMA(ng) % uclm,                             &
-     &                    CLIMA(ng) % vclm,                             &
-# endif
      &                    OCEAN(ng) % u,                                &
      &                    OCEAN(ng) % tl_u,                             &
      &                    OCEAN(ng) % v,                                &
@@ -238,9 +230,6 @@
      &                          bvstr, tl_bvstr,                        &
      &                          sustr, tl_sustr,                        &
      &                          svstr, tl_svstr,                        &
-# ifdef M3CLM_NUDGING
-     &                          M3nudgcof, uclm, vclm,                  &
-# endif
      &                          u, tl_u,                                &
      &                          v, tl_v,                                &
      &                          W, tl_W,                                &
@@ -260,6 +249,7 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_clima
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -288,11 +278,6 @@
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
-#  ifdef M3CLM_NUDGING
-      real(r8), intent(in) :: M3nudgcof(LBi:,LBj:)
-      real(r8), intent(in) :: uclm(LBi:,LBj:,:)
-      real(r8), intent(in) :: vclm(LBi:,LBj:,:)
-#  endif
       real(r8), intent(in) :: u(LBi:,LBj:,:,:)
       real(r8), intent(in) :: v(LBi:,LBj:,:,:)
       real(r8), intent(in) :: W(LBi:,LBj:,0:)
@@ -347,11 +332,6 @@
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
-#  ifdef M3CLM_NUDGING
-      real(r8), intent(in) :: M3nudgcof(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: uclm(LBi:UBi,LBj:UBj,N(ng))
-      real(r8), intent(in) :: vclm(LBi:UBi,LBj:UBj,N(ng))
-#  endif
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
@@ -787,43 +767,50 @@
           END DO
         END DO
 # endif
-# ifdef M3CLM_NUDGING
 !
 !-----------------------------------------------------------------------
 !  Add in nudging of 3D momentum climatology.
 !-----------------------------------------------------------------------
 !
-        DO j=Jstr,Jend
-          DO i=IstrU,Iend
-            cff=0.25_r8*(M3nudgcof(i-1,j)+M3nudgcof(i,j))*              &
-     &          om_u(i,j)*on_u(i,j)
-!>          ru(i,j,k,nrhs)=ru(i,j,k,nrhs)+                              &
-!>   &                     cff*(Hz(i-1,j,k)+Hz(i,j,k))*                 &
-!>   &                         (uclm(i,j,k)-u(i,j,k,nrhs))
+        IF (LnudgeM3CLM(ng)) THEN
+          DO j=Jstr,Jend
+            DO i=IstrU,Iend
+              cff=0.25_r8*(CLIMA(ng)%M3nudgcof(i-1,j,k)+                &
+     &                     CLIMA(ng)%M3nudgcof(i  ,j,k))*               &
+     &            om_u(i,j)*on_u(i,j)
+!>            ru(i,j,k,nrhs)=ru(i,j,k,nrhs)+                            &
+!>   &                       cff*(Hz(i-1,j,k)+Hz(i,j,k))*               &
+!>   &                           (CLIMA(ng)%uclm(i,j,k)-                &
+!>   &                            u(i,j,k,nrhs))
 !>
-            tl_ru(i,j,k,nrhs)=tl_ru(i,j,k,nrhs)+                        &
-     &                        cff*((Hz(i-1,j,k)+Hz(i,j,k))*             &
-     &                             (-tl_u(i,j,k,nrhs))+                 &
-     &                             (tl_Hz(i-1,j,k)+tl_Hz(i,j,k))*       &
-     &                             (uclm(i,j,k)-u(i,j,k,nrhs)))
+              tl_ru(i,j,k,nrhs)=tl_ru(i,j,k,nrhs)+                      &
+     &                          cff*((Hz(i-1,j,k)+Hz(i,j,k))*           &
+     &                               (-tl_u(i,j,k,nrhs))+               &
+     &                               (tl_Hz(i-1,j,k)+tl_Hz(i,j,k))*     &
+     &                               (CLIMA(ng)%uclm(i,j,k)-            &
+     &                                u(i,j,k,nrhs)))
+            END DO
           END DO
-        END DO
-        DO j=JstrV,Jend
-          DO i=Istr,Iend
-            cff=0.25_r8*(M3nudgcof(i,j-1)+M3nudgcof(i,j))*              &
-     &          om_v(i,j)*on_v(i,j)
-!>          rv(i,j,k,nrhs)=rv(i,j,k,nrhs)+                              &
-!>   &                     cff*(Hz(i,j-1,k)+Hz(i,j,k))*                 &
-!>   &                         (vclm(i,j,k)-v(i,j,k,nrhs))
+          DO j=JstrV,Jend
+            DO i=Istr,Iend
+              cff=0.25_r8*(CLIMA(ng)%M3nudgcof(i,j-1,k)+                &
+     &                     CLIMA(ng)%M3nudgcof(i,j  ,k))*               &
+     &            om_v(i,j)*on_v(i,j)
+!>            rv(i,j,k,nrhs)=rv(i,j,k,nrhs)+                            &
+!>   &                       cff*(Hz(i,j-1,k)+Hz(i,j,k))*               &
+!>   &                           (CLIMA(ng)%vclm(i,j,k)-                &
+!>   &                            v(i,j,k,nrhs))
 !>
-            tl_rv(i,j,k,nrhs)=tl_rv(i,j,k,nrhs)+                        &
-     &                        cff*((Hz(i,j-1,k)+Hz(i,j,k))*             &
-     &                             (-tl_v(i,j,k,nrhs))+                 &
-     &                             (tl_Hz(i,j-1,k)+tl_Hz(i,j,k))*       &
-     &                             (vclm(i,j,k)-v(i,j,k,nrhs)))
-         END DO
-       END DO
-# endif
+              tl_rv(i,j,k,nrhs)=tl_rv(i,j,k,nrhs)+                      &
+     &                          cff*((Hz(i,j-1,k)+Hz(i,j,k))*           &
+     &                               (-tl_v(i,j,k,nrhs))+               &
+     &                               (tl_Hz(i,j-1,k)+tl_Hz(i,j,k))*     &
+     &                               (CLIMA(ng)%vclm(i,j,k)-            &
+     &                                v(i,j,k,nrhs)))
+            END DO
+          END DO
+        END IF
+
 # ifdef UV_ADV
 !
 !-----------------------------------------------------------------------
@@ -977,24 +964,24 @@
      &                   tl_Huon(i+1,j,k)
           END DO
         END DO
-        IF (.not.ComposedGrid(ng)) THEN
-          IF (.not.EWperiodic(ng)) THEN
-            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-              DO j=Jstr,Jend
-                uxx (Istr,j)=uxx (Istr+1,j)
-                tl_uxx (Istr,j)=tl_uxx (Istr+1,j)
-                Huxx(Istr,j)=Huxx(Istr+1,j)
-                tl_Huxx(Istr,j)=tl_Huxx(Istr+1,j)
-              END DO
-            END IF
-            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-              DO j=Jstr,Jend
-                uxx (Iend+1,j)=uxx (Iend,j)
-                tl_uxx (Iend+1,j)=tl_uxx (Iend,j)
-                Huxx(Iend+1,j)=Huxx(Iend,j)
-                tl_Huxx(Iend+1,j)=tl_Huxx(Iend,j)
-              END DO
-            END IF
+        IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+            DO j=Jstr,Jend
+              uxx (Istr,j)=uxx (Istr+1,j)
+              tl_uxx (Istr,j)=tl_uxx (Istr+1,j)
+              Huxx(Istr,j)=Huxx(Istr+1,j)
+              tl_Huxx(Istr,j)=tl_Huxx(Istr+1,j)
+            END DO
+          END IF
+        END IF
+        IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+            DO j=Jstr,Jend
+              uxx (Iend+1,j)=uxx (Iend,j)
+              tl_uxx (Iend+1,j)=tl_uxx (Iend,j)
+              Huxx(Iend+1,j)=Huxx(Iend,j)
+              tl_Huxx(Iend+1,j)=tl_Huxx(Iend,j)
+            END DO
           END IF
         END IF
 #   ifdef UV_C4ADVECTION
@@ -1105,20 +1092,20 @@
      &                  tl_u(i,j+1,k,nrhs)
           END DO
         END DO
-        IF (.not.ComposedGrid(ng)) THEN
-          IF (.not.NSperiodic(ng)) THEN
-            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-              DO i=IstrU,Iend
-                uee(i,Jstr-1)=uee(i,Jstr)
-                tl_uee(i,Jstr-1)=tl_uee(i,Jstr)
-              END DO
-            END IF
-            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-              DO i=IstrU,Iend
-                uee(i,Jend+1)=uee(i,Jend)
-                tl_uee(i,Jend+1)=tl_uee(i,Jend)
-              END DO
-            END IF
+        IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+            DO i=IstrU,Iend
+              uee(i,Jstr-1)=uee(i,Jstr)
+              tl_uee(i,Jstr-1)=tl_uee(i,Jstr)
+            END DO
+          END IF
+        END IF
+        IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+            DO i=IstrU,Iend
+              uee(i,Jend+1)=uee(i,Jend)
+              tl_uee(i,Jend+1)=tl_uee(i,Jend)
+            END DO
           END IF
         END IF
         DO j=Jstr,Jend+1
@@ -1225,21 +1212,21 @@
      &                  tl_v(i+1,j,k,nrhs)
           END DO
         END DO
-        IF (.not.ComposedGrid(ng)) THEN
-          IF (.not.EWperiodic(ng)) THEN
-            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-              DO j=JstrV,Jend
-                vxx(Istr-1,j)=vxx(Istr,j)
-                tl_vxx(Istr-1,j)=tl_vxx(Istr,j)
-              END DO
-            END IF
-            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-              DO j=JstrV,Jend
-                vxx(Iend+1,j)=vxx(Iend,j)
-                tl_vxx(Iend+1,j)=tl_vxx(Iend,j)
-              END DO
-            END IF
-          ENDIF
+        IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+            DO j=JstrV,Jend
+              vxx(Istr-1,j)=vxx(Istr,j)
+              tl_vxx(Istr-1,j)=tl_vxx(Istr,j)
+            END DO
+          END IF
+        END IF
+        IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+            DO j=JstrV,Jend
+              vxx(Iend+1,j)=vxx(Iend,j)
+              tl_vxx(Iend+1,j)=tl_vxx(Iend,j)
+            END DO
+          END IF
         END IF
         DO j=JstrV-1,Jend
           DO i=Istr,Iend+1
@@ -1355,24 +1342,24 @@
      &                   tl_Hvom(i,j+1,k)
           END DO
         END DO
-        IF (.not.ComposedGrid(ng)) THEN
-          IF (.not.NSperiodic(ng)) THEN
-            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-              DO i=Istr,Iend
-                vee (i,Jstr)=vee (i,Jstr+1)
-                tl_vee (i,Jstr)=tl_vee (i,Jstr+1)
-                Hvee(i,Jstr)=Hvee(i,Jstr+1)
-                tl_Hvee(i,Jstr)=tl_Hvee(i,Jstr+1)
-              END DO
-            END IF
-            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-              DO i=Istr,Iend
-                vee (i,Jend+1)=vee (i,Jend)
-                tl_vee (i,Jend+1)=tl_vee (i,Jend)
-                Hvee(i,Jend+1)=Hvee(i,Jend)
-                tl_Hvee(i,Jend+1)=tl_Hvee(i,Jend)
-              END DO
-            END IF
+        IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+            DO i=Istr,Iend
+              vee (i,Jstr)=vee (i,Jstr+1)
+              tl_vee (i,Jstr)=tl_vee (i,Jstr+1)
+              Hvee(i,Jstr)=Hvee(i,Jstr+1)
+              tl_Hvee(i,Jstr)=tl_Hvee(i,Jstr+1)
+            END DO
+          END IF
+        END IF
+        IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+          IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+            DO i=Istr,Iend
+              vee (i,Jend+1)=vee (i,Jend)
+              tl_vee (i,Jend+1)=tl_vee (i,Jend)
+              Hvee(i,Jend+1)=Hvee(i,Jend)
+              tl_Hvee(i,Jend+1)=tl_Hvee(i,Jend)
+            END DO
           END IF
         END IF
 #   ifdef UV_C4ADVECTION

@@ -3,7 +3,7 @@
 #if defined ICE_ADVECT || defined ICE_THERMO
 !
 !============================================== W. Paul Budgell =======!
-!  Copyright (c) 2002 ROMS/TOMS Group                                  !
+!  Copyright (c) 2002-2014 ROMS/TOMS Group                                  !
 !============================================== Hernan G. Arango ======!
 !                                                                      !
 !  Limit ice tracer variables, for instance to not allow negative      !
@@ -136,13 +136,15 @@
           hsn(i,j,linew) = MAX(hsn(i,j,linew),0.0_r8)
           sfwat(i,j,linew) = MAX(sfwat(i,j,linew),0.0_r8)
           ti(i,j,linew) = MAX(ti(i,j,linew),-70.0_r8)
-          IF (hi(i,j,linew) .le. min_h(ng)) ai(i,j,linew) = min_a(ng)
-          IF (ai(i,j,linew) .le. min_a(ng)) THEN
-            ai(i,j,linew) = min_a(ng)
-            hi(i,j,linew) = min_h(ng)
+          IF (ai(i,j,linew) .le. 0.0_r8 .or. hi(i,j,linew) .le. 0.0_r8) &
+     &       THEN
+            ai(i,j,linew) = 0.0_r8
+            hi(i,j,linew) = 0.0_r8
             sfwat(i,j,linew) = 0.0_r8
             hsn(i,j,linew) = 0.0_r8
           END IF
+!         if (i==428 .and. j==60) print *, 'in ice_limit',              &
+!    &                 sfwat(i,j,:), ai(i,j,:)
         END DO
       END DO
 
@@ -162,7 +164,7 @@
       END DO
 # endif
 !
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -171,7 +173,7 @@
      &                  BOUNDARY(ng)%ai_north(LBi:UBi),                 &
      &                  BOUNDARY(ng)%ai_south(LBi:UBi),                 &
      &                  ui, vi, ai, LBC(:,isAice,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -180,7 +182,7 @@
      &                  BOUNDARY(ng)%hi_north(LBi:UBi),                 &
      &                  BOUNDARY(ng)%hi_south(LBi:UBi),                 &
      &                  ui, vi, hi, LBC(:,isHice,ng))
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &
@@ -189,11 +191,11 @@
      &                  BOUNDARY(ng)%hsn_north(LBi:UBi),                &
      &                  BOUNDARY(ng)%hsn_south(LBi:UBi),                &
      &                  ui, vi, hsn, LBC(:,isHsno,ng))
-      CALL tibc_tile (ng, tile,                                         &
+      CALL tibc_tile (ng, tile, iNLM,                                   &
      &                LBi, UBi, LBj, UBj,                               &
      &                liold, linew,                                     &
      &                ui, vi, hi, ti, enthalpi)
-      CALL i2d_bc_tile (ng, tile,                                       &
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold, linew,                                   &

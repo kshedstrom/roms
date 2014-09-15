@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -66,6 +66,7 @@
 !
       USE mod_param
       USE mod_boundary
+      USE mod_clima
       USE mod_forces
       USE mod_grid
       USE mod_ncparam
@@ -103,7 +104,8 @@
 
       real(r8) :: Ce, Cx, Ze
       real(r8) :: bry_pgr, bry_cor, bry_str, bry_val
-      real(r8) :: cff, cff1, cff2, cff3, dt2d, tau
+      real(r8) :: cff, cff1, cff2, cff3, dt2d
+      real(r8) :: obc_in, obc_out, tau
 
       real(r8) :: ad_Ce, ad_Cx
       real(r8) :: ad_bry_pgr, ad_bry_cor, ad_bry_str, ad_bry_val, ad_Ze
@@ -338,10 +340,19 @@
               IF (LBC_apply(ng)%east(j)) THEN
 # if defined CELERITY_READ && defined FORWARD_READ
                 IF (ad_LBC(ieast,isVbar,ng)%nudging) THEN
-                  IF (BOUNDARY(ng)%vbar_east_Cx(j).eq.0.0_r8) THEN
-                    tau=M2obc_in(ng,ieast)
+                  IF (LnudgeM2CLM(ng)) THEN
+                    obc_out=0.5_r8*                                     &
+     &                      (CLIMA(ng)%M2nudgcof(Iend+1,j-1)+           &
+     &                       CLIMA(ng)%M2nudgcof(Iend+1,j  ))
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=M2obc_out(ng,ieast)
+                    obc_out=M2obc_out(ng,ieast)
+                    obc_in =M2obc_in (ng,ieast)
+                  END IF
+                  IF (BOUNDARY(ng)%vbar_east_Cx(j).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
                   END IF
                   tau=tau*dt2d
                 END IF
@@ -542,10 +553,19 @@
               IF (LBC_apply(ng)%west(j)) THEN
 # if defined CELERITY_READ && defined FORWARD_READ
                 IF (ad_LBC(iwest,isVbar,ng)%nudging) THEN
-                  IF (BOUNDARY(ng)%vbar_west_Cx(j).eq.0.0_r8) THEN
-                    tau=M2obc_in(ng,iwest)
+                  IF (LnudgeM2CLM(ng)) THEN
+                    obc_out=0.5_r8*                                     &
+     &                      (CLIMA(ng)%M2nudgcof(Istr-1,j-1)+           &
+     &                       CLIMA(ng)%M2nudgcof(Istr-1,j  ))
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=M2obc_out(ng,iwest)
+                    obc_out=M2obc_out(ng,iwest)
+                    obc_in =M2obc_in (ng,iwest)
+                  END IF
+                  IF (BOUNDARY(ng)%vbar_west_Cx(j).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
                   END IF
                   tau=tau*dt2d
                 END IF
@@ -746,10 +766,19 @@
               IF (LBC_apply(ng)%north(i)) THEN
 # if defined CELERITY_READ && defined FORWARD_READ
                 IF (ad_LBC(inorth,isVbar,ng)%nudging) THEN
-                  IF (BOUNDARY(ng)%vbar_north_Ce(i).eq.0.0_r8) THEN
-                    tau=M2obc_in(ng,inorth)
+                  IF (LnudgeM2CLM(ng)) THEN
+                    obc_out=0.5_r8*                                     &
+     &                      (CLIMA(ng)%M2nudgcof(i,Jend  )+             &
+     &                       CLIMA(ng)%M2nudgcof(i,Jend+1))
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=M2obc_out(ng,inorth)
+                    obc_out=M2obc_out(ng,inorth)
+                    obc_in =M2obc_in (ng,inorth)
+                  END IF
+                  IF (BOUNDARY(ng)%vbar_north_Ce(i).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
                   END IF
                   tau=tau*dt2d
                 END IF
@@ -1027,18 +1056,18 @@
         ELSE IF (ad_LBC(inorth,isVbar,ng)%Shchepetkin) THEN
           DO i=Istr,Iend
             IF (LBC_apply(ng)%north(i)) THEN
-              cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jend  )+                 &
-     &                            GRID(ng)%h(i,Jend+1)))
-              cff1=SQRT(g*cff)
-              Ce=dt2d*cff1*0.5_r8*(GRID(ng)%pn(i,Jend  )+               &
-     &                             GRID(ng)%pn(i,Jend+1))
+              cff=0.5_r8*(GRID(ng)%h(i,Jend  )+                         &
+     &                    GRID(ng)%h(i,Jend+1))
+              cff1=SQRT(g/cff)
+              Ce=dt2d*cff1*cff*0.5_r8*(GRID(ng)%pn(i,Jend  )+           &
+     &                                 GRID(ng)%pn(i,Jend+1))
               Ze=(0.5_r8+Ce)*zeta(i,Jend  ,know)+                       &
      &           (0.5_r8-Ce)*zeta(i,Jend+1,know)
               IF (Ce.gt.Co) THEN
                 cff2=(1.0_r8-Co/Ce)**2
                 cff3=zeta(i,Jend,kout)+                                 &
      &               Ce*zeta(i,Jend+1,know)-                            &
-     &               (1.0_r8-Ce)*zeta(i,Jend,know)
+     &               (1.0_r8+Ce)*zeta(i,Jend,know)
                 Ze=Ze+cff2*cff3
               END IF
 # ifdef MASKING
@@ -1092,12 +1121,12 @@
 !>   &                  Ce*tl_zeta(i,Jend+1,know)+                      &
 !>   &                  tl_Ce*(zeta(i,Jend  ,know)+                     &
 !>   &                         zeta(i,Jend+1,know))-                    &
-!>   &                  (1.0_r8-Ce)*tl_zeta(i,Jend,know)
+!>   &                  (1.0_r8+Ce)*tl_zeta(i,Jend,know)
 !>
                 ad_zeta(i,Jend  ,kout)=ad_zeta(i,Jend  ,kout)+          &
      &                                 ad_cff3
                 ad_zeta(i,Jend  ,know)=ad_zeta(i,Jend  ,know)-          &
-     &                                 (1.0_r8-Ce)*ad_cff3
+     &                                 (1.0_r8+Ce)*ad_cff3
                 ad_zeta(i,Jend+1,know)=ad_zeta(i,Jend+1,know)+          &
      &                                 Ce*ad_cff3
                 ad_Ce=ad_Ce+                                            &
@@ -1123,22 +1152,25 @@
      &              (zeta(i,Jend  ,know)-                               &
      &               zeta(i,Jend+1,know))*ad_Ze
               ad_Ze=0.0_r8
-!>            tl_Ce=dt2d*tl_cff1*0.5_r8*(GRID(ng)%pn(i,Jend  )+         &
-!>   &                                   GRID(ng)%pn(i,Jend+1))
+!>            tl_Ce=dt2d*0.5_r8*(GRID(ng)%pn(i,Jend  )+                 &
+!>   &                           GRID(ng)%pn(i,Jend+1))*                &
+!>   &              (cff1*tl_cff+                                       &
+!>   &               tl_cff1*cff)
 !>
-              ad_cff1=ad_cff1+                                          &
-     &                dt2d*0.5_r8*(GRID(ng)%pn(i,Jend  )+               &
-     &                             GRID(ng)%pn(i,Jend+1))*ad_Ce
+              adfac=dt2d*0.5_r8*(GRID(ng)%pn(i,Jend  )+                 &
+     &                           GRID(ng)%pn(i,Jend+1))*ad_Ce
+              ad_cff=ad_cff+cff1*adfac
+              ad_cff1=ad_cff1+cff*adfac
               ad_Ce=0.0_r8
-!>            tl_cff1=0.5_r8*g*tl_cff/cff1
+!>            tl_cff1=-0.5_r8*cff1*tl_cff/cff
 !>
-              ad_cff=ad_cff+                                            &
-     &               0.5_r8*g*ad_cff1/cff1
+              ad_cff=ad_cff-                                            &
+     &               0.5_r8*cff1*ad_cff/cff
               ad_cff1=0.0_r8
-!>            tl_cff=-cff*cff*(0.5_r8*(GRID(ng)%tl_h(i,Jend  )+         &
-!>   &                                 GRID(ng)%tl_h(i,Jend+1)))
+!>            tl_cff=0.5_r8*(GRID(ng)%tl_h(i,Jend  )+                   &
+!>   &                       GRID(ng)%tl_h(i,Jend+1))
 !>
-              adfac=-cff*cff*0.5_r8*ad_cff
+              adfac=0.5_r8*ad_cff
               GRID(ng)%ad_h(i,Jend  )=GRID(ng)%ad_h(i,Jend  )+adfac
               GRID(ng)%ad_h(i,Jend+1)=GRID(ng)%ad_h(i,Jend+1)+adfac
               ad_cff=0.0_r8
@@ -1499,10 +1531,19 @@
               IF (LBC_apply(ng)%south(i)) THEN
 # if defined CELERITY_READ && defined FORWARD_READ
                 IF (ad_LBC(isouth,isVbar,ng)%nudging) THEN
-                  IF (BOUNDARY(ng)%vbar_south_Ce(i).eq.0.0_r8) THEN
-                    tau=M2obc_in(ng,isouth)
+                  IF (LnudgeM2CLM(ng)) THEN
+                    obc_out=0.5_r8*                                     &
+     &                      (CLIMA(ng)%M2nudgcof(i,Jstr-1)+             &
+     &                       CLIMA(ng)%M2nudgcof(i,Jstr  ))
+                    obc_in =obcfac(ng)*obc_out
                   ELSE
-                    tau=M2obc_out(ng,isouth)
+                    obc_out=M2obc_out(ng,isouth)
+                    obc_in =M2obc_in (ng,isouth)
+                  END IF
+                  IF (BOUNDARY(ng)%vbar_south_Ce(i).lt.0.0_r8) THEN
+                    tau=obc_in
+                  ELSE
+                    tau=obc_out
                   END IF
                   tau=tau*dt2d
                 END IF
@@ -1776,18 +1817,18 @@
         ELSE IF (tl_LBC(isouth,isVbar,ng)%Shchepetkin) THEN
           DO i=Istr,Iend
             IF (LBC_apply(ng)%south(i)) THEN
-              cff=1.0_r8/(0.5_r8*(GRID(ng)%h(i,Jstr-1)+                 &
-     &                            GRID(ng)%h(i,Jstr  )))
-              cff1=SQRT(g*cff)
-              Ce=dt2d*cff1*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+               &
-     &                             GRID(ng)%pn(i,Jstr  ))
+              cff=0.5_r8*(GRID(ng)%h(i,Jstr-1)+                         &
+     &                    GRID(ng)%h(i,Jstr  ))
+              cff1=SQRT(g/cff)
+              Ce=dt2d*cff1*cff*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+           &
+     &                                 GRID(ng)%pn(i,Jstr  ))
               Ze=(0.5_r8+Ce)*zeta(i,Jstr  ,know)+                       &
      &           (0.5_r8-Ce)*zeta(i,Jstr-1,know)
               IF (Ce.gt.Co) THEN
                 cff2=(1.0_r8-Co/Ce)**2
                 cff3=zeta(i,Jstr,kout)+                                 &
      &               Ce*zeta(i,Jstr-1,know)-                            &
-     &               (1.0_r8-Ce)*zeta(i,Jstr,know)
+     &               (1.0_r8+Ce)*zeta(i,Jstr,know)
                 Ze=Ze+cff2*cff3
               END IF
 # ifdef MASKING
@@ -1841,12 +1882,12 @@
 !>   &                  Ce*tl_zeta(i,Jstr-1,know)+                      &
 !>   &                  tl_Ce*(zeta(i,Jstr-1,know)+                     &
 !>   &                         zeta(i,Jstr  ,know))-                    &
-!>   &                  (1.0_r8-Ce)*tl_zeta(i,Jstr,know)
+!>   &                  (1.0_r8+Ce)*tl_zeta(i,Jstr,know)
 !>
                 ad_zeta(i,Jstr  ,kout)=ad_zeta(i,Jstr  ,kout)+          &
      &                                 ad_cff3
                 ad_zeta(i,Jstr  ,know)=ad_zeta(i,Jstr  ,know)-          &
-     &                                 (1.0_r8-Ce)*ad_cff3
+     &                                 (1.0_r8+Ce)*ad_cff3
                 ad_zeta(i,Jstr-1,know)=ad_zeta(i,Jstr-1,know)+          &
      &                                 Ce*ad_cff3
                 ad_Ce=ad_Ce+                                            &
@@ -1872,22 +1913,25 @@
      &              (zeta(i,Jstr  ,know)-                               &
      &               zeta(i,Jstr-1,know))*ad_Ze
               ad_Ze=0.0_r8
-!>            tl_Ce=dt2d*tl_cff1*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+         &
-!>   &                                   GRID(ng)%pn(i,Jstr  ))
+!>            tl_Ce=dt2d*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+                 &
+!>   &                           GRID(ng)%pn(i,Jstr  ))*                &
+!>   &              (cff1*tl_cff+                                       &
+!>   &               tl_cff1*cff)
 !>
-              ad_cff1=ad_cff1+                                          &
-     &                dt2d*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+               &
-     &                             GRID(ng)%pn(i,Jstr  ))*ad_Ce
+              adfac=dt2d*0.5_r8*(GRID(ng)%pn(i,Jstr-1)+                 &
+     &                           GRID(ng)%pn(i,Jstr  ))*ad_Ce
+              ad_cff=ad_cff+cff1*adfac
+              ad_cff1=ad_cff1+cff*adfac
               ad_Ce=0.0_r8
-!>            tl_cff1=0.5_r8*g*tl_cff/cff1
+!>            tl_cff1=-0.5_r8*cff1*tl_cff/cff
 !>
-              ad_cff=ad_cff+                                            &
-     &               0.5_r8*g*ad_cff1/cff1
+              ad_cff=ad_cff-                                            &
+     &               0.5_r8*cff1*ad_cff/cff
               ad_cff1=0.0_r8
-!>            tl_cff=-cff*cff*(0.5_r8*(GRID(ng)%tl_h(i,Jstr-1)+         &
-!>   &                                 GRID(ng)%tl_h(i,Jstr  )))
+!>            tl_cff=0.5_r8*(GRID(ng)%tl_h(i,Jstr-1)+                   &
+!>   &                       GRID(ng)%tl_h(i,Jstr  ))
 !>
-              adfac=-cff*cff*0.5_r8*ad_cff
+              adfac=0.5_r8*ad_cff
               GRID(ng)%ad_h(i,Jstr-1)=GRID(ng)%ad_h(i,Jstr-1)+adfac
               GRID(ng)%ad_h(i,Jstr  )=GRID(ng)%ad_h(i,Jstr  )+adfac
               ad_cff=0.0_r8

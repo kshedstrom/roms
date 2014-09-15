@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -66,39 +66,6 @@
               CASE ('idNPP')
                 idNPP=varid
 # endif
-
-! All over again for climatatology
-              CASE ('idTclm(iLphy)')
-                idTclm(iLphy)=varid
-              CASE ('idTclm(iSphy)')
-                idTclm(iSphy)=varid
-              CASE ('idTclm(iLzoo)')
-                idTclm(iLzoo)=varid
-              CASE ('idTclm(iSzoo)')
-                idTclm(iSzoo)=varid
-              CASE ('idTclm(iPzoo)')
-                idTclm(iPzoo)=varid
-              CASE ('idTclm(iNO3_)')
-                idTclm(iNO3_)=varid
-              CASE ('idTclm(iNH4_)')
-                idTclm(iNH4_)=varid
-              CASE ('idTclm(iPON_)')
-                idTclm(iPON_)=varid
-              CASE ('idTclm(iDON_)')
-                idTclm(iDON_)=varid
-              CASE ('idTclm(iSiOH)')
-                idTclm(iSiOH)=varid
-              CASE ('idTclm(iopal)')
-                idTclm(iopal)=varid
-# ifdef IRON_LIMIT
-              CASE ('idTclm(iFeSp)')
-                idTclm(iFeSp)=varid
-              CASE ('idTclm(iFeLp)')
-                idTclm(iFeLp)=varid
-              CASE ('idTclm(iFeD_)')
-                idTclm(iFeD_)=varid
-# endif
-
 !
 !  Biological tracers open boundary conditions.
 !
@@ -228,7 +195,6 @@
                 idTbry(inorth,iFeD_)=varid
 # endif
 
-#ifdef TS_PSOURCE
 
 !
 ! Biological tracers point Source/Sinks (river runoff).
@@ -242,4 +208,3 @@
                 idRtrc(iDON_)=varid
               CASE ('idRtrc(iPON_)')
                 idRtrc(iPON_)=varid
-#endif

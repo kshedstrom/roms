@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -2104,54 +2104,6 @@
         END IF
       END IF
 !
-!  Write out temperature of molecular sublayer under ice
-!
-      IF (Hout(idT0mk,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                      &
-     &                     HIS(ng)%Vid(idT0mk),                         &
-     &                     HIS(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
-#  endif
-     &                     ICE(ng) % t0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idT0mk)),                    &
-     &                        HIS(ng)%Rindex
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
-!  Write out salinity of molecular sublayer under ice
-!
-      IF (Hout(idS0mk,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                      &
-     &                     HIS(ng)%Vid(idS0mk),                         &
-     &                     HIS(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, scale,                   &
-#  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
-#  endif
-     &                     ICE(ng) % s0mk)
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idS0mk)),                    &
-     &                        HIS(ng)%Rindex
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
 !  Write out ice freeze Wfr
 !
       IF (Hout(idWfr,ng)) THEN
@@ -2271,10 +2223,34 @@
           RETURN
         END IF
       END IF
+!
+!  Write out ice divergence rate
+!
+      IF (Hout(idWdiv,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                      &
+     &                     HIS(ng)%Vid(idWdiv),                         &
+     &                     HIS(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_io,                         &
+#  endif
+     &                     ICE(ng) % wdiv)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idWdiv)),                    &
+     &                        HIS(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
 # endif
 # if defined RUNOFF
 !
-!  Write out surface air pressure.
+!  Write out runoff.
 !
       IF (Hout(idRunoff,ng)) THEN
         scale=1.0_r8
@@ -3642,22 +3618,38 @@
       IF (exit_flag.ne.NoError) RETURN
 
 #ifdef SOLVE3D
+# ifdef NESTING
+      IF (Master) WRITE (stdout,20) KOUT, NOUT, HIS(ng)%Rindex, ng
+# else
       IF (Master) WRITE (stdout,20) KOUT, NOUT, HIS(ng)%Rindex
 #ifdef OFFLINE_FLOATS
       IF (Master) print *, '  WRT_HIS model time (days), t=', tdays
 #endif
+# endif
 #else
+# ifdef NESTING
+      IF (Master) WRITE (stdout,20) KOUT, HIS(ng)%Rindex, ng
+# else
       IF (Master) WRITE (stdout,20) KOUT, HIS(ng)%Rindex
+# endif
 #endif
 !
   10  FORMAT (/,' WRT_HIS - error while writing variable: ',a,/,11x,    &
      &        'into history NetCDF file for time record: ',i4)
 #ifdef SOLVE3D
   20  FORMAT (6x,'WRT_HIS   - wrote history  fields (Index=', i1,       &
+# ifdef NESTING
+     &        ',',i1,') into time record = ',i7.7,2x,i2.2)
+# else
      &        ',',i1,') into time record = ',i7.7)
+# endif
 #else
   20  FORMAT (6x,'WRT_HIS   - wrote history  fields (Index=', i1,       &
+# ifdef NESTING
+     &        ') into time record = ',i7.7,2x,i2.2)
+# else
      &        ') into time record = ',i7.7)
+# endif
 #endif
       RETURN
       END SUBROUTINE wrt_his

@@ -6,13 +6,13 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine reads in requested non-grided field from specified     !
-!  NetCDF file.  A non-grided field has different dimensions  than     !
+!  This routine reads in requested non-gridded field from specified    !
+!  NetCDF file.  A non-gridded field has different dimensions  than    !
 !  model spatial dimensions. Forward time processing.                  !
 !                                                                      !
 !  On Input:                                                           !
@@ -170,7 +170,7 @@
             Vtime(Tindex,ifield,ng)=Tval
           END IF
 !
-!  Read in non-grided data. The conditional statement on Jrec is to
+!  Read in non-gridded data. The conditional statement on Jrec is to
 !  differentiate between reading a 3D and 2D array.
 !
           IF (Vid.ge.0) THEN

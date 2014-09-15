@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -544,8 +544,8 @@
 ! ETA, respectively.
 !-----------------------------------------------------------------------
 !
-#define J_RANGE MIN(JstrR,Jstr-1),MAX(Jend+1,JendR)
-#define I_RANGE MIN(IstrR,Istr-1),MAX(Iend+1,IendR)
+#define J_RANGE MIN(JstrT,Jstr-1),MAX(Jend+1,JendT)
+#define I_RANGE MIN(IstrT,Istr-1),MAX(Iend+1,IendT)
 
 #if defined BENCHMARK
 !
@@ -587,8 +587,8 @@
 #endif
 #undef J_RANGE
 #undef I_RANGE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           pm(i,j)=wrkX(i,j)
           pn(i,j)=wrkY(i,j)
         END DO
@@ -653,8 +653,8 @@
 !-----------------------------------------------------------------------
 !
 #if defined LAB_CANYON
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           theta=-pi+                                                    &
      &          0.5_r8*dth*((cff+1.0_r8)*(REAL(j-1,r8)+0.5_r8)+         &
      &                      (cff-1.0_r8)*(REAL(Mm(ng),r8)/twopi)*       &
@@ -665,14 +665,14 @@
       END DO
 #elif defined WEDDELL
       val1=90.0_r8*deg2rad
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           angler(i,j)=val1
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           angler(i,j)=0.0_r8
         END DO
       END DO
@@ -700,23 +700,23 @@
 !
 #if defined BENCHMARK
       val1=2.0_r8*(2.0_r8*pi*366.25_r8/365.25_r8)/86400.0_r8
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=val1*SIN(latr(i,j)*deg2rad)
         END DO
       END DO
 #elif defined WEDDELL
       val1=10.4_r8/REAL(Lm(ng),r8)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=2.0_r8*7.2E-05_r8*                                     &
      &           SIN((-79.0_r8+REAL(i-1,r8)*val1)*deg2rad)
         END DO
       END DO
 #else
       val1=0.5_r8*Esize
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           f(i,j)=f0+beta*(yr(i,j)-val1)
         END DO
       END DO
@@ -743,14 +743,14 @@
 !-----------------------------------------------------------------------
 !
 #if defined BENCHMARK
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=500.0_r8+1750.0_r8*(1.0+TANH((68.0_r8+latr(i,j))/dy))
         END DO
       END DO
 #elif defined BL_TEST
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           val1=(xr(i,j)+500.0_r8)/15000.0_r8
           h(i,j)=14.0_r8+                                               &
      &           25.0_r8*(1.0_r8-EXP(-pi*xr(i,j)*1.0E-05_r8))-          &
@@ -758,22 +758,22 @@
         END DO
       END DO
 #elif defined CANYON
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           val1=32000.0_r8-16000.0_r8*(SIN(pi*xr(i,j)/Xsize))**24
           h(i,j)=20.0_r8+0.5_r8*(depth-20.0_r8)*                        &
      &           (1.0_r8+TANH((yr(i,j)-val1)/10000.0_r8))
         END DO
       END DO
 #elif defined ESTUARY_TEST
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=5.0_r8+(Xsize-xr(i,j))/Xsize*5.0_r8
         END DO
       END DO
 #elif defined LAB_CANYON
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           r=0.35_r8+dx*(REAL(i-1,r8)+0.5_r8)
           theta=-pi+                                                    &
      &           0.5_r8*dth*((cff+1.0_r8)*(REAL(j-1,r8)+0.5_r8)+        &
@@ -804,93 +804,93 @@
         END DO
       END DO
 #elif defined LAKE_SIGNELL
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=18.0_r8-16.0_r8*REAL(Mm(ng)-j,r8)/REAL(Mm(ng)-1,r8)
         END DO
       END DO
 # elif defined MIXED_LAYER
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=50.0_r8
         END DO
       END DO
 #elif defined OVERFLOW
       val1=200.0_r8
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=val1+0.5_r8*(depth-val1)*                              &
      &           (1.0_r8+TANH((yr(i,j)-100000.0_r8)/20000.0_r8))
         END DO
       END DO
 #elif defined RIVERPLUME1
-      DO j=JstrR,JendR
-        DO i=IstrR,MIN(5,IendR)
+      DO j=JstrT,JendT
+        DO i=IstrT,MIN(5,IendT)
           h(i,j)=15.0_r8
         END DO
-        DO i=MAX(6,IstrR),IendR
+        DO i=MAX(6,IstrT),IendT
           h(i,j)=depth+REAL(Lm(ng)-i,r8)*(15.0_r8-depth)/               &
      &                 REAL(Lm(ng)-6,r8)
         END DO
       END DO
 #elif defined RIVERPLUME2
-      DO j=JstrR,JendR
-        DO i=IstrR,MIN(5,IendR)
+      DO j=JstrT,JendT
+        DO i=IstrT,MIN(5,IendT)
           h(i,j)=15.0_r8
         END DO
-        DO i=MAX(6,IstrR),IendR
+        DO i=MAX(6,IstrT),IendT
           h(i,j)=depth+REAL(Lm(ng)-i,r8)*(15.0_r8-depth)/               &
      &                 REAL(Lm(ng)-6,r8)
         END DO
       END DO
 #elif defined SEAMOUNT
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           val1=(xr(i,j)-0.5_r8*Xsize)/40000.0_r8
           val2=(yr(i,j)-0.5_r8*Esize)/40000.0_r8
           h(i,j)=depth-4500.0_r8*EXP(-(val1*val1+val2*val2))
         END DO
       END DO
 #elif defined SED_TOY
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=20.0_r8
         END DO
       END DO
 #elif defined SHOREFACE
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=11.75_r8-0.0125_r8*Xsize/REAL(Lm(ng)+1,r8)*REAL(i,r8)
         END DO
       END DO
 #elif defined TEST_CHAN
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=10.0_r8+0.4040_r8*REAL(i,r8)/REAL(Lm(ng)+1,r8)
         END DO
       END DO
 #elif defined UPWELLING
       IF (NSperiodic(ng)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           IF (i.le.Lm(ng)/2) THEN
             val1=REAL(i,r8)
           ELSE
             val1=REAL(Lm(ng)+1-i,r8)
           END IF
           val2=MIN(depth,84.5_r8+66.526_r8*TANH((val1-10.0_r8)/7.0_r8))
-          DO j=JstrR,JendR
+          DO j=JstrT,JendT
             h(i,j)=val2
           END DO
         END DO
       ELSE IF (EWperiodic(ng)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           IF (j.le.Mm(ng)/2) THEN
             val1=REAL(j,r8)
           ELSE
             val1=REAL(Mm(ng)+1-j,r8)
           END IF
           val2=MIN(depth,84.5_r8+66.526_r8*TANH((val1-10.0_r8)/7.0_r8))
-          DO i=IstrR,IendR
+          DO i=IstrT,IendT
             h(i,j)=val2
           END DO
         END DO
@@ -912,8 +912,8 @@
         xwrk(k)=(850.0_r8+REAL(k-228,r8)*50.0_r8)*1000.0_r8
         hwrk(k)=4000.0_r8
       END DO
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=375.0_r8
           DO k=1,234
             IF ((xwrk(k).le.xr(i,1)).and.(xr(i,1).lt.xwrk(k+1))) THEN
@@ -925,7 +925,7 @@
         END DO
       END DO
 #elif defined WINDBASIN
-      DO i=IstrR,IendR
+      DO i=IstrT,IendT
         ival=INT(0.03_r8*REAL(Lm(ng)+1,r8))
         IF (i.lt.ival) THEN
           val1=1.0_r8-(REAL((i+1)-ival,r8)/REAL(ival,r8))**2
@@ -934,14 +934,14 @@
         ELSE
           val1=1.0_r8
         END IF
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
          val2=2.0_r8*REAL(j-(Mm(ng)+1)/2,r8)/REAL(Mm(ng)+1,r8)
          h(i,j)=depth*(0.08_r8+0.92_r8*val1*(1.0_r8-val2*val2))
         END DO
       END DO
 #else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           h(i,j)=depth
         END DO
       END DO
@@ -967,10 +967,10 @@
 ! within each subdomain, then determine global minimum by comparing
 ! these subdomain minima.
 !
-      my_min=h(IstrR,JstrR)
-      my_max=h(IstrR,JstrR)
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      my_min=h(IstrT,JstrT)
+      my_max=h(IstrT,JstrT)
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           my_min=MIN(my_min,h(i,j))
           my_max=MAX(my_max,h(i,j))
         END DO
@@ -1016,8 +1016,8 @@
 # ifdef WEDDELL
       val1=340.0_r8
       val2=val1/16.0_r8
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           IF (i.gt.20) THEN
             zice(i,j)=0.0_r8
           ELSE IF (i.gt.4) THEN
@@ -1028,8 +1028,8 @@
         END DO
       END DO
 # else
-      DO j=JstrR,JendR
-        DO i=IstrR,IendR
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
           zice(i,j)=0.0_r8
         END DO
       END DO

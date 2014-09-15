@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -104,6 +104,11 @@
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
 # endif
+# ifdef WET_DRY
+     &                     GRID(ng) % rmask_wet,                        &
+     &                     GRID(ng) % umask_wet,                        &
+     &                     GRID(ng) % vmask_wet,                        &
+# endif
      &                     MIXING(ng) % alpha,                          &
      &                     MIXING(ng) % beta,                           &
      &                     OCEAN(ng) % rho,                             &
@@ -153,6 +158,7 @@
      &                     ICE(ng) % hi,                                &
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
+     &                     FORCES(ng) % qswi_n,                         &
      &                     ICE(ng) % hsn,                               &
      &                     ICE(ng) % tis,                               &
      &                     ICE(ng) % sfwat,                             &
@@ -201,6 +207,9 @@
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
 # endif
+# ifdef WET_DRY
+     &                           rmask_wet, umask_wet, vmask_wet,       &
+# endif
      &                           alpha, beta, rho, t,                   &
      &                           Hair, Pair, Tair, Uwind, Vwind,        &
 # ifdef CLOUDS
@@ -237,6 +246,7 @@
      &                           ai, hi,                                &
 #  ifdef ICE_THERMO
      &                           qai_n,                                 &
+     &                           qswi_n,                                &
      &                           hsn, tis, sfwat,                       &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
@@ -290,6 +300,11 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: umask_wet(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
 #  endif
       real(r8), intent(in) :: alpha(LBi:,LBj:)
       real(r8), intent(in) :: beta(LBi:,LBj:)
@@ -345,6 +360,7 @@
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
+      real(r8), intent(out) :: qswi_n(LBi:,LBj:)
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
       real(r8), intent(in) :: sfwat(LBi:,LBj:,:)
@@ -378,6 +394,11 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: alpha(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: beta(LBi:UBi,LBj:UBj)
@@ -433,6 +454,7 @@
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qswi_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: sfwat(LBi:UBi,LBj:UBj,2)
@@ -608,6 +630,9 @@
           rhoSea(i)=rho(i,j,N(ng))+1000.0_r8
           RH=Hair(i,j)
           SRad(i,j)=srflx(i,j)*Hscale
+# if defined ICE_MODEL && defined ICE_THERMO
+          qswi_n(i,j) = SRad(i,j)
+# endif
 # if defined ALBEDO_FILE && defined SHORTWAVE
           SRad(i,j) = SRad(i,j)*(1.0-albedo(i,j))
 # endif
@@ -994,7 +1019,9 @@
           Hsr=rain(i,j)*wet_bulb*blk_Cpw*                               &
      &        ((TseaC(i)-TairC(i))+(Qsea(i)-Q(i))*Hlv(i,j)/blk_Cpa)
           SHeat(i,j)=(Hs+Hsr)
-# ifdef MASKING
+# ifdef WET_DRY
+          SHeat(i,j)=SHeat(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           SHeat(i,j)=SHeat(i,j)*rmask(i,j)
 # endif
 !
@@ -1011,7 +1038,9 @@
 # ifdef ENHANCED_LHF_TRANSFER
           LHeat(i,j)=LHeat(i,j)*1.07_r8
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          LHeat(i,j)=LHeat(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           LHeat(i,j)=LHeat(i,j)*rmask(i,j)
 # endif
 !
@@ -1023,11 +1052,15 @@
 !
           cff=rhoAir(i)*Cd*Wspeed
           Taux(i,j)=(cff*Uwind(i,j)+Taur*SIGN(1.0_r8,Uwind(i,j)))
-# ifdef MASKING
+# ifdef WET_DRY
+          Taux(i,j)=Taux(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           Taux(i,j)=Taux(i,j)*rmask(i,j)
 # endif
           Tauy(i,j)=(cff*Vwind(i,j)+Taur*SIGN(1.0_r8,Vwind(i,j)))
-# ifdef MASKING
+# ifdef WET_DRY
+          Tauy(i,j)=Tauy(i,j)*rmask_wet(i,j)
+# elif defined MASKING
           Tauy(i,j)=Tauy(i,j)*rmask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1083,6 +1116,7 @@
 #endif
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             thki_n = hi(i,j,listp)/(ai(i,j,listp)+0.01_r8)
+            thki_n = MAX(thki_n,0.00001_r8)
             thksn_n = hsn(i,j,listp)/(ai(i,j,listp)+0.01_r8)
             albi=0.082409_r8*LOG(thki_n)+0.485472_r8
             IF (thki_n.GE.1._r8) albi=0.07616_r8*thki_n+0.414492_r8
@@ -1132,17 +1166,17 @@
 #   endif
 !
 ! Short-wave radiation to ice
-#   ifdef SOGLOBEC
-          SRad(i,j) = SRad(i,j) * 1.075269_r8
+!#   ifdef SOGLOBEC
+!          SRad(i,j) = SRad(i,j) * 1.075269_r8
 ! This is to take out the ocean albedo out of the shortwave radiation
 !  (1.075 = 1/(1-0.07)) before the ice albedo is applied to it.  I've
 !  just done this for SOGLOBEC and ROSS, but I think this may be a real
 !  bug for everything.
-#   endif
-#   ifdef ROSS
-          SRad(i,j) = SRad(i,j) * 1.075269_r8
-#   endif
-          qswi = (1._r8-albs)*SRad(i,j)
+!#   endif
+!#   ifdef ROSS
+!          SRad(i,j) = SRad(i,j) * 1.075269_r8
+!#   endif
+          qswi = (1._r8-albs)*qswi_n(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
@@ -1265,7 +1299,13 @@
           END IF
 #  endif
 # endif
-# ifdef MASKING
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+#   ifdef EMINUSP
+          evap(i,j)=evap(i,j)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#   endif
+# elif defined MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
 #   ifdef EMINUSP
           evap(i,j)=evap(i,j)*rmask(i,j)
@@ -1275,7 +1315,9 @@
 # ifdef RUNOFF
           stflx(i,j,isalt) = stflx(i,j,isalt) -                         &
      &                        cff*runoff(i,j)
-#  ifdef MASKING
+#  ifdef WET_DRY
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#  elif defined MASKING
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
 #  endif
 # endif
@@ -1345,7 +1387,9 @@
       DO j=JstrR,JendR
         DO i=Istr,IendR
           sustr(i,j)=cff*(Taux(i-1,j)+Taux(i,j))
-# ifdef MASKING
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# elif defined MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1357,7 +1401,9 @@
       DO j=Jstr,JendR
         DO i=IstrR,IendR
           svstr(i,j)=cff*(Tauy(i,j-1)+Tauy(i,j))
-# ifdef MASKING
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# elif defined MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
 # endif
 # ifdef ICE_MODEL
@@ -1480,14 +1526,6 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sustr_aw, svstr_aw)
 #  endif
-# endif
-# ifdef KATE_FOO
-      IF (LBi .le. 168 .and. UBi .ge. 168) THEN
-        print *, 'in bulk_flux ', snow_n(168,480), snow_n(169,480),     &
-     &            qai_n(168,480), qai_n(169,480),                       &
-     &            coef_ice_heat(168,480), coef_ice_heat(169,480),       &
-     &            rhs_ice_heat(168,480), rhs_ice_heat(169,480)
-      END IF
 # endif
 
       RETURN

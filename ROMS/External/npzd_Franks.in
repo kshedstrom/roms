@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -114,6 +114,12 @@ BioIni(iSDet) == 0.04d0                          ! detritus
       ad_TNU2 == 4*0.0d0                         ! m2/s
       ad_TNU4 == 4*0.0d0                         ! m4/s
 
+! Logical switches (TRUE/FALSE) to increase/decrease horizontal diffusivity
+! in specific areas of the application domain (like sponge areas) for the
+! desired grid: [Ngrids]
+
+LtracerSponge == 4*F
+
 ! Vertical mixing coefficients for biological tracers for nonlinear
 ! model and basic state scale factor in adjoint-based algorithms:
 ! [1:NBT,Ngrids].
@@ -175,43 +181,58 @@ ad_LBC(isTvar) ==   Per     Clo     Per     Clo \    ! idbio(1), NO3
                     Per     Clo     Per     Clo \    ! idbio(3), zooplankton
                     Per     Clo     Per     Clo      ! idbio(4), detritus
 
-! Logical switches (TRUE/FALSE) to specify which variables to process for
-! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
+! Logical switches (TRUE/FALSE) to activate biological tracers point
+! Sources/Sinks (like river runoff) and to specify which tracer variables
+! to consider: [NBT,Ngrids] values are expected. See glossary below for
+! details.
+
+  LtracerSrc == 4*F
+
+! Logical switches (TRUE/FALSE) to read and process biological tracer
+! climatology fields: [NBT,Ngrids] values are expected. See glossary below
 ! for details.
 
   LtracerCLM == 4*F
 
-! Logical switches (TRUE/FALSE) to specify which variables to consider on
-! tracers point Sources/Sinks (like river runoff): [NBT,Ngrids] values are
-! expected. See glossary below for details.
+! Logical switches (TRUE/FALSE) to nudge the desired biological tracer
+! climatology field. If not analytical climatology fields, users need to
+! turn on the logical switches above to process the fields from the
+! climatology NetCDF file that are needed for nudging; [NBT,Ngrids]
+! values are expected. See glossary below for details.
 
-  LtracerSrc == 4*F
+  LnudgeTCLM == 4*F
 
 ! Logical switches (TRUE/FALSE) to activate writing of biological fields
 ! into HISTORY output file: [1:NBT,Ngrids].
 
-Hout(idTvar) == 4*T     ! NO3, ...                biological tracer
-Hout(idTsur) == 4*F     ! NO3_sflux, ...          surface tracer flux
+Hout(idTvar) == 4*T     ! ..., NO3, ...           biological tracer
+Hout(idTsur) == 4*F     ! ..., NO3_sflux, ...     surface tracer flux
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
 ! into AVERAGE output file: [1:NBT,Ngrids].
 
-Aout(idTvar) == 4*T     ! NO3, ...                biological tracer
+Aout(idTvar) == 4*T     ! ..., NO3, ...           biological tracer
+
+Aout(idTTav) == 4*F     ! ..., NO3_2, ...         quadratic <t*t> tracer terms
+Aout(idUTav) == 4*F     ! ..., u_NO3, ...         quadratic <u*t> tracer terms
+Aout(idVTav) == 4*F     ! ..., v_NO3, ...         quadratic <v*t> tracer terms
+Aout(iHUTav) == 4*F     ! ..., Huon_NO3, ...      tracer volume flux, <Huon*t>
+Aout(iHVTav) == 4*F     ! ..., Hvom_NO3, ...      tracer volume flux, <Hvom*t>
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! biological tracer diagnostic terms into DIAGNOSTIC output file:
 ! [1:NBT,Ngrids].
 
-Dout(iTrate) == 4*T     ! NO3_rate, ...           time rate of change
-Dout(iThadv) == 4*T     ! NO3_hadv, ...           horizontal total advection
-Dout(iTxadv) == 4*T     ! NO3_xadv, ...           horizontal XI-advection
-Dout(iTyadv) == 4*T     ! NO3_yadv, ...           horizontal ETA-advection
-Dout(iTvadv) == 4*T     ! NO3_vadv, ...           vertical advection
-Dout(iThdif) == 4*T     ! NO3_hdiff, ...          horizontal total diffusion
-Dout(iTxdif) == 4*T     ! NO3_xdiff, ...          horizontal XI-diffusion
-Dout(iTydif) == 4*T     ! NO3_ydiff, ...          horizontal ETA-diffusion
-Dout(iTsdif) == 4*T     ! NO3_sdiff, ...          horizontal S-diffusion
-Dout(iTvdif) == 4*T     ! NO3_vdiff, ...          vertical diffusion
+Dout(iTrate) == 4*T     ! ..., NO3_rate, ...      time rate of change
+Dout(iThadv) == 4*T     ! ..., NO3_hadv, ...      horizontal total advection
+Dout(iTxadv) == 4*T     ! ..., NO3_xadv, ...      horizontal XI-advection
+Dout(iTyadv) == 4*T     ! ..., NO3_yadv, ...      horizontal ETA-advection
+Dout(iTvadv) == 4*T     ! ..., NO3_vadv, ...      vertical advection
+Dout(iThdif) == 4*T     ! ..., NO3_hdiff, ...     horizontal total diffusion
+Dout(iTxdif) == 4*T     ! ..., NO3_xdiff, ...     horizontal XI-diffusion
+Dout(iTydif) == 4*T     ! ..., NO3_ydiff, ...     horizontal ETA-diffusion
+Dout(iTsdif) == 4*T     ! ..., NO3_sdiff, ...     horizontal S-diffusion
+Dout(iTvdif) == 4*T     ! ..., NO3_vdiff, ...     vertical diffusion
 
 !
 !  GLOSSARY:
@@ -303,6 +324,28 @@ Dout(iTvdif) == 4*T     ! NO3_vdiff, ...          vertical diffusion
 !                   horizontal diffusion is activated, ad_TNU4 is the mixing
 !                   coefficient for the largest grid-cell in the domain.
 !
+!  LtracerSponge  Logical switches (TRUE/FALSE) to increase/decrease horizontal
+!                   diffusivity of biological tracers in specific areas of the
+!                   domain. It can be used to specify sponge areas with larger
+!                   horizontal mixing coefficients for damping of high
+!                   frequency noise due to open boundary conditions or nesting.
+!                   The CPP option SPONGE is now deprecated and replaced with
+!                   this switch to facilitate or not sponge areas over a
+!                   particular nested grid; [1:NBT,1:Ngrids] values are
+!                   expected.
+!
+!                   The horizontal mixing distribution is specified in
+!                   "ini_hmixcoef.F" as:
+!
+!                     diff2(i,j,itrc) = diff_factor(i,j) * diff2(i,j,itrc)
+!                     diff4(i,j,itrc) = diff_factor(i,j) * diff4(i,j,itrc)
+!
+!                   The variable "diff_factor" can be read from the grid
+!                   NetCDF file. Alternately, the horizontal diffusion in the
+!                   sponge area can be set-up with analytical functions in
+!                   "ana_sponge.h" using CPP ANA_SPONGE when these switches
+!                   are turned ON for a particular grid.
+!
 !  AKT_BAK        Background vertical mixing coefficient (m2/s) for biological
 !                   tracer variables, [1:NBT,1:Ngrids] values are expected.
 !
@@ -379,45 +422,25 @@ Dout(iTvdif) == 4*T     ! NO3_vdiff, ...          vertical diffusion
 !  ad_LBC(isTvar) Biological Tracers, [1:4, 1:NBT, Ngrids] values are expected.
 !
 !------------------------------------------------------------------------------
-!  Tracer climatology processing switches.
+!  Tracer point Sources/Sink sources switches: [1:NBT,1:Ngrids].
 !------------------------------------------------------------------------------
 !
-!  LtracerCLM     Logical switches (T/F) to specify which tracer climatology
-!                   variables to consider when the option TCLIMATOLOGY is
-!                   activated; [1:NBT,1:Ngrids] values are expected.
-!
-!                     LtracerCLM(idbio(1),ng)     Nitrate concetration
-!                     LtracerCLM(idbio(2),ng)     Phytoplankton biomass
-!                     LtracerCLM(idbio(3),ng)     Zooplankton biomass
-!                     LtracerCLM(idbio(4),ng)     Detritus concentration
-!
-!                 Recall that TCLIMATOLOGY is usually activated to nudge to
-!                 tracer climatology (TLCM_NUDGING).  The purpose of these
-!                 switches is to control which climatology tracer fields
-!                 (specially passive tracers) needs to be processed.  So we
-!                 may reduce the memory allocation for such array.
-!
-!------------------------------------------------------------------------------
-!  Tracer point Sources/Sink sources switches.
-!------------------------------------------------------------------------------
-!
-!  LtracerSrc     Logical switches (T/F) to specify which tracer variables
-!                   to consider when the option TS_PSOURCE is activated;
-!                   [1:NBT,1:Ngrids] values are expected.
+!  LtracerSrc     Logical switches (T/F) to activate biological tracer
+!                   variables point Sources/Sinks.
 !
 !                     LtracerSrc(idbio(1),ng)     Nitrate concetration
 !                     LtracerSrc(idbio(2),ng)     Phytoplankton biomass
 !                     LtracerSrc(idbio(3),ng)     Zooplankton biomass
 !                     LtracerSrc(idbio(4),ng)     Detritus concentration
 !
-!                   Recall that TS_PSOURCE is usually activated to add river
-!                   runoff as a point source. At minimum, it is necessary to
-!                   specify both temperature and salinity for all rivers. The
-!                   other tracers are optional. The user needs to know the
+!                   Recall that these switches are usually activated to add
+!                   river runoff as a point source. At minimum, it is necessary
+!                   to specify both temperature and salinity for all rivers.
+!                   The other tracers are optional. The user needs to know the
 !                   correspondence between biological variables and indices
 !                   idbio(1:NBT) when activating one or more of these switches.
 !
-!                   This logical switch REPLACES and ELIMINATES the need to
+!                   These logical switches REPLACES and ELIMINATES the need to
 !                   have or read the variable "river_flag(river)" in the input
 !                   rivers forcing NetCDF file:
 !
@@ -444,6 +467,51 @@ Dout(iTvdif) == 4*T     ! NO3_vdiff, ...          vertical diffusion
 !                   values for all rivers, even if their values are zero.
 !
 !------------------------------------------------------------------------------
+!  Tracer climatology processing switches: [1:NBT,1:Ngrids].
+!------------------------------------------------------------------------------
+!
+!  LtracerCLM     Logical switches (T/F) to process biological tracer variables
+!                   climatology.  The CPP option TCLIMATOLOGY is now obsolete
+!                   and replaced with these switches to facilitate nesting
+!                   applications. Currently, the CLIMA(ng)%tclm is used for
+!                   horizontal mixing, sponges, and nudging.
+!
+!                     LtracerCLM(idbio(1),ng)     Nitrate concetration
+!                     LtracerCLM(idbio(2),ng)     Phytoplankton biomass
+!                     LtracerCLM(idbio(3),ng)     Zooplankton biomass
+!                     LtracerCLM(idbio(4),ng)     Detritus concentration
+!
+!                   These switches also controls which climatology tracer
+!                   fields needs to be processed.  So we may reduce the
+!                   memory allocation for the CLIMA(ng)%tclm array.
+!
+!------------------------------------------------------------------------------
+!  Logical switches for nudging to climatology: [1:NBT,1:Ngrids].
+!------------------------------------------------------------------------------
+!
+!  LnudgeTCLM     Logical switches (T/F) to activate the nugding of biological
+!                   tracer variables climatology. These switches also control
+!                   which biological tracer variables to nudge. The CPP option
+!                   TCLM_NUDGING is now obsolete and replaced with these
+!                   switches to facilitate nesting.
+!
+!                     LnudgeTCLM(idbio(1),ng)     Nitrate concetration
+!                     LnudgeTCLM(idbio(2),ng)     Phytoplankton biomass
+!                     LnudgeTCLM(idbio(3),ng)     Zooplankton biomass
+!                     LnudgeTCLM(idbio(4),ng)     Detritus concentration
+!
+!                   User also needs to TURN ON the respective logical switches
+!                   "LtracerCLM", described above, to process the required 3D
+!                   biological tracer climatology data. This data can be set
+!                   with analytical functions (ANA_TCLIMA) or read from input
+!                   climatology NetCDF file(s).
+!
+!                   The nudging coefficients CLIMA(ng)%Tnudgcof can be set
+!                   with analytical functions in "ana_nudgcoef.h"  using CPP
+!                   option ANA_NUDGCOEF.  Otherwise, it will be read from
+!                   NetCDF file NUDNAME.
+!
+!------------------------------------------------------------------------------
 ! Logical switches (T/F) to activate writing of fields into HISTORY files.
 !------------------------------------------------------------------------------
 !
@@ -468,6 +536,12 @@ Dout(iTvdif) == 4*T     ! NO3_vdiff, ...          vertical diffusion
 !                   are expected:
 !
 !                   Aout(idTvar)              biological tracers
+!
+!                   Aout(idTTav)               quadratic <t*t> tracers terms
+!                   Aout(idUTav)               quadratic <u*t> tracers terms
+!                   Aout(idVTav)               quadratic <v*t> tracers terms
+!                   Aout(iHUTav)               tracer u-volume flux, <Huon*t>
+!                   Aout(iHVTav)               tracer v-volume flux, <Hvom*t>
 !
 !                   The idTvar(idbio(:)) are the same to those in the HISTORY
 !                   file.

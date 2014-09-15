@@ -21,7 +21,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: Npts, Nval, i, itrc, ng, status
+      integer :: Npts, Nval
+      integer :: iTrcStr, iTrcEnd
+      integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
 
       integer :: decode_line, load_i, load_l, load_r
 
@@ -37,6 +39,16 @@
       character (len=40 ) :: KeyWord
       character (len=256) :: line
       character (len=256), dimension(200) :: Cval
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      igrid=1                            ! nested grid counter
+      itracer=0                          ! LBC tracer counter
+      iTrcStr=1                          ! first LBC tracer to process
+      iTrcEnd=NBT                        ! last  LBC tracer to process
+      nline=0                            ! LBC multi-line counter
 
 ! ==================================================================== !
 ! READ Bering Sea BEST_NPZ PARAMS
@@ -610,7 +622,8 @@
               END IF
               ifield=isTvar(idbio(itracer))
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
-     &                        iTrcStr, iTrcEnd, LBC)
+     &                      idbio(iTrcStr), idbio(iTrcEnd),             &
+     &                      Vname(1,idTvar(idbio(itracer))), LBC)
 #ifdef TCLIMATOLOGY
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
@@ -811,9 +824,27 @@
 #ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
-              WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM',           &
-     &              i, 'Processing climatology on tracer ', i,          &
+	      IF (LtracerCLM(i,ng)) THEN
+                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+     &              'Turning ON processing of climatology tracer ', i,  &
      &              TRIM(Vname(1,idTvar(i)))
+              ELSE
+                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+     &              'Turning OFF processing of climatology tracer ', i, &
+     &              TRIM(Vname(1,idTvar(i)))
+              END IF
+            END DO
+            DO itrc=1,NBT
+              i=idbio(itrc)
+              IF (LnudgeTCLM(i,ng)) THEN
+                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+     &              'Turning ON  nudging of climatology tracer ', i,    &
+     &              TRIM(Vname(1,idTvar(i)))
+              ELSE
+                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+     &              'Turning OFF nudging of climatology tracer ', i,    &
+     &              TRIM(Vname(1,idTvar(i)))
+              END IF
             END DO
 #endif
 #ifdef TS_PSOURCE
@@ -863,10 +894,8 @@
      &        /,  ' ============================',/)
   50  FORMAT (1x,i10,2x,a,t28,a)
   60  FORMAT (10x,l1,2x,a,t28,a,i2.2,':',1x,a)
-!  70  FORMAT (f11.3,2x,a,t28,a)
-!  80  FORMAT (f11.3,2x,a,t28,a,/,t30,a)
   90  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t28,a,/,t30,a,i2.2,':',1x,a)
-! 100  FORMAT (1p,e11.4,2x,a,t28,a)
+ 100  FORMAT (10x,l1,2x,a,'(',i2.2,')',t30,a,i2.2,':',1x,a)
  110  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
 
       RETURN

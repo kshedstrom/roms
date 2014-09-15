@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -79,9 +79,9 @@
 !
       IF (Master) THEN
         IF (ldef) THEN
-          WRITE (stdout,10) TRIM(ncname)
+          WRITE (stdout,10) ng, TRIM(ncname)
         ELSE
-          WRITE (stdout,20) TRIM(ncname)
+          WRITE (stdout,20) ng, TRIM(ncname)
         END IF
       END IF
 !
@@ -270,7 +270,7 @@
 #  endif
 # endif
 !
-!  Define dimension vectors for staggered u-momemtum type variables.
+!  Define dimension vectors for staggered u-momentum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
         u2dgrd(1)=DimIDs(18)
@@ -291,7 +291,7 @@
 #  endif
 # endif
 !
-!  Define dimension vectors for staggered v-momemtum type variables.
+!  Define dimension vectors for staggered v-momentum type variables.
 !
 # if defined WRITE_WATER && defined MASKING
         v2dgrd(1)=DimIDs(19)
@@ -313,7 +313,7 @@
 # endif
 # ifdef SOLVE3D
 !
-!  Define dimension vector for staggered w-momemtum type variables.
+!  Define dimension vector for staggered w-momentum type variables.
 !
 #  if defined WRITE_WATER && defined MASKING
         w3dgrd(1)=DimIDs(23)
@@ -766,8 +766,10 @@
      &              0.5_r8*REAL(nDIA(ng),r8)*dt(ng)
       END IF
 !
-  10  FORMAT (6x,'DEF_DIAGS - creating diagnostics file: ',a)
-  20  FORMAT (6x,'DEF_DIAGS - inquiring diagnostics file: ',a)
+  10  FORMAT (6x,'DEF_DIAGS - creating diagnostics file, Grid ',i2.2,   &
+     &        ': ',a)
+  20  FORMAT (6x,'DEF_DIAGS - inquiring diagnostics file, Grid ',i2.2,  &
+     &        ': ',a)
   30  FORMAT (/,' DEF_DIAGS - unable to create diagnostics NetCDF',     &
      &        ' file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')

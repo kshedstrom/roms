@@ -1,8 +1,8 @@
-      SUBROUTINE ana_aiobc (ng, tile)
+      SUBROUTINE ana_aiobc (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -18,11 +18,11 @@
 !
 ! Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_aiobc_tile (ng, tile,                                    &
+      CALL ana_aiobc_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
@@ -39,7 +39,7 @@
       END SUBROUTINE ana_aiobc
 !
 !***********************************************************************
-      SUBROUTINE ana_aiobc_tile (ng, tile,                              &
+      SUBROUTINE ana_aiobc_tile (ng, tile, model,                       &
      &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
@@ -51,7 +51,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 !
 !  Local variable declarations.

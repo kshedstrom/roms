@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -46,36 +46,6 @@
 # ifdef OXYGEN
               CASE ('idTvar(iOxyg)')
                 idTvar(iOxyg)=varid
-# endif
-
-! Do it again for climatologies
-              CASE ('idTclm(iNO3_)')
-                idTclm(iNO3_)=varid
-              CASE ('idTclm(iNH4_)')
-                idTclm(iNH4_)=varid
-              CASE ('idTclm(iPhyt)')
-                idTclm(iPhyt)=varid
-              CASE ('idTclm(iZoop)')
-                idTclm(iZoop)=varid
-              CASE ('idTclm(iLDeN)')
-                idTclm(iLDeN)=varid
-              CASE ('idTclm(iSDeN)')
-                idTclm(iSDeN)=varid
-              CASE ('idTclm(iChlo)')
-                idTclm(iChlo)=varid
-# ifdef CARBON
-              CASE ('idTclm(iTIC_)')
-                idTclm(iTIC_)=varid
-              CASE ('idTclm(iTAlk)')
-                idTclm(iTAlk)=varid
-              CASE ('idTclm(iLDeC)')
-                idTclm(iLDeC)=varid
-              CASE ('idTclm(iSDeC)')
-                idTclm(iSDeC)=varid
-# endif
-# ifdef OXYGEN
-              CASE ('idTclm(iOxyg)')
-                idTclm(iOxyg)=varid
 # endif
 
 /*
@@ -231,8 +201,6 @@
 #endif
 
 
-#ifdef TS_PSOURCE
-
 /*
 **  Biological tracers point Source/Sinks (river runoff).
 */
@@ -251,7 +219,7 @@
                 idRtrc(iSDeN)=varid
               CASE ('idRtrc(iChlo)')
                 idRtrc(iChlo)=varid
-# ifdef CARBON
+#ifdef CARBON
               CASE ('idRtrc(iTIC_)')
                 idRtrc(iTIC_)=varid
               CASE ('idRtrc(iTAlk)')
@@ -260,11 +228,10 @@
                 idRtrc(iLDeC)=varid
               CASE ('idRtrc(iSDeC)')
                 idRtrc(iSDeC)=varid
-# endif
-# ifdef OXYGEN
+#endif
+#ifdef OXYGEN
               CASE ('idRtrc(iOxyg)')
                 idRtrc(iOxyg)=varid
-# endif
 #endif
 
 

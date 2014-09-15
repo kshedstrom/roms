@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2013 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2014 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,7 +28,7 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-NEED_VERSION := 3.80 3.81 3.82
+NEED_VERSION := 3.80 3.81 3.82 3.82.90 4.0
 $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
  $(error This makefile requires one of GNU make version $(NEED_VERSION).))
 
@@ -173,7 +173,7 @@ endif
 #  library to account for calls to objects in other ROMS libraries or
 #  cycling dependencies. These type of dependencies are problematic in
 #  some compilers during linking. This library appears twice at linking
-#  step (beggining and almost the end of ROMS library list).
+#  step (begining and almost the end of ROMS library list).
 #--------------------------------------------------------------------------
 
   libraries  := $(SCRATCH_DIR)/libMODS.a
@@ -254,7 +254,7 @@ clean_list += $(MAKE_MACROS)
 source-dir-to-binary-dir = $(addprefix $(SCRATCH_DIR)/, $(notdir $1))
 
 # $(call source-to-object, source-file-list)
-source-to-object = $(call source-dir-to-binary-dir,       \
+source-to-object = $(call source-dir-to-binary-dir,   \
                    $(subst .F,.o,$1))
 
 # $(call source-to-object, source-file-list)

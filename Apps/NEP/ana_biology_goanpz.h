@@ -1,7 +1,7 @@
 !
 ! svn $Id$
 !!================================================== Georgina Gibson ===
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -18,8 +18,8 @@
 !
 ! Set all points equal to the same number
 !
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             t(i,j,k,1,iNO3) = 18.0_r8
             t(i,j,k,1,iNH4) = 0.20_r8
@@ -53,8 +53,8 @@
       deepval(iEup) = 0.08_r8
       deepval(iDet) = eps
       do k=1,N(ng)
-         do j=JstrR,JendR
-            do i=IstrR,IendR
+         do j=JstrT,JendT
+            do i=IstrT,IendT
                t(i,j,k,1,iNO3) = 18.0_r8
                t(i,j,k,1,iNH4) =  1.0_r8
                t(i,j,k,1,iDet) =  eps
@@ -74,8 +74,8 @@
       var5 = 75.0_r8
       var6 = var5 - var4 
       var7 = var1 + var2*(var6**2) + var3*(var6**3)
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             if ( biod(i,j,k) .le. var5 ) then
               var6 = biod(i,j,k) - var4
@@ -93,8 +93,8 @@
 !
       var1 = 8.25_r8
       var2 = 0.322_r8 / 5.0_r8
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             t(i,j,k,1,iPhL) = var1 * exp( -1.0_r8 * var2 * biod(i,j,k) )
           enddo
@@ -110,8 +110,8 @@
       var3 = 60.0_r8
       var4 = 0.5_r8
       var5 = var1 + var2 * var3
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             if ( biod(i,j,k) .le. var3 ) then
               t(i,j,k,1,iMZL) = var1 + var2 * biod(i,j,k)
@@ -131,8 +131,8 @@
       var2 = 2.876_r8 / pi
       var3 = 5.0_r8 / 5.0_r8
       var4 = 9.151_r8 * 5.0_r8
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             var5 = var3 * ( biod(i,j,k) - var4 )
             t(i,j,k,1,iCop) = var1 - var2 * atan( var5 )
@@ -146,8 +146,8 @@
       var2 = 1.3_r8
       var3 = 5.0_r8 / 5.0_r8
       var4 = 5.2_r8 * 5.0_r8
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             var5 = var3 * ( biod(i,j,k) - var4 )
             t(i,j,k,1,iNCa) = var1 - var2 * atan( var5 )
@@ -161,8 +161,8 @@
       var2 = 0.8_r8
       var3 = 5.0_r8 / 5.0_r8
       var4 = 5.2_r8 * 5.0_r8
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=1,N(ng)
             var5 = var3 * ( biod(i,j,k) - var4)
             t(i,j,k,1,iEup) =  var1 - var2 * atan( var5 )
@@ -172,8 +172,8 @@
 !
 #  ifdef IRON_LIMIT
 ! Iron - linear from surface value to value at 100m and increase onshore
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           var1 = MAX(0._r8,MIN(1._r8,                                   &
      &             (GRID(ng)%h(i,j)-Feinh)/(Feoffh-Feinh)))
           FeSurf = Feinlo + var1*(Feofflo-Feinlo)
@@ -191,8 +191,8 @@
 ! between values above and below.
 ! Iron deep values have already been determined.
 !
-      do i=IstrR,IendR
-        do j=JstrR,JendR
+      do i=IstrT,IendT
+        do j=JstrT,JendT
           do k=N(ng),1,-1
             if ( biod(i,j,k) .gt. 120.0_r8 ) then
               t(i,j,k,1,iNO3) = deepval(iNO3)
@@ -248,8 +248,8 @@
 !
 !  This is a hack for sensitivity studies - to test warmer or cooler water
 !
-!      do i=IstrR,IendR
-!        do j=JstrR,JendR
+!      do i=IstrT,IendT
+!        do j=JstrT,JendT
 !          do k=1,N(ng)
 !            t(i,j,k,1,itemp) = t(i,j,k,1,itemp) + 2.0_r8
 !          enddo
@@ -259,8 +259,8 @@
 !
 ! Check for size, set other time index, and periodic BC's
 !
-      do i=IstrR,IendR
-         do j=JstrR,JendR
+      do i=IstrT,IendT
+         do j=JstrT,JendT
             do k=1,N(ng)
                DO is=1,NBT
                   itrc=idbio(is)

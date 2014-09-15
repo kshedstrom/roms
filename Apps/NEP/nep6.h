@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group
+** Copyright (c) 2002-2014 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -13,6 +13,7 @@
 */
 
 #define NO_HIS
+#define HISTORY2
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -49,7 +50,6 @@
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  define  ICE_ALB_EC92
-#  undef   ICE_SMOOTH
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
@@ -75,9 +75,9 @@
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
-# define DIAGNOSTICS_TS
+# undef DIAGNOSTICS_TS
 #endif
-#define DIAGNOSTICS_UV
+#undef DIAGNOSTICS_UV
 
 /* advection, dissipation, pressure grad, etc. */
 
@@ -96,6 +96,7 @@
 #endif
 
 #define UV_VIS2
+#define UV_WAVEDRAG
 #undef UV_SMAGORINSKY
 #define VISC_3DCOEF
 #define MIX_S_UV
@@ -189,9 +190,7 @@
 /* Using Runoff instead now */
 #ifdef SOLVE3D
 # define RUNOFF
-# undef UV_PSOURCE
 # undef ANA_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 #define RADIATION_2D

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -45,6 +45,10 @@
      &                   GRID(ng) % umask,                              &
      &                   GRID(ng) % vmask,                              &
 #endif
+#ifdef WET_DRY
+     &                   GRID(ng) % umask_diff,                         &
+     &                   GRID(ng) % vmask_diff,                         &
+#endif
      &                   GRID(ng) % Hz,                                 &
      &                   GRID(ng) % pmon_u,                             &
      &                   GRID(ng) % pnom_v,                             &
@@ -81,6 +85,9 @@
      &                         nrhs, nstp, nnew,                        &
 #ifdef MASKING
      &                         umask, vmask,                            &
+#endif
+#ifdef WET_DRY
+     &                         umask_diff, vmask_diff,                  &
 #endif
      &                         Hz, pmon_u, pnom_v, pm, pn,              &
 #ifdef DIFF_3DCOEF
@@ -120,6 +127,10 @@
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 # endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_diff(LBi:,LBj:)
+      real(r8), intent(in) :: vmask_diff(LBi:,LBj:)
+# endif
 # ifdef DIFF_3DCOEF
 #  ifdef TS_U3ADV_SPLIT
       real(r8), intent(in) :: diff3d_u(LBi:,LBj:,:)
@@ -146,6 +157,10 @@
 # ifdef MASKING
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+# endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: umask_diff(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: vmask_diff(LBi:UBi,LBj:UBj)
 # endif
 # ifdef DIFF_3DCOEF
 #  ifdef TS_U3ADV_SPLIT
@@ -234,7 +249,9 @@
               cff=0.25_r8*(diff4(i,j,itrc)+diff4(i-1,j,itrc))*          &
      &            pmon_u(i,j)
 #endif
-#ifdef MASKING
+#ifdef WET_DRY
+              cff=cff*umask_diff(i,j)
+#elif defined MASKING
               cff=cff*umask(i,j)
 #endif
               FX(i,j)=cff*(Hz(i,j,k)+Hz(i-1,j,k))*                      &
@@ -265,7 +282,9 @@
               cff=0.25_r8*(diff4(i,j,itrc)+diff4(i,j-1,itrc))*          &
      &            pnom_v(i,j)
 #endif
-#ifdef MASKING
+#ifdef WET_DRY
+              cff=cff*vmask_diff(i,j)
+#elif defined MASKING
               cff=cff*vmask(i,j)
 #endif
               FE(i,j)=cff*(Hz(i,j,k)+Hz(i,j-1,k))*                      &
@@ -299,54 +318,58 @@
 !  Apply boundary conditions (except periodic; closed or gradient)
 !  to the first harmonic operator.
 !
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                IF (LBC(iwest,isTvar(itrc),ng)%closed) THEN
-                  DO j=Jmin,Jmax
-                    LapT(Istr-1,j)=0.0_r8
-                  END DO
-                ELSE
-                  DO j=Jmin,Jmax
-                    LapT(Istr-1,j)=LapT(Istr,j)
-                  END DO
-                END IF
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                IF (LBC(ieast,isTvar(itrc),ng)%closed) THEN
-                  DO j=Jmin,Jmax
-                    LapT(Iend+1,j)=0.0_r8
-                  END DO
-                ELSE
-                  DO j=Jmin,Jmax
-                    LapT(Iend+1,j)=LapT(Iend,j)
-                  END DO
-                END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              IF (LBC(iwest,isTvar(itrc),ng)%closed) THEN
+                DO j=Jmin,Jmax
+                  LapT(Istr-1,j)=0.0_r8
+                END DO
+              ELSE
+                DO j=Jmin,Jmax
+                  LapT(Istr-1,j)=LapT(Istr,j)
+                END DO
               END IF
             END IF
-
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                IF (LBC(isouth,isTvar(itrc),ng)%closed) THEN
-                  DO i=Imin,Imax
-                    LapT(i,Jstr-1)=0.0_r8
-                  END DO
-                ELSE
-                  DO i=Imin,Imax
-                    LapT(i,Jstr-1)=LapT(i,Jstr)
-                  END DO
-                END IF
+          END IF
+!
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              IF (LBC(ieast,isTvar(itrc),ng)%closed) THEN
+                DO j=Jmin,Jmax
+                  LapT(Iend+1,j)=0.0_r8
+                END DO
+              ELSE
+                DO j=Jmin,Jmax
+                  LapT(Iend+1,j)=LapT(Iend,j)
+                END DO
               END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                IF (LBC(inorth,isTvar(itrc),ng)%closed) THEN
-                  DO i=Imin,Imax
-                    LapT(i,Jend+1)=0.0_r8
-                  END DO
-                ELSE
-                  DO i=Imin,Imax
-                    LapT(i,Jend+1)=LapT(i,Jend)
-                  END DO
-                END IF
+            END IF
+          END IF
+!
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              IF (LBC(isouth,isTvar(itrc),ng)%closed) THEN
+                DO i=Imin,Imax
+                  LapT(i,Jstr-1)=0.0_r8
+                END DO
+              ELSE
+                DO i=Imin,Imax
+                  LapT(i,Jstr-1)=LapT(i,Jstr)
+                END DO
+              END IF
+            END IF
+          END IF
+!
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              IF (LBC(inorth,isTvar(itrc),ng)%closed) THEN
+                DO i=Imin,Imax
+                  LapT(i,Jend+1)=0.0_r8
+                END DO
+              ELSE
+                DO i=Imin,Imax
+                  LapT(i,Jend+1)=LapT(i,Jend)
+                END DO
               END IF
             END IF
           END IF
@@ -369,7 +392,9 @@
               FX(i,j)=cff*                                              &
      &                (Hz(i,j,k)+Hz(i-1,j,k))*                          &
      &                (LapT(i,j)-LapT(i-1,j))
-#ifdef MASKING
+#ifdef WET_DRY
+              FX(i,j)=FX(i,j)*umask_wet(i,j)
+#elif defined MASKING
               FX(i,j)=FX(i,j)*umask(i,j)
 #endif
             END DO
@@ -390,7 +415,9 @@
               FE(i,j)=cff*                                              &
      &                (Hz(i,j,k)+Hz(i,j-1,k))*                          &
      &                (LapT(i,j)-LapT(i,j-1))
-#ifdef MASKING
+#ifdef WET_DRY
+              FE(i,j)=FE(i,j)*vmask_wet(i,j)
+#elif defined MASKING
               FE(i,j)=FE(i,j)*vmask(i,j)
 #endif
             END DO

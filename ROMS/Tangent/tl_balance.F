@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -528,7 +528,7 @@
 # endif
           END DO
 !
-!  Compute balance, interior U-momemtum from baroclinic pressure
+!  Compute balance, interior U-momentum from baroclinic pressure
 !  gradient (differentiate and then vertically integrate).
 !
           DO k=N(ng)-1,1,-1
@@ -619,7 +619,7 @@
 # endif
           END DO
 !
-!  Compute balance, interior V-momemtum from baroclinic pressure
+!  Compute balance, interior V-momentum from baroclinic pressure
 !  gradient (differentiate and then vertically integrate).
 !
           DO k=N(ng)-1,1,-1

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -41,12 +41,14 @@
 !                NRM(2,ng)  model error                                !
 !                NRM(3,ng)  lateral open boundary conditions           !
 !                NRM(4,ng)  surface forcing                            !
+!    NUD       Input climatology nudging coefficients                  !
 !    OBS       Input/output 4D-Var observations                        !
 !    PRED      Predatory fish trajectory data                          !
 !    RST       Output restart data                                     !
 !    TIDE      Input tide forcing                                      !
 !    TLF       Input/output tangent linear model impulse forcing       !
 !    TLM       Output tangent linear model history                     !
+!    SSF       Input Sources/Sinks forcing (river runoff)              !
 !    STA       Output station data                                     !
 !    STD       Input error covariance standard deviations              !
 !                STD(1,ng)  initial conditions                         !
@@ -57,6 +59,7 @@
 !  Standard input files:                                               !
 !                                                                      !
 !  Iname       Physical parameters standard input script file name.    !
+!  NGCname     Nested grids contact point information file name.       !
 !  USRname     USER input/output generic file name.                    !
 !  Wname       Wave model stadard input file name.                     !
 !  aparnam     Input assimilation parameters file name.                !
@@ -117,21 +120,27 @@
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
       TYPE(T_IO), allocatable :: HIS(:)     ! NLM history fields
+      TYPE(T_IO), allocatable :: HIS2(:)    ! surface history fields
       TYPE(T_IO), allocatable :: HSS(:)     ! Hessian eigenvectors
       TYPE(T_IO), allocatable :: IAD(:)     ! ADM initial conditions
       TYPE(T_IO), allocatable :: INI(:)     ! NLM initial conditions
       TYPE(T_IO), allocatable :: IRP(:)     ! RPM initial conditions
       TYPE(T_IO), allocatable :: ITL(:)     ! TLM initial conditions
       TYPE(T_IO), allocatable :: LCZ(:)     ! Lanczos vectors
+      TYPE(T_IO), allocatable :: NRM(:,:)   ! normalization
+      TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
       TYPE(T_IO), allocatable :: TIDE(:)    ! tidal forcing
       TYPE(T_IO), allocatable :: TLF(:)     ! TLM impulse fields
       TYPE(T_IO), allocatable :: TLM(:)     ! TLM history fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
+      TYPE(T_IO), allocatable :: SSF(:)     ! Sources/Sinks forcing
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
-      TYPE(T_IO), allocatable :: NRM(:,:)   ! normalization
       TYPE(T_IO), allocatable :: STD(:,:)   ! standard deviation
+      TYPE(T_IO), allocatable :: TIDE(:)    ! tidal forcing
+      TYPE(T_IO), allocatable :: TLF(:)     ! TLM impulse fields
+      TYPE(T_IO), allocatable :: TLM(:)     ! TLM history fields
 !
 !  Input boundary condition data.
 !
@@ -171,6 +180,7 @@
 !
       character (len=256) :: Iname          ! ROMS physical parameters
       character (len=256) :: Wname          ! wave model standard input
+      character (len=256) :: NGCname        ! contact points file name
       character (len=256) :: USRname        ! use generic file name
       character (len=256) :: aparnam        ! assimilation parameters
       character (len=256) :: bparnam        ! biology model parameters
@@ -203,6 +213,12 @@
 !                                                                      !
 !=======================================================================
 !
+!  Local variable declarations.
+!
+      integer :: i
+
+      character (len=1), parameter :: blank = ' '
+!
 !-----------------------------------------------------------------------
 !  Allocate I/O files management, derived type structures.
 !-----------------------------------------------------------------------
@@ -228,20 +244,25 @@
       allocate ( GRD(Ngrids) )
       allocate ( GST(Ngrids) )
       allocate ( HIS(Ngrids) )
+      allocate ( HIS2(Ngrids) )
       allocate ( HSS(Ngrids) )
       allocate ( IAD(Ngrids) )
       allocate ( INI(Ngrids) )
       allocate ( IRP(Ngrids) )
       allocate ( ITL(Ngrids) )
       allocate ( LCZ(Ngrids) )
+      allocate ( NUD(Ngrids) )
       allocate ( OBS(Ngrids) )
+      allocate ( RST(Ngrids) )
+      allocate ( SSF(Ngrids) )
+      allocate ( STA(Ngrids) )
       allocate ( TIDE(Ngrids) )
       allocate ( TLF(Ngrids) )
       allocate ( TLM(Ngrids) )
-      allocate ( RST(Ngrids) )
-      allocate ( STA(Ngrids) )
+
       allocate ( NRM(4,Ngrids) )
       allocate ( STD(4,Ngrids) )
+
 !
 !-----------------------------------------------------------------------
 !  Allocate variables.
@@ -250,6 +271,24 @@
       allocate ( nBCfiles(Ngrids) )
       allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
+!
+!-----------------------------------------------------------------------
+!  Initialize file names to blanks.
+!-----------------------------------------------------------------------
+!
+      DO i=1,LEN(Iname)
+        Iname(i:i)=blank
+        Wname(i:i)=blank
+        NGCname(i:i)=blank
+        USRname(i:i)=blank
+        aparnam(i:i)=blank
+        bparnam(i:i)=blank
+        fbionam(i:i)=blank
+        fposnam(i:i)=blank
+        iparnam(i:i)=blank
+        sparnam(i:i)=blank
+        sposnam(i:i)=blank
+      END DO
 
       RETURN
       END SUBROUTINE allocate_iounits

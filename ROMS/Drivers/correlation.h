@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -180,12 +180,15 @@
 !  Initialize metrics over all nested grids, if applicable.
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
 !$OMP PARALLEL
-        CALL initial (ng)
+      CALL initial
 !$OMP END PARALLEL
-        time(ng)=time(ng)+dt(ng)            ! because no time-stepping
-        IF (exit_flag.ne.NoError) RETURN
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  Adjust "time" variable since we are not time-stepping.
+!
+      DO ng=1,Ngrids
+        time(ng)=time(ng)+dt(ng)
       END DO
 !
 !  Initialize run or ensemble counter.

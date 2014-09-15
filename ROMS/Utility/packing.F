@@ -27,7 +27,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -150,7 +150,7 @@
 # endif
 !$OMP CRITICAL (C_NORM)
       IF (tile_count.eq.0) THEN
-        norm2=0.0_r8
+        norm2=my_norm2
       ELSE
         norm2=norm2+my_norm2
       END IF

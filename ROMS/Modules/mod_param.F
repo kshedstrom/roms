@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -92,10 +92,27 @@
       implicit none
 !
 !-----------------------------------------------------------------------
-!  Number of nested and/or connected grids to solve.
+!  Grid nesting parameters.
 !-----------------------------------------------------------------------
 !
+!  Number of nested and/or connected grids to solve.
+!
       integer :: Ngrids
+!
+!  Number of grid nesting layers. This parameter allows refinement and
+!  composite grid combinations.
+!
+      integer :: NestLayers = 1
+!
+!  Number of grids in each nested layer.
+!
+      integer, allocatable :: GridsInLayer(:)   ! [NestLayers]
+!
+!  Application grid number as a function of the maximum number of grids
+!  in each nested layer and number of nested layers.
+!
+      integer, allocatable :: GridNumber(:,:)   ! [MAXVAL(GridsInLayer),
+                                                !  NestLayer]
 !
 !-----------------------------------------------------------------------
 !  Define derived type structure, T_IO, used to store information about
@@ -474,8 +491,6 @@
 !
       integer, parameter :: NFT = 4
 !
-#endif
-#if defined FLOATS || defined NEMURO_SAN
 !  Total number of floats to track.
 !
       integer, allocatable :: Nfloats(:)

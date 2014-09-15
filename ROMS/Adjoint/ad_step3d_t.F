@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -38,18 +38,12 @@
 !***********************************************************************
 !
       USE mod_param
-# ifdef CLIMATOLOGY
-      USE mod_clima
-# endif
 # ifdef DIAGNOSTICS_TS
 !!    USE mod_diags
 # endif
       USE mod_grid
       USE mod_mixing
       USE mod_ocean
-# ifdef TS_PSOURCE
-      USE mod_sources
-# endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -67,18 +61,6 @@
      &                       LBi, UBi, LBj, UBj,                        &
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       nrhs(ng), nstp(ng), nnew(ng),              &
-# if defined TS_PSOURCE || defined Q_PSOURCE
-     &                       Msrc(ng), Nsrc(ng),                        &
-     &                       SOURCES(ng) % Isrc,                        &
-     &                       SOURCES(ng) % Jsrc,                        &
-     &                       SOURCES(ng) % Tsrc,                        &
-# endif
-# ifdef TS_PSOURCE
-     &                       SOURCES(ng) % Dsrc,                        &
-# endif
-# ifdef Q_PSOURCE
-     &                       SOURCES(ng) % Qsrc,                        &
-# endif
 # ifdef MASKING
      &                       GRID(ng) % rmask,                          &
      &                       GRID(ng) % umask,                          &
@@ -106,10 +88,6 @@
      &                       GRID(ng) % ad_Hvom,                        &
      &                       GRID(ng) % z_r,                            &
      &                       GRID(ng) % ad_z_r,                         &
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
-     &                       CLIMA(ng) % Tnudgcof,                      &
-     &                       CLIMA(ng) % tclm,                          &
-# endif
      &                       MIXING(ng) % Akt,                          &
      &                       MIXING(ng) % ad_Akt,                       &
      &                       OCEAN(ng) % W,                             &
@@ -133,16 +111,6 @@
      &                             LBi, UBi, LBj, UBj,                  &
      &                             IminS, ImaxS, JminS, JmaxS,          &
      &                             nrhs, nstp, nnew,                    &
-# if defined TS_PSOURCE || defined Q_PSOURCE
-     &                             Msrc, Nsrc,                          &
-     &                             Isrc, Jsrc, Tsrc,                    &
-# endif
-# ifdef TS_PSOURCE
-     &                             Dsrc,                                &
-# endif
-# ifdef Q_PSOURCE
-     &                             Qsrc,                                &
-# endif
 # ifdef MASKING
      &                             rmask, umask, vmask,                 &
 # endif
@@ -157,9 +125,6 @@
      &                             Huon, ad_Huon,                       &
      &                             Hvom, ad_Hvom,                       &
      &                             z_r, ad_z_r,                         &
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
-     &                             Tnudgcof, tclm,                      &
-# endif
      &                             Akt, ad_Akt,                         &
      &                             W, ad_W,                             &
 # if defined FLOATS_NOT_YET && defined FLOAT_VWALK
@@ -173,8 +138,10 @@
 !***********************************************************************
 !
       USE mod_param
+      USE mod_clima
       USE mod_ncparam
       USE mod_scalars
+      USE mod_sources
 !
       USE ad_exchange_3d_mod, ONLY : ad_exchange_r3d_tile
 # ifdef DISTRIBUTE
@@ -194,23 +161,8 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nrhs, nstp, nnew
-# if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Msrc, Nsrc
-# endif
 !
 # ifdef ASSUMED_SHAPE
-#  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(:)
-      integer, intent(in) :: Jsrc(:)
-
-      real(r8), intent(in) :: Tsrc(:,:,:)
-#  endif
-#  ifdef TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(:)
-#  endif
-#  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(:,:)
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
@@ -230,10 +182,6 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
-#  if defined TCLM_NUDGING && defined TCLIMATOLOGY
-      real(r8), intent(in) :: Tnudgcof(LBi:,LBj:,:)
-      real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
-#  endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: Huon(LBi:,LBj:,:)
       real(r8), intent(in) :: Hvom(LBi:,LBj:,:)
@@ -271,18 +219,6 @@
 
 # else
 
-#  if defined TS_PSOURCE || defined Q_PSOURCE
-      integer, intent(in) :: Isrc(Msrc)
-      integer, intent(in) :: Jsrc(Msrc)
-
-      real(r8), intent(in) :: Tsrc(Msrc,N(ng),NT(ng))
-#  endif
-#  ifdef TS_PSOURCE
-      real(r8), intent(in) :: Dsrc(Msrc)
-#  endif
-#  ifdef Q_PSOURCE
-      real(r8), intent(in) :: Qsrc(Msrc,N(ng))
-#  endif
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
@@ -302,10 +238,6 @@
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
-#  if defined TCLM_NUDGING && defined TCLIMATOLOGY
-      real(r8), intent(in) :: Tnudgcof(LBi:UBi,LBj:UBj,NT(ng))
-      real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng))
-#  endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Huon(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Hvom(LBi:UBi,LBj:UBj,N(ng))
@@ -490,10 +422,21 @@
      &                       ad_t(:,:,:,nnew,:))
 !
 # endif
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
+!
+!  Initialize tracer counter index. The "tclm" array is only allocated
+!  to the NTCLM fields that need to be processed. This is done to
+!  reduce memory.
+!
       ic=0
-# endif
+!
       DO itrc=1,NT(ng)
+!
+!  Set compact reduced memory tracer index for nudging coefficients and
+!  climatology arrays.
+!
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
+          ic=ic+1
+        END IF
 !
 !  Apply adjoint periodic boundary conditions.
 !
@@ -536,37 +479,36 @@
           END DO
         END DO
 # endif
-# if defined TCLM_NUDGING && defined TCLIMATOLOGY
 !
 !  Nudge towards tracer climatology.
 !
-        IF (LtracerCLM(itrc,ng)) THEN
-          ic=ic+1
+        IF (LtracerCLM(itrc,ng).and.LnudgeTCLM(itrc,ng)) THEN
           DO k=1,N(ng)
             DO j=JstrR,JendR
               DO i=IstrR,IendR
 !>              tl_t(i,j,k,nnew,itrc)=tl_t(i,j,k,nnew,itrc)-            &
-!>   &                                dt(ng)*Tnudgcof(i,j,itrc)*        &
+!>   &                                dt(ng)*                           &
+!>   &                                CLIMA(ng)%Tnudgcof(i,j,k,ic)*     &
 !>   &                                tl_t(i,j,k,nnew,itrc)
 !>
                 ad_t(i,j,k,nnew,itrc)=ad_t(i,j,k,nnew,itrc)-            &
-     &                                dt(ng)*Tnudgcof(i,j,itrc)*        &
+     &                                dt(ng)*                           &
+     &                                CLIMA(ng)%Tnudgcof(i,j,k,ic)*     &
      &                                ad_t(i,j,k,nnew,itrc)
               END DO
             END DO
           END DO
         END IF
-# endif
 !
 !  Set adjoint lateral boundary conditions.
 !
-!>      CALL tl_t3dbc_tile (ng, tile, itrc,                             &
+!>      CALL tl_t3dbc_tile (ng, tile, itrc, ic,                         &
 !>   &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
 !>   &                      IminS, ImaxS, JminS, JmaxS,                 &
 !>   &                      nstp, nnew,                                 &
 !>   &                      tl_t)
 !>
-        CALL ad_t3dbc_tile (ng, tile, itrc,                             &
+        CALL ad_t3dbc_tile (ng, tile, itrc, ic,                         &
      &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp, nnew,                                 &
@@ -1026,62 +968,64 @@
      &                cff2*t(i,j  ,k,3,itrc)
             END DO
           END DO
-#  ifdef TS_PSOURCE
 !
 !  Apply tracers point sources to the BASIC STATE horizontal advection
 !  terms.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (INT(Dsrc(is)).eq.0) THEN
-#   ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.               &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#   else
-              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
-#   endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
-#   ifdef MASKING
-                ELSE
-                  IF ((rmask(i  ,j).eq.0.0_r8).and.                     &
-     &                (rmask(i-1,j).eq.1.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
-                  ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.                &
-     &                     (rmask(i-1,j).eq.0.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
-                  END IF
-#   endif
-                END IF
-              END IF
-            ELSE IF (INT(Dsrc(is)).eq.1) THEN
-#   ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
-#   else
-              IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-#   endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
-#   ifdef MASKING
-                ELSE
-                  IF ((rmask(i,j  ).eq.0.0_r8).and.                     &
-     &                (rmask(i,j-1).eq.1.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
-
-                  ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.                &
-     &                     (rmask(i,j-1).eq.0.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
-                  END IF
-#   endif
-                END IF
-              END IF
-            END IF
-          END DO
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+#  ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.             &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+#  else
+                IF (((Istr.le.i).and.(i.le.Iend+1)).and.                &
+     &              ((Jstr.le.j).and.(j.le.Jend))) THEN
 #  endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FX(i,j)=Huon(i,j,k)*                                &
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+#  ifdef MASKING
+                  ELSE
+                    IF ((rmask(i  ,j).eq.0.0_r8).and.                   &
+     &                  (rmask(i-1,j).eq.1.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
+                    ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.              &
+     &                       (rmask(i-1,j).eq.0.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
+                    END IF
+#  endif
+                  END IF
+                END IF
+              ELSE IF (INT(Dsrc(is)).eq.1) THEN
+#  ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.            &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
+#  else
+                IF (((Istr.le.i).and.(i.le.Iend)).and.                  &
+     &              ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+#  endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FE(i,j)=Hvom(i,j,k)*                                &
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+#  ifdef MASKING
+                  ELSE
+                    IF ((rmask(i,j  ).eq.0.0_r8).and.                   &
+     &                  (rmask(i,j-1).eq.1.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
+
+                    ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.              &
+     &                       (rmask(i,j-1).eq.0.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
+                    END IF
+#  endif
+                  END IF
+                END IF
+              END IF
+            END DO
+          END IF
 !
 !  Time-step BASIC STATE horizontal advection term (m Tunits).
 !
@@ -1121,32 +1065,32 @@
           DO i=IstrUm2,Iendp2i
             CF(i,0)=dt(ng)*pm(i,j)*pn(i,j)
           END DO
-
-#  ifdef Q_PSOURCE
 !
-!  Apply mass point sources - Volume influx.
+!  Apply mass point sources (volume vertical influx), if any.
 !
-#   ifdef TS_MPDATA
-          IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.                  &
-     &        ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#   else
-          IF (((IstrR.le.i).and.(i.le.IendR)).and.                      &
-     &          ((JstrR.le.j).and.(j.le.JendR))) THEN
-#   endif
-            IF (j.eq.Jsrc(is)) THEN
-              DO k=1,N(ng)-1
-                DO is=1,Nsrc
-                  IF (LtracerSrc(itrc,ng)) THEN
-                    i=Isrc(is)
-                    FC(i,k)=FC(i,k)+0.5_r8*                             &
-     &                      (Qsrc(is,k  )*Tsrc(is,k  ,itrc)+            &
-     &                       Qsrc(is,k+1)*Tsrc(is,k+1,itrc))
-                  END IF
-                END DO
-              END DO
-            END IF
-          END IF
+          IF (LwSrc(ng)) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+#  ifdef TS_MPDATA
+              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
+     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+#  else
+              IF (((IstrR.le.i).and.(i.le.IendR)).and.                  &
+     &            ((JstrR.le.j).and.(j.le.JendR))) THEN
 #  endif
+                IF (j.eq.SOURCES(ng)%Jsrc(is)) THEN
+                  DO k=1,N(ng)-1
+                    FC(i,k)=FC(i,k)+0.5_r8*                             &
+     &                      (SOURCES(ng)%Qsrc(is,k  )*                  &
+     &                       SOURCES(ng)%Tsrc(is,k  ,itrc)+             &
+     &                       SOURCES(ng)%Qsrc(is,k+1)*                  &
+     &                       SOURCES(ng)%Tsrc(is,k+1,itrc))
+                  END DO
+                END IF
+              END IF
+            END DO
+          END IF
+!
           DO k=1,N(ng)
             DO i=IstrUm2,Iendp2i
               cff1=CF(i,0)*(FC(i,k)-FC(i,k-1))*oHz(i,j,k)
@@ -1475,63 +1419,53 @@
      &                cff2*t(i,j  ,k,3,itrc)
             END DO
           END DO
-
-#  if defined TS_PSOURCE && !defined Q_PSOURCE
 !
 !  Apply tracers point sources to the BASIC STATE horizontal advection
-!  terms.
+!  terms, if any.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (INT(Dsrc(is)).eq.0) THEN
-#   ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.               &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#   else
-              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
-#   endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FX(i,j)=Huon(i,j,k)*Tsrc(is,k,itrc)
-#   ifdef MASKING
-                ELSE
-                  IF ((rmask(i  ,j).eq.0.0_r8).and.                     &
-     &                (rmask(i-1,j).eq.1.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
-                  ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.                &
-     &                     (rmask(i-1,j).eq.0.0_r8)) THEN
-                    FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
-                  END IF
-#   endif
-                END IF
-              END IF
-            ELSE IF (INT(Dsrc(is)).eq.1) THEN
-#   ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
-#   else
-              IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-#   endif
-                IF (LtracerSrc(itrc,ng)) THEN
-                  FE(i,j)=Hvom(i,j,k)*Tsrc(is,k,itrc)
-#   ifdef MASKING
-                ELSE
-                  IF ((rmask(i,j  ).eq.0.0_r8).and.                     &
-     &                (rmask(i,j-1).eq.1.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
-
-                  ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.                &
-     &                     (rmask(i,j-1).eq.0.0_r8)) THEN
-                    FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
-                  END IF
-#   endif
-                END IF
-              END IF
-            END IF
-          END DO
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+                IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.             &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FX(i,j)=Huon(i,j,k)*                                &
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+#  ifdef MASKING
+                  ELSE
+                    IF ((rmask(i  ,j).eq.0.0_r8).and.                   &
+     &                  (rmask(i-1,j).eq.1.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i-1,j,k,3,itrc)
+                    ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.              &
+     &                       (rmask(i-1,j).eq.0.0_r8)) THEN
+                      FX(i,j)=Huon(i,j,k)*t(i  ,j,k,3,itrc)
+                    END IF
 #  endif
+                  END IF
+                END IF
+              ELSE IF (INT(SOURCES(ng)%Dsrc(is)).eq.1) THEN
+                IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.            &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
+                  IF (LtracerSrc(itrc,ng)) THEN
+                    FE(i,j)=Hvom(i,j,k)*                                &
+     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+#  ifdef MASKING
+                  ELSE
+                    IF ((rmask(i,j  ).eq.0.0_r8).and.                   &
+     &                  (rmask(i,j-1).eq.1.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j-1,k,3,itrc)
+                    ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.              &
+     &                       (rmask(i,j-1).eq.0.0_r8)) THEN
+                      FE(i,j)=Hvom(i,j,k)*t(i,j  ,k,3,itrc)
+                    END IF
+#  endif
+                  END IF
+                END IF
+              END IF
+            END DO
+          END IF
 !
 !  Time-step BASIC STATE horizontal advection term (Tunits).
 !
@@ -1782,31 +1716,28 @@
               ad_cff1=0.0_r8
             END DO
           END DO
-
-# ifdef Q_PSOURCE
 !
-!  Apply mass point sources - Volume influx.
+!  Apply mass point sources (volume vertical influx), if any.
 !
-          DO is=1,Nsrc
-            IF (LtracerSrc(itrc,ng)) THEN
-              i=Isrc(is)
-#  ifdef TS_MPDATA
+          IF (LwSrc(ng)) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+# ifdef TS_MPDATA
               IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
      &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#  else
+# else
               IF (((IstrR.le.i).and.(i.le.IendR)).and.                  &
      &            ((JstrR.le.j).and.(j.le.JendR))) THEN
-#  endif
-                IF (j.eq.Jsrc(is)) THEN
+# endif
+                IF (j.eq.SOURCES(ng)%Jsrc(is)) THEN
                   DO k=1,N(ng)-1
 !>                  tl_FC(i,k)=tl_FC(i,k)+0.0_r8
 !>
                   END DO
                 END IF
               END IF
-            END IF
-          END DO
-# endif
+            END DO
+          END IF
 
 # ifdef TS_SVADVECTION_TL
 !
@@ -2327,98 +2258,101 @@
           END DO
 # undef I_RANGE
 # undef J_RANGE
-
-# if defined TS_PSOURCE && !defined Q_PSOURCE
 !
 !  Apply adjoint tracers point sources to the horizontal advection
-!  terms.
+!  terms, if any.
 !
-          DO is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
-            IF (INT(Dsrc(is)).eq.0) THEN
-#  ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.               &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
-#  else
-              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
-#  endif
-                IF (LtracerSrc(itrc,ng)) THEN
-!>                tl_FX(i,j)=tl_Huon(i,j,k)*Tsrc(is,k,itrc)
-!>
-                  ad_Huon(i,j,k)=ad_Huon(i,j,k)+                        &
-     &                           Tsrc(is,k,itrc)*ad_FX(i,j)
-                  ad_FX(i,j)=0.0_r8
-#  ifdef MASKING
-                ELSE
-                  IF ((rmask(i  ,j).eq.0.0_r8).and.                     &
-     &                (rmask(i-1,j).eq.1.0_r8)) THEN
-!>                  tl_FX(i,j)=tl_Huon(i,j,k)*t(i-1,j,k,3,itrc)+        &
-!>   &                         Huon(i,j,k)*tl_t(i-1,j,k,3,itrc)
-!>
-                    ad_t(i-1,j,k,3,itrc)=ad_t(i-1,j,k,3,itrc)+          &
-     &                                   Huon(i,j,k)*ad_FX(i,j)
-                    ad_Huon(i,j,k)=ad_Huon(i,j,k)+                      &
-     &                             t(i-1,j,k,3,itrc)*ad_FX(i,j)
-                    ad_FX(i,j)=0.0_r8
-                  ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.                &
-     &                     (rmask(i-1,j).eq.0.0_r8)) THEN
-!>                  tl_FX(i,j)=tl_Huon(i,j,k)*t(i  ,j,k,3,itrc)+        &
-!>   &                         Huon(i,j,k)*tl_t(i  ,j,k,3,itrc)
-!>
-                    ad_t(i  ,j,k,3,itrc)=ad_t(i  ,j,k,3,itrc)+          &
-     &                                   Huon(i,j,k)*ad_FX(i,j)
-                    ad_Huon(i,j,k)=ad_Huon(i,j,k)+                      &
-     &                             t(i  ,j,k,3,itrc)*ad_FX(i,j)
-                    ad_FX(i,j)=0.0_r8
-                  END IF
-#  endif
-                END IF
-              END IF
-            ELSE IF (INT(Dsrc(is)).eq.1) THEN
-#  ifdef TS_MPDATA
-              IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.              &
-     &            ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
-#  else
-              IF (((Istr.le.i).and.(i.le.Iend)).and.                    &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
-#  endif
-                IF (LtracerSrc(itrc,ng)) THEN
-!>                tl_FE(i,j)=tl_Hvom(i,j,k)*Tsrc(is,k,itrc)
-!>
-                  ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                        &
-     &                           Tsrc(is,k,itrc)*ad_FE(i,j)
-                  ad_FE(i,j)=0.0_r8
-#  ifdef MASKING
-                ELSE
-                  IF ((rmask(i,j  ).eq.0.0_r8).and.                     &
-     &                (rmask(i,j-1).eq.1.0_r8)) THEN
-!>                  tl_FE(i,j)=tl_Hvom(i,j,k)*t(i,j-1,k,3,itrc)+        &
-!>   &                         Hvom(i,j,k)*tl_t(i,j-1,k,3,itrc)
-!>
-                    ad_t(i,j-1,k,3,itrc)=ad_t(i,j-1,k,3,itrc)+          &
-     &                                   Hvom(i,j,k)*ad_FE(i,j)
-                    ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                      &
-     &                             t(i,j-1,k,3,itrc)*ad_FE(i,j)
-                    ad_FE(i,j)=0.0_r8
-                  ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.                &
-     &                     (rmask(i,j-1).eq.0.0_r8)) THEN
-!>                  tl_FE(i,j)=tl_Hvom(i,j,k)*t(i,j  ,k,3,itrc)+        &
-!>   &                         Hvom(i,j,k)*tl_t(i,j  ,k,3,itrc)
-!>
-                    ad_t(i,j  ,k,3,itrc)=ad_t(i,j  ,k,3,itrc)+          &
-     &                                   Hvom(i,j,k)*ad_FE(i,j)
-                    ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                      &
-     &                             t(i,j  ,k,3,itrc)*ad_FE(i,j)
-                    ad_FE(i,j)=0.0_r8
-                  END IF
-#  endif
-                END IF
-              END IF
-            END IF
-          END DO
+          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              i=SOURCES(ng)%Isrc(is)
+              j=SOURCES(ng)%Jsrc(is)
+              IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
+# ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp3)).and.             &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp2i))) THEN
+# else
+                IF (((Istr.le.i).and.(i.le.Iend+1)).and.                &
+     &              ((Jstr.le.j).and.(j.le.Jend))) THEN
 # endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+!>                  tl_FX(i,j)=tl_Huon(i,j,k)*                          &
+!>   &                         SOURCES(ng)%Tsrc(is,k,itrc)
+!>
+                    ad_Huon(i,j,k)=ad_Huon(i,j,k)+                      &
+     &                             SOURCES(ng)%Tsrc(is,k,itrc)*         &
+     &                             ad_FX(i,j)
+                    ad_FX(i,j)=0.0_r8
+# ifdef MASKING
+                  ELSE
+                    IF ((rmask(i  ,j).eq.0.0_r8).and.                   &
+     &                  (rmask(i-1,j).eq.1.0_r8)) THEN
+!>                    tl_FX(i,j)=tl_Huon(i,j,k)*t(i-1,j,k,3,itrc)+      &
+!>   &                           Huon(i,j,k)*tl_t(i-1,j,k,3,itrc)
+!>
+                      ad_t(i-1,j,k,3,itrc)=ad_t(i-1,j,k,3,itrc)+        &
+     &                                     Huon(i,j,k)*ad_FX(i,j)
+                      ad_Huon(i,j,k)=ad_Huon(i,j,k)+                    &
+     &                               t(i-1,j,k,3,itrc)*ad_FX(i,j)
+                      ad_FX(i,j)=0.0_r8
+                    ELSE IF ((rmask(i  ,j).eq.1.0_r8).and.              &
+     &                       (rmask(i-1,j).eq.0.0_r8)) THEN
+!>                    tl_FX(i,j)=tl_Huon(i,j,k)*t(i  ,j,k,3,itrc)+      &
+!>   &                           Huon(i,j,k)*tl_t(i  ,j,k,3,itrc)
+!>
+                      ad_t(i  ,j,k,3,itrc)=ad_t(i  ,j,k,3,itrc)+        &
+     &                                     Huon(i,j,k)*ad_FX(i,j)
+                      ad_Huon(i,j,k)=ad_Huon(i,j,k)+                    &
+     &                               t(i  ,j,k,3,itrc)*ad_FX(i,j)
+                      ad_FX(i,j)=0.0_r8
+                    END IF
+# endif
+                  END IF
+                END IF
+              ELSE IF (INT(SOURCES(ng)%Dsrc(is)).eq.1) THEN
+# ifdef TS_MPDATA
+                IF (((IstrUm2.le.i).and.(i.le.Iendp2i)).and.            &
+     &              ((JstrVm2.le.j).and.(j.le.Jendp3))) THEN
+# else
+                IF (((Istr.le.i).and.(i.le.Iend)).and.                  &
+     &              ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+# endif
+                  IF (LtracerSrc(itrc,ng)) THEN
+!>                  tl_FE(i,j)=tl_Hvom(i,j,k)*                          &
+!>   &                         SOURCES(ng)%Tsrc(is,k,itrc)
+!>
+                    ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                      &
+     &                             SOURCES(ng)%Tsrc(is,k,itrc)*         &
+     &                             ad_FE(i,j)
+                    ad_FE(i,j)=0.0_r8
+# ifdef MASKING
+                  ELSE
+                    IF ((rmask(i,j  ).eq.0.0_r8).and.                   &
+     &                  (rmask(i,j-1).eq.1.0_r8)) THEN
+!>                    tl_FE(i,j)=tl_Hvom(i,j,k)*t(i,j-1,k,3,itrc)+      &
+!>   &                           Hvom(i,j,k)*tl_t(i,j-1,k,3,itrc)
+!>
+                      ad_t(i,j-1,k,3,itrc)=ad_t(i,j-1,k,3,itrc)+        &
+     &                                     Hvom(i,j,k)*ad_FE(i,j)
+                      ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                    &
+     &                               t(i,j-1,k,3,itrc)*ad_FE(i,j)
+                      ad_FE(i,j)=0.0_r8
+                    ELSE IF ((rmask(i,j  ).eq.1.0_r8).and.              &
+     &                       (rmask(i,j-1).eq.0.0_r8)) THEN
+!>                    tl_FE(i,j)=tl_Hvom(i,j,k)*t(i,j  ,k,3,itrc)+      &
+!>   &                           Hvom(i,j,k)*tl_t(i,j  ,k,3,itrc)
+!>
+                      ad_t(i,j  ,k,3,itrc)=ad_t(i,j  ,k,3,itrc)+        &
+     &                                     Hvom(i,j,k)*ad_FE(i,j)
+                      ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                    &
+     &                               t(i,j  ,k,3,itrc)*ad_FE(i,j)
+                      ad_FE(i,j)=0.0_r8
+                    END IF
+# endif
+                  END IF
+                END IF
+              END IF
+            END DO
+          END IF
 
 # if defined TS_C2HADVECTION_TL
 !
@@ -2542,18 +2476,18 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jstr-1)=FE(i,Jstr)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-                  FE(i,Jend+2)=FE(i,Jend+1)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jstr-1)=FE(i,Jstr)
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+                FE(i,Jend+2)=FE(i,Jend+1)
+              END DO
             END IF
           END IF
 !
@@ -2688,24 +2622,24 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.NSperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-                DO i=Istr,Iend
-!>                tl_FE(i,Jend+2)=tl_FE(i,Jend+1)
+          IF (.not.(CompositeGrid(inorth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+              DO i=Istr,Iend
+!>              tl_FE(i,Jend+2)=tl_FE(i,Jend+1)
 !>
-                  ad_FE(i,Jend+1)=ad_FE(i,Jend+1)+ad_FE(i,Jend+2)
-                  ad_FE(i,Jend+2)=0.0_r8
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-                DO i=Istr,Iend
-!>                tl_FE(i,Jstr-1)=tl_FE(i,Jstr)
+                ad_FE(i,Jend+1)=ad_FE(i,Jend+1)+ad_FE(i,Jend+2)
+                ad_FE(i,Jend+2)=0.0_r8
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+              DO i=Istr,Iend
+!>              tl_FE(i,Jstr-1)=tl_FE(i,Jstr)
 !>
-                  ad_FE(i,Jstr)=ad_FE(i,Jstr)+ad_FE(i,Jstr-1)
-                  ad_FE(i,Jstr-1)=0.0_r8
-                END DO
-              END IF
+                ad_FE(i,Jstr)=ad_FE(i,Jstr)+ad_FE(i,Jstr-1)
+                ad_FE(i,Jstr-1)=0.0_r8
+              END DO
             END IF
           END IF
 !
@@ -2734,18 +2668,19 @@
 #  endif
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Istr-1,j)=FX(Istr,j)
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-                  FX(Iend+2,j)=FX(Iend+1,j)
-                END DO
-              END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Istr-1,j)=FX(Istr,j)
+              END DO
+            END IF
+          END IF
+
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+                FX(Iend+2,j)=FX(Iend+1,j)
+              END DO
             END IF
           END IF
 !
@@ -2880,24 +2815,24 @@
               ad_cff=0.0_r8
             END DO
           END DO
-          IF (.not.ComposedGrid(ng)) THEN
-            IF (.not.EWperiodic(ng)) THEN
-              IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-                DO j=Jstr,Jend
-!>                tl_FX(Iend+2,j)=tl_FX(Iend+1,j)
+          IF (.not.(CompositeGrid(ieast,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+              DO j=Jstr,Jend
+!>              tl_FX(Iend+2,j)=tl_FX(Iend+1,j)
 !>
-                  ad_FX(Iend+1,j)=ad_FX(Iend+1,j)+ad_FX(Iend+2,j)
-                  ad_FX(Iend+2,j)=0.0_r8
-                END DO
-              END IF
-              IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-                DO j=Jstr,Jend
-!>                tl_FX(Istr-1,j)=tl_FX(Istr,j)
+                ad_FX(Iend+1,j)=ad_FX(Iend+1,j)+ad_FX(Iend+2,j)
+                ad_FX(Iend+2,j)=0.0_r8
+              END DO
+            END IF
+          END IF
+          IF (.not.(CompositeGrid(iwest,ng).or.EWperiodic(ng))) THEN
+            IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+              DO j=Jstr,Jend
+!>              tl_FX(Istr-1,j)=tl_FX(Istr,j)
 !>
-                  ad_FX(Istr,j)=ad_FX(Istr,j)+ad_FX(Istr-1,j)
-                  ad_FX(Istr-1,j)=0.0_r8
-                END DO
-              END IF
+                ad_FX(Istr,j)=ad_FX(Istr,j)+ad_FX(Istr-1,j)
+                ad_FX(Istr-1,j)=0.0_r8
+              END DO
             END IF
           END IF
 !

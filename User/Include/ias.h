@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2013 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -78,10 +78,6 @@
 # define ANA_SPFLUX
 # define ANA_BPFLUX
 #endif
-#undef  M2CLIMATOLOGY
-#undef  M3CLIMATOLOGY
-#undef  TCLIMATOLOGY
-#undef  ZCLIMATOLOGY
 
 #define BULK_FLUXES
 #ifdef BULK_FLUXES

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -270,11 +270,12 @@
       CALL netcdf_sync (ng, iNLM, TIDE(ng)%name, TIDE(ng)%ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-      IF (Master) WRITE (stdout,20)
+      IF (Master) WRITE (stdout,20) ng
 !
   10  FORMAT (/,' WRT_TIDES - error while writing variable: ',a,        &
      &        /,13x,'into tide forcing NetCDF file: ',/,13x,a)
-  20  FORMAT (6x,'WRT_TIDES - wrote time-accumulated tide harmonics ')
+  20  FORMAT (6x,'WRT_TIDES - wrote time-accumulated tide harmonics, ', &
+     &        'Grid ',i2.2)
 #else
       SUBROUTINE wrt_tides
 #endif

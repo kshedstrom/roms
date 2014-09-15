@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1629,6 +1629,56 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 # endif
+# ifdef WET_DRY
+!
+!  Write out wet/dry mask at RHO-points.
+!
+      IF (Sout(idRwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idRwet, r2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%rmask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idRwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idRwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out wet/dry mask at U-points.
+!
+      IF (Sout(idUwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idUwet, u2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%umask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idUwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idUwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out wet/dry mask at V-points.
+!
+      IF (Sout(idVwet,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idVwet, v2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, GRID(ng)%vmask_wet,                  &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idVwet)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idVwet))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+# endif
 # ifdef ICE_MODEL
 !
 !  Write out ice 2D momentum component (m/s) in the XI-direction.
@@ -1876,38 +1926,6 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idChuiw))
-        IF (exit_flag.ne.NoError) RETURN
-      END IF
-!
-!  Write out under-ice temperature
-!
-      IF (Sout(idT0mk,ng)) THEN
-        scale=1.0_r8
-        CALL extract_sta2d (ng, iNLM, Cgrid, idT0mk, r2dvar,            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, ICE(ng)%t0mk,                        &
-     &                      Nstation(ng), Xpos, Ypos, psta)
-        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
-     &                        TRIM(Vname(1,idT0mk)), psta,              &
-     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
-     &                        ncid = STA(ng)%ncid,                      &
-     &                        varid = STA(ng)%Vid(idT0mk))
-        IF (exit_flag.ne.NoError) RETURN
-      END IF
-!
-!  Write out under-ice salinity
-!
-      IF (Sout(idS0mk,ng)) THEN
-        scale=1.0_r8
-        CALL extract_sta2d (ng, iNLM, Cgrid, idS0mk, r2dvar,            &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, ICE(ng)%s0mk,                        &
-     &                      Nstation(ng), Xpos, Ypos, psta)
-        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
-     &                        TRIM(Vname(1,idS0mk)), psta,              &
-     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
-     &                        ncid = STA(ng)%ncid,                      &
-     &                        varid = STA(ng)%Vid(idS0mk))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 !

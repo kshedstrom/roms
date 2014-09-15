@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2013 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2014 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -86,7 +86,7 @@ endif
 ifdef USE_DEBUG
 #          FFLAGS += -g -check bounds -traceback
 #          FFLAGS += -g -check bounds -traceback -check uninit -warn interfaces,nouncalled -gen-interfaces
-           FFLAGS += -g -check uninit -ftrapuv -traceback
+           FFLAGS += -g -check uninit -ftrapuv -traceback -check bounds
            CFLAGS += -g
          CXXFLAGS += -g
 else

@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -122,7 +122,7 @@
         IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
           my_area=0.0_r8
           my_flux=0.0_r8
-          DO j=Jstr,Jend
+          DO j=JstrP,JendP
             cff=0.5_r8*(zeta(Iend  ,j,knew)+h(Iend  ,j)+                &
      &                  zeta(Iend+1,j,knew)+h(Iend+1,j))/pn(Iend,j)
             my_area=my_area+cff
@@ -138,40 +138,40 @@
 #else
 # ifdef EAST_M2OBC
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_east(j)=0.0_r8
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_east(j)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef WEST_M2OBC
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_west(j)=0.0_r8
         END DO
-        DO j=Jstr,JendR
+        DO j=JstrP,JendT
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef SOUTH_M2OBC
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_south(i)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef NORTH_M2OBC
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=Istr,IendR
+        DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%vbar_north(i)=0.0_r8
         END DO
       END IF

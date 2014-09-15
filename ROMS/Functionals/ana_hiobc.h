@@ -1,8 +1,8 @@
-      SUBROUTINE ana_hiobc (ng, tile)
+      SUBROUTINE ana_hiobc (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!                                                                     !
@@ -18,11 +18,11 @@
 !
 ! Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 
 #include "tile.h"
 !
-      CALL ana_hiobc_tile (ng, tile,                                    &
+      CALL ana_hiobc_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj)
 !
 ! Set analytical header file name used.
@@ -39,7 +39,7 @@
       END SUBROUTINE ana_hiobc
 !
 !***********************************************************************
-      SUBROUTINE ana_hiobc_tile (ng, tile,                              &
+      SUBROUTINE ana_hiobc_tile (ng, tile, model,                       &
      &                           LBi, UBi, LBj, UBj)
 !***********************************************************************
 !
@@ -51,7 +51,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
 !
 !  Local variable declarations.
@@ -67,25 +67,25 @@
 !
       IF (LBC(iwest,isHice,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%hi_west(j)=0.0_r8
         END DO
       END IF
       IF (LBC(ieast,isHice,ng)%acquire.and.                             &
      &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%hi_east(j)=0.0_r8
         END DO
       END IF
       IF (LBC(isouth,isHice,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%hi_south(i)=0.0_r8
         END DO
       END IF
       IF (LBC(inorth,isHice,ng)%acquire.and.                            &
      &    DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%hi_north(i)=0.0_r8
         END DO
       END IF

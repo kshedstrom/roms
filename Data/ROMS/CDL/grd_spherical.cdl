@@ -130,6 +130,9 @@ variables:
 		mask_psi:flag_values = 0., 1. ;
 		mask_psi:flag_meanings = "land water" ;
 		mask_psi:coordinates = "lon_rho lat_rho" ;
+	double wtype_grid(eta_rho, xi_rho) ;
+		wtype_grid:long_name = "Jerlov water type index" ;
+		wtype_grid:coordinates = "lon_rho lat_rho" ;
 	double rdrag(eta_rho, xi_rho) ;
 		rdrag:long_name = "linear bottom drag coefficient" ;
 		rdrag:units = "meter second-1" ;
@@ -141,6 +144,14 @@ variables:
 		ZoBot:long_name = "time invariant, bottom roughness length" ;
 		ZoBot:units = "meter" ;
 		ZoBot:coordinates = "lon_rho lat_rho" ;
+	double diff_factor(eta_rho, xi_rho) ;
+		diff_factor:long_name = "horizontal diffusivity factor" ;
+		diff_factor:valid_min = 0. ;
+		diff_factor:coordinates = "lon_rho lat_rho" ;
+	double visc_factor(eta_rho, xi_rho) ;
+		visc_factor:long_name = "horizontal viscosity factor" ;
+		visc_factor:valid_min = 0. ;
+		visc_factor:coordinates = "lon_rho lat_rho" ;
 
 // global attributes:
 		:type = "ROMS GRID file" ;

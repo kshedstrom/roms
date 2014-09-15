@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -70,7 +70,7 @@
 # ifdef EAST_FSOBC
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
         cff=0.1_r8*sin(2.0_r8*pi*time(ng)/(12.0_r8*3600.0_r8))
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%zeta_east(j)=cff
         END DO
       END IF
@@ -78,28 +78,28 @@
 #else
 # ifdef EAST_FSOBC
       IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%zeta_east(j)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef WEST_FSOBC
       IF (DOMAIN(ng)%Western_Edge(tile)) THEN
-        DO j=JstrR,JendR
+        DO j=JstrT,JendT
           BOUNDARY(ng)%zeta_west(j)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef SOUTH_FSOBC
       IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%zeta_south(i)=0.0_r8
         END DO
       END IF
 # endif
 # ifdef NORTH_FSOBC
       IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
-        DO i=IstrR,IendR
+        DO i=IstrT,IendT
           BOUNDARY(ng)%zeta_north(i)=0.0_r8
         END DO
       END IF
