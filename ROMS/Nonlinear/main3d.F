@@ -492,15 +492,15 @@
 !
 # ifdef NEMURO_SAN
         DO ng=1,Ngrids
-          IF (iyesterday(ng) .ne. idays(ng)) THEN
-            IF (iyesteryear(ng) .ne. iyears(ng)) THEN
+          ! RD: need control for leap year
+          IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0) THEN
 #  ifdef _OPENMP
               chunk_size=(Nfish(ng)+numthreads-1)/numthreads
               Lstr=1+MyThread*chunk_size
               Lend=MIN(Nfish(ng),Lstr+chunk_size-1)
 #  else
               Lstr=1
-              Lend=Nfloats(ng)
+              Lend=NFish(ng)
 #  endif
               CALL new_year (ng, Lstr, Lend)
 !$OMP BARRIER
@@ -509,9 +509,7 @@
                 CALL new_year_fleet (ng, tile)
               END DO
 #  endif
-              iyesteryear(ng) = iyears(ng)
 !$OMP BARRIER
-            END IF
           END IF
         END DO
 # endif
@@ -770,8 +768,7 @@
 #  endif
               END IF
 !  Make new fish once a day
-              IF (iyesterday(ng) .ne. idays(ng)) THEN
-                IF (Master) print *, 'MAIN3D idays ', idays(ng), iyears(ng)
+              IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN
                 CALL fish_spawn (ng, tile)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION
@@ -781,7 +778,6 @@
 #  ifdef FISHING_FLEET
                 CALL step_fleet (ng, tile)
 #  endif
-                iyesterday(ng) = idays(ng)
               END IF
             END DO
 !$OMP BARRIER

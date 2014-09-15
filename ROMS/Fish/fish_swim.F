@@ -130,7 +130,7 @@
       real(r8) :: Fmort
       real(r8) :: score, scoreMax, Uswim
       real(r8) :: d_i, d_j, d_ij, d_k, theta_ij, fac, snudg
-      real(r8) :: Fvar, Fvar_opt, Fvar_sigma
+      real(r8) :: Fvar, Fvar_opt, Fvar_sigma, zf_lon, zf_lat
       real(r8) :: fTemp, fTemp_opt, fTemp_sig, fTemp_alpha, facT
       real(r8) :: fPval, fPval_opt, fPval_sig, fPval_alpha, facPv
       real(r8) :: cue1, cue1_f, cue1_g, cue1_a
@@ -363,6 +363,9 @@
                   fPval=MIN(fPval,fPval_opt)
                   facPv=EXP(-0.5_r8*((fPval-fPval_opt)/fPval_sig)**2)
                   fPval_alpha=1.0_r8+tau*(1.0_r8-facPv)
+! Fish position (lon, lat)
+                  zf_lon=track(iflon,itime,fid)
+                  zf_lat=track(iflat,itime,fid)
 !
 ! ----- Horizontal behavior (updated once daily) -----
 !
@@ -397,7 +400,7 @@
 !                    xdis=0.0_r8
 !                    ydis=0.0_r8
 !
-                    IF (iyesterday(ng).ne.idays(ng)) THEN
+                    IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
                       dist=0.01_r8*Uswim*dtfish
 ! Compute random displacements
@@ -448,29 +451,15 @@
                           IF (snudg.lt.0.5_r8) epsy=-ee
                           IF (snudg.ge.0.5_r8) epsy=ee
                         ELSE
-# ifdef WC13
-                          IF (Jr.le.32) THEN
-# endif
-# ifdef WC12
-                          IF (Jr.le.95) THEN
-# endif
+# if defined WC12 || defined WC13 || defined CCS1
+                          IF (zf_lat.le.39.5_r8) THEN
                             IF (snudg.lt.0.4_r8) epsy=-ee
                             IF (snudg.ge.0.4_r8) epsy=ee
-# ifdef WC13
-                          ELSE IF (Jr.ge.35) THEN
-# endif
-# ifdef WC12
-                          ELSE IF (Jr.ge.105) THEN
-# endif
+                          ELSE IF (zf_lat.ge.40.5_r8) THEN
                             IF (snudg.lt.0.5_r8) epsy=-ee
                             IF (snudg.ge.0.5_r8) epsy=ee
                           ELSE
-# ifdef WC13
-                            fac=0.4_r8+0.1_r8*REAL(Jr-32,r8)/2.0_r8
-# endif
-# ifdef WC12
-                            fac=0.4_r8+0.1_r8*REAL(Jr-95,r8)/10.0_r8
-# endif
+                            fac=0.4_r8+0.1_r8*(zf_lat-39.5_r8)
                             IF (snudg.lt.fac) epsy=-ee
                             IF (snudg.ge.fac) epsy=ee
                           END IF
@@ -480,40 +469,19 @@
                         IF (lifestage(fid).ge.if_subadult) THEN
                           IF ((mg_time.gt.150.0_r8).and.                &
      &                        (mg_time.lt.180.0_r8).and.                &
-# ifdef WC13
-     &                        (Jr.lt.(Mm(ng)+1-5))) THEN
-# endif
-# ifdef WC12
-     &                        (Jr.lt.(Mm(ng)+1-15))) THEN
-# endif
+     &                        (zf_lat.lt.46.5_r8)) THEN
                             IF (snudg.lt.0.15_r8) epsy=-ee
                             IF (snudg.ge.0.15_r8) THEN
                               epsy=ee
-# ifdef WC13
-                              IF ((Ir.ge.32).and.(Jr.le.35))            &
-     &                                     epsx=-0.7_r8*epsy
-# endif
-# ifdef WC12
-                              IF ((Ir.ge.95).and.(Jr.le.105))           &
-     &                                     epsx=-0.7_r8*epsy
-# endif
+                              IF ((zf_lon.ge.-124.5).and.                 &
+     &                            (zf_lat.le.40.5_r8)) epsx=-0.7_r8*epsy
                             ENDIF
                           ELSE IF ((mg_time.gt.240.0_r8).and.           &
-     &                        (mg_time.lt.270.0_r8).and.                &
-# ifdef WC13
-     &                        (Jr.gt.5)) THEN
-# endif
-# ifdef WC12
-     &                        (Jr.gt.15)) THEN
-# endif
+     &                             (mg_time.lt.270.0_r8).and.           &
+     &                             (zf_lat.gt.31.5_r8)) THEN
                             IF (snudg.ge.0.15_r8) THEN
                               epsy=-ee
-# ifdef WC13
-                              IF (Jr.le.35) epsx=-0.7_r8*epsy
-# endif
-# ifdef WC12
-                              IF (Jr.le.105) epsx=-0.7_r8*epsy
-# endif
+                              IF (zf_lat.le.40.5_r8) epsx=-0.7_r8*epsy
                             ENDIF
                             IF (snudg.lt.0.15_r8) epsy=ee
                           ELSE
@@ -525,6 +493,9 @@
                           IF (snudg.ge.0.5_r8) epsy=ee
                         END IF
                       END IF
+# else
+??? to be coded for other domains
+# endif
 ! Compute happiness-based  displacements
                       cue1_f=h1*cue1
                       cue1_g=1.0_r8-h2*cue1

@@ -129,12 +129,6 @@
       ntend(ng)=ntimes(ng)
       ntfirst(ng)=ntstart(ng)
       CALL time_string (time(ng), time_code(ng))
-#ifdef NEMURO_SAN
-      idays(ng) = int(time(ng)*sec2day)
-      iyears(ng) = int((time(ng)*sec2day)/days_year)
-      iyesterday(ng) = idays(ng)
-      iyesteryear(ng) = iyears(ng)
-#endif
 !$OMP END MASTER
 !$OMP BARRIER
 

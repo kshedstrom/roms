@@ -106,7 +106,7 @@
         END DO
       END IF
 # else
-      DO l=1,Nfloats(ng)
+      DO l=1,NFish(ng)
         MyFishThread(l)=.TRUE.
       END DO
 # endif
