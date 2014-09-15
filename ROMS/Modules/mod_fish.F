@@ -153,13 +153,6 @@
 # ifdef EGGS_BISECTION
       logical :: lr_split = .true.
 # endif
-!
-!  Other parameters.
-!
-      integer, allocatable :: idays(:)
-      integer, allocatable :: iyesterday(:)
-      integer, allocatable :: iyears(:)
-      integer, allocatable :: iyesteryear(:)
 
       CONTAINS
 
@@ -267,11 +260,6 @@
       allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
-
-      allocate ( idays(Ngrids) )
-      allocate ( iyesterday(Ngrids) )
-      allocate ( iyears(Ngrids) )
-      allocate ( iyesteryear(Ngrids) )
 !
 !-----------------------------------------------------------------------
 !  Initialize module variables.

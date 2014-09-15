@@ -161,10 +161,27 @@
           ELSE
             IF (isp.eq.ip_albacore) THEN
 ! old              xini=18.0_r8
-              xini=63.0_r8
+              xini=53.0_r8
             END IF
           END IF
 !          xini=xini+2.0_r8*(PREDS(ng)%rwalk(pid+Npred(ng))-0.5_r8)
+          CALL ran1 (snudg)
+          xini=xini+6.0_r8*(snudg-0.5_r8)
+          zini=REAL(N(ng),r8)
+# endif
+# ifdef CCS1
+! ---- FOR CCS1 CONFIGURATION : may need fixes !!! RD ----
+          CALL ran1 (snudg)
+          yini=219.0_r8+snudg*REAL(198,r8)
+          IF (yini.lt.349.0_r8) THEN
+            IF (isp.eq.ip_albacore) THEN
+              xini=76.0_r8
+            END IF
+          ELSE
+            IF (isp.eq.ip_albacore) THEN
+              xini=76.0_r8-(yini-349.0_r8)*0.58_r8
+            END IF
+          END IF
           CALL ran1 (snudg)
           xini=xini+6.0_r8*(snudg-0.5_r8)
           zini=REAL(N(ng),r8)
@@ -468,7 +485,7 @@
                 END IF
               ELSE
                 PREDS(ng)%Tinfo(itstr,nc)=(dstart+Ft0(i,ng))*day2sec
-                IF (Fdz(i,ng).eq.0.0_r8) THEN
+                IF (Fdz(i,ng).le.0.1_r8) THEN
                   PREDS(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
                 ELSE
                   IF (Fz0(i,ng).gt.0.0_r8) THEN

@@ -381,6 +381,33 @@
             xini=xini-4.0_r8*snudg
             zini=REAL(N(ng),r8)
 # endif
+# ifdef CCS1
+! ----  FOR CCS1 CONFIGURATION : may need fixes !!! RD ----
+
+            CALL ran1 (snudg)
+            yini=220.0_r8+snudg*REAL(177,r8)
+            IF (yini.lt.330.0_r8) THEN
+              IF (isp.eq.if_anchovy) THEN
+! for anchovy (inshore)
+                xini=107.0_r8
+              ELSE IF (isp.eq.if_sardine) THEN
+! for sardine (offshore)
+                xini=115.0_r8
+              END IF
+            ELSE
+              IF (isp.eq.if_anchovy) THEN
+! for anchovy (inshore)
+                xini=107.0_r8+(yini-330)*0.57_r8
+              ELSE IF (isp.eq.if_sardine) THEN
+! for sardine (offshore)
+                xini=115.0_r8+(yini-330)*0.57_r8
+              END IF
+            END IF
+            CALL ran1 (snudg)
+            xini=xini-4.0_r8*snudg
+            zini=REAL(N(ng),r8)
+# endif
+
 # ifdef DOUBLE_GYRE
 ! ---- FOR TEST CONFIGURATION ----
             CALL ran1 (snudg)
@@ -1225,7 +1252,7 @@
                 END IF
               ELSE
                 FISHES(ng)%Tinfo(itstr,nc)=(dstart+Ft0(i,ng))*day2sec
-                IF (Fdz(i,ng).eq.0.0_r8) THEN
+                IF (Fdz(i,ng).le.0.1_r8) THEN
                   FISHES(ng)%Tinfo(izgrd,nc)=Fz0(i,ng)
                 ELSE
                   IF (Fz0(i,ng).gt.0.0_r8) THEN
