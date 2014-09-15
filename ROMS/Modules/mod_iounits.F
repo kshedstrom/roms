@@ -131,9 +131,6 @@
       TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
-      TYPE(T_IO), allocatable :: TIDE(:)    ! tidal forcing
-      TYPE(T_IO), allocatable :: TLF(:)     ! TLM impulse fields
-      TYPE(T_IO), allocatable :: TLM(:)     ! TLM history fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
       TYPE(T_IO), allocatable :: SSF(:)     ! Sources/Sinks forcing
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
