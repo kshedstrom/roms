@@ -3,7 +3,7 @@
 #ifdef FILTERED
 !
 !=======================================================================
-!  Copyright (c) 2002-2010 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2014 ROMS/TOMS Group                             !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  2D Time-filtered fields for output purposes.                        !
