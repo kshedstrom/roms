@@ -80,7 +80,6 @@
      &                   GRID(ng) % z_w,                                &
      &                   FORCES(ng) % srflx,                            &
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
-     &                   nfm1(ng),                                      &
      &                   OCEAN(ng) % fish_count,                        &
      &                   OCEAN(ng) % fish_list,                         &
      &                   FISHES(ng) % fishnodes,                        &
@@ -108,7 +107,7 @@
       SUBROUTINE biology_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
-     &                         nstp, nnew,                              &
+     &                         zstp, znew,                              &
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
@@ -118,7 +117,6 @@
      &                         Hz, z_r, z_w,                            &
      &                         srflx,                                   &
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
-     &                         nfm1,                                    &
      &                         fish_count,                              &
      &                         fish_list,                               &
      &                         fishnodes,                               &
@@ -141,7 +139,8 @@
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       USE mod_fish
       USE mod_grid
-!     USE mod_stepping
+      USE mod_stepping
+      USE mod_floats
 #endif
 !
 !  Imported variable declarations.
@@ -149,9 +148,8 @@
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
-      integer, intent(in) :: nstp, nnew
+      integer, intent(in) :: zstp, znew
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
-      integer, intent(in) :: nfm1
       type(fishnode), target, intent(in) :: fishnodes(Nfish(ng))
       real(r8), intent(in) :: feedback(NT(ng),Nfish(ng))
 #endif
@@ -216,11 +214,12 @@
 
       integer :: Iter, ibio, indx, isink, itime, itrc, iTrcMax
       integer :: i, j, k, ks
+      integer :: nbfr
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
-      integer :: Kr, ii, jj, ifid, ifish
+      integer :: kFb, kFa, ii, jj, ifid, ifish
       type(fishnode), pointer :: thisfish
-      real(r8) :: xR, yR
-      real(r8) :: dx, dy, dinv, dtot
+      real(r8) :: xR, yR, xF, yF, zF, zFb, zFa
+      real(r8) :: dx, dy, dtot, fact, facxy, facz
 
 #endif
 
@@ -259,6 +258,9 @@
       real(r8), dimension(NT(ng),2) :: BioTrc
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio
       real(r8), dimension(IminS:ImaxS,N(ng),NT(ng)) :: Bio_old
+#if defined NEMURO_SAN && defined FISH_FEEDBACK
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng),NT(ng)) :: pfish
+#endif
 
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -277,6 +279,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: NPP_slice
 #endif
       real(r8), dimension(IminS:ImaxS) :: frac_buried
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: mortfac
 
 #include "set_bounds.h"
 
@@ -303,72 +306,109 @@
 !
       Wbio(1)=setVPON(ng)             ! particulate organic nitrogen
       Wbio(2)=setVOpal(ng)            ! particulate organic silica
-
+!
+! Increased mortality near boundaries
+      nbfr=9
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          mortfac(i,j)=1.0_r8
+        END DO
+      END DO
+      DO j=Jstr,Jend
+        DO i=Istr,MIN(nbfr,IendR)
+          cff=1.0_r8+9.0_r8*REAL(nbfr-i,r8)/REAL(nbfr,r8)
+          mortfac(i,j)=MAX(mortfac(i,j),cff)
+        END DO
+        DO i=MAX(Istr,Lm(ng)+1-nbfr),Iend
+          cff=1.0_r8+9.0_r8*REAL(i-(Lm(ng)+1-nbfr),r8)/REAL(nbfr,r8)
+          mortfac(i,j)=MAX(mortfac(i,j),cff)
+        END DO
+      END DO
+      DO i=Istr,Iend
+        DO j=Jstr,MIN(nbfr,JendR)
+          cff=1.0_r8+9.0_r8*REAL(nbfr-j,r8)/REAL(nbfr,r8)
+          mortfac(i,j)=MAX(mortfac(i,j),cff)
+        END DO
+        DO j=MAX(JstrR,Mm(ng)+1-nbfr),Jend
+          cff=1.0_r8+9.0_r8*REAL(j-(Mm(ng)+1-nbfr),r8)/REAL(nbfr,r8)
+          mortfac(i,j)=MAX(mortfac(i,j),cff)
+        END DO
+      END DO
+!
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
 ! Zero out fish contributions from previous time step
-        DO itrc=1,NT(ng)
-          DO k=1,N(ng)
-            DO j=Jstr,Jend
-              DO i=Istr,Iend
-                pfish(i,j,k,itrc)=0.0_r8
-              END DO
+      DO itrc=1,NT(ng)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              pfish(i,j,k,itrc)=0.0_r8
             END DO
           END DO
         END DO
+      END DO
 !
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            IF (fish_count(i,j).gt.0) THEN
-              thisfish => fish_list(i,j) % next
-              DO ifish=1,fish_count(i,j)
-                ifid = thisfish % fish
-                xR=FISHES(ng)%track(ixgrd,nf(ng),ifid)
-                yR=FISHES(ng)%track(iygrd,nf(ng),ifid)
-                Kr=NINT(FISHES(ng)%track(izgrd,nf(ng),ifid))
-                IF (((xR-REAL(i,r8)).lt.MinVal).and.                    &
-     &              ((yR-REAL(j,r8)).lt.MinVal)) THEN
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          xR=REAL(i,r8)+0.5_r8
+          yR=REAL(j,r8)+0.5_r8
+          DO jj=MAX(j-1,1),MIN(j+1,Mm(ng))
+            DO ii=MAX(i-1,1),MIN(i+1,Lm(ng))
+              IF (fish_count(ii,jj).gt.0) THEN
+                thisfish => fish_list(ii,jj) % next
+                DO ifish=1,fish_count(ii,jj)
+                  ifid = thisfish % fish
+                  xF=FISHES(ng)%track(ixgrd,nf(ng),ifid)
+                  yF=FISHES(ng)%track(iygrd,nf(ng),ifid)
+                  zF=FISHES(ng)%track(izgrd,nf(ng),ifid)
+                  IF ((ABS(xF-xR).lt.MinVal).and.                       &
+     &                (ABS(yF-yR).lt.MinVal)) THEN
 ! CASE 1: Fish exactly at cell center
-                  DO itrc=1,NT(ng)
-                    fac=dtdays*GRID(ng)%pm(i,j)*                        &
-     &                          GRID(ng)%pn(i,j)/Hz(i,j,Kr)
-                    pfish(i,j,Kr,itrc)=pfish(i,j,Kr,itrc)+              &
-     &                             fac*feedback(itrc,ifid)
-                  END DO
-                ELSE
+                    facxy=1.0_r8
+                  ELSE
 ! CASE 2: Fish not exactly at cell center
 ! Compute contribution to adjacent cells based on inverse radius
-                  dtot=0.0_r8
-                  DO jj=j-1,j+1
-                    DO ii=i-1,i+1
-                      dx=(xR-REAL(ii,r8))/GRID(ng)%pm(ii,jj)
-                      dy=(yR-REAL(jj,r8))/GRID(ng)%pn(ii,jj)
-                      dinv=1.0_r8/(dx*dx+dy*dy)**0.5_r8
-                      dtot=dtot+dinv
-                    END DO
-                  END DO
+                    dtot=0.0_r8
+                    dx=(xF-(ANINT(xF,r8)-0.5_r8))/GRID(ng)%pm(i,j)
+                    dy=(yF-(ANINT(yF,r8)-0.5_r8))/GRID(ng)%pn(i,j)
+                    dtot=dtot+1.0_r8/(dx*dx+dy*dy)**0.5_r8
+                    dx=(xF-(ANINT(xF,r8)+0.5_r8))/GRID(ng)%pm(i,j)
+                    dy=(yF-(ANINT(yF,r8)-0.5_r8))/GRID(ng)%pn(i,j)
+                    dtot=dtot+1.0_r8/(dx*dx+dy*dy)**0.5_r8
+                    dx=(xF-(ANINT(xF,r8)-0.5_r8))/GRID(ng)%pm(i,j)
+                    dy=(yF-(ANINT(yF,r8)+0.5_r8))/GRID(ng)%pn(i,j)
+                    dtot=dtot+1.0_r8/(dx*dx+dy*dy)**0.5_r8
+                    dx=(xF-(ANINT(xF,r8)+0.5_r8))/GRID(ng)%pm(i,j)
+                    dy=(yF-(ANINT(yF,r8)+0.5_r8))/GRID(ng)%pn(i,j)
+                    dtot=dtot+1.0_r8/(dx*dx+dy*dy)**0.5_r8
 ! Set source/sink terms for phytoplankton, zooplankton and PON
-                  DO jj=j-1,j+1
-                    DO ii=i-1,i+1
 ! Factor to spread contribution to adjacent cells
-                      dx=(xR-REAL(ii,r8))/GRID(ng)%pm(ii,jj)
-                      dy=(yR-REAL(jj,r8))/GRID(ng)%pn(ii,jj)
-                      dinv=1.0_r8/(dx*dx+dy*dy)**0.5_r8
-                      fac1=dinv/dtot
+                    dx=(xF-xR)/GRID(ng)%pm(i,j)
+                    dy=(yF-yR)/GRID(ng)%pn(i,j)
+                    facxy=(1.0_r8/(dx*dx+dy*dy)**0.5_r8)/dtot
+                  END IF
+! Factor to spread contribution vertically
+                  zFb=REAL(NINT(zF),r8)-0.5_r8
+                  zFa=REAL(NINT(zF),r8)+0.5_r8
+                  kFb=MIN(MAX(INT(zFb)+1,1),N(ng))
+                  kFa=MIN(MAX(INT(zFa)+1,1),N(ng))
+                  facz=zF-zFb
 ! Factor to convert from mmolN/day to mmolN/m3
-                      fac2=dtdays*GRID(ng)%pm(ii,jj)*                   &
-     &                            GRID(ng)%pn(ii,jj)/Hz(ii,jj,Kr)
-                      DO itrc=1,NT(ng)
-                        pfish(ii,jj,Kr,itrc)=pfish(ii,jj,Kr,itrc)+      &
-     &                               fac1*fac2*feedback(itrc,ifid)
-                      END DO
-                    END DO
+                  fact=dtdays*GRID(ng)%pm(i,j)*GRID(ng)%pn(i,j)
+                  fac1=fact*facxy*(1.0_r8-facz)/Hz(i,j,kFb)
+                  fac2=fact*facxy*facz/Hz(i,j,kFa)
+                  DO itrc=1,NT(ng)
+                    pfish(i,j,kFb,itrc)=pfish(i,j,kFb,itrc)+            &
+     &                                  fac1*feedback(itrc,ifid)
+                    pfish(i,j,kFa,itrc)=pfish(i,j,kFa,itrc)+            &
+     &                                  fac2*feedback(itrc,ifid)
                   END DO
-                END IF
-                thisfish => thisfish % next
-              END DO
-            END IF
+                  thisfish => thisfish % next
+                END DO
+              END IF
+            END DO
           END DO
         END DO
+      END DO
 #endif
 !
 !  Compute inverse thickness to avoid repeated divisions.
@@ -409,7 +449,7 @@
           ibio=idbio(itrc)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,nstp,ibio))
+              Bio_old(i,k,ibio)=MAX(0.0_r8,t(i,j,k,zstp,ibio))
               Bio(i,k,ibio)=Bio_old(i,k,ibio)
             END DO
           END DO
@@ -419,7 +459,7 @@
 !
         DO k=1,N(ng)
           DO i=Istr,Iend
-            Bio(i,k,itemp)=t(i,j,k,nstp,itemp)
+            Bio(i,k,itemp)=t(i,j,k,zstp,itemp)
           END DO
         END DO
 !
@@ -453,9 +493,6 @@
             IF (h(i,j).le.h_max) THEN
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
      &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
-            ELSE IF (h(i,j).gt.h_max .and. Bio(i,k,iFeD_).lt.0.1_r8) THEN
-                    Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
-     &                       dt(ng)*Fndgcf*(0.1_r8-Bio(i,k,iFeD_))
             END IF
           END DO
         END DO
@@ -827,6 +864,8 @@
             DO i=Istr,Iend
               cff1=fac1*Bio(i,k,iSphy)*EXP(KMorPS(ng)*Bio(i,k,itemp))
               cff2=fac2*Bio(i,k,iLphy)*EXP(KMorPL(ng)*Bio(i,k,itemp))
+              cff1=cff1*mortfac(i,j)
+              cff2=cff2*mortfac(i,j)
               Bio(i,k,iSphy)=Bio(i,k,iSphy)/(1.0_r8+cff1)
               Bio(i,k,iLphy)=Bio(i,k,iLphy)/(1.0_r8+cff2)
               MorPS=Bio(i,k,iSphy)*cff1
@@ -854,10 +893,8 @@
 !
           DO k=1,N(ng)
             DO i=Istr,Iend
-              cff1=pfish(i,j,k,iSphy)
-              cff2=pfish(i,j,k,iLphy)
-              Bio(i,k,iSphy)=Bio(i,k,iSphy)/(1.0_r8+cff1)
-              Bio(i,k,iLphy)=Bio(i,k,iLphy)/(1.0_r8+cff2)
+              Bio(i,k,iSphy)=Bio(i,k,iSphy)-pfish(i,j,k,iSphy)
+              Bio(i,k,iLphy)=Bio(i,k,iLphy)-pfish(i,j,k,iLphy)
             END DO
           END DO
 #endif
@@ -1107,7 +1144,7 @@
 # ifdef HOLLING_GRAZING
               cff4=1.0_r8/(KZS2ZP(ng)+Bio(i,k,iSzoo)*Bio(i,k,iSzoo))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
-              cff=fac7*cff3*cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
+              cff=fac7*cff3**cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
 # elif defined IVLEV_IMPLICIT
               cff4=1.0_r8-EXP(LamP(ng)*(ZS2ZPstar(ng)-Bio(i,k,iSzoo)))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
@@ -1197,12 +1234,9 @@
 !
           DO k=1,N(ng)
             DO i=Istr,Iend
-              cff1=pfish(i,j,k,iSzoo)
-              cff2=pfish(i,j,k,iLzoo)
-              cff3=pfish(i,j,k,iPzoo)
-              Bio(i,k,iSzoo)=Bio(i,k,iSzoo)/(1.0_r8+cff1)
-              Bio(i,k,iLzoo)=Bio(i,k,iLzoo)/(1.0_r8+cff2)
-              Bio(i,k,iPzoo)=Bio(i,k,iPzoo)/(1.0_r8+cff3)
+              Bio(i,k,iSzoo)=Bio(i,k,iSzoo)-pfish(i,j,k,iSzoo)
+              Bio(i,k,iLzoo)=Bio(i,k,iLzoo)-pfish(i,j,k,iLzoo)
+              Bio(i,k,iPzoo)=Bio(i,k,iPzoo)-pfish(i,j,k,iPzoo)
             END DO
           END DO
 #endif
@@ -1491,7 +1525,6 @@
 !       Lagrangian algorithm. What is the correct nutrient path from
 !       the benthos to the water column?  NH4 to NO3?
 !
-!
             IF (ibio.eq.iPON_) THEN
               DO i=Istr,Iend
 # ifdef NEMURO_SED1
@@ -1549,18 +1582,18 @@
           DO k=1,N(ng)
             DO i=Istr,Iend
               cff=Bio(i,k,ibio)-Bio_old(i,k,ibio)
-              t(i,j,k,nnew,ibio)=t(i,j,k,nnew,ibio)+cff*Hz(i,j,k)
+              t(i,j,k,znew,ibio)=t(i,j,k,znew,ibio)+cff*Hz(i,j,k)
             END DO
           END DO
         END DO
 
 #ifdef PRIMARY_PROD
         DO i=Istr,Iend
-	  Bio_NPP(i,j) = 0.0_r8
+          Bio_NPP(i,j) = 0.0_r8
         END DO
         DO k=1,N(ng)
           DO i=Istr,Iend
-	    Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
+            Bio_NPP(i,j) = Bio_NPP(i,j) + Hz(i,j,k)*NPP_slice(i,k)
           END DO
         END DO
 #endif

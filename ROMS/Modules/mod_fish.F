@@ -4,13 +4,13 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
 !  Findex     Indices of spherical coordinates entries in initial      !
-!               location arrays, if any.                               ! 
+!               location arrays, if any.                               !
 !  Flon       Initial longitude locations, if any.                     !
 !  Flat       Initial latitude locations, if any.                      !
 !  Ftype      Float trajectory type:                                   !
@@ -18,7 +18,7 @@
 !               Ftype(:) = 2,  isobaric (constant depth) float.        !
 !  Tinfo      Float trajectory initial information.                    !
 !  bounded    Float bounded status switch.                             !
-!  rwalk      Normally distributed random deviates used in 3-D         !    
+!  rwalk      Normally distributed random deviates used in 3-D         !
 !               random walk.                                           !
 !  r2walk     Vector of random values for random walk.                 !
 !  track      Multivariate float trajectory data at several time       !
@@ -257,7 +257,7 @@
 
       allocate ( FISHES(ng) % next_free(Nspecies(ng)) )
 
-      allocate ( FISHES(ng) % age_base(Nspecies(ng)) ) 
+      allocate ( FISHES(ng) % age_base(Nspecies(ng)) )
 
       allocate ( FISHES(ng) % species_base(Nspecies(ng)) )
 !

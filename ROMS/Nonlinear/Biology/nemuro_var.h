@@ -66,6 +66,7 @@
               CASE ('idNPP')
                 idNPP=varid
 # endif
+
 !
 !  Biological tracers open boundary conditions.
 !
@@ -195,11 +196,9 @@
                 idTbry(inorth,iFeD_)=varid
 # endif
 
-
 !
 ! Biological tracers point Source/Sinks (river runoff).
 !
-
               CASE ('idRtrc(iNO3_)')
                 idRtrc(iNO3_)=varid
               CASE ('idRtrc(iNH4_)')

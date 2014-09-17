@@ -112,7 +112,7 @@
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
-      TYPE(T_IO), allocatable :: FIL(:,:)   ! filter restart
+      TYPE(T_IO), allocatable :: FIL(:,:)   ! Filter restart
       TYPE(T_IO), allocatable :: FISH(:)    ! fish trajectories
       TYPE(T_IO), allocatable :: FLEET(:)   ! fishing fleet
       TYPE(T_IO), allocatable :: FLT(:)     ! Lagrangian trajectories

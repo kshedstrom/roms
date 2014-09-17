@@ -55,16 +55,6 @@
       nline=0                            ! LBC multi-line counter
 !
 !-----------------------------------------------------------------------
-!  Initialize.
-!-----------------------------------------------------------------------
-!
-      igrid=1                            ! nested grid counter
-      itracer=0                          ! LBC tracer counter
-      iTrcStr=isTvar(idbio(1))           ! first LBC tracer to process
-      iTrcEnd=isTvar(idbio(NBT))         ! last  LBC tracer to process
-      nline=0                            ! LBC multi-line counter
-!
-!-----------------------------------------------------------------------
 !  Read in NPZD iron (Fiechter, et al. 2009) model parameters.
 !-----------------------------------------------------------------------
 !
@@ -772,7 +762,7 @@
      &            TRIM(Vname(1,idTvar(itrc)))
             END DO
 #endif
-          END SELECT
+          END IF
         END DO
       END IF
 !

@@ -3,7 +3,7 @@
       SUBROUTINE set_filter(ng, tile)
 !
 !=======================================================================
-!  Copyright (c) 2002-2013 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2014 ROMS/TOMS Group                             !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This subroutine accumulates and computes output time-averaged       !
