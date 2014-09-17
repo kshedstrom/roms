@@ -1826,6 +1826,10 @@
                 idTauiw=varid
               CASE ('idChuiw')
                 idChuiw=varid
+              CASE ('idS0mk')
+                idS0mk=varid
+              CASE ('idT0mk')
+                idT0mk=varid
               CASE ('idWfr')
                 idWfr=varid
               CASE ('idWai')
