@@ -82,6 +82,8 @@
           real(r8), pointer :: filtis(:,:,:)
           real(r8), pointer :: filti(:,:,:)
           real(r8), pointer :: filAgeice(:,:,:)
+          real(r8), pointer :: fils0mk(:,:,:)
+          real(r8), pointer :: filt0mk(:,:,:)
           real(r8), pointer :: filWfr(:,:,:)
           real(r8), pointer :: filWai(:,:,:)
           real(r8), pointer :: filWao(:,:,:)
@@ -322,6 +324,12 @@
       END IF
       IF (Aout(idSig22,ng)) THEN
         allocate ( FILTER(NG) % filsig12(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idS0mk,ng)) THEN
+        allocate ( FILTER(NG) % fils0mk(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idT0mk,ng)) THEN
+        allocate ( FILTER(NG) % filt0mk(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idWfr,ng)) THEN
         allocate ( FILTER(NG) % filWfr(LBi:UBi,LBj:UBj,FILN) )
@@ -768,6 +776,24 @@
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filsig12(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idS0mk,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % fils0mk(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idT0mk,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filt0mk(i,j,if) = IniVal
             END DO
           END DO
         END DO
