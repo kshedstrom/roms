@@ -154,7 +154,7 @@
       USE u3dbc_mod, ONLY : u3dbc_tile
       USE v3dbc_mod, ONLY : v3dbc_tile
 # ifdef UV_WAVEDRAG
-      USE mod_tides
+      USE mod_tides, only : TIDES, drag_scale
 # endif
 !
 !  Imported variable declarations.
