@@ -270,7 +270,7 @@
       real(r8), parameter :: OC0 =-0.000000488682_r8
       real(r8), parameter :: rOxNO3= 8.625_r8       ! 138/16
       real(r8), parameter :: rOxNH4= 6.625_r8       ! 106/16
-      real(r8) :: l2mol = 1000.0_r8/22.9316_r8      ! liter to mol
+      real(r8) :: l2mol = 1000.0_r8/22.3916_r8      ! liter to mol
 #endif
 #ifdef CARBON
       integer :: iday, month, year
