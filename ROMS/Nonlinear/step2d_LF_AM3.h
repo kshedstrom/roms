@@ -50,10 +50,10 @@
      &                  GRID(ng) % umask,       GRID(ng) % vmask,       &
 # endif
 # ifdef WET_DRY
-     &                  GRID(ng) % pmask_wet,   GRID(ng) % pmask_io,    &
-     &                  GRID(ng) % rmask_wet,   GRID(ng) % rmask_io,    &
-     &                  GRID(ng) % umask_wet,   GRID(ng) % umask_io,    &
-     &                  GRID(ng) % vmask_wet,   GRID(ng) % vmask_io,    &
+     &                  GRID(ng) % pmask_wet,   GRID(ng) % pmask_full,  &
+     &                  GRID(ng) % rmask_wet,   GRID(ng) % rmask_full,  &
+     &                  GRID(ng) % umask_wet,   GRID(ng) % umask_full,  &
+     &                  GRID(ng) % vmask_wet,   GRID(ng) % vmask_full,  &
 #  ifdef SOLVE3D
      &                  GRID(ng) % umask_diff,  GRID(ng) % vmask_diff,  &
      &                  GRID(ng) % rmask_wet_avg,                       &
@@ -135,10 +135,10 @@
      &                        pmask, rmask, umask, vmask,               &
 # endif
 # ifdef WET_DRY
-     &                        pmask_wet, pmask_io,                      &
-     &                        rmask_wet, rmask_io,                      &
-     &                        umask_wet, umask_io,                      &
-     &                        vmask_wet, vmask_io,                      &
+     &                        pmask_wet, pmask_full,                    &
+     &                        rmask_wet, rmask_full,                    &
+     &                        umask_wet, umask_full,                    &
+     &                        vmask_wet, vmask_full,                    &
 #  ifdef SOLVE3D
      &                        umask_diff, vmask_diff,                   &
      &                        rmask_wet_avg,                            &
@@ -297,10 +297,10 @@
       real(r8), intent(inout) :: rv(LBi:,LBj:,0:,:)
 #  endif
 #  ifdef WET_DRY
-      real(r8), intent(inout) :: pmask_io(LBi:,LBj:)
-      real(r8), intent(inout) :: rmask_io(LBi:,LBj:)
-      real(r8), intent(inout) :: umask_io(LBi:,LBj:)
-      real(r8), intent(inout) :: vmask_io(LBi:,LBj:)
+      real(r8), intent(inout) :: pmask_full(LBi:,LBj:)
+      real(r8), intent(inout) :: rmask_full(LBi:,LBj:)
+      real(r8), intent(inout) :: umask_full(LBi:,LBj:)
+      real(r8), intent(inout) :: vmask_full(LBi:,LBj:)
 
       real(r8), intent(inout) :: pmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: rmask_wet(LBi:,LBj:)
@@ -406,10 +406,10 @@
       real(r8), intent(inout) :: rv(LBi:UBi,LBj:UBj,0:UBk,2)
 #  endif
 #  ifdef WET_DRY
-      real(r8), intent(inout) :: pmask_io(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: rmask_io(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: umask_io(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: vmask_io(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: pmask_full(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: rmask_full(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: umask_full(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: vmask_full(LBi:UBi,LBj:UBj)
 
       real(r8), intent(inout) :: pmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: rmask_wet(LBi:UBi,LBj:UBj)
@@ -766,10 +766,10 @@
      &                  rmask_wet_avg,                                  &
      &                  umask_diff, vmask_diff,                         &
 #  endif
-     &                  pmask_wet, pmask_io,                            &
-     &                  rmask_wet, rmask_io,                            &
-     &                  umask_wet, umask_io,                            &
-     &                  vmask_wet, vmask_io)
+     &                  pmask_wet, pmask_full,                          &
+     &                  rmask_wet, rmask_full,                          &
+     &                  umask_wet, umask_full,                          &
+     &                  vmask_wet, vmask_full)
 # endif
 !
 !  Do not perform the actual time stepping during the auxiliary
@@ -1547,9 +1547,9 @@
 #  ifdef MASKING
           cff=cff*pmask(i,j)
 #  endif
-#   ifdef WET_DRY
+#  ifdef WET_DRY
           cff=cff*pmask_wet(i,j)
-#   endif
+#  endif
           UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
           VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
         END DO
@@ -1742,9 +1742,9 @@
 #  ifdef MASKING
           cff=cff*pmask(i,j)
 #  endif
-#   ifdef WET_DRY
+#  ifdef WET_DRY
           cff=cff*pmask_wet(i,j)
-#   endif
+#  endif
           UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
           VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
         END DO
@@ -2168,10 +2168,13 @@
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,knew))*umask_wet(i,j)
             cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             ubar(i,j,knew)=ubar(i,j,knew)*cff7
-            fac1=cff2/cff
-            rhs_ubar(i,j)=(ubar(i,j,knew)*(Dnew(i,j)+Dnew(i-1,j))-      &
-     &                     ubar(i,j,kstp)*(Dstp(i,j)+Dstp(i-1,j)))*     &
-     &                    fac1
+            rhs_ubar(i,j)=rhs_ubar(i,j)*cff7
+#  ifdef SOLVE3D
+            IF (PREDICTOR_2D_STEP(ng)) THEN
+              rufrc(i,j)=rufrc(i,j)*cff7
+              ru(i,j,0,nstp)=rufrc(i,j)
+            END IF
+#  endif
 # endif
           END DO
         END DO
@@ -2190,10 +2193,13 @@
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
             cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             vbar(i,j,knew)=vbar(i,j,knew)*cff7
-            fac1=cff2/cff
-            rhs_vbar(i,j)=(vbar(i,j,knew)*(Dnew(i,j)+Dnew(i,j-1))-      &
-     &                     vbar(i,j,kstp)*(Dstp(i,j)+Dstp(i,j-1)))*     &
-     &                    fac1
+            rhs_vbar(i,j)=rhs_vbar(i,j)*cff7
+#  ifdef SOLVE3D
+            IF (PREDICTOR_2D_STEP(ng)) THEN
+              rvfrc(i,j)=rvfrc(i,j)*cff7
+              rv(i,j,0,nstp)=rvfrc(i,j)
+            END IF
+#  endif
 # endif
           END DO
         END DO
@@ -2217,10 +2223,7 @@
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,knew))*umask_wet(i,j)
             cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             ubar(i,j,knew)=ubar(i,j,knew)*cff7
-            fac1=cff2/cff
-            rhs_ubar(i,j)=(ubar(i,j,knew)*(Dnew(i,j)+Dnew(i-1,j))-      &
-     &                     ubar(i,j,kstp)*(Dstp(i,j)+Dstp(i-1,j)))*     &
-     &                    fac1
+            rhs_ubar(i,j)=rhs_ubar(i,j)*cff7
 # endif
           END DO
         END DO
@@ -2239,10 +2242,7 @@
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
             cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             vbar(i,j,knew)=vbar(i,j,knew)*cff7
-            fac1=cff2/cff
-            rhs_vbar(i,j)=(vbar(i,j,knew)*(Dnew(i,j)+Dnew(i,j-1))-      &
-     &                     vbar(i,j,kstp)*(Dstp(i,j)+Dstp(i,j-1)))*     &
-     &                    fac1
+            rhs_vbar(i,j)=rhs_vbar(i,j)*cff7
 # endif
           END DO
         END DO
@@ -2271,12 +2271,7 @@
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,knew))*umask_wet(i,j)
             cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             ubar(i,j,knew)=ubar(i,j,knew)*cff7
-            fac1=1.0_r8/cff
-            rhs_ubar(i,j)=((ubar(i,j,knew)*(Dnew(i,j)+Dnew(i-1,j))-     &
-     &                      ubar(i,j,kstp)*(Dstp(i,j)+Dstp(i-1,j)))*    &
-     &                     fac1-                                        &
-     &                     cff2*rubar(i,j,kstp)+                        &
-     &                     cff3*rubar(i,j,ptsk))*cff4
+            rhs_ubar(i,j)=rhs_ubar(i,j)*cff7
 # endif
           END DO
         END DO
@@ -2298,12 +2293,7 @@
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
             cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
             vbar(i,j,knew)=vbar(i,j,knew)*cff7
-            fac1=1.0_r8/cff
-            rhs_vbar(i,j)=((vbar(i,j,knew)*(Dnew(i,j)+Dnew(i,j-1))-     &
-     &                      vbar(i,j,kstp)*(Dstp(i,j)+Dstp(i,j-1)))*    &
-     &                     fac1-                                        &
-     &                     cff2*rvbar(i,j,kstp)+                        &
-     &                     cff3*rvbar(i,j,ptsk))*cff4
+            rhs_vbar(i,j)=rhs_vbar(i,j)*cff7
 # endif
           END DO
         END DO

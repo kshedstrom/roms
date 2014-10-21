@@ -217,11 +217,13 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc))
 #endif
-#ifdef MASKING
-              FX(i,j)=FX(i,j)*umask(i,j)
-# ifdef WET_DRY
+#ifdef WET_DRY
               FX(i,j)=FX(i,j)*umask_diff(i,j)
-# endif
+#elif defined MASKING
+              FX(i,j)=FX(i,j)*umask(i,j)
+#endif
+#ifdef WET_DRY
+              FX(i,j)=FX(i,j)*umask_wet(i,j)
 #endif
             END DO
           END DO
@@ -247,11 +249,13 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc))
 #endif
-#ifdef MASKING
-              FE(i,j)=FE(i,j)*vmask(i,j)
-# ifdef WET_DRY
+#ifdef WET_DRY
               FE(i,j)=FE(i,j)*vmask_diff(i,j)
-# endif
+#elif defined MASKING
+              FE(i,j)=FE(i,j)*vmask(i,j)
+#endif
+#ifdef WET_DRY
+              FE(i,j)=FE(i,j)*vmask_wet(i,j)
 #endif
             END DO
           END DO

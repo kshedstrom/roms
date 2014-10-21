@@ -710,6 +710,9 @@
 # ifdef MASKING
           LRad(i,j)=LRad(i,j)*rmask(i,j)
 # endif
+# ifdef WET_DRY
+          LRad(i,j)=LRad(i,j)*rmask_wet(i,j)
+# endif
 !
 !-----------------------------------------------------------------------
 !  Compute specific humidities (kg/kg).
@@ -1019,6 +1022,9 @@
 # elif defined MASKING
           SHeat(i,j)=SHeat(i,j)*rmask(i,j)
 # endif
+# ifdef WET_DRY
+          SHeat(i,j)=SHeat(i,j)*rmask_wet(i,j)
+# endif
 !
 !  Compute turbulent latent heat flux (W/m2), Hl.
 !
@@ -1038,6 +1044,9 @@
 # elif defined MASKING
           LHeat(i,j)=LHeat(i,j)*rmask(i,j)
 # endif
+# ifdef WET_DRY
+          LHeat(i,j)=LHeat(i,j)*rmask_wet(i,j)
+# endif
 !
 !  Compute momentum flux (N/m2) due to rainfall (kg/m2/s).
 !
@@ -1051,6 +1060,9 @@
           Taux(i,j)=Taux(i,j)*rmask_wet(i,j)
 # elif defined MASKING
           Taux(i,j)=Taux(i,j)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          Taux(i,j)=Taux(i,j)*rmask_wet(i,j)
 # endif
           Tauy(i,j)=(cff*Vwind(i,j)+Taur*SIGN(1.0_r8,Vwind(i,j)))
 # ifdef WET_DRY
@@ -1279,6 +1291,12 @@
           shflx(i,j)=-SHeat(i,j)*Hscale2
           stflx(i,j,itemp)=(srflx(i,j)+lrflx(i,j)+                      &
      &                      lhflx(i,j)+shflx(i,j))
+# ifdef MASKING
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+# endif
 # ifdef EMINUSP
           evap(i,j)=LHeat(i,j)/Hlv(i,j)
           stflx(i,j,isalt)=cff*(evap(i,j)-rain(i,j))
@@ -1521,14 +1539,6 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    sustr_aw, svstr_aw)
 #  endif
-# endif
-# ifdef KATE_FOO
-      IF (LBi .le. 168 .and. UBi .ge. 168) THEN
-        print *, 'in bulk_flux ', snow_n(168,480), snow_n(169,480),     &
-     &            qai_n(168,480), qai_n(169,480),                       &
-     &            coef_ice_heat(168,480), coef_ice_heat(169,480),       &
-     &            rhs_ice_heat(168,480), rhs_ice_heat(169,480)
-      END IF
 # endif
 
       RETURN
