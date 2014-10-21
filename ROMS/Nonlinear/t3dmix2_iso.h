@@ -221,10 +221,11 @@
             DO j=Jstr,Jend
               DO i=Istr,Iend+1
                 cff=0.5_r8*(pm(i,j)+pm(i-1,j))
+#ifdef MASKING
+                cff=cff*umask(i,j)
+#endif
 #ifdef WET_DRY
                 cff=cff*umask_diff(i,j)
-#elif defined MASKING
-                cff=cff*umask(i,j)
 #endif
                 dRdx(i,j,k2)=cff*(rho(i  ,j,k+1)-                       &
      &                            rho(i-1,j,k+1))
@@ -242,10 +243,11 @@
             DO j=Jstr,Jend+1
               DO i=Istr,Iend
                 cff=0.5_r8*(pn(i,j)+pn(i,j-1))
+#ifdef MASKING
+                cff=cff*vmask(i,j)
+#endif
 #ifdef WET_DRY
                 cff=cff*vmask_diff(i,j)
-#elif defined MASKING
-                cff=cff*vmask(i,j)
 #endif
                 dRde(i,j,k2)=cff*(rho(i,j  ,k+1)-                       &
      &                            rho(i,j-1,k+1))

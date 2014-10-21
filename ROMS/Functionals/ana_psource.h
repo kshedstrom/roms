@@ -469,10 +469,12 @@
 #  else
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           DO k=1,N(ng)
-            DO is=1,Nsrc(ng)
+            DO is=1,Nsrc(ng)-1
               SOURCES(ng)%Tsrc(is,k,itemp)=T0(ng)
               SOURCES(ng)%Tsrc(is,k,isalt)=S0(ng)
             END DO
+            SOURCES(ng)%Tsrc(Nsrc(ng),k,itemp)=T0(ng)
+            SOURCES(ng)%Tsrc(Nsrc(ng),k,isalt)=S0(ng)
           END DO
         END IF
 #  endif

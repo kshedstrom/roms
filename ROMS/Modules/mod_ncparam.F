@@ -235,6 +235,7 @@
         integer  :: idPbar        ! streamfunction
         integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
+        integer  :: idPwet        ! wet/dry mask on PSI-points
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -1177,6 +1178,8 @@
               idTbry(inorth,isalt)=varid
             CASE ('idAlbe')
               idAlbe=varid
+            CASE ('idPwet')
+              idPwet=varid
             CASE ('idRwet')
               idRwet=varid
             CASE ('idUwet')

@@ -249,10 +249,11 @@
               cff=0.25_r8*(diff4(i,j,itrc)+diff4(i-1,j,itrc))*          &
      &            pmon_u(i,j)
 #endif
+#ifdef MASKING
+              cff=cff*umask(i,j)
+#endif
 #ifdef WET_DRY
               cff=cff*umask_diff(i,j)
-#elif defined MASKING
-              cff=cff*umask(i,j)
 #endif
               FX(i,j)=cff*(Hz(i,j,k)+Hz(i-1,j,k))*                      &
 #ifdef MIX_STABILITY
@@ -282,10 +283,11 @@
               cff=0.25_r8*(diff4(i,j,itrc)+diff4(i,j-1,itrc))*          &
      &            pnom_v(i,j)
 #endif
+#ifdef MASKING
+              cff=cff*vmask(i,j)
+#endif
 #ifdef WET_DRY
               cff=cff*vmask_diff(i,j)
-#elif defined MASKING
-              cff=cff*vmask(i,j)
 #endif
               FE(i,j)=cff*(Hz(i,j,k)+Hz(i,j-1,k))*                      &
 #ifdef MIX_STABILITY
@@ -392,10 +394,11 @@
               FX(i,j)=cff*                                              &
      &                (Hz(i,j,k)+Hz(i-1,j,k))*                          &
      &                (LapT(i,j)-LapT(i-1,j))
-#ifdef WET_DRY
-              FX(i,j)=FX(i,j)*umask_wet(i,j)
-#elif defined MASKING
+#ifdef MASKING
               FX(i,j)=FX(i,j)*umask(i,j)
+#endif
+#ifdef WET_DRY
+              FX(i,j)=FX(i,j)*umask_diff(i,j)
 #endif
             END DO
           END DO
@@ -415,10 +418,11 @@
               FE(i,j)=cff*                                              &
      &                (Hz(i,j,k)+Hz(i,j-1,k))*                          &
      &                (LapT(i,j)-LapT(i,j-1))
-#ifdef WET_DRY
-              FE(i,j)=FE(i,j)*vmask_wet(i,j)
-#elif defined MASKING
+#ifdef MASKING
               FE(i,j)=FE(i,j)*vmask(i,j)
+#endif
+#ifdef WET_DRY
+              FE(i,j)=FE(i,j)*vmask_diff(i,j)
 #endif
             END DO
           END DO

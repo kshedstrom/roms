@@ -63,8 +63,8 @@
      &                  GRID(ng) % vmask,                               &
 #endif
 #ifdef WET_DRY
-     &                  GRID(ng) % umask_wet,                           &
-     &                  GRID(ng) % vmask_wet,                           &
+     &                  GRID(ng)%umask_wet,                             &
+     &                  GRID(ng)%vmask_wet,                             &
 #endif
      &                  GRID(ng) % om_v,                                &
      &                  GRID(ng) % on_u,                                &

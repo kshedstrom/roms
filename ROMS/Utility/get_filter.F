@@ -1016,62 +1016,6 @@
         END IF
       END IF
 !
-!  Read in under-ice salinity
-!
-      IF (Aout(idS0mk,ng)) THEN
-        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idS0mk),       &
-     &                       FIL(10,ng)%ncid, varid)
-        gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
-     &                Vname(1,idS0mk), varid, tindx, gtype,             &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#  endif
-     &                FILTER(ng) % fils0mk(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(1,idS0mk)), tindx, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,40) TRIM(Vname(2,idS0mk)), Fmin, Fmax
-          END IF
-        END IF
-      END IF
-!
-!  Read in under-ice temperature
-!
-      IF (Aout(idT0mk,ng)) THEN
-        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idT0mk),       &
-     &                       FIL(10,ng)%ncid, varid)
-        gtype=r2dvar
-        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
-     &                Vname(1,idT0mk), varid, tindx, gtype,             &
-     &                Vsize, LBi, UBi, LBj, UBj,                        &
-     &                Fscl, Fmin, Fmax,                                 &
-#   ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#   endif
-     &                FILTER(ng) % filt0mk(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
-          IF (Master) THEN
-            WRITE (stdout,30) TRIM(Vname(1,idT0mk)), tindx, TRIM(ncname)
-          END IF
-          exit_flag=2
-          ioerror=status
-          RETURN
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,40) TRIM(Vname(2,idT0mk)), Fmin, Fmax
-          END IF
-        END IF
-      END IF
-!
 !  Read in frazil ice growth rate
 !
       IF (Aout(idWfr,ng)) THEN

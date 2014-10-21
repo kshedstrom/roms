@@ -229,6 +229,15 @@
 !------------------------------------------------------------------------------
 !
 
+'wetdry_mask_psi'                                  ! Input/Output
+  'wet/dry mask on PSI-points'
+  'nondimensional'
+  'wetdry_mask_psi, scalar, series'
+  'ocean_time'
+  'idPwet'
+  'p2dvar'
+  1.0d0
+
 'wetdry_mask_rho'                                  ! Input/Output
   'wet/dry mask on RHO-points'
   'nondimensional'
@@ -834,6 +843,24 @@
   'transfer coefficient, scalar, series'
   'ocean_time'
   'idChuiw'
+  'r2dvar'
+  1.0d0
+
+'s0mk'
+  'salinity of molecular sub-layer under ice'
+  'nondimensional'
+  'salinity, scalar, series'
+  'ocean_time'
+  'idS0mk'
+  'r2dvar'
+  1.0d0
+
+'t0mk'
+  'temperature of molecular sub-layer under ice'
+  'degrees Celsius'
+  'temperature, scalar, series'
+  'ocean_time'
+  'idT0mk'
   'r2dvar'
   1.0d0
 
@@ -1851,6 +1878,15 @@
   'rain, scalar, series'
   'rain_time'
   'idrain'
+  'r2dvar'
+  1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
+
+'snow'                                             ! Input
+  'snow fall rate'
+  'kilogram meter-2 second-1'                      ! [kg m2/s]
+  'snow, scalar, series'
+  'snow_time'
+  'idsnow'
   'r2dvar'
   1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
 
@@ -6669,7 +6705,7 @@
   'nulvar'
   1.0d0
 
-  'SiOH_east'                                       ! Input
+'SiOH_east'                                       ! Input
   'silicate eastern boundary condition'
   'millimole_silica meter-3'                       ! [millimole/m3]
   'SiOH_east, scalar, series'

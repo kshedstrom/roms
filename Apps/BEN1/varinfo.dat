@@ -746,6 +746,24 @@
   'r2dvar'
   1.0d0
 
+'s0mk'
+  'salinity of molecular sub-layer under ice'
+  'nondimensional'
+  'salinity, scalar, series'
+  'ocean_time'
+  'idS0mk'
+  'r2dvar'
+  1.0d0
+
+'t0mk'
+  'temperature of molecular sub-layer under ice'
+  'degrees Celsius'
+  'temperature, scalar, series'
+  'ocean_time'
+  'idT0mk'
+  'r2dvar'
+  1.0d0
+
 'wfr'
   'rate of frazil ice growth'
   'm^3 s-1'

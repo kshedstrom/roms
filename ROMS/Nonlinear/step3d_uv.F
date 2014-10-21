@@ -154,7 +154,7 @@
       USE u3dbc_mod, ONLY : u3dbc_tile
       USE v3dbc_mod, ONLY : v3dbc_tile
 # ifdef UV_WAVEDRAG
-      USE mod_tides
+      USE mod_tides, only : TIDES, drag_scale
 # endif
 !
 !  Imported variable declarations.
@@ -188,12 +188,12 @@
       real(r8), intent(in) :: DV_avg1(LBi:,LBj:)
       real(r8), intent(in) :: DU_avg2(LBi:,LBj:)
       real(r8), intent(in) :: DV_avg2(LBi:,LBj:)
-      real(r8), intent(inout) :: ru(LBi:,LBj:,0:,:)
-      real(r8), intent(inout) :: rv(LBi:,LBj:,0:,:)
 #  ifdef NEARSHORE_MELLOR
       real(r8), intent(in) :: ubar_stokes(LBi:,LBj:)
       real(r8), intent(in) :: vbar_stokes(LBi:,LBj:)
 #  endif
+      real(r8), intent(inout) :: ru(LBi:,LBj:,0:,:)
+      real(r8), intent(inout) :: rv(LBi:,LBj:,0:,:)
 #  ifdef DIAGNOSTICS_UV
       real(r8), intent(inout) :: DiaU2wrk(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaV2wrk(LBi:,LBj:,:)
@@ -240,12 +240,12 @@
       real(r8), intent(in) :: DV_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: DU_avg2(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: DV_avg2(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ru(LBi:UBi,LBj:UBj,0:N(ng),2)
-      real(r8), intent(inout) :: rv(LBi:UBi,LBj:UBj,0:N(ng),2)
 #  ifdef NEARSHORE_MELLOR
       real(r8), intent(in) :: ubar_stokes(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vbar_stokes(LBi:UBi,LBj:UBj)
 #  endif
+      real(r8), intent(inout) :: ru(LBi:UBi,LBj:UBj,0:N(ng),2)
+      real(r8), intent(inout) :: rv(LBi:UBi,LBj:UBj,0:N(ng),2)
 #  ifdef DIAGNOSTICS_UV
       real(r8), intent(inout) :: DiaU2wrk(LBi:UBi,LBj:UBj,NDM2d)
       real(r8), intent(inout) :: DiaV2wrk(LBi:UBi,LBj:UBj,NDM2d)

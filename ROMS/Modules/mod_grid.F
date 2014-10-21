@@ -68,20 +68,20 @@
 !  pnom_u     Compound term, pn/pm at U-points.                        !
 !  pnom_v     Compound term, pn/pm at V-points.                        !
 #ifdef MASKING
-!  pmask      Slipperiness mask at PSI-points:                         !
-!               (0=Land, 1=Sea, 1-gamma2=boundary).                    !
-!  rmask      Mask at RHO-points (0=Land, 1=Sea).                      !
-!  umask      Mask at U-points (0=Land, 1=Sea).                        !
-!  vmask      Mask at V-points (0=Land, 1=Sea).                        !
+!  pmask      Slipperiness time-independent mask at PSI-points:        !
+!               (0=Land, 1=Sea, 2=no-slip).                            !
+!  rmask      Time-independent mask at RHO-points (0=Land, 1=Sea).     !
+!  umask      Time-independent mask at U-points (0=Land, 1=Sea).       !
+!  vmask      Time-independent mask at V-points (0=Land, 1=Sea).       !
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
     (defined RP_AVERAGES && defined TL_IOMS) || \
     (defined TL_AVERAGES && defined TANGENT)
 !
-!  pmask_avg  Time-average FillValue mask at PSI-points (0=dry, 1=wet) !
-!  rmask_avg  Time-average FillValue mask at RHO-points (0=dry, 1=wet) !
-!  rmask_avg  Time-average FillValue mask at   U-points (0=dry, 1=wet) !
-!  rmask_avg  Time-average FillValue mask at   V-points (0=dry, 1=wet) !
+!  pmask_avg  Time-averaged full mask at PSI-points (0=dry, 1=wet).    !
+!  rmask_avg  Time-averaged full mask at RHO-points (0=dry, 1=wet).    !
+!  rmask_avg  Time-averaged full mask at   U-points (0=dry, 1=wet).    !
+!  rmask_avg  Time-averaged full mask at   V-points (0=dry, 1=wet).    !
 # endif
 # if defined AVERAGES2
 !  pmask_avg2 Time-average FillValue mask at PSI-points (0=dry, 1=wet) !
@@ -91,16 +91,16 @@
 # endif
 # ifdef DIAGNOSTICS
 !
-!  pmask_dia  Diagnostics FillValue mask at PSI-points (0=dry, 1=wet)  !
-!  rmask_dia  Diagnostics FillValue mask at RHO-points (0=dry, 1=wet)  !
-!  rmask_dia  Diagnostics FillValue mask at   U-points (0=dry, 1=wet)  !
-!  rmask_dia  Diagnostics FillValue mask at   V-points (0=dry, 1=wet)  !
+!  pmask_dia  Diagnostics full mask at PSI-points (0=dry, 1=wet).      !
+!  rmask_dia  Diagnostics full mask at RHO-points (0=dry, 1=wet).      !
+!  rmask_dia  Diagnostics full mask at   U-points (0=dry, 1=wet).      !
+!  rmask_dia  Diagnostics full mask at   V-points (0=dry, 1=wet).      !
 # endif
 !                                                                      !
-!  pmask_io   Output FillValue mask at PSI-points (0=dry, 1=wet)       !
-!  rmask_io   Output FillValue mask at RHO-points (0=dry, 1=wet)       !
-!  rmask_io   Output FillValue mask at   U-points (0=dry, 1=wet)       !
-!  rmask_io   Output FillValue mask at   V-points (0=dry, 1=wet)       !
+!  pmask_full Full mask at PSI-points (0=dry, 1=wet, 2=no-slip).       !
+!  rmask_full Full mask at RHO-points (0=dry, 1=wet).                  !
+!  rmask_full Full mask at   U-points (0=dry, 1=wet).                  !
+!  rmask_full Full mask at   V-points (0=dry, 1=wet).                  !
 #endif
 #ifdef OUTFLOW_MASK
 !  mask_outflow  Mask at RHO-points for ice BC (0=weak, 1=strong)      !
@@ -263,10 +263,10 @@
           real(r8), pointer :: umask_dia(:,:)
           real(r8), pointer :: vmask_dia(:,:)
 # endif
-          real(r8), pointer :: pmask_io(:,:)
-          real(r8), pointer :: rmask_io(:,:)
-          real(r8), pointer :: umask_io(:,:)
-          real(r8), pointer :: vmask_io(:,:)
+          real(r8), pointer :: pmask_full(:,:)
+          real(r8), pointer :: rmask_full(:,:)
+          real(r8), pointer :: umask_full(:,:)
+          real(r8), pointer :: vmask_full(:,:)
 #endif
 #ifdef OUTFLOW_MASK
           real(r8), pointer :: mask_outflow(:,:)
@@ -467,10 +467,10 @@
       allocate ( GRID(ng) % umask_dia(LBi:UBi,LBj:UBj) )
       allocate ( GRID(ng) % vmask_dia(LBi:UBi,LBj:UBj) )
 # endif
-      allocate ( GRID(ng) % pmask_io(LBi:UBi,LBj:UBj) )
-      allocate ( GRID(ng) % rmask_io(LBi:UBi,LBj:UBj) )
-      allocate ( GRID(ng) % umask_io(LBi:UBi,LBj:UBj) )
-      allocate ( GRID(ng) % vmask_io(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % pmask_full(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % rmask_full(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % umask_full(LBi:UBi,LBj:UBj) )
+      allocate ( GRID(ng) % vmask_full(LBi:UBi,LBj:UBj) )
 #endif
 
 #ifdef OUTFLOW_MASK
@@ -722,10 +722,10 @@
             GRID(ng) % umask_dia(i,j) = IniVal
             GRID(ng) % vmask_dia(i,j) = IniVal
 # endif
-            GRID(ng) % pmask_io(i,j) = IniVal
-            GRID(ng) % rmask_io(i,j) = IniVal
-            GRID(ng) % umask_io(i,j) = IniVal
-            GRID(ng) % vmask_io(i,j) = IniVal
+            GRID(ng) % pmask_full(i,j) = IniVal
+            GRID(ng) % rmask_full(i,j) = IniVal
+            GRID(ng) % umask_full(i,j) = IniVal
+            GRID(ng) % vmask_full(i,j) = IniVal
 #endif
 
 #ifdef OUTFLOW_MASK
