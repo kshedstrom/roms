@@ -127,28 +127,28 @@
         DO j=Jstr,JendR
           DO i=Istr,IendR
             GRID(ng)%pmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%pmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%pmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
             GRID(ng)%rmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%rmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%rmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
             GRID(ng)%umask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%umask_io(i,j),     &
+     &                                  MIN(GRID(ng)%umask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
             GRID(ng)%vmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%vmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%vmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -210,7 +210,7 @@
               AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Bio_NPP(i,j)
 #  ifdef WET_DRY
               AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)*          &
-     &                                  GRID(ng)%rmask_io(i,j)
+     &                                  GRID(ng)%rmask_full(i,j)
 #  endif
             END DO
           END DO
@@ -232,7 +232,7 @@
           DO i=Istr,IendR
             GRID(ng)%pmask_avg(i,j)=GRID(ng)%pmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%pmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%pmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -240,7 +240,7 @@
           DO i=IstrR,IendR
             GRID(ng)%rmask_avg(i,j)=GRID(ng)%rmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%rmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%rmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -248,7 +248,7 @@
           DO i=Istr,IendR
             GRID(ng)%umask_avg(i,j)=GRID(ng)%umask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%umask_io(i,j),     &
+     &                                  MIN(GRID(ng)%umask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -256,7 +256,7 @@
           DO i=IstrR,IendR
             GRID(ng)%vmask_avg(i,j)=GRID(ng)%vmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%vmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%vmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -322,7 +322,7 @@
             DO i=IstrR,IendR
               AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)+          &
 # ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                                 GRID(ng)%rmask_full(i,j)*        &
 # endif
      &                                 OCEAN(ng)%Bio_NPP(i,j)
             END DO
@@ -1248,7 +1248,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 # ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 # endif
      &                      FILTER(ng) % filu2d(:,:,f),                 &
      &                      FILTER(ng) % filv2d(:,:,f),                 &
@@ -1280,7 +1280,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 #  ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 #  endif
      &                      FILTER(ng) % filu3d(:,:,:,f),               &
      &                      FILTER(ng) % filv3d(:,:,:,f),               &
@@ -1455,7 +1455,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 # ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 # endif
      &                      FILTER(ng) % filui(:,:,f),                  &
      &                      FILTER(ng) % filvi(:,:,f),                  &

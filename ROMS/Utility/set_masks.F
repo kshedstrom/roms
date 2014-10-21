@@ -467,7 +467,7 @@
 #  ifdef WET_DRY
           pmask_avg2(i,j)=0.0_r8
 #  else
-          pmask_avg2(i,j)=pmask_io(i,j)
+          pmask_avg2(i,j)=pmask_full(i,j)
 #  endif
         END DO
       END DO
@@ -477,7 +477,7 @@
 #  ifdef WET_DRY
           rmask_avg2(i,j)=0.0_r8
 #  else
-          rmask_avg2(i,j)=rmask_io(i,j)
+          rmask_avg2(i,j)=rmask_full(i,j)
 #  endif
         END DO
       END DO
@@ -487,7 +487,7 @@
 #  ifdef WET_DRY
           umask_avg2(i,j)=0.0_r8
 #  else
-          umask_avg2(i,j)=umask_io(i,j)
+          umask_avg2(i,j)=umask_full(i,j)
 #  endif
         END DO
       END DO
@@ -497,7 +497,7 @@
 #  ifdef WET_DRY
           vmask_avg2(i,j)=0.0_r8
 #  else
-          vmask_avg2(i,j)=vmask_io(i,j)
+          vmask_avg2(i,j)=vmask_full(i,j)
 #  endif
         END DO
       END DO

@@ -732,7 +732,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
@@ -1735,7 +1735,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    ICE(ng) % ui(:,:,IUOUT),                      &
      &                    ICE(ng) % vi(:,:,IUOUT),                      &
