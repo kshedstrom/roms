@@ -186,7 +186,7 @@
 !
       integer :: i, is, j
 
-      real(r8) :: cff, cff1, cff2, cff5, cff6, cff7
+      real(r8) :: cff
       real(r8), parameter :: eps = 1.0E-10_r8
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wetdry
@@ -219,9 +219,6 @@
      &                         LBi, UBi, LBj, UBj,                      &
      &                         IminS, ImaxS, JminS, JmaxS,              &
      &                         wetdry,                                  &
-# ifdef MASKING
-     &                         umask, vmask,                            &
-# endif
      &                         pmask_wet, rmask_wet,                    &
      &                         umask_wet, vmask_wet)
       END IF
@@ -305,12 +302,12 @@
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_full(i,j)=umask_wet(i,j)
+            umask_full(i,j)=umask_wet(i,j)*umask(i,j)
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_full(i,j)=vmask_wet(i,j)
+            vmask_full(i,j)=vmask_wet(i,j)*vmask(i,j)
           END DO
         END DO
 !
@@ -487,9 +484,6 @@
      &                           IminS, ImaxS, JminS, JmaxS,            &
      &                           ubar, vbar,                            &
      &                           wetdry,                                &
-#  ifdef MASKING
-     &                       umask, vmask,                              &
-#  endif
      &                           pmask_wet, rmask_wet,                  &
      &                           umask_wet, vmask_wet,                  &
      &                           umask_diff, vmask_diff)
@@ -498,9 +492,6 @@
      &                       LBi, UBi, LBj, UBj,                        &
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       wetdry,                                    &
-#  ifdef MASKING
-     &                       umask, vmask,                              &
-#  endif
      &                       pmask_wet, rmask_wet,                      &
      &                       umask_wet, vmask_wet)
 # endif
@@ -583,9 +574,6 @@
      &                             LBi, UBi, LBj, UBj,                  &
      &                             IminS, ImaxS, JminS, JmaxS,          &
      &                             wetdry,                              &
-# ifdef MASKING
-     &                             umask, vmask,                        &
-# endif
      &                             pmask_wet, rmask_wet,                &
      &                             umask_wet, vmask_wet)
 !***********************************************************************
@@ -606,16 +594,12 @@
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in)  :: wetdry(IminS:,JminS:)
-      real(r8), intent(in)  :: umask(LBi:,LBj:)
-      real(r8), intent(in)  :: vmask(LBi:,LBj:)
       real(r8), intent(out) :: pmask_wet(LBi:,LBj:)
       real(r8), intent(out) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(out) :: umask_wet(LBi:,LBj:)
       real(r8), intent(out) :: vmask_wet(LBi:,LBj:)
 # else
       real(r8), intent(in)  :: wetdry(IminS:ImaxS,JminS:JmaxS)
-      real(r8), intent(in)  :: umask(LBi:UBi,LBj:UBj)
-      real(r8), intent(in)  :: vmask(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: pmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: umask_wet(LBi:UBi,LBj:UBj)
@@ -650,9 +634,6 @@
           IF (umask_wet(i,j).eq.1.0_r8) THEN
             umask_wet(i,j)=wetdry(i-1,j)-wetdry(i,j)
           END IF
-# ifdef MASKING
-          umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
-# endif
         END DO
       END DO
 !
@@ -664,9 +645,6 @@
           IF (vmask_wet(i,j).eq.1.0_r8) THEN
             vmask_wet(i,j)=wetdry(i,j-1)-wetdry(i,j)
           END IF
-# ifdef MASKING
-          vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
-# endif
         END DO
       END DO
 !
@@ -763,9 +741,6 @@
      &                                 IminS, ImaxS, JminS, JmaxS,      &
      &                                 DU_avg1, DV_avg1,                &
      &                                 wetdry,                          &
-# ifdef MASKING
-     &                                 umask, vmask,                    &
-# endif
      &                                 pmask_wet, rmask_wet,            &
      &                                 umask_wet, vmask_wet,            &
      &                                 umask_diff, vmask_diff)
@@ -789,10 +764,6 @@
       real(r8), intent(in)  :: wetdry(IminS:,JminS:)
       real(r8), intent(in)  :: DU_avg1(LBi:,LBj:)
       real(r8), intent(in)  :: DV_avg1(LBi:,LBj:)
-# ifdef MASKING
-      real(r8), intent(in)  :: umask(LBi:,LBj:)
-      real(r8), intent(in)  :: vmask(LBi:,LBj:)
-# endif
       real(r8), intent(out) :: pmask_wet(LBi:,LBj:)
       real(r8), intent(out) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(out) :: umask_wet(LBi:,LBj:)
@@ -803,10 +774,6 @@
       real(r8), intent(in)  :: wetdry(IminS:ImaxS,JminS:JmaxS)
       real(r8), intent(in)  :: DU_avg1(LBi:UBi,LBj:UBj)
       real(r8), intent(in)  :: DV_avg1(LBi:UBi,LBj:UBj)
-# ifdef MASKING
-      real(r8), intent(in)  :: umask(LBi:UBi,LBj:UBj)
-      real(r8), intent(in)  :: vmask(LBi:UBi,LBj:UBj)
-# endif
       real(r8), intent(out) :: pmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: umask_wet(LBi:UBi,LBj:UBj)
@@ -857,9 +824,6 @@
               umask_wet(i,j)=0.0_r8
             END IF
           END IF
-# ifdef MASKING
-          umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
-# endif
         END DO
       END DO
 !
@@ -884,9 +848,6 @@
               vmask_wet(i,j)=0.0_r8
             END IF
           END IF
-# ifdef MASKING
-          vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
-# endif
         END DO
       END DO
 !
