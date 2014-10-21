@@ -487,8 +487,9 @@
      &                           IminS, ImaxS, JminS, JmaxS,            &
      &                           ubar, vbar,                            &
      &                           wetdry,                                &
-     &                           wetdry,                                &
-# ifdef MASKING
+#  ifdef MASKING
+     &                       umask, vmask,                              &
+#  endif
      &                           pmask_wet, rmask_wet,                  &
      &                           umask_wet, vmask_wet,                  &
      &                           umask_diff, vmask_diff)
@@ -497,9 +498,9 @@
      &                       LBi, UBi, LBj, UBj,                        &
      &                       IminS, ImaxS, JminS, JmaxS,                &
      &                       wetdry,                                    &
-# ifdef MASKING
+#  ifdef MASKING
      &                       umask, vmask,                              &
-# endif
+#  endif
      &                       pmask_wet, rmask_wet,                      &
      &                       umask_wet, vmask_wet)
 # endif
@@ -857,7 +858,7 @@
             END IF
           END IF
 # ifdef MASKING
-	  umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
+          umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
 # endif
         END DO
       END DO
