@@ -532,10 +532,11 @@
           DUon(i,j)=ubar(i,j,krhs)*cff1
 #  ifdef NEARSHORE_MELLOR
 #   ifdef WET_DRY
-          cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,ubar_stokes(i,j))*umask_wet(i,j)
-          cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
-          cff1=cff1*cff7
+! COAWST?
+!          cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
+!          cff6=0.5_r8+DSIGN(0.5_r8,ubar_stokes(i,j))*umask_wet(i,j)
+!          cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
+!          cff1=cff1*cff7
 #   endif
           DUSon(i,j)=ubar_stokes(i,j)*cff1
           DUon(i,j)=DUon(i,j)+DUSon(i,j)
@@ -549,10 +550,11 @@
           DVom(i,j)=vbar(i,j,krhs)*cff1
 #  ifdef NEARSHORE_MELLOR
 #   ifdef WET_DRY
-          cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,vbar_stokes(i,j))*vmask_wet(i,j)
-          cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
-          cff1=cff1*cff7
+! COAWST?
+!          cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
+!          cff6=0.5_r8+DSIGN(0.5_r8,vbar_stokes(i,j))*vmask_wet(i,j)
+!          cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
+!          cff1=cff1*cff7
 #   endif
           DVSom(i,j)=vbar_stokes(i,j)*cff1
           DVom(i,j)=DVom(i,j)+DVSom(i,j)
@@ -1885,22 +1887,22 @@
 # ifdef SOLVE3D
 #  ifdef WET_DRY
 ! From COAWST
-      DO j=Jstr,Jend
-        DO i=IstrU,Iend
-          cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,rhs_ubar(i,j))*umask_wet(i,j)
-          cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
-          rhs_ubar(i,j)=rhs_ubar(i,j)*cff7
-        END DO
-      END DO
-      DO j=JstrV,Jend
-        DO i=Istr,Iend
-          cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
-          cff6=0.5_r8+DSIGN(0.5_r8,rhs_vbar(i,j))*vmask_wet(i,j)
-          cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
-          rhs_vbar(i,j)=rhs_vbar(i,j)*cff7
-        END DO
-      END DO
+!      DO j=Jstr,Jend
+!        DO i=IstrU,Iend
+!          cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
+!          cff6=0.5_r8+DSIGN(0.5_r8,rhs_ubar(i,j))*umask_wet(i,j)
+!          cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
+!          rhs_ubar(i,j)=rhs_ubar(i,j)*cff7
+!        END DO
+!      END DO
+!      DO j=JstrV,Jend
+!        DO i=Istr,Iend
+!          cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
+!          cff6=0.5_r8+DSIGN(0.5_r8,rhs_vbar(i,j))*vmask_wet(i,j)
+!          cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
+!          rhs_vbar(i,j)=rhs_vbar(i,j)*cff7
+!        END DO
+!      END DO
 #  endif
 !
 !-----------------------------------------------------------------------
@@ -2266,7 +2268,6 @@
             ubar(i,j,knew)=ubar(i,j,knew)*umask(i,j)
 # endif
 # ifdef WET_DRY
-! From COAWST
             cff5=ABS(ABS(umask_wet(i,j))-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,knew))*umask_wet(i,j)
             cff7=0.5_r8*umask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
@@ -2288,7 +2289,6 @@
             vbar(i,j,knew)=vbar(i,j,knew)*vmask(i,j)
 # endif
 # ifdef WET_DRY
-! From COAWST
             cff5=ABS(ABS(vmask_wet(i,j))-1.0_r8)
             cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,knew))*vmask_wet(i,j)
             cff7=0.5_r8*vmask_wet(i,j)*cff5+cff6*(1.0_r8-cff5)
