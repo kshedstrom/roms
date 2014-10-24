@@ -100,7 +100,7 @@ endif
 
 ifdef USE_DEBUG
 #          FFLAGS += -g -C -Mchkstk -Mchkfpstk
-           FFLAGS += -g -C
+           FFLAGS += -g -C -O0
 #          FFLAGS += -gopt -C
 #          FFLAGS += -g
            CFLAGS += -g

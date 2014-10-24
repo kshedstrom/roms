@@ -199,10 +199,10 @@
 #ifdef ICE_BASIN
       DO j=JstrR,JendR
         DO i=Istr,IendR
-           ui(i,j,1) = 0._r8
-           uie(i,j,1) = 0._r8
-           ui(i,j,2) = ui(i,j,1)
-           uie(i,j,2) = uie(i,j,1)
+          ui(i,j,1) = 0._r8
+          uie(i,j,1) = 0._r8
+          ui(i,j,2) = ui(i,j,1)
+          uie(i,j,2) = uie(i,j,1)
         ENDDO
       ENDDO
       DO j=Jstr,JendR

@@ -120,13 +120,13 @@
             Isrcpt(is)=374+is
             Jsrcpt(is)=360 - is/5
             Lsrcpt(is,inert(1))=.TRUE.
-            Lsrcpt(is,inert(3))=.TRUE.
+!            Lsrcpt(is,inert(3))=.TRUE.
           END DO
           Nsrcpt=15+13
           DO is=1,13
             Isrcpt(is+15)=354+is
             Jsrcpt(is+15)=319 - is/1.4444
-            Lsrcpt(is+15,inert(4))=.TRUE.
+!            Lsrcpt(is+15,inert(4))=.TRUE.
           END DO
 !         Jsrcpt(6:Nsrcpt)=(/ &
 !    &  407, 407, 406, 405, 405, 405, 405, 406, 406, 407, 407, 408, 409, &

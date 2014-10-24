@@ -219,6 +219,15 @@
 !------------------------------------------------------------------------------
 !
 
+'wetdry_mask_psi'                                  ! Input/Output
+  'wet/dry mask on PSI-points'
+  'nondimensional'
+  'wetdry_mask_psi, scalar, series'
+  'ocean_time'
+  'idPwet'
+  'p2dvar'
+  1.0d0
+
 'wetdry_mask_rho'                                  ! Input/Output
   'wet/dry mask on RHO-points'
   'nondimensional'

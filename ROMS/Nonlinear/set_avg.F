@@ -1743,7 +1743,7 @@
 #  ifdef WET_DRY
                   AVERAGE(ng)%avgHuonT(i,j,k,it)=AVERAGE(ng)%avgHuonT   &
      &                                                      (i,j,k,it)* &
-     &                                           GRID(ng)%umask_full(i,j)
+     &                                          GRID(ng)%umask_full(i,j)
 #  endif
                 END DO
               END DO
@@ -1762,7 +1762,7 @@
 #  ifdef WET_DRY
                   AVERAGE(ng)%avgHvomT(i,j,k,it)=AVERAGE(ng)%avgHvomT   &
      &                                                      (i,j,k,it)* &
-     &                                           GRID(ng)%vmask_full(i,j)
+     &                                          GRID(ng)%vmask_full(i,j)
 #  endif
                 END DO
               END DO

@@ -34,8 +34,8 @@
       real(r8), dimension(200) :: Rval
 
       character (len=40) :: KeyWord
-      character (len=80) :: line
-      character (len=80), dimension(200) :: Cval
+      character (len=256) :: line
+      character (len=256), dimension(200) :: Cval
 
 !
 !-----------------------------------------------------------------------

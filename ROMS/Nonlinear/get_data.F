@@ -1536,22 +1536,6 @@
       END DO
 # endif
 
-# if defined BCLIMATOLOGY
-! FC & GH BIO TRACER
-      DO i=NAT+1,Nt(ng)
-        IF (i==iFeD_ .OR. i==iNO3_ .OR. i==iSiOH) THEN
-          CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),   &
-     &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-#  endif
-     &                    CLIMA(ng) % tclmG(:,:,:,:,i))
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-      END DO
-# endif
-
 # if !defined ANA_AKTCLIMA && defined AKTCLIMATOLOGY
       CALL get_3dfld (ng, iNLM, idAclm, ncCLMid(idAclm,ng),             &
      &                nCLMfiles(ng), CLM(1,ng), update(1),              &

@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #undef GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
@@ -108,9 +108,9 @@
 #undef SPONGE
 
 #ifdef SOLVE3D
-# define TS_DIF2
-# define MIX_GEO_TS
-# define DIFF_GRID
+# undef TS_DIF2
+# undef MIX_GEO_TS
+# undef DIFF_GRID
 #endif
 
 /* vertical mixing */
@@ -135,6 +135,10 @@
 # if defined GLS_MIXING || defined MY25_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
+#  define CRAIG_BANNER
+#  define CHARNOK
+#  undef GERBI_TKE_FLUX
+#  undef AKLIMIT
 # endif
 #endif
 
@@ -186,7 +190,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC

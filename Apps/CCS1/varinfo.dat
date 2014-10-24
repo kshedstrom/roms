@@ -192,6 +192,15 @@
 !------------------------------------------------------------------------------
 !
 
+'wetdry_mask_psi'                                  ! Input/Output
+  'wet/dry mask on PSI-points'
+  'nondimensional'
+  'wetdry_mask_psi, scalar, series'
+  'ocean_time'
+  'idPwet'
+  'p2dvar'
+  1.0d0
+
 'wetdry_mask_rho'                                  ! Input/Output
   'wet/dry mask on RHO-points'
   'nondimensional'
@@ -1769,6 +1778,15 @@
   'rain, scalar, series'
   'rain_time'
   'idrain'
+  'r2dvar'
+  1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
+
+'snow'                                             ! Input
+  'snow fall rate'
+  'kilogram meter-2 second-1'                      ! [kg m2/s]
+  'snow, scalar, series'
+  'snow_time'
+  'idsnow'
   'r2dvar'
   1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
 
@@ -6707,7 +6725,7 @@
 'Ice Algae_west'
   'Ice algae concentration western boundary condition'
   'meter'
-  'snow_thick_west, scalar, series'
+  'Ice_algae_thick_west, scalar, series'
   'bry_time'
   'idIcePhLbc(iwest)'
   'nulvar'
@@ -6716,7 +6734,7 @@
 'Ice Algae_east'
   'Ice algae concentration eastern boundary condition'
   'meter'
-  'snow_thick_east, scalar, series'
+  'Ice_algae_thick_east, scalar, series'
   'bry_time'
   'idIcePhLbc(ieast)'
   'nulvar'
@@ -6725,7 +6743,7 @@
 'Ice Algae_north'
   'Ice algae concentration northern boundary condition'
   'meter'
-  'snow_thick_north, scalar, series'
+  'Ice_algae_thick_north, scalar, series'
   'bry_time'
   'idIcePhLbc(inorth)'
   'nulvar'
@@ -6734,7 +6752,7 @@
 'Ice Algae_south'
   'Ice algae concentration southern boundary condition'
   'meter'
-  'snow_thick_south, scalar, series'
+  'Ice_algae_thick_south, scalar, series'
   'bry_time'
   'idIcePhLbc(isouth)'
   'nulvar'
