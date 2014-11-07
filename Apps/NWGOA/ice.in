@@ -97,7 +97,7 @@
 ! Ice strength exponential weighting coefficient on concentration
 ! (nondimensional)
 
-     astren == 20.d0
+     astren == 15.d0
 
 ! Maximum shear strength [N/m2]
 
@@ -168,36 +168,36 @@
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idUiceE) == F
-Hout(idViceN) == F
+Hout(idUice) == F
+Hout(idVice) == F
+Hout(idUiceE) == T
+Hout(idViceN) == T
 Hout(idAice) == T
 Hout(idHice) == T
-Hout(idTice) == T
+Hout(idTice) == F
 Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
+Hout(idTimid) == F
+Hout(idSfwat) == F
 Hout(idTauiw) == F
 Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-Hout(idWfr) == T
-Hout(idWai) == T
-Hout(idWao) == T
-Hout(idWio) == T
-Hout(idWro) == T
-Hout(idWdiv) == T
-Hout(idIomflx) == T
+Hout(idAgeice) == F
+Hout(idSig11) == F
+Hout(idSig12) == F
+Hout(idSig22) == F
+Hout(idWfr) == F
+Hout(idWai) == F
+Hout(idWao) == F
+Hout(idWio) == F
+Hout(idWro) == F
+Hout(idWdiv) == F
+Hout(idIomflx) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
+Aout(idUice) == F
+Aout(idVice) == F
+Aout(idUiceE) == T
+Aout(idViceN) == T
 Aout(idAice) == T
 Aout(idHice) == T
 Aout(idTice) == T
@@ -216,7 +216,7 @@ Aout(idWao) == T
 Aout(idWio) == T
 Aout(idWro) == T
 Aout(idWdiv) == T
-Aout(idIomflx) == T
+Aout(idIomflx) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES2 output file.

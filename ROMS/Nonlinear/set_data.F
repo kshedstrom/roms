@@ -933,6 +933,11 @@
 
 # if defined TRC_PSOURCE
 #  ifdef ANA_TRC_PSOURCE
+!
+!-----------------------------------------------------------------------
+!  Set point Sources/Sinks for passive tracers.
+!-----------------------------------------------------------------------
+!
       CALL ana_trc_psource (ng, tile, iNLM)
 #  endif
 # endif

@@ -57,9 +57,6 @@
       USE mod_param
       USE mod_parallel
       USE mod_scalars
-#ifndef ASSUMED_SHAPE
-      USE mod_trc_sources, ONLY : Msrcpt
-#endif
 #ifdef DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti, mp_bcastl
@@ -72,7 +69,8 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 
-      integer, intent(out) :: Msrcpt,Nsrcpt
+      integer, intent(in) :: Msrcpt
+      integer, intent(out) :: Nsrcpt
 !
 #ifdef ASSUMED_SHAPE
       logical, intent(out) :: Lsrcpt(:,:)
@@ -109,10 +107,9 @@
 !
 !  Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and
 !  J-grid locations (Isrc,Jsrc), and logical switch for type of tracer
-!  to apply (Lsrc). Currently, the direction can be along XI-direction
-!  (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The mass sources are
-!  located at U- or V-points so the grid locations should range from
-!  1 =< Isrc =< L  and  1 =< Jsrc =< M.
+!  to apply (Lsrc). No direction for these sources. The mass sources are 
+!  located at rho-points so the grid locations should range from
+!  1 =< Isrc =< Lm  and  1 =< Jsrc =< Mm.
 !
           Lsrcpt(:,:)=.FALSE.
           Nsrcpt=15

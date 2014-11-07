@@ -176,7 +176,7 @@
             END DO
           END IF
         END DO
-        IF (thread_count.eq.numthreads) THEN
+!        IF (thread_count.eq.numthreads) THEN
           thread_count=0
 #ifdef DISTRIBUTE
           op_handle(0:Nregion)='SUM'
@@ -269,7 +269,7 @@
   60      FORMAT (/,' All percentages are with respect to total time =',&
      &            5x,f12.3)
 #endif
-        END IF
+!        END IF
 !$OMP END CRITICAL (FINALIZE_WCLOCK)
       END IF
       RETURN

@@ -12,11 +12,10 @@
 **  Options for NWGOA simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #undef GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
-#undef OFFLINE_FLOATS
 #define PERFECT_RESTART
 #undef NO_LBC_ATT
 
@@ -30,7 +29,7 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#undef FLOATS
+#define FLOATS
 #define STATIONS
 #define WET_DRY
 
@@ -171,19 +170,12 @@
 # undef QCORRECTION
 #endif
 
-#ifdef SOLVE3D
-# undef TCLIMATOLOGY
-# undef TCLM_NUDGING
-#endif
-
 /* point sources (rivers, line sources) */
 
 /* Using Runoff now */
 #ifdef SOLVE3D
 # undef RUNOFF
 # define ONE_TRACER_SOURCE
-# undef UV_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 /* tides */

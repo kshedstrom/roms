@@ -1856,12 +1856,6 @@
       Coptions(is:is+11)=' SG_LOGINT,'
 # endif
 #endif
-#ifdef SRELAXATION
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' SRELAXATION,'
-#endif
 #ifdef SOLAR_SOURCE
       IF (Master) WRITE (stdout,20) 'SOLAR_SOURCE',                     &
      &   'Solar Radiation Source Term.'
@@ -1918,6 +1912,12 @@
      &   'Spherical grid configuration.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SPHERICAL,'
+#endif
+#ifdef SRELAXATION
+      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
+     &   'Surface salinity relaxation as surface flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' SRELAXATION,'
 #endif
 #if defined SSH_TIDES
       IF (Master) WRITE (stdout,20) 'SSH_TIDES',                        &

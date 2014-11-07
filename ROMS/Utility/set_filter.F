@@ -114,7 +114,6 @@
 !
 !  handle tracers other than T,S without filtering
 !
-!     IF (Master) print *, 'start of SET_FILTER'
       IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.1)).or.                          &
      &    (iic(ng).eq.ntstart(ng))) THEN
@@ -153,7 +152,6 @@
           END DO
         END DO
 # endif
-!    &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
         DO itrc=NAT+1,NT(ng)
           IF (Aout(idTvar(itrc),ng)) THEN
             DO k=1,N(ng)
@@ -161,6 +159,11 @@
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
      &                    OCEAN(ng)%t(i,j,k,Nout,itrc)
+#  ifdef WET_DRY
+                  AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
+     &                              AVERAGE(ng)%avgt(i,j,k,itrc)*       &
+     &                              GRID(ng)%rmask_full(i,j)
+#  endif
                 END DO
               END DO
             END DO
@@ -171,6 +174,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONsed(i,j)=OCEAN(ng)%PONsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)*    &
+     &                                   GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -178,6 +185,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=OCEAN(ng)%OPALsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)*  &
+     &                                    GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -185,6 +196,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgDENITsed(i,j)=OCEAN(ng)%DENITsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgDENITsed(i,j)=AVERAGE(ng)%avgDENITsed(i,j)*&
+     &                                     GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -192,6 +207,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONbur(i,j)=OCEAN(ng)%PON_burial(i,j)
+# ifdef WET_DRY
+              AVERAGE(ng)%avgPONbur(i,j)=AVERAGE(ng)%avgPONbur(i,j)*    &
+     &                                   GRID(ng)%rmask_full(i,j)
+# endif
             END DO
           END DO
         END IF
@@ -199,6 +218,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALbur(i,j)=OCEAN(ng)%OPAL_burial(i,j)
+# ifdef WET_DRY
+              AVERAGE(ng)%avgOPALbur(i,j)=AVERAGE(ng)%avgOPALbur(i,j)*  &
+     &                                    GRID(ng)%rmask_full(i,j)
+# endif
             END DO
           END DO
         END IF
@@ -268,6 +291,9 @@
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
      &                      AVERAGE(ng)%avgt(i,j,k,itrc)+               &
+#  ifdef WET_DRY
+     &                                       GRID(ng)%rmask_full(i,j)*  &
+#  endif
      &                      OCEAN(ng)%t(i,j,k,Nout,itrc)
                 END DO
               END DO
@@ -279,6 +305,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)+    &
+# ifdef WET_DRY
+     &                                   GRID(ng)%rmask_full(i,j)*      &
+# endif
      &                               OCEAN(ng)%PONsed(i,j)
             END DO
           END DO
@@ -287,6 +316,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%OPALsed(i,j)
             END DO
           END DO
@@ -295,6 +327,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgDENITsed(i,j)=                             &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &           AVERAGE(ng)%avgDENITsed(i,j)+OCEAN(ng)%DENITsed(i,j)
             END DO
           END DO
@@ -303,6 +338,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONbur(i,j)=AVERAGE(ng)%avgPONbur(i,j)+    &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%PON_burial(i,j)
             END DO
           END DO
@@ -311,6 +349,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALbur(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%OPAL_burial(i,j)
             END DO
           END DO
@@ -337,7 +378,6 @@
       IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
      &     ((iic(ng).ne.ntstart(ng)))) THEN
-!    &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
 # ifdef WET_DRY
         DO j=JstrR,JendR
           DO i=IstrR,IendR

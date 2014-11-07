@@ -73,26 +73,7 @@
 !  Set analytical initial conditions for passive inert tracers.
 !-----------------------------------------------------------------------
 !
-#if defined ARCTIC
-!     DO k=1,N(ng)
-!       DO j=JstrT,JendT
-!         DO i=IstrT,IendT
-!           t(i,j,k,1,inert(1)) = i
-!           t(i,j,k,1,inert(2)) = j
-!           t(i,j,k,1,inert(3)) = -1 * GRID(ng) % z_r(i,j,k)
-!           t(i,j,k,1,inert(4)) = GRID(ng) % h(i,j)
-!           if ( GRID(ng)%h(i,j) .le. 90.0_r8 ) then
-!             t(i,j,k,1,inert(5)) = 1.0_r8
-!           else
-!             t(i,j,k,1,inert(5)) = 0.0_r8
-!           endif
-!           DO ip=1,NPT
-!             itrc=inert(ip)
-!             t(i,j,k,2,itrc)=t(i,j,k,1,itrc)
-!           END DO
-!         END DO
-!       END DO
-!     END DO
+#if defined NWGOA
       DO ip=1,NPT
         DO k=1,N(ng)
           DO j=JstrT,JendT

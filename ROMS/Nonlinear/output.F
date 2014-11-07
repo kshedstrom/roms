@@ -111,7 +111,7 @@
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+           || defined CORAL || defined NWA || defined ARC_NATL || defined NWGOA
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -515,7 +515,7 @@
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
            || defined CORAL || defined NWA || defined ARC_NATL \
-           || defined ARCTIC
+           || defined ARCTIC || defined NWGOA
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))

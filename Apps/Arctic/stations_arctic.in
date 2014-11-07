@@ -134,7 +134,7 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  69
+    NSTATION ==  70
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -152,7 +152,6 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
     1    1    192.97   70.67000
     1    1    200.45   71.05000
     1    1    193.03   69.02000
-    1    1    200.45   71.05000
     1    1    195.54   71.34000
     1    1    192.81   71.69000
     1    1    190.58   65.95000
@@ -208,13 +207,15 @@ POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
     1    1    205.97   70.988
     1    1    212.2   70.5
     1    1    190.56692   65.90002
-    1    1    190.3835   65.93345
+    1    1    190.3835    65.93345
     1    1    190.71688   65.86667
     1    1    191.20162   65.80118
     1    1    191.43253   65.7812
     1    1    191.63377   65.75705
     1    1    191.73742   65.74605
     1    1    191.03458   66.32683
+    1    1    193.77      69.99
+    1    1    196.71      70.75
 
 !
 !  GLOSSARY:

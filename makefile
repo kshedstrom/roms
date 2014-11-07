@@ -37,7 +37,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #--------------------------------------------------------------------------
 
   sources    :=
-  c_sources  := 
+  c_sources  :=
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -64,7 +64,7 @@ ROMS_APPLICATION ?= UPWELLING
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= 
+MY_HEADER_DIR ?=
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -105,7 +105,7 @@ MY_CPP_FLAGS ?=
 #  In this, case the user need to select the desired compiler below and
 #  turn on both USE_MPI and USE_MPIF90 macros.
 
-  USE_MPIF90 ?= 
+  USE_MPIF90 ?=
 
 #  If applicable, activate 64-bit compilation:
 

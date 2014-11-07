@@ -1222,13 +1222,13 @@
 #  ifdef T_PASSIVE
 !       else condition added by Weifeng Zhang for passive tracer
 !       boundary condition
-        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
-          CALL pt3dbc_tile (ng, tile, itrc,                             &
-     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
-     &                      IminS, ImaxS, JminS, JmaxS,                 &
-     &                      nstp, 3,                                    &
-     &                      t)
-        END IF
+!        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
+!          CALL pt3dbc_tile (ng, tile, itrc,                             &
+!     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+!     &                      IminS, ImaxS, JminS, JmaxS,                 &
+!     &                      nstp, 3,                                    &
+!     &                      t)
+!        END IF
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  endif
       END DO

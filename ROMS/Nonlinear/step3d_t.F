@@ -334,7 +334,7 @@
       integer :: ILB, IUB, JLB, JUB
       integer :: dg, cr, rg
 # endif
-      integer :: i, ibt, ic, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, it, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
 # endif
@@ -1356,7 +1356,8 @@
 !
 !  Apply tracers point sources to the horizontal advection terms.
 !
-        DO itrc=1,NT(ng)
+        DO it=1,NPT
+          itrc=inert(it)
           DO is=1,Nsrcpt
             i=Isrcpt(is)
             j=Jsrcpt(is)
@@ -1385,31 +1386,18 @@
 !  equation.
 !------Added by W.G.Zhang
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      iactrc=inert(2)
-      iwctrc=inert(1)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
-     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
-!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-!            t(i,j,k,nnew,inert(3))=t(i,j,k,nnew,inert(3))+              &
-!     &                           dt(ng)*3.168808781402895e-08
-!            t(i,j,k,nnew,inert(4))=t(i,j,k,nnew,inert(4))+              &
-!     &                           dt(ng)*3.168808781402895e-08
+      DO it=1,NPT,2
+        iactrc=inert(it+1)
+        iwctrc=inert(it)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                &
+     &                             dt(ng)*t(i,j,k,nnew,iwctrc)
+            END DO
           END DO
         END DO
       END DO
-!      iactrc=inert(4)
-!      iwctrc=inert(2)
-!      DO k=1,N(ng)
-!        DO j=Jstr,Jend
-!          DO i=Istr,Iend
-!            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
-!     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
-!          END DO
-!        END DO
-!      END DO
 # endif
 # ifdef AGE_DISTRIBUTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
