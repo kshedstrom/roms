@@ -96,6 +96,8 @@ Sout(idAgeice) == T
 Sout(idSig11) == T
 Sout(idSig12) == T
 Sout(idSig22) == T
+Sout(idS0mk) == T
+Sout(idT0mk) == T
 Sout(idWfr) == T
 Sout(idWai) == T
 Sout(idWao) == T

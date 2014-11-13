@@ -130,6 +130,8 @@
           real(r8), pointer :: avgsig11(:,:)
           real(r8), pointer :: avgsig12(:,:)
           real(r8), pointer :: avgsig22(:,:)
+          real(r8), pointer :: avgT0mk(:,:)
+          real(r8), pointer :: avgS0mk(:,:)
           real(r8), pointer :: avgWfr(:,:)
           real(r8), pointer :: avgWai(:,:)
           real(r8), pointer :: avgWao(:,:)
@@ -338,6 +340,12 @@
       END IF
       IF (Aout2(idSig22,ng)) THEN
         allocate ( AVERAGE2(ng) % avgsig22(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idT0mk,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgT0mk(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idS0mk,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgS0mk(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout2(idWfr,ng)) THEN
         allocate ( AVERAGE2(ng) % avgWfr(LBi:UBi,LBj:UBj) )
@@ -754,6 +762,20 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE2(ng) % avgsig22(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idT0mk,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgT0mk(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idS0mk,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgS0mk(i,j) = IniVal
           END DO
         END DO
       END IF

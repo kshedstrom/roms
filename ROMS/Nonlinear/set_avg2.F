@@ -669,6 +669,28 @@
             END DO
           END DO
         END IF
+        IF (Aout2(idT0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE2(ng)%avgT0mk(i,j)=ICE(ng)%t0mk(i,j)
+#   ifdef WET_DRY
+              AVERAGE2(ng)%avgT0mk(i,j)=AVERAGE2(ng)%avgT0mk(i,j)* &
+     &                                 GRID(ng)%rmask_full(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+        IF (Aout2(idS0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE2(ng)%avgS0mk(i,j)=ICE(ng)%s0mk(i,j)
+#   ifdef WET_DRY
+              AVERAGE2(ng)%avgS0mk(i,j)=AVERAGE2(ng)%avgS0mk(i,j)* &
+     &                                 GRID(ng)%rmask_full(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
         IF (Aout2(idWfr,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1297,6 +1319,28 @@
             END DO
           END DO
         END IF
+        IF (Aout2(idT0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE2(ng)%avgT0mk(i,j)=AVERAGE2(ng)%avgT0mk(i,j)+      &
+# ifdef WET_DRY
+     &                                  GRID(ng)%rmask_full(i,j)*       &
+# endif
+     &                                  ICE(ng)%t0mk(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout2(idS0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE2(ng)%avgS0mk(i,j)=AVERAGE2(ng)%avgS0mk(i,j)+      &
+# ifdef WET_DRY
+     &                                  GRID(ng)%rmask_full(i,j)*       &
+# endif
+     &                                  ICE(ng)%s0mk(i,j)
+            END DO
+          END DO
+        END IF
         IF (Aout2(idWfr,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -1806,6 +1850,22 @@
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgsig22(i,j)=rfac(i,j)*                     &
      &                      AVERAGE2(ng)%avgsig22(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout2(idT0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE2(ng)%avgT0mk(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgT0mk(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout2(idS0mk,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE2(ng)%avgS0mk(i,j)=rfac(i,j)*                      &
+     &                                 AVERAGE2(ng)%avgS0mk(i,j)
             END DO
           END DO
         END IF

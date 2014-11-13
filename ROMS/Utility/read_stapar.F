@@ -286,6 +286,10 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,:))
             CASE ('Sout(idChuiw)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,:))
+            CASE ('Sout(idT0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idT0mk,:))
+            CASE ('Sout(idS0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idS0mk,:))
             CASE ('Sout(idWfr)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,:))
             CASE ('Sout(idWai)')
@@ -719,6 +723,12 @@
           IF (Sout(idChuiw,ng)) WRITE (out,80) Sout(idChuiw,ng),        &
      &       'Hout(idChuiw)',                                           &
      &       'Write out ice-water momentum transfer coefficient.'
+          IF (Sout(idT0mk,ng)) WRITE (out,80) Sout(idT0mk,ng),          &
+     &       'Sout(idT0mk)',                                            &
+     &       'Write out temperature of molecular sublayer under ice.'
+          IF (Sout(idS0mk,ng)) WRITE (out,80) Sout(idS0mk,ng),          &
+     &       'Sout(idS0mk)',                                            &
+     &       'Write out salinity of molecular sublayer under ice.'
           IF (Sout(idWfr,ng)) WRITE (out,80) Sout(idWfr,ng),            &
      &       'Sout(idWfr)',                                             &
      &       'Write out frazil ice growth rate.'

@@ -954,6 +954,44 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
+!  Define under-ice salinity
+!
+        IF (Aout(idS0mk,ng)) THEN
+          Vinfo( 1)=Vname(1,idS0mk)
+          Vinfo( 2)=Vname(2,idS0mk)
+          Vinfo( 3)=Vname(3,idS0mk)
+          Vinfo(14)=Vname(4,idS0mk)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idS0mk,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idS0mk),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define under-ice temperature
+!
+        IF (Aout(idT0mk,ng)) THEN
+          Vinfo( 1)=Vname(1,idT0mk)
+          Vinfo( 2)=Vname(2,idT0mk)
+          Vinfo( 3)=Vname(3,idT0mk)
+          Vinfo(14)=Vname(4,idT0mk)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idT0mk,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idT0mk),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define sig11 component of internal ice stress
 !
         IF (Aout(idSig11,ng)) THEN
@@ -1305,6 +1343,12 @@
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
               got_var(idChuiw)=.true.
               FIL(10,ng)%Vid(idChuiw)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
+              got_var(idT0mk)=.true.
+              FIL(10,ng)%Vid(idT0mk)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
+              got_var(idS0mk)=.true.
+              FIL(10,ng)%Vid(idS0mk)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWfr))) THEN
               got_var(idWfr)=.true.
               FIL(10,ng)%Vid(idWfr)=var_id(i)
@@ -1522,6 +1566,18 @@
         END IF
         IF (.not.got_var(idChuiw).and.Aout(idChuiw,ng)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idChuiw)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idT0mk).and.Aout(idT0mk,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idT0mk)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idS0mk).and.Aout(idS0mk,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idS0mk)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

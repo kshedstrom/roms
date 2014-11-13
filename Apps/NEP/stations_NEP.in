@@ -170,7 +170,13 @@ Sout(idAgeice) == T
 Sout(idSig11) == T
 Sout(idSig12) == T
 Sout(idSig22) == T
+Sout(idS0mk) == T
+Sout(idT0mk) == T
 Sout(idWfr) == T
+Sout(idWai) == T
+Sout(idWao) == T
+Sout(idWio) == T
+Sout(idWro) == T
 
 ! Number of stations to process in each nested grid.  These values are
 ! essential because the station arrays are dynamically allocated using

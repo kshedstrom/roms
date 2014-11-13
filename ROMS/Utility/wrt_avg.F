@@ -952,7 +952,7 @@
      &                       AVG(ng)%Rindex, gtype,                     &
      &                       1,NT(ng),1, NT(ng), scale,                 &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgbflx(:,:))
           IF (status.ne.nf90_noerr) THEN
@@ -984,7 +984,7 @@
      &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgst(:,:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1012,7 +1012,7 @@
      &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, scale,                 &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgst2(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1044,7 +1044,7 @@
      &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgpt3(:,:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1072,7 +1072,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgpt2(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1099,7 +1099,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgbt(:,:,1,itrc))
 ! switch if have more than one benthic level
@@ -1109,7 +1109,7 @@
 !     &                       AVG(ng)%Rindex, gtype,                    &
 !     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,      &
 !#  ifdef MASKING
-!     &                       GRID(ng) % rmask_avg,                      &
+!     &                       GRID(ng) % rmask,                          &
 !#  endif
 !     &                       AVERAGE(ng) % avgbt(LBi,LBj,1,itrc))
 
@@ -1142,7 +1142,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgit(:,:,itrc))
 ! switch if have more than one ice level
@@ -1153,7 +1153,7 @@
 !     &                       AVG(ng)%Rindex, gtype,                     &
 !     &                       LBi, UBi, LBj, UBj, 1, NIL(ng), scale,     &
 !#  ifdef MASKING
-!     &                       GRID(ng) % rmask_avg,                      &
+!     &                       GRID(ng) % rmask,                          &
 !#  endif
 !     &                       AVERAGE(ng) % avgit(LBi,LBj,itrc))
 
@@ -1178,7 +1178,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgIPhL)
         IF (status.ne.nf90_noerr) THEN
@@ -1200,7 +1200,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgINO3)
         IF (status.ne.nf90_noerr) THEN
@@ -1221,7 +1221,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgINH4)
         IF (status.ne.nf90_noerr) THEN
@@ -1242,7 +1242,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgILog)
         IF (status.ne.nf90_noerr) THEN
@@ -1271,7 +1271,7 @@
      &                       AVG(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_avg,                      &
+     &                       GRID(ng) % rmask,                          &
 #  endif
      &                       AVERAGE(ng) % avgst(:,:,1,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1392,7 +1392,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgDENITsed)
         IF (status.ne.nf90_noerr) THEN
@@ -1415,7 +1415,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgPONbur)
         IF (status.ne.nf90_noerr) THEN
@@ -1438,7 +1438,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgOPALbur)
         IF (status.ne.nf90_noerr) THEN
@@ -1463,7 +1463,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgNPP)
         IF (status.ne.nf90_noerr) THEN
@@ -1487,7 +1487,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avghsbl)
         IF (status.ne.nf90_noerr) THEN
@@ -1511,7 +1511,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avghbbl)
         IF (status.ne.nf90_noerr) THEN
@@ -1535,7 +1535,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgsssflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1645,7 +1645,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgaice)
         IF (status.ne.nf90_noerr) THEN
@@ -1666,7 +1666,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avghice)
         IF (status.ne.nf90_noerr) THEN
@@ -1687,7 +1687,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgtice)
         IF (status.ne.nf90_noerr) THEN
@@ -1708,7 +1708,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgtimid)
         IF (status.ne.nf90_noerr) THEN
@@ -1729,7 +1729,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avghsno)
         IF (status.ne.nf90_noerr) THEN
@@ -1750,7 +1750,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgsfwat)
         IF (status.ne.nf90_noerr) THEN
@@ -1772,7 +1772,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgageice)
         IF (status.ne.nf90_noerr) THEN
@@ -1794,7 +1794,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgiomflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1815,7 +1815,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgsig11)
         IF (status.ne.nf90_noerr) THEN
@@ -1836,7 +1836,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgsig12)
         IF (status.ne.nf90_noerr) THEN
@@ -1857,12 +1857,54 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgsig22)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSig22)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out temperature of molecular sublayer under ice.
+!
+      IF (Aout(idT0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idT0mk), &
+     &                   AVG(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
+     &                   AVERAGE(ng) % avgT0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out salinity of molecular sublayer under ice.
+!
+      IF (Aout(idS0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idS0mk), &
+     &                   AVG(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
+     &                   AVERAGE(ng) % avgS0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), AVG(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -1878,7 +1920,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWfr)
         IF (status.ne.nf90_noerr) THEN
@@ -1899,7 +1941,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWai)
         IF (status.ne.nf90_noerr) THEN
@@ -1920,7 +1962,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWao)
         IF (status.ne.nf90_noerr) THEN
@@ -1941,7 +1983,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWio)
         IF (status.ne.nf90_noerr) THEN
@@ -1962,7 +2004,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWro)
         IF (status.ne.nf90_noerr) THEN
@@ -1983,7 +2025,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgWdiv)
         IF (status.ne.nf90_noerr) THEN
@@ -2004,7 +2046,7 @@
      &                   AVG(ng)%Rindex, gtype,                         &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgutau_iw)
         IF (status.ne.nf90_noerr) THEN
@@ -2025,7 +2067,7 @@
      &                   AVG(ng)%Rindex, gtype,                           &
      &                   LBi, UBi, LBj, UBj, scale,                     &
 #   ifdef MASKING
-     &                   GRID(ng) % rmask_avg,                          &
+     &                   GRID(ng) % rmask,                              &
 #   endif
      &                   AVERAGE(ng) % avgchu_iw)
         IF (status.ne.nf90_noerr) THEN
@@ -2048,7 +2090,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % pmask_avg,                        &
+     &                     GRID(ng) % pmask,                            &
 # endif
      &                     AVERAGE(ng) % avgpvor2d)
         IF (status.ne.nf90_noerr) THEN
@@ -2070,7 +2112,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % pmask_avg,                        &
+     &                     GRID(ng) % pmask,                            &
 # endif
      &                     AVERAGE(ng) % avgrvor2d)
         IF (status.ne.nf90_noerr) THEN
@@ -2506,7 +2548,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_avg,                        &
+     &                     GRID(ng) % rmask,                            &
 #   endif
      &                     AVERAGE(ng) % avgRunoff)
         IF (status.ne.nf90_noerr) THEN

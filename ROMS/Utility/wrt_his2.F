@@ -964,6 +964,50 @@
         END IF
       END IF
 !
+! Write out temperature of molecular sublayer under ice.
+!
+      IF (Hout2(idT0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
+     &                     HIS2(ng)%Vid(idT0mk),                        &
+     &                     HIS2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#   endif
+     &                     ICE(ng) % T0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), HIS2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out salinity of molecular sublayer under ice.
+!
+      IF (Hout2(idS0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
+     &                     HIS2(ng)%Vid(idS0mk),                        &
+     &                     HIS2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#   endif
+     &                     ICE(ng) % S0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), HIS2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
 ! Write out ice-water friction velocity
 !
       IF (Hout2(idTauiw,ng)) THEN

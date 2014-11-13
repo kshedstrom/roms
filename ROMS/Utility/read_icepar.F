@@ -231,6 +231,20 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idSig22,:))
+            CASE ('Hout(idT0mk)')
+              IF (idT0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idT0mk,:))
+            CASE ('Hout(idS0mk)')
+              IF (idS0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idS0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idS0mk,:))
             CASE ('Hout(idWfr)')
               IF (idWfr.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idWfr'
@@ -393,6 +407,20 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idSig22,:))
+            CASE ('Aout(idT0mk)')
+              IF (idT0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idT0mk,:))
+            CASE ('Aout(idS0mk)')
+              IF (idS0mk.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idS0mk'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idS0mk,:))
             CASE ('Aout(idWfr)')
               IF (idWfr.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idWfr'
@@ -471,6 +499,10 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig12,:))
             CASE ('Aout2(idSig22)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idSig22,:))
+            CASE ('Aout2(idT0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idT0mk,:))
+            CASE ('Aout2(idS0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idS0mk,:))
 #endif
 #ifdef HISTORY2
             CASE ('Hout2(idUice)')
@@ -507,6 +539,10 @@
               Npts=load_l(Nval, Cval, Ngrids, Hout2(idSig12,:))
             CASE ('Hout2(idSig22)')
               Npts=load_l(Nval, Cval, Ngrids, Hout2(idSig22,:))
+            CASE ('Hout2(idT0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Hout2(idT0mk,:))
+            CASE ('Hout2(idS0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Hout2(idS0mk,:))
 #endif
           END SELECT
         END IF
@@ -626,6 +662,12 @@
           IF (Hout(idChuiw,ng)) WRITE (out,70) Hout(idChuiw,ng),        &
      &       'Hout(idChuiw)',                                           &
      &       'Write out ice-water momentum transfer coefficient.'
+          IF (Hout(idT0mk,ng)) WRITE (out,70) Hout(idT0mk,ng),          &
+     &       'Hout(idT0mk)',                                            &
+     &       'Write out temperature of molecular sublayer under ice.'
+          IF (Hout(idS0mk,ng)) WRITE (out,70) Hout(idS0mk,ng),          &
+     &       'Hout(idS0mk)',                                            &
+     &       'Write out salinity of molecular sublayer under ice.'
           IF (Hout(idWfr,ng)) WRITE (out,70) Hout(idWfr,ng),            &
      &       'Hout(idWfr)',                                             &
      &       'Write out frazil ice growth rate.'
@@ -696,6 +738,12 @@
           IF (Aout(idChuiw,ng)) WRITE (out,70) Aout(idChuiw,ng),        &
      &       'Aout(idChuiw)',                                           &
      &       'Write out time-averaged ice-water transfer coefficient.'
+          IF (Aout(idT0mk,ng)) WRITE (out,70) Aout(idT0mk,ng),          &
+     &       'Aout(idT0mk)',                                            &
+     &       'Write out time-averaged under ice temperature.'
+          IF (Aout(idS0mk,ng)) WRITE (out,70) Aout(idS0mk,ng),          &
+     &       'Aout(idS0mk)',                                            &
+     &       'Write out time-averaged under ice salinity.'
           IF (Aout(idWfr,ng)) WRITE (out,70) Aout(idWfr,ng),            &
      &       'Aout(idWfr)',                                             &
      &       'Write out time-averaged frazil ice growth rate.'
@@ -767,6 +815,12 @@
           IF (Aout2(idChuiw,ng)) WRITE (out,70) Aout2(idChuiw,ng),      &
      &       'Aout2(idChuiw)',                                          &
      &       'Write out ice-water momentum transfer coefficient.'
+          IF (Aout2(idT0mk,ng)) WRITE (out,70) Aout2(idT0mk,ng),        &
+     &       'Aout2(idT0mk)',                                           &
+     &       'Write out temperature of molecular sublayer under ice.'
+          IF (Aout2(idS0mk,ng)) WRITE (out,70) Aout2(idS0mk,ng),        &
+     &       'Aout2(idS0mk)',                                           &
+     &       'Write out salinity of molecular sublayer under ice.'
 #endif
 #ifdef HISTORY2
           IF (Hout2(idUice,ng)) WRITE (out,70) Hout2(idUice,ng),        &
@@ -820,6 +874,12 @@
           IF (Hout2(idChuiw,ng)) WRITE (out,70) Hout2(idChuiw,ng),      &
      &       'Hout2(idChuiw)',                                          &
      &       'Write out ice-water momentum transfer coefficient.'
+          IF (Hout2(idT0mk,ng)) WRITE (out,70) Hout2(idT0mk,ng),        &
+     &       'Hout2(idT0mk)',                                           &
+     &       'Write out temperature of molecular sublayer under ice.'
+          IF (Hout2(idS0mk,ng)) WRITE (out,70) Hout2(idS0mk,ng),        &
+     &       'Hout2(idS0mk)',                                           &
+     &       'Write out salinity of molecular sublayer under ice.'
 #endif
         END DO
       END IF

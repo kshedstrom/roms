@@ -102,7 +102,13 @@ Sout(idAgeice) == T
 Sout(idSig11) == T
 Sout(idSig12) == T
 Sout(idSig22) == T
+Sout(idS0mk) == T
+Sout(idT0mk) == T
 Sout(idWfr) == T
+Sout(idWai) == T
+Sout(idWao) == T
+Sout(idWio) == T
+Sout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into STATIONS output file.  Currently, MBOTP properties
