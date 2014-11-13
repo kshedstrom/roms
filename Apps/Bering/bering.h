@@ -9,52 +9,71 @@
 **
 *******************************************************************************
 **
-**  Options for Northeast Pacific (NEP5) simulation
+**  Options for BERING simulation
 */
 
-#define NO_HIS
+#undef ROMS_MODEL
+#undef WRF_MODEL
+#undef MCT_LIB
+#undef ATM2OCN_FLUXES  /* not sure about this with ice */
+
+#undef NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
-#undef OFFLINE_FLOATS
+#define PERFECT_RESTART
 
 /* general */
 
 #define CURVGRID
 #define MASKING
-#undef SOLVE3D
+#define SOLVE3D
 #ifdef SOLVE3D
-# define NONLIN_EOS
 # define SALINITY
+# define NONLIN_EOS
 # define SPLINES
 #endif
 #undef FLOATS
-#undef DIAPAUSE
-#undef STATIONS
-#undef WET_DRY
+#define STATIONS
+#define WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX 
 # define ANA_PASSIVE
+# define TRC_PSOURCE
+# define ANA_TRC_PSOURCE
+# define AGE_PASSIVE
+# define PTOBC
 #endif
 
 /* ice */
 
 #ifdef SOLVE3D
+# undef CICE
+# ifdef CICE
+#  define SNOWFALL
+#  define SNOW_FROM_RAIN
+# endif
+
 # define  ICE_MODEL
 # ifdef ICE_MODEL
+#  define ANA_ICE
+#  undef  OUTFLOW_MASK
+#  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
-#  undef   ICE_ALB_EC92
 #  define  ICE_MOMENTUM
 #  define  ICE_MOM_BULK
 #  define  ICE_EVP
+#  define  ICE_STRENGTH_QUAD
 #  define  ICE_ADVECT
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  define  ANA_AIOBC
-#  define  ANA_HIOBC
-#  define  ANA_HSNOBC
+#  undef  ANA_AIOBC
+#  undef  ANA_HIOBC
+#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -62,7 +81,9 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#undef RST_SINGLE
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -79,34 +100,32 @@
 
 #define UV_ADV
 #define UV_COR
-#define UV_SADVECTION
-#define UV_VIS2
+#undef UV_SADVECTION
 
 #ifdef SOLVE3D
-# define UV_SMAGORINSKY
-# define VISC_3DCOEF
-# define MIX_S_UV
-# define VISC_GRID
-# define SPONGE
 # define TS_U3HADVECTION
 # define TS_C4VADVECTION
 # undef TS_MPDATA
 #endif
 
+#define UV_VIS2
+#undef VISC_3DCOEF
+#define MIX_S_UV
+#define VISC_GRID
+#undef SPONGE
 
 #ifdef SOLVE3D
-# define TS_DIF2
-# define MIX_GEO_TS
-# define DIFF_GRID
+# undef TS_DIF2
+# undef MIX_GEO_TS
+# undef DIFF_GRID
 #endif
-
 
 /* vertical mixing */
 
 #ifdef SOLVE3D
-# define SOLAR_SOURCE
+# define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -117,28 +136,34 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
-# undef MY25_MIXING
+# define GLS_MIXING
 
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined GLS_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
+#  define AKLIMIT
 # endif
 #endif
 
 /* surface forcing */
 
 #ifdef SOLVE3D
-# define CORE_FORCING
-# define BULK_FLUXES
-# define CCSM_FLUXES
+# ifndef ATM2OCN_FLUXES
+#  define CORE_FORCING
+#  define BULK_FLUXES
+#  define CCSM_FLUXES
+# endif
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  define DIURNAL_SRFLUX
+#  undef DIURNAL_SRFLUX
+#  define SOLAR_SOURCE
 #  define EMINUSP
 #  undef ANA_SRFLUX
 #  undef ALBEDO
-#  define ALBEDO_CURVE
+#  define ALBEDO_CURVE  /* for water */
+#  define ICE_ALB_EC92  /* for ice */
+#  undef ALBEDO_CSIM   /* for ice */
+#  undef ALBEDO_FILE  /* for both */
 #  undef LONGWAVE
 # endif
 #endif
@@ -146,46 +171,47 @@
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SRELAXATION
+# define SCORRECTION
+# define NO_SCORRECTION_ICE
 # undef QCORRECTION
 #endif
 
 #ifdef SOLVE3D
-# undef TCLIMATOLOGY
-# undef TCLM_NUDGING
+# define ANA_NUDGCOEF
 #endif
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff instead now */
-#define ANA_PSOURCE
+/* Using Runoff now */
 #ifdef SOLVE3D
 # define RUNOFF
 #endif
 
 /* tides */
 
-#undef LTIDES
+#define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# ifdef AVERAGES
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
-# ifdef SOLVE3D
-#  define ADD_FSOBC
-#  define ADD_M2OBC
-# endif
+# define ADD_FSOBC
+# define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# undef POT_TIDES
+# define POT_TIDES
 
-# define UV_LDRAG
+# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
-# undef UV_QDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif
+
+/* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
 
@@ -196,34 +222,17 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
-# define ANA_INITIAL
-# define ANA_FSOBC
-# define ANA_M2OBC
 #endif
 
 /*
 **  Biological model options.
 */
 #undef NEMURO
-#undef BIO_GOANPZ        /* Sarah Hinckley's 11 box model */
-#undef BEST_NPZ         /* Georgina Gibsons BEST NPZ model  */
-
-#if defined BEST_NPZ || defined BIO_GOANPZ || defined PASSIVE_TRACERS
-# undef  BIOFLUX           /* sum Nitrogen fluxes between boxes */
-# define ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-# undef FLOAT_VWALK
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# undef TCLM_NUDGING      /* Nudging of tracer climatology for iron */
-#endif
 
 #if defined NEMURO
 # define BIO_SEDIMENT
+# define NEMURO_SED1
 # undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define IRON_LIMIT        /* Add iron as passive 11th tracer */
 # define IRON_RELAX
 # undef  IRON_RSIN
@@ -232,36 +241,3 @@
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
 #endif
-
-#ifdef BEST_NPZ
-# define        NEWSHADE    /* Use Craig''s formulation for self shading in PAR calc+                       Else use Sarah''s self-shading from original NPZ code */
-# undef        KODIAK_IRAD /* Generate irradiance with curve matching Kodiak data
-                       Else use shortwave radiation (srflx) as irradiance   */
-# define JELLY
-# define STATIONARY
-# define STATIONARY2
-# define PROD3
-# define PROD2
-# define BENTHIC /*FENNEL or BENTHIC or TRAP*/
-# define ICE_BIO
-# undef CLIM_ICE_1D
-
-# undef SINKVAR      /* for variable sinking rate*/
-# undef DENMAN
-
-# undef OFFLINE_BIOLOGY   /* define if offline simulation of bio tracers */
-#   if defined OFFLINE_BIOLOGY
-#    define AKSCLIMATOLOGY   /* Processing of AKS climatology */
-#    undef ANA_AKSCLIMA      /* Processing of AKS climatology */
-#   endif
-#  undef DIAPAUSE          /* Enable Neocalanus seasonal vertical migration */
-#  define  IRON_LIMIT        /* Add iron as passive 13th tracer */
-#    if defined IRON_LIMIT || defined CLIM_ICE_1D
-#      if !defined OFFLINE_BIOLOGY
-#       define TCLM_NUDGING    /* Nudging of tracer climatology for iron */
-#       undef  ANA_TCLIMA     /* analytical tracers climatology for iron */
-#       define TCLIMATOLOGY   /* Processing of tracer climatology for iron */
-#      endif
-#    endif
-#endif
-

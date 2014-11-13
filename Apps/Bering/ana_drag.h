@@ -141,7 +141,7 @@
 #endif
 !-----------------------------------------------------------------------
 !
-#if defined NEP5
+#if defined ARCTIC || defined BERING
 # if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.
@@ -157,12 +157,13 @@
 # elif defined UV_QDRAG
       DO j=JstrT,JendT          ! based on Chezy coefficient (g/c^2)
         DO i=IstrT,IendT
-          cff=1.8_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
+!  Was 1.8 then 1.6
+          cff=1.2_r8*GRID(ng)%h(i,j)*LOG(GRID(ng)%h(i,j))
           rdrag2(i,j)=g/(cff*cff)
         END DO
       END DO
 # endif
-#elif defined NEP6 || defined BERING
+#elif defined NEP6
 # if defined UV_LDRAG
       cff =  3.0d-04
       h0 = 1000.
@@ -205,26 +206,22 @@
 # endif
 #endif
 
-!
-!  Exchange boundary data.
-!
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
-     &                        LBi, UBi, LBj, UBj,                       &
+     &                          LBi, UBi, LBj, UBj,                     &
 #if defined UV_LOGDRAG
-     &                        ZoBot)
+     &                          ZoBot)
 #elif defined UV_LDRAG
-     &                        rdrag)
+     &                          rdrag)
 #elif defined UV_QDRAG
-     &                        rdrag2)
+     &                          rdrag2)
 #endif
       END IF
 
 #ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
 # if defined UV_LOGDRAG
      &                    ZoBot)
 # elif defined UV_LDRAG
