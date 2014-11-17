@@ -780,6 +780,44 @@
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define bottom u-momentum stress.
+!
+        IF (Aout(idUbms,ng)) THEN
+          Vinfo( 1)=Vname(1,idUbms)
+          Vinfo( 2)=Vname(2,idUbms)
+          Vinfo( 3)=Vname(3,idUbms)
+          Vinfo(14)=Vname(4,idUbms)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_u'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idUbms,ng),r8)
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idUbms),                           &
+     &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define bottom v-momentum stress.
+!
+        IF (Aout(idVbms,ng)) THEN
+          Vinfo( 1)=Vname(1,idVbms)
+          Vinfo( 2)=Vname(2,idVbms)
+          Vinfo( 3)=Vname(3,idVbms)
+          Vinfo(14)=Vname(4,idVbms)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_v'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idVbms,ng),r8)
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idVbms),                           &
+     &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
 # ifdef ICE_MODEL
 !
 !  Define 2D ice momentum in the XI-direction.
@@ -880,19 +918,38 @@
 !
 !  Define surface melt ponds
 !
-        IF (Aout(idSfwat,ng)) THEN
-          Vinfo( 1)=Vname(1,idSfwat)
-          Vinfo( 2)=Vname(2,idSfwat)
-          Vinfo( 3)=Vname(3,idSfwat)
-          Vinfo(14)=Vname(4,idSfwat)
+        IF (Aout(idApond,ng)) THEN
+          Vinfo( 1)=Vname(1,idApond)
+          Vinfo( 2)=Vname(2,idApond)
+          Vinfo( 3)=Vname(3,idApond)
+          Vinfo(14)=Vname(4,idApond)
           Vinfo(16)='filter level'
 #  if defined WRITE_WATER && defined MASKING
           Vinfo(20)='mask_rho'
 #  endif
           Vinfo(22)='coordinates'
-          Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
+          Aval(5)=REAL(Iinfo(1,idApond,ng),r8)
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
-     &                 FIL(10,ng)%Vid(idSfwat),                         &
+     &                 FIL(10,ng)%Vid(idApond),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define surface melt ponds
+!
+        IF (Aout(idHpond,ng)) THEN
+          Vinfo( 1)=Vname(1,idHpond)
+          Vinfo( 2)=Vname(2,idHpond)
+          Vinfo( 3)=Vname(3,idHpond)
+          Vinfo(14)=Vname(4,idHpond)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idHpond,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idHpond),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1316,9 +1373,12 @@
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
               got_var(idHsno)=.true.
               FIL(10,ng)%Vid(idHsno)=var_id(i)
-            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
-              got_var(idSfwat)=.true.
-              FIL(10,ng)%Vid(idSfwat)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idApond))) THEN
+              got_var(idApond)=.true.
+              FIL(10,ng)%Vid(idApond)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHpond))) THEN
+              got_var(idHpond)=.true.
+              FIL(10,ng)%Vid(idHpond)=var_id(i)
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
               got_var(idAgeice)=.true.
               FIL(10,ng)%Vid(idAgeice)=var_id(i)
@@ -1413,6 +1473,12 @@
             ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
               got_var(idVsms)=.TRUE.
               FIL(1,ng)%Vid(idVsms)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbms))) THEN
+              got_var(idUbms)=.TRUE.
+              FIL(1,ng)%Vid(idUbms)=var_id(i)
+            ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVbms))) THEN
+              got_var(idVbms)=.TRUE.
+              FIL(1,ng)%Vid(idVbms)=var_id(i)
             END IF
 # ifdef SOLVE3D
             DO itrc=1,NAT
@@ -1516,8 +1582,14 @@
           exit_flag=3
           RETURN
         END IF
-        IF (.not.got_var(idSfwat).and.Aout(idSfwat,ng)) THEN
-          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSfwat)),         &
+        IF (.not.got_var(idApond).and.Aout(idApond,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idApond)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idHpond).and.Aout(idHpond,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idHpond)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -1694,6 +1766,18 @@
         END IF
         IF (.not.got_var(idVsms).and.Aout(idVsms,ng)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVsms)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idUbms).and.Aout(idUbms,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idUbms)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idVbms).and.Aout(idVbms,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVbms)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
