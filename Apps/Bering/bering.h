@@ -58,7 +58,7 @@
 
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define ANA_ICE
+#  undef ANA_ICE   /* just for restart!! */
 #  undef  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
