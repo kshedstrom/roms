@@ -176,7 +176,6 @@
 **   or equal than 24 hours) can be modulated by the local diurnal cycle     **
 **   which is a function longitude, latitude and day-of-year.                **
 **                                                                           **
-** ALBEDO_CCSM3        use if albedo function from CCSM3 for ice             **
 ** ALBEDO_CLOUD        use if albedo equation for shortwave radiation        **
 ** ALBEDO_CSIM         use if albedo function from CSIM for ice              **
 ** ALBEDO_CURVE        use if albedo function of lat from Large and Yeager   **

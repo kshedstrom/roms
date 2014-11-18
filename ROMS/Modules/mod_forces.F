@@ -324,6 +324,9 @@
 #  endif
 #  ifdef ALBEDO
           real(r8), pointer :: albedo(:,:)
+#   ifdef ICE_MODEL
+          real(r8), pointer :: albedo_ice(:,:)
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
           real(r8), pointer :: albedoG(:,:,:)
@@ -730,6 +733,9 @@
 #  endif
 #  ifdef ALBEDO
       allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
+#   ifdef ICE_MODEL
+      allocate ( FORCES(ng) % albedo_ice(LBi:UBi,LBj:UBj) )
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
       allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
@@ -1224,6 +1230,9 @@
 #  endif
 #  ifdef ALBEDO
             FORCES(ng) % albedo(i,j) = IniVal
+#   ifdef ICE_MODEL
+            FORCES(ng) % albedo_ice(i,j) = IniVal
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
             FORCES(ng) % albedoG(i,j,1) = IniVal

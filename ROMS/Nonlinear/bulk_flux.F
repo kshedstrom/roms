@@ -146,6 +146,9 @@
      &                     FORCES(ng) % stflx,                          &
 # if defined ALBEDO && defined SHORTWAVE
      &                     FORCES(ng) % albedo,                         &
+#  ifdef ICE_MODEL
+     &                     FORCES(ng) % albedo_ice,                     &
+#  endif
 # endif
 # if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
      &                     FORCES(ng) % cawdir,                         &
@@ -232,6 +235,9 @@
      &                           srflx, stflx,                          &
 # if defined ALBEDO && defined SHORTWAVE
      &                           albedo,                                &
+#  ifdef ICE_MODEL
+     &                           albedo_ice,                            &
+#  endif
 # endif
 # if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
@@ -338,6 +344,9 @@
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
 # if defined ALBEDO && defined SHORTWAVE
       real(r8), intent(in) :: albedo(LBi:,LBj:)
+#  ifdef ICE_MODEL
+      real(r8), intent(in) :: albedo_ice(LBi:,LBj:)
+#  endif
 # endif
 # if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
@@ -429,6 +438,9 @@
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
 # if defined ALBEDO && defined SHORTWAVE
       real(r8), intent(in) :: albedo(LBi:UBi,LBj:UBj)
+#  ifdef ICE_MODEL
+      real(r8), intent(in) :: albedo_ice(LBi:UBi,LBj:UBj)
+#  endif
 # endif
 # if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
@@ -1097,7 +1109,7 @@
 !#   ifdef ROSS
 !          SRad(i,j) = SRad(i,j) * 1.075269_r8
 !#   endif
-          qswi = (1._r8-albedo(i,j))*qswi_n(i,j)
+          qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
@@ -1105,7 +1117,7 @@
 ! Net long-wave radiation from ice
           cff = Q(i)/(1.0_r8+Q(i))
           vap_p_i = slp*cff/(0.62197 + cff)
-# ifdef LONGWAVE
+#   ifdef LONGWAVE
           qlwi = emmiss*StefBo*(TairK(i)**4)*                           &
      &         (0.39_r8-0.005_r8*SQRT(vap_p_i))*                        &
      &                (1.0_r8-0.65_r8*cloud(i,j)) +                     &
@@ -1117,7 +1129,7 @@
      &         emmiss*StefBo*(TairK(i)**4)*(                            &
      &    (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1.0_r8-0.65_r8*cloud(i,j))  &
      &    - 4.0_r8)
-# else
+#   else
            qlwi = lrflx(i,j)*Hscale
            RHS_Ice(i,j) = RHS_Ice(i,j) -                      &
      &           lrflx(i,j)*Hscale -                                    &
@@ -1125,32 +1137,13 @@
 
            Coef_Ice(i,j) = Coef_Ice(i,j) +                              &
      &            4._r8*StefBo*emmiss*TairK(i)**3
-# endif
-!      if(i.eq.134.and.j.eq.54) then
-!        write(*,*) 'vap_p_i,cloud(i,j),fac1, fac2 :'
-!        write(*,*) vap_p_i,cloud(i,j), emmiss*StefBo*(TairK(i)**4)*            &
-!     & (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1._r8-0.65_r8*cloud(i,j)),    &
-!     & 4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-TairK(i))
-!      endif
+#   endif
 ! Correct for Kelvin to Celsius in RHS
            RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
      &            Coef_Ice(i,j)*273.16_r8
 
-
 ! Net heat flux from ice to atmosphere
            Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
-
-!      if(i.eq.134.and.j.eq.54) then
-!         write(*,*) 'TairK, sfc_temp = ',TairK(i),sfc_temp
-!         write(*,*) 'i,j,qsh_i,qlh_i,qswi,qlwi,qai_n(i,j) :'
-!         write(*,*) i,j,qsh_i,qlh_i,qswi,qlwi,qai_n(i,j)
-!         write(*,*) 'rhoAir(i),blk_Cpa,Ch,delW(i),TairK(i),blk_ZT(ng),sfc_temp :'
-!         write(*,*) rhoAir(i),blk_Cpa,Ch,delW(i),TairK(i),blk_ZT(ng),sfc_temp
-!      endif
-!      if(i.eq.49.and.j.eq.149) then
-!         write(*,*) 'i,j,qsh_i,qlh_i,qswi,qlwi,qai_n(i,j) :'
-!         write(*,*) i,j,qsh_i,qlh_i,qswi,qlwi,qai_n(i,j)
-!      endif
 #  endif
 # endif
         END DO

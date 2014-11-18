@@ -171,12 +171,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CLOUD,'
 #endif
-#if defined ALBEDO_CCSM3
-      IF (Master) WRITE (stdout,20) 'ALBEDO_CCSM3',                      &
-     &   'Albedo computed according to CCSM3.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ALBEDO_CCSM3,'
-#endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
      &   'Albedo computed according to CSIM3.'

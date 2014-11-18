@@ -116,6 +116,9 @@ contains
      &                     FORCES(ng) % stflx,                          &
 # if defined ALBEDO && defined SHORTWAVE
      &                     FORCES(ng) % albedo,                         &
+#  ifdef ICE_MODEL
+     &                     FORCES(ng) % albedo_ice,                     &
+#  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CLOUD
      &                     FORCES(ng) % cawdir,                         &
@@ -203,6 +206,9 @@ contains
      &                           srflx, stflx,                          &
 # if defined ALBEDO && defined SHORTWAVE
      &                           albedo,                                &
+#  ifdef ICE_MODEL
+     &                           albedo_ice,                            &
+#  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CLOUD
      &                           cawdir,                                &
@@ -245,9 +251,6 @@ contains
 !
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
-# endif
-# if defined ALBEDO && defined SHORTWAVE
-      USE albedo_mod
 # endif
 
       USE exchange_2d_mod
@@ -317,6 +320,9 @@ contains
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
 # if defined ALBEDO && defined SHORTWAVE
       real(r8), intent(inout) :: albedo(LBi:,LBj:)
+#  ifdef ICE_MODEL
+      real(r8), intent(inout) :: albedo_ice(LBi:,LBj:)
+#  endif
 # endif
 #  if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
@@ -407,6 +413,9 @@ contains
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
 # if defined ALBEDO && defined SHORTWAVE
       real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
+#  ifdef ICE_MODEL
+      real(r8), intent(inout) :: albedo_ice(LBi:UBi,LBj:UBj)
+#  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
@@ -830,7 +839,7 @@ contains
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
 !
 ! Short-wave radiation to ice
-          qswi = (1._r8-albedo(i,j))*qswi_n(i,j)
+          qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
