@@ -100,7 +100,7 @@
 #  define DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
-#  undef ALBEDO
+#  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE
 #  undef LONGWAVE
 # endif

@@ -254,7 +254,7 @@
 # else
 
 #  if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-    (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+    (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD)
 !
 !-----------------------------------------------------------------------
 !  Set surface air temperature (degC).
@@ -273,7 +273,7 @@
 #  endif
 
 #  if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO)
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD)
 !
 !-----------------------------------------------------------------------
 !  Set surface air relative or specific humidity.

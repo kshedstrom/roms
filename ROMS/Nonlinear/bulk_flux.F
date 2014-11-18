@@ -147,7 +147,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
      &                     FORCES(ng) % albedo,                         &
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
      &                     FORCES(ng) % cawdir,                         &
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -236,7 +236,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
      &                           albedo,                                &
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -345,7 +345,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
       real(r8), intent(in) :: albedo(LBi:,LBj:)
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
 #  if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -439,7 +439,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
       real(r8), intent(in) :: albedo(LBi:UBi,LBj:UBj)
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -513,7 +513,7 @@
       real(r8) :: cff, cff1, cff2, diffh, diffw, oL, upvel
       real(r8) :: twopi_inv, wet_bulb
       real(r8) :: sfwat_n
-# if defined SHORTWAVE && defined ALBEDO
+# if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), parameter :: albw_d=0.065_r8
       real(r8) :: cawdif
 # endif
@@ -636,7 +636,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
           SRad(i,j) = SRad(i,j)*(1.0-albedo(i,j))
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
           SRad(i,j) = SRad(i,j)*cawdir(i,j)
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -1276,7 +1276,7 @@
 # if defined ALBEDO_FILE && defined SHORTWAVE
           srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined BENCHMARK
+# if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))

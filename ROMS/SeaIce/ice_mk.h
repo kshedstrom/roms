@@ -824,10 +824,10 @@
         DO i = Istr,Iend
           phi = 4._r8
           if (wao(i,j) .lt. 0.0_r8 ) phi = 0.5_r8
-          xmelt = min((wio(i,j)-wai(i,j)),0.0_r8)
+          xmelt = min((wio(i,j)+wai(i,j)),0.0_r8)
           hi(i,j,linew) = hi(i,j,linew)+dtice(ng)                       &
      &             *(ai(i,j,linew)                                      &
-     &             *(wio(i,j)-wai(i,j))                                 &
+     &             *(wio(i,j)+wai(i,j))                                 &
      &        +(1.0_r8-ai(i,j,linew))*wao(i,j) + wfr(i,j))
 
           ai_tmp = ai(i,j,linew)

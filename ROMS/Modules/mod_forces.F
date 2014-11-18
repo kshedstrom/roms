@@ -322,7 +322,7 @@
 #  ifndef ANA_SRFLUX
           real(r8), pointer :: srflxG(:,:,:)
 #  endif
-#  if defined ALBEDO
+#  if defined ALBEDO_CLOUD
           real(r8), pointer :: cawdir(:,:)
 #  endif
 #  ifdef ALBEDO_FILE
@@ -726,7 +726,7 @@
 #  ifndef ANA_SRFLUX
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #  endif
-#  if defined ALBEDO
+#  if defined ALBEDO_CLOUD
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
 #  ifdef ALBEDO_FILE
@@ -1218,7 +1218,7 @@
             FORCES(ng) % srflxG(i,j,1) = IniVal
             FORCES(ng) % srflxG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO
+#  if defined ALBEDO_CLOUD
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 #  ifdef ALBEDO_FILE

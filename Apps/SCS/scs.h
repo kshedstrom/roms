@@ -114,7 +114,7 @@
 #  undef DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
-#  undef ALBEDO
+#  undef ALBEDO_CLOUD
 #  define SOLAR_SOURCE
 #  undef ALBEDO_CURVE
 #  define ALBEDO_FILE

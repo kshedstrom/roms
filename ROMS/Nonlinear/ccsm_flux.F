@@ -117,7 +117,7 @@ contains
 # if defined ALBEDO_FILE && defined SHORTWAVE
      &                     FORCES(ng) % albedo,                         &
 # endif
-# if defined SHORTWAVE && defined ALBEDO
+# if defined SHORTWAVE && defined ALBEDO_CLOUD
      &                     FORCES(ng) % cawdir,                         &
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -207,7 +207,7 @@ contains
 # if defined ALBEDO_FILE && defined SHORTWAVE
      &                           albedo,                                &
 # endif
-# if defined SHORTWAVE && defined ALBEDO
+# if defined SHORTWAVE && defined ALBEDO_CLOUD
      &                           cawdir,                                &
 # endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -321,7 +321,7 @@ contains
 # if defined ALBEDO_FILE && defined SHORTWAVE
       real(r8), intent(inout) :: albedo(LBi:,LBj:)
 # endif
-#  if defined SHORTWAVE && defined ALBEDO
+#  if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), intent(inout) :: cawdir(LBi:,LBj:)
 #  endif
 #  if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -414,7 +414,7 @@ contains
 # if defined ALBEDO_FILE && defined SHORTWAVE
       real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
 # endif
-# if defined SHORTWAVE && defined ALBEDO
+# if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), intent(inout) :: cawdir(LBi:UBi,LBj:UBj)
 #  endif
 # if defined SHORTWAVE && defined ALBEDO_CURVE
@@ -491,7 +491,7 @@ contains
       real(r8) :: albi, albsn, thki_n, thksn_n
 #  endif
 # endif
-# if defined SHORTWAVE && defined ALBEDO
+# if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8) :: cawdif
       real(r8), parameter :: albw_d=0.065_r8
 # endif
@@ -986,7 +986,7 @@ contains
 
 # if defined ALBEDO_FILE && defined SHORTWAVE
           srflx(i,j) = srflx(i,j)*(1.0-albedo(i,j))
-# elif defined SHORTWAVE && defined ALBEDO
+# elif defined SHORTWAVE && defined ALBEDO_CLOUD
           cawdif = 1._r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
      &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))

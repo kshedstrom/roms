@@ -44,7 +44,7 @@
       USE bulk_flux_mod, ONLY : bulk_flux
 #  endif
 # endif
-# if (defined ALBEDO || defined NCEP_FLUXES) && !defined BENCHMARK
+# if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
       USE cawdir_eval_mod, ONLY : cawdir_eval
 # endif
 # if defined NCEP_FLUXES
@@ -389,7 +389,7 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-# if (defined ALBEDO || defined NCEP_FLUXES) && !defined BENCHMARK
+# if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
                 CALL cawdir_eval(ng, tile)
 # endif
 # ifdef BULK_FLUXES

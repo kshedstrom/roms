@@ -129,7 +129,7 @@
 # endif
 # define EMINUSP
 # define EMINUSP_SSH
-# define ALBEDO
+# define ALBEDO_CLOUD
 # ifdef ERA40
 #  define CLOUDS
 #  define LONGWAVE
