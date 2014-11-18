@@ -153,7 +153,7 @@
 #  define SOLAR_SOURCE
 #  define EMINUSP
 #  undef ANA_SRFLUX
-#  undef ALBEDO
+#  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  define ICE_ALB_EC92  /* for ice */
 #  undef ALBEDO_CSIM   /* for ice */

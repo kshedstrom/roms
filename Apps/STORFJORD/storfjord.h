@@ -133,7 +133,7 @@
 #  define ICE_BULK_FLUXES
 # endif
 # define EMINUSP
-# define ALBEDO
+# define ALBEDO_CLOUD
 # ifdef ERA_INTERIM
 #  define CLOUDS
 #  define LONGWAVE_OUT

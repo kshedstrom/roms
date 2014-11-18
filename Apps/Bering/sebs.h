@@ -33,7 +33,7 @@
 #  define QCORRECTION
 #  define BULK_FLUXES
 #  define LONGWAVE
-#  define ALBEDO
+#  define ALBEDO_CLOUD
 #  define ANA_SRFLUX
 # endif
 #else
@@ -78,7 +78,7 @@
 #  undef NCEP_FORCE
 #  if defined NCEP_FORCE || defined BULK_FLUXES
 #   define LONGWAVE
-#   define ALBEDO
+#   define ALBEDO_CLOUD
 #   define ANA_SRFLUX
 #  else
 #   define SCORRECTION

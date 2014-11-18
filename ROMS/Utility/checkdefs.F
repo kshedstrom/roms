@@ -161,9 +161,21 @@
 #endif
 #if defined ALBEDO
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
-     &   'Shortwave radiation from albedo equation.'
+     &   'Shortwave radiation with albedo correction.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
+#endif
+#if defined ALBEDO_CLOUD
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                     &
+     &   'Albedo as a function of cloudiness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ALBEDO_CLOUD,'
+#endif
+#if defined ALBEDO_CCSM3
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CCSM3',                      &
+     &   'Albedo computed according to CCSM3.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ALBEDO_CCSM3,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
