@@ -595,8 +595,9 @@
      &          'Minimum ice concentration (nondimensional).'
           WRITE (out,60) max_a(ng), 'max_a',                            &
      &          'Maximum ice concentration (nondimensional).'
-          WRITE (out,60) sfwat_max(ng)*rad2deg, 'sfwat_max',            &
-     &          'Maximum surface fresh water (nondimensional).'
+          sfwat_max = 0.0_r8
+          WRITE (out,60) sfwat_max(ng), 'sfwat_max',                    &
+     &          'SETTING sfwat_max to ZERO.'
           WRITE (out,60) stressang(ng)*rad2deg, 'stressang',            &
      &          'Turning angle for ice-water drag (degrees).'
           WRITE (out,60) tol, 'tol',                                    &
