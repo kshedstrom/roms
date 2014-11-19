@@ -137,7 +137,7 @@
 ! Maximum melt pond fraction
 ! (nondimensional)
 
-     sfwat_max == 0.1d0
+     sfwat_max == 0.0d0
 
 ! Ice-water turning angle [degrees]
 
