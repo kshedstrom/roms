@@ -322,12 +322,17 @@
 #  ifndef ANA_SRFLUX
           real(r8), pointer :: srflxG(:,:,:)
 #  endif
-#  if defined ALBEDO_CLOUD
-          real(r8), pointer :: cawdir(:,:)
+#  ifdef ALBEDO
+          real(r8), pointer :: albedo(:,:)
+#   ifdef ICE_MODEL
+          real(r8), pointer :: albedo_ice(:,:)
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-          real(r8), pointer :: albedo(:,:)
           real(r8), pointer :: albedoG(:,:,:)
+#  endif
+#  if defined ALBEDO_CLOUD
+          real(r8), pointer :: cawdir(:,:)
 #  endif
 # endif
 
@@ -726,12 +731,17 @@
 #  ifndef ANA_SRFLUX
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #  endif
-#  if defined ALBEDO_CLOUD
-      allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+#  ifdef ALBEDO
+      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
+#   ifdef ICE_MODEL
+      allocate ( FORCES(ng) % albedo_ice(LBi:UBi,LBj:UBj) )
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
+#  endif
+#  if defined ALBEDO_CLOUD
+      allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
 
@@ -1218,13 +1228,18 @@
             FORCES(ng) % srflxG(i,j,1) = IniVal
             FORCES(ng) % srflxG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO_CLOUD
-            FORCES(ng) % cawdir(i,j) = IniVal
+#  ifdef ALBEDO
+            FORCES(ng) % albedo(i,j) = IniVal
+#   ifdef ICE_MODEL
+            FORCES(ng) % albedo_ice(i,j) = IniVal
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-            FORCES(ng) % albedo(i,j) = IniVal
             FORCES(ng) % albedoG(i,j,1) = IniVal
             FORCES(ng) % albedoG(i,j,2) = IniVal
+#  endif
+#  if defined ALBEDO_CLOUD
+            FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES

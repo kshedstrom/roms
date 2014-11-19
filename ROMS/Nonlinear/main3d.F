@@ -47,6 +47,9 @@
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
       USE cawdir_eval_mod, ONLY : cawdir_eval
 # endif
+# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES
+      USE albedo_mod
+# endif
 # if defined NCEP_FLUXES
       USE ncep_flux_mod, ONLY : ncep_flux
 # endif
@@ -391,6 +394,10 @@
               DO tile=first_tile(ng),last_tile(ng),+1
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
                 CALL cawdir_eval(ng, tile)
+# endif
+# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES &&   \
+     !defined ALBEDO_FILE
+                CALL albedo_eval(ng, tile)
 # endif
 # ifdef BULK_FLUXES
 #  if defined FOUR_DVAR && defined NL_BULK_FLUXES

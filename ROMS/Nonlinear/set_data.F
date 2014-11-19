@@ -300,6 +300,9 @@
      &                     FORCES(ng)%albedo,                           &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+#    ifdef ICE_MODEL
+      FORCES(ng)%albedo_ice = FORCES(ng)%albedo
+#    endif
 #   endif
 
 #   ifdef CLOUDS
