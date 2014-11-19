@@ -115,7 +115,7 @@
 !  62.6 N from 179.27 to 180.51 E
           Nsrcpt=13
           DO is=1,Nsrcpt
-            Isrcpt(is)=186+is
+            Isrcpt(is)=286+is
             Jsrcpt(is)=279
             Lsrcpt(is,inert(1))=.TRUE.
           END DO
@@ -131,7 +131,7 @@
           DO is=1,43
             Isrcpt(is+42)=229+is
             Jsrcpt(is+42)=914.85714 + is*0.14286
-            Lsrcpt(is+42,inert(3))=.TRUE.
+            Lsrcpt(is+42,inert(5))=.TRUE.
           END DO
 #ifdef DISTRIBUTE
 !

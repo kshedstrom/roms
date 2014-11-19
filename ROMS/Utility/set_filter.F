@@ -675,6 +675,22 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idUbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filbus(i,j,f) = FORCES(ng)%bustr(i,j)*     &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idVbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filbvs(i,j,f) = FORCES(ng)%bvstr(i,j)*     &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
 # ifdef ICE_MODEL
             IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
               DO j=JstrR,JendR
@@ -1073,6 +1089,22 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filsvs(i,j,f)=FILTER(ng)%filsvs(i,j,f)+  &
      &                                      FORCES(ng)%svstr(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idUbms,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filbus(i,j,f)=FILTER(ng)%filbus(i,j,f)+  &
+     &                                      FORCES(ng)%bustr(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idVbms,ng)) THEN
+                DO j=Jstr,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filbvs(i,j,f)=FILTER(ng)%filbvs(i,j,f)+  &
+     &                                      FORCES(ng)%bvstr(i,j)*fw(iw)
                   END DO
                 END DO
               END IF
@@ -1501,6 +1533,20 @@
               DO j=Jstr,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgsvs(i,j)=FILTER(ng)%filsvs(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idUbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=Istr,IendR
+                  AVERAGE(ng)%avgbus(i,j)=FILTER(ng)%filbus(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idVbms,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgbvs(i,j)=FILTER(ng)%filbvs(i,j,f)
                 END DO
               END DO
             END IF

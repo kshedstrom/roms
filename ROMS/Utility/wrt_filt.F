@@ -634,6 +634,55 @@
           RETURN
         END IF
       END IF
+!
+!  Write out bottom u-momentum stress.
+!
+      IF (Aout(idUbms,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*u2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid, &
+     &                 FIL(1,ng)%Vid(idUbms), &
+     &                 FIL(1,ng)%Rindex, gtype, &
+     &                 LBi, UBi, LBj, UBj, scale, &
+# ifdef MASKING
+     &                 GRID(ng) % umask, &
+# endif
+     &                 FILTER(ng) % filbus(:,:,FIL(1,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUbms)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out bottom v-momentum stress.
+!
+      IF (Aout(idVbms,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*v2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid, &
+     &                 FIL(1,ng)%Vid(idVbms), &
+     &                 FIL(1,ng)%Rindex, gtype, &
+     &                 LBi, UBi, LBj, UBj, scale, &
+# ifdef MASKING
+     &                 GRID(ng) % vmask, &
+# endif
+     &                 FILTER(ng) % filbvs(:,:,FIL(1,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idVbms)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
 # ifdef ICE_MODEL
 !
 !  Write out ice u-velocity
