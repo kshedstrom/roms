@@ -733,6 +733,8 @@
 
       RETURN
       END SUBROUTINE wetdry_mask_tile
+
+# ifdef SOLVE3D
 !
 !***********************************************************************
 # ifdef SOLVE3D
