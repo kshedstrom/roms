@@ -150,9 +150,9 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
-#  define ICE_ALB_EC92  /* for ice */
-#  undef ALBEDO_CSIM   /* for ice */
-#  undef ALBEDO_FILE  /* for both */
+#  undef ICE_ALB_EC92   /* for ice */
+#  define ALBEDO_CSIM   /* for ice */
+#  undef ALBEDO_FILE    /* for both */
 #  undef LONGWAVE
 # endif
 #endif
