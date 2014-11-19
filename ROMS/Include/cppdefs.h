@@ -28,7 +28,7 @@
 **   "hmixing.F".                                                            **
 **                                                                           **
 **   WARNING:  Use the splines vertical advection option (UV_SADVECTION)     **
-**             only in shallow, high vertical resolution applications.       **
+**             only in idealized, high vertical resolution applications.     **
 **                                                                           **
 ** UV_ADV              use to turn ON or OFF advection terms                 **
 ** UV_COR              use to turn ON or OFF Coriolis term                   **
@@ -66,7 +66,7 @@
 **   tensor along geopotentials (MIX_GEO_TS) for the biharmonic operator.    **
 **                                                                           **
 **   WARNING:  Use the splines vertical advection option (TS_SVADVECTION)    **
-**             only in shallow, high vertical resolution applications.       **
+**             only in idealized, high vertical resolution applications.     **
 **                                                                           **
 ** TS_U3ADV_SPLIT      use if 3rd-order upstream split tracer advection      **
 ** TS_A4HADVECTION     use if 4th-order Akima horizontal advection           **
@@ -94,6 +94,10 @@
 ** AGE_PASSIVE         use if aging of inert passive tracers                 **
 ** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
 ** WTYPE_GRID          use to turn ON spatially varying Jerlov water type    **
+**                                                                           **
+** OPTIONS for MPDATA 3D Advection:                                          **
+**                                                                           **
+** TS_MPDATA_LIMIT     use to limit upwind corrector fluxes for stability    **
 **                                                                           **
 ** Tracer advection OPTIONS for adjoint-based algorithms:                    **
 **                                                                           **
@@ -436,6 +440,7 @@
 ** OPTIONS associated with tangent linear, representer and adjoint models:   **
 **                                                                           **
 ** AD_IMPULSE          use to force adjoint model with intermittent impulses **
+** ADJUST_BOUNDARY     use if including boundary conditions in 4DVar state   **
 ** ADJUST_STFLUX       use if including surface tracer flux in 4DVar state   **
 ** ADJUST_WSTRESS      use if including wind-stress in 4DVar state           **
 ** ARRAY_MODES_SPLIT   use to separate analysis due to IC, forcing, and OBC  **
