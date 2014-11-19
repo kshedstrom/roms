@@ -305,8 +305,8 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          albedo_ice)
-      END IF
 # endif
+      END IF
 # ifdef DISTRIBUTE
 #  ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
