@@ -597,25 +597,6 @@ Hout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Hout(idMtke) == F       ! tke                turbulent kinetic energy
 Hout(idMtls) == F       ! gls                turbulent length scale
 
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idUiceE) == F
-Hout(idViceN) == F
-Hout(idAice) == T
-Hout(idHice) == T
-Hout(idTice) == T
-Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
-Hout(idTauiw) == F
-Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
 ! is one that it is only advected and diffused. Other processes are ignored.
