@@ -257,7 +257,7 @@
 !
         integer, allocatable :: ntimes(:)
 !
-!  Step counter for current execution time-window.
+!  Time-step counter for current execution time-window.
 !
         integer, allocatable :: step_counter(:)
 
