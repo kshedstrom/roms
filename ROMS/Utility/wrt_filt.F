@@ -1221,7 +1221,7 @@
      &                   FIL(ifile,ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
       END DO
-      IF (Master) WRITE (stdout,20) FIL(10,ng)%Rindex
+      IF (Master) WRITE (stdout,20) FIL(nfile,ng)%Rindex
 !
   10  FORMAT (/,' WRT_FILT  - error while writing variable: ',a,/,11x,  &
      &        'into filter NetCDF file for time record: ',i4)

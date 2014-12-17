@@ -1004,7 +1004,7 @@
             Vinfo( 3)=Vname(3,idTSvar(itrc))
             Vinfo(14)=Vname(4,idTSvar(itrc))
             Vinfo(16)=Vname(1,idtime)
-       status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%TSid(itrc),NF_FOUT,&
+       status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%TSid(itrc),NF_FOUT,  &
      &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -1014,14 +1014,14 @@
 !  Define 2D stationary tracer type variables.
 !------------------------------------------
         DO itrc=1,NTS2(ng)
-	  hisTS2id(itrc,ng) = 0
+          hisTS2id(itrc,ng) = 0
           IF (Hout(idTS2var(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idTS2var(itrc))
             Vinfo( 2)=Vname(2,idTS2var(itrc))
             Vinfo( 3)=Vname(3,idTS2var(itrc))
             Vinfo(14)=Vname(4,idTS2var(itrc))
             Vinfo(16)=Vname(1,idtime)
-       status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%TS2id(itrc),NF_FOUT,&
+       status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%TS2id(itrc),NF_FOUT, &
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
@@ -1032,15 +1032,15 @@
 !  Define 3D production variables.
 !------------------------------------------
         DO itrc=1,NPT3(ng)
-	  hisPT3id(itrc,ng) = 0
+          hisPT3id(itrc,ng) = 0
           IF (Hout(idPT3var(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idPT3var(itrc))
             Vinfo( 2)=Vname(2,idPT3var(itrc))
             Vinfo( 3)=Vname(3,idPT3var(itrc))
             Vinfo(14)=Vname(4,idPT3var(itrc))
             Vinfo(16)=Vname(1,idtime)
-         status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%PT3id(itrc),NF_FOUT,  &
-     &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+         status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%PT3id(itrc),       &
+     &                  NF_FOUT, nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
 #endif
@@ -1049,15 +1049,15 @@
 !  Define 2D production  variables.
 !------------------------------------------
         DO itrc=1,NPT2(ng)
-	  hisPT2id(itrc,ng) = 0
+          hisPT2id(itrc,ng) = 0
           IF (Hout(idPT2var(itrc),ng)) THEN
             Vinfo( 1)=Vname(1,idPT2var(itrc))
             Vinfo( 2)=Vname(2,idPT2var(itrc))
             Vinfo( 3)=Vname(3,idPT2var(itrc))
             Vinfo(14)=Vname(4,idPT2var(itrc))
             Vinfo(16)=Vname(1,idtime)
-         status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%PT2id(itrc),NF_FOUT,&
-     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+         status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%PT2id(itrc),       &
+     &                  NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
 #endif
@@ -1068,17 +1068,17 @@
         DO itrc=1,NBeT(ng)
           hisBid(itrc,ng) = 0
  
-          IF (Hout(idBvar(itrc),ng)) THEN
+          IF (Hout(idBeTvar(itrc),ng)) THEN
 
-            Vinfo( 1)=Vname(1,idBvar(itrc))
-            Vinfo( 2)=Vname(2,idBvar(itrc))
-            Vinfo(3)=Vname(3,idBvar(itrc))
-            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo( 1)=Vname(1,idBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idBeTvar(itrc))
+            Vinfo(3)=Vname(3,idBeTvar(itrc))
+            Vinfo(14)=Vname(4,idBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
-            status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%Bid(itrc),NF_FOUT, &
-     &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+            status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%Bid(itrc),      &
+     &                     NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos 
 !         status=def_var(HIS(ng)%ncid,HIS(ng)%Bid(itrc),NF_FOUT,            &
@@ -1104,7 +1104,7 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)  
-            status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%IceBid(itrc),      &
+            status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%IceBid(itrc),   &
      &                    NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos
@@ -1127,7 +1127,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIcePhL,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIcePhL),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIcePhL), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1142,7 +1142,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNO3,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceNO3),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceNO3), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1157,7 +1157,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceNH4,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceNH4),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceNH4), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1172,7 +1172,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idIceLog,ng),r8)
-          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceLog),    &
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idIceLog), &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1192,7 +1192,7 @@
             Vinfo( 3)=Vname(3,idTSvar(itrc))
             Vinfo(14)=Vname(4,idTSvar(itrc))
             Vinfo(16)=Vname(1,idtime)
-            status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%TSid(itrc),      &
+            status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%TSid(itrc),  &
      &                     NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
           END IF

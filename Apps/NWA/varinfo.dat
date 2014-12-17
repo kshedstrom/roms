@@ -6697,7 +6697,7 @@
   'milligram carbon meter-2'
   'benthos, scalar, series'
   'bio_time'
-  'idBvar(iBen)'
+  'idBeTvar(iBen)'
   'r3dvar'
   1.0d0
 
@@ -6706,7 +6706,7 @@
   'milligram carbon meter-2'
   'benthic detritus, scalar, series'
   'bio_time'
-  'idBvar(iBenDet)'
+  'idBeTvar(iBenDet)'
   'r3dvar'
   1.0d0
 

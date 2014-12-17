@@ -941,15 +941,15 @@
 !-------------------
 #  if defined BENTHIC
         DO itrc=1,NBeT(ng)
-          IF (Aout(idBvar(itrc),ng)) THEN
-            Vinfo( 1)=Vname(1,idBvar(itrc))
+          IF (Aout(idBeTvar(itrc),ng)) THEN
+            Vinfo( 1)=Vname(1,idBeTvar(itrc))
             WRITE (Vinfo( 2),'(a,1x,a)') Prefix,                        &
-     &                                   TRIM(Vname(2,idBvar(itrc)))
+     &                                   TRIM(Vname(2,idBeTvar(itrc)))
 
-            Vinfo( 1)=Vname(1,idBvar(itrc))
-            Vinfo( 2)=Vname(2,idBvar(itrc))
-            Vinfo(3)=Vname(3,idBvar(itrc))
-            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo( 1)=Vname(1,idBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idBeTvar(itrc))
+            Vinfo(3)=Vname(3,idBeTvar(itrc))
+            Vinfo(14)=Vname(4,idBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
 #  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'

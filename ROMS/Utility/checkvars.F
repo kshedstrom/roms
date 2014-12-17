@@ -116,7 +116,7 @@
 # endif
 # if defined ICE_BIO && defined BERING_10K
           DO itrc=1,NBeT(ng)
-           get_var(idBvar(itrc))=.TRUE.
+           get_var(idBeTvar(itrc))=.TRUE.
           END DO
 # endif
         END IF

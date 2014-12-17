@@ -1036,7 +1036,7 @@
 
 #  if defined BENTHIC
               DO itrc=1,NBeT(ng)
-              IF (Hout(idBvar(itrc),ng)) THEN
+              IF (Hout(idBeTvar(itrc),ng)) THEN
                  scale=1.0_r8
                  gtype=gfactor*r2dvar
              status=nf_fwrite2d(ng, iNLM, HIS(ng)%ncid,                 &
@@ -1058,7 +1058,7 @@
 
            IF (status.ne.nf90_noerr) THEN
            IF (Master) THEN
-            WRITE (stdout,10)TRIM(Vname(1,idBvar(itrc))),               &
+            WRITE (stdout,10)TRIM(Vname(1,idBeTvar(itrc))),             &
      &                       HIS(ng)%Rindex
            END IF
               exit_flag=3

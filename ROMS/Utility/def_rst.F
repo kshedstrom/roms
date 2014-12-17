@@ -1097,12 +1097,12 @@
 !------------------------------------------   
         DO itrc=1,NBeT(ng)
           rstBid(itrc,ng) = var_id(i)
-          IF (Hout(idBvar(itrc),ng)) THEN
+          IF (Hout(idBeTvar(itrc),ng)) THEN
 
-            Vinfo( 1)=Vname(1,idBvar(itrc))
-            Vinfo( 2)=Vname(2,idBvar(itrc))
-            Vinfo(3)=Vname(3,idBvar(itrc))
-            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo( 1)=Vname(1,idBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idBeTvar(itrc))
+            Vinfo(3)=Vname(3,idBeTvar(itrc))
+            Vinfo(14)=Vname(4,idBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
@@ -1122,12 +1122,12 @@
 #  if defined ICE_BIO
 # ifdef CLIM_ICE_1D
         DO itrc=1,NIceT(ng)
-          IF (Hout(idIceBvar(itrc),ng)) THEN
+          IF (Hout(idIceBeTvar(itrc),ng)) THEN
 
-            Vinfo( 1)=Vname(1,idIceBvar(itrc))
-            Vinfo( 2)=Vname(2,idIceBvar(itrc))
-            Vinfo(3)=Vname(3,idIceBvar(itrc))
-            Vinfo(14)=Vname(4,idIceBvar(itrc))
+            Vinfo( 1)=Vname(1,idIceBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idIceBeTvar(itrc))
+            Vinfo(3)=Vname(3,idIceBeTvar(itrc))
+            Vinfo(14)=Vname(4,idIceBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)  
@@ -2462,8 +2462,8 @@
 # endif
 # ifdef BENTHIC
           DO itrc=1,NBeT(ng)
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBvar(itrc)))) THEN
-              got_var(idBvar(itrc))=.TRUE.
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBeTvar(itrc)))) THEN
+              got_var(idBeTvar(itrc))=.TRUE.
               rstBid(itrc,ng)=var_id(i)
             END IF
           END DO
