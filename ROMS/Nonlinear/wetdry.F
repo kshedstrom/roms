@@ -737,7 +737,6 @@
 # ifdef SOLVE3D
 !
 !***********************************************************************
-# ifdef SOLVE3D
       SUBROUTINE wetdry_avg_mask_tile (ng, tile,                        &
      &                                 LBi, UBi, LBj, UBj,              &
      &                                 IminS, ImaxS, JminS, JmaxS,      &
