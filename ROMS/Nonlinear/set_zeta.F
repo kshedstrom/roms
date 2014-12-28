@@ -150,7 +150,7 @@
 !
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-          cff1 = dt(ng)*pm(i,j)*pn(i,j)/rhow
+          cff1 = dt(ng)/rhow
           Zt_avg1(i,j) = Zt_avg1(i,j) + cff1*runoff(i,j)
         END DO
       END DO
