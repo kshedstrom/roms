@@ -163,7 +163,8 @@ Sout(idHice) == T
 Sout(idTice) == T
 Sout(idHsno) == T
 Sout(idTimid) == T
-Sout(idSfwat) == T
+Sout(idApond) == T
+Sout(idHpond) == T
 Sout(idTauiw) == F
 Sout(idChuiw) == F
 Sout(idAgeice) == T

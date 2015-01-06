@@ -270,8 +270,12 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,:))
             CASE ('Sout(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,:))
-            CASE ('Sout(idSfwat)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,:))
+#ifdef MELT_PONDS
+            CASE ('Sout(idApond)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idApond,:))
+            CASE ('Sout(idHpond)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idHpond,:))
+#endif
             CASE ('Sout(idAgeice)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,:))
             CASE ('Sout(idIomflx)')
@@ -699,9 +703,14 @@
           IF (Sout(idTimid,ng)) WRITE (out,80) Sout(idTimid,ng),        &
      &       'Sout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
-          IF (Sout(idSfwat,ng)) WRITE (out,80) Sout(idSfwat,ng),        &
-     &       'Sout(idSfwat)',                                           &
+#ifdef MELT_PONDS
+          IF (Sout(idApond,ng)) WRITE (out,80) Sout(idApond,ng),        &
+     &       'Sout(idApond)',                                           &
+     &       'Write out surface water (on ice) fraction.'
+          IF (Sout(idHpond,ng)) WRITE (out,80) Sout(idHpond,ng),        &
+     &       'Sout(idHpond)',                                           &
      &       'Write out surface water (on ice) thickness.'
+#endif
           IF (Sout(idAgeice,ng)) WRITE (out,80) Sout(idAgeice,ng),      &
      &       'Sout(idAgeice)',                                          &
      &       'Write out surface water (on ice) thickness.'

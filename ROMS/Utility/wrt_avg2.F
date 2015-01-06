@@ -961,28 +961,52 @@
           RETURN
         END IF
       END IF
+#ifdef MELT_PONDS
 !
-! Write out surface water thickness (on ice).
+! Write out surface water fraction (on ice).
 !
-      IF (Aout2(idSfwat,ng)) THEN
+      IF (Aout2(idApond,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
-     &                     AVG2(ng)%Vid(idSfwat),                       &
+     &                     AVG2(ng)%Vid(idApond),                       &
      &                     AVG2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
      &                     GRID(ng) % rmask_avg2,                       &
 #   endif
-     &                     AVERAGE2(ng) % avgsfwat)
+     &                     AVERAGE2(ng) % avgapond)
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), AVG2(ng)%Rindex
+            WRITE (stdout,10) TRIM(Vname(1,idApond)), AVG2(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
         END IF
       END IF
+!
+! Write out surface water thickness (on ice).
+!
+      IF (Aout2(idHpond,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idHpond),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_avg2,                       &
+#   endif
+     &                     AVERAGE2(ng) % avghpond)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idHpond)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+#endif
 !
 ! Write out ice age.
 !

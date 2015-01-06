@@ -16,8 +16,7 @@
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
-#undef OFFLINE_FLOATS
-#define PERFECT_RESTART
+#undef PERFECT_RESTART
 #undef NO_LBC_ATT
 
 /* general */
@@ -48,6 +47,12 @@
 /* ice */
 
 #ifdef SOLVE3D
+# undef CICE_MODEL
+# ifdef CICE_MODEL
+#  define SNOWFALL
+#  define SNOW_FROM_RAIN
+# endif
+
 # define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE

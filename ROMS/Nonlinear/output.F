@@ -626,6 +626,29 @@
       END IF
 #  endif
 # endif
+
+# ifdef CICE_MODEL
+!        write_restart=.false.
+
+!        IF (mod(iic(ng)+1,tspy(ng))==Oct*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Nov*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Dec*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jan*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Feb*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Mar*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Apr*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==May*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jun*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jul*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Aug*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Sep*tspd(ng)) write_restart=.true.
+
+!        IF (write_restart==.true.) THEN
+!           CALL wrt_rst (ng)
+!          IF (exit_flag.ne.NoError) RETURN
+!        END IF
+# endif
+
 # ifdef PROFILE
 !
 !-----------------------------------------------------------------------

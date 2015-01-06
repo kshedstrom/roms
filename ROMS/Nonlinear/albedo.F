@@ -60,7 +60,10 @@ contains
 #  ifdef ICE_THERMO
      &                  ICE(ng) % hsn,                                  &
      &                  ICE(ng) % tis,                                  &
-     &                  ICE(ng) % sfwat,                                &
+#   ifdef MELT_PONDS
+     &                  ICE(ng) % apond,                                &
+     &                  ICE(ng) % hpond,                                &
+#   endif
 #  endif
 # endif
      &                  FORCES(ng) % albedo                             &
@@ -84,7 +87,10 @@ contains
 # ifdef ICE_MODEL
      &                        ai, hi, albedo_ice,                       &
 #  ifdef ICE_THERMO
-     &                        hsn, tis, sfwat,                          &
+     &                        hsn, tis,                                 &
+#   ifdef MELT_PONDS
+     &                        apond, hpond,                             &
+#   endif
 #  endif
 # endif
      &                        albedo                                    &
@@ -127,7 +133,10 @@ contains
 #   ifdef ICE_THERMO
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
-      real(r8), intent(in) :: sfwat(LBi:,LBj:,:)
+#    ifdef MELT_PONDS
+      real(r8), intent(in) :: apond(LBi:,LBj:,:)
+      real(r8), intent(in) :: hpond(LBi:,LBj:,:)
+#    endif
 #   endif
 #  endif
       real(r8), intent(out) :: albedo(LBi:,LBj:)
@@ -143,7 +152,10 @@ contains
 #   ifdef ICE_THERMO
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: sfwat(LBi:UBi,LBj:UBj,2)
+#    ifdef MELT_PONDS
+      real(r8), intent(in) :: apond(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: hpond(LBi:UBi,LBj:UBj,2)
+#    endif
 #   endif
 #  endif
       real(r8), intent(out) :: albedo(LBi:UBi,LBj:UBj)
@@ -217,13 +229,15 @@ contains
             IF (thki_n.GE.2._r8) albi=0.561632_r8
 !approximated values for albsn(depends on COSZ, but small variation)
             albsn=0.83_r8
-            IF (sfwat(i,j,listp).GT.0._r8) THEN
+#   ifdef MELT_PONDS
+            IF (apond(i,j,listp).GT.0._r8) THEN
               IF (thksn_n.GE.0.1_r8) THEN
                 albsn=0.701009_r8
               ELSE
                 albsn=albi+(0.701009_r8-albi)*thksn_n/0.1
               ENDIF
             ENDIF
+#   endif
             albedo_ice(i,j)=albi
             IF (hsn(i,j,listp).GT.0._r8) albedo_ice(i,j)=albsn
 !            IF (sfwat(i,j,listp).GT.0._r8) albs=0.10737_r8              &

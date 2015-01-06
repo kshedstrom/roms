@@ -134,11 +134,6 @@
 
      max_a == 1.0d0
 
-! Maximum melt pond fraction
-! (nondimensional)
-
-     sfwat_max == 0.0d0
-
 ! Ice-water turning angle [degrees]
 
      stressang = 0.d0
@@ -177,7 +172,8 @@ Hout(idHice) == T
 Hout(idTice) == T
 Hout(idHsno) == T
 Hout(idTimid) == T
-Hout(idSfwat) == T
+Hout(idApond) == T
+Hout(idHpond) == T
 Hout(idTauiw) == F
 Hout(idChuiw) == F
 Hout(idAgeice) == T
@@ -205,7 +201,8 @@ Aout(idHice) == T
 Aout(idTice) == T
 Aout(idHsno) == T
 Aout(idTimid) == T
-Aout(idSfwat) == T
+Aout(idApond) == T
+Aout(idHpond) == T
 Aout(idTauiw) == F
 Aout(idChuiw) == F
 Aout(idAgeice) == T
@@ -233,7 +230,8 @@ Aout2(idHice) == T
 Aout2(idTice) == T
 Aout2(idHsno) == T
 Aout2(idTimid) == T
-Aout2(idSfwat) == T
+Aout2(idApond) == T
+Aout2(idHpond) == T
 Aout2(idTauiw) == F
 Aout2(idChuiw) == F
 Aout2(idAgeice) == T
@@ -254,7 +252,8 @@ Hout2(idHice) == T
 Hout2(idTice) == T
 Hout2(idHsno) == T
 Hout2(idTimid) == T
-Hout2(idSfwat) == T
+Hout2(idApond) == T
+Hout2(idHpond) == T
 Hout2(idTauiw) == F
 Hout2(idChuiw) == F
 Hout2(idAgeice) == T

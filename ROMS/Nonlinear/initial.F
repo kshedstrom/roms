@@ -21,6 +21,9 @@
       USE mod_fourdvar
 #endif
       USE mod_grid
+#ifdef CICE_MODEL
+      USE CICE_InitMod
+#endif
       USE mod_iounits
       USE mod_ncparam
 #ifdef NESTING
@@ -148,7 +151,29 @@
 !$OMP BARRIER
         step_counter(ng)=0
         CALL time_string (time(ng), time_code(ng))
+#ifdef CICE_MODEL
+! kca - calculate timesteps for restart output
+        tspy(ng) = 60*60*24*365/dt(ng)
+        tspd(ng) = 60*60*24/dt(ng)
+#endif
       END DO
+
+#ifdef CICE_MODEL
+! kca - calculate timesteps for restart output
+      dleftinSep = 273-dstart
+      Oct = dleftinSep
+      Nov = Oct + 31
+      Dec = Nov + 30
+      Jan = Dec + 31
+      Feb = Jan + 31
+      Mar = Feb + 28
+      Apr = Mar + 31
+      May = Apr + 30
+      Jun = May + 31
+      Jul = Jun + 30
+      Aug = Jul + 31
+      Sep = Aug + 31
+#endif
 
 #ifdef PROFILE
 !
@@ -969,6 +994,15 @@
         iic(ng)=ntstart(ng)-1
         time(ng)=time(ng)-dt(ng)
       END DO
+
+#ifdef CICE_MODEL
+!
+!-----------------------------------------------------------------------
+! Initialize the ice model
+!-----------------------------------------------------------------------
+!
+      CALL cice_init
+#endif
 
 #ifdef PROFILE
 !

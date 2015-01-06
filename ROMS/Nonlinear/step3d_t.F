@@ -178,7 +178,7 @@
 # ifdef BEST_NPZ
       USE mod_biology
 # endif
-# if defined ICE_MODEL && defined ICE_THERMO
+#  if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
       USE mod_sources
@@ -1525,7 +1525,8 @@
           END DO
         END DO
 # endif
-#  if defined ICE_MODEL && defined ICE_THERMO
+
+#  if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
         IF (itrc == isalt) THEN
           CALL ice_frazil(ng, tile)
         END IF

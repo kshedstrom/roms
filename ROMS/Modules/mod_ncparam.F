@@ -251,6 +251,7 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
+        integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
         integer  :: idragW        ! bottom drag coefficient for internal tide
@@ -399,7 +400,8 @@
         integer  :: idWio          ! ice growth/melt rate
         integer  :: idWro          ! ice pond runoff
         integer  :: idWdiv         ! ice advective change
-        integer  :: idSfwat        ! surface melt water thickness on ice
+        integer  :: idApond        ! surface melt water fraction on ice
+        integer  :: idHpond        ! surface melt water thickness on ice
         integer  :: idAgeice       ! age of sea ice (time since formation)
         integer  :: idIomflx       ! ice-ocean mass flux
         integer  :: idWg2d         ! wind gustiness from NCEP
@@ -464,7 +466,8 @@
          integer  :: idHibc(4)      ! ice thickness boundary conditions
          integer  :: idHsnbc(4)     ! snow thickness boundary conditions
          integer  :: idTibc(4)      ! ice interior temp. boundary conditions
-         integer  :: idSfwbc(4)     ! surface melt water boundary conditions
+         integer  :: idApdbc(4)     ! surface melt water boundary conditions
+         integer  :: idHpdbc(4)     ! surface melt water boundary conditions
          integer  :: idAgeicebc(4)  ! ice age boundary conditions
          integer  :: idS11bc(4)     ! ice stress Sig11 boundary conditions
          integer  :: idS22bc(4)     ! ice stress Sig22 boundary conditions
@@ -503,7 +506,8 @@
         integer  :: isHice                    ! ice thickness
         integer  :: isHsno                    ! snow thickness
         integer  :: isTice                    ! ice temperature
-        integer  :: isSfwat                   ! melt pond fraction
+        integer  :: isApond                   ! melt pond fraction
+        integer  :: isHpond                   ! melt pond depth
         integer  :: isSig11                   ! ice 11-stress
         integer  :: isSig12                   ! ice 12-stress
         integer  :: isSig22                   ! ice 22-stress
@@ -865,11 +869,12 @@
       isHice=ic+4
       isTice=ic+5
       isHsno=ic+6
-      isSfwat=ic+7
-      isSig11=ic+8
-      isSig12=ic+9
-      isSig22=ic+10
-      ic=ic+10
+      isApond=ic+7
+      isHpond=ic+8
+      isSig11=ic+9
+      isSig12=ic+10
+      isSig22=ic+11
+      ic=ic+11
 #endif
 !
 !  Set generic lateral boundary indices for LBC structure.  Use the same
@@ -1212,6 +1217,8 @@
               idShea=varid
             CASE ('idrain')
               idrain=varid
+            CASE ('idsnow')
+              idsnow=varid
             CASE ('idEmPf')
               idEmPf=varid
             CASE ('idevap')
@@ -1345,14 +1352,22 @@
               idTibc(isouth)=varid
             CASE ('idTibc(inorth)')
               idTibc(inorth)=varid
-            CASE ('idSfwbc(iwest)')
-              idSfwbc(iwest)=varid
-            CASE ('idSfwbc(ieast)')
-              idSfwbc(ieast)=varid
-            CASE ('idSfwbc(isouth)')
-              idSfwbc(isouth)=varid
-            CASE ('idSfwbc(inorth)')
-              idSfwbc(inorth)=varid
+            CASE ('idApdbc(iwest)')
+              idApdbc(iwest)=varid
+            CASE ('idApdbc(ieast)')
+              idApdbc(ieast)=varid
+            CASE ('idApdbc(isouth)')
+              idApdbc(isouth)=varid
+            CASE ('idApdbc(inorth)')
+              idApdbc(inorth)=varid
+            CASE ('idHpdbc(iwest)')
+              idHpdbc(iwest)=varid
+            CASE ('idHpdbc(ieast)')
+              idHpdbc(ieast)=varid
+            CASE ('idHpdbc(isouth)')
+              idHpdbc(isouth)=varid
+            CASE ('idHpdbc(inorth)')
+              idHpdbc(inorth)=varid
             CASE ('idAgeicebc(iwest)')
               idAgeicebc(iwest)=varid
             CASE ('idAgeicebc(ieast)')
@@ -1845,8 +1860,10 @@
                 idWro=varid
               CASE ('idWdiv')
                 idWdiv=varid
-              CASE ('idSfwat')
-                idSfwat=varid
+              CASE ('idApond')
+                idApond=varid
+              CASE ('idHpond')
+                idHpond=varid
               CASE ('idAgeice')
                 idAgeice=varid
               CASE ('idIomflx')
@@ -2721,14 +2738,15 @@
       idBvar(ic)=idMtke
 # endif
 # ifdef ICE_MODEL
-      ic=ic+10
+      ic=ic+11
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice
       idBvar(isAice)=idAice
       idBvar(isHice)=idHice
       idBvar(isTice)=idTice
       idBvar(isHsno)=idHsno
-      idBvar(isSfwat)=idSfwat
+      idBvar(isApond)=idApond
+      idBvar(isHpond)=idHpond
       idBvar(isSig11)=idSig11
       idBvar(isSig12)=idSig12
       idBvar(isSig22)=idSig22

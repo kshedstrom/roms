@@ -66,6 +66,7 @@
 !  Local variables
 !
       integer :: i, j
+      real(r8) :: wrk(LBi:UBi, LBj:UBj, 2)
 
 #include "set_bounds.h"
 
@@ -310,9 +311,63 @@ FOOOO
 !
 # endif
 !
+# ifdef MELT_PONDS
 ! ---------------------------------------------------------------------
 !  Advect the surface melt water.
 ! ---------------------------------------------------------------------
+      DO j=LBj,UBj
+        DO i=LBi,UBi
+          wrk(i,j,liold(ng)) = ICE(ng)%ai(i,j,liold(ng))*                         &
+       &                       ICE(ng)%apond(i,j,liold(ng))
+        ENDDO
+      ENDDO
+
+      CALL ice_advect_tile (ng, tile,                                   &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      IminS, ImaxS, JminS, JmaxS,                 &
+     &                      nrhs(ng), linew(ng), liold(ng), liunw(ng),  &
+#  ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#  endif
+#  ifdef WET_DRY
+     &                      GRID(ng) % rmask_wet,                       &
+#  endif
+#  ifdef ICESHELF
+     &                      GRID(ng) % zice,                            &
+#  endif
+#  ifndef ICE_UPWIND
+     &                      GRID(ng) % pm,                              &
+     &                      GRID(ng) % pn,                              &
+#  endif
+     &                      GRID(ng) % on_u,                            &
+     &                      GRID(ng) % om_v,                            &
+     &                      GRID(ng) % omn,                             &
+     &                      ICE(ng) % ui,                               &
+     &                      ICE(ng) % vi,                               &
+     &                      wrk                                         &
+     &                      )
+
+      DO j=LBj,UBj
+        DO i=LBi,UBi
+          IF (ICE(ng)%ai(i,j,linew(ng)) > 0.0_r8) THEN
+            ICE(ng)%apond(i,j,linew) = wrk(i,j,linew(ng))/              &
+       &             ICE(ng)%ai(i,j,linew(ng))
+            ICE(ng)%apond(i,j,linew) =                                  &
+       &             MAX(0.0_r8,ICE(ng)%apond(i,j,linew))
+          ELSE
+            ICE(ng)%apond(i,j,linew) = 0.0_r8
+          END IF
+        ENDDO
+      ENDDO
+!
+      DO j=LBj,UBj
+        DO i=LBi,UBi
+          wrk(i,j,liold(ng)) = ICE(ng)%ai(i,j,liold(ng))*               &
+       &                       ICE(ng)%apond(i,j,liold(ng))*            &
+       &                       ICE(ng)%hpond(i,j,liold(ng))
+        ENDDO
+      ENDDO
+
       CALL ice_advect_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
@@ -335,20 +390,46 @@ FOOOO
      &                      GRID(ng) % omn,                             &
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
-     &                      ICE(ng) % sfwat                             &
+     &                      wrk                                         &
      &                      )
+
+      DO j=LBj,UBj
+        DO i=LBi,UBi
+          IF (ICE(ng)%ai(i,j,linew(ng))*ICE(ng)%apond(i,j,linew(ng))    &
+     &                    > 0.0_r8) THEN
+            ICE(ng)%hpond(i,j,linew) = wrk(i,j,linew(ng))/              &
+     &          (ICE(ng)%ai(i,j,linew(ng))*ICE(ng)%apond(i,j,linew(ng)))
+            ICE(ng)%hpond(i,j,linew) =                                  &
+       &             MAX(0.0_r8,ICE(ng)%hpond(i,j,linew))
+          ELSE
+            ICE(ng)%hpond(i,j,linew) = 0.0_r8
+          END IF
+        ENDDO
+      ENDDO
 !
       CALL i2d_bc_tile (ng, tile, iNLM,                                 &
      &                  LBi, UBi, LBj, UBj,                             &
      &                  IminS, ImaxS, JminS, JmaxS,                     &
      &                  liold(ng), linew(ng),                           &
-     &                  BOUNDARY(ng)%sfwat_west(LBj:UBj),               &
-     &                  BOUNDARY(ng)%sfwat_east(LBj:UBj),               &
-     &                  BOUNDARY(ng)%sfwat_north(LBi:UBi),              &
-     &                  BOUNDARY(ng)%sfwat_south(LBi:UBi),              &
+     &                  BOUNDARY(ng)%apond_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%apond_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%apond_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%apond_south(LBi:UBi),              &
      &                  ICE(ng)%ui,                                     &
      &                  ICE(ng)%vi,                                     &
-     &                  ICE(ng)%sfwat, LBC(:,isSfwat,ng))
+     &                  ICE(ng)%apond, LBC(:,isApond,ng))
+      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
+     &                  LBi, UBi, LBj, UBj,                             &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  liold(ng), linew(ng),                           &
+     &                  BOUNDARY(ng)%hpond_west(LBj:UBj),               &
+     &                  BOUNDARY(ng)%hpond_east(LBj:UBj),               &
+     &                  BOUNDARY(ng)%hpond_north(LBi:UBi),              &
+     &                  BOUNDARY(ng)%hpond_south(LBi:UBi),              &
+     &                  ICE(ng)%ui,                                     &
+     &                  ICE(ng)%vi,                                     &
+     &                  ICE(ng)%hpond, LBC(:,isHpond,ng))
+# endif
 !
 ! ---------------------------------------------------------------------
 !  Advect the interior ice temperature.
@@ -481,9 +562,14 @@ FOOOO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hsn(:,:,linew(ng)))
+# ifdef MELT_PONDS
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          ICE(ng)%sfwat(:,:,linew(ng)))
+     &                          ICE(ng)%apond(:,:,linew(ng)))
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          ICE(ng)%hpond(:,:,linew(ng)))
+# endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%ti(:,:,linew(ng)))
@@ -496,7 +582,7 @@ FOOOO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%hage(:,:,linew(ng)))
-#  if defined ICE_BIO && defined BERING_10K
+# if defined ICE_BIO && defined BERING_10K
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IcePhL(:,:,linew(ng)))
@@ -506,16 +592,15 @@ FOOOO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          ICE(ng)%IceNH4(:,:,linew(ng)))
-#  endif
+# endif
       END IF
 # ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    ICE(ng)%ai(:,:,linew(ng)),                    &
      &                    ICE(ng)%hi(:,:,linew(ng)),                    &
-     &                    ICE(ng)%hsn(:,:,linew(ng)),                   &
-     &                    ICE(ng)%sfwat(:,:,linew(ng)))
+     &                    ICE(ng)%hsn(:,:,linew(ng)))
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
@@ -523,6 +608,13 @@ FOOOO
      &                    ICE(ng)%enthalpi(:,:,linew(ng)),              &
      &                    ICE(ng)%ageice(:,:,linew(ng)),                &
      &                    ICE(ng)%hage(:,:,linew(ng)))
+#  ifdef MELT_PONDS
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    ICE(ng)%apond(:,:,linew(ng)),                 &
+     &                    ICE(ng)%hpond(:,:,linew(ng)))
+#  endif
 #  if defined ICE_BIO && defined BERING_10K
       CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
      &                    LBi, UBi, LBj, UBj,                           &

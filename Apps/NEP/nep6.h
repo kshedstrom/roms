@@ -28,8 +28,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -45,7 +45,12 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define  ICE_MODEL
+# define CICE_MODEL
+# ifdef CICE_MODEL
+#  undef SNOWFALL /* not yet */
+# endif
+
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define  ICE_THERMO
 #  define  ICE_MK

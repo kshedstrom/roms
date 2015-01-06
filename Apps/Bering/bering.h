@@ -16,6 +16,7 @@
 #undef WRF_MODEL
 #undef MCT_LIB
 #undef ATM2OCN_FLUXES  /* not sure about this with ice */
+#define NO_LBC_ATT
 
 #undef NO_HIS
 #undef NETCDF4
@@ -50,15 +51,15 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE
-# ifdef CICE
+# define CICE_MODEL
+# ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE   /* just for restart!! */
+#  define ANA_ICE
 #  undef  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
@@ -71,6 +72,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  undef  MELT_PONDS
 #  undef  ANA_AIOBC
 #  undef  ANA_HIOBC
 #  undef  ANA_HSNOBC

@@ -161,7 +161,6 @@
      &                     FORCES(ng) % qswi_n,                         &
      &                     ICE(ng) % hsn,                               &
      &                     ICE(ng) % tis,                               &
-     &                     ICE(ng) % sfwat,                             &
      &                     ICE(ng) % coef_ice_heat,                     &
      &                     ICE(ng) % rhs_ice_heat,                      &
      &                     FORCES(ng) % snow_n,                         &
@@ -247,7 +246,7 @@
 #  ifdef ICE_THERMO
      &                           qai_n,                                 &
      &                           qswi_n,                                &
-     &                           hsn, tis, sfwat,                       &
+     &                           hsn, tis,                              &
      &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
 #  endif
      &                           sustr_aw, svstr_aw, qao_n,             &
@@ -363,7 +362,6 @@
       real(r8), intent(out) :: qswi_n(LBi:,LBj:)
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
-      real(r8), intent(in) :: sfwat(LBi:,LBj:,:)
       real(r8), intent(out) :: coef_ice_heat(LBi:,LBj:)
       real(r8), intent(out) :: rhs_ice_heat(LBi:,LBj:)
       real(r8), intent(out) :: snow_n(LBi:,LBj:)
@@ -457,7 +455,6 @@
       real(r8), intent(out) :: qswi_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: sfwat(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: coef_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rhs_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: snow_n(LBi:UBi,LBj:UBj)
@@ -512,7 +509,6 @@
 
       real(r8) :: cff, cff1, cff2, diffh, diffw, oL, upvel
       real(r8) :: twopi_inv, wet_bulb
-      real(r8) :: sfwat_n
 # if defined SHORTWAVE && defined ALBEDO_CLOUD
       real(r8), parameter :: albw_d=0.065_r8
       real(r8) :: cawdif

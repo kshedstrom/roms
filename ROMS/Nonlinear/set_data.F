@@ -170,6 +170,34 @@
      &                     FORCES(ng)%rainG,                            &
      &                     FORCES(ng)%rain,                             &
      &                     update)
+#ifdef SNOWFALL
+      CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%snowG,                            &
+     &                     FORCES(ng)%snow,                             &
+     &                     update)
+#endif
+#ifdef SNOW_FROM_RAIN
+! Subtract snowfall from total precip
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          FORCES(ng)%rain(i,j)=FORCES(ng)%rain(i,j)-                    &
+     &                         FORCES(ng)%snow(i,j)
+        END DO
+      END DO
+      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          FORCES(ng)%rain)
+      END IF
+# ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    FORCES(ng)%rain)
+# endif
+#endif
 #ifdef RUNOFF
       CALL set_2dfld_tile (ng, tile, iNLM, idRunoff,                    &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -458,6 +486,14 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%rainG,                            &
      &                     FORCES(ng)%rain,                             &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#   endif
+#   ifdef SNOWFALL
+      CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%snowG,                            &
+     &                     FORCES(ng)%snow,                             &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #   endif
@@ -781,6 +817,15 @@
      &                     update, SetBC)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+# endif
+# ifdef CICE_MODEL
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+!  Here, R/Cp = 0.286
+          FORCES(ng)%PotT(i,j)=FORCES(ng)%Tair(i,j)*                    &
+     &          (1000.0/FORCES(ng)%Pair(i,j))**0.286
+        END DO
+      END DO
 # endif
 
 # ifdef WAVE_DATA
@@ -1390,43 +1435,77 @@
       END IF
 
       IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
-# ifdef ANA_SFWATOBC
+# ifdef MELT_PONDS
+#  ifdef ANA_SFWATOBC
         CALL ana_sfwatobc (ng, tile, iNLM)
-# else
+#  else
         IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          IF (LBC(iwest,isSfwat,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idSfwbc(iwest), JLB, JUB, 1,      &
+          IF (LBC(iwest,isApond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idApdbc(iwest), JLB, JUB, 1,      &
      &                      0, Mm(ng)+1, 1,                             &
-     &                      BOUNDARY(ng) % sfwatG_west,                 &
-     &                      BOUNDARY(ng) % sfwat_west,                  &
+     &                      BOUNDARY(ng) % apondG_west,                 &
+     &                      BOUNDARY(ng) % apond_west,                  &
      &                      update)
             IF (exit_flag.ne.NoError) RETURN
           END IF
-          IF (LBC(ieast,isSfwat,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idSfwbc(ieast), JLB, JUB, 1,      &
+          IF (LBC(ieast,isApond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idApdbc(ieast), JLB, JUB, 1,      &
      &                      0, Mm(ng)+1, 1,                             &
-     &                      BOUNDARY(ng) % sfwatG_east,                 &
-     &                      BOUNDARY(ng) % sfwat_east,                  &
+     &                      BOUNDARY(ng) % apondG_east,                 &
+     &                      BOUNDARY(ng) % apond_east,                  &
      &                      update)
             IF (exit_flag.ne.NoError) RETURN
           END IF
-          IF (LBC(isouth,isSfwat,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idSfwbc(isouth), ILB, IUB, 1,     &
+          IF (LBC(isouth,isApond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idApdbc(isouth), ILB, IUB, 1,     &
      &                      0, Lm(ng)+1 ,1,                             &
-     &                      BOUNDARY(ng) % sfwatG_south,                &
-     &                      BOUNDARY(ng) % sfwat_south,                 &
+     &                      BOUNDARY(ng) % apondG_south,                &
+     &                      BOUNDARY(ng) % apond_south,                 &
      &                      update)
             IF (exit_flag.ne.NoError) RETURN
           END IF
-          IF (LBC(inorth,isSfwat,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idSfwbc(inorth), ILB, IUB, 1,     &
+          IF (LBC(inorth,isApond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idApdbc(inorth), ILB, IUB, 1,     &
      &                      0, Lm(ng)+1, 1,                             &
-     &                      BOUNDARY(ng) % sfwatG_north,                &
-     &                      BOUNDARY(ng) % sfwat_north,                 &
+     &                      BOUNDARY(ng) % apondG_north,                &
+     &                      BOUNDARY(ng) % apond_north,                 &
+     &                      update)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF (LBC(iwest,isHpond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idHpdbc(iwest), JLB, JUB, 1,      &
+     &                      0, Mm(ng)+1, 1,                             &
+     &                      BOUNDARY(ng) % hpondG_west,                 &
+     &                      BOUNDARY(ng) % hpond_west,                  &
+     &                      update)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF (LBC(ieast,isHpond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idHpdbc(ieast), JLB, JUB, 1,      &
+     &                      0, Mm(ng)+1, 1,                             &
+     &                      BOUNDARY(ng) % hpondG_east,                 &
+     &                      BOUNDARY(ng) % hpond_east,                  &
+     &                      update)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF (LBC(isouth,isHpond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idHpdbc(isouth), ILB, IUB, 1,     &
+     &                      0, Lm(ng)+1 ,1,                             &
+     &                      BOUNDARY(ng) % hpondG_south,                &
+     &                      BOUNDARY(ng) % hpond_south,                 &
+     &                      update)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+          IF (LBC(inorth,isHpond,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idHpdbc(inorth), ILB, IUB, 1,     &
+     &                      0, Lm(ng)+1, 1,                             &
+     &                      BOUNDARY(ng) % hpondG_north,                &
+     &                      BOUNDARY(ng) % hpond_north,                 &
      &                      update)
             IF (exit_flag.ne.NoError) RETURN
           END IF
         END IF
+#  endif
 # endif
       END IF
 

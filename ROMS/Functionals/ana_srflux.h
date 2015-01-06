@@ -54,7 +54,7 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            lonr, latr,                           &
-#ifdef ALBEDO_CLOUD 
+#ifdef ALBEDO_CLOUD
      &                            cloud, Hair, Tair, Pair,              &
 #endif
      &                            srflx)
@@ -184,7 +184,7 @@
 !  With this directive specific humidity is input as kg/kg
             vap_p=Pair(i,j)*Hair(i,j)/(0.62197_r8+0.378_r8*Hair(i,j))
 #  else
-            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar) 
+            vap_p=e_sat*Hair(i,j) ! water vapor pressure (hPa=mbar)
 #  endif
             srflx(i,j)=Rsolar*zenith*zenith*                            &
      &                 (1.0_r8-0.6_r8*cloud(i,j)**3)/                   &
@@ -203,7 +203,7 @@
 !
 !  Normalization = (1/2*pi)*INTEGRAL{ABS(a+b*COS(t)) dt}  from 0 to 2*pi
 !                = (a*ARCCOS(-a/b)+SQRT(b**2-a**2))/pi    for |a| < |b|
-!  
+!
           srflx(i,j)=MAX(0.0_r8, srflx(i,j))
           IF (ABS(cff1) > ABS(cff2)) THEN
             IF (cff1*cff2.gt.0.0_r8) THEN

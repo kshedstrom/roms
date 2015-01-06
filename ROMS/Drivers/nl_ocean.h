@@ -277,6 +277,9 @@
       USE mod_iounits
       USE mod_ncparam
       USE mod_scalars
+#ifdef CICE_MODEL
+      USE CICE_FinalMod
+#endif
 !
 !  Local variable declarations.
 !
@@ -341,6 +344,10 @@
 !  Close IO files.
 !
       CALL close_out
+
+#ifdef CICE_MODEL
+      CALL CICE_Finalize
+#endif
 
       RETURN
       END SUBROUTINE ROMS_finalize

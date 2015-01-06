@@ -114,6 +114,9 @@
 # if defined AVERAGES2 && !defined ADJOINT
       USE set_avg2_mod, ONLY : set_avg2
 # endif
+# ifdef CICE_MODEL
+      USE ice_fakecpl, ONLY : cice_fakecpl
+# endif
       USE set_depth_mod, ONLY : set_depth
       USE set_massflux_mod, ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
@@ -412,6 +415,16 @@
                 CALL nesting (ng, iNLM, nbstr)
               END IF
             END DO
+# endif
+
+# ifdef CICE_MODEL
+!
+!-----------------------------------------------------------------------
+! Call the CICE model
+!-----------------------------------------------------------------------
+!
+! KLUDGE here! hard-coding ng=1
+            call cice_fakecpl
 # endif
 
 # if defined ICE_MODEL

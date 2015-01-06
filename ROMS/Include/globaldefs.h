@@ -743,6 +743,10 @@
 ** shortwave option if not needed.
 */
 
+#ifdef CICE_MODEL
+# define BULK_FLUXES
+#endif
+
 #if defined LMD_SKPP     || defined SOLAR_SOURCE   || \
     defined BULK_FLUXES  || defined BIOLOGY
 # define SHORTWAVE
@@ -774,7 +778,7 @@
 ** Check for calling albedo function
 */
 
-#if defined ALBEDO_CLOUD || defined ALBEDO_CCSM3 || defined ALBEDO_CSIM \
+#if defined ALBEDO_CLOUD   || defined ALBEDO_CSIM \
   || defined ALBEDO_CURVE  || defined ALBEDO_FILE
 # define ALBEDO
 #endif

@@ -76,6 +76,10 @@ MY_HEADER_DIR ?=
 
 MY_ANALYTICAL_DIR ?=
 
+# If applicable, where does CICE put its binary files?
+
+MY_CICE_DIR ?= /center/w/kate/CICE/NEP/compile
+
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
 #  its header file. If this is the case, specify such options here
@@ -416,6 +420,9 @@ endif
 
 .PHONY: all
 
+ifdef USE_CICE
+all: $(SCRATCH_DIR) $(SCRATCH_DIR)/libCICE.a
+endif
 all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
@@ -437,6 +444,10 @@ endif
 		ROMS/Functionals
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
+endif
+ifdef USE_CICE
+ modules  +=	SeaIce/Extra
+    LIBS  +=    $(SCRATCH_DIR)/libCICE.a
 endif
  modules  +=	ROMS/Utility \
 		ROMS/Modules
@@ -540,6 +551,34 @@ $(SCRATCH_DIR)/$(NETCDF_MODFILE): | $(SCRATCH_DIR)
 
 $(SCRATCH_DIR)/$(TYPESIZES_MODFILE): | $(SCRATCH_DIR)
 	cp -f $(NETCDF_INCDIR)/$(TYPESIZES_MODFILE) $(SCRATCH_DIR)
+
+$(SCRATCH_DIR)/libCICE.a: $(MY_CICE_DIR)/libCICE.a
+	cp -f $(MY_CICE_DIR)/libCICE.a $(MY_CICE_DIR)/*.mod $(SCRATCH_DIR)
+
+$(MY_CICE_DIR)/libCICE.a:
+	SeaIce/comp_ice
+ifdef USE_CICE
+$(SCRATCH_DIR)/initial.o: $(MY_CICE_DIR)/CICE_InitMod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/CICE_RunMod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_blocks.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_broadcast.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_calendar.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_communicate.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_constants.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain_size.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_fileunits.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_flux.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_gather_scatter.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_grid.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_history.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_init.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_kinds_mod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart_shared.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_state.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_timers.o
+endif
 
 $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \

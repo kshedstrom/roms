@@ -628,6 +628,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' CELERITY_WRITE,'
 #endif
+#ifdef CICE_MODEL
+      IF (Master) WRITE (stdout,20) 'CICE_MODEL',                       &
+     &   'Include CICE Ice Model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' CICE_MODEL,'
+#endif
 #ifdef CLIPPING
       IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
      &   'Stabilized Representer Matrix clipping spectrum analysis.'
@@ -1265,6 +1271,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' MCT_LIB,'
 #endif
+#ifdef MELT_PONDS
+      IF (Master) WRITE (stdout,20) 'MELT_PONDS',                       &
+     &   'Melt ponds on ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' MELT_PONDS,'
+#endif
 #ifdef MICLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'MICLIMATOLOGY',                    &
      &   'Ice momentum climatology.'
@@ -1868,6 +1880,18 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SG_LOGINT,'
 # endif
+#endif
+#ifdef SNOWFALL
+      IF (Master) WRITE (stdout,20) 'SNOWFALL',                         &
+     &   'Surface snow accumulation on ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' SNOWFALL,'
+#endif
+#ifdef SNOW_FROM_RAIN
+      IF (Master) WRITE (stdout,20) 'SNOW_FROM_RAIN',                   &
+     &   'Subtract snow from total precip (rain).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' SNOW_FROM_RAIN,'
 #endif
 #ifdef SOLAR_SOURCE
       IF (Master) WRITE (stdout,20) 'SOLAR_SOURCE',                     &
@@ -2867,6 +2891,18 @@
      &          /,13x,'in serial with partitions or shared-memory...', &
      &          /,13x,'There bugs in shared-memory that need fixing.', &
      &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
+      END IF
+#endif
+#if defined CICE_MODEL && defined ICE_MODEL
+!
+!  Stop if activating two sea ice models.
+!
+      IF (Master) THEN
+        WRITE (stdout,260) uppercase('cice_model'),                     &
+     &                     uppercase('ice_model')
+ 260    FORMAT (/,' CHECKDEFS - cannot activate ',a,'                   &
+     &            ' and',a,/,13x,'at the same time. Choose one!')
+        exit_flag=5
       END IF
 #endif
 

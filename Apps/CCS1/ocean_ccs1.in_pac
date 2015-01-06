@@ -388,28 +388,6 @@ Hout(idMtls) == F                          ! turbulent length scale
 Hout(idPONsed) == T
 Hout(idOPALsed) == T
 
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idAice) == T
-Hout(idHice) == T
-Hout(idTice) == T
-Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
-Hout(idTauiw) == F
-Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-Hout(idWfr) == T
-Hout(idWai) == T
-Hout(idWao) == T
-Hout(idWio) == T
-Hout(idWro) == T
-
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
 ! is one that it is only advected and diffused. Other processes are ignored.
@@ -469,23 +447,6 @@ Aout2(idSrad) == T                          ! shortwave radiation flux
 Aout2(idEmPf) == F                          ! E-P flux
 Aout2(idevap) == T                          ! evaporation rate
 Aout2(idrain) == T                          ! precipitation rate
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into HISTORY output file.
-Aout2(idUice) == T
-Aout2(idVice) == T
-Aout2(idAice) == T
-Aout2(idHice) == T
-Aout2(idTice) == T
-Aout2(idHsno) == T
-Aout2(idTimid) == T
-Aout2(idSfwat) == T
-Aout2(idTauiw) == F
-Aout2(idChuiw) == F
-Aout2(idAgeice) == T
-Aout2(idSig11) == F
-Aout2(idSig12) == F
-Aout2(idSig22) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -580,28 +541,6 @@ Aout(iHVTav) == F F     ! Hvomtemp, ...      tracer volume flux, <Hvom*t>
 ! Logical switches for bio sediment variables.
 Aout(idPONsed) == T
 Aout(idOPALsed) == T
-
-! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
-! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idAice) == T
-Aout(idHice) == T
-Aout(idTice) == T
-Aout(idHsno) == T
-Aout(idTimid) == T
-Aout(idSfwat) == T
-Aout(idTauiw) == F
-Aout(idChuiw) == F
-Aout(idAgeice) == T
-Aout(idSig11) == T
-Aout(idSig12) == T
-Aout(idSig22) == T
-Aout(idWfr) == T
-Aout(idWai) == T
-Aout(idWao) == T
-Aout(idWio) == T
-Aout(idWro) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.

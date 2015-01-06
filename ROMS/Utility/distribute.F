@@ -4942,7 +4942,7 @@
 !
 !  If water points only, fill land points.
 !
-      IF (gtype.gt.0) THEN
+      IF (gtype.ge.0) THEN
         DO nc=1,MySize-2
           Arecv(nc)=A(nc)
         END DO

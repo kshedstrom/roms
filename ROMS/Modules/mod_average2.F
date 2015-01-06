@@ -124,7 +124,10 @@
           real(r8), pointer :: avgtice(:,:)
           real(r8), pointer :: avgtimid(:,:)
           real(r8), pointer :: avghsno(:,:)
-          real(r8), pointer :: avgsfwat(:,:)
+#   ifdef MELT_PONDS
+          real(r8), pointer :: avgapond(:,:)
+          real(r8), pointer :: avghpond(:,:)
+#   endif
           real(r8), pointer :: avgiomflx(:,:)
           real(r8), pointer :: avgageice(:,:)
           real(r8), pointer :: avgsig11(:,:)
@@ -323,9 +326,14 @@
       IF (Aout2(idHsno,ng)) THEN
         allocate ( AVERAGE2(ng) % avghsno(LBi:UBi,LBj:UBj) )
       END IF
-      IF (Aout2(idSfwat,ng)) THEN
-        allocate ( AVERAGE2(ng) % avgsfwat(LBi:UBi,LBj:UBj) )
+#   ifdef MELT_PONDS
+      IF (Aout2(idApond,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgapond(LBi:UBi,LBj:UBj) )
       END IF
+      IF (Aout2(idHpond,ng)) THEN
+        allocate ( AVERAGE2(ng) % avghpond(LBi:UBi,LBj:UBj) )
+      END IF
+#   endif
       IF (Aout2(idIomflx,ng)) THEN
         allocate ( AVERAGE2(ng) % avgiomflx(LBi:UBi,LBj:UBj) )
       END IF
@@ -723,13 +731,22 @@
           END DO
         END DO
       END IF
-      IF (Aout2(idSfwat,ng)) THEN
+#   ifdef MELT_PONDS
+      IF (Aout2(idApond,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            AVERAGE2(ng) % avgsfwat(i,j) = IniVal
+            AVERAGE2(ng) % avgapond(i,j) = IniVal
           END DO
         END DO
       END IF
+      IF (Aout2(idHpond,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avghpond(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#   endif
       IF (Aout2(idIomflx,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
