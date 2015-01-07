@@ -3,7 +3,7 @@
 #ifdef ICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This module sets the ice-water and ice-air stresses for the

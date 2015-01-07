@@ -32,7 +32,7 @@ replace="2002-2015 The ROMS/TOMS"
 
 # Directories to search for replacements.
 
-c_dirs="Apps Compilers Master ROMS User"
+c_dirs="Apps Compilers Master ROMS User SeaIce"
 
 # Specific files not in the "c_dirs".
 
