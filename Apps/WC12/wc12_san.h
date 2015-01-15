@@ -27,6 +27,7 @@
 #define ANA_BSFLUX
 
 #define SPONGE
+#define ANA_NUDGCOEF
 
 #define BULK_FLUXES
 #ifdef BULK_FLUXES
@@ -52,27 +53,7 @@
 # undef  RI_VERAVG
 #endif
 
-#undef  CLOSED_OBC
-#ifdef CLOSED_OBC
-# define WESTERN_WALL
-# define EASTERN_WALL
-# define SOUTHERN_WALL
-# define NORTHERN_WALL
-#else
-# define WEST_FSCHAPMAN
-# define WEST_M2FLATHER
-# define WEST_M3CLAMPED
-# define WEST_TCLAMPED
-# define EASTERN_WALL
-# define SOUTH_FSCHAPMAN
-# define SOUTH_M2FLATHER
-# define SOUTH_M3CLAMPED
-# define SOUTH_TCLAMPED
-# define NORTH_FSCHAPMAN
-# define NORTH_M2FLATHER
-# define NORTH_M3CLAMPED
-# define NORTH_TCLAMPED
-#endif
+
 
 #define NEMURO
 #ifdef NEMURO
