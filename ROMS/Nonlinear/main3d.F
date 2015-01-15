@@ -575,11 +575,11 @@
               END IF
             END DO
 # endif
+# ifdef NEMURO_SAN
 !
 !  Once a year, we clean out the oldest fish.
 !  Must do this before calling output.
 !
-# ifdef NEMURO_SAN
         DO ng=1,Ngrids
           ! RD: need control for leap year
           IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0) THEN
