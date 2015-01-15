@@ -580,7 +580,8 @@
 !  Once a year, we clean out the oldest fish.
 !  Must do this before calling output.
 !
-        DO ng=1,Ngrids
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
           ! RD: need control for leap year
           IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0) THEN
 #  ifdef _OPENMP
@@ -911,7 +912,8 @@
 !  Compute Lagrangian fish trajectories.
 !-----------------------------------------------------------------------
 !
-            DO ng=1,Ngrids
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
               IF (Lfish(Ng)) THEN
                 IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
                   DO tile=last_tile(ng),first_tile(ng),-1
@@ -974,7 +976,8 @@
 # endif
 !
 # if defined FLOATS || defined NEMURO_SAN
-            DO ng=1,Ngrids
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
 #  ifdef NEMURO_SAN
              IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
 #  endif
