@@ -463,11 +463,16 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    rhoa_n)
 # endif
-      CALL mp_exchange2d (ng, tile, model, 3,                           &
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    tis, utau_iw, chu_iw)
+     &                    tis, s0mk, t0mk, utau_iw)
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    chu_iw)
 #endif
 
       RETURN

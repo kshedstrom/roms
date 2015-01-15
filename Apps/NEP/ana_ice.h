@@ -54,6 +54,8 @@
      &                       ICE(ng) % tis,                             &
      &                       ICE(ng) % s0mk,                            &
      &                       ICE(ng) % t0mk,                            &
+     &                       ICE(ng) % utau_iw,                         &
+     &                       ICE(ng) % chu_iw,                          &
 #if defined BERING_10K && defined ICE_BIO
      &                       ICE(ng) % IcePhL,                          &
      &                       ICE(ng) % IceNO3,                          &
@@ -86,7 +88,7 @@
      &                             wg2_m, cd_m, ch_m, ce_m,             &
      &                             rhoa_n,                              &
 #endif
-     &                             tis, s0mk, t0mk,                     &
+     &                             tis, s0mk, t0mk, utau_iw, chu_iw,    &
 #if defined BERING_10K && defined ICE_BIO
      &                             IcePhL, IceNO3,                      &
      &                             IceNH4, IceLog,                      &
@@ -137,6 +139,8 @@
       real(r8), intent(inout) :: tis(LBi:,LBj:)
       real(r8), intent(inout) :: s0mk(LBi:,LBj:)
       real(r8), intent(inout) :: t0mk(LBi:,LBj:)
+      real(r8), intent(inout) :: utau_iw(LBi:,LBj:)
+      real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
 # if defined BERING_10K && defined ICE_BIO
       real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
@@ -172,6 +176,8 @@
       real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: utau_iw(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
 # if defined BERING_10K && defined ICE_BIO
       real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
@@ -240,6 +246,8 @@
            tis(i,j) = -10._r8
           s0mk(i,j) = t(i,j,N(ng),1,isalt)
           t0mk(i,j) = t(i,j,N(ng),1,itemp)
+          utau_iw(i,j) = 0.001_r8
+          chu_iw(i,j) = 0.001125_r8
 #elif defined ICE_OCEAN_1D
       DO j=JstrT,JendT
         DO i=IstrP,IendT
@@ -291,6 +299,8 @@
            tis(i,j) = -10._r8
           s0mk(i,j) = t(i,j,N(ng),1,isalt)
           t0mk(i,j) = t(i,j,N(ng),1,itemp)
+          utau_iw(i,j) = 0.001_r8
+          chu_iw(i,j) = 0.001125_r8
 #elif defined BERING_10K && defined ICE_BIO
            IcePhL(i,j,1) = 0._r8
            IceNO3(i,j,1) = 0._r8
@@ -402,6 +412,12 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        t0mk)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        utau_iw)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        chu_iw)
       END IF
 
 #ifdef DISTRIBUTE
@@ -449,11 +465,16 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    rhoa_n)
 # endif
-      CALL mp_exchange2d (ng, tile, model, 3,                           &
+      CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    tis, s0mk, t0mk)
+     &                    tis, s0mk, t0mk, utau_iw)
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    chu_iw)
 #endif
 
       RETURN
