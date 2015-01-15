@@ -254,7 +254,7 @@
   60  FORMAT (3x,' GET_NGFLD   - ',a,/,19x,'(Min = ',1pe15.8,' Max = ', &
      &        1pe15.8,')')
   70  FORMAT (3x,' GET_NGFLD   - ',a,',',t62,'t = ',a,/,19x,            &
-     &        '(Rec=',i5.5,', Index=',i1,', File: ',a,')',/,19x,        &
+     &        '(Rec=',i7.7,', Index=',i1,', File: ',a,')',/,19x,        &
      &        '(Tmin= ', f15.4, ' Tmax= ', f15.4,')',/, 19x,            &
      &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 
