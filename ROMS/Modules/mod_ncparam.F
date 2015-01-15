@@ -770,9 +770,15 @@
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
 
+#ifdef NEMURO_SAN
       allocate ( idefFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( idefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( idefFLEET(Ngrids) )
+# endif
+#endif
 
       allocate ( idefHIS(Ngrids) )
       allocate ( idefHIS2(Ngrids) )
@@ -884,9 +890,15 @@
         idefAVG(ng)=-1
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
+#ifdef NEMURO_SAN
         idefFISH(ng)=-1
+# ifdef PREDATOR
         idefPRED(ng)=-1
+# endif
+# ifdef FISHING_FLEET
         idefFLEET(ng)=-1
+# endif
+#endif
         idefHIS(ng)=-1
         idefHIS2(ng)=-1
         idefTLM(ng)=-1

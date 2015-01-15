@@ -3344,15 +3344,21 @@
             CASE ('FLTNAME')
               label='FLT - Lagragian particles trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLT)
+#ifdef NEMURO_SAN
             CASE ('FISHNAME')
               label='FISH - particles trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FISH)
+# ifdef PREDATOR
             CASE ('PREDNAME')
               label='PRED - particles trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, PRED)
+# endif
+# ifdef FISHING_FLEET
             CASE ('FLEETNAME')
               label='FLEET - ship trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLEET)
+# endif
+#endif
             CASE ('GRDNAME')
               label='GRD - application grid'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GRD)
@@ -3793,18 +3799,24 @@
      &      (nFLT(ng).eq.0)) THEN
           LdefFLT(ng)=.FALSE.
         END IF
+#ifdef NEMURO_SAN
         IF (((nrrec(ng).eq.0).and.(nFSH(ng).gt.ntimes(ng))).or.         &
      &      (nFSH(ng).eq.0)) THEN
           LdefFISH(ng)=.FALSE.
         END IF
+# ifdef FISHING_FLEET
         IF (((nrrec(ng).eq.0).and.(nFLE(ng).gt.ntimes(ng))).or.         &
      &      (nFLE(ng).eq.0)) THEN
           LdefFLEET(ng)=.FALSE.
         END IF
+# endif
+# ifdef PREDATOR
         IF (((nrrec(ng).eq.0).and.(nPRE(ng).gt.ntimes(ng))).or.         &
      &      (nPRE(ng).eq.0)) THEN
           LdefPRED(ng)=.FALSE.
         END IF
+# endif
+#endif
         IF (((nrrec(ng).eq.0).and.(nHIS(ng).gt.ntimes(ng))).or.         &
      &      (nHIS(ng).eq.0)) THEN
           LdefHIS(ng)=.FALSE.
