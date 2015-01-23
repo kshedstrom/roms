@@ -85,16 +85,16 @@
        CatchPrice == 0.5d0 0.5d0 0.5d0 0.5d0 0.5d0
 
 ! Port grid i location.
-! {Los Angeles(CA), Port Hueneme(CA), Monterey Bay(CA), Astoria(OR), Westport(WA)}
+! {Hachinohe (JP), Ishinomaki (JP), Choshi (JP), Toba (JP), Kochi (JP)}
 
-!       LonPort == -118.31 -119.20 -121.79 -123.83 -124.10
-       iPort == 142 134 124 173 173
+!       LonPort == 141.49 141.30 140.85 136.91 133.59
+       iPort == 147 166 185 166 150
 
 ! Port grid j location.
-! {Los Angeles(CA), Port Hueneme(CA), Monterey Bay(CA), Astoria(OR), Westport(WA)}
+! {Hachinohe (JP), Ishinomaki (JP), Choshi (JP), Toba (JP), Kochi (JP)}
 
-!       LatPort == 33.73 34.15 36.80 46.19 46.32
-       jPort == 201 212 265 408 411
+!       LatPort == 40.66 38.36 35.76 34.53 33.47
+       jPort == 316 292 264 225 192
  
 !
 !  GLOSSARY:
