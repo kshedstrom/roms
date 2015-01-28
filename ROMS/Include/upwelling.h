@@ -31,7 +31,7 @@
 #define SOLVE3D
 #define SPLINES
 #define AVERAGES
-#define HISTORY2
+#undef HISTORY2
 #define DIAGNOSTICS_TS
 #define DIAGNOSTICS_UV
 

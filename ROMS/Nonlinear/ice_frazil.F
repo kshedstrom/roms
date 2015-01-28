@@ -167,6 +167,7 @@
       real(r8) :: delta_wfr
 
 # ifdef CICE_MODEL
+#  ifdef ICE_LOG_LAYER
 ! Compute heat flux from ocean a la Mellor and Kantha, 1989
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t0mk
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: s0mk
@@ -179,10 +180,12 @@
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
       real(r8), parameter :: ykf = 3.14
       real(r8), parameter :: eps = 1.0e-20_r8
-!      real(r8), parameter :: rhocpr = 0.2442754E-6_r8   ! [m s2 K kg-1]
-      real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
       real(r8) :: ice_thick
       real(r8) :: utau, dztop, rno, termt, terms, cht, chs, z0, zdz0
+#  else
+      real(r8) :: dz, heat, tfr
+#  endif
+      real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
 # endif
 
 # ifdef DISTRIBUTE
@@ -283,6 +286,7 @@
 # ifdef CICE_MODEL
 ! Now compute heat flux from ocean and subtract from wfr.
 ! Using old salt flux, solve for surface salinity s0mk.
+#  ifdef ICE_LOG_LAYER
       DO j=Jstr,Jend
         DO i=Istr,Iend
           dztop=z_w(i,j,N(ng))-z_r(i,j,N(ng))
@@ -307,14 +311,14 @@
 !          rno = utau*z0/nu
           termt = ykf*sqrt(rno)*prt**0.666667_r8
           terms = ykf*sqrt(rno)*prs**0.666667_r8
-          cht = utau/(tpr*(log(zdz0)/kappa+termt))
-          chs = utau/(tpr*(log(zdz0)/kappa+terms))
+          cht = utau/(tpr*log(zdz0)/kappa+termt)
+          chs = utau/(tpr*log(zdz0)/kappa+terms)
           IF (ai(i,j) .le. min_a(ng)) THEN
             s0mk(i,j) = t(i,j,N(ng),nnew,isalt)
             t0mk(i,j) = t(i,j,N(ng),nnew,itemp)
           ELSE
-            s0mk(i,j) = (chs*t(i,j,N(ng),nnew,isalt) -                  &
-     &                         stflx(i,j,isalt))/chs
+            s0mk(i,j) = t(i,j,N(ng),nnew,isalt) -                       &
+     &                         stflx(i,j,isalt)/chs
             s0mk(i,j) = max(s0mk(i,j),0._r8)
             s0mk(i,j) = min(s0mk(i,j),40._r8)
             t0mk(i,j) = t_freeze(s0mk(i,j),0.0_r8)
@@ -324,6 +328,21 @@
      &        -cht*(t(i,j,N(ng),nnew,itemp)-t0mk(i,j)))*rhocpr
         END DO
       END DO
+#  else
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          heat = 0.0_r8
+          DO k=N(ng),1,-1
+            IF (z_r(i,j,k) < -50.0_r8) EXIT
+            dz=z_w(i,j,k)-z_w(i,j,k-1)
+            tfr = t_freeze(t(i,j,k,nnew,isalt),0.0_r8)
+            heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz
+          END DO
+! convert units to W/m^2
+          wfr(i,j) = (wfr(i,j) - heat/dt(ng))*rhocpr
+        END DO
+      END DO
+#  endif
 # endif
 
       CALL bc_r2d_tile (ng, tile,                                       &

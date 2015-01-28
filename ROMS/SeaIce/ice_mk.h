@@ -750,8 +750,8 @@
           rno = utau(i,j)*0.09_r8/nu
           termt = ykf*sqrt(rno)*prt**0.666667_r8
           terms = ykf*sqrt(rno)*prs**0.666667_r8
-          cht(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+termt))
-          chs(i,j) = utau(i,j)/(tpr*(log(zdz0)/kappa+terms))
+          cht(i,j) = utau(i,j)/(tpr*log(zdz0)/kappa+termt)
+          chs(i,j) = utau(i,j)/(tpr*log(zdz0)/kappa+terms)
         END DO
       END DO
 
