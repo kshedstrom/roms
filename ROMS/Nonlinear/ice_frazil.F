@@ -126,7 +126,7 @@
       real(r8), intent(in) :: stflx(LBi:,LBj:,:)
       real(r8), intent(in) :: ai(LBi:,LBj:)
       real(r8), intent(in) :: hi(LBi:,LBj:)
-      real(r8), intent(in) :: z_w(LBi:,LBj:,:)
+      real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
 #  endif
       real(r8), intent(out) :: wfr(LBi:,LBj:)
 # else
