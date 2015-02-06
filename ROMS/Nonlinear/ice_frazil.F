@@ -184,6 +184,8 @@
       real(r8) :: utau, dztop, rno, termt, terms, cht, chs, z0, zdz0
 #  else
       real(r8) :: dz, heat, tfr
+      real(r8), parameter :: bl_thick = 5.0_r8
+      real(r8) :: ice_thick, thickness, fract
 #  endif
       real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
 # endif
@@ -332,11 +334,19 @@
       DO j=Jstr,Jend
         DO i=Istr,Iend
           heat = 0.0_r8
+          thickness = 0.0_r8
           DO k=N(ng),1,-1
-            IF (z_r(i,j,k) < -50.0_r8) EXIT
+            IF (z_w(i,j,k) < -bl_thick) EXIT
             dz=z_w(i,j,k)-z_w(i,j,k-1)
             tfr = t_freeze(t(i,j,k,nnew,isalt),0.0_r8)
-            heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz
+            IF ((thickness + dz) < bl_thick) THEN
+              thickness = thickness + dz
+              heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz
+            ELSE
+              fract = (bl_thick - thickness)/dz
+!              thickness = thickness + dz*fract
+              heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz*fract
+            END IF
           END DO
 ! convert units to W/m^2
           wfr(i,j) = (wfr(i,j) - heat/dt(ng))*rhocpr
