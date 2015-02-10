@@ -72,6 +72,8 @@
 !
 !  Local variable declarations.
 !
+      logical :: LallocateClima
+
       integer :: ng, thread, tile
       integer :: LBi, UBi, LBj, UBj, LBij, UBij
 
@@ -101,6 +103,15 @@
 #else
         tile=0
 #endif
+
+#if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
+    defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
+    defined SO_SEMI
+        LallocateClima=.TRUE.
+#else
+        LallocateClima=.FALSE.
+#endif
+
         DO ng=1,Ngrids
 !$OMP MASTER
           LBi=BOUNDS(ng)%LBi(tile)
@@ -128,7 +139,7 @@
 #if defined ICE_MODEL || defined CICE_MODEL
           CALL allocate_ice (ng, LBi, UBi, LBj, UBj)
 #endif
-          IF (Lclimatology(ng)) THEN
+          IF (LallocateClima.or.Lclimatology(ng)) THEN
             CALL allocate_clima (ng, LBi, UBi, LBj, UBj)
           END IF
 #ifdef SOLVE3D
@@ -203,7 +214,7 @@
 #endif
           CALL initialize_boundary (ng, tile, model)
 
-          IF (Lclimatology(ng)) THEN
+          IF (LallocateClima.or.Lclimatology(ng)) THEN
             CALL initialize_clima (ng, tile)
           END IF
 #ifdef SOLVE3D
