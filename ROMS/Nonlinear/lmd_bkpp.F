@@ -560,6 +560,12 @@
      &                     rmask,                                       &
 #  endif
      &                     hbbl)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          hbbl(i,j)=MIN(hbbl(i,j),z_w(i,j,N(ng)))
+          hbbl(i,j)=MAX(hbbl(i,j),z_w(i,j,0))
+        END DO
+      END DO
 # endif
 !
 !  Apply gradient or periodic boundary conditions.
