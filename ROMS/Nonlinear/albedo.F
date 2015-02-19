@@ -275,19 +275,19 @@ contains
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (hsn(i,j,listp).gt.0._r8) THEN
               IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo(i,j) = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+                albedo_ice(i,j) = cff1*(sfc_temp-272.16_r8)+alb_s_dry
               ELSE
-                albedo(i,j) = alb_s_dry
+                albedo_ice(i,j) = alb_s_dry
               ENDIF
             ELSE
               IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo(i,j) = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+                albedo_ice(i,j) = cff2*(sfc_temp-272.16_r8)+alb_i_dry
               ELSE
-                albedo(i,j) = alb_i_dry
+                albedo_ice(i,j) = alb_i_dry
               ENDIF
             ENDIF
           ELSE
-            albedo(i,j)=alb_w
+            albedo_ice(i,j)=alb_w
           ENDIF
 #  endif
 # endif
