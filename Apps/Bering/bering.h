@@ -18,7 +18,7 @@
 #undef ATM2OCN_FLUXES  /* not sure about this with ice */
 #define NO_LBC_ATT
 
-#undef NO_HIS
+#define NO_HIS
 #undef NETCDF4
 #undef PARALLEL_IO
 #define PERFECT_RESTART

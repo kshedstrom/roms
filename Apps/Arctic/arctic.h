@@ -194,11 +194,11 @@
 # define TIDES_ASTRO
 # define POT_TIDES
 
-# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
-# define UV_QDRAG
+# define UV_LDRAG
+# undef UV_QDRAG
 #else
 # define UV_QDRAG
 #endif

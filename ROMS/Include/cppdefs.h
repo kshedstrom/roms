@@ -324,7 +324,6 @@
 ** K_C4ADVECTION       use if 4th-order centered advection                   **
 **                                                                           **
 ** OPTIONS for the Large et al. (1994) K-profile parameterization mixing:    **
-** mixing:                                                                   **
 **                                                                           **
 ** LMD_BKPP            use if bottom boundary layer KPP mixing               **
 ** LMD_CONVEC          use to add convective mixing due to shear instability **

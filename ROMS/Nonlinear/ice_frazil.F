@@ -186,8 +186,17 @@
       real(r8) :: dz, heat, tfr
       real(r8), parameter :: bl_thick = 5.0_r8
       real(r8) :: ice_thick, thickness, fract
+      real(r8), parameter :: latent_heat_fusion = 3.337e5_r8   ! J/kg
+      real(r8), parameter :: cp_sw              = 3996.0_r8    ! J/kg/K
+      real(r8), parameter :: rho_sw             = 1026.0_r8    ! kg/m^3
+      real(r8), parameter :: rho_fw             = 1000.0_r8    ! kg/m^3
+      real(r8), parameter :: cp_over_lhfusion   =                       &
+     &                 rho_sw*cp_sw/(latent_heat_fusion*rho_fw)
 #  endif
       real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
+      real(r8), parameter :: salice = 4.0_r8
+      real(r8), parameter :: salref = 34.7_r8
+      real(r8) :: potice
 # endif
 
 # ifdef DISTRIBUTE
@@ -201,8 +210,13 @@
 !    &       - 2.154996d-4*s1*s1 + 0.000753*z1
 !  Freezing temperature (Steele et al. 1989)
 !      t_freeze(s1,z1) = -0.0543*s1 + 0.000759*z1
+# ifdef CICE_MODEL
+! Need to match CICE
+      t_freeze(s1,z1) = -1.8_r8
+# else
 ! Temperature or potential temperature??
       t_freeze(s1,z1) = -0.0543*s1
+# endif
 
 # include "set_bounds.h"
 
@@ -221,14 +235,51 @@
           wfr(i,j) = 0.0_r8
         ENDDO
       ENDDO
+# ifdef CICE_MODEL
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+#  ifdef WET_DRY
+          IF (rmask_wet(i,j) .ne. 0.0_r8) THEN
+#  elif defined MASKING
+          IF (rmask(i,j) .ne. 0.0_r8) THEN
+#  endif
+            thickness = 0.0_r8
+            DO k=N(ng),1,-1
+              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
+              dz = Hz(i,j,k)
+              t_fr = t_freeze(t(i,j,k,nnew,isalt),z_r(i,j,k))
+              IF ((thickness + dz) > bl_thick) THEN
+                fract = (bl_thick - thickness)/dz
+                dz = fract*dz
+              END IF
+              thickness = thickness + dz
+              potice = (t_fr - t(i,j,k,nnew,itemp)) * dz
+!
+!*** if potice < 0, use the heat to melt any ice from lower layers
+!*** if potice > 0, keep on freezing (wfr < 0)
+!
+              potice = max(potice,wfr(i,j))
+              t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + potice/dz
+              t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)                 &
+     &            + (salref-salice)*potice* cp_over_lhfusion/dz
+!*** accumulate freezing potential
+              wfr(i,j) = wfr(i,j) - potice
+            END DO
+#  if defined WET_DRY || defined MASKING
+          END IF
+#  endif
+        END DO
+      END DO
+# else
+! Old ice model
       DO j=Jstr,Jend
         DO i=Istr,Iend
           DO k=1,N(ng)
-# ifdef WET_DRY
+#  ifdef WET_DRY
             IF (rmask_wet(i,j) .ne. 0.0_r8) THEN
-# elif defined MASKING
+#  elif defined MASKING
             IF (rmask(i,j) .ne. 0.0_r8) THEN
-# endif
+#  endif
               t_fr = t_freeze(t(i,j,k,nnew,isalt),z_r(i,j,k))
               IF (t(i,j,k,nnew,itemp) .lt. t_fr) THEN
                 gamma_k = (t_fr - t(i,j,k,nnew,itemp)) /                &
@@ -255,8 +306,6 @@
      &                         + 0.0543_r8 * t(i,j,k,nnew,isalt))
                 delta_wfr = gamma_k * Hz(i,j,k) *                       &
      &                    (rho0 + rho(i,j,k) ) / rhoice(ng)
-!                print *, 'ICE_FRAZIL before', t_fr, t(i,j,k,nnew,itemp),&
-!     &               t(i,j,k,nnew,isalt)
                 IF ((wfr(i,j) + delta_wfr) > 0) THEN
                   wfr(i,j) = wfr(i,j) + delta_wfr
                 ELSE
@@ -268,12 +317,10 @@
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
      &                                  (1.0_r8 + gamma_k)
-!                print *, 'ICE_FRAZIL after', gamma_k,                   &
-!     &               t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt)
               END IF
-# if defined WET_DRY || defined MASKING
+#  if defined WET_DRY || defined MASKING
             END IF
-# endif
+#  endif
           END DO
           wfr(i,j) = wfr(i,j)/dt(ng)
           IF (wfr(i,j) .lt. 0.0_r8) THEN
@@ -284,6 +331,7 @@
           END IF
         END DO
       END DO
+# endif
 
 # ifdef CICE_MODEL
 ! Now compute heat flux from ocean and subtract from wfr.
@@ -336,8 +384,8 @@
           heat = 0.0_r8
           thickness = 0.0_r8
           DO k=N(ng),1,-1
-            IF (z_w(i,j,k) < -bl_thick) EXIT
-            dz=z_w(i,j,k)-z_w(i,j,k-1)
+            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
+            dz = Hz(i,j,k)
             tfr = t_freeze(t(i,j,k,nnew,isalt),0.0_r8)
             IF ((thickness + dz) < bl_thick) THEN
               thickness = thickness + dz

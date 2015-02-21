@@ -115,23 +115,23 @@
 !  62.6 N from 179.27 to 180.51 E
           Nsrcpt=13
           DO is=1,Nsrcpt
-            Isrcpt(is)=286+is
+            Isrcpt(is)=286 + is
             Jsrcpt(is)=279
             Lsrcpt(is,inert(1))=.TRUE.
           END DO
-!  62.81 N from 192.7 to 195.83 E
-          Nsrcpt=Nsrcpt+29
-          DO is=1,29
-            Isrcpt(is+13)=412+is
-            Jsrcpt(is+13)=302.6786 + is*0.3214
+!  62 N to 65 N at 194.5 E
+          Nsrcpt=Nsrcpt+61
+          DO is=1,61
+            Isrcpt(is+13)=435.333333 - is*.333333
+            Jsrcpt(is+13)=291 + is
             Lsrcpt(is+13,inert(3))=.TRUE.
           END DO
-!  78.5 N from 0 to 14 E
-          Nsrcpt=Nsrcpt+43
-          DO is=1,43
-            Isrcpt(is+42)=229+is
-            Jsrcpt(is+42)=914.85714 + is*0.14286
-            Lsrcpt(is+42,inert(5))=.TRUE.
+!  69.5 N from 15 to 18 E (roughly)
+          Nsrcpt=Nsrcpt+18
+          DO is=1,18
+            Isrcpt(is+74)=179+is
+            Jsrcpt(is+74)=1024
+            Lsrcpt(is+74,inert(5))=.TRUE.
           END DO
 #ifdef DISTRIBUTE
 !
@@ -155,13 +155,13 @@
           END DO
         END DO
         DO k=1,N(ng)
-          DO is=1,29
+          DO is=1,61
             Tsrcpt(is+13,k,inert(3))=1.
           END DO
         END DO
         DO k=1,N(ng)
-          DO is=1,43
-            Tsrcpt(is+42,k,inert(5))=1.
+          DO is=1,18
+            Tsrcpt(is+74,k,inert(5))=1.
           END DO
         END DO
       END IF
