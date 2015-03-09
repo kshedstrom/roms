@@ -209,8 +209,14 @@
               ifile=(iic(ng)-1)/ndefHIS2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (HIS2(ng)%name,20) TRIM(HIS2(ng)%base), ifile
+              WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
             END IF
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  12          FORMAT (a,'_',i5.5,'.nc')
+#else
+  12          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS2(ng)%name)
 # endif
@@ -380,8 +386,14 @@
               ifile=(iic(ng)-1)/ndefAVG2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (AVG2(ng)%name,20) TRIM(AVG2(ng)%base), ifile
+              WRITE (AVG2(ng)%name,22) TRIM(AVG2(ng)%base), ifile
             END IF
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  22          FORMAT (a,'_',i5.5,'.nc')
+#else
+  22          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, AVG2(ng)%name)
 # endif
