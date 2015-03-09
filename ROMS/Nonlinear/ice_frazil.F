@@ -165,6 +165,11 @@
       real(r8) :: t_fr
       real(r8) :: ice_dens
       real(r8) :: delta_wfr
+# ifdef CICE_MODEL
+      real(r8), parameter :: depressT = -0.054_r8
+# else
+      real(r8), parameter :: depressT = -0.0543_r8
+# endif
 
 # ifdef CICE_MODEL
 #  ifdef ICE_LOG_LAYER
@@ -213,9 +218,10 @@
 # ifdef CICE_MODEL
 ! Need to match CICE
       t_freeze(s1,z1) = -1.8_r8
+!      t_freeze(s1,z1) = depressT*s1
 # else
 ! Temperature or potential temperature??
-      t_freeze(s1,z1) = -0.0543*s1
+      t_freeze(s1,z1) = depressT*s1
 # endif
 
 # include "set_bounds.h"
@@ -255,15 +261,20 @@
               thickness = thickness + dz
               potice = (t_fr - t(i,j,k,nnew,itemp)) * dz
 !
-!*** if potice < 0, use the heat to melt any ice from lower layers
-!*** if potice > 0, keep on freezing (wfr < 0)
+!*** if potice < 0, use the heat to melt any ice from upper layers
+!*** if potice > 0, keep on freezing (wfr > 0)
 !
-              potice = max(potice,wfr(i,j))
-              t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + potice/dz
-              t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)                 &
-     &            + (salref-salice)*potice* cp_over_lhfusion/dz
+              IF ((wfr(i,j) + potice) > 0) THEN
+                wfr(i,j) = wfr(i,j) + potice
+              ELSE
+                potice = -wfr(i,j)
+                wfr(i,j) = 0.0_r8
+              ENDIF
+              t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) +             &
+     &                potice/Hz(i,j,k)
+              t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)               &
+     &              + (salref-salice)*potice*cp_over_lhfusion/Hz(i,j,k)
 !*** accumulate freezing potential
-              wfr(i,j) = wfr(i,j) - potice
             END DO
 #  if defined WET_DRY || defined MASKING
           END IF
@@ -284,7 +295,7 @@
               IF (t(i,j,k,nnew,itemp) .lt. t_fr) THEN
                 gamma_k = (t_fr - t(i,j,k,nnew,itemp)) /                &
      &                     (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r)     &
-     &                         + 0.0543_r8 * t(i,j,k,nnew,isalt))
+     &                         - depressT * t(i,j,k,nnew,isalt))
                 IF (gamma_k .lt. 0.0_r8) THEN
                   print *, 'trouble in ice_frazil', i, j, k,            &
      &             t(i,j,k,nnew,itemp), t(i,j,k,nnew,isalt),            &
@@ -303,7 +314,7 @@
 ! gamma_k becomes negative here.
                 gamma_k = (t_fr - t(i,j,k,nnew,itemp)) /                &
      &                     (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r)     &
-     &                         + 0.0543_r8 * t(i,j,k,nnew,isalt))
+     &                         - depressT * t(i,j,k,nnew,isalt))
                 delta_wfr = gamma_k * Hz(i,j,k) *                       &
      &                    (rho0 + rho(i,j,k) ) / rhoice(ng)
                 IF ((wfr(i,j) + delta_wfr) > 0) THEN
@@ -397,7 +408,7 @@
             END IF
           END DO
 ! convert units to W/m^2
-          wfr(i,j) = (wfr(i,j) - heat/dt(ng))*rhocpr
+          wfr(i,j) = (wfr(i,j) - heat)*rhocpr/dt(ng)
         END DO
       END DO
 #  endif

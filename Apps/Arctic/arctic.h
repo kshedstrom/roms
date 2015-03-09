@@ -16,7 +16,7 @@
 #define GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
-#undef PERFECT_RESTART
+#define PERFECT_RESTART
 #undef NO_LBC_ATT
 
 /* general */
@@ -47,13 +47,13 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE_MODEL
+# define CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define  OUTFLOW_MASK
@@ -78,7 +78,9 @@
 
 #define NO_WRITE_GRID
 #undef OUT_DOUBLE
-#define RST_SINGLE
+#ifndef PERFECT_RESTART
+# define RST_SINGLE
+#endif
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
@@ -197,8 +199,8 @@
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
-# define UV_LDRAG
-# undef UV_QDRAG
+# undef UV_LDRAG
+# define UV_QDRAG
 #else
 # define UV_QDRAG
 #endif

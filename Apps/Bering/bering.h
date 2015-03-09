@@ -127,7 +127,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -138,7 +138,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 
 # if defined GLS_MIXING
 #  define KANTHA_CLAYSON
