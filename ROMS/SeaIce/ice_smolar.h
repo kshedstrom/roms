@@ -833,22 +833,22 @@ FOOOO
 ! mask ???
 !
 #ifdef MASKING
-  DO j=Jmin,Jmax
-  DO i=Imin,Imax
+      DO j=Jmin,Jmax
+        DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask(i,j)
         END DO
       END DO
 #endif
 #ifdef WET_DRY
-  DO j=Jmin,Jmax
-  DO i=Imin,Imax
+      DO j=Jmin,Jmax
+        DO i=Imin,Imax
           aif(i,j)=aif(i,j)*rmask_wet(i,j)
         END DO
       END DO
 #endif
 #ifdef ICESHELF
-  DO j=Jmin,Jmax
-  DO i=Imin,Jmax
+      DO j=Jmin,Jmax
+        DO i=Imin,Imax
           IF (zice(i,j).ne.0.0_r8) THEN
             aif(i,j) = 0.0_r8
           END IF
