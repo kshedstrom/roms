@@ -244,6 +244,21 @@ ad_VolCons(north) ==  F                            ! northern boundary
         NDIA == 72
      NDEFDIA == 0
 
+! Flags indicating re-start from previous solution. If FISHRREC = 0, a new
+! NetCDF output file is created.
+
+       FISHRREC  == 0
+       FLEETRREC == 0
+       PREDRREC  == 0
+
+!# Fish model history parameters
+        NFSH == 96
+    NDEFFISH == 96
+        NPRE == 96
+    NDEFPRED == 96
+        NFLE == 96
+   NDEFFLEET == 96
+
 ! Output tangent linear and adjoint models parameters.
 
    LcycleTLM == F
@@ -915,6 +930,9 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      DIANAME == ocean_dia.nc
      STANAME == ocean_sta.nc
      FLTNAME == ocean_flt.nc
+     FISHNAME == fish.nc
+     PREDNAME == pred.nc
+     FLEETNAME == fleet.nc
 
 ! Input ASCII parameter filenames.
 
@@ -923,6 +941,9 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      FPOSNAM =  ROMS/External/floats.in
      BPARNAM =  ROMS/External/bio_Fennel.in
      SPARNAM =  ROMS/External/sediment.in
+     FISHPOSNAM =  ROMS/External/fish.in
+     PREDPOSNAM =  ROMS/External/pred.in
+     FLEETPOSNAM = ROMS/External/fleet.in
      USRNAME =  ROMS/External/MyFile.dat
 
 !
@@ -1331,6 +1352,18 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !                one diagnostics file.  This feature is useful for long
 !                simulations when diagnostics files get too large; it creates
 !                a new file every NDEFDIA time-steps.
+!
+!------------------------------------------------------------------------------
+!  Fish parameters.
+!------------------------------------------------------------------------------
+!
+! FISHRREC, FLEETRREC, PREDRREC  Flag to indicate re-start from a
+!              previous solution.  Use FISHRREC=0 for new solutions.
+!              In a re-start solution, FISHRREC is the time index
+!              in the floats NetCDF file assigned for initialization.
+!              If FISHRREC is negative (say FISHRREC=-1), the fish,
+!              etc. will re-start from the most recent time record.
+!              That is, the initialization record is assigned internally.
 !
 !------------------------------------------------------------------------------
 !  Output tangent linear and adjoint model parameters.

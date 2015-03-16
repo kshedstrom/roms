@@ -126,16 +126,18 @@ GridsInLayer =  1
 !   Keyword    Lateral Boundary Condition Type
 !
 !   Cha        Chapman
+!   Che        Chapman_explicit (free-surface)
 !   Cla        Clamped
 !   Clo        Closed
-!   Fla        Flather                                _____N_____     j=Mm
+!   Fla        Flather (2D momentum)                  _____N_____     j=Mm
 !   Gra        Gradient                              |     4     |
-!   Nes        Nested                                |           |
+!   Nes        Nested (refinement)                   |           |
 !   Nud        Nudging                             1 W           E 3
 !   Per        Periodic                              |           |
 !   Rad        Radiation                             |_____S_____|
-!   Red        Reduced Physics                             2          j=1
-!                                                   i=1         i=Lm
+!   Red        Reduced Physics (2D momentum)               2          j=1
+!   Shc        Shchepetkin (2D momentum)            i=1         i=Lm
+!
 !                   W       S       E       N
 !                   e       o       a       o
 !                   s       u       s       r
@@ -755,7 +757,6 @@ Aout(idVbar) == T       ! vbar               2D V-velocity
 Aout(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
 Aout(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
 Aout(idFsur) == T       ! zeta               free-surface
-Aout(idBath) == F       ! bath               time-dependent bathymetry
 
 Aout(idTvar) == T T     ! temp, salt         temperature and salinity
 
@@ -934,14 +935,16 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      SSFNAME == ocean_rivers.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
-! several files names per each nested grid.  For example, the USER may
-! have a different files for wind products, heat fluxes, rivers, tides,
-! etc.  The model will scan the file list and will read the needed data
-! from the first file in the list containing the forcing field. Therefore,
-! the order of the file names is very important.  If multiple forcing
-! files per grid, enter first all the file names for grid 1, then grid 2,
-! and so on.  Use a single line per entry with a continuation (\) symbol
-! at the each entry, except the last one.
+! several file names for each nested grid.  For example, the USER may
+! have different files for wind products, heat fluxes, tides, etc.
+! The model will scan the file list and will read the needed data from
+! the first file in the list containing the forcing field. Therefore,
+! the order of the file names is very important. If using multiple forcing
+! files per grid, first enter all the file names for grid 1, then grid 2,
+! and so on.  It is also possible to split input data time records into
+! several NetCDF files (see prologue instructions above). Use a single line
+! per entry with a continuation (\) or vertical bar (|) symbol after each
+! entry, except the last one.
 
      NFFILES == 7                          ! number of forcing files
 
@@ -986,7 +989,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !  =========
 !
 !------------------------------------------------------------------------------
-! Application tile (string with a maximum of eighty characters) and 
+! Application tile (string with a maximum of eighty characters) and
 ! C-preprocessing flag.
 !------------------------------------------------------------------------------
 !
@@ -1072,17 +1075,17 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! WARNING: It is trivial and possible to change these dimension parameters in
 ! -------  idealized applications via analytical expressions.  However, in
 ! realistic applications any change to these parameters requires redoing all
-! input NetCDF files. 
+! input NetCDF files.
 !
 ! Lm           Number of INTERIOR grid RHO-points in the XI-direction for
 !                each nested grid, [1:Ngrids]. If using NetCDF files as
-!                input, Lm=xi_rho-2 where "xi_rho" is the NetCDF file 
+!                input, Lm=xi_rho-2 where "xi_rho" is the NetCDF file
 !                dimension of RHO-points. Recall that all RHO-point
 !                variables have a computational I-range of [0:Lm+1].
 !
 ! Mm           Number of INTERIOR grid RHO-points in the ETA-direction for
 !                each nested grid, [1:Ngrids]. If using NetCDF files as
-!                input, Mm=eta_rho-2 where "eta_rho" is the NetCDF file 
+!                input, Mm=eta_rho-2 where "eta_rho" is the NetCDF file
 !                dimension of RHO-points. Recall that all RHO-point
 !                variables have a computational J-range of [0:Mm+1].
 !
@@ -1104,7 +1107,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !                     |                   |              |_______|
 !                   0 |___________________|              |       |
 !                              Ir                        |       | 1
-!                     0  1            Lm  Lm+1    h(i,j) |_______| 
+!                     0  1            Lm  Lm+1    h(i,j) |_______|
 !                                                        ::::::::: 0
 !                                                        :::::::::
 !                                                        ::::::::: Nbed-1
@@ -1694,7 +1697,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !  CHARNOK_ALPHA   Charnok surface roughness,
 !                    Zos:   (charnok_alpha * u_star**2) / g
-!   
+!
 !  ZOS_HSIG_ALPHA  Roughness from wave amplitude,
 !                    Zos:   zos_hsig_alpha * Hsig
 !
@@ -1986,7 +1989,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !              rho(:,:,:) = R0 - R0 * TCOEF * (t(:,:,:,:,itemp) - T0)
 !                              + R0 * SCOEF * (t(:,:,:,:,isalt) - S0)
 !
-!              Typical values:     R0 = 1027.0  kg/m3               
+!              Typical values:     R0 = 1027.0  kg/m3
 !                                  T0 = 10.0    Celsius
 !                                  S0 = 35.0    nondimensional
 !                               TCOEF = 1.7d-4  1/Celsius
@@ -2502,7 +2505,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 !                INT(user(1)):  tangent state variable to perturb
 !                INT(user(2)):  adjoint state variable to perturb
-!                               [isFsur=1] free-surface 
+!                               [isFsur=1] free-surface
 !                               [isUbar=2] 2D U-momentum
 !                               [isVbar=3] 2D V-momentum
 !                               [isUvel=4] 3D U-momentum
