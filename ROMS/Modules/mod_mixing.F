@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1159,7 +1159,7 @@
 # endif
 #endif
 
-#if defined FORWARD_READ && defined FOWARD_MIXING && defined SOLVE3D && \
+#if defined FORWARD_READ && defined FORWARD_MIXING && defined SOLVE3D && \
    (defined TANGENT || defined TL_IOMS || defined ADJOINT)
 !
 !  Latest two records of the nonlinear trajectory used to interpolate

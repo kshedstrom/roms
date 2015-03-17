@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -216,6 +216,12 @@
 !    tide_start    Reference time for tidal forcing (days).
 !    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
 !    r_text        Model initialization reference text (string).
+#ifdef CICE_MODEL
+!    tspy          timesteps per year
+!    tspd          timesteps per day
+!    dleftinSep    days in September before Oct1 restart
+!    Jan,Feb,...,Nov,Dec  days after restart until first of each month
+#endif
 !
         logical, allocatable :: PerfectRST(:)
         logical, allocatable :: PREDICTOR_2D_STEP(:)
@@ -256,7 +262,26 @@
         real(r8) :: run_time = 0.0_r8                    ! seconds
         real(r8) :: tide_start = 0.0_r8                  ! days
         real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
-        real(r8) :: days_year = 365.25_r8                 ! days per year
+        real(r8) :: days_year = 365.25_r8                ! days per year
+#ifdef CICE_MODEL
+        real(r8), allocatable :: tspy(:)                 ! timesteps
+        real(r8), allocatable :: tspd(:)                 ! timesteps
+        real(r8) :: dleftinSep = 0.0_r8                  ! days
+        real(r8) :: Jan = 0.0_r8                         ! days
+        real(r8) :: Feb = 0.0_r8                         ! days
+        real(r8) :: Mar = 0.0_r8                         ! days
+        real(r8) :: Apr = 0.0_r8                         ! days
+        real(r8) :: May = 0.0_r8                         ! days
+        real(r8) :: Jun = 0.0_r8                         ! days
+        real(r8) :: Jul = 0.0_r8                         ! days
+        real(r8) :: Aug = 0.0_r8                         ! days
+        real(r8) :: Sep = 0.0_r8                         ! days
+        real(r8) :: Oct = 0.0_r8                         ! days
+        real(r8) :: Nov = 0.0_r8                         ! days
+        real(r8) :: Dec = 0.0_r8                         ! days
+        real(r8), allocatable :: rhoice(:)
+        real(r8), allocatable :: min_a(:)
+#endif
 
         character (len=14), allocatable :: time_code(:)  ! DD HH:MM:SS
 !$OMP THREADPRIVATE (time_code)
@@ -306,7 +331,7 @@
 !
         integer, allocatable :: ntimes(:)
 !
-!  Step counter for current execution time-window.
+!  Time-step counter for current execution time-window.
 !
         integer, allocatable :: step_counter(:)
 
@@ -525,7 +550,7 @@
         integer, parameter :: linear = 0        ! linear interpolation
         integer, parameter :: cubic  = 1        ! cubic  interpolation
 !
-        integer :: InterpFlag = cubic          ! interpolation flag
+        integer :: InterpFlag = linear          ! interpolation flag
 !
 !  Shallowest and Deepest levels to apply bottom momentum stresses as
 !  a bodyforce
@@ -621,8 +646,14 @@
         real(r8), allocatable :: DXmax(:)
         real(r8), allocatable :: DYmin(:)
         real(r8), allocatable :: DYmax(:)
+#ifdef SOLVE3D
         real(r8), allocatable :: DZmin(:)
         real(r8), allocatable :: DZmax(:)
+#endif
+!$OMP THREADPRIVATE (DXmin, DXmax, DYmin, DYmax)
+#ifdef SOLVE3D
+!$OMP THREADPRIVATE (DZmin, DZmax)
+#endif
 !
 !  Maximum size of a grid node (m) over the whole curvilinear grid
 !  application. Used for scaling horizontal mixing by the grid size.
@@ -734,6 +765,12 @@
 !
         integer :: Nuser
         real(r8), dimension(25) :: user(25)
+#ifdef CICE_MODEL
+!
+!  Ice initialization date
+!
+        integer :: iROMSdate
+#endif
 !
 !  Weights for the time average of 2D fields.
 !
@@ -1762,7 +1799,6 @@
         real(r8), allocatable :: min_a(:)
         real(r8), allocatable :: max_a(:)
         real(r8), allocatable :: stressang(:)
-        real(r8), allocatable :: sfwat_max(:)
 #endif
 
       CONTAINS
@@ -1832,6 +1868,15 @@
       allocate ( iic(Ngrids) )
       allocate ( iif(Ngrids) )
 
+      allocate ( DXmin(Ngrids) )
+      allocate ( DXmax(Ngrids) )
+      allocate ( DYmin(Ngrids) )
+      allocate ( DYmax(Ngrids) )
+#ifdef SOLVE3D
+      allocate ( DZmin(Ngrids) )
+      allocate ( DZmax(Ngrids) )
+#endif
+
       allocate ( FrcRec(Ngrids) )
       allocate ( SOrec(Ngrids) )
 !$OMP END PARALLEL
@@ -1873,6 +1918,12 @@
 #endif
 #ifdef AGE_DISTRIBUTION
       allocate ( dtau(Ngrids) )
+#endif
+#ifdef CICE_MODEL
+      allocate ( tspy(Ngrids) )
+      allocate ( tspd(Ngrids) )
+      allocate ( rhoice(Ngrids) )
+      allocate ( min_a(Ngrids) )
 #endif
 
       allocate ( ntimes(Ngrids) )
@@ -1977,13 +2028,6 @@
 #ifdef SOLVE3D
       allocate ( Kdigits(Ngrids) )
 #endif
-
-      allocate ( DXmin(Ngrids) )
-      allocate ( DXmax(Ngrids) )
-      allocate ( DYmin(Ngrids) )
-      allocate ( DYmax(Ngrids) )
-      allocate ( DZmin(Ngrids) )
-      allocate ( DZmax(Ngrids) )
 
       allocate ( grdmax(Ngrids) )
 
@@ -2288,7 +2332,6 @@
      allocate ( min_a(Ngrids) )
      allocate ( max_a(Ngrids) )
      allocate ( stressang(Ngrids) )
-     allocate ( sfwat_max(Ngrids) )
 #endif
 
       RETURN
@@ -2764,6 +2807,10 @@
       my_Sm3=my_A1*(1.0_r8-3.0_r8*my_C1-6.0_r8*my_A1/my_B1)
       my_Sm4=18.0_r8*my_A1*my_A1+9.0_r8*my_A1*my_A2
 # endif
+#endif
+#ifdef CICE_MODEL
+      rhoice = 900.0_r8
+      min_a = 1.0e-11_r8
 #endif
 
       RETURN

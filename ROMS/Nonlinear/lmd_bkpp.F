@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Scott M. Durski   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Scott M. Durski   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -560,6 +560,12 @@
      &                     rmask,                                       &
 #  endif
      &                     hbbl)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          hbbl(i,j)=MIN(hbbl(i,j),z_w(i,j,N(ng)))
+          hbbl(i,j)=MAX(hbbl(i,j),z_w(i,j,0))
+        END DO
+      END DO
 # endif
 !
 !  Apply gradient or periodic boundary conditions.

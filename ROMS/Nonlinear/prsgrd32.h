@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -63,8 +63,8 @@
      &                  GRID(ng) % vmask,                               &
 #endif
 #ifdef WET_DRY
-     &                  GRID(ng) % umask_wet,                           &
-     &                  GRID(ng) % vmask_wet,                           &
+     &                  GRID(ng)%umask_wet,                             &
+     &                  GRID(ng)%vmask_wet,                             &
 #endif
      &                  GRID(ng) % om_v,                                &
      &                  GRID(ng) % on_u,                                &

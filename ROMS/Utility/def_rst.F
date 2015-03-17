@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -53,7 +53,7 @@
 
       integer :: DimIDs(32)
       integer :: r2dgrd(4), ru2dgrd(4), rv2dgrd(4)
-      integer :: sr2dgrd(3), su2dgrd(3), sv2dgrd(3)
+      integer :: sp2dgrd(3), sr2dgrd(3), su2dgrd(3), sv2dgrd(3)
       integer :: sr3dgrd(4), su3dgrd(4), sv3dgrd(4)
       integer :: t2dgrd(4), u2dgrd(4), v2dgrd(4)
       integer :: Vsize(4)
@@ -305,6 +305,12 @@
         r3dgrd(4)=DimIDs(12)
 # endif
 #endif
+!
+!  Define dimension vectors for staggered type variables at PSI-points.
+!
+        sp2dgrd(1)=DimIDs( 4)
+        sp2dgrd(2)=DimIDs( 8)
+        sp2dgrd(3)=DimIDs(12)
 !
 !  Define dimension vectors for staggered u-momentum type variables.
 !
@@ -641,6 +647,22 @@
         IF (exit_flag.ne.NoError) RETURN
 
 #ifdef WET_DRY
+!
+!  Define wet/dry mask on PSI-points.
+!
+        Vinfo( 1)=Vname(1,idPwet)
+        Vinfo( 2)=Vname(2,idPwet)
+        Vinfo( 3)=Vname(3,idPwet)
+        Vinfo( 9)='land'
+        Vinfo(10)='water'
+        Vinfo(14)=Vname(4,idPwet)
+        Vinfo(16)=Vname(1,idtime)
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idPwet,ng),r8)
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idPwet),     &
+     &                 NF_FOUT, nvd3, sp2dgrd, Aval, Vinfo, ncname,     &
+     &                 SetFillVal = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
 !
 !  Define wet/dry mask on RHO-points.
 !
@@ -1075,12 +1097,12 @@
 !------------------------------------------   
         DO itrc=1,NBeT(ng)
           rstBid(itrc,ng) = var_id(i)
-          IF (Hout(idBvar(itrc),ng)) THEN
+          IF (Hout(idBeTvar(itrc),ng)) THEN
 
-            Vinfo( 1)=Vname(1,idBvar(itrc))
-            Vinfo( 2)=Vname(2,idBvar(itrc))
-            Vinfo(3)=Vname(3,idBvar(itrc))
-            Vinfo(14)=Vname(4,idBvar(itrc))
+            Vinfo( 1)=Vname(1,idBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idBeTvar(itrc))
+            Vinfo(3)=Vname(3,idBeTvar(itrc))
+            Vinfo(14)=Vname(4,idBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
@@ -1100,12 +1122,12 @@
 #  if defined ICE_BIO
 # ifdef CLIM_ICE_1D
         DO itrc=1,NIceT(ng)
-          IF (Hout(idIceBvar(itrc),ng)) THEN
+          IF (Hout(idIceBeTvar(itrc),ng)) THEN
 
-            Vinfo( 1)=Vname(1,idIceBvar(itrc))
-            Vinfo( 2)=Vname(2,idIceBvar(itrc))
-            Vinfo(3)=Vname(3,idIceBvar(itrc))
-            Vinfo(14)=Vname(4,idIceBvar(itrc))
+            Vinfo( 1)=Vname(1,idIceBeTvar(itrc))
+            Vinfo( 2)=Vname(2,idIceBeTvar(itrc))
+            Vinfo(3)=Vname(3,idIceBeTvar(itrc))
+            Vinfo(14)=Vname(4,idIceBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)  
@@ -1795,27 +1817,50 @@
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
 # endif
         IF (exit_flag.ne.NoError) RETURN
+# ifdef MELT_PONDS
 !
-!  Define surface water thickness (on ice).
+!  Define surface water fraction (on ice).
 !
-        Vinfo( 1)=Vname(1,idSfwat)
-        Vinfo( 2)=Vname(2,idSfwat)
-        Vinfo( 3)=Vname(3,idSfwat)
-        Vinfo(14)=Vname(4,idSfwat)
+        Vinfo( 1)=Vname(1,idApond)
+        Vinfo( 2)=Vname(2,idApond)
+        Vinfo( 3)=Vname(3,idApond)
+        Vinfo(14)=Vname(4,idApond)
         Vinfo(16)=Vname(1,idtime)
 #if defined WRITE_WATER && defined MASKING
         Vinfo(20)='mask_rho'
 #endif
         Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idSfwat,ng),r8)
+        Aval(5)=REAL(Iinfo(1,idApond,ng),r8)
 # ifdef PERFECT_RESTART
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),    &
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idApond),    &
      &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
 # else
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idSfwat),    &
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idApond),    &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
 # endif
         IF (exit_flag.ne.NoError) RETURN
+!
+!  Define surface water thickness (on ice).
+!
+        Vinfo( 1)=Vname(1,idHpond)
+        Vinfo( 2)=Vname(2,idHpond)
+        Vinfo( 3)=Vname(3,idHpond)
+        Vinfo(14)=Vname(4,idHpond)
+        Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+        Vinfo(20)='mask_rho'
+#endif
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idHpond,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHpond),    &
+     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
+# else
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHpond),    &
+     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
+# endif
+        IF (exit_flag.ne.NoError) RETURN
+#endif
 !
 !  Define ice age.
 !
@@ -2283,6 +2328,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVwet))) THEN
             got_var(idVwet)=.TRUE.
             RST(ng)%Vid(idVwet)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPwet))) THEN
+            got_var(idPwet)=.TRUE.
+            RST(ng)%Vid(idPwet)=var_id(i)
 #endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsur))) THEN
             got_var(idFsur)=.TRUE.
@@ -2437,8 +2485,8 @@
 # endif
 # ifdef BENTHIC
           DO itrc=1,NBeT(ng)
-            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBvar(itrc)))) THEN
-              got_var(idBvar(itrc))=.TRUE.
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBeTvar(itrc)))) THEN
+              got_var(idBeTvar(itrc))=.TRUE.
               rstBid(itrc,ng)=var_id(i)
             END IF
           END DO
@@ -2514,9 +2562,14 @@
             got_var(idIceLog)=.TRUE.
             RST(ng)%Vid(idIceLog)=var_id(i)
 # endif
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSfwat))) THEN
-            got_var(idSfwat)=.TRUE.
-            RST(ng)%Vid(idSfwat)=var_id(i)
+# ifdef MELT_PONDS
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idApond))) THEN
+            got_var(idApond)=.TRUE.
+            RST(ng)%Vid(idApond)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHpond))) THEN
+            got_var(idHpond)=.TRUE.
+            RST(ng)%Vid(idHpond)=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
             got_var(idAgeice)=.TRUE.
             RST(ng)%Vid(idAgeice)=var_id(i)
@@ -2610,6 +2663,12 @@
         END IF
         IF (.not.got_var(idVwet)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idVwet)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idPwet)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idPwet)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
@@ -2909,12 +2968,20 @@
           RETURN
         END IF
 # endif
-        IF (.not.got_var(idSfwat)) THEN
-          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idSfwat)),         &
+# ifdef MELT_PONDS
+        IF (.not.got_var(idApond)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idApond)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
+        IF (.not.got_var(idHpond)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idHpond)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+# endif
         IF (.not.got_var(idAgeice)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idAgeice)),        &
      &                                  TRIM(ncname)

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -31,7 +31,7 @@
 #define SOLVE3D
 #define SPLINES
 #define AVERAGES
-#define HISTORY2
+#undef HISTORY2
 #define DIAGNOSTICS_TS
 #define DIAGNOSTICS_UV
 

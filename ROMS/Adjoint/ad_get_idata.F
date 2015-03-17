@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -199,11 +199,13 @@
      &                   SOURCES(ng) % Dsrc)
         IF (exit_flag.ne.NoError) RETURN
 
+#  ifdef SOLVE3D
         CALL get_ngfldr (ng, iADM, idRvsh, SSF(ng)%ncid,                &
      &                   1, SSF(ng), update(1),                         &
      &                   1, Nsrc(ng), N(ng), 1, 1, Nsrc(ng), N(ng),     &
      &                   SOURCES(ng) % Qshape)
         IF (exit_flag.ne.NoError) RETURN
+#  endif
 
         DO is=1,Nsrc(ng)
           SOURCES(ng)%Isrc(is)=                                         &

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -90,6 +90,7 @@
 !  Tair         Surface air temperature (Celsius)                      !
 !  TairG        Latest two-time snapshots of input "Tair" grided       !
 !                 data used for interpolation.                         !
+!  PotT         Surface air potential temperature (Kelvin)             !
 !  Surface Winds.                                                      !
 !                                                                      !
 !  Uwind        Surface wind in the XI-direction (m/s) at              !
@@ -106,6 +107,12 @@
 !  evap         Evaporation rate (kg/m2/s).                            !
 !  rain         Rain fall rate (kg/m2/s).                              !
 !  rainG        Latest two-time snapshots of input "rain" grided       !
+!                 data used for interpolation.                         !
+!                                                                      !
+!  Snow fall rate.                                                     !
+!                                                                      !
+!  snow         Snow fall rate (kg/m2/s).                              !
+!  snowG        Latest two-time snapshots of input "snow" grided       !
 !                 data used for interpolation.                         !
 !                                                                      !
 !  Surface tracer fluxes.                                              !
@@ -306,6 +313,9 @@
           real(r8), pointer :: TairG(:,:,:)
 # endif
 #endif
+#ifdef CICE_MODEL
+          real(r8), pointer :: PotT(:,:)
+#endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
      || defined CCSM_FLUXES2D
@@ -322,12 +332,17 @@
 #  ifndef ANA_SRFLUX
           real(r8), pointer :: srflxG(:,:,:)
 #  endif
-#  if defined ALBEDO
-          real(r8), pointer :: cawdir(:,:)
+#  ifdef ALBEDO
+          real(r8), pointer :: albedo(:,:)
+#   ifdef ICE_MODEL
+          real(r8), pointer :: albedo_ice(:,:)
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-          real(r8), pointer :: albedo(:,:)
           real(r8), pointer :: albedoG(:,:,:)
+#  endif
+#  if defined ALBEDO_CLOUD
+          real(r8), pointer :: cawdir(:,:)
 #  endif
 # endif
 
@@ -360,8 +375,14 @@
 
 # ifdef BULK_FLUXES
           real(r8), pointer :: rain(:,:)
+#  ifdef SNOWFALL
+          real(r8), pointer :: snow(:,:)
+#  endif
 #  ifndef ANA_RAIN
           real(r8), pointer :: rainG(:,:,:)
+#  ifdef SNOWFALL
+          real(r8), pointer :: snowG(:,:,:)
+#  endif
 #  endif
 #  ifdef EMINUSP
           real(r8), pointer :: EminusP(:,:)
@@ -708,6 +729,9 @@
       allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
 # endif
 #endif
+#ifdef CICE_MODEL
+      allocate ( FORCES(ng) % PotT(LBi:UBi,LBj:UBj) )
+#endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
     || defined CCSM_FLUXES2D
@@ -726,12 +750,17 @@
 #  ifndef ANA_SRFLUX
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #  endif
-#  if defined ALBEDO
-      allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+#  ifdef ALBEDO
+      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
+#   ifdef ICE_MODEL
+      allocate ( FORCES(ng) % albedo_ice(LBi:UBi,LBj:UBj) )
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-      allocate ( FORCES(ng) % albedo(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
+#  endif
+#  if defined ALBEDO_CLOUD
+      allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
 # endif
 
@@ -768,9 +797,14 @@
 
 # ifdef BULK_FLUXES
       allocate ( FORCES(ng) % rain(LBi:UBi,LBj:UBj) )
-
+#  ifdef SNOWFALL
+      allocate ( FORCES(ng) % snow(LBi:UBi,LBj:UBj) )
+#  endif
 #  ifndef ANA_RAIN
       allocate ( FORCES(ng) % rainG(LBi:UBi,LBj:UBj,2) )
+#  ifdef SNOWFALL
+      allocate ( FORCES(ng) % snowG(LBi:UBi,LBj:UBj,2) )
+#  endif
 #  endif
 #  ifdef EMINUSP
       allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
@@ -1202,6 +1236,9 @@
             FORCES(ng) % TairG(i,j,2) = IniVal
 # endif
 #endif
+#ifdef CICE_MODEL
+            FORCES(ng) % PotT(i,j) = IniVal
+#endif
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
      defined CCSM_FLUXES2D
             FORCES(ng) % Pair(i,j) = IniVal
@@ -1218,13 +1255,18 @@
             FORCES(ng) % srflxG(i,j,1) = IniVal
             FORCES(ng) % srflxG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO
-            FORCES(ng) % cawdir(i,j) = IniVal
+#  ifdef ALBEDO
+            FORCES(ng) % albedo(i,j) = IniVal
+#   ifdef ICE_MODEL
+            FORCES(ng) % albedo_ice(i,j) = IniVal
+#   endif
 #  endif
 #  ifdef ALBEDO_FILE
-            FORCES(ng) % albedo(i,j) = IniVal
             FORCES(ng) % albedoG(i,j,1) = IniVal
             FORCES(ng) % albedoG(i,j,2) = IniVal
+#  endif
+#  if defined ALBEDO_CLOUD
+            FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -1252,9 +1294,16 @@
 # endif
 # ifdef BULK_FLUXES
             FORCES(ng) % rain(i,j) = IniVal
+#  ifdef SNOWFALL
+            FORCES(ng) % snow(i,j) = IniVal
+#  endif
 #  ifndef ANA_RAIN
             FORCES(ng) % rainG(i,j,1) = IniVal
             FORCES(ng) % rainG(i,j,2) = IniVal
+#   ifdef SNOWFALL
+            FORCES(ng) % snowG(i,j,1) = IniVal
+            FORCES(ng) % snowG(i,j,2) = IniVal
+#   endif
 #  endif
 #  ifdef EMINUSP
             FORCES(ng) % EminusP(i,j) = IniVal
@@ -1273,6 +1322,10 @@
 # if !defined ANA_RAIN && defined BULK_FLUXES
             FORCES(ng) % rainG(i,j,1) = IniVal
             FORCES(ng) % rainG(i,j,2) = IniVal
+#  ifdef SNOWFALL
+            FORCES(ng) % snowG(i,j,1) = IniVal
+            FORCES(ng) % snowG(i,j,2) = IniVal
+#  endif
 # endif
 # ifdef QCORRECTION
             FORCES(ng) % dqdt(i,j) = IniVal

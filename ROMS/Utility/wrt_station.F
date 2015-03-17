@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -237,7 +237,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    OCEAN(ng) % ubar(:,:,KOUT),                   &
      &                    OCEAN(ng) % vbar(:,:,KOUT),                   &
@@ -328,7 +328,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 #  ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 #  endif
      &                    OCEAN(ng) % u(:,:,:,NOUT),                    &
      &                    OCEAN(ng) % v(:,:,:,NOUT),                    &
@@ -732,7 +732,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
@@ -1735,7 +1735,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    ICE(ng) % ui(:,:,IUOUT),                      &
      &                    ICE(ng) % vi(:,:,IUOUT),                      &
@@ -1816,22 +1816,40 @@
      &                        varid = STA(ng)%Vid(idHsno))
         IF (exit_flag.ne.NoError) RETURN
       END IF
+#ifdef MELT_PONDS
+!
+!  Write out surface water fraction (on ice)
+!
+      IF (Sout(idApond,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idApond, r2dvar,           &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, ICE(ng)%apond(:,:,IOUT),             &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idApond)), psta,             &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idApond))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 !
 !  Write out surface water thickness (on ice)
 !
-      IF (Sout(idSfwat,ng)) THEN
+      IF (Sout(idHpond,ng)) THEN
         scale=1.0_r8
-        CALL extract_sta2d (ng, iNLM, Cgrid, idSfwat, r2dvar,           &
+        CALL extract_sta2d (ng, iNLM, Cgrid, idHpond, r2dvar,           &
      &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, ICE(ng)%sfwat(:,:,IOUT),             &
+     &                      scale, ICE(ng)%hpond(:,:,IOUT),             &
      &                      Nstation(ng), Xpos, Ypos, psta)
         CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
-     &                        TRIM(Vname(1,idSfwat)), psta,             &
+     &                        TRIM(Vname(1,idHpond)), psta,             &
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
-     &                        varid = STA(ng)%Vid(idSfwat))
+     &                        varid = STA(ng)%Vid(idHpond))
         IF (exit_flag.ne.NoError) RETURN
       END IF
+#endif
 !
 !  Write out ice age.
 !
@@ -1926,6 +1944,38 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idChuiw))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out under-ice temperature
+!
+      IF (Sout(idT0mk,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idT0mk, r2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, ICE(ng)%t0mk,                        &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idT0mk)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idT0mk))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out under-ice salinity
+!
+      IF (Sout(idS0mk,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idS0mk, r2dvar,            &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, ICE(ng)%s0mk,                        &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idS0mk)), psta,              &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idS0mk))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 !

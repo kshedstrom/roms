@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -68,11 +68,6 @@
      &                      GRID(ng) % rmask_wet,                       &
      &                      GRID(ng) % umask_wet,                       &
      &                      GRID(ng) % vmask_wet,                       &
-     &                      GRID(ng) % pmask_wet,                       &
-#  ifdef SOLVE3D
-     &                      GRID(ng) % umask_diff,                      &
-     &                      GRID(ng) % vmask_diff,                      &
-#  endif
 # endif
 # ifdef PERFECT_RESTART
 #  ifdef SOLVE3D
@@ -103,7 +98,10 @@
      &                      ICE(ng) % hi,                               &
      &                      ICE(ng) % hsn,                              &
      &                      ICE(ng) % ti,                               &
-     &                      ICE(ng) % sfwat,                            &
+#   ifdef MELT_PONDS
+     &                      ICE(ng) % apond,                            &
+     &                      ICE(ng) % hpond,                            &
+#   endif
      &                      ICE(ng) % ageice,                           &
 #  endif
 # endif
@@ -129,10 +127,6 @@
 # endif
 # ifdef WET_DRY
      &                            rmask_wet, umask_wet, vmask_wet,      &
-     &                            pmask_wet,                            &
-#  ifdef SOLVE3D
-     &                            umask_diff, vmask_diff,               &
-#  endif
 # endif
 # ifdef PERFECT_RESTART
 #  ifdef SOLVE3D
@@ -151,7 +145,10 @@
      &                            t, u, v,                              &
 #  ifdef ICE_MODEL
      &                            ui, vi, ai, hi, hsn,                  &
-     &                            ti, sfwat, ageice,                    &
+     &                            ti, ageice,                           &
+#   ifdef MELT_PONDS
+     &                            apond, hpond,                         &
+#   endif
 #  endif
 # endif
      &                            ubar, vbar, zeta)
@@ -165,9 +162,6 @@
 # endif
 # if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
-# endif
-# ifdef WET_DRY
-      USE bc_2d_mod
 # endif
 !
       USE exchange_2d_mod
@@ -218,11 +212,6 @@
       real(r8), intent(in)    :: rmask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: umask_wet(LBi:,LBj:)
       real(r8), intent(inout) :: vmask_wet(LBi:,LBj:)
-      real(r8), intent(out)   :: pmask_wet(LBi:,LBj:)
-#   ifdef SOLVE3D
-      real(r8), intent(inout) :: umask_diff(LBi:,LBj:)
-      real(r8), intent(inout) :: vmask_diff(LBi:,LBj:)
-#   endif
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -258,8 +247,11 @@
       real(r8), intent(inout) :: hi(LBi:,LBj:,:)
       real(r8), intent(inout) :: hsn(LBi:,LBj:,:)
       real(r8), intent(inout) :: ti(LBi:,LBj:,:)
-      real(r8), intent(inout) :: sfwat(LBi:,LBj:,:)
       real(r8), intent(inout) :: ageice(LBi:,LBj:,:)
+#    ifdef MELT_PONDS
+      real(r8), intent(inout) :: apond(LBi:,LBj:,:)
+      real(r8), intent(inout) :: hpond(LBi:,LBj:,:)
+#    endif
 #   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:,LBj:,:)
@@ -276,11 +268,6 @@
       real(r8), intent(in)    :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: vmask_wet(LBi:UBi,LBj:UBj)
-      real(r8), intent(out)   :: pmask_wet(LBi:UBi,LBj:UBj)
-#   ifdef SOLVE3D
-      real(r8), intent(inout) :: umask_diff(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: vmask_diff(LBi:UBi,LBj:UBj)
-#   endif
 #  endif
 #  ifdef SOLVE3D
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
@@ -316,8 +303,11 @@
       real(r8), intent(inout) :: hi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: sfwat(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: ageice(LBi:UBi,LBj:UBj,2)
+#    ifdef MELT_PONDS
+      real(r8), intent(inout) :: apond(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: hpond(LBi:UBi,LBj:UBj,2)
+#    endif
 #   endif
 #  endif
       real(r8), intent(inout) :: ubar(LBi:UBi,LBj:UBj,3)
@@ -331,166 +321,13 @@
       integer :: ised
 # endif
 
-      real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6
+      real(r8) :: cff1, cff2, cff3, cff4, cff5, cff6, cff7
 # ifdef SOLVE3D
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC
 # endif
-# ifdef WET_DRY
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wetdry
-# endif
 
 # include "set_bounds.h"
-
-# ifdef WET_DRY
-      DO j=JstrT,JendT
-        DO i=Istr,IendT
-          cff1=rmask_wet(i-1,j)+rmask_wet(i,j)
-#  ifdef SOLVE3D
-          umask_diff(i,j) = 1.0_r8
-          IF (cff1.lt.2.0_r8) THEN
-            umask_diff(i,j) = 0.0_r8
-          END IF
-#  endif
-          IF (.not.PerfectRST(ng)) THEN
-            IF (cff1.eq.1.0_r8) THEN
-              cff1=rmask_wet(i-1,j)-rmask_wet(i,j)
-            END IF
-            cff5=ABS(ABS(cff1)-1.0_r8)
-            cff6=0.5_r8+DSIGN(0.5_r8,ubar(i,j,kstp))*cff1
-            umask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
-            umask_wet(i,j)=umask_wet(i,j)*umask(i,j)
-          END IF
-        END DO
-      END DO
-      DO j=Jstr,JendT
-        DO i=IstrT,IendT
-          cff1=rmask_wet(i,j-1)+rmask_wet(i,j)
-#  ifdef SOLVE3D
-          vmask_diff(i,j) = 1.0_r8
-          IF (cff1.lt.2.0_r8) THEN
-            vmask_diff(i,j) = 0.0_r8
-          END IF
-#  endif
-          IF (.not.PerfectRST(ng)) THEN
-            IF (cff1.eq.1.0_r8) THEN
-              cff1=rmask_wet(i,j-1)-rmask_wet(i,j)
-            END IF
-            cff5=ABS(ABS(cff1)-1.0_r8)
-            cff6=0.5_r8+DSIGN(0.5_r8,vbar(i,j,kstp))*cff1
-            vmask_wet(i,j)=0.5_r8*cff1*cff5+cff6*(1.0_r8-cff5)
-            vmask_wet(i,j)=vmask_wet(i,j)*vmask(i,j)
-          END IF
-        END DO
-      END DO
-!
-! Set no-slip boundary conditions on land-mask boundaries regardless of
-! supplied value of gamma2.
-!
-      cff1=1.0_r8
-      cff2=2.0_r8
-      DO j=Jstr,JendR
-        DO i=Istr,IendR
-          IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                     &
-     &        (rmask_wet(i  ,j  ).gt.0.5_r8).and.                     &
-     &        (rmask_wet(i-1,j-1).gt.0.5_r8).and.                     &
-     &        (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=1.0_r8
-          ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff1
-          ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff1
-          ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff1
-          ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff1
-          ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff2
-          ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff2
-          ELSE IF ((rmask_wet(i-1,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).gt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).lt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff2
-          ELSE IF ((rmask_wet(i-1,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j  ).lt.0.5_r8).and.                &
-     &             (rmask_wet(i-1,j-1).gt.0.5_r8).and.                &
-     &             (rmask_wet(i  ,j-1).gt.0.5_r8)) THEN
-            pmask_wet(i,j)=cff2
-          ELSE
-            pmask_wet(i,j)=0.0_r8
-          END IF
-        END DO
-      END DO
-!
-!  Exchange boundary data.
-!
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_p2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          pmask_wet)
-      ENDIF
-#  ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, model, 1,                         &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints,                               &
-     &                      EWperiodic(ng), NSperiodic(ng),             &
-     &                      pmask_wet)
-#  endif
-      IF (.not.PerfectRST(ng)) THEN
-        IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-          CALL exchange_u2d_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            umask_wet)
-          CALL exchange_v2d_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            vmask_wet)
-        END IF
-#  ifdef DISTRIBUTE
-        CALL mp_exchange2d (ng, tile, model, 2,                         &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      NghostPoints,                               &
-     &                      EWperiodic(ng), NSperiodic(ng),             &
-     &                      umask_wet, vmask_wet)
-#  endif
-      END IF
-#  ifdef SOLVE3D
-      IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
-        CALL exchange_u2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          umask_diff)
-        CALL exchange_v2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          vmask_diff)
-      END IF
-#   ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, model, 2,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    umask_diff, vmask_diff)
-#   endif
-#  endif
-# endif
 
 # ifdef SOLVE3D
 !
@@ -503,10 +340,11 @@
           DO k=1,N(ng)
             DO i=IstrM,IendB
               cff1=u(i,j,k,nstp)
-# ifdef WET_DRY
-              cff1=cff1*umask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
               cff1=cff1*umask(i,j)
+#  endif
+#  ifdef WET_DRY
+              cff1=cff1*umask_wet(i,j)
 #  endif
               u(i,j,k,nstp)=cff1
               u(i,j,k,nnew)=cff1
@@ -517,10 +355,11 @@
             DO k=1,N(ng)
               DO i=IstrB,IendB
                 cff2=v(i,j,k,nstp)
-# ifdef WET_DRY
-                cff2=cff2*vmask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
                 cff2=cff2*vmask(i,j)
+#  endif
+#  ifdef WET_DRY
+                cff2=cff2*vmask_wet(i,j)
 #  endif
                 v(i,j,k,nstp)=cff2
                 v(i,j,k,nnew)=cff2
@@ -580,6 +419,7 @@
      &                    u(:,:,:,nnew), v(:,:,:,nnew))
 #  endif
 # endif
+
 # ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -606,10 +446,11 @@
           DO i=IstrM,IendB
             cff1=1.0_r8/DC(i,0)
             cff2=CF(i,0)*cff1
-# ifdef WET_DRY
-            cff2=cff2*umask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
             cff2=cff2*umask(i,j)
+#  endif
+#  ifdef WET_DRY
+            cff2=cff2*umask_wet(i,j)
 #  endif
             ubar(i,j,kstp)=cff2
             ubar(i,j,knew)=cff2
@@ -630,10 +471,11 @@
             DO i=IstrB,IendB
               cff1=1.0_r8/DC(i,0)
               cff2=CF(i,0)*cff1
-# ifdef WET_DRY
-              cff2=cff2*vmask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
               cff2=cff2*vmask(i,j)
+#  endif
+#  ifdef WET_DRY
+              cff2=cff2*vmask_wet(i,j)
 #  endif
               vbar(i,j,kstp)=cff2
               vbar(i,j,knew)=cff2
@@ -707,10 +549,11 @@
         DO j=JstrB,JendB
           DO i=IstrM,IendB
             cff1=ubar(i,j,kstp)
-# ifdef WET_DRY
-            cff1=cff1*umask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
             cff1=cff1*umask(i,j)
+#  endif
+#  ifdef WET_DRY
+            cff1=cff1*umask_wet(i,j)
 #  endif
             ubar(i,j,kstp)=cff1
             ubar(i,j,krhs)=cff1
@@ -718,10 +561,11 @@
           IF (j.ge.JstrM) THEN
             DO i=IstrB,IendB
               cff2=vbar(i,j,kstp)
-# ifdef WET_DRY
-              cff2=cff2*vmask_wet(i,j)
-# elif defined MASKING
+#  ifdef MASKING
               cff2=cff2*vmask(i,j)
+#  endif
+#  ifdef WET_DRY
+              cff2=cff2*vmask_wet(i,j)
 #  endif
               vbar(i,j,kstp)=cff2
               vbar(i,j,krhs)=cff2
@@ -849,6 +693,7 @@
 !!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !#  ifdef T_PASSIVE
 !         ELSE
+!        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
 !!         else condition added by Weifeng Zhang for passive tracer
 !!         boundary condition
 !          CALL pt3dbc_tile (ng, tile, itrc,                             &
@@ -989,15 +834,21 @@
             cff2=hi(i,j,nstp)
             cff3=hsn(i,j,nstp)
             cff4=ti(i,j,nstp)
-            cff5=sfwat(i,j,nstp)
-            cff6=ageice(i,j,nstp)
+#  ifdef MELT_PONDS
+            cff5=apond(i,j,nstp)
+            cff6=hpond(i,j,nstp)
+#  endif
+            cff7=ageice(i,j,nstp)
 #  ifdef MASKING
             cff1=cff1*rmask(i,j)
             cff2=cff2*rmask(i,j)
             cff3=cff3*rmask(i,j)
             cff4=cff4*rmask(i,j)
+#   ifdef MELT_PONDS
             cff5=cff5*rmask(i,j)
             cff6=cff6*rmask(i,j)
+#   endif
+            cff7=cff7*rmask(i,j)
 #  endif
             ai(i,j,nstp)=cff1
             ai(i,j,nnew)=cff1
@@ -1007,10 +858,14 @@
             hsn(i,j,nnew)=cff3
             ti(i,j,nstp)=cff4
             ti(i,j,nnew)=cff4
-            sfwat(i,j,nstp)=cff5
-            sfwat(i,j,nnew)=cff5
-            ageice(i,j,nstp)=cff6
-            ageice(i,j,nnew)=cff6
+#  ifdef MELT_PONDS
+            apond(i,j,nstp)=cff5
+            apond(i,j,nnew)=cff5
+            hpond(i,j,nstp)=cff6
+            hpond(i,j,nnew)=cff6
+#  endif
+            ageice(i,j,nstp)=cff7
+            ageice(i,j,nnew)=cff7
           END DO
         END DO
       END IF
@@ -1034,9 +889,14 @@
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            ti(:,:,i))
+#  ifdef MELT_PONDS
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj,                   &
-     &                            sfwat(:,:,i))
+     &                            apond(:,:,i))
+          CALL exchange_r2d_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            hpond(:,:,i))
+#  endif
           CALL exchange_r2d_tile (ng, tile,                             &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            ageice(:,:,i))
@@ -1048,11 +908,18 @@
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      ui, vi, ai, hi)
-        CALL mp_exchange3d (ng, tile, model, 4,                         &
+        CALL mp_exchange3d (ng, tile, model, 3,                         &
      &                      LBi, UBi, LBj, UBj, 1, 2,                   &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
-     &                      hsn, ti, sfwat, ageice)
+     &                      hsn, ti, ageice)
+#   ifdef MELT_PONDS
+        CALL mp_exchange3d (ng, tile, model, 2,                         &
+     &                      LBi, UBi, LBj, UBj, 1, 2,                   &
+     &                      NghostPoints,                               &
+     &                      EWperiodic(ng), NSperiodic(ng),             &
+     &                      apond, hpond)
+#   endif
 #  endif
 # endif
 
@@ -1280,9 +1147,9 @@
 # ifdef WET_DRY
             IF (cff1.le.(Dcrit(ng)-h(i,j))) THEN
               cff1=Dcrit(ng)-h(i,j)
-              rmask_wet(i,j)=0.0_r8
-            ELSE
-              rmask_wet(i,j)=1.0_r8*rmask(i,j)
+!!            rmask_wet(i,j)=0.0_r8
+!!          ELSE
+!!            rmask_wet(i,j)=1.0_r8*rmask(i,j)
             END IF
 # endif
             zeta(i,j,kstp)=cff1

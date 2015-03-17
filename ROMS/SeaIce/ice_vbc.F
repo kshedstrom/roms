@@ -3,7 +3,7 @@
 #ifdef ICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This module sets the ice-water and ice-air stresses for the
@@ -251,7 +251,7 @@
 # ifdef ICE_MK
       DO j=Jstr-1,Jend
         DO i=Istr-1,Iend
-          rhoO = 1000._r8+rho(i,j,N(ng))
+          rhoO = rho0+rho(i,j,N(ng))
           spd = spd_iw(i,j)
 #  ifdef ICE_SHOREFAST
           spd = max(spd,0.10_r8)

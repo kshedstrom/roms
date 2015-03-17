@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -557,9 +557,9 @@
 #endif
             CALL my_flush (stdout)
 #ifdef NESTING
- 30         FORMAT (i7,1x,a,4(1pe14.6),2x,i2.2)
+ 30         FORMAT (i8,1x,a,4(1pe14.6),2x,i2.2)
 #else
- 30         FORMAT (i7,1x,a,4(1pe14.6))
+ 30         FORMAT (i8,1x,a,4(1pe14.6))
 #endif
  40         FORMAT ('(',i2.2,'x,',a,',i',i1,'.',i1,',',                 &
      &                            a,',i',i1,'.',i1,',',                 &

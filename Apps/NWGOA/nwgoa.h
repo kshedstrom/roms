@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2014 The ROMS/TOMS Group
+** Copyright (c) 2002-2015 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -16,7 +16,6 @@
 #undef GLOBAL_PERIODIC
 #undef NETCDF4
 #undef PARALLEL_IO
-#undef OFFLINE_FLOATS
 #define PERFECT_RESTART
 #undef NO_LBC_ATT
 
@@ -30,7 +29,7 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#undef FLOATS
+#define FLOATS
 #define STATIONS
 #define WET_DRY
 
@@ -108,9 +107,9 @@
 #undef SPONGE
 
 #ifdef SOLVE3D
-# define TS_DIF2
-# define MIX_GEO_TS
-# define DIFF_GRID
+# undef TS_DIF2
+# undef MIX_GEO_TS
+# undef DIFF_GRID
 #endif
 
 /* vertical mixing */
@@ -135,6 +134,10 @@
 # if defined GLS_MIXING || defined MY25_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
+#  define CRAIG_BANNER
+#  define CHARNOK
+#  undef GERBI_TKE_FLUX
+#  undef AKLIMIT
 # endif
 #endif
 
@@ -150,7 +153,7 @@
 #  define SOLAR_SOURCE
 #  define EMINUSP
 #  undef ANA_SRFLUX
-#  undef ALBEDO
+#  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  define ICE_ALB_EC92  /* for ice */
 #  undef ALBEDO_CSIM   /* for ice */
@@ -167,26 +170,19 @@
 # undef QCORRECTION
 #endif
 
-#ifdef SOLVE3D
-# undef TCLIMATOLOGY
-# undef TCLM_NUDGING
-#endif
-
 /* point sources (rivers, line sources) */
 
 /* Using Runoff now */
 #ifdef SOLVE3D
 # undef RUNOFF
 # define ONE_TRACER_SOURCE
-# undef UV_PSOURCE
-# undef TS_PSOURCE
 #endif
 
 /* tides */
 
 #define LTIDES
 #ifdef LTIDES
-# undef FILTERED
+# define FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC

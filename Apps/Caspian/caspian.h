@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2014 The ROMS/TOMS Group
+** Copyright (c) 2002-2015 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -129,7 +129,7 @@
 # endif
 # define EMINUSP
 # define EMINUSP_SSH
-# define ALBEDO
+# define ALBEDO_CLOUD
 # ifdef ERA40
 #  define CLOUDS
 #  define LONGWAVE

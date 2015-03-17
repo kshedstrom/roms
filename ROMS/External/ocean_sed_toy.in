@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -161,7 +161,8 @@ GridsInLayer =  1
    LBC(isHice) ==   Per     Per     Per     Per         ! ice thickness
    LBC(isHsno) ==   Per     Per     Per     Per         ! snow thickness
    LBC(isTice) ==   Per     Per     Per     Per         ! ice temperature
-   LBC(isSfwat)==   Per     Per     Per     Per         ! surface water
+   LBC(isApond)==   Per     Per     Per     Per         ! surface water
+   LBC(isHpond)==   Per     Per     Per     Per         ! surface water
    LBC(isSig11)==   Per     Per     Per     Per         ! sigma-11
    LBC(isSig12)==   Per     Per     Per     Per         ! sigma-12
    LBC(isSig22)==   Per     Per     Per     Per         ! sigma-22

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -2027,10 +2027,11 @@
             WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
           END IF
         END IF
+#ifdef MELT_PONDS
 !
-!  Read in surface water thickness (on ice).
+!  Read in surface water fraction (on ice).
 !
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idSfwat)),    &
+        foundit=find_string(var_name, n_var, TRIM(Vname(1,idApond)),    &
      &                        varid)
           IF (Perfect2D) THEN
             gtype=var_flag(varid)*r3dvar
@@ -2039,27 +2040,27 @@
           END IF
           IF (Perfect2D) THEN
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
-     &                        Vname(1,idSfwat), varid,                  &
+     &                        Vname(1,idApond), varid,                  &
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj, 1, 2,                 &
      &                        Fscl, Fmin, Fmax,                         &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
-     &                        ICE(ng) % sfwat)
+     &                        ICE(ng) % apond)
           ELSE
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
-     &                Vname(1,idSfwat), varid, InpRec, gtype,           &
+     &                Vname(1,idApond), varid, InpRec, gtype,           &
      &                Vsize, LBi, UBi, LBj, UBj,                        &
      &                Fscl, Fmin, Fmax,                                 &
 #   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #   endif
-     &                ICE(ng) % sfwat(:,:,Tindex))
+     &                ICE(ng) % apond(:,:,Tindex))
           END IF
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idSfwat)),           &
+            WRITE (stdout,60) string, TRIM(Vname(1,idApond)),           &
      &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
@@ -2067,9 +2068,53 @@
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idSfwat)), Fmin, Fmax
+            WRITE (stdout,70) TRIM(Vname(2,idApond)), Fmin, Fmax
           END IF
         END IF
+!
+!  Read in surface water thickness (on ice).
+!
+        foundit=find_string(var_name, n_var, TRIM(Vname(1,idHpond)),    &
+     &                        varid)
+          IF (Perfect2D) THEN
+            gtype=var_flag(varid)*r3dvar
+          ELSE
+            gtype=var_flag(varid)*r2dvar
+          END IF
+          IF (Perfect2D) THEN
+            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idHpond), varid,                  &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj, 1, 2,                 &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        ICE(ng) % hpond)
+          ELSE
+        status=nf_fread2d(ng, IDmod, ncname, ncINPid,                   &
+     &                Vname(1,idHpond), varid, InpRec, gtype,           &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#   ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#   endif
+     &                ICE(ng) % hpond(:,:,Tindex))
+          END IF
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,60) string, TRIM(Vname(1,idHpond)),           &
+     &                        InpRec, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,70) TRIM(Vname(2,idHpond)), Fmin, Fmax
+          END IF
+        END IF
+#endif
 !
 !  Read in ice age.
 !

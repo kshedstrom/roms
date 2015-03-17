@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -121,7 +121,7 @@
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+           || defined CORAL || defined NWA || defined ARC_NATL || defined NWGOA
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -219,8 +219,14 @@
               ifile=(iic(ng)-1)/ndefHIS2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (HIS2(ng)%name,20) TRIM(HIS2(ng)%base), ifile
+              WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
             END IF
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  12          FORMAT (a,'_',i5.5,'.nc')
+#else
+  12          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS2(ng)%name)
 # endif
@@ -390,8 +396,14 @@
               ifile=(iic(ng)-1)/ndefAVG2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (AVG2(ng)%name,20) TRIM(AVG2(ng)%base), ifile
+              WRITE (AVG2(ng)%name,22) TRIM(AVG2(ng)%base), ifile
             END IF
+#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
+           || defined CORAL || defined NWA || defined ARC_NATL
+  22          FORMAT (a,'_',i5.5,'.nc')
+#else
+  22          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, AVG2(ng)%name)
 # endif
@@ -525,7 +537,7 @@
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
            || defined CORAL || defined NWA || defined ARC_NATL \
-           || defined ARCTIC
+           || defined ARCTIC || defined NWGOA
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))
@@ -896,6 +908,29 @@
       END IF
 #  endif
 # endif
+
+# ifdef CICE_MODEL
+!        write_restart=.false.
+
+!        IF (mod(iic(ng)+1,tspy(ng))==Oct*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Nov*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Dec*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jan*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Feb*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Mar*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Apr*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==May*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jun*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jul*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Aug*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Sep*tspd(ng)) write_restart=.true.
+
+!        IF (write_restart==.true.) THEN
+!           CALL wrt_rst (ng)
+!          IF (exit_flag.ne.NoError) RETURN
+!        END IF
+# endif
+
 # ifdef PROFILE
 !
 !-----------------------------------------------------------------------
