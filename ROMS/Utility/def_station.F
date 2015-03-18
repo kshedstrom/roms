@@ -50,7 +50,6 @@
       integer :: status
 
       integer :: DimIDs(32), pgrd(2)
-      integer :: Vsize(4)
 
       integer :: def_dim
 

@@ -51,8 +51,6 @@
 # ifdef ICESHELF
      &                   GRID(ng) % zice,                               &
 # endif
-     &                   OCEAN(ng) % u,                                 &
-     &                   OCEAN(ng) % v,                                 &
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
      &                   OCEAN(ng) % rho,                               &
@@ -98,7 +96,6 @@
 # ifdef ICESHELF
      &                         zice,                                    &
 # endif
-     &                         u, v,                                    &
      &                         sustr, svstr, rho,                       &
      &                         Zt_avg1,                                 &
      &                         ai, hi, ui, vi, tauaiu, tauaiv,          &
@@ -132,8 +129,6 @@
       integer, intent(in) :: liold, liuol
 
 # ifdef ASSUMED_SHAPE
-      real(r8), intent(in) :: u(LBi:,LBj:,:,:)
-      real(r8), intent(in) :: v(LBi:,LBj:,:,:)
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
@@ -169,8 +164,6 @@
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
 #  endif
 # else
-      real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
-      real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))

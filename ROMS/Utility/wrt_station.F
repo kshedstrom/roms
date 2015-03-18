@@ -56,7 +56,7 @@
       logical :: Cgrid
 
       integer :: NposB, NposR, NposW, LBi, UBi, LBj, UBj
-      integer :: Fcount, i, ifield, k, np, status, tile
+      integer :: Fcount, i, ifield, k, np, tile
 
       real(r8) :: scale
 

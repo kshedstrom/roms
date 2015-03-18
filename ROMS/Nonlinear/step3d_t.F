@@ -363,7 +363,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Va
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
 # endif
-      real(r8) :: my_maxbio(15)
 # if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
       integer :: iactrc, iwctrc
 # endif

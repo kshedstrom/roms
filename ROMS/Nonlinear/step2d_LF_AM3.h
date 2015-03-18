@@ -65,7 +65,6 @@
      &                  GRID(ng) % fomn,        GRID(ng) % h,           &
      &                  GRID(ng) % om_u,        GRID(ng) % om_v,        &
      &                  GRID(ng) % on_u,        GRID(ng) % on_v,        &
-     &                  GRID(ng) % omn,                                 &
      &                  GRID(ng) % pm,          GRID(ng) % pn,          &
 # if defined CURVGRID && defined UV_ADV
      &                  GRID(ng) % dndx,        GRID(ng) % dmde,        &
@@ -148,7 +147,7 @@
      &                        zice,                                     &
 # endif
      &                        fomn, h,                                  &
-     &                        om_u, om_v, on_u, on_v, omn, pm, pn,      &
+     &                        om_u, om_v, on_u, on_v, pm, pn,           &
 # if defined CURVGRID && defined UV_ADV
      &                        dndx, dmde,                               &
 # endif
@@ -240,7 +239,6 @@
       real(r8), intent(in) :: om_v(LBi:,LBj:)
       real(r8), intent(in) :: on_u(LBi:,LBj:)
       real(r8), intent(in) :: on_v(LBi:,LBj:)
-      real(r8), intent(in) :: omn(LBi:,LBj:)
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
 #  if defined CURVGRID && defined UV_ADV
@@ -349,7 +347,6 @@
       real(r8), intent(in) :: om_v(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_u(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: on_v(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: omn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
 #  if defined CURVGRID && defined UV_ADV

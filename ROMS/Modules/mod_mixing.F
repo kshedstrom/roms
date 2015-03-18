@@ -888,7 +888,7 @@
           END DO
 # endif
 # if defined MIX_ISO_TS || defined GENT_McWILLIAMS
-          DO k=1,N(ng)
+          DO k=0,N(ng)
             DO i=Imin,Imax
               MIXING(ng) % neutral(i,j,k) = IniVal
             END DO

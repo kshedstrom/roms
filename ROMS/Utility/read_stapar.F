@@ -31,10 +31,10 @@
 !
 !  Local variable declarations.
 !
-      integer :: Mstation, Npts, Nval
-      integer :: flag, i, igrid, ista, itrc, ng, status
+      integer :: Npts, Nval
+      integer :: flag, i, igrid, itrc, ng, status
 
-      integer :: decode_line, load_i, load_l, load_r
+      integer :: decode_line, load_i, load_l
 
       real(r8) :: Xpos, Ypos
 
@@ -776,7 +776,6 @@
   90  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
  100  FORMAT (13x,'Flag and positions for station ',i4.4,':',           &
      &        i3,1x,2f10.4)
- 110  FORMAT (/,' READ_StaPAR - variable info not yet loaded, ', a)
 
       RETURN
       END SUBROUTINE read_StaPar

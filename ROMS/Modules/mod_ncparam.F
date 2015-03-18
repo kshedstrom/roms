@@ -835,7 +835,7 @@
       integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
-      real(r8) :: offset, scale
+      real(r8) :: scale
 
       character (len=120), dimension(7) :: Vinfo
 !
