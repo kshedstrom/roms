@@ -160,7 +160,9 @@
 !
 !  Local variable declarations.
 !
+#ifdef BIOLOGY
       integer :: ibt, itrc
+#endif
       integer :: NSUB, i, ispace, j, k, trd
       integer :: my_max_Ci, my_max_Cj, my_max_Ck
 #ifdef DISTRIBUTE
@@ -199,7 +201,6 @@
 #endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ke2d
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: pe2d
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: uvmax
       integer :: ii_max, jj_max, kk_max
       real(r8) :: uv_max
 

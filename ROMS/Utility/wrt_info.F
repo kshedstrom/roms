@@ -87,7 +87,7 @@
       real(r8), dimension(NT(ng),4) :: Tobc
 #endif
 #ifdef STATIONS
-      real(r8), dimension(Nstation(ng)) :: Zpos, wrk
+      real(r8), dimension(Nstation(ng)) :: wrk
 #endif
 !
       SourceFile='wrt_info.F'

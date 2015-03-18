@@ -157,7 +157,7 @@
 
       real(r8), parameter :: eps = 1.0E-14_r8
 
-      real(r8) :: cff, lmd_iwm, lmd_iws, nu_sx, nu_sxc, shear2
+      real(r8) :: cff, lmd_iwm, lmd_iws, nu_sx, shear2
 # ifdef LMD_DDMIX
       real(r8) :: Rrho, ddDS, ddDT, nu_dds, nu_ddt
 # endif
@@ -219,7 +219,7 @@
         DO k=1,N(ng)-1
           DO i=MAX(1,Istr-1),MIN(Iend+1,Lm(ng))
             shear2=dU(i,k)*dU(i,k)+dV(i,k)*dV(i,k)
-            Rig(i,j,k)=bvf(i,j,k)/(shear2+eps)
+            Rig(i,j,k)=bvf(i,j,k)/max(shear2,eps)
 !!          Rig(i,j,k)=-gorho0*dR(i,k)/(shear2+eps)
           END DO
         END DO
@@ -233,7 +233,7 @@
      &                   u(i+1,j,k+1,nstp)-u(i+1,j,k,nstp)))**2+        &
      &             (cff*(v(i,j  ,k+1,nstp)-v(i,j  ,k,nstp)+             &
      &                   v(i,j+1,k+1,nstp)-v(i,j+1,k,nstp)))**2
-            Rig(i,j,k)=bvf(i,j,k)/(shear2+eps)
+            Rig(i,j,k)=bvf(i,j,k)/max(shear2,eps)
           END DO
         END DO
       END DO
@@ -541,7 +541,7 @@
 
       real(r8), parameter :: eps = 1.0E-14_r8
 
-      real(r8) :: cff, lmd_iwm, lmd_iws, nu_sx, nu_sxc, shear2
+      real(r8) :: cff, nu_sx, nu_sxc, shear2
 # ifdef M2TIDE_DIFF
       real(r8), parameter :: lmd_k0 = 5.0e-3_r8  ! m2 s-1
       real(r8), parameter :: lmd_sigma = 3.0_r8

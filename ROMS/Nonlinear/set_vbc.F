@@ -345,7 +345,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j, itrc
+      integer :: i, j
 
 # ifdef ICESHELF
 

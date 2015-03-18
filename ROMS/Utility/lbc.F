@@ -71,7 +71,7 @@
 !
 ! Local variable declarations
 !
-      integer :: i, ibry, ie, ifield, is, ne, lstr, lvar, status
+      integer :: i, ibry, ie, ifield, is, ne, status
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
