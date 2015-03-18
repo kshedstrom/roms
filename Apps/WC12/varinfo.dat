@@ -9502,6 +9502,536 @@
   1.0d0
 
 !------------------------------------------------------------
+! Fish variables
+!------------------------------------------------------------
+
+ 'Fwwt'
+  'Wet weight of fish'
+  'gram'
+  'fwwt, scalar, series'
+  'bio_time'
+  'idFwwt'
+  'r3dvar'
+  1.0d0
+
+ 'Fworth'
+  'Worth of fish'
+  'nondimensional'
+  'fworth, scalar, series'
+  'bio_time'
+  'idFworth'
+  'r3dvar'
+  1.0d0
+
+ 'Flength'
+  'Length of fish'
+  'mm'
+  'flength, scalar, series'
+  'bio_time'
+  'idFlngth'
+  'r3dvar'
+  1.0d0
+
+ 'Fpval'
+  'P-value of fish'
+  'nondimensional'
+  'fpval, scalar, series'
+  'bio_time'
+  'idFpval'
+  'r3dvar'
+  1.0d0
+
+ 'Fage'
+  'fish age'
+  'year'
+  'fage, scalar, series'
+  'bio_time'
+  'idFage'
+  'r3dvar'
+  1.0d0
+
+ 'Fbday'
+  'fish birthday'
+  'year'
+  'fbday, scalar, series'
+  'bio_time'
+  'idFbday'
+  'r3dvar'
+  1.0d0
+
+ 'Fyield'
+  'fish yield'
+  'year'
+  'fyield, scalar, series'
+  'bio_time'
+  'idFyield'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmPS'
+  'PS consumption'
+  'gPrey / gFish / hour'
+  'fcsmps, scalar, series'
+  'bio_time'
+  'idFcsmPS'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmPL'
+  'PL consumption'
+  'gPrey / gFish / hour'
+  'fcsmpl, scalar, series'
+  'bio_time'
+  'idFcsmPL'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmZS'
+  'ZS consumption'
+  'gPrey / gFish / hour'
+  'fcsmzs, scalar, series'
+  'bio_time'
+  'idFcsmZS'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmZL'
+  'ZL consumption'
+  'gPrey / gFish / hour'
+  'fcsmzl, scalar, series'
+  'bio_time'
+  'idFcsmZL'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmZP'
+  'ZP consumption'
+  'gPrey / gFish / hour'
+  'fcsmzp, scalar, series'
+  'bio_time'
+  'idFcsmZP'
+  'r3dvar'
+  1.0d0
+
+ 'FcsmF'
+  'Fish consumption'
+  'gPrey / gFish / hour'
+  'fcsmf, scalar, series'
+  'bio_time'
+  'idFcsmF'
+  'r3dvar'
+  1.0d0
+
+ 'Fresp'
+  'respiration'
+  'gPrey / gFish / hour'
+  'fresp, scalar, series'
+  'bio_time'
+  'idFresp'
+  'r3dvar'
+  1.0d0
+
+ 'EggDur'
+  'egg duration'
+  'days'
+  'eggdur, scalar, series'
+  'bio_time'
+  'idFdegg'
+  'r3dvar'
+  1.0d0
+
+ 'EggNum'
+  'number of eggs'
+  'individual'
+  'eggnum, scalar, series'
+  'bio_time'
+  'idFnegg'
+  'r3dvar'
+  1.0d0
+
+ 'YsacDur'
+  'yolk sac duration'
+  'days'
+  'ysacdur, scalar, series'
+  'bio_time'
+  'idFdysac'
+  'r3dvar'
+  1.0d0
+
+ 'YsacNum'
+  'number of yolk sacs'
+  'individual'
+  'ysacnum, scalar, series'
+  'bio_time'
+  'idFnysac'
+  'r3dvar'
+  1.0d0
+
+ 'LarvDur'
+  'larval duration'
+  'days'
+  'larvdur, scalar, series'
+  'bio_time'
+  'idFdlarv'
+  'r3dvar'
+  1.0d0
+
+ 'LarvNum'
+  'number of larvae'
+  'individual'
+  'larvnum, scalar, series'
+  'bio_time'
+  'idFnlarv'
+  'r3dvar'
+  1.0d0
+
+ 'JuvDur'
+  'juvenile duration'
+  'days'
+  'juvdur, scalar, series'
+  'bio_time'
+  'idFdjuv'
+  'r3dvar'
+  1.0d0
+
+ 'JuvNum'
+  'number of juveniles'
+  'individual'
+  'juvnum, scalar, series'
+  'bio_time'
+  'idFnjuv'
+  'r3dvar'
+  1.0d0
+
+ 'SubaNum'
+  'number of subadults'
+  'individual'
+  'subanum, scalar, series'
+  'bio_time'
+  'idFnsuba'
+  'r3dvar'
+  1.0d0
+
+ 'FmortN'
+  'natural mortality'
+  'day-1'
+  'fmortn, scalar, series'
+  'bio_time'
+  'idFmortN'
+  'r3dvar'
+  1.0d0
+
+ 'FmortS'
+  'starvation mortality'
+  'day-1'
+  'fmorts, scalar, series'
+  'bio_time'
+  'idFmortS'
+  'r3dvar'
+  1.0d0
+
+ 'FmortF'
+  'natural mortality'
+  'day-1'
+  'fmortf, scalar, series'
+  'bio_time'
+  'idFmortF'
+  'r3dvar'
+  1.0d0
+
+ 'FmortP'
+  'predation mortality'
+  'day-1'
+  'fmortp, scalar, series'
+  'bio_time'
+  'idFmortP'
+  'r3dvar'
+  1.0d0
+
+ 'FmortPsum'
+  'summed predation mortality'
+  'day-1'
+  'fmrtps, scalar, series'
+  'bio_time'
+  'idFmrtPs'
+  'r3dvar'
+  1.0d0
+
+ 'Fbatch'
+  'fish batch count'
+  'nondimensional'
+  'fbatch, scalar, series'
+  'bio_time'
+  'idFbatch'
+  'r3dvar'
+  1.0d0
+
+ 'Feggs'
+  'fish egg count'
+  'nondimensional'
+  'feggs, scalar, series'
+  'bio_time'
+  'idFeggs'
+  'r3dvar'
+  1.0d0
+
+ 'Species'
+  'species of fish'
+  'nondimensional'
+  'species, scalar, series'
+  'bio_time'
+  'idFspc'
+  'r3dvar'
+  1
+
+ 'Lifestage'
+  'fish lifestage'
+  'nondimensional'
+  'lifestage, scalar, series'
+  'bio_time'
+  'idFlfsg'
+  'r3dvar'
+  1.0d0
+
+ 'Deathby'
+  'fish cause of death'
+  'nondimensional'
+  'deathby, scalar, series'
+  'bio_time'
+  'idFdeath'
+  'r3dvar'
+  1.0d0
+
+ 'Hbehave'
+  'horizontal behavior'
+  'nondimensional'
+  'hbehave, scalar, series'
+  'bio_time'
+  'idFhbhv'
+  'r3dvar'
+  1.0d0
+
+ 'Vbehave'
+  'horizontal behavior'
+  'nondimensional'
+  'vbehave, scalar, series'
+  'bio_time'
+  'idFvbhv'
+  'r3dvar'
+  1.0d0
+
+ 'Alive'
+  'fish is alive'
+  'nondimensional'
+  'alive, scalar, series'
+  'bio_time'
+  'idFalv'
+  'r3dvar'
+  1.0d0
+
+ 'Tspawn'
+  'time since last spawn'
+  'second'
+  'Tspawn, scalar, series'
+  'bio_time'
+  'idFTspwn'
+  'r3dvar'
+  1.0d0
+
+ 'Iniworth'
+  'Initial fish worth'
+  'nondimensional'
+  'Iniworth, scalar, series'
+  'bio_time'
+  'idFiniw'
+  'r3dvar'
+  1.0d0
+
+! Predator variables
+
+ 'Pwwt'
+  'Wet weight of pred'
+  'gram'
+  'pwwt, scalar, series'
+  'bio_time'
+  'idPwwt'
+  'r3dvar'
+  1.0d0
+
+ 'Pworth'
+  'Worth of pred'
+  'nondimensional'
+  'pworth, scalar, series'
+  'bio_time'
+  'idPworth'
+  'r3dvar'
+  1.0d0
+
+ 'Ppval'
+  'P-value of pred'
+  'nondimensional'
+  'ppval, scalar, series'
+  'bio_time'
+  'idPpval'
+  'r3dvar'
+  1.0d0
+
+ 'PcsmF'
+  'Fish consumption'
+  'gPrey / gFish / hour'
+  'pcsmf, scalar, series'
+  'bio_time'
+  'idPcsmF'
+  'r3dvar'
+  1.0d0
+
+ 'Species'
+  'species of pred'
+  'nondimensional'
+  'species, scalar, series'
+  'bio_time'
+  'idPspc'
+  'r3dvar'
+  1
+
+ 'Alive'
+  'pred is alive'
+  'nondimensional'
+  'alive, scalar, series'
+  'bio_time'
+  'idPalv'
+  'r3dvar'
+  1.0d0
+
+! Fleet variables
+
+ 'Xport'
+  'port x location'
+  'nondimensional'
+  'xport, scalar, series'
+  'bio_time'
+  'idBxprt'
+  'r3dvar'
+  1.0d0
+
+ 'Yport'
+  'port y location'
+  'nondimensional'
+  'yport, scalar, series'
+  'bio_time'
+  'idByprt'
+  'r3dvar'
+  1.0d0
+
+ 'Nport'
+  'port number'
+  'nondimensional'
+  'nport, scalar, series'
+  'bio_time'
+  'idBnprt'
+  'r3dvar'
+  1.0d0
+
+ 'Nfloc'
+  'number of fishing locations'
+  'nondimensional'
+  'nfloc, scalar, series'
+  'bio_time'
+  'idBnfloc'
+  'r3dvar'
+  1.0d0
+
+ 'Xfish1'
+  'fishing x 1st location'
+  'nondimensional'
+  'xfish1, scalar, series'
+  'bio_time'
+  'idBxfsh1'
+  'r3dvar'
+  1.0d0
+
+ 'Yfish1'
+  'fishing y 1st location'
+  'nondimensional'
+  'yfish1, scalar, series'
+  'bio_time'
+  'idByfsh1'
+  'r3dvar'
+  1.0d0
+
+ 'Xfish2'
+  'fishing x 2nd location'
+  'nondimensional'
+  'xfish2, scalar, series'
+  'bio_time'
+  'idBxfsh2'
+  'r3dvar'
+  1.0d0
+
+ 'Yfish2'
+  'fishing y 2nd location'
+  'nondimensional'
+  'yfish2, scalar, series'
+  'bio_time'
+  'idByfsh2'
+  'r3dvar'
+  1.0d0
+
+ 'Catch'
+  'total daily catch'
+  'kg'
+  'catch, scalar, series'
+  'bio_time'
+  'idBcatch'
+  'r3dvar'
+  1.0d0
+
+ 'CumCatch'
+  'cummulative annual catch'
+  'kg'
+  'cumcatch, scalar, series'
+  'bio_time'
+  'idBcmctch'
+  'r3dvar'
+  1.0d0
+
+ 'AvgCPUE'
+  'average catch per unit effort'
+  'kg'
+  'avgcpue, scalar, series'
+  'bio_time'
+  'idBacpue'
+  'r2dvar'
+  1.0d0
+
+ 'PerCPUE'
+  'perceived catch per unit effort'
+  'kg'
+  'percpue, scalar, series'
+  'bio_time'
+  'idBpcpue'
+  'r2dvar'
+  1.0d0
+
+ 'DistPort'
+  'distance to nearest port'
+  'km'
+  'distport, scalar, series'
+  'bio_time'
+  'idBpdist'
+  'r2dvar'
+  1.0d0
+
+ 'NearPort'
+  'nearest port number'
+  'nondimensional'
+  'nearport, scalar, series'
+  'bio_time'
+  'idBpnear'
+  'r2dvar'
+  1.0d0
+
+!------------------------------------------------------------
 !STATIONARY2
 !-----------------------
 'Stat1_2d'

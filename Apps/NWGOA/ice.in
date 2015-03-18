@@ -1,7 +1,7 @@
 !  Ice model parameters
 !
 !==============================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -97,7 +97,7 @@
 ! Ice strength exponential weighting coefficient on concentration
 ! (nondimensional)
 
-     astren == 20.d0
+     astren == 15.d0
 
 ! Maximum shear strength [N/m2]
 
@@ -134,11 +134,6 @@
 
      max_a == 1.0d0
 
-! Maximum melt pond fraction
-! (nondimensional)
-
-     sfwat_max == 0.1d0
-
 ! Ice-water turning angle [degrees]
 
      stressang = 0.d0
@@ -168,55 +163,61 @@
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
-Hout(idUice) == T
-Hout(idVice) == T
-Hout(idUiceE) == F
-Hout(idViceN) == F
+Hout(idUice) == F
+Hout(idVice) == F
+Hout(idUiceE) == T
+Hout(idViceN) == T
 Hout(idAice) == T
 Hout(idHice) == T
-Hout(idTice) == T
+Hout(idTice) == F
 Hout(idHsno) == T
-Hout(idTimid) == T
-Hout(idSfwat) == T
+Hout(idTimid) == F
+Hout(idApond) == F
+Hout(idHpond) == F
 Hout(idTauiw) == F
 Hout(idChuiw) == F
-Hout(idAgeice) == T
-Hout(idSig11) == T
-Hout(idSig12) == T
-Hout(idSig22) == T
-Hout(idWfr) == T
-Hout(idWai) == T
-Hout(idWao) == T
-Hout(idWio) == T
-Hout(idWro) == T
-Hout(idWdiv) == T
-Hout(idIomflx) == T
+Hout(idAgeice) == F
+Hout(idSig11) == F
+Hout(idSig12) == F
+Hout(idSig22) == F
+Hout(idS0mk) == T
+Hout(idT0mk) == T
+Hout(idWfr) == F
+Hout(idWai) == F
+Hout(idWao) == F
+Hout(idWio) == F
+Hout(idWro) == F
+Hout(idWdiv) == F
+Hout(idIomflx) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
-Aout(idUice) == T
-Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
+Aout(idUice) == F
+Aout(idVice) == F
+Aout(idUiceE) == T
+Aout(idViceN) == T
 Aout(idAice) == T
 Aout(idHice) == T
 Aout(idTice) == T
 Aout(idHsno) == T
 Aout(idTimid) == T
-Aout(idSfwat) == T
+Aout(idApond) == T
+Aout(idHpond) == T
 Aout(idTauiw) == F
 Aout(idChuiw) == F
 Aout(idAgeice) == T
 Aout(idSig11) == T
 Aout(idSig12) == T
 Aout(idSig22) == T
+Aout(idS0mk) == T
+Aout(idT0mk) == T
 Aout(idWfr) == T
 Aout(idWai) == T
 Aout(idWao) == T
 Aout(idWio) == T
 Aout(idWro) == T
 Aout(idWdiv) == T
-Aout(idIomflx) == T
+Aout(idIomflx) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES2 output file.
@@ -229,13 +230,16 @@ Aout2(idHice) == T
 Aout2(idTice) == T
 Aout2(idHsno) == T
 Aout2(idTimid) == T
-Aout2(idSfwat) == T
+Aout2(idApond) == T
+Aout2(idHpond) == T
 Aout2(idTauiw) == F
 Aout2(idChuiw) == F
 Aout2(idAgeice) == T
 Aout2(idSig11) == F
 Aout2(idSig12) == F
 Aout2(idSig22) == F
+Aout2(idS0mk) == F
+Aout2(idT0mk) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
@@ -248,10 +252,13 @@ Hout2(idHice) == T
 Hout2(idTice) == T
 Hout2(idHsno) == T
 Hout2(idTimid) == T
-Hout2(idSfwat) == T
+Hout2(idApond) == T
+Hout2(idHpond) == T
 Hout2(idTauiw) == F
 Hout2(idChuiw) == F
 Hout2(idAgeice) == T
 Hout2(idSig11) == F
 Hout2(idSig12) == F
 Hout2(idSig22) == F
+Hout2(idS0mk) == F
+Hout2(idT0mk) == F

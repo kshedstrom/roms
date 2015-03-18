@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -176,7 +176,7 @@
             END DO
           END IF
         END DO
-        IF (thread_count.eq.numthreads) THEN
+!        IF (thread_count.eq.numthreads) THEN
           thread_count=0
 #ifdef DISTRIBUTE
           op_handle(0:Nregion)='SUM'
@@ -210,7 +210,7 @@
           DO imodel=1,4
             IF (Master.and.(Csum(region,imodel,ng).gt.0.0_r8)) THEN
               WRITE (stdout,30) TRIM(label(imodel)),                    &
-     &                          ' model elapsed time profile:'
+     &                          ' ocean model elapsed time profile:'
  30           FORMAT (/,1x,a,a,/)
             END IF
             sumcpu=0.0_r8
@@ -232,13 +232,46 @@
  50           FORMAT (t47,'Total:',f14.3,2x,f8.4)
             END IF
           END DO
+# ifdef ICE_MODEL
+!
+!  Report elapsed time for message passage communications.
+!
+          DO imodel=1,4
+            total=0.0_r8
+            DO iregion=Iceregion,Nregion
+              total=total+Csum(iregion,imodel,ng)
+            END DO
+            IF (Master.and.(total.gt.0.0_r8)) THEN
+              WRITE (stdout,30) TRIM(label(imodel)),                    &
+     &                          ' sea-ice model elapsed time profile:'
+            END IF
+            sumcpu=0.0_r8
+            sumper=0.0_r8
+            IF (total.gt.0.0_r8) THEN
+              DO iregion=Iceregion,Nregion
+                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                  percent=100.0_r8*Csum(iregion, imodel,ng)/            &
+     &                             Csum( region,Mymodel,ng)
+                  IF (Master) WRITE (stdout,40) Pregion(iregion),       &
+     &                                          Csum(iregion,imodel,ng),&
+     &                                          percent
+                  sumcpu=sumcpu+Csum(iregion,imodel,ng)
+                  sumper=sumper+percent
+                END IF
+              END DO
+              IF (Master.and.(total.gt.0.0_r8)) THEN
+                WRITE (stdout,50) sumcpu, sumper
+              END IF
+            END IF
+          END DO
+# endif
 # ifdef DISTRIBUTE
 !
 !  Report elapsed time for message passage communications.
 !
           DO imodel=1,4
             total=0.0_r8
-            DO iregion=Mregion,Nregion
+            DO iregion=Mregion,Iceregion-1
               total=total+Csum(iregion,imodel,ng)
             END DO
             IF (Master.and.(total.gt.0.0_r8)) THEN
@@ -248,7 +281,7 @@
             sumcpu=0.0_r8
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
-              DO iregion=Mregion,Nregion
+              DO iregion=Mregion,Iceregion-1
                 IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
                   percent=100.0_r8*Csum(iregion, imodel,ng)/            &
      &                             Csum( region,Mymodel,ng)
@@ -269,7 +302,7 @@
   60      FORMAT (/,' All percentages are with respect to total time =',&
      &            5x,f12.3)
 #endif
-        END IF
+!        END IF
 !$OMP END CRITICAL (FINALIZE_WCLOCK)
       END IF
       RETURN

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -808,7 +808,7 @@
 !
       HalfDT=0.5_r8*dt(ng)
 #if defined NEP5 || defined NEP6 || defined BERING || defined CHUKCHI \
-       || defined ARCTIC
+       || defined ARCTIC || defined NWGOA
 ! Check for start of run. Make sure the start time for all floats is
 ! in the future.
       IF (iic(ng).eq.ntstart(ng)) THEN
@@ -831,7 +831,7 @@
      &      (time(ng)-HalfDT.le.Tinfo(itstr,l).and.                     &
      &       time(ng)+HalfDT.gt.Tinfo(itstr,l))) THEN
 #if defined NEP5 || defined NEP6 || defined BERING || defined CHUKCHI \
-       || defined ARCTIC
+       || defined ARCTIC || defined NWGOA
           IF (Master) print *,'Starting float ', l
           Tinfo(itstr,l) = Tinfo(itstr,l) + day2sec*365.25_r8
 #endif
@@ -1149,7 +1149,12 @@
             END DO
           ELSE IF (track(izgrd,nfp1,l).lt.0.0_r8) THEN
             DO j=0,NFT
+#   ifdef NWGOA
+! Get them off the bottom
+              track(izgrd,:,l)=2.0
+#   else
               track(izgrd,:,l)=-track(izgrd,:,l)
+#   endif
             END DO
           END IF
         END IF

@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -289,6 +289,9 @@
       USE mod_iounits
       USE mod_ncparam
       USE mod_scalars
+#ifdef CICE_MODEL
+      USE CICE_FinalMod
+#endif
 !
 !  Local variable declarations.
 !
@@ -353,6 +356,10 @@
 !  Close IO files.
 !
       CALL close_out
+
+#ifdef CICE_MODEL
+      CALL CICE_Finalize
+#endif
 
       RETURN
       END SUBROUTINE ROMS_finalize

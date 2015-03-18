@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -44,8 +44,11 @@
       USE bulk_flux_mod, ONLY : bulk_flux
 #  endif
 # endif
-# if (defined ALBEDO || defined NCEP_FLUXES) && !defined BENCHMARK
+# if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
       USE cawdir_eval_mod, ONLY : cawdir_eval
+# endif
+# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES
+      USE albedo_mod
 # endif
 # if defined NCEP_FLUXES
       USE ncep_flux_mod, ONLY : ncep_flux
@@ -81,6 +84,9 @@
 # endif
 # ifdef NESTING
       USE nesting_mod, ONLY : nesting
+#  ifndef ONE_WAY
+      USE nesting_mod, ONLY : do_twoway
+#  endif
 # endif
 # if defined ADJUST_BOUNDARY
       USE obc_adjust_mod, ONLY : obc_adjust, load_obc
@@ -107,6 +113,9 @@
 # endif
 # if defined AVERAGES2 && !defined ADJOINT
       USE set_avg2_mod, ONLY : set_avg2
+# endif
+# ifdef CICE_MODEL
+      USE ice_fakecpl, ONLY : cice_fakecpl
 # endif
       USE set_depth_mod, ONLY : set_depth
       USE set_massflux_mod, ONLY : set_massflux
@@ -163,10 +172,10 @@
 !
 !  Local variable declarations.
 !
-      logical :: Time_Step
+      logical :: DoNestLayer, Time_Step
 
       integer :: Nsteps, Rsteps
-      integer :: ig, istep, ng, nl, tile
+      integer :: ig, il, istep, ng, nl, tile
       integer :: my_iif, next_indx1
 # if defined FLOATS || defined NEMURO_SAN
       integer :: Lend, Lstr, chunk_size
@@ -180,6 +189,7 @@
 !  RunInterval.
 !
       Time_Step=.TRUE.
+      DoNestLayer=.TRUE.
 !
       KERNEL_LOOP : DO WHILE (Time_Step)
 !
@@ -188,7 +198,12 @@
 !  combinations. Otherwise, the solution it is looped once for a single
 !  grid application (NestLayers = 1).
 !
-        NEST_LAYER : DO nl=1,NestLayers
+        nl=0
+#ifdef NESTING
+        TwoWayCounter(1:Ngrids)=0
+#endif
+!
+        NEST_LAYER : DO WHILE (DoNestLayer)
 !
 !  Determine number of time steps to compute in each nested grid layer
 !  based on the specified time interval (seconds), RunInterval. Non
@@ -197,9 +212,9 @@
 !  simulation, or a multi-model coupling interval, or just a single
 !  step.
 !
-          CALL ntimesteps (nl, GridsInLayer(nl), iNLM, RunInterval,     &
-     &                     Nsteps, Rsteps)
+          CALL ntimesteps (iNLM, RunInterval, nl, Nsteps, Rsteps)
           IF (exit_flag.ne.NoError) RETURN
+          IF ((nl.le.0).or.(nl.gt.NestLayers)) EXIT
 !
 !  Time-step governing equations for Nsteps.
 !
@@ -245,36 +260,6 @@
 !$OMP BARRIER
             END DO
             IF (exit_flag.ne.NoError) RETURN
-
-# ifdef NESTING
-!
-!-----------------------------------------------------------------------
-!  If refinement grid and not initialization, extract donor grid data
-!  and perform two-way coupling between fine and coarse grids.
-!-----------------------------------------------------------------------
-!
-            DO ig=1,GridsInLayer(nl)
-              ng=GridNumber(ig,nl)
-              IF (RefinedGrid(ng).and.(iic(ng).gt.1)) THEN
-!
-!  Extract donor grid data at contact points and store it in REFINED
-!  structure so it can be used for the space-time interpolation.
-!
-                IF ((istep.eq.1).and.(RefineScale(ng).gt.0)) THEN
-                  CALL nesting (ng, iNLM, ngetD)
-                END IF
-!
-!  Fine to coarse coupling: Correct coarse grid tracers values at the
-!  refinement grid with refined  accumulated fluxes.  Then, replace
-!  coarse grid state variable with averaged refined grid values (two-
-!  way nesting).  Update coarse grid depth variables.
-!
-                IF ((istep.eq.Nsteps).and.(RefineScale(ng).gt.0)) THEN
-                  CALL nesting (ng, iNLM, n2way)
-                END IF
-              END IF
-            END DO
-# endif
 
 # if defined W4DPSAS || defined NLM_OUTER || \
      defined W4DPSAS_SENSITIVITY
@@ -416,8 +401,12 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-# if (defined ALBEDO || defined NCEP_FLUXES) && !defined BENCHMARK
+# if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
                 CALL cawdir_eval(ng, tile)
+# endif
+# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES &&   \
+     !defined ALBEDO_FILE
+                CALL albedo_eval(ng, tile)
 # endif
 # ifdef BULK_FLUXES
 #  if defined FOUR_DVAR && defined NL_BULK_FLUXES
@@ -453,6 +442,16 @@
                 CALL nesting (ng, iNLM, nbstr)
               END IF
             END DO
+# endif
+
+# ifdef CICE_MODEL
+!
+!-----------------------------------------------------------------------
+! Call the CICE model
+!-----------------------------------------------------------------------
+!
+! KLUDGE here! hard-coding ng=1
+            call cice_fakecpl
 # endif
 
 # if defined ICE_MODEL
@@ -625,12 +624,18 @@
 !-----------------------------------------------------------------------
 !  If refinement grid, interpolate (space, time) state variables
 !  contact points from donor grid extracted data.
+!
+!  Also, fill BRY_CONTACT(:,:)%Mflux to check for mass conservation
+!  between coarse and fine grids.  This is only done for diagnostic
+!  purposes. Also, debugging is possible with very verbose output
+!  to fort.300 is allowed by activating uppercase(nesting_debug).
 !-----------------------------------------------------------------------
 !
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
                 CALL nesting (ng, iNLM, nputD)
+                CALL nesting (ng, iNLM, nmflx)
               END IF
             END DO
 # endif
@@ -711,11 +716,20 @@
 !  If composite or mosaic grids, process additional points in the
 !  contact zone between connected grids for the state variables
 !  associated with the 2D engine Predictor Step section.
+!  If refinement, check mass flux conservation between coarse and
+!  fine grids during debugging.
+#  ifdef NESTING_DEBUG
+!  Warning: very verbose output to fort.300 ascii file to check
+!           mass flux conservation.
+#  endif
 !
               DO ig=1,GridsInLayer(nl)
                 ng=GridNumber(ig,nl)
                 IF (ANY(CompositeGrid(:,ng))) THEN
                   CALL nesting (ng, iNLM, n2dPS)
+                END IF
+                IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
+                  CALL nesting (ng, iNLM, nmflx)
                 END IF
               END DO
 # endif
@@ -749,17 +763,38 @@
 !  If composite or mosaic grids, process additional points in the
 !  contact zone between connected grids for the state variables
 !  associated with the 2D engine Corrector step section.
+!  If refinement, check mass flux conservation between coarse and
+!  fine grids during debugging.
+#  ifdef NESTING_DEBUG
+!  Warning: very verbose output to fort.300 ascii file to check
+!           mass flux conservation.
+#  endif
 !
               DO ig=1,GridsInLayer(nl)
                 ng=GridNumber(ig,nl)
                 IF (ANY(CompositeGrid(:,ng))) THEN
                   CALL nesting (ng, iNLM, n2dCS)
                 END IF
+                IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
+                  CALL nesting (ng, iNLM, nmflx)
+                END IF
               END DO
 # endif
             END DO LOOP_2D
 
 # ifdef NESTING
+#  if defined MASKING && defined WET_DRY
+!
+!  If nesting and wetting and drying, scale horizontal interpolation
+!  weights to account for land/sea masking in contact areas. This needs
+!  to be done at very time-step since the Land/Sea masking is time
+!  dependent.
+!
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
+              CALL nesting (ng, iNLM, nmask)
+            END DO
+#  endif
 !
 !  If composite or mosaic grids, process additional points in the
 !  contact zone between connected grids for the time-averaged
@@ -877,6 +912,43 @@
               END IF
             END DO
 #  endif
+# endif
+
+# ifdef NESTING
+#  ifndef ONE_WAY
+!
+!-----------------------------------------------------------------------
+!  If refinement grids, perform two-way coupling between fine and
+!  coarse grids. Correct coarse grid tracers values at the refinement
+!  grid with refined accumulated fluxes.  Then, replace coarse grid
+!  state variable with averaged refined grid values (two-way nesting).
+!  Update coarse grid depth variables.
+!
+!  The two-way exchange of infomation between nested grids needs to be
+!  done at the correct time-step and in the right sequence.
+!-----------------------------------------------------------------------
+!
+            DO il=NestLayers,1,-1
+              IF (do_twoway(nl,il,istep,ng)) THEN
+                CALL nesting (ng, iNLM, n2way)
+              END IF
+            END DO
+#  endif
+!
+!-----------------------------------------------------------------------
+!  If donor to a finer grid, extract data for the external contact
+!  points. This is the latest solution for the coarser grid.
+!
+!  It is stored in the REFINED structure so it can be used for the
+!  space-time interpolation when "nputD" argument is used above.
+!-----------------------------------------------------------------------
+!
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
+              IF (DonorToFiner(ng)) THEN
+                CALL nesting (ng, iNLM, ngetD)
+              END IF
+            END DO
 # endif
 
 # ifdef FLOATS

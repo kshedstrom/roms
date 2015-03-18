@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2014 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -105,7 +105,7 @@
 #endif
 
 #define ANA_SRFLUX
-#define ALBEDO
+#define ALBEDO_CLOUD
 #define ANA_SMFLUX
 #define ANA_SSFLUX
 #define ANA_BSFLUX

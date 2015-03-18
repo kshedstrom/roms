@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -178,7 +178,7 @@
 # ifdef BEST_NPZ
       USE mod_biology
 # endif
-# if defined ICE_MODEL && defined ICE_THERMO
+#  if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif
       USE mod_sources
@@ -334,7 +334,7 @@
       integer :: ILB, IUB, JLB, JUB
       integer :: dg, cr, rg
 # endif
-      integer :: i, ibt, ic, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, it, itrc, j, k, ltrc
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
 # endif
@@ -363,7 +363,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Va
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
 # endif
-      real(r8) :: my_maxbio(15)
 # if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
       integer :: iactrc, iwctrc
 # endif
@@ -1356,7 +1355,8 @@
 !
 !  Apply tracers point sources to the horizontal advection terms.
 !
-        DO itrc=1,NT(ng)
+        DO it=1,NPT
+          itrc=inert(it)
           DO is=1,Nsrcpt
             i=Isrcpt(is)
             j=Jsrcpt(is)
@@ -1385,31 +1385,18 @@
 !  equation.
 !------Added by W.G.Zhang
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      iactrc=inert(2)
-      iwctrc=inert(1)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
-     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
-!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-!            t(i,j,k,nnew,inert(3))=t(i,j,k,nnew,inert(3))+              &
-!     &                           dt(ng)*3.168808781402895e-08
-!            t(i,j,k,nnew,inert(4))=t(i,j,k,nnew,inert(4))+              &
-!     &                           dt(ng)*3.168808781402895e-08
+      DO it=1,NPT,2
+        iactrc=inert(it+1)
+        iwctrc=inert(it)
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                &
+     &                             dt(ng)*t(i,j,k,nnew,iwctrc)
+            END DO
           END DO
         END DO
       END DO
-!      iactrc=inert(4)
-!      iwctrc=inert(2)
-!      DO k=1,N(ng)
-!        DO j=Jstr,Jend
-!          DO i=Istr,Iend
-!            t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                  &
-!     &                           dt(ng)*t(i,j,k,nnew,iwctrc)
-!          END DO
-!        END DO
-!      END DO
 # endif
 # ifdef AGE_DISTRIBUTION
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1537,7 +1524,8 @@
           END DO
         END DO
 # endif
-#  if defined ICE_MODEL && defined ICE_THERMO
+
+#  if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
         IF (itrc == isalt) THEN
           CALL ice_frazil(ng, tile)
         END IF

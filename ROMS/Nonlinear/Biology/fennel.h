@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !
 !    See License_ROMS.txt                               Katja Fennel   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -108,7 +108,7 @@
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask_full,                         &
 # endif
 #endif
      &                   GRID(ng) % Hz,                                 &
@@ -148,7 +148,7 @@
 #ifdef MASKING
      &                         rmask,                                   &
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
-     &                         rmask_io,                                &
+     &                         rmask_full,                              &
 # endif
 #endif
      &                         Hz, z_r, z_w, srflx,                     &
@@ -184,7 +184,7 @@
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  if defined WET_DRY && defined DIAGNOSTICS_BIO
-      real(r8), intent(in) :: rmask_io(LBi:,LBj:)
+      real(r8), intent(in) :: rmask_full(LBi:,LBj:)
 #  endif
 # endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -212,7 +212,7 @@
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  if defined WET_DRY && defined DIAGNOSTICS_BIO
-      real(r8), intent(in) :: rmask_io(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: rmask_full(LBi:UBi,LBj:UBj)
 #  endif
 # endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
@@ -617,12 +617,12 @@
 #ifdef DIAGNOSTICS_BIO
                 DiaBio3d(i,j,k,iPPro)=DiaBio3d(i,j,k,iPPro)+            &
 # ifdef WET_DRY
-     &                                rmask_io(i,j)*                    &
+     &                                rmask_full(i,j)*                  &
 # endif
      &                                (N_Flux_NewProd+N_Flux_RegProd)
                 DiaBio3d(i,j,k,iNO3u)=DiaBio3d(i,j,k,iNO3u)+            &
 # ifdef WET_DRY
-     &                                rmask_io(i,j)*                    &
+     &                                rmask_full(i,j)*                  &
 # endif
      &                                N_Flux_NewProd
 #endif
@@ -920,7 +920,7 @@
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iO2fx)=DiaBio2d(i,j,iO2fx)+                    &
 #  ifdef WET_DRY
-     &                          rmask_io(i,j)*                          &
+     &                          rmask_full(i,j)*                        &
 #  endif
      &                          O2_Flux
 # endif
@@ -1021,12 +1021,12 @@
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iCOfx)=DiaBio2d(i,j,iCOfx)+                    &
 #  ifdef WET_DRY
-     &                          rmask_io(i,j)*                          &
+     &                          rmask_full(i,j)*                        &
 #  endif
      &                          CO2_Flux
             DiaBio2d(i,j,ipCO2)=pCO2(i)
 #  ifdef WET_DRY
-            DiaBio2d(i,j,ipCO2)=DiaBio2d(i,j,ipCO2)*rmask_io(i,j)
+            DiaBio2d(i,j,ipCO2)=DiaBio2d(i,j,ipCO2)*rmask_full(i,j)
 #  endif
 # endif
           END DO
@@ -1234,7 +1234,7 @@
 #  ifdef DIAGNOSTICS_BIO
                 DiaBio2d(i,j,iDNIT)=DiaBio2d(i,j,iDNIT)+                &
 #   ifdef WET_DRY
-     &                              rmask_io(i,j)*                      &
+     &                              rmask_full(i,j)*                    &
 #   endif
      &                              (1.0_r8-cff2)*cff1*Hz(i,j,1)
 #  endif

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2014 The ROMS/TOMS Group
+** Copyright (c) 2002-2015 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -13,7 +13,6 @@
 */
 
 #define NO_HIS
-#define HISTORY2
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
@@ -28,8 +27,8 @@
 #ifdef SOLVE3D
 # define SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
@@ -45,7 +44,12 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define  ICE_MODEL
+# define CICE_MODEL
+# ifdef CICE_MODEL
+#  undef SNOWFALL /* not yet */
+# endif
+
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define  ICE_THERMO
 #  define  ICE_MK
@@ -145,8 +149,7 @@
 #  undef DIURNAL_SRFLUX
 #  define EMINUSP
 #  undef ANA_SRFLUX
-#  undef ALBEDO
-#  define ICE_ALB_EC92
+#  undef ALBEDO_CLOUD
 #  define SOLAR_SOURCE
 #  define ALBEDO_CURVE
 #  undef ALBEDO_FILE

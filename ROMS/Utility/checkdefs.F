@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -161,9 +161,15 @@
 #endif
 #if defined ALBEDO
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
-     &   'Shortwave radiation from albedo equation.'
+     &   'Shortwave radiation with albedo correction.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
+#endif
+#if defined ALBEDO_CLOUD
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                     &
+     &   'Albedo as a function of cloudiness.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ALBEDO_CLOUD,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
@@ -606,13 +612,13 @@
 #endif
 #ifdef CCSM_FLUXES
       IF (Master) WRITE (stdout,20) 'CCSM_FLUXES',                      &
-     &   'Surface bulk fluxes parametererization.'
+     &   'Surface bulk fluxes parameterization.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' CCSM_FLUXES,'
 #endif
 #ifdef CCSM_FLUXES2D
       IF (Master) WRITE (stdout,20) 'CCSM_FLUXES2D',                    &
-     &   'Surface bulk fluxes parametererization.'
+     &   'Surface bulk fluxes parameterization.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CCSM_FLUXES2D,'
 #endif
@@ -627,6 +633,12 @@
      &   'Write out radiation celerity in forward file.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' CELERITY_WRITE,'
+#endif
+#ifdef CICE_MODEL
+      IF (Master) WRITE (stdout,20) 'CICE_MODEL',                       &
+     &   'Include CICE Ice Model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' CICE_MODEL,'
 #endif
 #ifdef CLIPPING
       IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
@@ -1289,6 +1301,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' MCT_LIB,'
 #endif
+#ifdef MELT_PONDS
+      IF (Master) WRITE (stdout,20) 'MELT_PONDS',                       &
+     &   'Melt ponds on ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' MELT_PONDS,'
+#endif
 #ifdef MICLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'MICLIMATOLOGY',                    &
      &   'Ice momentum climatology.'
@@ -1541,11 +1559,18 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' ONE_TRACER_SOURCE,'
 #endif
-#if defined ONE_WAY && defined NESTING
+#ifdef NESTING
+# ifdef ONE_WAY
       IF (Master) WRITE (stdout,20) 'ONE_WAY',                          &
      &   'One-way nesting in refinement grids.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ONE_WAY,'
+# else
+      IF (Master) WRITE (stdout,20) '!ONE_WAY',                         &
+     &   'Two-way nesting in refinement grids.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' !ONE_WAY,'
+# endif
 #endif
 #ifdef OUT_DOUBLE
       IF (Master) WRITE (stdout,20) 'OUT_DOUBLE',                       &
@@ -1904,11 +1929,17 @@
       Coptions(is:is+11)=' SG_LOGINT,'
 # endif
 #endif
-#ifdef SRELAXATION
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux.'
+#ifdef SNOWFALL
+      IF (Master) WRITE (stdout,20) 'SNOWFALL',                         &
+     &   'Surface snow accumulation on ice.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' SRELAXATION,'
+      Coptions(is:is+10)=' SNOWFALL,'
+#endif
+#ifdef SNOW_FROM_RAIN
+      IF (Master) WRITE (stdout,20) 'SNOW_FROM_RAIN',                   &
+     &   'Subtract snow from total precip (rain).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' SNOW_FROM_RAIN,'
 #endif
 #ifdef SOLAR_SOURCE
       IF (Master) WRITE (stdout,20) 'SOLAR_SOURCE',                     &
@@ -1966,6 +1997,12 @@
      &   'Spherical grid configuration.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SPHERICAL,'
+#endif
+#ifdef SRELAXATION
+      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
+     &   'Surface salinity relaxation as surface flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' SRELAXATION,'
 #endif
 #if defined SSH_TIDES
       IF (Master) WRITE (stdout,20) 'SSH_TIDES',                        &
@@ -2140,6 +2177,12 @@
       Coptions(is:is+11)=' TS_MPDATA,'
       itrcHadv=itrcHadv+1
       itrcVadv=itrcVadv+1
+#  ifdef TS_MPDATA_LIMIT
+      IF (Master) WRITE (stdout,20) 'TS_MPDATA_LIMIT',                  &
+     &   'Further limiter in upwind corrector fluxes for stability.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' TS_MPDATA_LIMIT,'
+#  endif
 # endif
 # ifdef TS_A4HADVECTION
       IF (Master) WRITE (stdout,20) 'TS_A4HADVECTION',                  &
@@ -2907,6 +2950,37 @@
  240    FORMAT (/,' CHECKDEFS - cannot use obsolete option: ',a,        &
      &          /,13x,'Use instead standard input switch: ',a,          &
      &          /,13x,'Edit header file or build script!')
+        exit_flag=5
+      END IF
+#endif
+#if !defined DISTRIBUTE && defined NESTING
+!
+!  Stop if activating nesting in serial with partitions or shared-
+!  memory.
+!
+      IF (Master) THEN
+        DO ng=1,Ngrids
+          IF (NtileX(ng)*NtileE(ng).gt.1) THEN
+            WRITE (stdout,250) uppercase('nesting')
+            exit_flag=5
+            EXIT
+          END IF
+        END DO
+ 250    FORMAT (/,' CHECKDEFS - cannot activate option: ',a,           &
+     &          /,13x,'in serial with partitions or shared-memory...', &
+     &          /,13x,'There bugs in shared-memory that need fixing.', &
+     &          /,13x,'Use distributed-memory (MPI) in parallel runs.')
+      END IF
+#endif
+#if defined CICE_MODEL && defined ICE_MODEL
+!
+!  Stop if activating two sea ice models.
+!
+      IF (Master) THEN
+        WRITE (stdout,260) uppercase('cice_model'),                     &
+     &                     uppercase('ice_model')
+ 260    FORMAT (/,' CHECKDEFS - cannot activate ',a,'                   &
+     &            ' and',a,/,13x,'at the same time. Choose one!')
         exit_flag=5
       END IF
 #endif

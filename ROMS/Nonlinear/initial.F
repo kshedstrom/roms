@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -21,6 +21,9 @@
       USE mod_fourdvar
 #endif
       USE mod_grid
+#ifdef CICE_MODEL
+      USE CICE_InitMod
+#endif
       USE mod_iounits
       USE mod_ncparam
 #ifdef NESTING
@@ -58,6 +61,9 @@
 #ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : ocn2wav_coupling
 #endif
+#ifdef WET_DRY
+      USE wetdry_mod, ONLY : wetdry
+#endif
 #if defined PROPAGATOR || \
     (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
       USE wpoints_mod, ONLY : wpoints
@@ -77,6 +83,7 @@
       integer :: ng, thread, tile
 #ifdef NESTING
       integer :: ig, nl
+      integer :: cr, i, m
 #endif
 
       integer, dimension(Ngrids) :: IniRec, Tindex
@@ -147,7 +154,29 @@
 !$OMP BARRIER
         step_counter(ng)=0
         CALL time_string (time(ng), time_code(ng))
+#ifdef CICE_MODEL
+! kca - calculate timesteps for restart output
+        tspy(ng) = 60*60*24*365/dt(ng)
+        tspd(ng) = 60*60*24/dt(ng)
+#endif
       END DO
+
+#ifdef CICE_MODEL
+! kca - calculate timesteps for restart output
+      dleftinSep = 273-dstart
+      Oct = dleftinSep
+      Nov = Oct + 31
+      Dec = Nov + 30
+      Jan = Dec + 31
+      Feb = Jan + 31
+      Mar = Feb + 28
+      Apr = Mar + 31
+      May = Apr + 30
+      Jun = May + 31
+      Jul = Jun + 30
+      Aug = Jul + 31
+      Sep = Aug + 31
+#endif
 
 #ifdef PROFILE
 !
@@ -578,6 +607,33 @@
         END IF
       END DO
 #endif
+#ifdef WET_DRY
+!
+!-----------------------------------------------------------------------
+!  Process initial wet/dry masks.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+!
+!  If restart, read in wet/dry masks.
+!
+        IF (nrrec(ng).ne.0) THEN
+!$OMP MASTER
+          CALL get_wetdry (ng, iNLM, IniRec(ng))
+!$OMP END MASTER
+# ifdef DISTRIBUTE
+          CALL mp_bcasti (ng, iNLM, exit_flag)
+# endif
+!$OMP BARRIER
+          IF (exit_flag.ne.NoError) RETURN
+        ELSE
+          DO tile=first_tile(ng),last_tile(ng),+1
+            CALL wetdry (ng, tile, Tindex(ng), .TRUE.)
+          END DO
+!$OMP BARRIER
+        END IF
+      END DO
+#endif
 
 #if (defined W4DPSAS || defined TL_W4DPSAS || \
      defined W4DPSAS_SENSITIVITY)          && \
@@ -623,26 +679,6 @@
       END IF
 #endif
 
-#ifdef NESTING
-!
-!-----------------------------------------------------------------------
-!  If nesting, process 2D state fields initial conditons in the contact
-!  regions.
-!-----------------------------------------------------------------------
-!
-      DO nl=1,NestLayers
-        DO ig=1,GridsInLayer(nl)
-          ng=GridNumber(ig,nl)
-          IF (ANY(CompositeGrid(:,ng))) THEN
-            CALL nesting (ng, iNLM, nFSIC)        ! free-surface
-#  ifndef SOLVE3D
-            CALL nesting (ng, iNLM, n2dIC)        ! 2d momentum
-#  endif
-          END IF
-        END DO
-      END DO
-#endif
-
 #ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -656,33 +692,6 @@
         END DO
 !$OMP BARRIER
       END DO
-
-# ifdef NESTING
-!
-!-----------------------------------------------------------------------
-!  If nesting, process 3D state fields initial conditons in the contact
-!  regions.
-!-----------------------------------------------------------------------
-!
-!  Determine vertical indices and vertical interpolation weights in
-!  the contact zone using initial unperturbed depth arrays.
-!
-      DO ng=1,Ngrids
-        CALL nesting (ng, iNLM, nzwgt)
-      END DO
-!
-!  3D state variables.
-!
-      DO nl=1,NestLayers
-        DO ig=1,GridsInLayer(nl)
-          ng=GridNumber(ig,nl)
-          IF (ANY(CompositeGrid(:,ng))) THEN
-            CALL nesting (ng, iNLM, n3dIC)        ! 3D momentum
-            CALL nesting (ng, iNLM, nTVIC)        ! Tracer variables
-          END IF
-        END DO
-      END DO
-# endif
 !
 !-----------------------------------------------------------------------
 !  Compute initial horizontal mass fluxes, Hz*u/n and Hz*v/m.
@@ -820,6 +829,64 @@
       END DO
 #endif
 
+#ifdef NESTING
+# if defined MASKING || defined WET_DRY
+!
+!-----------------------------------------------------------------------
+!  If nesting and Land/Sea masking, scale horizontal interpolation
+!  weights to account for land contact points.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        DO tile=first_tile(ng),last_tile(ng),+1
+          CALL nesting (ng, iNLM, nmask)
+        END DO
+!$OMP BARRIER
+      END DO
+# endif
+!
+!-----------------------------------------------------------------------
+!  If nesting, process state fields initial conditons in the contact
+!  regions.
+!-----------------------------------------------------------------------
+!
+!  Free-surface and 2D-momentum.
+!
+      DO nl=1,NestLayers
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          IF (ANY(CompositeGrid(:,ng))) THEN
+            CALL nesting (ng, iNLM, nFSIC)        ! free-surface
+# ifndef SOLVE3D
+            CALL nesting (ng, iNLM, n2dIC)        ! 2d momentum
+# endif
+          END IF
+        END DO
+      END DO
+
+# ifdef SOLVE3D
+!
+!  Determine vertical indices and vertical interpolation weights in
+!  the contact zone using initial unperturbed depth arrays.
+!
+      DO ng=1,Ngrids
+        CALL nesting (ng, iNLM, nzwgt)
+      END DO
+!
+!  3D-momentum and tracers.
+!
+      DO nl=1,NestLayers
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
+          IF (ANY(CompositeGrid(:,ng))) THEN
+            CALL nesting (ng, iNLM, n3dIC)        ! 3D momentum
+            CALL nesting (ng, iNLM, nTVIC)        ! Tracer variables
+          END IF
+        END DO
+      END DO
+# endif
+#endif
+
 #if defined PROPAGATOR || \
    (defined MASKING    && (defined READ_WATER || defined WRITE_WATER ))
 !
@@ -930,6 +997,15 @@
         iic(ng)=ntstart(ng)-1
         time(ng)=time(ng)-dt(ng)
       END DO
+
+#ifdef CICE_MODEL
+!
+!-----------------------------------------------------------------------
+! Initialize the ice model
+!-----------------------------------------------------------------------
+!
+      CALL cice_init
+#endif
 
 #ifdef PROFILE
 !

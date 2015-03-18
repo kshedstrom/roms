@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -213,6 +213,19 @@
 # endif
      &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
+# ifdef SNOWFALL
+!
+!  Snowfall
+!
+      CALL get_2dfld (ng, iNLM, idsnow, ncFRCid(idsnow,ng),             &
+     &                nFfiles(ng), FRCname(1,ng),                       &
+     &                update(1), LBi, UBi, LBj, UBj, 2, 1,              &
+#  ifdef MASKING
+     &                GRID(ng) % rmask(LBi,LBj),                        &
+#  endif
+     &                FORCES(ng) % snowG)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
 !
 !  Skin temperature
 !
@@ -475,7 +488,7 @@
 
 #if !defined ANA_TAIR && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 !
 !-----------------------------------------------------------------------
 !  Surface air temperature.
@@ -493,7 +506,7 @@
 
 #if !defined ANA_HUMIDITY && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO) )
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 
 !
 !-----------------------------------------------------------------------
@@ -595,7 +608,7 @@
 # if !defined ANA_RAIN && defined BULK_FLUXES
 !
 !-----------------------------------------------------------------------
-!  Rain fall rate.
+!  Rain fall rate.  Snow fall rate.
 !-----------------------------------------------------------------------
 !
       CALL get_2dfld (ng, iNLM, idrain, ncFRCid(idrain,ng),             &
@@ -606,6 +619,16 @@
 #  endif
      &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
+#  ifdef SNOWFALL
+      CALL get_2dfld (ng, iNLM, idsnow, ncFRCid(idsnow,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % snowG)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
 # endif
 
 # if !defined ANA_RUNOFF && defined BULK_FLUXES && defined RUNOFF
@@ -1300,38 +1323,70 @@
         END IF
       END IF
 #  endif
-#  ifndef ANA_SFWATOBC
+#  if defined MELT_PONDS && !defined ANA_SFWATOBC
       IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
-        IF (LBC(iwest,isSfwat,ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idSfwbc(iwest),                     &
-     &                    ncBRYid(idSfwbc(iwest),ng),                   &
+        IF (LBC(iwest,isApond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idApdbc(iwest),                     &
+     &                    ncBRYid(idApdbc(iwest),ng),                   &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,               &
-     &                    BOUNDARY(ng) % sfwatG_west)
+     &                    BOUNDARY(ng) % apondG_west)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-        IF (LBC(ieast,isSfwat,ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idSfwbc(ieast),                     &
-     &                    ncBRYid(idSfwbc(ieast),ng),                   &
+        IF (LBC(ieast,isApond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idApdbc(ieast),                     &
+     &                    ncBRYid(idApdbc(ieast),ng),                   &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,               &
-     &                    BOUNDARY(ng) % sfwatG_east)
+     &                    BOUNDARY(ng) % apondG_east)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-        IF (LBC(isouth,isSfwat,ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idSfwbc(isouth),                    &
-     &                    ncBRYid(idSfwbc(isouth),ng),                  &
+        IF (LBC(isouth,isApond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idApdbc(isouth),                    &
+     &                    ncBRYid(idApdbc(isouth),ng),                  &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,               &
-     &                    BOUNDARY(ng) % sfwatG_south)
+     &                    BOUNDARY(ng) % apondG_south)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-        IF (LBC(inorth,isSfwat,ng)%acquire) THEN
-          CALL get_ngfld (ng, iNLM, idSfwbc(inorth),                    &
-     &                    ncBRYid(idSfwbc(inorth),ng),                  &
+        IF (LBC(inorth,isApond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idApdbc(inorth),                    &
+     &                    ncBRYid(idApdbc(inorth),ng),                  &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &
      &                    ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,               &
-     &                    BOUNDARY(ng) % sfwatG_north)
+     &                    BOUNDARY(ng) % apondG_north)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+        IF (LBC(iwest,isHpond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idHpdbc(iwest),                     &
+     &                    ncBRYid(idHpdbc(iwest),ng),                   &
+     &                    nBCfiles(ng), BRY(1,ng), update(1),           &
+     &                    JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,               &
+     &                    BOUNDARY(ng) % hpondG_west)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+        IF (LBC(ieast,isHpond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idHpdbc(ieast),                     &
+     &                    ncBRYid(idHpdbc(ieast),ng),                   &
+     &                    nBCfiles(ng), BRY(1,ng), update(1),           &
+     &                    JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,               &
+     &                    BOUNDARY(ng) % hpondG_east)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+        IF (LBC(isouth,isHpond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idHpdbc(isouth),                    &
+     &                    ncBRYid(idHpdbc(isouth),ng),                  &
+     &                    nBCfiles(ng), BRY(1,ng), update(1),           &
+     &                    ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,               &
+     &                    BOUNDARY(ng) % hpondG_south)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+        IF (LBC(inorth,isHpond,ng)%acquire) THEN
+          CALL get_ngfld (ng, iNLM, idHpdbc(inorth),                    &
+     &                    ncBRYid(idHpdbc(inorth),ng),                  &
+     &                    nBCfiles(ng), BRY(1,ng), update(1),           &
+     &                    ILB, IUB, 1, 2, 0, Lm(ng)+1, 1,               &
+     &                    BOUNDARY(ng) % hpondG_north)
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END IF
@@ -1531,22 +1586,6 @@
      &                    GRID(ng) % rmask,                             &
 #  endif
      &                    CLIMA(ng) % tclmG(:,:,:,:,ic))
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-      END DO
-# endif
-
-# if defined BCLIMATOLOGY
-! FC & GH BIO TRACER
-      DO i=NAT+1,Nt(ng)
-        IF (i==iFeD_ .OR. i==iNO3_ .OR. i==iSiOH) THEN
-          CALL get_3dfld (ng, iNLM, idTclm(i), ncCLMid(idTclm(i),ng),   &
-     &                    nCLMfiles(ng), CLM(1,ng), update(1),          &
-     &                    LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,           &
-#  ifdef MASKING
-     &                    GRID(ng) % rmask,                             &
-#  endif
-     &                    CLIMA(ng) % tclmG(:,:,:,:,i))
           IF (exit_flag.ne.NoError) RETURN
         END IF
       END DO

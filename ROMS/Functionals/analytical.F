@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -143,7 +143,7 @@
 # ifdef SOLVE3D
 #  if defined ANA_HUMIDITY && \
     (defined BULK_FLUXES || defined ECOSIM || \
-    (defined ANA_SRFLUX  && defined ALBEDO) )
+    (defined ANA_SRFLUX  && defined ALBEDO_CLOUD) )
 #   include <ana_humid.h>
 #  endif
 # endif
@@ -270,7 +270,7 @@
 # ifdef SOLVE3D
 #  if defined ANA_TAIR && \
     (defined BULK_FLUXES || defined ECOSIM || \
-    (defined ANA_SRFLUX && defined ALBEDO) )
+    (defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 #   include <ana_tair.h>
 #  endif
 # endif

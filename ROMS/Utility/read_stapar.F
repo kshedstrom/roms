@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -31,10 +31,10 @@
 !
 !  Local variable declarations.
 !
-      integer :: Mstation, Npts, Nval
-      integer :: flag, i, igrid, ista, itrc, ng, status
+      integer :: Npts, Nval
+      integer :: flag, i, igrid, itrc, ng, status
 
-      integer :: decode_line, load_i, load_l, load_r
+      integer :: decode_line, load_i, load_l
 
       real(r8) :: Xpos, Ypos
 
@@ -270,8 +270,12 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,:))
             CASE ('Sout(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,:))
-            CASE ('Sout(idSfwat)')
-              Npts=load_l(Nval, Cval, Ngrids, Sout(idSfwat,:))
+#ifdef MELT_PONDS
+            CASE ('Sout(idApond)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idApond,:))
+            CASE ('Sout(idHpond)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idHpond,:))
+#endif
             CASE ('Sout(idAgeice)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idAgeice,:))
             CASE ('Sout(idIomflx)')
@@ -286,6 +290,10 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTauiw,:))
             CASE ('Sout(idChuiw)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idChuiw,:))
+            CASE ('Sout(idT0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idT0mk,:))
+            CASE ('Sout(idS0mk)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idS0mk,:))
             CASE ('Sout(idWfr)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idWfr,:))
             CASE ('Sout(idWai)')
@@ -695,9 +703,14 @@
           IF (Sout(idTimid,ng)) WRITE (out,80) Sout(idTimid,ng),        &
      &       'Sout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
-          IF (Sout(idSfwat,ng)) WRITE (out,80) Sout(idSfwat,ng),        &
-     &       'Sout(idSfwat)',                                           &
+#ifdef MELT_PONDS
+          IF (Sout(idApond,ng)) WRITE (out,80) Sout(idApond,ng),        &
+     &       'Sout(idApond)',                                           &
+     &       'Write out surface water (on ice) fraction.'
+          IF (Sout(idHpond,ng)) WRITE (out,80) Sout(idHpond,ng),        &
+     &       'Sout(idHpond)',                                           &
      &       'Write out surface water (on ice) thickness.'
+#endif
           IF (Sout(idAgeice,ng)) WRITE (out,80) Sout(idAgeice,ng),      &
      &       'Sout(idAgeice)',                                          &
      &       'Write out surface water (on ice) thickness.'
@@ -719,6 +732,12 @@
           IF (Sout(idChuiw,ng)) WRITE (out,80) Sout(idChuiw,ng),        &
      &       'Hout(idChuiw)',                                           &
      &       'Write out ice-water momentum transfer coefficient.'
+          IF (Sout(idT0mk,ng)) WRITE (out,80) Sout(idT0mk,ng),          &
+     &       'Sout(idT0mk)',                                            &
+     &       'Write out temperature of molecular sublayer under ice.'
+          IF (Sout(idS0mk,ng)) WRITE (out,80) Sout(idS0mk,ng),          &
+     &       'Sout(idS0mk)',                                            &
+     &       'Write out salinity of molecular sublayer under ice.'
           IF (Sout(idWfr,ng)) WRITE (out,80) Sout(idWfr,ng),            &
      &       'Sout(idWfr)',                                             &
      &       'Write out frazil ice growth rate.'
@@ -757,7 +776,6 @@
   90  FORMAT (10x,l1,2x,a,t30,a,i2.2,':',1x,a)
  100  FORMAT (13x,'Flag and positions for station ',i4.4,':',           &
      &        i3,1x,2f10.4)
- 110  FORMAT (/,' READ_StaPAR - variable info not yet loaded, ', a)
 
       RETURN
       END SUBROUTINE read_StaPar

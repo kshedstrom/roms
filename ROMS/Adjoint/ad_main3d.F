@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -561,7 +561,7 @@
 # ifdef BBL_MODEL_NOT_YET
             CALL ad_bblm (ng, tile)
 # endif
-# ifdef BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
+# if defined BULK_FLUXES_NOT_YET && !defined NL_BULK_FLUXES
             CALL ad_bulk_flux (ng, tile)
 # endif
           END DO

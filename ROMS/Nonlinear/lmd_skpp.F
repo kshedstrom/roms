@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -733,6 +733,12 @@
      &                     rmask,                                       &
 #  endif
      &                     hsbl)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+          hsbl(i,j)=MIN(hsbl(i,j),z_w(i,j,N(ng)))
+          hsbl(i,j)=MAX(hsbl(i,j),z_w(i,j,0))
+        END DO
+      END DO
 # endif
 !
 !  Apply gradient or periodic boundary conditions.

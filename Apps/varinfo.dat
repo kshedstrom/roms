@@ -2,7 +2,7 @@
 !  ROMS/TOMS IO NetCDF variables.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -235,6 +235,14 @@
 !  Wet/dry masks.
 !------------------------------------------------------------------------------
 !
+'wetdry_mask_psi'                                  ! Input/Output
+  'wet/dry mask on PSI-points'
+  'nondimensional'
+  'wetdry_mask_psi, scalar, series'
+  'ocean_time'
+  'idPwet'
+  'p2dvar'
+  1.0d0
 
 'wetdry_mask_rho'                                  ! Input/Output
   'wet/dry mask on RHO-points'
@@ -844,6 +852,24 @@
   'r2dvar'
   1.0d0
 
+'s0mk'
+  'salinity of molecular sub-layer under ice'
+  'nondimensional'
+  'salinity, scalar, series'
+  'ocean_time'
+  'idS0mk'
+  'r2dvar'
+  1.0d0
+
+'t0mk'
+  'temperature of molecular sub-layer under ice'
+  'degrees Celsius'
+  'temperature, scalar, series'
+  'ocean_time'
+  'idT0mk'
+  'r2dvar'
+  1.0d0
+
 'wfr'
   'rate of frazil ice growth'
   'm^3 s-1'
@@ -898,12 +924,21 @@
   'r2dvar'
   1.0d0
 
-'sfwat'
+'apond'
+  'surface melt water fraction on ice'
+  'meter'
+  'melt water fraction, scalar, series'
+  'ocean_time'
+  'idApond'
+  'r2dvar'
+  1.0d0
+
+'hpond'
   'surface melt water thickness on ice'
   'meter'
   'melt water thickness, scalar, series'
   'ocean_time'
-  'idSfwat'
+  'idHpond'
   'r2dvar'
   1.0d0
 
@@ -1540,39 +1575,75 @@
   'nulvar'
   1.0d0
 
-'sfwat_west'
+'apond_west'
+  'surface meltwater fraction western boundary condition'
+  ' '
+  'apond_west, scalar, series'
+  'bry_time'
+  'idApdbc(iwest)'
+  'nulvar'
+  1.0d0
+
+'apond_east'
+  'surface meltwater fraction eastern boundary condition'
+  ' '
+  'apond_east, scalar, series'
+  'bry_time'
+  'idApdbc(ieast)'
+  'nulvar'
+  1.0d0
+
+'apond_north'
+  'surface meltwater fraction northern boundary condition'
+  ' '
+  'apond_north, scalar, series'
+  'bry_time'
+  'idApdbc(inorth)'
+  'nulvar'
+  1.0d0
+
+'apond_south'
+  'surface meltwater fraction southern boundary condition'
+  ' '
+  'apond_south, scalar, series'
+  'bry_time'
+  'idApdbc(isouth)'
+  'nulvar'
+  1.0d0
+
+'hpond_west'
   'surface meltwater thickness western boundary condition'
   'meter'
-  'sfwat_west, scalar, series'
+  'hpond_west, scalar, series'
   'bry_time'
-  'idSfwbc(iwest)'
+  'idHpdbc(iwest)'
   'nulvar'
   1.0d0
 
-'sfwat_east'
+'hpond_east'
   'surface meltwater thickness eastern boundary condition'
   'meter'
-  'sfwat_east, scalar, series'
+  'hpond_east, scalar, series'
   'bry_time'
-  'idSfwbc(ieast)'
+  'idHpdbc(ieast)'
   'nulvar'
   1.0d0
 
-'sfwat_north'
+'hpond_north'
   'surface meltwater thickness northern boundary condition'
   'meter'
-  'sfwat_north, scalar, series'
+  'hpond_north, scalar, series'
   'bry_time'
-  'idSfwbc(inorth)'
+  'idHpdbc(inorth)'
   'nulvar'
   1.0d0
 
-'sfwat_south'
+'hpond_south'
   'surface meltwater thickness southern boundary condition'
   'meter'
-  'sfwat_south, scalar, series'
+  'hpond_south, scalar, series'
   'bry_time'
-  'idSfwbc(isouth)'
+  'idHpdbc(isouth)'
   'nulvar'
   1.0d0
 
@@ -1858,6 +1929,15 @@
   'rain, scalar, series'
   'rain_time'
   'idrain'
+  'r2dvar'
+  1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
+
+'snow'                                             ! Input
+  'snow fall rate'
+  'kilogram meter-2 second-1'                      ! [kg m2/s]
+  'snow, scalar, series'
+  'snow_time'
+  'idsnow'
   'r2dvar'
   1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
 
@@ -9056,7 +9136,7 @@
   'milligram carbon meter-2'
   'benthos, scalar, series'
   'bio_time'
-  'idBvar(iBen)'
+  'idBeTvar(iBen)'
   'r3dvar'
   1.0d0
 
@@ -9065,7 +9145,7 @@
   'milligram carbon meter-2'
   'benthic detritus, scalar, series'
   'bio_time'
-  'idBvar(iBenDet)'
+  'idBeTvar(iBenDet)'
   'r3dvar'
   1.0d0
 
@@ -9084,7 +9164,7 @@
 'Ice Algae_west'
   'Ice algae concentration western boundary condition'
   'meter'
-  'snow_thick_west, scalar, series'
+  'Ice_algae_thick_west, scalar, series'
   'bry_time'
   'idIcePhLbc(iwest)'
   'nulvar'
@@ -9093,7 +9173,7 @@
 'Ice Algae_east'
   'Ice algae concentration eastern boundary condition'
   'meter'
-  'snow_thick_east, scalar, series'
+  'Ice_algae_thick_east, scalar, series'
   'bry_time'
   'idIcePhLbc(ieast)'
   'nulvar'
@@ -9102,7 +9182,7 @@
 'Ice Algae_north'
   'Ice algae concentration northern boundary condition'
   'meter'
-  'snow_thick_north, scalar, series'
+  'Ice_algae_thick_north, scalar, series'
   'bry_time'
   'idIcePhLbc(inorth)'
   'nulvar'
@@ -9111,7 +9191,7 @@
 'Ice Algae_south'
   'Ice algae concentration southern boundary condition'
   'meter'
-  'snow_thick_south, scalar, series'
+  'Ice_algae_thick_south, scalar, series'
   'bry_time'
   'idIcePhLbc(isouth)'
   'nulvar'
