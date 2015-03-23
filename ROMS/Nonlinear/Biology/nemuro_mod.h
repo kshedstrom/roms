@@ -502,6 +502,8 @@
       real(r8), allocatable :: Nmort_A(:,:)
 !      real(r8), allocatable :: Nymort(:,:)
       real(r8), allocatable :: Fymort(:,:)
+      real(r8), allocatable :: DDmort_J(:,:,:)
+      real(r8), allocatable :: DDscale_J(:,:)
 # ifdef PREDATOR
       real(r8), allocatable :: Pwwt0(:,:)     ! grams
       real(r8), allocatable :: Pwth0(:,:)     ! worth
@@ -1391,6 +1393,12 @@
       END IF
       IF (.not.allocated(Fymort)) THEN
         allocate( Fymort(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDmort_J)) THEN
+        allocate( DDmort_J(max_species, 4, Ngrids))
+      END IF
+      IF (.not.allocated(DDscale_J)) THEN
+        allocate( DDscale_J(max_species, Ngrids))
       END IF
 # ifdef PREDATOR
       IF (.not.allocated(Pwwt0)) THEN

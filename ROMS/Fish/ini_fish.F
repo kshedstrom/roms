@@ -816,6 +816,10 @@
 !            Npts=load_r(Nval, Rval, max_species*Ngrids, Nymort)
           ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fymort)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort_J') THEN
+            Npts=load_r(Nval, Rval, max_species*4*Ngrids, DDmort_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDscale_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDscale_J)
           END IF
         END IF
       END DO
@@ -1185,6 +1189,10 @@
 !     &              'Natural mortality'
               WRITE (out,110) Fymort(isp,ng), 'Fymort',                 &
      &              'Fishing mortality'
+              WRITE (out,110) DDmort_J(isp,:,ng), 'DDmort_J',           &
+     &              'Juvenile density-dependent mortality'
+              WRITE (out,110) DDscale_J(isp,ng), 'DDscale_J',           &
+     &              'Juvenile density-dependent scaling factor'
             END DO
           END IF
         END DO

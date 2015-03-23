@@ -22,24 +22,33 @@
 !
 !***********************************************************************
       SUBROUTINE count_young (ng, tile, LBi, UBi, LBj, UBj,             &
-     &                        juv_cell, fish_count, fish_list           &
+     &                        IminS, ImaxS, JminS, JmaxS,               &
+     &                        species, lifestage,                       &
+     &                        juv_cell, fish_count, fish_list,          &
      &                        bioenergy)
 !***********************************************************************
 !
       USE mod_param
       USE mod_fish
+      USE mod_biology, only: idfish, max_species, DDscale_j
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 # ifdef ASSUMED_SHAPE
-      real(r8), intent(out) :: juv_cell(LBi:,LBj:)
+      integer, intent(in) :: species(:)
+      integer, intent(in) :: lifestage(:)
+      real(r8), intent(out) :: juv_cell(IminS:,JminS:,:)
       integer, intent(in) :: fish_count(LBi:,LBj:)
       type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
       real(r8), intent(in) :: bioenergy(:,:)
 # else
-      real(r8), intent(out) :: juv_cell(LBi:UBi,LBj:UBj)
+      integer, intent(in) :: species(Nfish(ng))
+      integer, intent(in) :: lifestage(Nfish(ng))
+      real(r8), intent(out) :: juv_cell(IminS:ImaxS,JminS:JmaxS,        &
+     &                         max_species)
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
@@ -60,7 +69,19 @@
             thisfish => fish_list(i,j) % next
             DO ifish=1,fish_count(i,j)
               ifid = thisfish % fish
-              bioenergy(ifworth,ifid)
+              isp = idfish(species(ifid))
+              ils=lifestage(ifid)
+              IF (ils.le.if_juvenile) THEN
+                juv_cell(i,j,isp) = juv_cell(i,j,isp) +                 &
+     &               bioenergy(ifworth,ifid)
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+          DO isp=1,max_species
+            juv_cell(i,j,isp) = MIN(juv_cell(i,j,isp)*DDscale_J(isp,ng),&
+     &                    100._r8)
+          END DO
         END DO
       END DO
 
@@ -69,6 +90,7 @@
 !
 !***********************************************************************
       SUBROUTINE fish_elh (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,      &
+     &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     itime, nnew,                                 &
      &                     fishthread, bounded, track,                  &
      &                     bioenergy, alive, species,                   &
@@ -93,6 +115,7 @@
 !
       integer, intent(in) :: ng, tile, itime, nnew
       integer, intent(in) :: LBi, UBi, LBj, UBj, LBk, UBk
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 # ifdef ASSUMED_SHAPE
       integer, intent(in) :: fish_count(LBi:,LBj:)
       integer, intent(inout) :: species(:)
@@ -153,7 +176,7 @@
       integer :: ifish, ifid, isp, ifsp, ils
 
       type(fishnode), pointer :: thisfish
-      real(r8) :: juv_cell(LBi:UBi,LBj:UBj)
+      real(r8) :: juv_cell(IminS:ImaxS,JminS:JmaxS,max_species)
 
       real(r8) :: Fweight, Fworth, Flength, Ftemp
       real(r8) :: dtdays, dtsecs, dy_time, t_ramp, tday
@@ -173,6 +196,8 @@
       dy_time=REAL(INT(time(ng)/86400.0_r8/days_year))
       dy_time=time(ng)/86400.0_r8-days_year*dy_time
       CALL count_young (ng, tile, LBi, UBi, LBj, UBj,                   &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  species, lifestage,                             &
      &                  juv_cell, fish_count, fish_list, bioenergy)
 !
 !      DO i=LBi+2,UBi-2
@@ -193,8 +218,10 @@
 ! Juvenile: mortality only (growth is done in fish_growth.F)
                 IF (ils.eq.if_juvenile) THEN
 !  rx is density dependent term
-                  rx = (0.7497_r8 + juv_cell(i,j)*1.0163_r8) /        &
-     &                   (1.0_r8 + juv_cell(i,j)*0.769_r8)
+                  rx = (DDmort_J(isp,1,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort_J(isp,2,ng)) /         &
+     &                 (DDmort_J(isp,3,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort_J(isp,4,ng))
                   Fworth=Fworth*EXP(-Nmort(ils,isp,ng)*rx*dtdays)
                   fmortN(ifid)=Nmort(ils,isp,ng)
                   juv_dur(ifid)=juv_dur(ifid)+dtdays

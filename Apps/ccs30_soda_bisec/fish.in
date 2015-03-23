@@ -161,6 +161,14 @@
 
        Fymort == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
+! Fish juvenile density-dependent mortality coefficients
+
+       DDmort_J == 0.7497d0 0.7497d0 0.7497d0 0.7497d0 0.7497d0 1.0163d0 1.0163d0 1.0163d0 1.0163d0 1.0163d0 1.0d0 1.0d0 1.0d0 1.0d0 1.0d0 0.769d0 0.769d0 0.769d0 0.769d0 0.769d0
+
+! Fish juvenile density-dependent scale factor
+
+       DDscale_J == 1.0d-8 1.0d-8 1.0d0 1.0d0 1.0d0
+
 ! Initial floats locations for all grids:
 !
 !   G      Nested grid number
