@@ -332,7 +332,7 @@
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
-
+!
 # ifdef SOLVE3D
 !
 !  Define 3D momentum component in the XI-direction.
