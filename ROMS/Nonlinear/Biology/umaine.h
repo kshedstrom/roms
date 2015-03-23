@@ -297,14 +297,14 @@
 
       real(r8), dimension(N(ng)) :: sinkindx
 
-       real(r8) :: cffL, cffR, cu, dltL, dltR
-       integer, dimension(IminS:ImaxS,N(ng)) :: ksource
-       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
-       real(r8), dimension(IminS:ImaxS,N(ng)) :: WL
-       real(r8), dimension(IminS:ImaxS,N(ng)) :: WR
-       real(r8), dimension(IminS:ImaxS,N(ng)) :: bL
-       real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
-       real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
+      real(r8) :: cffL, cffR, cu, dltL, dltR
+      integer, dimension(IminS:ImaxS,N(ng)) :: ksource
+      real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: WL
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: WR
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: bL
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: bR
+      real(r8), dimension(IminS:ImaxS,N(ng)) :: qc
 
       real(r8) :: thick
       real(r8) :: OXR, Q10, Tfunc, cff0

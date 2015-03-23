@@ -1737,7 +1737,6 @@
           END DO
         END IF
 
-
 #   ifdef EMINUSP
         IF (Aout2(idevap,ng)) THEN
           DO j=JstrR,JendR
@@ -1786,7 +1785,6 @@
             END DO
           END DO
         END IF
-
 
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR

@@ -14,6 +14,7 @@
 !    ADM       Output adjoint model history data                       !
 !    ADS       Input adjoint sensitivity functional                    !
 !    AVG       Output time-averaged data                               !
+!    AVG2      Secondary time-averaged data                            !
 !    BLK       Input bulk fluxes data in adjoint-based applications    !
 !    BRY       Input open boundary conditions data                     !
 !    CLM       Input climatology data                                  !

@@ -457,21 +457,21 @@
         integer, allocatable :: idVTav(:)     ! <v*t> for active tracers
 
 #ifdef ICE_MODEL
- !
- !  Ice variable IDs.
- !
-         integer  :: idUibc(4)      ! ice U-velocity boundary conditions
-         integer  :: idVibc(4)      ! ice V-velocity boundary conditions
-         integer  :: idAibc(4)      ! ice concentration boundary conditions
-         integer  :: idHibc(4)      ! ice thickness boundary conditions
-         integer  :: idHsnbc(4)     ! snow thickness boundary conditions
-         integer  :: idTibc(4)      ! ice interior temp. boundary conditions
-         integer  :: idApdbc(4)     ! surface melt water boundary conditions
-         integer  :: idHpdbc(4)     ! surface melt water boundary conditions
-         integer  :: idAgeicebc(4)  ! ice age boundary conditions
-         integer  :: idS11bc(4)     ! ice stress Sig11 boundary conditions
-         integer  :: idS22bc(4)     ! ice stress Sig22 boundary conditions
-         integer  :: idS12bc(4)     ! ice stress Sig12 boundary conditions
+!
+!  Ice variable IDs.
+!
+        integer  :: idUibc(4)      ! ice U-velocity boundary conditions
+        integer  :: idVibc(4)      ! ice V-velocity boundary conditions
+        integer  :: idAibc(4)      ! ice concentration boundary conditions
+        integer  :: idHibc(4)      ! ice thickness boundary conditions
+        integer  :: idHsnbc(4)     ! snow thickness boundary conditions
+        integer  :: idTibc(4)      ! ice interior temp. boundary conditions
+        integer  :: idApdbc(4)     ! surface melt water boundary conditions
+        integer  :: idHpdbc(4)     ! surface melt water boundary conditions
+        integer  :: idAgeicebc(4)  ! ice age boundary conditions
+        integer  :: idS11bc(4)     ! ice stress Sig11 boundary conditions
+        integer  :: idS22bc(4)     ! ice stress Sig22 boundary conditions
+        integer  :: idS12bc(4)     ! ice stress Sig12 boundary conditions
 #endif
 #ifdef DIAGNOSTICS
 !
