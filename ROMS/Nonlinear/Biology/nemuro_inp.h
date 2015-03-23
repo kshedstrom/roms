@@ -446,7 +446,7 @@
                   i=idTTav(idbio(itrc))
                   Aout(i,ng)=Ltrc(itrc,ng)
                 END DO
-             END DO
+              END DO
             CASE ('Aout(idUTav)')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -459,7 +459,7 @@
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
-                 i=idVTav(idbio(itrc))
+                  i=idVTav(idbio(itrc))
                   Aout(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
@@ -468,7 +468,7 @@
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=iHUTav(idbio(itrc))
-                 Aout(i,ng)=Ltrc(itrc,ng)
+                  Aout(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
             CASE ('Aout(iHVTav)')

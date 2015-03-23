@@ -265,7 +265,6 @@
      &                      CLIMA(ng)%Tnudgcof)
       END IF
 # endif
-        END IF
 #endif
 
       RETURN

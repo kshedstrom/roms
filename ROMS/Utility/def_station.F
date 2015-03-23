@@ -333,34 +333,6 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
-!  Define 2D Eastward momentum component at RHO-points.
-!
-        IF (Sout(idu2dE,ng)) THEN
-          Vinfo( 1)=Vname(1,idu2dE)
-          Vinfo( 2)=Vname(2,idu2dE)
-          Vinfo( 3)=Vname(3,idu2dE)
-          Vinfo(14)=Vname(4,idu2dE)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idu2dE),   &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define 2D Northward momentum component at RHO-points.
-!
-        IF (Sout(idv2dN,ng)) THEN
-          Vinfo( 1)=Vname(1,idv2dN)
-          Vinfo( 2)=Vname(2,idv2dN)
-          Vinfo( 3)=Vname(3,idv2dN)
-          Vinfo(14)=Vname(4,idv2dN)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idv2dN),   &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-
 # ifdef SOLVE3D
 !
 !  Define 3D momentum component in the XI-direction.
@@ -419,34 +391,6 @@
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idv3dN),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define 3D Eastward momentum component at RHO-points.
-!
-        IF (Sout(idu3dE,ng)) THEN
-          Vinfo( 1)=Vname(1,idu3dE)
-          Vinfo( 2)=Vname(2,idu3dE)
-          Vinfo( 3)=Vname(3,idu3dE)
-          Vinfo(14)=Vname(4,idu3dE)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idu3dE),   &
-     &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define 3D Northward momentum component at RHO-points.
-!
-        IF (Sout(idv3dN,ng)) THEN
-          Vinfo( 1)=Vname(1,idv3dN)
-          Vinfo( 2)=Vname(2,idv3dN)
-          Vinfo( 3)=Vname(3,idv3dN)
-          Vinfo(14)=Vname(4,idv3dN)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idv3dN),   &
-     &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -611,22 +555,6 @@
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idNPP),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-#  endif
-#  ifdef NEMURO_PROD
-!
-!  Define Net primary productivity.
-!
-        IF (Sout(idNPP,ng)) THEN
-          Vinfo( 1)=Vname(1,idNPP)
-          Vinfo( 2)=Vname(2,idNPP)
-          Vinfo( 3)=Vname(3,idNPP)
-          Vinfo(14)=Vname(4,idNPP)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idNPP),    &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -816,32 +744,6 @@
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVairN),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define surface East winds.
-!
-        IF (Sout(idUairE,ng)) THEN
-          Vinfo( 1)=Vname(1,idUairE)
-          Vinfo( 2)=Vname(2,idUairE)
-          Vinfo( 3)=Vname(3,idUairE)
-          Vinfo(14)=Vname(4,idUairE)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUairE),  &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-
-        IF (Sout(idVairN,ng)) THEN
-          Vinfo( 1)=Vname(1,idVairN)
-          Vinfo( 2)=Vname(2,idVairN)
-          Vinfo( 3)=Vname(3,idVairN)
-          Vinfo(14)=Vname(4,idVairN)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVairN),  &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1785,34 +1687,6 @@
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idViceN),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define 2D ice momentum in the East-direction.
-!
-        IF (Sout(idUiceE,ng)) THEN
-          Vinfo( 1)=Vname(1,idUiceE)
-          Vinfo( 2)=Vname(2,idUiceE)
-          Vinfo( 3)=Vname(3,idUiceE)
-          Vinfo(14)=Vname(4,idUiceE)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUiceE),  &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
-     &                   SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
-        END IF
-!
-!  Define 2D ice momentum in the North-direction.
-!
-        IF (Sout(idViceN,ng)) THEN
-          Vinfo( 1)=Vname(1,idViceN)
-          Vinfo( 2)=Vname(2,idViceN)
-          Vinfo( 3)=Vname(3,idViceN)
-          Vinfo(14)=Vname(4,idViceN)
-          Vinfo(16)=Vname(1,idtime)
-          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idViceN),  &
-     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .FALSE.)
           IF (exit_flag.ne.NoError) RETURN
         END IF
