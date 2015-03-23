@@ -990,7 +990,7 @@
 !  Initialize time-stepping counter and clock.
 !-----------------------------------------------------------------------
 !
-!  Subtract one time unit to avoid special case due to initialization
+!  Substract one time unit to avoid special case due to initialization
 !  in the main time-stepping routine.
 !
       DO ng=1,Ngrids

@@ -425,6 +425,7 @@
 !                      epsy=ee
 !                    END IF
                       CALL ran1 (snudg)
+# if defined WC12 || defined WC13 || defined CCS1
                       IF (isp.eq.if_anchovy) THEN
 ! Biased random mvt toward coast if offshore of 2000m isobath.
                         IF (h(Ir,Jr).le.2000.0_r8) THEN
@@ -451,7 +452,6 @@
                           IF (snudg.lt.0.5_r8) epsy=-ee
                           IF (snudg.ge.0.5_r8) epsy=ee
                         ELSE
-# if defined WC12 || defined WC13 || defined CCS1
                           IF (zf_lat.le.39.5_r8) THEN
                             IF (snudg.lt.0.4_r8) epsy=-ee
                             IF (snudg.ge.0.4_r8) epsy=ee
@@ -493,8 +493,75 @@
                           IF (snudg.ge.0.5_r8) epsy=ee
                         END IF
                       END IF
-# else
-??? to be coded for other domains
+# endif
+# if defined NWPACIFIC
+! Shinichi custom code for nw pacific
+                      IF (isp.eq.if_anchovy) THEN
+                        IF (h(Ir,Jr).le.2000.0_r8) THEN
+                          IF (snudg.lt.0.5_r8) epsx=-ee
+                          IF (snudg.ge.0.5_r8) epsx=ee
+                        ELSE
+                          IF (snudg.lt.0.5_r8) epsx=-ee
+                          IF (snudg.ge.0.5_r8) epsx=ee
+                        END IF
+                      ELSE IF (isp.eq.if_sardine) THEN
+                        IF (snudg.lt.0.5_r8) epsx=-ee
+                        IF (snudg.ge.0.5_r8) epsx=ee
+                      END IF
+                      lflag=.TRUE.
+                      DO WHILE (lflag)
+                        CALL gasdev(snudg)
+                        IF (ABS(snudg).le.3.0_r8) lflag=.FALSE.
+                      END DO
+                      ee=snudg*epsd_sigma+epsd
+                      CALL ran1 (snudg)
+                      IF (isp.eq.if_anchovy) THEN
+! Biased random mvt toward coast if offshore of 2000m isobath.
+                        IF (h(Ir,Jr).le.2000.0_r8) THEN
+                          IF (snudg.lt.0.5_r8) epsy=-ee
+                          IF (snudg.ge.0.5_r8) epsy=ee
+                        ELSE
+                          IF (zf_lat.le.30.0_r8) THEN
+                            IF (snudg.lt.0.4_r8) epsy=-ee
+                            IF (snudg.ge.0.4_r8) epsy=ee
+                          ELSE IF (zf_lat.ge.33.0_r8) THEN
+                            IF (snudg.lt.0.5_r8) epsy=-ee
+                            IF (snudg.ge.0.5_r8) epsy=ee
+                          ELSE
+                            fac=0.4_r8+0.1_r8*(zf_lat-30.0_r8)
+                            IF (snudg.lt.fac) epsy=-ee
+                            IF (snudg.ge.fac) epsy=ee
+                          END IF
+                        END IF
+                      ELSE IF (isp.eq.if_sardine) THEN
+! seasonal migration for adult sardine: north in June, south in Sept.
+                        IF (lifestage(fid).ge.if_subadult) THEN
+                          IF ((mg_time.gt.150.0_r8).and.                &
+     &                        (mg_time.lt.180.0_r8).and.                &
+     &                        (zf_lat.lt.46.5_r8)) THEN
+                            IF (snudg.lt.0.15_r8) epsy=-ee
+                            IF (snudg.ge.0.15_r8) THEN
+                              epsy=ee
+                              IF ((zf_lon.ge.140.0_r8).and.             &
+     &                            (zf_lat.le.34.0_r8)) epsx=+0.7_r8*epsy
+                            ENDIF
+                          ELSE IF ((mg_time.gt.240.0_r8).and.           &
+     &                             (mg_time.lt.270.0_r8).and.           &
+     &                             (zf_lat.gt.33.0_r8)) THEN
+                            IF (snudg.ge.0.15_r8) THEN
+                              epsy=-ee
+                              IF (zf_lat.le.46.0_r8) epsx=+0.7_r8*epsy
+                            ENDIF
+                            IF (snudg.lt.0.15_r8) epsy=ee
+                          ELSE
+                            IF (snudg.lt.0.5_r8) epsy=-ee
+                            IF (snudg.ge.0.5_r8) epsy=ee
+                          END IF
+                        ELSE
+                          IF (snudg.lt.0.5_r8) epsy=-ee
+                          IF (snudg.ge.0.5_r8) epsy=ee
+                        END IF
+                      END IF
 # endif
 ! Compute happiness-based  displacements
                       cue1_f=h1*cue1

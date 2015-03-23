@@ -376,7 +376,7 @@
 #  if defined SCORRECTION || defined SRELAXATION
 #   if defined CORAL
       real(r8), parameter :: sss_mismatch_threshold = 0.2_r8
-#   elif defined NEP6 || defined NWA || defined AA_10KM
+#   elif defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
       real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
 #   endif
 #  endif
@@ -429,11 +429,11 @@
 #       if defined NEP5 || defined BERING || defined CHUKCHI
 ! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
+#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
 ! 90 days from Tnudg of 360 days
      &                     4.0_r8*                                      &
 #       endif
-#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
+#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -447,11 +447,11 @@
 #       if defined NEP5 || defined BERING || defined CHUKCHI
 ! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA
+#       elif defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! 90 days from Tnudg of 360 days
      &                     4.0_r8*                                      &
 #       endif
-#       if defined CORAL || defined NEP6 || defined NWA
+#       if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -469,11 +469,11 @@
 #     if defined NEP5 || defined BERING || defined CHUKCHI
 ! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#     elif defined CORAL || defined NEP6 || defined NWA
+#     elif defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! 90 days from Tnudg of 360 days
      &                     4.0_r8*                                      &
 #     endif
-#     if defined CORAL || defined NEP6 || defined NWA
+#     if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))

@@ -2112,8 +2112,15 @@
       allocate ( LdefAVG2(Ngrids) )
       allocate ( LdefDIA(Ngrids) )
       allocate ( LdefERR(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( LdefFISH(Ngrids) )
+# ifdef PREDATOR
+      allocate ( LdefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( LdefFLEET(Ngrids) )
+# endif
+#endif
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
       allocate ( LdefHIS2(Ngrids) )
@@ -2123,7 +2130,6 @@
       allocate ( LdefITL(Ngrids) )
       allocate ( LdefLCZ(Ngrids) )
       allocate ( LdefMOD(Ngrids) )
-      allocate ( LdefPRED(Ngrids) )
       allocate ( LdefRST(Ngrids) )
       allocate ( LdefSTA(Ngrids) )
       allocate ( LdefTIDE(Ngrids) )
@@ -2134,9 +2140,15 @@
       allocate ( LwrtAVG(Ngrids) )
       allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( LwrtFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( LwrtPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( LwrtFLEET(Ngrids) )
+# endif
+#endif
       allocate ( LwrtHIS(Ngrids) )
       allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
@@ -2165,9 +2177,15 @@
       allocate ( ndefAVG(Ngrids) )
       allocate ( ndefAVG2(Ngrids) )
       allocate ( ndefDIA(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( ndefFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( ndefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( ndefFLEET(Ngrids) )
+# endif
+#endif
       allocate ( ndefHIS(Ngrids) )
       allocate ( ndefHIS2(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
@@ -2180,11 +2198,17 @@
       allocate ( nAVG(Ngrids) )
       allocate ( nAVG2(Ngrids) )
       allocate ( nDIA(Ngrids) )
-      allocate ( nFLE(Ngrids) )
       allocate ( nFLT(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( nFSH(Ngrids) )
-      allocate ( nHIS(Ngrids) )
+# ifdef PREDATOR
       allocate ( nPRE(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
+      allocate ( nFLE(Ngrids) )
+# endif
+#endif
+      allocate ( nHIS(Ngrids) )
       allocate ( nHIS2(Ngrids) )
       allocate ( nRST(Ngrids) )
       allocate ( nSTA(Ngrids) )

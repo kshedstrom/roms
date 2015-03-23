@@ -120,12 +120,8 @@
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL || defined NWGOA
+!RD : set the thing at 5 digits whatever configuration it is
   10          FORMAT (a,'_',i5.5,'.nc')
-#else
-  10          FORMAT (a,'_',i4.4,'.nc')
-#endif
             END IF
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS(ng)%name)

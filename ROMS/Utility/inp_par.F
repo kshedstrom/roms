@@ -822,7 +822,6 @@
           exit_flag=2
         END IF
         steps_per_hour(ng) = 3600/INT(dt(ng))
-        print *, 'steps_per_hour for grid ', ng, steps_per_hour(ng)
 #endif
 #ifdef FILTERED
 !
@@ -1137,7 +1136,8 @@
           WRITE (Vname(4,varid),'(a,a)')                                &
      &          TRIM(Vname(1,varid)), ', scalar, series'
           WRITE (Vname(5,varid),'(a,a)')                                &
-     &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
+     &          'ocean_time'
+!RD : ugly fix but this was driving me nuts
         END DO
       END IF
 !
