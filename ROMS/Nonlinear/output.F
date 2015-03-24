@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#define LONG_NUMS
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
@@ -110,8 +111,7 @@
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL || defined NWGOA
+#ifdef LONG_NUMS
   10          FORMAT (a,'_',i5.5,'.nc')
 #else
   10          FORMAT (a,'_',i4.4,'.nc')
@@ -211,8 +211,7 @@
             IF (Master) THEN
               WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
             END IF
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   12          FORMAT (a,'_',i5.5,'.nc')
 #else
   12          FORMAT (a,'_',i4.4,'.nc')
@@ -296,8 +295,7 @@
             END IF
             IF (Master) THEN
               WRITE (AVG(ng)%name,20) TRIM(AVG(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -388,8 +386,7 @@
             IF (Master) THEN
               WRITE (AVG2(ng)%name,22) TRIM(AVG2(ng)%base), ifile
             END IF
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   22          FORMAT (a,'_',i5.5,'.nc')
 #else
   22          FORMAT (a,'_',i4.4,'.nc')
@@ -473,8 +470,7 @@
             END IF
             IF (Master) THEN
               WRITE (DIA(ng)%name,30) TRIM(DIA(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
