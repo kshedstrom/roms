@@ -162,6 +162,7 @@
 ** LONGWAVE            use if computing net longwave radiation               **
 ** LONGWAVE_OUT        use if computing outgoing longwave radiation          **
 ** EMINUSP             use if computing E-P                                  **
+** EMINUSP_SSH         use if computing changes in SSH due to E-P            **
 ** RUNOFF              use if adding runoff as a second rain field           **
 ** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
 **                                                                           **
@@ -593,6 +594,16 @@
 ** ICE_STRENGTH_QUAD   use for ice strength a quadratic function of thickness
 ** NO_SCORRECTION_ICE  use for no scorrection under the ice
 ** OUTFLOW_MASK        use for Hibler style outflow cells
+**
+** FISH model options
+**
+** NEMURO_SAN         to turn on fish model
+** ANA_SPAWN_DIST     analytic spawning distance
+** EGGS_BISECTION     Bisection method for egg distribution
+** EGGS_TREE_FORT     Binary tree method for egg distribution
+** FISH_FEEDBACK      Fish model feedback to NPZ model
+** FISHING_FLEET      Fishing fleet preying on model fish
+** PREDATOR           Predators on the fish
 **
 ** OPTION to avoid writing current date and CPP options to NetCDF file       **
 ** headers. This is used to compare serial and parallel solutions where      **

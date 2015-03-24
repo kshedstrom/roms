@@ -66,7 +66,6 @@
               CASE ('idNPP')
                 idNPP=varid
 # endif
-
 !
 !  Biological tracers open boundary conditions.
 !

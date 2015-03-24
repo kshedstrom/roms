@@ -45,7 +45,6 @@
 
       RETURN
       END SUBROUTINE t3dbc
-
 !
 !***********************************************************************
       SUBROUTINE t3dbc_tile (ng, tile, itrc, ic,                        &

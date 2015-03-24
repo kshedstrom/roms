@@ -1210,7 +1210,7 @@
           RETURN
         END IF
       END IF
-
+!
       IF (Aout(idIceNH4,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar

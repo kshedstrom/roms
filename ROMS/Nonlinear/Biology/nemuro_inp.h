@@ -439,6 +439,34 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idNPP,:))
 #endif
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
+            CASE ('Aout(idTvar)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idTvar(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+# ifdef NEMURO_SED1
+            CASE ('Aout(idPONsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
+            CASE ('Aout(idOPALsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALsed,:))
+            CASE ('Aout(idDENITsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idDENITsed,:))
+            CASE ('Aout(idPONbur)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idPONbur,:))
+            CASE ('Aout(idOPALbur)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
+# endif
+# ifdef PRIMARY_PROD
+            CASE ('Aout(idNPP)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
+# endif
             CASE ('Aout(idTTav)')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -479,34 +507,6 @@
                   Aout(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-#if defined AVERAGES    || \
-   (defined AD_AVERAGES && defined ADJOINT) || \
-   (defined RP_AVERAGES && defined TL_IOMS) || \
-   (defined TL_AVERAGES && defined TANGENT)
-            CASE ('Aout(idTvar)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=idTvar(idbio(itrc))
-                  Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-# ifdef NEMURO_SED1
-            CASE ('Aout(idPONsed)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idPONsed,:))
-            CASE ('Aout(idOPALsed)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALsed,:))
-            CASE ('Aout(idDENITsed)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idDENITsed,:))
-            CASE ('Aout(idPONbur)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idPONbur,:))
-            CASE ('Aout(idOPALbur)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idOPALbur,:))
-# endif
-# ifdef PRIMARY_PROD
-            CASE ('Aout(idNPP)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
             CASE ('Dout(iTrate)')
@@ -1005,6 +1005,24 @@
      &          'Write out primary productivity', 0,                    &
      &          TRIM(Vname(1,idNPP))
 #endif
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
+            WRITE (out,'(1x)')
+            DO itrc=1,NBT
+              i=idbio(itrc)
+              IF (Aout(idTvar(i),ng)) WRITE (out,110)                   &
+     &            Aout(idTvar(i),ng), 'Aout(idTvar)',                   &
+     &            'Write out averaged tracer ', i,                      &
+     &            TRIM(Vname(1,idTvar(i)))
+            END DO
+# ifdef PRIMARY_PROD
+            IF (Aout(idNPP,ng)) WRITE (out,110)                         &
+     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+# endif
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (Aout(idTTav(i),ng)) WRITE (out,110)                   &
@@ -1040,24 +1058,6 @@
      &            'Write out averaged <Hvom*t> for tracer ', i,         &
      &            TRIM(Vname(1,idTvar(i)))
             END DO
-#if defined AVERAGES    || \
-   (defined AD_AVERAGES && defined ADJOINT) || \
-   (defined RP_AVERAGES && defined TL_IOMS) || \
-   (defined TL_AVERAGES && defined TANGENT)
-            WRITE (out,'(1x)')
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Aout(idTvar(i),ng)) WRITE (out,110)                   &
-     &            Aout(idTvar(i),ng), 'Aout(idTvar)',                   &
-     &            'Write out averaged tracer ', i,                      &
-     &            TRIM(Vname(1,idTvar(i)))
-            END DO
-# ifdef PRIMARY_PROD
-            IF (Aout(idNPP,ng)) WRITE (out,110)                         &
-     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
-     &          'Write out primary productivity', 0,                    &
-     &          TRIM(Vname(1,idNPP))
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
             WRITE (out,'(1x)')

@@ -1786,7 +1786,6 @@
           END DO
         END IF
 
-
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR

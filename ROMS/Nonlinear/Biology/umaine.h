@@ -296,9 +296,7 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: PAR
 
       real(r8), dimension(N(ng)) :: sinkindx
-#ifdef PRIMARY_PROD
-      real(r8), dimension(IminS:ImaxS,UBk) :: NPP_slice
-#endif
+
       real(r8) :: cffL, cffR, cu, dltL, dltR
       integer, dimension(IminS:ImaxS,N(ng)) :: ksource
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC

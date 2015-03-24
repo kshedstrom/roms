@@ -1405,12 +1405,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' NEMURO_SAN,'
 #endif
-#ifdef NEMURO_PROD
-      IF (Master) WRITE (stdout,20) 'NEMURO_PROD',                      &
-     &   'Nemuro Net primary production.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' NEMURO_PROD,'
-#endif
 #ifdef NEMURO_SED1
       IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
      &   'Nemuro with sediment remineralization type 1.'
@@ -2132,12 +2126,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TL_AVERAGES,'
 #endif
-#if defined TL_AVERAGES && defined TANGENT
-      IF (Master) WRITE (stdout,20) 'TL_AVERAGES',                      &
-     &   'Writing out time-averaged tangent linear model fields.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' TL_AVERAGES,'
-#endif
 #ifdef TLM_DRIVER
       IF (Master) WRITE (stdout,20) 'TLM_DRIVER',                       &
      &   'Generic tangent linear model driver.'
@@ -2782,31 +2770,6 @@
         exit_flag=5
       END IF
 # endif
-# if defined HDF5 && defined PNETCDF
-      IF (Master) THEN
-        WRITE (stdout,190) uppercase('hdf5'),                           &
-     &                     uppercase('pnetcdf')
- 190    FORMAT (/,' CHECKDEFS - Both ',a,' and ',a,' options',          &
-     &            ' selected',/,13x,'for parallel I/O processing.',     &
-     &          /,13x,'Choose only one.')
-        exit_flag=5
-      END IF
-# endif
-#endif
-#if defined WRITE_WATER && defined WET_DRY
-!
-!  Stop if writting only water points when wetting and drying is
-!  activated.  This is not possible since the Land/Sea masking is
-!  time dependent.
-!
-      IF (Master) THEN
-        WRITE (stdout,200) uppercase('write_water'),                    &
-     &                     uppercase('wet_dry')
- 200    FORMAT (/,' CHECKDEFS - cannot activate ',a,' and ',a,          &
-     &            ' together',/,13x,'because of time dependent ',       &
-     &            ' Land/Sea masking.')
-        exit_flag=5
-      END IF
 #endif
 #if defined ICESHELF && !defined SOLVE3D
 !

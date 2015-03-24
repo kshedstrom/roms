@@ -1,6 +1,6 @@
       SUBROUTINE ana_ice (ng, tile, model)
 !
-!! svn $Id: ana_cloud.h 75 2007-03-13 13:10:14Z arango $
+!! svn $Id$
 !!======================================================================
 !! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
@@ -273,16 +273,14 @@
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
 #ifdef ICE_BIO
-           IcePhL(i,j,1) = 0._r8
-           IceNO3(i,j,1) = 0._r8
-           IceNH4(i,j,1) = 0._r8
-           IceLog(i,j,1) = -1
-           IcePhL(i,j,2) = IcePhL(i,j,1)
-           IceNO3(i,j,2) = IceNO3(i,j,1)
-           IceNH4(i,j,2) = IceNH4(i,j,1)
-           IceLog(i,j,2) = IceLog(i,j,1)
-#else
-        Must define a case for ice initialization.
+          IcePhL(i,j,1) = 0._r8
+          IceNO3(i,j,1) = 0._r8
+          IceNH4(i,j,1) = 0._r8
+          IceLog(i,j,1) = -1
+          IcePhL(i,j,2) = IcePhL(i,j,1)
+          IceNO3(i,j,2) = IceNO3(i,j,1)
+          IceNH4(i,j,2) = IceNH4(i,j,1)
+          IceLog(i,j,2) = IceLog(i,j,1)
 #endif
         ENDDO
       ENDDO
