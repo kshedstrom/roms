@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#define LONG_NUMS
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
@@ -120,8 +121,11 @@
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
-!RD : set the thing at 5 digits whatever configuration it is
+#ifdef LONG_NUMS
   10          FORMAT (a,'_',i5.5,'.nc')
+#else
+  10          FORMAT (a,'_',i4.4,'.nc')
+#endif
             END IF
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS(ng)%name)
@@ -217,8 +221,7 @@
             IF (Master) THEN
               WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
             END IF
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   12          FORMAT (a,'_',i5.5,'.nc')
 #else
   12          FORMAT (a,'_',i4.4,'.nc')
@@ -302,8 +305,7 @@
             END IF
             IF (Master) THEN
               WRITE (AVG(ng)%name,20) TRIM(AVG(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -394,8 +396,7 @@
             IF (Master) THEN
               WRITE (AVG2(ng)%name,22) TRIM(AVG2(ng)%base), ifile
             END IF
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   22          FORMAT (a,'_',i5.5,'.nc')
 #else
   22          FORMAT (a,'_',i4.4,'.nc')
@@ -479,8 +480,7 @@
             END IF
             IF (Master) THEN
               WRITE (DIA(ng)%name,30) TRIM(DIA(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
@@ -625,8 +625,7 @@
             ifile=(iic(ng)-1)/ndefFISH(ng)+1
             IF (Master) THEN
               WRITE (FISH(ng)%name,60) TRIM(FISH(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   60          FORMAT (a,'_',i5.5,'.nc')
 #else
   60          FORMAT (a,'_',i4.4,'.nc')
@@ -710,8 +709,7 @@
             ifile=(iic(ng)-1)/ndefPRED(ng)+1
             IF (Master) THEN
               WRITE (PRED(ng)%name,70) TRIM(PRED(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   70          FORMAT (a,'_',i5.5,'.nc')
 #else
   70          FORMAT (a,'_',i4.4,'.nc')
@@ -797,8 +795,7 @@
             ifile=(iic(ng)-1)/ndefFLEET(ng)+1
             IF (Master) THEN
               WRITE (FLEET(ng)%name,80) TRIM(FLEET(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   80          FORMAT (a,'_',i5.5,'.nc')
 #else
   80          FORMAT (a,'_',i4.4,'.nc')
