@@ -1237,13 +1237,13 @@
 !     &              'Natural mortality'
               WRITE (out,110) Fymort(isp,ng), 'Fymort',                 &
      &              'Fishing mortality'
-              WRITE (out,110) DDmort1_J(isp,:,ng), 'DDmort1_J',         &
+              WRITE (out,110) DDmort1_J(isp,ng), 'DDmort1_J',         &
      &              'Juvenile density-dependent mortality parm 1'
-              WRITE (out,110) DDmort2_J(isp,:,ng), 'DDmort2_J',         &
+              WRITE (out,110) DDmort2_J(isp,ng), 'DDmort2_J',         &
      &              'Juvenile density-dependent mortality parm 2'
-              WRITE (out,110) DDmort3_J(isp,:,ng), 'DDmort3_J',         &
+              WRITE (out,110) DDmort3_J(isp,ng), 'DDmort3_J',         &
      &              'Juvenile density-dependent mortality parm 3'
-              WRITE (out,110) DDmort4_J(isp,:,ng), 'DDmort4_J',         &
+              WRITE (out,110) DDmort4_J(isp,ng), 'DDmort4_J',         &
      &              'Juvenile density-dependent mortality parm 4'
               WRITE (out,110) DDscale_J(isp,ng), 'DDscale_J',           &
      &              'Juvenile density-dependent scaling factor'
