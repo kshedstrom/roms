@@ -3,7 +3,7 @@
 #Change to your own paths!
 setenv SYSTEM_USERDIR /center/w/kate/CICE
 
-setenv SRCDIR $HOME/cice5
+setenv SRCDIR $HOME/cice5.1
 
 setenv CBLD   $SRCDIR/bld
 setenv EXEDIR $SYSTEM_USERDIR/Bering
