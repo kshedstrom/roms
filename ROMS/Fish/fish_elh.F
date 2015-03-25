@@ -218,10 +218,10 @@
 ! Juvenile: mortality only (growth is done in fish_growth.F)
                 IF (ils.eq.if_juvenile) THEN
 !  rx is density dependent term
-                  rx = (DDmort_J(isp,1,ng) +                            &
-     &                  juv_cell(i,j,isp)*DDmort_J(isp,2,ng)) /         &
-     &                 (DDmort_J(isp,3,ng) +                            &
-     &                  juv_cell(i,j,isp)*DDmort_J(isp,4,ng))
+                  rx = (DDmort1_J(isp,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort2_J(isp,ng)) /         &
+     &                 (DDmort3_J(isp,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort4_J(isp,ng))
                   Fworth=Fworth*EXP(-Nmort(ils,isp,ng)*rx*dtdays)
                   fmortN(ifid)=Nmort(ils,isp,ng)
                   juv_dur(ifid)=juv_dur(ifid)+dtdays

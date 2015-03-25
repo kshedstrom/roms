@@ -284,8 +284,12 @@
        Fymort == 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
 
 ! Fish juvenile density-dependent mortality coefficients
+! To turn off density dependence, set 1 and 3 to one, 2 and 4 to zero
 
-       DDmort_J == 0.7497d0 0.7497d0 0.7497d0 0.7497d0 0.7497d0 1.0163d0 1.0163d0 1.0163d0 1.0163d0 1.0163d0 1.0d0 1.0d0 1.0d0 1.0d0 1.0d0 0.769d0 0.769d0 0.769d0 0.769d0 0.769d0
+       DDmort1_J == 0.7497d0 0.7497d0 0.7497d0 0.7497d0 0.7497d0
+       DDmort2_J == 1.0163d0 1.0163d0 1.0163d0 1.0163d0 1.0163d0
+       DDmort3_J == 1.0d0 1.0d0 1.0d0 1.0d0 1.0d0
+       DDmort4_J == 0.769d0 0.769d0 0.769d0 0.769d0 0.769d0
 
 ! Fish juvenile density-dependent scale factor
 
