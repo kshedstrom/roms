@@ -911,6 +911,8 @@
               Npts=load_r(Nval, Rval, Ngrids, M2nudg)
             CASE ('M3NUDG')
               Npts=load_r(Nval, Rval, Ngrids, M3nudg)
+            CASE ('TNUDG_SSS')
+              Npts=load_r(Nval, Rval, Ngrids, Tnudg_SSS)
             CASE ('OBCFAC')
               Npts=load_r(Nval, Rval, Ngrids, obcfac)
             CASE ('R0')
@@ -4321,16 +4323,19 @@
 #ifdef SOLVE3D
           DO i=1,NAT+NPT
             itrc=i
-#  ifdef T_PASSIVE
+# ifdef T_PASSIVE
             IF (i.gt.NAT) itrc=inert(i-NAT)
-#  endif
+# endif
             WRITE (out,190) Tnudg(itrc,ng), 'Tnudg', itrc,              &
      &            'Nudging/relaxation time scale (days)',               &
      &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
+          WRITE (out,210) Tnudg_SSS(ng), 'Tnudg_SSS',                   &
+     &          'Nudging/relaxation time scale (days)',                 &
+     &          'for sea surface salinity.'
 # ifdef SCORRECTION
-          IF (Tnudg(isalt,ng).le.0.0_r8) THEN
-            WRITE (out,265) 'Tnudg(isalt) = ', Tnudg(isalt,ng),         &
+          IF (Tnudg_SSS(ng).le.0.0_r8) THEN
+            WRITE (out,265) 'Tnudg_SSS = ', Tnudg_SSS(ng),              &
      &            'Must be greater than zero for salt flux correction.'
             exit_flag=5
             RETURN
@@ -6405,6 +6410,9 @@
             Tnudg(itrc,ng)=0.0_r8
           END IF
         END DO
+        IF (Tnudg_SSS(ng).gt.0.0_r8) THEN
+          Tnudg_SSS(ng)=1.0_r8/(Tnudg_SSS(ng)*86400.0_r8)
+        END IF
       END DO
 #endif
 

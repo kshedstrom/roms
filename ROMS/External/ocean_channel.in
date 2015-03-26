@@ -372,6 +372,11 @@ LtracerSponge == F F                            ! temperature, salinity, inert
       M2NUDG == 0.0d0                      ! days
       M3NUDG == 0.0d0                      ! days
 
+! Nudging/relaxation time scale for surface salinity nudging, inverse
+! scales will be computed internally, [1:Ngrids].
+
+       TNUDG_SSS == 10.0d0                 ! days
+
 ! Factor between passive (outflow) and active (inflow) open boundary
 ! conditions, [1:Ngrids]. If OBCFAC > 1, nudging on inflow is stronger
 ! than on outflow (recommended).
@@ -1769,6 +1774,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! M2NUDG       Nudging time scale (days) for 2D momentum.
 !
 ! M3NUDG       Nudging time scale (days) for 3D momentum.
+!
+! TNUDG_SSS    Nudging time scale (days) for surface salinity.
 !
 ! OBCFAC       Factor between passive (outflow) and active (inflow) open
 !                boundary conditions.  The nudging time scales for the
