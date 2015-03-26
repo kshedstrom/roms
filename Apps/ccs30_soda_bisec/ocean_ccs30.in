@@ -350,7 +350,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Nudging/relaxation time scale for surface salinity nudging, inverse
 ! scales will be computed internally, [1:Ngrids].
 
-       TNUDG_SSS == 10.0d0                 ! days
+       TNUDG_SSS == 90.0d0                 ! days
 
 ! Factor between passive (outflow) and active (inflow) open boundary
 ! conditions, [1:Ngrids]. If OBCFAC > 1, nudging on inflow is stronger
