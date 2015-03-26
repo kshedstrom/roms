@@ -1036,13 +1036,13 @@
 #   if defined SCORRECTION
 !>        tl_stflx(i,j,isalt)=stflx(i,j,isalt)*                         &
 !>   &                        tl_t(i,j,N(ng),nrhs,isalt)-               &
-!>   &                        Tnudg(isalt,ng)*                          &
+!>   &                        Tnudg_SSS(ng)*                            &
 !>   &                        (tl_Hz(i,j,N(ng))*                        &
 !>   &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
 !>   &                         Hz(i,j,N(ng))*                           &
 !>   &                         tl_t(i,j,N(ng),nrhs,isalt))
 !>
-          adfac=Tnudg(isalt,ng)*ad_stflx(i,j,isalt)
+          adfac=Tnudg_SSS(ng)*ad_stflx(i,j,isalt)
           ad_Hz(i,j,N(ng))=ad_Hz(i,j,N(ng))-                            &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))*adfac
           ad_t(i,j,N(ng),nrhs,isalt)=ad_t(i,j,N(ng),nrhs,isalt)-        &
@@ -1056,13 +1056,13 @@
           ad_stflx(i,j,isalt)=0.0_r8
 #    endif
 #   elif defined SRELAXATION
-!>        tl_stflx(i,j,isalt)=-Tnudg(isalt,ng)*                         &
+!>        tl_stflx(i,j,isalt)=-Tnudg_SSS(ng)*                           &
 !>   &                        (tl_Hz(i,j,N(ng))*                        &
 !>   &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
 !>   &                         Hz(i,j,N(ng))*                           &
 !>   &                         tl_t(i,j,N(ng),nrhs,isalt))
 !>
-          adfac=-Tnudg(isalt,ng)*ad_stflx(i,j,isalt)
+          adfac=-Tnudg_SSS(ng)*ad_stflx(i,j,isalt)
           ad_Hz(i,j,N(ng))=ad_Hz(i,j,N(ng))+                            &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))*adfac
           ad_t(i,j,N(ng),nrhs,isalt)=ad_t(i,j,N(ng),nrhs,isalt)+        &

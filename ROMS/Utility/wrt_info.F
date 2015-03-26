@@ -671,6 +671,11 @@
      &                      nudg, (/1/), (/NT(ng)/),                    &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'Tnudg_SSS',             &
+     &                      Tnudg_SSS(ng)/sec2day, (/0/), (/0/),        &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
 #endif
 
 #ifndef DEBUGGING

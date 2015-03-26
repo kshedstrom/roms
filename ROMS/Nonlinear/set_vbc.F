@@ -443,14 +443,7 @@
 #       endif
 #     else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#       if defined NEP5 || defined BERING || defined CHUKCHI
-! 60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA || defined CCS2
-! 90 days from Tnudg of 360 days
-     &                     4.0_r8*                                      &
-#       endif
+     &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 #       if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
@@ -465,14 +458,7 @@
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   elif defined SRELAXATION
-          stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#     if defined NEP5 || defined BERING || defined CHUKCHI
-! 60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#     elif defined CORAL || defined NEP6 || defined NWA || defined CCS2
-! 90 days from Tnudg of 360 days
-     &                     4.0_r8*                                      &
-#     endif
+          stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
 #     if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
