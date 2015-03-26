@@ -538,6 +538,8 @@
                   FX(i,j)=Huon(i,j,k)*                                  &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
@@ -545,6 +547,8 @@
                   FE(i,j)=Hvom(i,j,k)*                                  &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif

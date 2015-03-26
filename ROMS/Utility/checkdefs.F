@@ -2299,6 +2299,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' TS_SMAGORINSKY,'
 #endif
+#if defined TWO_D_TRACER_SOURCE
+      IF (Master) WRITE (stdout,20) 'TWO_D_TRACER_SOURCE',              &
+     &   'One value per tracer per source.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' TWO_D_TRACER_SOURCE,'
+#endif
 #ifdef UV_ADV
       IF (Master) WRITE (stdout,20) 'UV_ADV',                           &
      &   'Advection of momentum.'

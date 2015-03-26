@@ -32,6 +32,7 @@
 #define FLOATS
 #define STATIONS
 #undef WET_DRY
+#define TWO_D_TRACER_SOURCE
 
 #define T_PASSIVE
 #ifdef T_PASSIVE
