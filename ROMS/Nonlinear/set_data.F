@@ -1034,6 +1034,12 @@
      &                      SOURCES(ng) % TsrcG(:,itrc),                &
      &                      SOURCES(ng) % Tsrc(itrc),                   &
      &                      update)
+#   elif defined TWO_D_TRACER_SOURCE
+            CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), 1,     &
+     &                      1, Nsrc(ng), 1,                             &
+     &                      SOURCES(ng) % TsrcG(:,:,itrc),              &
+     &                      SOURCES(ng) % Tsrc(:,itrc),                 &
+     &                      update)
 #   else
             CALL set_ngfld (ng, iNLM, idRtrc(itrc), 1, Nsrc(ng), N(ng), &
      &                      1, Nsrc(ng), N(ng),                         &

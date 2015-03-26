@@ -62,6 +62,8 @@
           real(r8), pointer :: Qsrc(:,:)
 #ifdef ONE_TRACER_SOURCE
           real(r8), pointer :: Tsrc(:)
+#elif defined TWO_D_TRACER_SOURCE
+          real(r8), pointer :: Tsrc(:,:)
 #else
           real(r8), pointer :: Tsrc(:,:,:)
 #endif
@@ -72,6 +74,8 @@
           real(r8), pointer :: QbarG(:,:)
 # ifdef ONE_TRACER_SOURCE
           real(r8), pointer :: TsrcG(:,:)
+# elif defined TWO_D_TRACER_SOURCE
+          real(r8), pointer :: TsrcG(:,:,:)
 # else
           real(r8), pointer :: TsrcG(:,:,:,:)
 # endif
@@ -182,6 +186,8 @@
 
 #ifdef ONE_TRACER_SOURCE
       allocate ( SOURCES(ng) % Tsrc(NT(ng)) )
+#elif defined TWO_D_TRACER_SOURCE
+      allocate ( SOURCES(ng) % Tsrc(Nsrc(ng),NT(ng)) )
 #else
       allocate ( SOURCES(ng) % Tsrc(Nsrc(ng),N(ng),NT(ng)) )
 #endif
@@ -195,6 +201,8 @@
 
 # ifdef ONE_TRACER_SOURCE
       allocate ( SOURCES(ng) % TsrcG(2,NT(ng)) )
+# elif defined TWO_D_TRACER_SOURCE
+      allocate ( SOURCES(ng) % TsrcG(Nsrc(ng),2,NT(ng)) )
 # else
       allocate ( SOURCES(ng) % TsrcG(Nsrc(ng),N(ng),2,NT(ng)) )
 # endif
@@ -230,6 +238,14 @@
         SOURCES(ng) % TsrcG(1,itrc) = IniVal
         SOURCES(ng) % TsrcG(2,itrc) = IniVal
 # endif
+#elif defined TWO_D_TRACER_SOURCE
+        DO is=1,Nsrc(ng)
+          SOURCES(ng) % Tsrc(is,itrc) = IniVal
+# ifndef ANA_PSOURCE
+          SOURCES(ng) % TsrcG(is,1,itrc) = IniVal
+          SOURCES(ng) % TsrcG(is,2,itrc) = IniVal
+# endif
+        END DO
 #else
         DO k=1,N(ng)
           DO is=1,Nsrc(ng)
@@ -249,6 +265,13 @@
 #  ifdef IRON_LIMIT
       SOURCES(ng) % Tsrc(iFe) = 2._r8
 #  endif
+# elif defined TWO_D_TRACER_SOURCE
+      DO is=1,Nsrc(ng)
+        SOURCES(ng) % Tsrc(is,iNO3) = 2._r8
+#  ifdef IRON_LIMIT
+        SOURCES(ng) % Tsrc(is,iFe) = 2._r8
+#  endif
+      END DO
 # else
       DO is=1,Nsrc(ng)
         DO k=1,N(ng)

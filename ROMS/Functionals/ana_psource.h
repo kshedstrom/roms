@@ -449,6 +449,11 @@
           SOURCES(ng)%Tsrc(itemp)=T0(ng)
           SOURCES(ng)%Tsrc(isalt)=0.0_r8
         END IF
+#  elif defined TWO_D_TRACER_SOURCE
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
+          SOURCES(ng)%Tsrc(is,itemp)=T0(ng)
+          SOURCES(ng)%Tsrc(is,isalt)=0.0_r8
+        END IF
 #  else
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           DO k=1,N(ng)
@@ -465,6 +470,13 @@
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
           SOURCES(ng)%Tsrc(itemp)=T0(ng)
           SOURCES(ng)%Tsrc(isalt)=S0(ng)
+        END IF
+#  elif defined TWO_D_TRACER_SOURCE
+        IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN
+          DO is=1,Nsrc(ng)-1
+            SOURCES(ng)%Tsrc(is,itemp)=T0(ng)
+            SOURCES(ng)%Tsrc(is,isalt)=S0(ng)
+          END DO
         END IF
 #  else
         IF (DOMAIN(ng)%NorthEast_Test(tile)) THEN

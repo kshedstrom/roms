@@ -106,6 +106,9 @@
 #  ifdef ONE_TRACER_SOURCE
      &                    1, 1, 1, 2, 1, 1, 1,                          &
      &                    SOURCES(ng) % TsrcG(:,i))
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    1, Nsrc(ng), 1, 2, 1, Nsrc(ng), 1,            &
+     &                    SOURCES(ng) % TsrcG(:,:,i))
 #  else
      &                    1, Nsrc(ng), N(ng), 2, 1, Nsrc(ng), N(ng),    &
      &                    SOURCES(ng) % TsrcG(:,:,:,i))
