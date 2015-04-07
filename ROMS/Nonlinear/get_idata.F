@@ -469,7 +469,9 @@
           END IF
         END DO
 # endif
-# ifdef POT_TIDES
+      END IF
+#endif
+#ifdef POT_TIDES
 !
 !  Tidal potential amplitude and phase. In order to read data as a
 !  function of tidal period, we need to reset the model time variables
@@ -483,18 +485,18 @@
           CALL get_2dfld (ng, iNLM, idTpam, ncFRCid(idTpam,ng),         &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
      &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
-#  ifdef MASKING
+# ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-#  endif
+# endif
      &                    TIDES(ng) % POT_Tamp)
           IF (exit_flag.ne.NoError) RETURN
 
           CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),         &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
      &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
-#  ifdef MASKING
+# ifdef MASKING
      &                    GRID(ng) % rmask,                             &
-#  endif
+# endif
      &                    TIDES(ng) % POT_Tphase)
           IF (exit_flag.ne.NoError) RETURN
 
@@ -502,7 +504,6 @@
           tdays(ng)=time(ng)*sec2day
         END IF
       END IF
-# endif
 #endif
 
 #ifndef ANA_PSOURCE

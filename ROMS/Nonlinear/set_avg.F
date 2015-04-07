@@ -5924,7 +5924,7 @@
 #  endif
       USE mod_ocean
       USE mod_scalars
-      USE mod_tides
+      USE mod_tides, only: TIDES
 # ifdef WET_DRY
       USE mod_grid
 # endif
