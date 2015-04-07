@@ -1,102 +1,31 @@
-diff --git a/bld/Macros.Linux.ARSC.pacman b/bld/Macros.Linux.ARSC.pacman
-new file mode 100644
-index 0000000..6732c44
---- /dev/null
-+++ b/bld/Macros.Linux.ARSC.pacman
-@@ -0,0 +1,81 @@
-+#==============================================================================
-+# Makefile macros for "pacman," a Linux cluster at ARSC
-+#==============================================================================
-+
-+INCLDIR    := -I. -I/usr/include
-+SLIBS      := -L/usr/lib
-+ULIBS      :=
-+CPP        := /usr/bin/cpp
-+CPPFLAGS   := -P -traditional
-+CPPDEFS    := -DLINUX
-+CFLAGS     := -c -O2 -fastsse -tp k8-64
-+ifeq ($(COMMDIR), mpi)
-+   FC         := mpif90
-+else
-+   FC         := pgi
-+endif
-+# PGI
-+FFLAGS     := -tp k8-64 -w -Kieee -Mbyteswapio -i4 -r8 -O2
-+#FFLAGS     := -tp k8-64 -w -Kieee -Mbyteswapio -i4 -r8 -g -O0 -C
-+FIXEDFLAGS := -132
-+FREEFLAGS  := -Mfree
-+# gfortran
-+#FFLAGS   := -fdefault-real-8 -g -O0 -fbounds-check -fdefault-double-8
-+#FREEFLAGS  := -ffree-form
-+#FIXEDFLAGS := -ffixed-line-length-132
-+#
-+#FFLAGS     := -r8 -i4 -O2 -align all -w -ftz -convert big_endian -assume byterecl -fp-model precise
-+#FFLAGS     := -r8 -i4  -align all -w -ftz -convert big_endian -assume byterecl -fp-model precise -g
-+#FFLAGS     := -r8 -i4 -align all -w -ftz -convert big_endian -assume byterecl -fpe0 -CB -traceback
-+#FFLAGS     := -r8 -i4 -align all -w -ftz -convert big_endian -assume byterecl -fpe0 -CB -g
-+
-+ifeq ($(THRD), yes)
-+   FFLAGS  :=  $(FFLAGS) -openmp
-+#cesm   CPPDEFS :=  $(CPPDEFS) -DTHREADED_OMP
-+endif
-+
-+MOD_SUFFIX := mod
-+LD         := $(FC)
-+LDFLAGS    := $(FFLAGS) -v
-+
-+    CPPDEFS :=  $(CPPDEFS) -DNXGLOB=$(NXGLOB) -DNYGLOB=$(NYGLOB) \
-+                -DBLCKX=$(BLCKX) -DBLCKY=$(BLCKY) -DMXBLCKS=$(MXBLCKS) \
-+                -DNICELYR=$(NICELYR) -DNSNWLYR=$(NSNWLYR) -DNICECAT=$(NICECAT) \
-+                -DTRAGE=$(TRAGE) -DTRFY=$(TRFY) -DTRLVL=$(TRLVL) -DTRPND=$(TRPND) \
-+                -DTRBRI=$(TRBRI) -DNTRAERO=$(NTRAERO) -DNBGCLYR=$(NBGCLYR) \
-+                -DTRBGCS=$(TRBGCS) -DNUMIN=$(NUMIN) -DNUMAX=$(NUMAX)
-+#   CPPDEFS :=  $(CPPDEFS) -DAOMIP
-+
-+ifeq ($(CICE_IN_ROMS), yes)
-+    CPPDEFS :=  $(CPPDEFS) -DCICE_IN_ROMS -Dcoupled
-+endif
-+
-+ifeq ($(DITTO), yes)
-+   CPPDEFS :=  $(CPPDEFS) -DREPRODUCIBLE
-+endif
-+ifeq ($(BARRIERS), yes)
-+   CPPDEFS :=  $(CPPDEFS) -Dgather_scatter_barrier
-+endif
-+
-+ifeq ($(IO_TYPE), netcdf)
-+   CPPDEFS :=  $(CPPDEFS) -Dncdf
-+#   INCLDIR := $(INCLDIR) $(NETCDF)/include
-+#   SLIBS   := $(SLIBS) $(NETCDF)/lib -lnetcdf
-+ NC_CONFIG ?= nc-config
-+   INCLDIR := $(INCLDIR) -I$(shell $(NC_CONFIG) --prefix)/include
-+   SLIBS   := $(SLIBS) $(shell $(NC_CONFIG) --flibs)
-+endif
-+
-+### if using parallel I/O, load all 3 libraries.  PIO must be first!
-+ifeq ($(IO_TYPE), pio)
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/pio-1.4.0
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/pio-1.4.0 -lpio
-+
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/parallel-netcdf-1.2.0/include
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/parallel-netcdf-1.2.0/lib -lpnetcdf
-+
-+   CPPDEFS :=  $(CPPDEFS) -Dncdf
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/netcdf-3.6.3/include
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/netcdf-3.6.3/lib -lnetcdf
-+
-+endif
 diff --git a/bld/Makefile b/bld/Makefile
-index c2d232f..47eace0 100644
+index c2d232f..38e2f3f 100644
 --- a/bld/Makefile
 +++ b/bld/Makefile
-@@ -31,6 +31,7 @@
+@@ -14,9 +14,9 @@
+ #   SRCFILE=<file> ~ file with list of src files, used to create SRCS
+ #   DEPGEN=<exec>  ~ dependency generator utility, default is makdep
+ #
+-#   <macro defns>  ~ any macro definitions found in this file or the included 
++#   <macro defns>  ~ any macro definitions found in this file or the included
+ #                    MACFILE will be over-riden by cmd-line macro definitions
+-#   MODEL=<model>  ~ a standard macro definition, often found in the included 
++#   MODEL=<model>  ~ a standard macro definition, often found in the included
+ #                    MACFILE, used to trigger special compilation flags
+ #
+ # Usage examples:
+@@ -31,8 +31,9 @@
  #-------------------------------------------------------------------------------
  
  EXEC     := a.out
+-MACFILE  := NONE 
+-MODEL    := NONE 
 +ROMSLIB  := libCICE.a
- MACFILE  := NONE 
- MODEL    := NONE 
++MACFILE  := NONE
++MODEL    := NONE
  VPFILE   := NONE
+ VPATH    := .
+ SRCFILE  := NONE
 @@ -66,10 +67,11 @@ DEPS  := $(addsuffix .d, $(sort $(basename $(notdir $(SRCS)))))
  INCS  := $(patsubst %,-I%, $(VPATH) )
  RM    := rm
@@ -112,7 +41,7 @@ index c2d232f..47eace0 100644
  
  #-------------------------------------------------------------------------------
  # include the file that provides macro definitions required by build rules
-@@ -107,16 +109,19 @@ db_flags:
+@@ -107,21 +109,24 @@ db_flags:
  #-------------------------------------------------------------------------------
  
  $(EXEC): $(OBJS)
@@ -127,15 +56,35 @@ index c2d232f..47eace0 100644
  	cc $(CFLAGS) $(CPPDEFS) $(INCS) $(INCLDIR) $<
  
 -.F.o:
+-	$(CPP) $(CPPFLAGS) $(CPPDEFS) $(INCS) $(INCLDIR) $< > $*.f 
+-	$(FC) -c $(FFLAGS) $(FIXEDFLAGS) $(INCS) $(INCLDIR) $*.f  
 +%.o: %.F
- 	$(CPP) $(CPPFLAGS) $(CPPDEFS) $(INCS) $(INCLDIR) $< > $*.f 
- 	$(FC) -c $(FFLAGS) $(FIXEDFLAGS) $(INCS) $(INCLDIR) $*.f  
++	$(CPP) $(CPPFLAGS) $(CPPDEFS) $(INCS) $(INCLDIR) $< > $*.f
++	$(FC) -c $(FFLAGS) $(FIXEDFLAGS) $(INCS) $(INCLDIR) $*.f
  
 -.F90.o:
 +%.o: %.F90
  	$(CPP) $(CPPFLAGS) $(CPPDEFS) $(INCS) $(INCLDIR) $< > $*.f90
- 	$(FC) -c $(FFLAGS) $(FREEFLAGS) $(INCS) $(INCLDIR) $*.f90  
+-	$(FC) -c $(FFLAGS) $(FREEFLAGS) $(INCS) $(INCLDIR) $*.f90  
++	$(FC) -c $(FFLAGS) $(FREEFLAGS) $(INCS) $(INCLDIR) $*.f90
  
+ mostlyclean:
+-	$(RM) -f *.f *.f90 
++	$(RM) -f *.f *.f90
+ 
+ clean:
+ 	$(RM) -f *.f *.f90 *.d *.mod *.o
+@@ -134,8 +139,8 @@ realclean:
+ # Build & include dependency files
+ #-------------------------------------------------------------------------------
+ # ASSUMPTIONS:
+-# o an externally provided dependency generator, $(DEPGEN), is available, 
+-#   its cmd line syntax is compatible with the build rules below.   Eg, for 
++# o an externally provided dependency generator, $(DEPGEN), is available,
++#   its cmd line syntax is compatible with the build rules below.   Eg, for
+ #   each .o file, there is a corresponding .d (dependency) file, and both
+ #   will be dependent on the same src file, eg.    foo.o foo.d : foo.F90
+ #   Also, the dependancy genorator's capabilities, limitations, and assumptions
 diff --git a/bld/Makefile.romslib b/bld/Makefile.romslib
 new file mode 100644
 index 0000000..38e2f3f
@@ -325,10 +274,10 @@ index 0000000..17b1dce
 +./restart/iced_arctic_v5.nc
 diff --git a/input_templates/arctic/ice_in b/input_templates/arctic/ice_in
 new file mode 100644
-index 0000000..645dabb
+index 0000000..2866604
 --- /dev/null
 +++ b/input_templates/arctic/ice_in
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,379 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -347,15 +296,16 @@ index 0000000..645dabb
 +  , restart_dir    = './restart/'
 +  , restart_file   = 'iced'
 +  , pointer_file   = './restart/ice.restart_file'
-+  , dumpfreq       = 'y'
++  , dumpfreq       = 'd'
 +  , dumpfreq_n     = 1
-+  , dump_last      = .false.
++  , dump_last      = .true.
++  , bfbflag        = .false.
 +  , diagfreq       = 30
 +  , diag_type      = 'file'
 +  , diag_file      = 'ice_diag.out'
 +  , print_global   = .false.
 +  , print_points   = .false.
-+  , latpnt(1)      =  90.
++  , latpnt(1)      =  89.8
 +  , lonpnt(1)      =   0.
 +  , latpnt(2)      = 65.8
 +  , lonpnt(2)      = 191.
@@ -365,7 +315,7 @@ index 0000000..645dabb
 +  , hist_avg       = .true.
 +  , history_dir    = './history/'
 +  , history_file   = 'iceh'
-+  , write_ic       = .true.
++  , write_ic       = .false.
 +  , incond_dir     = './history/'
 +  , incond_file    = 'iceh_ic'
 +/
@@ -375,11 +325,12 @@ index 0000000..645dabb
 +  , grid_type    = 'roms_grid'
 +  , grid_file    = 'popgrid_Arctic_2.nc'
 +  , kmt_file     = 'popgrid_Arctic_2.nc'
++  , gridcpl_file = 'unknown_gridcpl_file'
 +  , kcatbound    = 0
 +/
 +
 +&domain_nml
-+    nprocs = 128
++    nprocs = 256
 +  , processor_shape   = 'square-pop'
 +  , distribution_type = 'cartesian'
 +  , distribution_wght = 'latitude'
@@ -428,6 +379,7 @@ index 0000000..645dabb
 +  , krdg_partic     = 1
 +  , krdg_redist     = 1
 +  , mu_rdg          = 3
++  , Cf              = 17.
 +/
 +
 +&shortwave_nml
@@ -443,6 +395,7 @@ index 0000000..645dabb
 +  , R_snw           = 1.5
 +  , dT_mlt          = 1.5
 +  , rsnw_mlt        = 1500.
++  , kalg            = 0.6
 +/
 +
 +&ponds_nml
@@ -451,7 +404,6 @@ index 0000000..645dabb
 +  , hs1             = 0.03
 +  , dpscale         = 1.e-3
 +  , frzpnd          = 'hlid'
-+  , snowinfil       = .true.
 +  , rfracmin        = 0.15
 +  , rfracmax        = 1.
 +  , pndaspect       = 0.8
@@ -487,9 +439,14 @@ index 0000000..645dabb
 +  , atm_data_dir    = '/usr/projects/climate/eclare/DATA/atm/gx3v2m/NCAR_bulk/'
 +  , calc_strair     = .true.
 +  , calc_Tsfc       = .true.
++  , highfreq        = .false.
++  , natmiter        = 5
 +  , precip_units    = 'mks'
 +  , ustar_min       = 0.0005
++  , fbot_xfer_type  = 'constant'
 +  , update_ocn_f    = .false.
++  , l_mpond_fresh   = .false.
++  , tfrz_option     = 'default'
 +  , oceanmixed_ice  = .false.
 +  , ocn_data_format = 'bin'
 +  , sss_data_type   = 'default'
@@ -503,6 +460,7 @@ index 0000000..645dabb
 +
 +&icefields_nml
 +    f_tmask        = .true.
++  , f_blkmask      = .true.
 +  , f_tarea        = .true.
 +  , f_uarea        = .true.
 +  , f_dxt          = .false.
@@ -521,71 +479,76 @@ index 0000000..645dabb
 +  , f_aice         = 'd'
 +  , f_hi           = 'd'
 +  , f_hs           = 'd'
-+  , f_Tsfc         = 'm'
-+  , f_sice         = 'm'
++  , f_Tsfc         = 'd'
++  , f_sice         = 'd'
 +  , f_uvel         = 'd'
 +  , f_vvel         = 'd'
-+  , f_fswdn        = 'm'
-+  , f_flwdn        = 'm'
++  , f_uatm         = 'm'
++  , f_vatm         = 'm'
++  , f_fswdn        = 'd'
++  , f_flwdn        = 'd'
 +  , f_snow         = 'x'
 +  , f_snow_ai      = 'm'
 +  , f_rain         = 'x'
 +  , f_rain_ai      = 'm'
-+  , f_sst          = 'm'
-+  , f_sss          = 'm'
-+  , f_uocn         = 'm'
-+  , f_vocn         = 'm'
-+  , f_frzmlt       = 'm'
-+  , f_fswfac       = 'm'
++  , f_sst          = 'x'
++  , f_sss          = 'x'
++  , f_uocn         = 'x'
++  , f_vocn         = 'x'
++  , f_frzmlt       = 'd'
++  , f_fswfac       = 'd'
++  , f_fswint_ai    = 'm'
 +  , f_fswabs       = 'x'
-+  , f_fswabs_ai    = 'm'
-+  , f_albsni       = 'm'
++  , f_fswabs_ai    = 'd'
++  , f_albsni       = 'd'
 +  , f_alvdr        = 'x'
 +  , f_alidr        = 'x'
++  , f_alvdf        = 'x'
++  , f_alidf        = 'x'
 +  , f_albice       = 'x'
 +  , f_albsno       = 'x'
 +  , f_albpnd       = 'x'
 +  , f_coszen       = 'x'
 +  , f_flat         = 'x'
-+  , f_flat_ai      = 'm'
++  , f_flat_ai      = 'd'
 +  , f_fsens        = 'x'
-+  , f_fsens_ai     = 'm'
++  , f_fsens_ai     = 'd'
 +  , f_flwup        = 'x'
-+  , f_flwup_ai     = 'm'
++  , f_flwup_ai     = 'd'
 +  , f_evap         = 'x'
 +  , f_evap_ai      = 'm'
-+  , f_Tair         = 'm'
++  , f_Tair         = 'x'
 +  , f_Tref         = 'x'
 +  , f_Qref         = 'x'
-+  , f_congel       = 'm'
-+  , f_frazil       = 'm'
-+  , f_snoice       = 'm'
++  , f_congel       = 'd'
++  , f_frazil       = 'd'
++  , f_snoice       = 'd'
 +  , f_dsnow        = 'x'
-+  , f_melts        = 'm'
-+  , f_meltt        = 'm'
-+  , f_meltb        = 'm'
-+  , f_meltl        = 'm'
++  , f_melts        = 'd'
++  , f_meltt        = 'd'
++  , f_meltb        = 'd'
++  , f_meltl        = 'd'
 +  , f_fresh        = 'x'
-+  , f_fresh_ai     = 'm'
++  , f_fresh_ai     = 'd'
 +  , f_fsalt        = 'x'
-+  , f_fsalt_ai     = 'm'
++  , f_fsalt_ai     = 'd'
 +  , f_fhocn        = 'x'
-+  , f_fhocn_ai     = 'm'
++  , f_fhocn_ai     = 'd'
 +  , f_fswthru      = 'x'
-+  , f_fswthru_ai   = 'm'
++  , f_fswthru_ai   = 'd'
 +  , f_fsurf_ai     = 'x'
 +  , f_fcondtop_ai  = 'x'
 +  , f_fmeltt_ai    = 'x'
 +  , f_strairx      = 'm'
 +  , f_strairy      = 'm'
-+  , f_strtltx      = 'x'
-+  , f_strtlty      = 'x'
-+  , f_strcorx      = 'x'
-+  , f_strcory      = 'x'
-+  , f_strocnx      = 'x'
-+  , f_strocny      = 'x'
-+  , f_strintx      = 'x'
-+  , f_strinty      = 'x'
++  , f_strtltx      = 'm'
++  , f_strtlty      = 'm'
++  , f_strcorx      = 'm'
++  , f_strcory      = 'm'
++  , f_strocnx      = 'm'
++  , f_strocny      = 'm'
++  , f_strintx      = 'm'
++  , f_strinty      = 'm'
 +  , f_strength     = 'm'
 +  , f_divu         = 'm'
 +  , f_shear        = 'm'
@@ -595,6 +558,8 @@ index 0000000..645dabb
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
 +  , f_daidtd       = 'm'
++  , f_dagedtt      = 'm'
++  , f_dagedtd      = 'm'
 +  , f_mlt_onset    = 'm'
 +  , f_frz_onset    = 'm'
 +  , f_hisnap       = 'x'
@@ -605,6 +570,8 @@ index 0000000..645dabb
 +  , f_FY           = 'x'
 +  , f_aicen        = 'x'
 +  , f_vicen        = 'x'
++  , f_vsnon        = 'x'
++  , f_keffn_top    = 'x'
 +  , f_Tinz         = 'x'
 +  , f_Sinz         = 'x'
 +  , f_Tsnz         = 'x'
@@ -612,6 +579,7 @@ index 0000000..645dabb
 +  , f_fcondtopn_ai = 'x'
 +  , f_fmelttn_ai   = 'x'
 +  , f_flatn_ai     = 'x'
++  , f_fsensn_ai     = 'x'
 +/
 +
 +&icefields_mechred_nml
@@ -686,7 +654,7 @@ index 0000000..645dabb
 +&icefields_drag_nml
 +    f_drag         = 'x'
 +  , f_Cdn_atm      = 'x'
-+  , f_Cdn_ocn      = 'x'
++  , f_Cdn_ocn      = 'm'
 +/
 +
 diff --git a/input_templates/bering/ice.restart_file b/input_templates/bering/ice.restart_file
@@ -698,10 +666,10 @@ index 0000000..d20f6d6
 +./restart/iced_bering_v5.nc
 diff --git a/input_templates/bering/ice_in b/input_templates/bering/ice_in
 new file mode 100644
-index 0000000..79514b4
+index 0000000..26bc1bd
 --- /dev/null
 +++ b/input_templates/bering/ice_in
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,379 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -723,6 +691,7 @@ index 0000000..79514b4
 +  , dumpfreq       = 'd'
 +  , dumpfreq_n     = 1
 +  , dump_last      = .true.
++  , bfbflag        = .false.
 +  , diagfreq       = 30
 +  , diag_type      = 'file'
 +  , diag_file      = 'ice_diag.out'
@@ -748,6 +717,7 @@ index 0000000..79514b4
 +  , grid_type    = 'roms_grid'
 +  , grid_file    = '../Bering/Files/popgrid_Bering.nc'
 +  , kmt_file     = '../Bering/Files/popgrid_Bering.nc'
++  , gridcpl_file = 'unknown_gridcpl_file'
 +  , kcatbound    = 0
 +/
 +
@@ -801,6 +771,7 @@ index 0000000..79514b4
 +  , krdg_partic     = 1
 +  , krdg_redist     = 1
 +  , mu_rdg          = 3
++  , Cf              = 17.
 +/
 +
 +&shortwave_nml
@@ -816,6 +787,7 @@ index 0000000..79514b4
 +  , R_snw           = 1.5
 +  , dT_mlt          = 1.5
 +  , rsnw_mlt        = 1500.
++  , kalg            = 0.6
 +/
 +
 +&ponds_nml
@@ -824,7 +796,6 @@ index 0000000..79514b4
 +  , hs1             = 0.03
 +  , dpscale         = 1.e-3
 +  , frzpnd          = 'hlid'
-+  , snowinfil       = .true.
 +  , rfracmin        = 0.15
 +  , rfracmax        = 1.
 +  , pndaspect       = 0.8
@@ -860,9 +831,14 @@ index 0000000..79514b4
 +  , atm_data_dir    = '/usr/projects/climate/eclare/DATA/atm/gx3v2m/NCAR_bulk/'
 +  , calc_strair     = .true.
 +  , calc_Tsfc       = .true.
++  , highfreq        = .false.
++  , natmiter        = 5
 +  , precip_units    = 'mks'
 +  , ustar_min       = 0.0005
++  , fbot_xfer_type  = 'constant'
 +  , update_ocn_f    = .false.
++  , l_mpond_fresh   = .false.
++  , tfrz_option     = 'default'
 +  , oceanmixed_ice  = .false.
 +  , ocn_data_format = 'bin'
 +  , sss_data_type   = 'default'
@@ -876,6 +852,7 @@ index 0000000..79514b4
 +
 +&icefields_nml
 +    f_tmask        = .true.
++  , f_blkmask      = .true.
 +  , f_tarea        = .true.
 +  , f_uarea        = .true.
 +  , f_dxt          = .false.
@@ -898,6 +875,8 @@ index 0000000..79514b4
 +  , f_sice         = 'd'
 +  , f_uvel         = 'd'
 +  , f_vvel         = 'd'
++  , f_uatm         = 'm'
++  , f_vatm         = 'm'
 +  , f_fswdn        = 'm'
 +  , f_flwdn        = 'm'
 +  , f_snow         = 'x'
@@ -910,11 +889,14 @@ index 0000000..79514b4
 +  , f_vocn         = 'x'
 +  , f_frzmlt       = 'd'
 +  , f_fswfac       = 'd'
++  , f_fswint_ai    = 'm'
 +  , f_fswabs       = 'x'
 +  , f_fswabs_ai    = 'm'
 +  , f_albsni       = 'm'
 +  , f_alvdr        = 'x'
 +  , f_alidr        = 'x'
++  , f_alvdf        = 'x'
++  , f_alidf        = 'x'
 +  , f_albice       = 'x'
 +  , f_albsno       = 'x'
 +  , f_albpnd       = 'x'
@@ -968,6 +950,8 @@ index 0000000..79514b4
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
 +  , f_daidtd       = 'm'
++  , f_dagedtt      = 'm'
++  , f_dagedtd      = 'm'
 +  , f_mlt_onset    = 'm'
 +  , f_frz_onset    = 'm'
 +  , f_hisnap       = 'x'
@@ -978,6 +962,8 @@ index 0000000..79514b4
 +  , f_FY           = 'x'
 +  , f_aicen        = 'x'
 +  , f_vicen        = 'x'
++  , f_vsnon        = 'x'
++  , f_keffn_top    = 'x'
 +  , f_Tinz         = 'x'
 +  , f_Sinz         = 'x'
 +  , f_Tsnz         = 'x'
@@ -985,6 +971,7 @@ index 0000000..79514b4
 +  , f_fcondtopn_ai = 'x'
 +  , f_fmelttn_ai   = 'x'
 +  , f_flatn_ai     = 'x'
++  , f_fsensn_ai     = 'x'
 +/
 +
 +&icefields_mechred_nml
@@ -1062,60 +1049,8 @@ index 0000000..79514b4
 +  , f_Cdn_ocn      = 'd'
 +/
 +
-diff --git a/input_templates/run_ice.Linux.ARSC.pacman b/input_templates/run_ice.Linux.ARSC.pacman
-new file mode 100644
-index 0000000..efb79e6
---- /dev/null
-+++ b/input_templates/run_ice.Linux.ARSC.pacman
-@@ -0,0 +1,46 @@
-+#!/bin/bash
-+# ------------ ARSC : pacman ------------
-+#PBS -N CICE
-+#PBS -l walltime=00:30:00
-+#PBS -l nodes=1:ppn=16
-+#PBS -q debug
-+###PBS -l nodes=1:ppn=16
-+###PBS -q standard_16
-+###PBS -l nodes=1:ppn=12
-+###PBS -q standard_12
-+###PBS -l nodes=1:ppn=32
-+###PBS -q bigmem
-+#PBS -W group_list=akwaters
-+#PBS -j oe
-+
-+cd $PBS_O_WORKDIR
-+module load PrgEnv-pgi/11.2
-+module list
-+
-+export ARCH=`uname -s`                           # architecture
-+set  stamp   = `date -u '+%y%m%d%H%M%S'`
-+export ICE_LOG_FILE=ice.log.${stamp}
-+
-+
-+exit 0
-+
-+#
-+#  Prolog
-+#
-+echo " "
-+echo "++++ Pacman ++++ $PGM_NAME began:    `date`"
-+echo "++++ Pacman ++++ $PGM_NAME hostname: `hostname`"
-+echo "++++ Pacman ++++ $PGM_NAME uname -a: `uname -a`"
-+echo " "
-+TBEGIN=`echo "print time();" | perl`
-+
-+mpirun ./cice >&! $ICE_LOG_FILE
-+
-+#
-+#  Epilog
-+#
-+TEND=`echo "print time();" | perl`
-+echo " "
-+echo "++++ Pacman ++++ $PGM_NAME pwd:      `pwd`"
-+echo "++++ Pacman ++++ $PGM_NAME ended:    `date`"
-+echo "++++ Pacman ++++ $PGM_NAME walltime: `expr $TEND - $TBEGIN` seconds"
 diff --git a/io_netcdf/ice_history_write.F90 b/io_netcdf/ice_history_write.F90
-index 4d092d8..3869bfb 100644
+index 1174afb..a6ba892 100644
 --- a/io_netcdf/ice_history_write.F90
 +++ b/io_netcdf/ice_history_write.F90
 @@ -128,8 +128,12 @@
@@ -1133,7 +1068,7 @@ index 4d092d8..3869bfb 100644
        !-----------------------------------------------------------------
        ! define dimensions
 diff --git a/io_netcdf/ice_restart.F90 b/io_netcdf/ice_restart.F90
-index 349101e..144c383 100644
+index d5de545..3cd3834 100644
 --- a/io_netcdf/ice_restart.F90
 +++ b/io_netcdf/ice_restart.F90
 @@ -165,8 +165,12 @@
@@ -1150,19 +1085,6 @@ index 349101e..144c383 100644
  
           status = nf90_put_att(ncid,nf90_global,'istep1',istep1)
           status = nf90_put_att(ncid,nf90_global,'time',time)
-diff --git a/mpi/ice_communicate.F90 b/mpi/ice_communicate.F90
-index 75d8e0c..315a097 100644
---- a/mpi/ice_communicate.F90
-+++ b/mpi/ice_communicate.F90
-@@ -84,7 +84,7 @@
-    call cpl_interface_init(cpl_fields_icename, MPI_COMM_ICE)
- #else
- 
--#if (defined popcice || defined CICE_IN_NEMO)
-+#if (defined popcice || defined CICE_IN_NEMO || defined CICE_IN_ROMS)
-    ! MPI_INIT is called elsewhere in coupled configuration
- #else
-    call MPI_INIT(ierr)
 diff --git a/serial/ice_communicate.F90 b/serial/ice_communicate.F90
 index b7633a2..aeef8b0 100644
 --- a/serial/ice_communicate.F90
@@ -1189,11 +1111,32 @@ index b7633a2..aeef8b0 100644
     call MPI_COMM_RANK  (MPI_COMM_ICE, my_task, ierr)
  #else
 diff --git a/source/ice_grid.F90 b/source/ice_grid.F90
-index e423cd3..fd6fb1c 100644
+index fa7353e..32812ab 100644
 --- a/source/ice_grid.F90
 +++ b/source/ice_grid.F90
-@@ -267,6 +267,8 @@
-          endif 
+@@ -163,15 +163,17 @@
+          if (trim(grid_format) == 'nc') then
+ 
+             call ice_open_nc(grid_file,fid_grid)
+-            call ice_open_nc(kmt_file,fid_kmt)
+-
+             fieldname='ulat'
+             call ice_read_global_nc(fid_grid,1,fieldname,work_g1,.true.)
++            if (my_task == master_task) then
++               call ice_close_nc(fid_grid)
++            endif
++
++            call ice_open_nc(kmt_file,fid_kmt)
+             fieldname='kmt'
+             call ice_read_global_nc(fid_kmt,1,fieldname,work_g2,.true.)
+ 
+             if (my_task == master_task) then
+-               call ice_close_nc(fid_grid)
+                call ice_close_nc(fid_kmt)
+             endif
+ 
+@@ -276,6 +278,8 @@
+          return
        elseif (trim(grid_type) == 'cpom_grid') then
           call cpomgrid          ! cpom model orca1 type grid
 +      elseif (trim(grid_type) == 'roms_grid') then
@@ -1201,7 +1144,7 @@ index e423cd3..fd6fb1c 100644
        else
           call rectgrid          ! regular rectangular grid
        endif
-@@ -954,6 +956,151 @@
+@@ -1252,6 +1256,151 @@
        end subroutine cpomgrid
  
  !=======================================================================
@@ -1354,18 +1297,18 @@ index e423cd3..fd6fb1c 100644
  ! Calculate dxu and dxt from HTN on the global grid, to preserve
  ! ghost cell and/or land values that might otherwise be lost. Scatter
 diff --git a/source/ice_init.F90 b/source/ice_init.F90
-index c06a7cb..00c354b 100644
+index ad48473..5be347b 100644
 --- a/source/ice_init.F90
 +++ b/source/ice_init.F90
-@@ -966,6 +966,7 @@
-              grid_type  /=  'column'         .and. &
+@@ -1077,6 +1077,7 @@
               grid_type  /=  'rectangular'    .and. &
               grid_type  /=  'cpom_grid'      .and. &
+              grid_type  /=  'regional'       .and. &
 +             grid_type  /=  'roms_grid'      .and. &
               grid_type  /=  'latlon' ) then 
              call abort_ice('ice_init: unknown grid_type')
           endif
-@@ -1188,7 +1189,7 @@
+@@ -1324,7 +1325,7 @@
                                  aicen,    trcrn, &
                                  vicen,    vsnon)
  
@@ -1373,8 +1316,8 @@ index c06a7cb..00c354b 100644
 +      use ice_constants, only: c0, c1, c2, c3, p2, p4, p5, rhoi, rhos, Lfresh, &
             cp_ice, cp_ocn, Tsmelt, Tffresh, rad_to_deg, puny
        use ice_domain_size, only: nilyr, nslyr, nx_global, ny_global, max_ntrcr, ncat
-       use ice_state, only: nt_Tsfc, nt_qice, nt_qsno, nt_sice, nt_fbri, tr_brine
-@@ -1261,7 +1262,7 @@
+       use ice_state, only: nt_Tsfc, nt_qice, nt_qsno, nt_sice, &
+@@ -1398,7 +1399,7 @@
  
        real (kind=dbl_kind), parameter :: &
           hsno_init = 0.20_dbl_kind   , & ! initial snow thickness (m)
@@ -1383,7 +1326,7 @@ index c06a7cb..00c354b 100644
           edge_init_sh = -60._dbl_kind    ! initial ice edge, S.Hem. (deg)
  
        indxi(:) = 0
-@@ -1362,7 +1363,7 @@
+@@ -1501,7 +1502,7 @@
           do i = ilo, ihi
              if (tmask(i,j)) then
                 ! place ice in high latitudes where ocean sfc is cold
@@ -1392,25 +1335,3 @@ index c06a7cb..00c354b 100644
                      (ULAT(i,j) < edge_init_sh/rad_to_deg .or. &
                       ULAT(i,j) > edge_init_nh/rad_to_deg) ) then
                    icells = icells + 1
-diff --git a/source/ice_read_write.F90 b/source/ice_read_write.F90
-index 6bff9b8..4725c15 100644
---- a/source/ice_read_write.F90
-+++ b/source/ice_read_write.F90
-@@ -1226,7 +1226,7 @@
-       if (my_task == master_task) then
-          allocate(work_g1(nx,ny,ncat))
-       else
--         allocate(work_g1(1,1,1))   ! to save memory
-+         allocate(work_g1(1,1,ncat))   ! to save memory
-       endif
- 
-       if (my_task == master_task) then
-@@ -1674,7 +1674,7 @@
-       if (my_task == master_task) then
-          allocate(work_g1(nx,ny,ncat))
-       else
--         allocate(work_g1(1,1,1))   ! to save memory
-+         allocate(work_g1(1,1,ncat))   ! to save memory
-       endif
- 
-       if (present(restart_ext)) then

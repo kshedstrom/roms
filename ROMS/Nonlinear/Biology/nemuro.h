@@ -484,7 +484,7 @@
           DO i=Istr,Iend
 !  Set concentration and depth parameters for FeD climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-	    h_max = 200.0_r8
+            h_max = 200.0_r8
             Fe_max = 2.0_r8
 !  Set nudging time scales to 5 days
             Fe_rel = 5.0_r8

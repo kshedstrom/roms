@@ -272,6 +272,16 @@
           t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
+#ifdef ICE_BIO
+          IcePhL(i,j,1) = 0._r8
+          IceNO3(i,j,1) = 0._r8
+          IceNH4(i,j,1) = 0._r8
+          IceLog(i,j,1) = -1
+          IcePhL(i,j,2) = IcePhL(i,j,1)
+          IceNO3(i,j,2) = IceNO3(i,j,1)
+          IceNH4(i,j,2) = IceNH4(i,j,1)
+          IceLog(i,j,2) = IceLog(i,j,1)
+#endif
         ENDDO
       ENDDO
 !
