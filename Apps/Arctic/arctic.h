@@ -32,7 +32,6 @@
 #define FLOATS
 #define STATIONS
 #undef WET_DRY
-#define TWO_D_TRACER_SOURCE
 
 #define T_PASSIVE
 #ifdef T_PASSIVE
@@ -48,13 +47,13 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
+# undef CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# undef  ICE_MODEL
+# define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define  OUTFLOW_MASK
@@ -179,9 +178,10 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Using both for different regions */
 #ifdef SOLVE3D
 # define RUNOFF
+# define TWO_D_TRACER_SOURCE
 #endif
 
 /* tides */

@@ -274,17 +274,17 @@ index 0000000..17b1dce
 +./restart/iced_arctic_v5.nc
 diff --git a/input_templates/arctic/ice_in b/input_templates/arctic/ice_in
 new file mode 100644
-index 0000000..1643c9c
+index 0000000..2866604
 --- /dev/null
 +++ b/input_templates/arctic/ice_in
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,379 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
-+  , year_init      = 2004
-+  , istep0         = 5040
++  , year_init      = 1990
++  , istep0         = 0
 +  , dt             = 120.0
-+  , npt            = 223200
++  , npt            = 7200
 +  , ndtd           = 1
 +  , runtype        = 'initial'
 +  , ice_ic         = 'default'
@@ -299,6 +299,7 @@ index 0000000..1643c9c
 +  , dumpfreq       = 'd'
 +  , dumpfreq_n     = 1
 +  , dump_last      = .true.
++  , bfbflag        = .false.
 +  , diagfreq       = 30
 +  , diag_type      = 'file'
 +  , diag_file      = 'ice_diag.out'
@@ -306,8 +307,8 @@ index 0000000..1643c9c
 +  , print_points   = .false.
 +  , latpnt(1)      =  89.8
 +  , lonpnt(1)      =   0.
-+  , latpnt(2)      = 80.
-+  , lonpnt(2)      = 150.
++  , latpnt(2)      = 65.8
++  , lonpnt(2)      = 191.
 +  , dbug           = .false.
 +  , histfreq       = 'd','m','x','x','x'
 +  , histfreq_n     =  1 , 1 , 1 , 1 , 1
@@ -322,8 +323,9 @@ index 0000000..1643c9c
 +&grid_nml
 +    grid_format  = 'nc'
 +  , grid_type    = 'roms_grid'
-+  , grid_file    = '/center/w/kate/Arctic2/Files/popgrid_Arctic_2.nc'
-+  , kmt_file     = '/center/w/kate/Arctic2/Files/popgrid_Arctic_2.nc'
++  , grid_file    = 'popgrid_Arctic_2.nc'
++  , kmt_file     = 'popgrid_Arctic_2.nc'
++  , gridcpl_file = 'unknown_gridcpl_file'
 +  , kcatbound    = 0
 +/
 +
@@ -377,6 +379,7 @@ index 0000000..1643c9c
 +  , krdg_partic     = 1
 +  , krdg_redist     = 1
 +  , mu_rdg          = 3
++  , Cf              = 17.
 +/
 +
 +&shortwave_nml
@@ -392,6 +395,7 @@ index 0000000..1643c9c
 +  , R_snw           = 1.5
 +  , dT_mlt          = 1.5
 +  , rsnw_mlt        = 1500.
++  , kalg            = 0.6
 +/
 +
 +&ponds_nml
@@ -400,7 +404,6 @@ index 0000000..1643c9c
 +  , hs1             = 0.03
 +  , dpscale         = 1.e-3
 +  , frzpnd          = 'hlid'
-+  , snowinfil       = .true.
 +  , rfracmin        = 0.15
 +  , rfracmax        = 1.
 +  , pndaspect       = 0.8
@@ -436,9 +439,14 @@ index 0000000..1643c9c
 +  , atm_data_dir    = '/usr/projects/climate/eclare/DATA/atm/gx3v2m/NCAR_bulk/'
 +  , calc_strair     = .true.
 +  , calc_Tsfc       = .true.
++  , highfreq        = .false.
++  , natmiter        = 5
 +  , precip_units    = 'mks'
 +  , ustar_min       = 0.0005
++  , fbot_xfer_type  = 'constant'
 +  , update_ocn_f    = .false.
++  , l_mpond_fresh   = .false.
++  , tfrz_option     = 'default'
 +  , oceanmixed_ice  = .false.
 +  , ocn_data_format = 'bin'
 +  , sss_data_type   = 'default'
@@ -452,6 +460,7 @@ index 0000000..1643c9c
 +
 +&icefields_nml
 +    f_tmask        = .true.
++  , f_blkmask      = .true.
 +  , f_tarea        = .true.
 +  , f_uarea        = .true.
 +  , f_dxt          = .false.
@@ -474,6 +483,8 @@ index 0000000..1643c9c
 +  , f_sice         = 'd'
 +  , f_uvel         = 'd'
 +  , f_vvel         = 'd'
++  , f_uatm         = 'm'
++  , f_vatm         = 'm'
 +  , f_fswdn        = 'd'
 +  , f_flwdn        = 'd'
 +  , f_snow         = 'x'
@@ -486,11 +497,14 @@ index 0000000..1643c9c
 +  , f_vocn         = 'x'
 +  , f_frzmlt       = 'd'
 +  , f_fswfac       = 'd'
++  , f_fswint_ai    = 'm'
 +  , f_fswabs       = 'x'
 +  , f_fswabs_ai    = 'd'
 +  , f_albsni       = 'd'
 +  , f_alvdr        = 'x'
 +  , f_alidr        = 'x'
++  , f_alvdf        = 'x'
++  , f_alidf        = 'x'
 +  , f_albice       = 'x'
 +  , f_albsno       = 'x'
 +  , f_albpnd       = 'x'
@@ -544,6 +558,8 @@ index 0000000..1643c9c
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
 +  , f_daidtd       = 'm'
++  , f_dagedtt      = 'm'
++  , f_dagedtd      = 'm'
 +  , f_mlt_onset    = 'm'
 +  , f_frz_onset    = 'm'
 +  , f_hisnap       = 'x'
@@ -554,6 +570,8 @@ index 0000000..1643c9c
 +  , f_FY           = 'x'
 +  , f_aicen        = 'x'
 +  , f_vicen        = 'x'
++  , f_vsnon        = 'x'
++  , f_keffn_top    = 'x'
 +  , f_Tinz         = 'x'
 +  , f_Sinz         = 'x'
 +  , f_Tsnz         = 'x'
@@ -561,6 +579,7 @@ index 0000000..1643c9c
 +  , f_fcondtopn_ai = 'x'
 +  , f_fmelttn_ai   = 'x'
 +  , f_flatn_ai     = 'x'
++  , f_fsensn_ai     = 'x'
 +/
 +
 +&icefields_mechred_nml
@@ -591,11 +610,11 @@ index 0000000..1643c9c
 +  , f_hpondn       = 'x'
 +  , f_apond        = 'm'
 +  , f_hpond        = 'm'
-+  , f_ipond        = 'x'
++  , f_ipond        = 'm'
 +  , f_apeff        = 'm'
 +  , f_apond_ai     = 'm'
 +  , f_hpond_ai     = 'm'
-+  , f_ipond_ai     = 'x'
++  , f_ipond_ai     = 'm'
 +  , f_apeff_ai     = 'm'
 +/
 +
@@ -647,10 +666,10 @@ index 0000000..d20f6d6
 +./restart/iced_bering_v5.nc
 diff --git a/input_templates/bering/ice_in b/input_templates/bering/ice_in
 new file mode 100644
-index 0000000..f6656b9
+index 0000000..26bc1bd
 --- /dev/null
 +++ b/input_templates/bering/ice_in
-@@ -0,0 +1,360 @@
+@@ -0,0 +1,379 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -672,6 +691,7 @@ index 0000000..f6656b9
 +  , dumpfreq       = 'd'
 +  , dumpfreq_n     = 1
 +  , dump_last      = .true.
++  , bfbflag        = .false.
 +  , diagfreq       = 30
 +  , diag_type      = 'file'
 +  , diag_file      = 'ice_diag.out'
@@ -697,6 +717,7 @@ index 0000000..f6656b9
 +  , grid_type    = 'roms_grid'
 +  , grid_file    = '../Bering/Files/popgrid_Bering.nc'
 +  , kmt_file     = '../Bering/Files/popgrid_Bering.nc'
++  , gridcpl_file = 'unknown_gridcpl_file'
 +  , kcatbound    = 0
 +/
 +
@@ -719,11 +740,11 @@ index 0000000..f6656b9
 +  , restart_FY   = .false.
 +  , tr_lvl       = .true.
 +  , restart_lvl  = .false.
-+  , tr_pond_cesm = .true.
++  , tr_pond_cesm = .false.
 +  , restart_pond_cesm = .false.
 +  , tr_pond_topo = .false.
 +  , restart_pond_topo = .false.
-+  , tr_pond_lvl  = .false.
++  , tr_pond_lvl  = .true.
 +  , restart_pond_lvl  = .false.
 +  , tr_aero      = .false.
 +  , restart_aero = .false.
@@ -750,6 +771,7 @@ index 0000000..f6656b9
 +  , krdg_partic     = 1
 +  , krdg_redist     = 1
 +  , mu_rdg          = 3
++  , Cf              = 17.
 +/
 +
 +&shortwave_nml
@@ -765,6 +787,7 @@ index 0000000..f6656b9
 +  , R_snw           = 1.5
 +  , dT_mlt          = 1.5
 +  , rsnw_mlt        = 1500.
++  , kalg            = 0.6
 +/
 +
 +&ponds_nml
@@ -773,7 +796,6 @@ index 0000000..f6656b9
 +  , hs1             = 0.03
 +  , dpscale         = 1.e-3
 +  , frzpnd          = 'hlid'
-+  , snowinfil       = .true.
 +  , rfracmin        = 0.15
 +  , rfracmax        = 1.
 +  , pndaspect       = 0.8
@@ -809,9 +831,14 @@ index 0000000..f6656b9
 +  , atm_data_dir    = '/usr/projects/climate/eclare/DATA/atm/gx3v2m/NCAR_bulk/'
 +  , calc_strair     = .true.
 +  , calc_Tsfc       = .true.
++  , highfreq        = .false.
++  , natmiter        = 5
 +  , precip_units    = 'mks'
 +  , ustar_min       = 0.0005
++  , fbot_xfer_type  = 'constant'
 +  , update_ocn_f    = .false.
++  , l_mpond_fresh   = .false.
++  , tfrz_option     = 'default'
 +  , oceanmixed_ice  = .false.
 +  , ocn_data_format = 'bin'
 +  , sss_data_type   = 'default'
@@ -825,6 +852,7 @@ index 0000000..f6656b9
 +
 +&icefields_nml
 +    f_tmask        = .true.
++  , f_blkmask      = .true.
 +  , f_tarea        = .true.
 +  , f_uarea        = .true.
 +  , f_dxt          = .false.
@@ -847,6 +875,8 @@ index 0000000..f6656b9
 +  , f_sice         = 'd'
 +  , f_uvel         = 'd'
 +  , f_vvel         = 'd'
++  , f_uatm         = 'm'
++  , f_vatm         = 'm'
 +  , f_fswdn        = 'm'
 +  , f_flwdn        = 'm'
 +  , f_snow         = 'x'
@@ -859,11 +889,14 @@ index 0000000..f6656b9
 +  , f_vocn         = 'x'
 +  , f_frzmlt       = 'd'
 +  , f_fswfac       = 'd'
++  , f_fswint_ai    = 'm'
 +  , f_fswabs       = 'x'
 +  , f_fswabs_ai    = 'm'
 +  , f_albsni       = 'm'
 +  , f_alvdr        = 'x'
 +  , f_alidr        = 'x'
++  , f_alvdf        = 'x'
++  , f_alidf        = 'x'
 +  , f_albice       = 'x'
 +  , f_albsno       = 'x'
 +  , f_albpnd       = 'x'
@@ -917,6 +950,8 @@ index 0000000..f6656b9
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
 +  , f_daidtd       = 'm'
++  , f_dagedtt      = 'm'
++  , f_dagedtd      = 'm'
 +  , f_mlt_onset    = 'm'
 +  , f_frz_onset    = 'm'
 +  , f_hisnap       = 'x'
@@ -927,6 +962,8 @@ index 0000000..f6656b9
 +  , f_FY           = 'x'
 +  , f_aicen        = 'x'
 +  , f_vicen        = 'x'
++  , f_vsnon        = 'x'
++  , f_keffn_top    = 'x'
 +  , f_Tinz         = 'x'
 +  , f_Sinz         = 'x'
 +  , f_Tsnz         = 'x'
@@ -934,6 +971,7 @@ index 0000000..f6656b9
 +  , f_fcondtopn_ai = 'x'
 +  , f_fmelttn_ai   = 'x'
 +  , f_flatn_ai     = 'x'
++  , f_fsensn_ai     = 'x'
 +/
 +
 +&icefields_mechred_nml
@@ -1012,7 +1050,7 @@ index 0000000..f6656b9
 +/
 +
 diff --git a/io_netcdf/ice_history_write.F90 b/io_netcdf/ice_history_write.F90
-index 4d092d8..3869bfb 100644
+index 1174afb..a6ba892 100644
 --- a/io_netcdf/ice_history_write.F90
 +++ b/io_netcdf/ice_history_write.F90
 @@ -128,8 +128,12 @@
@@ -1030,7 +1068,7 @@ index 4d092d8..3869bfb 100644
        !-----------------------------------------------------------------
        ! define dimensions
 diff --git a/io_netcdf/ice_restart.F90 b/io_netcdf/ice_restart.F90
-index 349101e..144c383 100644
+index d5de545..3cd3834 100644
 --- a/io_netcdf/ice_restart.F90
 +++ b/io_netcdf/ice_restart.F90
 @@ -165,8 +165,12 @@
@@ -1047,19 +1085,6 @@ index 349101e..144c383 100644
  
           status = nf90_put_att(ncid,nf90_global,'istep1',istep1)
           status = nf90_put_att(ncid,nf90_global,'time',time)
-diff --git a/mpi/ice_communicate.F90 b/mpi/ice_communicate.F90
-index 75d8e0c..315a097 100644
---- a/mpi/ice_communicate.F90
-+++ b/mpi/ice_communicate.F90
-@@ -84,7 +84,7 @@
-    call cpl_interface_init(cpl_fields_icename, MPI_COMM_ICE)
- #else
- 
--#if (defined popcice || defined CICE_IN_NEMO)
-+#if (defined popcice || defined CICE_IN_NEMO || defined CICE_IN_ROMS)
-    ! MPI_INIT is called elsewhere in coupled configuration
- #else
-    call MPI_INIT(ierr)
 diff --git a/serial/ice_communicate.F90 b/serial/ice_communicate.F90
 index b7633a2..aeef8b0 100644
 --- a/serial/ice_communicate.F90
@@ -1085,167 +1110,33 @@ index b7633a2..aeef8b0 100644
     call MPI_INIT(ierr)
     call MPI_COMM_RANK  (MPI_COMM_ICE, my_task, ierr)
  #else
-diff --git a/source/ice_age.F90 b/source/ice_age.F90
-index b37ecdf..50b5d59 100644
---- a/source/ice_age.F90
-+++ b/source/ice_age.F90
-@@ -112,6 +112,7 @@
-       use ice_fileunits, only: nu_diag, nu_restart_age
-       use ice_state, only: trcrn, nt_iage
-       use ice_restart,only: read_restart_field
-+      use ice_constants, only: field_loc_center, field_type_scalar
- 
-       ! local variables
- 
-@@ -123,7 +124,7 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max age (s)'
- 
-       call read_restart_field(nu_restart_age,0,trcrn(:,:,nt_iage,:,:),'ruf8', &
--                              'iage',ncat,diag)
-+                     'iage',ncat,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_age
- 
-diff --git a/source/ice_algae.F90 b/source/ice_algae.F90
-index 0c57bd3..e66c949 100644
---- a/source/ice_algae.F90
-+++ b/source/ice_algae.F90
-@@ -1189,6 +1189,7 @@
-       use ice_domain_size, only: ncat
-       use ice_state, only: trcrn
-       use ice_restart,only: read_restart_field
-+      use ice_constants, only: field_loc_center, field_type_scalar
- 
-       ! local variables
- 
-@@ -1203,31 +1204,31 @@
-       if (my_task == master_task) write(nu_diag,*) 'skl bgc restart'
- 
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_N_sk,:,:), &
--           'ruf8','bgc_N_sk',ncat,diag)
-+           'ruf8','bgc_N_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_C_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_C_sk,:,:), &
--           'ruf8','bgc_C_sk',ncat,diag)
-+           'ruf8','bgc_C_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_chl_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_chl_sk,:,:), &
--           'ruf8','bgc_chl_sk',ncat,diag)
-+           'ruf8','bgc_chl_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Nit_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_Nit_sk,:,:), &
--           'ruf8','bgc_Nit_sk',ncat,diag)
-+           'ruf8','bgc_Nit_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Am_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_Am_sk,:,:), &
--           'ruf8','bgc_Am_sk',ncat,diag)
-+           'ruf8','bgc_Am_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Sil_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_Sil_sk,:,:), &
--           'ruf8','bgc_Sil_sk',ncat,diag)
-+           'ruf8','bgc_Sil_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if(tr_bgc_DMSPp_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_DMSPp_sk,:,:), &
--           'ruf8','bgc_DMSPp_sk',ncat,diag)
-+           'ruf8','bgc_DMSPp_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_DMSPd_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_DMSPd_sk,:,:), &
--           'ruf8','bgc_DMSPd_sk',ncat,diag)
-+           'ruf8','bgc_DMSPd_sk',ncat,diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_DMS_sk) &
-       call read_restart_field(nu_restart_bgc,0,trcrn(:,:,nt_bgc_DMS_sk,:,:), &
--           'ruf8','bgc_DMS_sk',ncat,diag)
-+           'ruf8','bgc_DMS_sk',ncat,diag,field_loc_center, field_type_scalar)
- 
-       !-----------------------------------------------------------------
-       ! Ocean BGC
-@@ -1236,17 +1237,23 @@
-       if (my_task == master_task) write(nu_diag,*) 'mixed layer ocean bgc restart'
- 
-       if (tr_bgc_N_sk) &
--      call read_restart_field(nu_restart_bgc,0,algalN,'ruf8','algalN',1,diag)
-+      call read_restart_field(nu_restart_bgc,0,algalN,'ruf8','algalN',1,&
-+          diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Nit_sk) &
--      call read_restart_field(nu_restart_bgc,0,nit   ,'ruf8','nit'   ,1,diag)
-+      call read_restart_field(nu_restart_bgc,0,nit   ,'ruf8','nit'   ,1,&
-+          diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Am_sk) &
--      call read_restart_field(nu_restart_bgc,0,amm   ,'ruf8','amm'   ,1,diag)
-+      call read_restart_field(nu_restart_bgc,0,amm   ,'ruf8','amm'   ,1,&
-+          diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_Sil_sk) &
--      call read_restart_field(nu_restart_bgc,0,sil   ,'ruf8','sil'   ,1,diag)
-+      call read_restart_field(nu_restart_bgc,0,sil   ,'ruf8','sil'   ,1,&
-+          diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_DMSPp_sk) &
--      call read_restart_field(nu_restart_bgc,0,dmsp  ,'ruf8','dmsp'  ,1,diag)
-+      call read_restart_field(nu_restart_bgc,0,dmsp  ,'ruf8','dmsp'  ,1,&
-+          diag,field_loc_center, field_type_scalar)
-       if (tr_bgc_DMS_sk) &
--      call read_restart_field(nu_restart_bgc,0,dms   ,'ruf8','dms'   ,1,diag)
-+      call read_restart_field(nu_restart_bgc,0,dms   ,'ruf8','dms'   ,1,&
-+          diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_bgc
- 
-diff --git a/source/ice_brine.F90 b/source/ice_brine.F90
-index 3c6f27d..6144c15 100644
---- a/source/ice_brine.F90
-+++ b/source/ice_brine.F90
-@@ -643,6 +643,7 @@
-       use ice_fileunits, only: nu_diag, nu_restart_hbrine
-       use ice_state, only: trcrn, nt_fbri
-       use ice_restart,only: read_restart_field
-+      use ice_constants, only: field_loc_center, field_type_scalar
- 
-       ! local variables
- 
-@@ -657,9 +658,9 @@
-       if (my_task == master_task) write(nu_diag,*) 'brine restart'
- 
-       call read_restart_field(nu_restart_hbrine,0,trcrn(:,:,nt_fbri,:,:),'ruf8', &
--                              'fbrn',ncat,diag)
-+                 'fbrn',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_hbrine,0,first_ice_real(:,:,:,:),'ruf8', &
--                              'first_ice',ncat,diag)
-+                 'first_ice',ncat,diag,field_loc_center, field_type_scalar)
-        
-       do iblk = 1, nblocks
-          do n = 1,ncat
-diff --git a/source/ice_firstyear.F90 b/source/ice_firstyear.F90
-index 3141726..78ced1e 100755
---- a/source/ice_firstyear.F90
-+++ b/source/ice_firstyear.F90
-@@ -141,6 +141,7 @@
-       subroutine read_restart_FY()
- 
-       use ice_communicate, only: my_task, master_task
-+      use ice_constants, only: field_loc_center, field_type_scalar
-       use ice_domain_size, only: ncat
-       use ice_fileunits, only: nu_diag, nu_restart_FY
-       use ice_flux, only: frz_onset
-@@ -157,12 +158,12 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max first-year ice area'
- 
-       call read_restart_field(nu_restart_FY,0,trcrn(:,:,nt_FY,:,:),'ruf8', &
--                              'FY',ncat,diag)
-+              'FY',ncat,diag,field_loc_center, field_type_scalar)
- 
-       if (my_task == master_task) write(nu_diag,*) 'min/max frz_onset'
- 
-       call read_restart_field(nu_restart_FY,0,frz_onset,'ruf8', &
--                              'frz_onset',1,diag)
-+              'frz_onset',1,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_FY
- 
 diff --git a/source/ice_grid.F90 b/source/ice_grid.F90
-index e423cd3..fd6fb1c 100644
+index fa7353e..32812ab 100644
 --- a/source/ice_grid.F90
 +++ b/source/ice_grid.F90
-@@ -267,6 +267,8 @@
-          endif 
+@@ -163,15 +163,17 @@
+          if (trim(grid_format) == 'nc') then
+ 
+             call ice_open_nc(grid_file,fid_grid)
+-            call ice_open_nc(kmt_file,fid_kmt)
+-
+             fieldname='ulat'
+             call ice_read_global_nc(fid_grid,1,fieldname,work_g1,.true.)
++            if (my_task == master_task) then
++               call ice_close_nc(fid_grid)
++            endif
++
++            call ice_open_nc(kmt_file,fid_kmt)
+             fieldname='kmt'
+             call ice_read_global_nc(fid_kmt,1,fieldname,work_g2,.true.)
+ 
+             if (my_task == master_task) then
+-               call ice_close_nc(fid_grid)
+                call ice_close_nc(fid_kmt)
+             endif
+ 
+@@ -276,6 +278,8 @@
+          return
        elseif (trim(grid_type) == 'cpom_grid') then
           call cpomgrid          ! cpom model orca1 type grid
 +      elseif (trim(grid_type) == 'roms_grid') then
@@ -1253,7 +1144,7 @@ index e423cd3..fd6fb1c 100644
        else
           call rectgrid          ! regular rectangular grid
        endif
-@@ -954,6 +956,151 @@
+@@ -1252,6 +1256,151 @@
        end subroutine cpomgrid
  
  !=======================================================================
@@ -1406,18 +1297,18 @@ index e423cd3..fd6fb1c 100644
  ! Calculate dxu and dxt from HTN on the global grid, to preserve
  ! ghost cell and/or land values that might otherwise be lost. Scatter
 diff --git a/source/ice_init.F90 b/source/ice_init.F90
-index c06a7cb..00c354b 100644
+index ad48473..5be347b 100644
 --- a/source/ice_init.F90
 +++ b/source/ice_init.F90
-@@ -966,6 +966,7 @@
-              grid_type  /=  'column'         .and. &
+@@ -1077,6 +1077,7 @@
               grid_type  /=  'rectangular'    .and. &
               grid_type  /=  'cpom_grid'      .and. &
+              grid_type  /=  'regional'       .and. &
 +             grid_type  /=  'roms_grid'      .and. &
               grid_type  /=  'latlon' ) then 
              call abort_ice('ice_init: unknown grid_type')
           endif
-@@ -1188,7 +1189,7 @@
+@@ -1324,7 +1325,7 @@
                                  aicen,    trcrn, &
                                  vicen,    vsnon)
  
@@ -1425,8 +1316,8 @@ index c06a7cb..00c354b 100644
 +      use ice_constants, only: c0, c1, c2, c3, p2, p4, p5, rhoi, rhos, Lfresh, &
             cp_ice, cp_ocn, Tsmelt, Tffresh, rad_to_deg, puny
        use ice_domain_size, only: nilyr, nslyr, nx_global, ny_global, max_ntrcr, ncat
-       use ice_state, only: nt_Tsfc, nt_qice, nt_qsno, nt_sice, nt_fbri, tr_brine
-@@ -1261,7 +1262,7 @@
+       use ice_state, only: nt_Tsfc, nt_qice, nt_qsno, nt_sice, &
+@@ -1398,7 +1399,7 @@
  
        real (kind=dbl_kind), parameter :: &
           hsno_init = 0.20_dbl_kind   , & ! initial snow thickness (m)
@@ -1435,7 +1326,7 @@ index c06a7cb..00c354b 100644
           edge_init_sh = -60._dbl_kind    ! initial ice edge, S.Hem. (deg)
  
        indxi(:) = 0
-@@ -1362,7 +1363,7 @@
+@@ -1501,7 +1502,7 @@
           do i = ilo, ihi
              if (tmask(i,j)) then
                 ! place ice in high latitudes where ocean sfc is cold
@@ -1444,136 +1335,3 @@ index c06a7cb..00c354b 100644
                      (ULAT(i,j) < edge_init_sh/rad_to_deg .or. &
                       ULAT(i,j) > edge_init_nh/rad_to_deg) ) then
                    icells = icells + 1
-diff --git a/source/ice_lvl.F90 b/source/ice_lvl.F90
-index 1aca590..d41783b 100644
---- a/source/ice_lvl.F90
-+++ b/source/ice_lvl.F90
-@@ -85,6 +85,7 @@
-       use ice_fileunits, only: nu_diag, nu_restart_lvl
-       use ice_state, only: nt_alvl, nt_vlvl, trcrn
-       use ice_restart, only: read_restart_field
-+      use ice_constants, only: field_loc_center, field_type_scalar
- 
-       ! local variables
- 
-@@ -96,9 +97,9 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max level ice area, volume'
- 
-       call read_restart_field(nu_restart_lvl,0,trcrn(:,:,nt_alvl,:,:),'ruf8', &
--                              'alvl',ncat,diag)
-+              'alvl',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_lvl,0,trcrn(:,:,nt_vlvl,:,:),'ruf8', &
--                              'vlvl',ncat,diag)
-+              'vlvl',ncat,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_lvl
- 
-diff --git a/source/ice_meltpond_cesm.F90 b/source/ice_meltpond_cesm.F90
-index ddca138..e5618d2 100644
---- a/source/ice_meltpond_cesm.F90
-+++ b/source/ice_meltpond_cesm.F90
-@@ -234,6 +234,7 @@
- 
-       use ice_domain_size, only: ncat
-       use ice_communicate, only: my_task, master_task
-+      use ice_constants, only: field_loc_center, field_type_scalar
-       use ice_fileunits, only: nu_diag, nu_restart_pond 
-       use ice_state, only: trcrn, nt_apnd, nt_hpnd
-       use ice_restart, only: read_restart_field
-@@ -248,9 +249,9 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max cesm ponds'
- 
-       call read_restart_field(nu_restart_pond,0,trcrn(:,:,nt_apnd,:,:),'ruf8', &
--                              'apnd',ncat,diag)
-+                 'apnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0,trcrn(:,:,nt_hpnd,:,:),'ruf8', &
--                              'hpnd',ncat,diag)
-+                 'hpnd',ncat,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_pond_cesm
- 
-diff --git a/source/ice_meltpond_lvl.F90 b/source/ice_meltpond_lvl.F90
-index 1a1b842..f46d6f3 100644
---- a/source/ice_meltpond_lvl.F90
-+++ b/source/ice_meltpond_lvl.F90
-@@ -447,6 +447,7 @@
- 
-       use ice_domain_size, only: ncat
-       use ice_communicate, only: my_task, master_task
-+      use ice_constants, only: field_loc_center, field_type_scalar
-       use ice_fileunits, only: nu_diag, nu_restart_pond 
-       use ice_flux, only: fsnow
-       use ice_state, only: trcrn, nt_apnd, nt_hpnd, nt_ipnd
-@@ -462,17 +463,17 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max level-ice ponds'
- 
-       call read_restart_field(nu_restart_pond,0, trcrn(:,:,nt_apnd,:,:),'ruf8', &
--                              'apnd',ncat,diag)
-+              'apnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0, trcrn(:,:,nt_hpnd,:,:),'ruf8', &
--                              'hpnd',ncat,diag)
-+              'hpnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0, trcrn(:,:,nt_ipnd,:,:),'ruf8', &
--                              'ipnd',ncat,diag)
-+              'ipnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0, fsnow(:,:,          :),'ruf8', &
--                              'fsnow',1,diag)
-+              'fsnow',1,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0,  dhsn(:,:,        :,:),'ruf8', &
--                              'dhs',ncat,diag)
-+              'dhs',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0,ffracn(:,:,        :,:),'ruf8', &
--                              'ffrac',ncat,diag)
-+              'ffrac',ncat,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_pond_lvl
- 
-diff --git a/source/ice_meltpond_topo.F90 b/source/ice_meltpond_topo.F90
-index fb79032..d3254a4 100644
---- a/source/ice_meltpond_topo.F90
-+++ b/source/ice_meltpond_topo.F90
-@@ -913,6 +913,7 @@
- 
-       use ice_domain_size, only: ncat
-       use ice_communicate, only: my_task, master_task
-+      use ice_constants, only: field_loc_center, field_type_scalar
-       use ice_fileunits, only: nu_diag, nu_restart_pond 
-       use ice_state, only: trcrn, nt_apnd, nt_hpnd, nt_ipnd
-       use ice_restart, only: read_restart_field
-@@ -927,11 +928,11 @@
-       if (my_task == master_task) write(nu_diag,*) 'min/max topo ponds'
- 
-       call read_restart_field(nu_restart_pond,0,trcrn(:,:,nt_apnd,:,:),'ruf8', &
--                              'apnd',ncat,diag)
-+               'apnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0,trcrn(:,:,nt_hpnd,:,:),'ruf8', &
--                              'hpnd',ncat,diag)
-+               'hpnd',ncat,diag,field_loc_center, field_type_scalar)
-       call read_restart_field(nu_restart_pond,0,trcrn(:,:,nt_ipnd,:,:),'ruf8', &
--                              'ipnd',ncat,diag)
-+               'ipnd',ncat,diag,field_loc_center, field_type_scalar)
- 
-       end subroutine read_restart_pond_topo
- 
-diff --git a/source/ice_read_write.F90 b/source/ice_read_write.F90
-index 6bff9b8..4725c15 100644
---- a/source/ice_read_write.F90
-+++ b/source/ice_read_write.F90
-@@ -1226,7 +1226,7 @@
-       if (my_task == master_task) then
-          allocate(work_g1(nx,ny,ncat))
-       else
--         allocate(work_g1(1,1,1))   ! to save memory
-+         allocate(work_g1(1,1,ncat))   ! to save memory
-       endif
- 
-       if (my_task == master_task) then
-@@ -1674,7 +1674,7 @@
-       if (my_task == master_task) then
-          allocate(work_g1(nx,ny,ncat))
-       else
--         allocate(work_g1(1,1,1))   ! to save memory
-+         allocate(work_g1(1,1,ncat))   ! to save memory
-       endif
- 
-       if (present(restart_ext)) then
