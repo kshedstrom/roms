@@ -3,3 +3,5 @@ Build*
 Ocean?
 .*.swp
 makefile.*
+clean_ice_*
+comp_ice_*
