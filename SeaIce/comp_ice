@@ -115,9 +115,7 @@ setenv NUMIN 11           # minimum file unit number
 setenv NUMAX 99           # maximum file unit number
 
 ### Set SRCDIR and EXEDIR to your own paths!
-setenv SRCDIR $HOME/cice5                                   # pacman
-#setenv SRCDIR /usr/projects/climate/eclare/CICE.v5.0/cice  # conejo
-#setenv SRCDIR /Users/akt/Work/MPAS-CICE/Column_Package/cice_package/cice
+setenv SRCDIR $HOME/cice5.1
 
 #setenv EXEDIR $SYSTEM_USERDIR/Arctic
 setenv EXEDIR $SYSTEM_USERDIR/Bering
