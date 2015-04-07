@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -538,6 +538,8 @@
                   FX(i,j)=Huon(i,j,k)*                                  &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
@@ -545,6 +547,8 @@
                   FE(i,j)=Hvom(i,j,k)*                                  &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
@@ -1222,13 +1226,13 @@
 #  ifdef T_PASSIVE
 !       else condition added by Weifeng Zhang for passive tracer
 !       boundary condition
-        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
-          CALL pt3dbc_tile (ng, tile, itrc,                             &
-     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
-     &                      IminS, ImaxS, JminS, JmaxS,                 &
-     &                      nstp, 3,                                    &
-     &                      t)
-        END IF
+!        IF (itrc .ge. inert(1) .and. itrc .le. inert(NPT)) THEN
+!          CALL pt3dbc_tile (ng, tile, itrc,                             &
+!     &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
+!     &                      IminS, ImaxS, JminS, JmaxS,                 &
+!     &                      nstp, 3,                                    &
+!     &                      t)
+!        END IF
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #  endif
       END DO

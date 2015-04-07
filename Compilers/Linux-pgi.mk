@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2014 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2015 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -53,7 +53,7 @@
 # The user may want to uncomment this option to allow similar,
 # if not identical solutions between different of the PGI compiler.
 
-#          FFLAGS += -Kieee
+           FFLAGS += -Kieee
 
 #
 # Library locations, can be overridden by environment variables.
@@ -100,7 +100,7 @@ endif
 
 ifdef USE_DEBUG
 #          FFLAGS += -g -C -Mchkstk -Mchkfpstk
-           FFLAGS += -g -C
+           FFLAGS += -g -C -O0
 #          FFLAGS += -gopt -C
 #          FFLAGS += -g
            CFLAGS += -g

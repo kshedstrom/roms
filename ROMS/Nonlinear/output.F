@@ -1,10 +1,11 @@
 #include "cppdefs.h"
+#define LONG_NUMS
 #ifdef NONLINEAR
       SUBROUTINE output (ng)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -120,8 +121,11 @@
             ifile=(iic(ng)-1)/ndefHIS(ng)+1
             IF (Master) THEN
               WRITE (HIS(ng)%name,10) TRIM(HIS(ng)%base), ifile
-!RD : set the thing at 5 digits whatever configuration it is
+#ifdef LONG_NUMS
   10          FORMAT (a,'_',i5.5,'.nc')
+#else
+  10          FORMAT (a,'_',i4.4,'.nc')
+#endif
             END IF
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS(ng)%name)
@@ -215,8 +219,13 @@
               ifile=(iic(ng)-1)/ndefHIS2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (HIS2(ng)%name,20) TRIM(HIS2(ng)%base), ifile
+              WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
             END IF
+#ifdef LONG_NUMS
+  12          FORMAT (a,'_',i5.5,'.nc')
+#else
+  12          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, HIS2(ng)%name)
 # endif
@@ -296,8 +305,7 @@
             END IF
             IF (Master) THEN
               WRITE (AVG(ng)%name,20) TRIM(AVG(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   20          FORMAT (a,'_',i5.5,'.nc')
 #else
   20          FORMAT (a,'_',i4.4,'.nc')
@@ -386,8 +394,13 @@
               ifile=(iic(ng)-1)/ndefAVG2(ng)+1
             END IF
             IF (Master) THEN
-              WRITE (AVG2(ng)%name,20) TRIM(AVG2(ng)%base), ifile
+              WRITE (AVG2(ng)%name,22) TRIM(AVG2(ng)%base), ifile
             END IF
+#ifdef LONG_NUMS
+  22          FORMAT (a,'_',i5.5,'.nc')
+#else
+  22          FORMAT (a,'_',i4.4,'.nc')
+#endif
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iNLM, AVG2(ng)%name)
 # endif
@@ -467,8 +480,7 @@
             END IF
             IF (Master) THEN
               WRITE (DIA(ng)%name,30) TRIM(DIA(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   30          FORMAT (a,'_',i5.5,'.nc')
 #else
   30          FORMAT (a,'_',i4.4,'.nc')
@@ -521,7 +533,7 @@
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
            || defined CORAL || defined NWA || defined ARC_NATL \
-           || defined ARCTIC
+           || defined ARCTIC || defined NWGOA
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))
@@ -613,8 +625,7 @@
             ifile=(iic(ng)-1)/ndefFISH(ng)+1
             IF (Master) THEN
               WRITE (FISH(ng)%name,60) TRIM(FISH(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   60          FORMAT (a,'_',i5.5,'.nc')
 #else
   60          FORMAT (a,'_',i4.4,'.nc')
@@ -698,8 +709,7 @@
             ifile=(iic(ng)-1)/ndefPRED(ng)+1
             IF (Master) THEN
               WRITE (PRED(ng)%name,70) TRIM(PRED(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   70          FORMAT (a,'_',i5.5,'.nc')
 #else
   70          FORMAT (a,'_',i4.4,'.nc')
@@ -785,8 +795,7 @@
             ifile=(iic(ng)-1)/ndefFLEET(ng)+1
             IF (Master) THEN
               WRITE (FLEET(ng)%name,80) TRIM(FLEET(ng)%base), ifile
-#if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL
+#ifdef LONG_NUMS
   80          FORMAT (a,'_',i5.5,'.nc')
 #else
   80          FORMAT (a,'_',i4.4,'.nc')
@@ -892,6 +901,29 @@
       END IF
 #  endif
 # endif
+
+# ifdef CICE_MODEL
+!        write_restart=.false.
+
+!        IF (mod(iic(ng)+1,tspy(ng))==Oct*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Nov*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Dec*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jan*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Feb*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Mar*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Apr*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==May*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jun*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Jul*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Aug*tspd(ng)) write_restart=.true.
+!        IF (mod(iic(ng)+1,tspy(ng))==Sep*tspd(ng)) write_restart=.true.
+
+!        IF (write_restart==.true.) THEN
+!           CALL wrt_rst (ng)
+!          IF (exit_flag.ne.NoError) RETURN
+!        END IF
+# endif
+
 # ifdef PROFILE
 !
 !-----------------------------------------------------------------------

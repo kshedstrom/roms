@@ -78,7 +78,10 @@
           real(r8), pointer :: filai(:,:,:)
           real(r8), pointer :: filhi(:,:,:)
           real(r8), pointer :: filhsn(:,:,:)
-          real(r8), pointer :: filsfwat(:,:,:)
+#   ifdef MELT_PONDS
+          real(r8), pointer :: filapond(:,:,:)
+          real(r8), pointer :: filhpond(:,:,:)
+#   endif
           real(r8), pointer :: filtis(:,:,:)
           real(r8), pointer :: filti(:,:,:)
           real(r8), pointer :: filAgeice(:,:,:)
@@ -100,6 +103,8 @@
 # endif
           real(r8), pointer :: filsus(:,:,:)
           real(r8), pointer :: filsvs(:,:,:)
+          real(r8), pointer :: filbus(:,:,:)
+          real(r8), pointer :: filbvs(:,:,:)
 
         END TYPE T_FILTER
 
@@ -262,6 +267,12 @@
       IF (Aout(idVsms,ng)) THEN
         allocate ( FILTER(ng) % filsvs(LBi:UBi,LBj:UBj,FILN) )
       END IF
+      IF (Aout(idUbms,ng)) THEN
+        allocate ( FILTER(ng) % filbus(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idVbms,ng)) THEN
+        allocate ( FILTER(ng) % filbvs(LBi:UBi,LBj:UBj,FILN) )
+      END IF
 # ifdef SOLVE3D
       IF (Aout(idTsur(itemp),ng)) THEN
         allocate ( FILTER(ng) % filstf(LBi:UBi,LBj:UBj,FILN) )
@@ -307,9 +318,14 @@
       IF (Aout(idHsno,ng)) THEN
         allocate ( FILTER(NG) % filhsn(LBi:UBi,LBj:UBj,FILN) )
       END IF
-      IF (Aout(idSfwat,ng)) THEN
-        allocate ( FILTER(NG) % filsfwat(LBi:UBi,LBj:UBj,FILN) )
+#   ifdef MELT_PONDS
+      IF (Aout(idApond,ng)) THEN
+        allocate ( FILTER(NG) % filapond(LBi:UBi,LBj:UBj,FILN) )
       END IF
+      IF (Aout(idHpond,ng)) THEN
+        allocate ( FILTER(NG) % filhpond(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+#   endif
       IF (Aout(idIomflx,ng)) THEN
         allocate ( FILTER(NG) % filio_mflux(LBi:UBi,LBj:UBj,FILN) )
       END IF
@@ -600,6 +616,24 @@
           END DO
         END DO
       END IF
+      IF (Aout(idUbms,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filbus(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idVbms,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filbvs(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
 
 # ifdef SOLVE3D
       IF (Aout(idTsur(itemp),ng)) THEN
@@ -708,15 +742,26 @@
           END DO
         END DO
       END IF
-      IF (Aout(idSfwat,ng)) THEN
+#   ifdef MELT_PONDS
+      IF (Aout(idApond,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
             DO i=Imin,Imax
-              FILTER(ng) % filsfwat(i,j,if) = IniVal
+              FILTER(ng) % filapond(i,j,if) = IniVal
             END DO
           END DO
         END DO
       END IF
+      IF (Aout(idHpond,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filhpond(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+#   endif
       IF (Aout(idIomflx,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax

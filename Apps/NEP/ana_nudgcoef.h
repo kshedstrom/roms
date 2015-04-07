@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -71,7 +71,6 @@
       USE mod_ncparam
       USE mod_scalars
 #ifdef DISTRIBUTE
-!
       USE distribute_mod, ONLY : mp_collect
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # ifdef SOLVE3D
@@ -90,7 +89,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: Iwrk, i, itrc, j, k
+      integer :: i, itrc, j, k
 
       real(r8) :: cff1, cff2, cff3
 

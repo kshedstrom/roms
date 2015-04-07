@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -439,46 +439,6 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idNPP,:))
 #endif
-            CASE ('Aout(idTTav)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=idTTav(idbio(itrc))
-                  Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-             END DO
-            CASE ('Aout(idUTav)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=idUTav(idbio(itrc))
-                  Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout(idVTav)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                 i=idVTav(idbio(itrc))
-                  Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout(iHUTav)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=iHUTav(idbio(itrc))
-                 Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout(iHVTav)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=iHVTav(idbio(itrc))
-                  Aout(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
 #if defined AVERAGES    || \
    (defined AD_AVERAGES && defined ADJOINT) || \
    (defined RP_AVERAGES && defined TL_IOMS) || \
@@ -507,6 +467,46 @@
             CASE ('Aout(idNPP)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
 # endif
+            CASE ('Aout(idTTav)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idTTav(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout(idUTav)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idUTav(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout(idVTav)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idVTav(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout(iHUTav)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=iHUTav(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('Aout(iHVTav)')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=iHVTav(idbio(itrc))
+                  Aout(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
 #endif
 #ifdef DIAGNOSTICS_TS
             CASE ('Dout(iTrate)')
@@ -1005,6 +1005,24 @@
      &          'Write out primary productivity', 0,                    &
      &          TRIM(Vname(1,idNPP))
 #endif
+#if defined AVERAGES    || \
+   (defined AD_AVERAGES && defined ADJOINT) || \
+   (defined RP_AVERAGES && defined TL_IOMS) || \
+   (defined TL_AVERAGES && defined TANGENT)
+            WRITE (out,'(1x)')
+            DO itrc=1,NBT
+              i=idbio(itrc)
+              IF (Aout(idTvar(i),ng)) WRITE (out,110)                   &
+     &            Aout(idTvar(i),ng), 'Aout(idTvar)',                   &
+     &            'Write out averaged tracer ', i,                      &
+     &            TRIM(Vname(1,idTvar(i)))
+            END DO
+# ifdef PRIMARY_PROD
+            IF (Aout(idNPP,ng)) WRITE (out,110)                         &
+     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
+     &          'Write out primary productivity', 0,                    &
+     &          TRIM(Vname(1,idNPP))
+# endif
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (Aout(idTTav(i),ng)) WRITE (out,110)                   &
@@ -1040,24 +1058,6 @@
      &            'Write out averaged <Hvom*t> for tracer ', i,         &
      &            TRIM(Vname(1,idTvar(i)))
             END DO
-#if defined AVERAGES    || \
-   (defined AD_AVERAGES && defined ADJOINT) || \
-   (defined RP_AVERAGES && defined TL_IOMS) || \
-   (defined TL_AVERAGES && defined TANGENT)
-            WRITE (out,'(1x)')
-            DO itrc=1,NBT
-              i=idbio(itrc)
-              IF (Aout(idTvar(i),ng)) WRITE (out,110)                   &
-     &            Aout(idTvar(i),ng), 'Aout(idTvar)',                   &
-     &            'Write out averaged tracer ', i,                      &
-     &            TRIM(Vname(1,idTvar(i)))
-            END DO
-# ifdef PRIMARY_PROD
-            IF (Aout(idNPP,ng)) WRITE (out,110)                         &
-     &          Aout(idNPP,ng), 'Aout(idNPP)',                          &
-     &          'Write out primary productivity', 0,                    &
-     &          TRIM(Vname(1,idNPP))
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
             WRITE (out,'(1x)')

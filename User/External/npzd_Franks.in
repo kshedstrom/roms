@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -233,26 +233,6 @@ Dout(iTxdif) == 4*T     ! ..., NO3_xdiff, ...     horizontal XI-diffusion
 Dout(iTydif) == 4*T     ! ..., NO3_ydiff, ...     horizontal ETA-diffusion
 Dout(iTsdif) == 4*T     ! ..., NO3_sdiff, ...     horizontal S-diffusion
 Dout(iTvdif) == 4*T     ! ..., NO3_vdiff, ...     vertical diffusion
-
-! Logical switches (TRUE/FALSE) to activate writing of time-averaged fields
-! into AVERAGE output file: [1:NBT,Ngrids].
-
- Aout(idTvar) == 4*T                             ! biological tracer
-
-! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
-! biological tracer diagnostic terms into DIAGNOSTIC output file:
-! [1:NBT,Ngrids].
-
- Dout(iTrate) == 4*T                             ! time rate of change
- Dout(iThadv) == 4*T                             ! horizontal total advection
- Dout(iTxadv) == 4*T                             ! horizontal XI-advection
- Dout(iTyadv) == 4*T                             ! horizontal ETA-advection
- Dout(iTvadv) == 4*T                             ! vertical advection
- Dout(iThdif) == 4*T                             ! horizontal total diffusion
- Dout(iTxdif) == 4*T                             ! horizontal XI-diffusion
- Dout(iTydif) == 4*T                             ! horizontal ETA-diffusion
- Dout(iTsdif) == 4*T                             ! horizontal S-diffusion
- Dout(iTvdif) == 4*T                             ! vertical diffusion
 
 !
 !  GLOSSARY:

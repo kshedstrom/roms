@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -311,21 +311,21 @@
         DO i=IstrR,IendR
 #  if defined SCORRECTION
 !>        stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-!>   &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+!>   &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
           tl_stflx(i,j,isalt)=stflx(i,j,isalt)*                         &
      &                        tl_t(i,j,N(ng),nrhs,isalt)-               &
-     &                        Tnudg(isalt,ng)*                          &
+     &                        Tnudg_SSS(ng)*                            &
      &                        (tl_Hz(i,j,N(ng))*                        &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
      &                         Hz(i,j,N(ng))*                           &
      &                         tl_t(i,j,N(ng),nrhs,isalt))
 #  elif defined SRELAXATION
-!>        stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
+!>        stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
-          tl_stflx(i,j,isalt)=-Tnudg(isalt,ng)*                         &
+          tl_stflx(i,j,isalt)=-Tnudg_SSS(ng)*                           &
      &                        (tl_Hz(i,j,N(ng))*                        &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
      &                         Hz(i,j,N(ng))*                           &

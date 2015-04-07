@@ -3,7 +3,7 @@
       SUBROUTINE ini_fish
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -858,6 +858,16 @@
 !            Npts=load_r(Nval, Rval, max_species*Ngrids, Nymort)
           ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fymort)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort1_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort1_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort2_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort2_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort3_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort3_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort4_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort4_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDscale_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDscale_J)
           END IF
         END IF
       END DO
@@ -1227,6 +1237,16 @@
 !     &              'Natural mortality'
               WRITE (out,110) Fymort(isp,ng), 'Fymort',                 &
      &              'Fishing mortality'
+              WRITE (out,110) DDmort1_J(isp,ng), 'DDmort1_J',         &
+     &              'Juvenile density-dependent mortality parm 1'
+              WRITE (out,110) DDmort2_J(isp,ng), 'DDmort2_J',         &
+     &              'Juvenile density-dependent mortality parm 2'
+              WRITE (out,110) DDmort3_J(isp,ng), 'DDmort3_J',         &
+     &              'Juvenile density-dependent mortality parm 3'
+              WRITE (out,110) DDmort4_J(isp,ng), 'DDmort4_J',         &
+     &              'Juvenile density-dependent mortality parm 4'
+              WRITE (out,110) DDscale_J(isp,ng), 'DDscale_J',           &
+     &              'Juvenile density-dependent scaling factor'
             END DO
           END IF
         END DO

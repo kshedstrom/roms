@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -101,7 +101,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     OCEAN(ng) % zeta(:,:,KOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -124,7 +124,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 # endif
      &                     OCEAN(ng) % ubar(:,:,KOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -147,7 +147,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 # endif
      &                     OCEAN(ng) % vbar(:,:,KOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -182,7 +182,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 #ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 #endif
      &                    OCEAN(ng) % ubar(:,:,KOUT),                   &
      &                    OCEAN(ng) % vbar(:,:,KOUT),                   &
@@ -195,7 +195,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Ur2d)
         IF (status.ne.nf90_noerr) THEN
@@ -216,7 +216,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Vr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -241,7 +241,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     MIXING(ng) % Sxx_bar)
         IF (status.ne.nf90_noerr) THEN
@@ -264,7 +264,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     MIXING(ng) % Sxy_bar)
         IF (status.ne.nf90_noerr) THEN
@@ -287,7 +287,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     MIXING(ng) % Syy_bar)
         IF (status.ne.nf90_noerr) THEN
@@ -310,7 +310,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 #  endif
      &                     MIXING(ng) % rustr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -333,7 +333,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 #  endif
      &                     MIXING(ng) % rvstr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -356,7 +356,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 #  endif
      &                     OCEAN(ng) % ubar_stokes)
         IF (status.ne.nf90_noerr) THEN
@@ -379,7 +379,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 #  endif
      &                     OCEAN(ng) % vbar_stokes)
         IF (status.ne.nf90_noerr) THEN
@@ -404,7 +404,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 #  endif
      &                     OCEAN(ng) % u(:,:,N(ng),NOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -427,7 +427,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 #  endif
      &                     OCEAN(ng) % v(:,:,N(ng),NOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -462,7 +462,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 # ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 # endif
      &                    OCEAN(ng) % u(:,:,N(ng),NOUT),                &
      &                    OCEAN(ng) % v(:,:,N(ng),NOUT),                &
@@ -475,7 +475,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Ur2d)
         IF (status.ne.nf90_noerr) THEN
@@ -496,7 +496,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Vr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -521,7 +521,7 @@
      &                       HIS2(ng)%Rindex, gtype,                    &
      &                       LBi, UBi, LBj, UBj, scale,                 &
 #  ifdef MASKING
-     &                       GRID(ng) % rmask_io,                       &
+     &                       GRID(ng) % rmask_full,                     &
 #  endif
      &                       OCEAN(ng) % t(:,:,N(ng),NOUT,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -546,7 +546,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     OCEAN(ng) % rho(:,:,N(ng)))
         IF (status.ne.nf90_noerr) THEN
@@ -570,7 +570,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     MIXING(ng) % hsbl)
         IF (status.ne.nf90_noerr) THEN
@@ -595,7 +595,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     MIXING(ng) % hbbl)
         IF (status.ne.nf90_noerr) THEN
@@ -620,7 +620,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 #   endif
      &                     ICE(ng) % ui(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -642,7 +642,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 #   endif
      &                     ICE(ng) % vi(:,:,IUOUT))
        IF (status.ne.nf90_noerr) THEN
@@ -675,7 +675,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 #ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 #endif
      &                    ICE(ng) % ui(:,:,IUOUT),                      &
      &                    ICE(ng) % vi(:,:,IUOUT),                      &
@@ -687,7 +687,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Ur2d)
         IF (status.ne.nf90_noerr) THEN
@@ -708,7 +708,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Vr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -732,7 +732,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % ai(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -754,7 +754,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % hi(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -776,7 +776,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % tis)
         IF (status.ne.nf90_noerr) THEN
@@ -798,7 +798,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % ti(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -820,7 +820,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % hsn(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -831,28 +831,52 @@
           RETURN
         END IF
       END IF
+#ifdef MELT_PONDS
 !
-! Write out surface water thickness (on ice).
+! Write out surface water fraction (on ice).
 !
-      IF (Hout2(idSfwat,ng)) THEN
+      IF (Hout2(idApond,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
-     &                     HIS2(ng)%Vid(idSfwat),                       &
+     &                     HIS2(ng)%Vid(idApond),                       &
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
-     &                     ICE(ng) % sfwat(:,:,IUOUT))
+     &                     ICE(ng) % apond(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idSfwat)), HIS2(ng)%Rindex
+            WRITE (stdout,10) TRIM(Vname(1,idApond)), HIS2(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
         END IF
       END IF
+!
+! Write out surface water thickness (on ice).
+!
+      IF (Hout2(idHpond,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
+     &                     HIS2(ng)%Vid(idHpond),                       &
+     &                     HIS2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#   endif
+     &                     ICE(ng) % hpond(:,:,IUOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idHpond)), HIS2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+#endif
 !
 ! Write out ice age.
 !
@@ -864,7 +888,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % ageice(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -886,7 +910,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % io_mflux)
         IF (status.ne.nf90_noerr) THEN
@@ -908,7 +932,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % sig11(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -930,7 +954,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % sig12(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
@@ -952,12 +976,56 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % sig22(:,:,IUOUT))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idSig22)), HIS2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out temperature of molecular sublayer under ice.
+!
+      IF (Hout2(idT0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
+     &                     HIS2(ng)%Vid(idT0mk),                        &
+     &                     HIS2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#   endif
+     &                     ICE(ng) % T0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idT0mk)), HIS2(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
+! Write out salinity of molecular sublayer under ice.
+!
+      IF (Hout2(idS0mk,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, HIS2(ng)%ncid,                     &
+     &                     HIS2(ng)%Vid(idS0mk),                        &
+     &                     HIS2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#   endif
+     &                     ICE(ng) % S0mk)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idS0mk)), HIS2(ng)%Rindex
           END IF
           exit_flag=3
           RETURN
@@ -974,7 +1042,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % utau_iw)
         IF (status.ne.nf90_noerr) THEN
@@ -996,7 +1064,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     ICE(ng) % chu_iw)
         IF (status.ne.nf90_noerr) THEN
@@ -1026,7 +1094,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     FORCES(ng) % stflx(:,:,itrc))
           IF (status.ne.nf90_noerr) THEN
@@ -1057,7 +1125,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     FORCES(ng) % lhflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1084,7 +1152,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     FORCES(ng) % shflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1111,7 +1179,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     FORCES(ng) % lrflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1134,7 +1202,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     FORCES(ng) % Uwind)
         IF (status.ne.nf90_noerr) THEN
@@ -1157,7 +1225,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #  endif
      &                     FORCES(ng) % Vwind)
         IF (status.ne.nf90_noerr) THEN
@@ -1191,7 +1259,7 @@
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
 #ifdef MASKING
-     &                    GRID(ng) % rmask_io,                          &
+     &                    GRID(ng) % rmask_full,                        &
 #endif
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
@@ -1203,7 +1271,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Ur2d)
         IF (status.ne.nf90_noerr) THEN
@@ -1224,7 +1292,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 # endif
      &                     Vr2d)
         IF (status.ne.nf90_noerr) THEN
@@ -1249,7 +1317,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #    ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #    endif
      &                     FORCES(ng) % evap)
         IF (status.ne.nf90_noerr) THEN
@@ -1272,7 +1340,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #    ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #    endif
      &                     FORCES(ng) % rain)
         IF (status.ne.nf90_noerr) THEN
@@ -1302,7 +1370,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % rmask_io,                         &
+     &                     GRID(ng) % rmask_full,                       &
 #   endif
      &                     FORCES(ng) % srflx)
         IF (status.ne.nf90_noerr) THEN
@@ -1336,7 +1404,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 # endif
      &                     FORCES(ng) % sustr)
         IF (status.ne.nf90_noerr) THEN
@@ -1368,7 +1436,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 # endif
      &                     FORCES(ng) % svstr)
         IF (status.ne.nf90_noerr) THEN
@@ -1400,7 +1468,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % umask_io,                         &
+     &                     GRID(ng) % umask_full,                       &
 # endif
      &                     FORCES(ng) % bustr)
         IF (status.ne.nf90_noerr) THEN
@@ -1432,7 +1500,7 @@
      &                     HIS2(ng)%Rindex, gtype,                      &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
-     &                     GRID(ng) % vmask_io,                         &
+     &                     GRID(ng) % vmask_full,                       &
 # endif
      &                     FORCES(ng) % bvstr)
         IF (status.ne.nf90_noerr) THEN

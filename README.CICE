@@ -1,0 +1,43 @@
+           The status of the CICE 5 coupling
+
+I assume one would download CICE 5.1 and place it somewhere else. I have
+a copy of clean_ice and comp_ice in the SeaIce directory. Both point to
+the place you put your copy of CICE with the SRCDIR variable. They also
+need to know where the compiled code goes in SYSTEM_USERDIR.
+
+I have placed cice_cpl.diffs in the SeaIce directory, containing diffs
+from the distribution CICE code (apply with "patch -p1 < cice_cpl.diffs"
+from your SRCDIR). Also in that directory is a python script to create
+a Netcdf grid file for CICE from the ROMS grid file. It is read with the
+"roms_grid" and "nc" options for reading grids.
+
+Since CICE only computes vertical fluxes where there's ice, I had the
+scatter subroutine scatter by using aicea to partition between fluxes
+from CICE and fluxes from the ROMS flux computations.
+
+To build: execute SeaIce/comp_ice, then the ROMS build procedure. If you
+have CICE_MODEL #defined, then it will want to link in libCICE.a. Make
+sure to point the makefile to the location of this file and its .mod
+friends with MY_CICE_DIR - this matches OBJDIR from comp_ice. (If you
+use the build scripts, they need to set MY_CICE_DIR.)
+
+CICE compiles in the tile size and number of ice categories, etc. If
+these change, you need to run first clean_ice then comp_ice. The code
+in SeaIce/Extra/ice_fakecpl.F uses modules from CICE and needs to be
+recompiled after tile size changes too - I hand-coded the dependencies
+in the makefile.
+
+Status:
+
+1. Running! It creates roughly the same amount of ice as Paul's ice
+model. It is then less efficient at melting it - and Paul's isn't melting
+enough to begin with. The ocean heat flux to the ice is computed in
+ice_frazil.F, similar to how ice_mk.h does it for Paul's model.
+
+cppdefs:
+
+1. CICE_MODEL should be on, ICE_MODEL should be off.
+2. CICE wants snowfall, so turn on SNOWFALL to read it from forcing
+files. Otherwise hack in ANA_SNOW and all that.
+3. If your rain field is total precip and you have a separate snow
+field, subtract the snow from the rain with SNOW_FROM_RAIN.

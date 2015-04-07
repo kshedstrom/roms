@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !***********************************************************************
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !****************************************** Alexander F. Shchepetkin ***
@@ -217,10 +217,11 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc))
 #endif
+#ifdef MASKING
+              FX(i,j)=FX(i,j)*umask(i,j)
+#endif
 #ifdef WET_DRY
               FX(i,j)=FX(i,j)*umask_diff(i,j)
-#elif defined MASKING
-              FX(i,j)=FX(i,j)*umask(i,j)
 #endif
             END DO
           END DO
@@ -246,10 +247,11 @@
 #else
      &                (t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc))
 #endif
+#ifdef MASKING
+              FE(i,j)=FE(i,j)*vmask(i,j)
+#endif
 #ifdef WET_DRY
               FE(i,j)=FE(i,j)*vmask_diff(i,j)
-#elif defined MASKING
-              FE(i,j)=FE(i,j)*vmask(i,j)
 #endif
             END DO
           END DO

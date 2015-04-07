@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1045,6 +1045,16 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+#ifdef CICE_MODEL
+      Vinfo( 1)='iROMSdate'
+      Vinfo( 2)='Ice model initialization date'
+      Vinfo( 3)='meter'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
+
       Vinfo( 1)='dstart'
       Vinfo( 2)='time stamp assigned to model initilization'
       IF (INT(time_ref).eq.-2) THEN
@@ -1807,6 +1817,14 @@
      &               1, (/trcdim/), Aval, Vinfo, ncname,                &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='Tnudg_SSS'
+      Vinfo( 2)='SSS nudging/relaxation inverse time scale'
+      Vinfo( 3)='day-1'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
 #endif
 
 #ifndef DEBUGGING
@@ -2275,25 +2293,27 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# ifdef WEAK_CONSTRAINT
-      Vinfo( 1)='HdecayM'
-      Vinfo( 2)='model error covariance horizontal decorrelation scale'
-      Vinfo( 3)='meter'
-      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
-     &               1, (/statedim/), Aval, Vinfo, ncname,              &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (NSA.eq.2) THEN
+        Vinfo( 1)='HdecayM'
+        Vinfo( 2)='model error covariance ' //                          &
+     &            'horizontal decorrelation scale'
+        Vinfo( 3)='meter'
+        status=def_var(ng, model, ncid, varid, NF_TYPE,                 &
+     &                 1, (/statedim/), Aval, Vinfo, ncname,            &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
 
-#  ifdef SOLVE3D
-      Vinfo( 1)='VdecayM'
-      Vinfo( 2)='model error covariance vertical decorrelation scale'
-      Vinfo( 3)='meter'
-      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
-     &               1, (/statedim/), Aval, Vinfo, ncname,              &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
+# ifdef SOLVE3D
+        Vinfo( 1)='VdecayM'
+        Vinfo( 2)='model error covariance '//                           &
+     &            'vertical decorrelation scale'
+        Vinfo( 3)='meter'
+        status=def_var(ng, model, ncid, varid, NF_TYPE,                 &
+     &                 1, (/statedim/), Aval, Vinfo, ncname,              &
+     &                 SetParAccess = .FALSE.)
+        IF (exit_flag.ne.NoError) RETURN
 # endif
+      END IF
 
 # ifdef ADJUST_BOUNDARY
       Vinfo( 1)='HdecayB'

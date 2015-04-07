@@ -114,7 +114,6 @@
 !
 !  handle tracers other than T,S without filtering
 !
-!     IF (Master) print *, 'start of SET_FILTER'
       IF (((iic(ng).gt.ntsAVG(ng)).and.                                 &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.1)).or.                          &
      &    (iic(ng).eq.ntstart(ng))) THEN
@@ -127,33 +126,32 @@
         DO j=Jstr,JendR
           DO i=Istr,IendR
             GRID(ng)%pmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%pmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%pmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=IstrR,IendR
             GRID(ng)%rmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%rmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%rmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
             GRID(ng)%umask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%umask_io(i,j),     &
+     &                                  MIN(GRID(ng)%umask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
             GRID(ng)%vmask_avg(i,j)=MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%vmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%vmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
 # endif
-!    &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
         DO itrc=NAT+1,NT(ng)
           IF (Aout(idTvar(itrc),ng)) THEN
             DO k=1,N(ng)
@@ -161,6 +159,11 @@
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
      &                    OCEAN(ng)%t(i,j,k,Nout,itrc)
+#  ifdef WET_DRY
+                  AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
+     &                              AVERAGE(ng)%avgt(i,j,k,itrc)*       &
+     &                              GRID(ng)%rmask_full(i,j)
+#  endif
                 END DO
               END DO
             END DO
@@ -171,6 +174,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONsed(i,j)=OCEAN(ng)%PONsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)*    &
+     &                                   GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -178,6 +185,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=OCEAN(ng)%OPALsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)*  &
+     &                                    GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -185,6 +196,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgDENITsed(i,j)=OCEAN(ng)%DENITsed(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgDENITsed(i,j)=AVERAGE(ng)%avgDENITsed(i,j)*&
+     &                                     GRID(ng)%rmask_full(i,j)
+#  endif
             END DO
           END DO
         END IF
@@ -192,6 +207,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONbur(i,j)=OCEAN(ng)%PON_burial(i,j)
+# ifdef WET_DRY
+              AVERAGE(ng)%avgPONbur(i,j)=AVERAGE(ng)%avgPONbur(i,j)*    &
+     &                                   GRID(ng)%rmask_full(i,j)
+# endif
             END DO
           END DO
         END IF
@@ -199,6 +218,10 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALbur(i,j)=OCEAN(ng)%OPAL_burial(i,j)
+# ifdef WET_DRY
+              AVERAGE(ng)%avgOPALbur(i,j)=AVERAGE(ng)%avgOPALbur(i,j)*  &
+     &                                    GRID(ng)%rmask_full(i,j)
+# endif
             END DO
           END DO
         END IF
@@ -210,7 +233,7 @@
               AVERAGE(ng)%avgNPP(i,j)=OCEAN(ng)%Bio_NPP(i,j)
 #  ifdef WET_DRY
               AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)*          &
-     &                                  GRID(ng)%rmask_io(i,j)
+     &                                  GRID(ng)%rmask_full(i,j)
 #  endif
             END DO
           END DO
@@ -232,7 +255,7 @@
           DO i=Istr,IendR
             GRID(ng)%pmask_avg(i,j)=GRID(ng)%pmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%pmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%pmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -240,7 +263,7 @@
           DO i=IstrR,IendR
             GRID(ng)%rmask_avg(i,j)=GRID(ng)%rmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%rmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%rmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -248,7 +271,7 @@
           DO i=Istr,IendR
             GRID(ng)%umask_avg(i,j)=GRID(ng)%umask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%umask_io(i,j),     &
+     &                                  MIN(GRID(ng)%umask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -256,7 +279,7 @@
           DO i=IstrR,IendR
             GRID(ng)%vmask_avg(i,j)=GRID(ng)%vmask_avg(i,j)+            &
      &                              MAX(0.0_r8,                         &
-     &                                  MIN(GRID(ng)%vmask_io(i,j),     &
+     &                                  MIN(GRID(ng)%vmask_full(i,j),   &
      &                                      1.0_r8))
           END DO
         END DO
@@ -268,6 +291,9 @@
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgt(i,j,k,itrc)=                         &
      &                      AVERAGE(ng)%avgt(i,j,k,itrc)+               &
+#  ifdef WET_DRY
+     &                                       GRID(ng)%rmask_full(i,j)*  &
+#  endif
      &                      OCEAN(ng)%t(i,j,k,Nout,itrc)
                 END DO
               END DO
@@ -279,6 +305,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONsed(i,j)=AVERAGE(ng)%avgPONsed(i,j)+    &
+# ifdef WET_DRY
+     &                                   GRID(ng)%rmask_full(i,j)*      &
+# endif
      &                               OCEAN(ng)%PONsed(i,j)
             END DO
           END DO
@@ -287,6 +316,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALsed(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%OPALsed(i,j)
             END DO
           END DO
@@ -295,6 +327,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgDENITsed(i,j)=                             &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &           AVERAGE(ng)%avgDENITsed(i,j)+OCEAN(ng)%DENITsed(i,j)
             END DO
           END DO
@@ -303,6 +338,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgPONbur(i,j)=AVERAGE(ng)%avgPONbur(i,j)+    &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%PON_burial(i,j)
             END DO
           END DO
@@ -311,6 +349,9 @@
           DO j=JstrR,JendR
             DO i=IstrR,IendR
               AVERAGE(ng)%avgOPALsed(i,j)=AVERAGE(ng)%avgOPALbur(i,j)+  &
+# ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+# endif
      &                               OCEAN(ng)%OPAL_burial(i,j)
             END DO
           END DO
@@ -322,7 +363,7 @@
             DO i=IstrR,IendR
               AVERAGE(ng)%avgNPP(i,j)=AVERAGE(ng)%avgNPP(i,j)+          &
 # ifdef WET_DRY
-     &                                 GRID(ng)%rmask_io(i,j)*          &
+     &                                 GRID(ng)%rmask_full(i,j)*        &
 # endif
      &                                 OCEAN(ng)%Bio_NPP(i,j)
             END DO
@@ -337,7 +378,6 @@
       IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
      &     (MOD(iic(ng)-1,nAVG(ng)).eq.0).and.                          &
      &     ((iic(ng).ne.ntstart(ng)))) THEN
-!    &     ((iic(ng).ne.ntstart(ng)).or.(nrrec(ng).eq.0))) THEN
 # ifdef WET_DRY
         DO j=JstrR,JendR
           DO i=IstrR,IendR
@@ -635,6 +675,22 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idUbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filbus(i,j,f) = FORCES(ng)%bustr(i,j)*     &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idVbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filbvs(i,j,f) = FORCES(ng)%bvstr(i,j)*     &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
 # ifdef ICE_MODEL
             IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
               DO j=JstrR,JendR
@@ -672,14 +728,24 @@
                 END DO
               END DO
             END IF
-            IF (Aout(idSfwat,ng)) THEN
+#ifdef MELT_PONDS
+            IF (Aout(idApond,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
-                  FILTER(ng)%filsfwat(i,j,f) = ICE(ng)%sfwat(i,j,Iout)* &
+                  FILTER(ng)%filapond(i,j,f) = ICE(ng)%apond(i,j,Iout)* &
      &                            fw(iw)
                 END DO
               END DO
             END IF
+            IF (Aout(idHpond,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filhpond(i,j,f) = ICE(ng)%hpond(i,j,Iout)* &
+     &                            fw(iw)
+                END DO
+              END DO
+            END IF
+#endif
             IF (Aout(idTice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
@@ -699,6 +765,20 @@
                 DO i=IstrR,IendR
                   FILTER(ng)%filAgeice(i,j,f) =                         &
      &                            ICE(ng)%ageice(i,j,Iout)*fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idS0mk,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%fils0mk(i,j,f) = ICE(ng)%s0mk(i,j)*fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idT0mk,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filt0mk(i,j,f) = ICE(ng)%t0mk(i,j)*fw(iw)
                 END DO
               END DO
             END IF
@@ -1022,6 +1102,22 @@
                   END DO
                 END DO
               END IF
+              IF (Aout(idUbms,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filbus(i,j,f)=FILTER(ng)%filbus(i,j,f)+  &
+     &                                      FORCES(ng)%bustr(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idVbms,ng)) THEN
+                DO j=Jstr,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filbvs(i,j,f)=FILTER(ng)%filbvs(i,j,f)+  &
+     &                                      FORCES(ng)%bvstr(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
 # ifdef ICE_MODEL
               IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
                 DO j=JstrR,JendR
@@ -1063,15 +1159,26 @@
                   END DO
                 END DO
               END IF
-              IF (Aout(idSfwat,ng)) THEN
+#ifdef MELT_PONDS
+              IF (Aout(idApond,ng)) THEN
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
-                    FILTER(ng)%filsfwat(i,j,f)=                         &
-     &                               FILTER(ng)%filsfwat(i,j,f)+        &
-     &                               ICE(ng)%sfwat(i,j,Iout)*fw(iw)
+                    FILTER(ng)%filapond(i,j,f)=                         &
+     &                               FILTER(ng)%filapond(i,j,f)+        &
+     &                               ICE(ng)%apond(i,j,Iout)*fw(iw)
                   END DO
                 END DO
               END IF
+              IF (Aout(idHpond,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filhpond(i,j,f)=                         &
+     &                               FILTER(ng)%filhpond(i,j,f)+        &
+     &                               ICE(ng)%hpond(i,j,Iout)*fw(iw)
+                  END DO
+                END DO
+              END IF
+#endif
               IF (Aout(idTice,ng)) THEN
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
@@ -1094,6 +1201,22 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filti(i,j,f)=FILTER(ng)%filti(i,j,f)+    &
      &                                    ICE(ng)%ti(i,j,Iout)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idS0mk,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%fils0mk(i,j,f)=FILTER(ng)%fils0mk(i,j,f)+&
+     &                                    ICE(ng)%s0mk(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idT0mk,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filt0mk(i,j,f)=FILTER(ng)%filt0mk(i,j,f)+&
+     &                                    ICE(ng)%t0mk(i,j)*fw(iw)
                   END DO
                 END DO
               END IF
@@ -1248,7 +1371,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 # ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 # endif
      &                      FILTER(ng) % filu2d(:,:,f),                 &
      &                      FILTER(ng) % filv2d(:,:,f),                 &
@@ -1280,7 +1403,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 #  ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 #  endif
      &                      FILTER(ng) % filu3d(:,:,:,f),               &
      &                      FILTER(ng) % filv3d(:,:,:,f),               &
@@ -1434,6 +1557,20 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idUbms,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=Istr,IendR
+                  AVERAGE(ng)%avgbus(i,j)=FILTER(ng)%filbus(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idVbms,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgbvs(i,j)=FILTER(ng)%filbvs(i,j,f)
+                END DO
+              END DO
+            END IF
 # ifdef ICE_MODEL
             IF (Aout(idUice,ng)) THEN
               DO j=JstrR,JendR
@@ -1455,7 +1592,7 @@
      &                      GRID(ng) % CosAngler,                       &
      &                      GRID(ng) % SinAngler,                       &
 # ifdef MASKING
-     &                      GRID(ng)%rmask_io,                          &
+     &                      GRID(ng)%rmask_full,                        &
 # endif
      &                      FILTER(ng) % filui(:,:,f),                  &
      &                      FILTER(ng) % filvi(:,:,f),                  &
@@ -1483,13 +1620,22 @@
                 END DO
               END DO
             END IF
-            IF (Aout(idSfwat,ng)) THEN
+#ifdef MELT_PONDS
+            IF (Aout(idApond,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
-                  AVERAGE(ng)%avgsfwat(i,j)=FILTER(ng)%filsfwat(i,j,f)
+                  AVERAGE(ng)%avgapond(i,j)=FILTER(ng)%filapond(i,j,f)
                 END DO
               END DO
             END IF
+            IF (Aout(idHpond,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avghpond(i,j)=FILTER(ng)%filhpond(i,j,f)
+                END DO
+              END DO
+            END IF
+#endif
             IF (Aout(idTice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
@@ -1508,6 +1654,20 @@
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgAgeice(i,j)=FILTER(ng)%filAgeice(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idS0mk,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgS0mk(i,j)=FILTER(ng)%fils0mk(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idT0mk,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgT0mk(i,j)=FILTER(ng)%filt0mk(i,j,f)
                 END DO
               END DO
             END IF

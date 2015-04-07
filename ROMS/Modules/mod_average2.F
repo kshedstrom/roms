@@ -4,7 +4,7 @@
 !
 !svn $Id: mod_average.F 707 2008-08-19 17:58:55Z kate $
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -124,12 +124,17 @@
           real(r8), pointer :: avgtice(:,:)
           real(r8), pointer :: avgtimid(:,:)
           real(r8), pointer :: avghsno(:,:)
-          real(r8), pointer :: avgsfwat(:,:)
+#   ifdef MELT_PONDS
+          real(r8), pointer :: avgapond(:,:)
+          real(r8), pointer :: avghpond(:,:)
+#   endif
           real(r8), pointer :: avgiomflx(:,:)
           real(r8), pointer :: avgageice(:,:)
           real(r8), pointer :: avgsig11(:,:)
           real(r8), pointer :: avgsig12(:,:)
           real(r8), pointer :: avgsig22(:,:)
+          real(r8), pointer :: avgT0mk(:,:)
+          real(r8), pointer :: avgS0mk(:,:)
           real(r8), pointer :: avgWfr(:,:)
           real(r8), pointer :: avgWai(:,:)
           real(r8), pointer :: avgWao(:,:)
@@ -321,9 +326,14 @@
       IF (Aout2(idHsno,ng)) THEN
         allocate ( AVERAGE2(ng) % avghsno(LBi:UBi,LBj:UBj) )
       END IF
-      IF (Aout2(idSfwat,ng)) THEN
-        allocate ( AVERAGE2(ng) % avgsfwat(LBi:UBi,LBj:UBj) )
+#   ifdef MELT_PONDS
+      IF (Aout2(idApond,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgapond(LBi:UBi,LBj:UBj) )
       END IF
+      IF (Aout2(idHpond,ng)) THEN
+        allocate ( AVERAGE2(ng) % avghpond(LBi:UBi,LBj:UBj) )
+      END IF
+#   endif
       IF (Aout2(idIomflx,ng)) THEN
         allocate ( AVERAGE2(ng) % avgiomflx(LBi:UBi,LBj:UBj) )
       END IF
@@ -338,6 +348,12 @@
       END IF
       IF (Aout2(idSig22,ng)) THEN
         allocate ( AVERAGE2(ng) % avgsig22(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idT0mk,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgT0mk(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout2(idS0mk,ng)) THEN
+        allocate ( AVERAGE2(ng) % avgS0mk(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout2(idWfr,ng)) THEN
         allocate ( AVERAGE2(ng) % avgWfr(LBi:UBi,LBj:UBj) )
@@ -715,13 +731,22 @@
           END DO
         END DO
       END IF
-      IF (Aout2(idSfwat,ng)) THEN
+#   ifdef MELT_PONDS
+      IF (Aout2(idApond,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
-            AVERAGE2(ng) % avgsfwat(i,j) = IniVal
+            AVERAGE2(ng) % avgapond(i,j) = IniVal
           END DO
         END DO
       END IF
+      IF (Aout2(idHpond,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avghpond(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+#   endif
       IF (Aout2(idIomflx,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -754,6 +779,20 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE2(ng) % avgsig22(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idT0mk,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgT0mk(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout2(idS0mk,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE2(ng) % avgS0mk(i,j) = IniVal
           END DO
         END DO
       END IF

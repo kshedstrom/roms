@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1105,7 +1105,7 @@
 !  Note that Lfinp=Lbinp so the the forcing and boundary
 !  adjustments are both processsed correctly.
 # ifdef BALANCE_OPERATOR
-!  Currently, We don't need the call to tl_balance below, but we
+!  Currently, We do not need the call to tl_balance below, but we
 !  might later if we impose a balance constraint on the wind stress
 !  corrections.
 # endif

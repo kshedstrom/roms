@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -345,7 +345,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j, itrc
+      integer :: i, j
 
 # ifdef ICESHELF
 
@@ -376,7 +376,7 @@
 #  if defined SCORRECTION || defined SRELAXATION
 #   if defined CORAL
       real(r8), parameter :: sss_mismatch_threshold = 0.2_r8
-#   elif defined NEP6 || defined NWA || defined AA_10KM
+#   elif defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
       real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
 #   endif
 #  endif
@@ -429,11 +429,11 @@
 #       if defined NEP5 || defined BERING || defined CHUKCHI
 ! 60 days from Tnudg of 360 days
      &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
+#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
 ! 90 days from Tnudg of 360 days
      &                     4.0_r8*                                      &
 #       endif
-#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
+#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -443,15 +443,8 @@
 #       endif
 #     else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
-#       if defined NEP5 || defined BERING || defined CHUKCHI
-! 60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA
-! 90 days from Tnudg of 360 days
-     &                     4.0_r8*                                      &
-#       endif
-#       if defined CORAL || defined NEP6 || defined NWA
+     &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
+#       if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -465,15 +458,8 @@
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   elif defined SRELAXATION
-          stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
-#     if defined NEP5 || defined BERING || defined CHUKCHI
-! 60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#     elif defined CORAL || defined NEP6 || defined NWA
-! 90 days from Tnudg of 360 days
-     &                     4.0_r8*                                      &
-#     endif
-#     if defined CORAL || defined NEP6 || defined NWA
+          stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
+#     if defined CORAL || defined NEP6 || defined NWA || defined CCS2
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold,                  &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -796,11 +782,13 @@
 #    ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    stflx(:,:,itemp))
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints, EWperiodic, NSperiodic,         &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    stflx(:,:,isalt))
 #    endif
 #   elif defined ISOMIP

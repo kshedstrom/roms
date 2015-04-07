@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -351,7 +351,7 @@
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
-# ifdef TS_MPDATA
+# ifdef TS_MPDATA_NOT_YET
       real(r8), parameter :: Gamma = 0.5_r8
 # else
       real(r8), parameter :: Gamma = 1.0_r8/6.0_r8
@@ -471,7 +471,7 @@
             END DO
           END DO
 
-#  elif defined TS_MPDATA
+#  elif defined TS_MPDATA_NOT_YET
 !
 !  First-order, upstream differences horizontal advective fluxes.
 !
@@ -985,6 +985,7 @@
             FC(i,N(ng))=0.0_r8
             FC(i,0)=0.0_r8
           END DO
+
 #  elif defined TS_A4VADVECTION_TL
 !
 !  Fourth-order, Akima vertical advective flux.
@@ -1099,7 +1100,7 @@
             tl_FC(i,N(ng))=0.0_r8
           END DO
 
-#  elif defined TS_MPDATA
+#  elif defined TS_MPDATA_NOT_YET
 !
 !  First_order, upstream differences vertical advective flux.
 !

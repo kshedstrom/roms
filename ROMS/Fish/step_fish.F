@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -212,7 +212,6 @@
 # endif
       logical, dimension(Lstr:Lend) :: MyFishThread
 
-      integer :: LBi, UBi, LBj, UBj
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k, isp
       integer :: NptsF, NptsL, NptsM, NptsI
 
@@ -244,10 +243,7 @@
 !
 ! Set tile array bounds.
 !
-      LBi=LBOUND(GRID(ng)%h,DIM=1)
-      UBi=UBOUND(GRID(ng)%h,DIM=1)
-      LBj=LBOUND(GRID(ng)%h,DIM=2)
-      UBj=UBOUND(GRID(ng)%h,DIM=2)
+# include "tile.h"
 
       dtfish=3600.0_r8  ! one hour
 # ifdef DISTRIBUTE
@@ -1216,6 +1212,7 @@
      &                    FISHES(ng) % fishnodes)
 !
       CALL fish_elh (ng, tile, LBi, UBi, LBj, UBj, 1, N(ng),            &
+     &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nfp1, nnew,                                    &
      &                   MyFishThread, bounded, track(:,:,:),           &
      &                   bioenergy, alive, species,                     &

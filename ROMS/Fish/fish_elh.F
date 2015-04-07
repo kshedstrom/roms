@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -21,16 +21,85 @@
       CONTAINS
 !
 !***********************************************************************
+      SUBROUTINE count_young (ng, tile, LBi, UBi, LBj, UBj,             &
+     &                        IminS, ImaxS, JminS, JmaxS,               &
+     &                        species, lifestage,                       &
+     &                        juv_cell, fish_count, fish_list,          &
+     &                        bioenergy)
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_fish
+      USE mod_biology, only: idfish, max_species, DDscale_j
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, tile
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+# ifdef ASSUMED_SHAPE
+      integer, intent(in) :: species(:)
+      integer, intent(in) :: lifestage(:)
+      real(r8), intent(out) :: juv_cell(IminS:,JminS:,:)
+      integer, intent(in) :: fish_count(LBi:,LBj:)
+      type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
+      real(r8), intent(in) :: bioenergy(:,:)
+# else
+      integer, intent(in) :: species(Nfish(ng))
+      integer, intent(in) :: lifestage(Nfish(ng))
+      real(r8), intent(out) :: juv_cell(IminS:ImaxS,JminS:JmaxS,        &
+     &                         max_species)
+      integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
+      type(fishnode), intent(in) :: fish_list(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: bioenergy(NFishV(ng),Nfish(ng))
+# endif
+!
+!  Local variable declarations.
+!
+      integer :: i1, i2, j1, j2, i, j, ii, jj, k
+      integer :: ifish, ifid, isp, ifsp, ils
+      type(fishnode), pointer :: thisfish
+
+# include "set_bounds.h"
+
+      juv_cell = 0
+      DO i=Istr,Iend
+        DO j=Jstr,Jend
+          IF (fish_count(i,j).gt.0) THEN
+            thisfish => fish_list(i,j) % next
+            DO ifish=1,fish_count(i,j)
+              ifid = thisfish % fish
+              isp = idfish(species(ifid))
+              ils=lifestage(ifid)
+              IF (ils.le.if_juvenile) THEN
+                juv_cell(i,j,isp) = juv_cell(i,j,isp) +                 &
+     &               bioenergy(ifworth,ifid)
+              END IF
+              thisfish => thisfish % next
+            END DO
+          END IF
+          DO isp=1,max_species
+            juv_cell(i,j,isp) = MIN(juv_cell(i,j,isp)*DDscale_J(isp,ng),&
+     &                    100._r8)
+          END DO
+        END DO
+      END DO
+
+      END SUBROUTINE count_young
+!
+!
+!***********************************************************************
       SUBROUTINE fish_elh (ng, tile, LBi, UBi, LBj, UBj, LBk, UBk,      &
-     &                         itime, nnew,                             &
-     &                         fishthread, bounded, track,                &
-     &                         bioenergy, alive, species,               &
-     &                         lifestage, deathby, fmortN,              &
-     &                         egg_dur, egg_num,                        &
-     &                         ysac_dur, ysac_num,                      &
-     &                         larv_dur, larv_num,                      &
-     &                         juv_dur, juv_num, suba_num,              &
-     &                         fish_count, fish_list, fishnodes)
+     &                     IminS, ImaxS, JminS, JmaxS,                  &
+     &                     itime, nnew,                                 &
+     &                     fishthread, bounded, track,                  &
+     &                     bioenergy, alive, species,                   &
+     &                     lifestage, deathby, fmortN,                  &
+     &                     egg_dur, egg_num,                            &
+     &                     ysac_dur, ysac_num,                          &
+     &                     larv_dur, larv_num,                          &
+     &                     juv_dur, juv_num, suba_num,                  &
+     &                     fish_count, fish_list, fishnodes)
 !***********************************************************************
 !
       USE mod_param
@@ -46,6 +115,34 @@
 !
       integer, intent(in) :: ng, tile, itime, nnew
       integer, intent(in) :: LBi, UBi, LBj, UBj, LBk, UBk
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
+# ifdef ASSUMED_SHAPE
+      integer, intent(in) :: fish_count(LBi:,LBj:)
+      integer, intent(inout) :: species(:)
+      integer, intent(inout) :: lifestage(:)
+      integer, intent(inout) :: deathby(:)
+
+      type(fishnode), intent(in) :: fish_list(LBi:,LBj:)
+      type(fishnode), target, intent(in) :: fishnodes(:)
+
+      logical, intent(in) :: fishthread(:)
+      logical, intent(inout) :: bounded(:)
+      logical, intent(inout) :: alive(:)
+
+      real(r8), intent(inout) :: track(:,0:,:)
+      real(r8), intent(inout) :: bioenergy(:,:)
+      real(r8), intent(inout) :: fmortN(:)
+
+      real(r8), intent(inout) :: egg_dur(:)
+      real(r8), intent(inout) :: egg_num(:)
+      real(r8), intent(inout) :: ysac_dur(:)
+      real(r8), intent(inout) :: ysac_num(:)
+      real(r8), intent(inout) :: larv_dur(:)
+      real(r8), intent(inout) :: larv_num(:)
+      real(r8), intent(inout) :: juv_dur(:)
+      real(r8), intent(inout) :: juv_num(:)
+      real(r8), intent(inout) :: suba_num(:)
+# else
       integer, intent(in) :: fish_count(LBi:UBi,LBj:UBj)
       integer, intent(inout) :: species(Nfish(ng))
       integer, intent(inout) :: lifestage(Nfish(ng))
@@ -71,6 +168,7 @@
       real(r8), intent(inout) :: juv_dur(Nfish(ng))
       real(r8), intent(inout) :: juv_num(Nfish(ng))
       real(r8), intent(inout) :: suba_num(Nfish(ng))
+# endif
 !
 !  Local variable declarations.
 !
@@ -78,10 +176,11 @@
       integer :: ifish, ifid, isp, ifsp, ils
 
       type(fishnode), pointer :: thisfish
+      real(r8) :: juv_cell(IminS:ImaxS,JminS:JmaxS,max_species)
 
       real(r8) :: Fweight, Fworth, Flength, Ftemp
       real(r8) :: dtdays, dtsecs, dy_time, t_ramp, tday
-      real(r8) :: fac, a_t, d_t
+      real(r8) :: fac, a_t, d_t, rx
 
 # include "set_bounds.h"
 !
@@ -96,6 +195,10 @@
 ! Note: only works if time origin is at the start of a year
       dy_time=REAL(INT(time(ng)/86400.0_r8/days_year))
       dy_time=time(ng)/86400.0_r8-days_year*dy_time
+      CALL count_young (ng, tile, LBi, UBi, LBj, UBj,                   &
+     &                  IminS, ImaxS, JminS, JmaxS,                     &
+     &                  species, lifestage,                             &
+     &                  juv_cell, fish_count, fish_list, bioenergy)
 !
 !      DO i=LBi+2,UBi-2
 !        DO j=LBj+2,UBj-2
@@ -112,9 +215,14 @@
                 Flength=bioenergy(iflngth,ifid)
                 Fworth=bioenergy(ifworth,ifid)
                 Ftemp=track(itemp+NFV(ng)-NT(ng),itime,ifid)
-! Juvenile: mortality only (growth is done in fish_growth.F) 
+! Juvenile: mortality only (growth is done in fish_growth.F)
                 IF (ils.eq.if_juvenile) THEN
-                  Fworth=Fworth*EXP(-Nmort(ils,isp,ng)*dtdays)
+!  rx is density dependent term
+                  rx = (DDmort1_J(isp,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort2_J(isp,ng)) /         &
+     &                 (DDmort3_J(isp,ng) +                            &
+     &                  juv_cell(i,j,isp)*DDmort4_J(isp,ng))
+                  Fworth=Fworth*EXP(-Nmort(ils,isp,ng)*rx*dtdays)
                   fmortN(ifid)=Nmort(ils,isp,ng)
                   juv_dur(ifid)=juv_dur(ifid)+dtdays
 ! JF NOTE: For now, J->A is at 1st birthday (1 Jan)
@@ -124,7 +232,7 @@
 !                  ELSE
 !                    juv_dur(ifid)=juv_dur(ifid)+dtdays
 !                  END IF
-! Larva: mortality only (growth is done in fish_growth.F) 
+! Larva: mortality only (growth is done in fish_growth.F)
                 ELSE IF (ils.eq.if_larva) THEN
                   Fworth=Fworth*EXP(-Nmort(ils,isp,ng)*dtdays)
                   fmortN(ifid)=Nmort(ils,isp,ng)

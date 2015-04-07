@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2014 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2015 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,7 +28,7 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-NEED_VERSION := 3.80 3.81 3.82 3.82.90 4.0
+NEED_VERSION := 3.80 3.81 3.82 3.82.90 4.0 4.1
 $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
  $(error This makefile requires one of GNU make version $(NEED_VERSION).))
 
@@ -37,7 +37,7 @@ $(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
 #--------------------------------------------------------------------------
 
   sources    :=
-  c_sources  := 
+  c_sources  :=
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -64,7 +64,7 @@ ROMS_APPLICATION ?=
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= 
+MY_HEADER_DIR ?=
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -75,6 +75,10 @@ MY_HEADER_DIR ?=
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?= 
+
+# If applicable, where does CICE put its binary files?
+
+MY_CICE_DIR ?= /center/w/kate/CICE/NEP/compile
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -416,6 +420,9 @@ endif
 
 .PHONY: all
 
+ifdef USE_CICE
+all: $(SCRATCH_DIR) $(SCRATCH_DIR)/libCICE.a
+endif
 all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
@@ -440,6 +447,10 @@ ifdef USE_SEAICE
 endif
 ifdef USE_FISH
  modules  +=    ROMS/Fish
+endif
+ifdef USE_CICE
+ modules  +=	SeaIce/Extra
+    LIBS  +=    $(SCRATCH_DIR)/libCICE.a
 endif
  modules  +=	ROMS/Utility \
 		ROMS/Modules
@@ -546,6 +557,34 @@ $(SCRATCH_DIR)/$(NETCDF_MODFILE): | $(SCRATCH_DIR)
 
 $(SCRATCH_DIR)/$(TYPESIZES_MODFILE): | $(SCRATCH_DIR)
 	cp -f $(NETCDF_INCDIR)/$(TYPESIZES_MODFILE) $(SCRATCH_DIR)
+
+$(SCRATCH_DIR)/libCICE.a: $(MY_CICE_DIR)/libCICE.a
+	cp -f $(MY_CICE_DIR)/libCICE.a $(MY_CICE_DIR)/*.mod $(SCRATCH_DIR)
+
+$(MY_CICE_DIR)/libCICE.a:
+	SeaIce/comp_ice
+ifdef USE_CICE
+$(SCRATCH_DIR)/initial.o: $(MY_CICE_DIR)/CICE_InitMod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/CICE_RunMod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_blocks.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_broadcast.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_calendar.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_communicate.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_constants.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain_size.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_fileunits.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_flux.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_gather_scatter.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_grid.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_history.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_init.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_kinds_mod.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart_shared.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_state.o
+$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_timers.o
+endif
 
 $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \

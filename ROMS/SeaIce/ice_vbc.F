@@ -3,7 +3,7 @@
 #ifdef ICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This module sets the ice-water and ice-air stresses for the
@@ -51,8 +51,6 @@
 # ifdef ICESHELF
      &                   GRID(ng) % zice,                               &
 # endif
-     &                   OCEAN(ng) % u,                                 &
-     &                   OCEAN(ng) % v,                                 &
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
      &                   OCEAN(ng) % rho,                               &
@@ -98,7 +96,6 @@
 # ifdef ICESHELF
      &                         zice,                                    &
 # endif
-     &                         u, v,                                    &
      &                         sustr, svstr, rho,                       &
      &                         Zt_avg1,                                 &
      &                         ai, hi, ui, vi, tauaiu, tauaiv,          &
@@ -132,8 +129,6 @@
       integer, intent(in) :: liold, liuol
 
 # ifdef ASSUMED_SHAPE
-      real(r8), intent(in) :: u(LBi:,LBj:,:,:)
-      real(r8), intent(in) :: v(LBi:,LBj:,:,:)
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
@@ -169,8 +164,6 @@
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
 #  endif
 # else
-      real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
-      real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
@@ -251,7 +244,7 @@
 # ifdef ICE_MK
       DO j=Jstr-1,Jend
         DO i=Istr-1,Iend
-          rhoO = 1000._r8+rho(i,j,N(ng))
+          rhoO = rho0+rho(i,j,N(ng))
           spd = spd_iw(i,j)
 #  ifdef ICE_SHOREFAST
           spd = max(spd,0.10_r8)

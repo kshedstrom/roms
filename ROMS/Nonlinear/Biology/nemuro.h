@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -1144,7 +1144,7 @@
 # ifdef HOLLING_GRAZING
               cff4=1.0_r8/(KZS2ZP(ng)+Bio(i,k,iSzoo)*Bio(i,k,iSzoo))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
-              cff=fac7*cff3**cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
+              cff=fac7*cff3*cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
 # elif defined IVLEV_IMPLICIT
               cff4=1.0_r8-EXP(LamP(ng)*(ZS2ZPstar(ng)-Bio(i,k,iSzoo)))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))

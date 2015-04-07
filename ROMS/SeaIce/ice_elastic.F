@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !=======================================================================
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine timesteps the ice momentum equations.
@@ -47,12 +47,10 @@
      &                      liold(ng), liuol(ng), liunw(ng),            &
      &                      lieol(ng), lienw(ng),                       &
 # ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
      &                      GRID(ng) % umask,                           &
      &                      GRID(ng) % vmask,                           &
 # endif
 # ifdef WET_DRY
-     &                      GRID(ng) % rmask_wet,                       &
      &                      GRID(ng) % umask_wet,                       &
      &                      GRID(ng) % vmask_wet,                       &
 # endif
@@ -106,10 +104,10 @@
      &                        IminS, ImaxS, JminS, JmaxS,               &
      &                        liold, liuol, liunw, lieol, lienw,        &
 # ifdef MASKING
-     &                        rmask, umask, vmask,                      &
+     &                        umask, vmask,                             &
 # endif
 # ifdef WET_DRY
-     &                        rmask_wet, umask_wet, vmask_wet,          &
+     &                        umask_wet, vmask_wet,                     &
 # endif
 # ifdef ICESHELF
      &                        zice,                                     &
@@ -156,12 +154,10 @@
       integer, intent(in) :: liold, liuol, liunw, lieol, lienw
 # ifdef ASSUMED_SHAPE
 #  ifdef MASKING
-      real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
 #  endif
 #  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
       real(r8), intent(in) :: umask_wet(LBi:,LBj:)
       real(r8), intent(in) :: vmask_wet(LBi:,LBj:)
 #  endif
@@ -204,12 +200,10 @@
       real(r8), intent(in) :: chu_iw(LBi:,LBj:)
 # else
 #  ifdef MASKING
-      real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask_wet(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask_wet(LBi:UBi,LBj:UBj)
 #  endif

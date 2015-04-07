@@ -1,4 +1,4 @@
-# $Id$
+# svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 # Copyright (c) 2002-2013 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
@@ -75,6 +75,10 @@ MY_HEADER_DIR ?= Apps/NEP
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
 MY_ANALYTICAL_DIR ?= Apps/NEP
+
+# If applicable, where does CICE put its binary files?
+
+MY_CICE_DIR ?= /center/w/kate/CICE/NEP/compile
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -403,6 +407,9 @@ endif
 
 .PHONY: all
 
+ifdef USE_CICE
+all: $(SCRATCH_DIR) $(SCRATCH_DIR)/libCICE.a
+endif
 all: $(SCRATCH_DIR) $(SCRATCH_DIR)/MakeDepend $(BIN) rm_macros
 
  modules  :=
@@ -424,6 +431,10 @@ endif
 		ROMS/Functionals
 ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
+endif
+ifdef USE_CICE
+ modules  +=	SeaIce/Extra
+    LIBS  +=    $(SCRATCH_DIR)/libCICE.a
 endif
  modules  +=	ROMS/Utility \
 		ROMS/Modules
@@ -527,6 +538,12 @@ $(SCRATCH_DIR)/$(NETCDF_MODFILE): | $(SCRATCH_DIR)
 
 $(SCRATCH_DIR)/$(TYPESIZES_MODFILE): | $(SCRATCH_DIR)
 	cp -f $(NETCDF_INCDIR)/$(TYPESIZES_MODFILE) $(SCRATCH_DIR)
+
+$(SCRATCH_DIR)/libCICE.a: $(MY_CICE_DIR)/libCICE.a
+	cp -f $(MY_CICE_DIR)/libCICE.a $(MY_CICE_DIR)/*.mod $(SCRATCH_DIR)
+
+$(MY_CICE_DIR)/libCICE.a:
+	SeaIce/comp_ice
 
 $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \

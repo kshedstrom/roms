@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1798,6 +1798,7 @@
                 S(ibry,i,igrid)%periodic  = S(ibry,ifield,igrid)%periodic
                 S(ibry,i,igrid)%radiation = S(ibry,ifield,igrid)%radiation
                 S(ibry,i,igrid)%nudging   = S(ibry,ifield,igrid)%nudging
+                S(ibry,i,igrid)%acquire   = S(ibry,ifield,igrid)%acquire
               END DO
               ic=ic+1
             END DO

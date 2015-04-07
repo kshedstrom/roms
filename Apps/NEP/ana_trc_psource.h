@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2014 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -109,10 +109,9 @@
 !
 !  Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and
 !  J-grid locations (Isrc,Jsrc), and logical switch for type of tracer
-!  to apply (Lsrc). Currently, the direction can be along XI-direction
-!  (Dsrc = 0) or along ETA-direction (Dsrc > 0).  The mass sources are
-!  located at U- or V-points so the grid locations should range from
-!  1 =< Isrc =< L  and  1 =< Jsrc =< M.
+!  to apply (Lsrc). No direction for these sources. The mass sources are 
+!  located at rho-points so the grid locations should range from
+!  1 =< Isrc =< Lm  and  1 =< Jsrc =< Mm.
 !
           Lsrcpt(:,:)=.FALSE.
           Nsrcpt=5
@@ -191,4 +190,5 @@
           END DO
         END DO
       END IF
-      RETURN END SUBROUTINE ana_trc_psource_tile
+      RETURN
+      END SUBROUTINE ana_trc_psource_tile
