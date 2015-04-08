@@ -946,6 +946,8 @@
               Npts=load_r(Nval, Rval, Ngrids, M3nudg)
             CASE ('TNUDG_SSS')
               Npts=load_r(Nval, Rval, Ngrids, Tnudg_SSS)
+            CASE ('SSS_MISMATCH_THRESHOLD')
+              Npts=load_r(Nval, Rval, Ngrids, sss_mismatch_threshold)
             CASE ('OBCFAC')
               Npts=load_r(Nval, Rval, Ngrids, obcfac)
             CASE ('R0')
@@ -4447,6 +4449,12 @@
             exit_flag=5
             RETURN
           END IF
+#  ifdef SSSC_THRESHOLD
+          WRITE (out,210) sss_mismatch_threshold(ng),                   &
+     &          'sss_mismatch_threshold',                               &
+     &          'difference in SSS that triggers correction',           &
+     &          'for sea surface salinity.'
+#  endif
 # endif
 #endif
           WRITE (out,210) Znudg(ng), 'Znudg',                           &
