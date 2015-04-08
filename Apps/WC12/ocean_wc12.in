@@ -437,12 +437,12 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! Nudging/relaxation time scale for surface salinity nudging, inverse
 ! scales will be computed internally, [1:Ngrids].
 
-       TNUDG_SSS == 90.0d0                 ! days
-
-! Nudging/relaxation time scale for surface salinity nudging, inverse
-! scales will be computed internally, [1:Ngrids].
-
        TNUDG_SSS == 60.0d0                 ! days
+
+! Threshold to trigger SSS correction toward climatolgy,
+! needs SCORRECTION and SSSC_THRESHOLD defined
+
+       SSS_MISMATCH_THRESHOLD = 0.1d0
 
 ! Factor between passive (outflow) and active (inflow) open boundary
 ! conditions, [1:Ngrids]. If OBCFAC > 1, nudging on inflow is stronger
