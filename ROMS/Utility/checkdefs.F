@@ -1962,6 +1962,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SSH_TIDES,'
 #endif
+#if defined SSSC_THRESHOLD
+      IF (Master) WRITE (stdout,20) 'SSSC_THRESHOLD',                   &
+     &   'Limit to SCORRECTION nudging.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' SSSC_THRESHOLD,'
+#endif
 #ifdef SSW_BBL
        IF (Master) WRITE (stdout,20) 'SSW_BBL',                         &
      &   'Styles and Glenn Bottom Boundary Layer - modified.'
