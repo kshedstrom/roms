@@ -414,12 +414,12 @@
           IF(ai(i,j,liold).GE.0.1_r8) fac_ice = 0.0_r8
 #      endif
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
-#     ifdef NO_SCORRECTION_ICE
+#      ifdef NO_SCORRECTION_ICE
      &                     fac_ice*                                     &
-#     endif
-     &                     Tnudg_SSS(isalt,ng)*Hz(i,j,N(ng))*           &
+#      endif
+     &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 
-#       if defined SSSC_THRESHOLD 
+#       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -480,7 +480,7 @@
 #   endif
 #   if (defined SCORRECTION || defined SRELAXATION) && \
         defined SSSFLX
-          sssflx(i,j) = -Tnudg_SSS(isalt,ng)*Hz(i,j,N(ng))*             &
+          sssflx(i,j) = -Tnudg_SSS(ng)*Hz(i,j,N(ng))*                   &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef WET_DRY
           sssflx(i,j) = rmask_wet(i,j)*sssflx(i,j)

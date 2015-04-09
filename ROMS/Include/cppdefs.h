@@ -87,6 +87,7 @@
 ** NONLIN_EOS          use if using nonlinear equation of state              **
 ** QCORRECTION         use if net heat flux correction                       **
 ** SCORRECTION         use if freshwater flux correction                     **
+** SSSC_THRESHOLD      limit on freshwater flux correction                   **
 ** SOLAR_SOURCE        use if solar radiation source term                    **
 ** SRELAXATION         use if salinity relaxation as a freshwater flux       **
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **

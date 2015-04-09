@@ -1910,6 +1910,10 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 ! M3NUDG       Nudging time scale (days) for 3D momentum.
 !
+! TNUDG_SSS    Nudging time scale (days) for surface salinity.
+!
+! SSS_MISMATCH_THRESHOLD   Threshold to trigger SSS correction 
+!
 ! OBCFAC       Factor between passive (outflow) and active (inflow) open
 !                boundary conditions.  The nudging time scales for the
 !                active (inflow) conditions are obtained by multiplying
