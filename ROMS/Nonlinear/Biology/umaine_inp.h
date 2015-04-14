@@ -27,8 +27,6 @@
 
       integer :: decode_line, load_i, load_l, load_r,load_lbc
 
-      integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
-
       logical, dimension(NBT,Ngrids) :: Ltrc
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
@@ -269,6 +267,14 @@
                   tnu4(i,ng)=Rbio(itrc,ng)
                 END DO
               END DO
+            CASE ('LtracerSponge')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerSponge(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
             CASE ('AKT_BAK')
               Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
               DO ng=1,Ngrids
@@ -296,17 +302,6 @@
      &                      idbio(iTrcStr), idbio(iTrcEnd),             &
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
   
-#ifdef TCLIMATOLOGY
-            CASE ('LtracerCLM')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=idbio(itrc)
-                  LtracerCLM(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-#endif
-#ifdef TS_PSOURCE
             CASE ('LtracerSrc')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -315,7 +310,22 @@
                   LtracerSrc(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-#endif
+            CASE ('LtracerCLM')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerCLM(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('LnudgeTCLM')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LnudgeTCLM(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
             CASE ('Hout(idTvar)')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -648,7 +658,6 @@
      &              'Nudging/relaxation time scale (days)',             &
      &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
             END DO
-#ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
 	      IF (LtracerCLM(i,ng)) THEN
@@ -673,15 +682,12 @@
      &              TRIM(Vname(1,idTvar(i)))
               END IF
             END DO
-#endif
-#ifdef TS_PSOURCE
             DO itrc=1,NBT
               i=idbio(itrc)
               WRITE (out,150) LtracerSrc(i,ng), 'LtracerSrc',           &
      &              i, 'Processing point sources/Sink on tracer ', i,   &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
-#endif
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &
