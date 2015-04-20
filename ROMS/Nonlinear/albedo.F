@@ -180,7 +180,6 @@ contains
       real(r8), parameter :: alb_s_dry=0.85_r8
       real(r8), parameter :: alb_s_wet=0.72_r8
 #  endif
-      real(r8), parameter :: alb_w=0.06_r8
       real(r8) :: albs, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
       real(r8) :: vap_p_i
@@ -188,6 +187,7 @@ contains
       real(r8) :: albi, albsn, thki_n, thksn_n
 #  endif
 # endif
+      real(r8), parameter :: alb_w=0.06_r8
 # if defined ICE_MODEL
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
