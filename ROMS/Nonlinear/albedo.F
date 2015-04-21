@@ -181,7 +181,7 @@ contains
       real(r8), parameter :: alb_s_wet=0.72_r8
 #  endif
       real(r8) :: albs, qlwi, qlh_i, qsh_i
-      real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
+      real(r8) :: le_i, dq_i,fqlat1, slp, Qsati
       real(r8) :: vap_p_i
 #  ifdef ICE_ALB_EC92
       real(r8) :: albi, albsn, thki_n, thksn_n
@@ -255,13 +255,13 @@ contains
           cff1 = alb_s_wet - alb_s_dry
           cff2 = -0.075      ! alb_i_wet - alb_i_dry
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
-            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-              alb_snow = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+            IF (tis .gt. -1.0_r8) THEN
+              alb_snow = cff1*(tis+1.0_r8)+alb_s_dry
             ELSE
               alb_snow = alb_s_dry
             ENDIF
-            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-              alb_ice = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+            IF (tis .gt. -1.0_r8) THEN
+              alb_ice = cff2*(tis+1.0_r8)+alb_i_dry
             ELSE
               alb_ice = alb_i_dry
             ENDIF
@@ -274,14 +274,14 @@ contains
           cff2 = alb_i_wet - alb_i_dry
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (hsn(i,j,listp).gt.0._r8) THEN
-              IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo_ice(i,j) = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+              IF (tis .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff1*(tis+1.0_r8)+alb_s_dry
               ELSE
                 albedo_ice(i,j) = alb_s_dry
               ENDIF
             ELSE
-              IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo_ice(i,j) = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+              IF (tis .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff2*(tis+1.0_r8)+alb_i_dry
               ELSE
                 albedo_ice(i,j) = alb_i_dry
               ENDIF
