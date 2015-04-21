@@ -373,13 +373,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wrk
 #  endif
 
-#  if defined SCORRECTION || defined SRELAXATION
-#   if defined CORAL
-      real(r8), parameter :: sss_mismatch_threshold = 0.2_r8
-#   elif defined NEP6 || defined NWA || defined AA_10KM
-      real(r8), parameter :: sss_mismatch_threshold = 0.1_r8
-#   endif
-#  endif
 #  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
       real(r8) :: fac_ice
 #  endif
@@ -424,18 +417,11 @@
 #     ifdef NO_SCORRECTION_ICE
      &                     fac_ice*                                     &
 #     endif
-     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+     &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 
-#       if defined NEP5 || defined BERING || defined CHUKCHI
-! 60 days from Tnudg of 360 days
-     &                     6.0_r8*                                      &
-#       elif defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
-! 90 days from Tnudg of 360 days
-     &                     4.0_r8*                                      &
-#       endif
-#       if defined CORAL || defined NEP6 || defined NWA || defined AA_10KM
+#       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
-     &                     MIN(sss_mismatch_threshold,                  &
+     &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
 #       else
 
@@ -444,9 +430,9 @@
 #     else
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
      &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
-#       if defined CORAL || defined NEP6 || defined NWA
+#       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
-     &                     MIN(sss_mismatch_threshold,                  &
+     &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
 #       else
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
@@ -459,9 +445,9 @@
 #     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
-#     if defined CORAL || defined NEP6 || defined NWA
+#       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
-     &                     MIN(sss_mismatch_threshold,                  &
+     &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
 #     else
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
@@ -494,7 +480,7 @@
 #   endif
 #   if (defined SCORRECTION || defined SRELAXATION) && \
         defined SSSFLX
-          sssflx(i,j) = -Tnudg(isalt,ng)*Hz(i,j,N(ng))*                 &
+          sssflx(i,j) = -Tnudg_SSS(ng)*Hz(i,j,N(ng))*                   &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef WET_DRY
           sssflx(i,j) = rmask_wet(i,j)*sssflx(i,j)

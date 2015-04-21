@@ -113,6 +113,7 @@
 
 #ifdef SOLVE3D
 # define SCORRECTION
+# define SSSC_THRESHOLD
 # undef QCORRECTION
 #endif
 

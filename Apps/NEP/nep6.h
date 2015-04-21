@@ -161,6 +161,7 @@
 
 #ifdef SOLVE3D
 # define SCORRECTION
+# define SSSC_THRESHOLD
 # undef SRELAXATION
 # undef QCORRECTION
 #endif
