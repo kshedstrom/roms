@@ -224,7 +224,7 @@
         END DO
       END DO
 # endif
-# if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
+# if defined DIAGNOSTICS_BIO 
 !
 !  Write out 2D biological diagnostic fields.
 !
