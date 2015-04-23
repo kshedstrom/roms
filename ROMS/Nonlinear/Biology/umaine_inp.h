@@ -30,6 +30,8 @@
       integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
 
       logical, dimension(NBT,Ngrids) :: Ltrc
+      logical, dimension(NDbio2d,Ngrids) :: Lbio2d
+      logical, dimension(NDbio3d,Ngrids) :: Lbio3d
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
@@ -367,6 +369,36 @@
             CASE ('Aout(idNPP)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
 # endif
+# if defined DIAGNOSTICS_BIO
+            CASE ('Dout(iDbio2)')
+              Npts=load_l(Nval, Cval, NDbio2d*Ngrids, Lbio2d)
+              DO ng=1,Ngrids
+                DO itrc=1,NDbio2d
+                  i=iDbio2(itrc)
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'iDbio2(', itrc, ')'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Dout(i,ng)=Lbio2d(itrc,ng)
+                END DO
+              END DO
+            CASE ('Dout(iDbio3)')
+              Npts=load_l(Nval, Cval, NDbio3d*Ngrids, Lbio3d)
+              DO ng=1,Ngrids
+                DO itrc=1,NDbio3d
+                  i=iDbio3(itrc)
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'iDbio3(', itrc, ')'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Dout(i,ng)=Lbio3d(itrc,ng)
+                END DO
+              END DO
+# endif
           END SELECT
         END IF
       END DO
@@ -651,12 +683,12 @@
 #ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
-	      IF (LtracerCLM(i,ng)) THEN
-                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+              IF (LtracerCLM(i,ng)) THEN
+                WRITE (out,140) LtracerCLM(i,ng), 'LtracerCLM', i,      &
      &              'Turning ON processing of climatology tracer ', i,  &
      &              TRIM(Vname(1,idTvar(i)))
               ELSE
-                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+                WRITE (out,140) LtracerCLM(i,ng), 'LtracerCLM', i,      &
       &             'Turning OFF processing of climatology tracer ', i, &
       &             TRIM(Vname(1,idTvar(i)))
               END IF
@@ -664,11 +696,11 @@
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (LnudgeTCLM(i,ng)) THEN
-                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+                WRITE (out,140) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
      &              'Turning ON  nudging of climatology tracer ', i,    &
      &              TRIM(Vname(1,idTvar(i)))
               ELSE
-                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+                WRITE (out,140) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
      &              'Turning OFF nudging of climatology tracer ', i,    &
      &              TRIM(Vname(1,idTvar(i)))
               END IF

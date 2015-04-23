@@ -424,3 +424,26 @@
                 idRtrc(iTAlk)=varid
 # endif
 #endif
+#ifdef DIAGNOSTICS_BIO
+/*
+**  Biological tracers term diagnostics.
+*/
+# ifdef CARBON
+              CASE ('iDbio2(iCOfx)')
+                iDbio2(iCOfx)=varid
+              CASE ('iDbio2(ipCO2)')
+                iDbio2(ipCO2)=varid
+# endif
+# ifdef OXYGEN
+              CASE ('iDbio2(iO2fx)')
+                iDbio2(iO2fx)=varid
+# endif
+              CASE ('iDbio3(iPPro1)')
+                iDbio3(iPPro1)=varid
+              CASE ('iDbio3(iPPro2)')
+                iDbio3(iPPro2)=varid
+              CASE ('iDbio3(iPPro3)')
+                iDbio3(iPPro3)=varid
+              CASE ('iDbio3(iNO3u)')
+                iDbio3(iNO3u)=varid
+#endif
