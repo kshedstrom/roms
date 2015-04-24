@@ -499,7 +499,7 @@
         END DO
 # endif
 
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
 !
 !  Define 2D biological diagnostic fields.
 !
