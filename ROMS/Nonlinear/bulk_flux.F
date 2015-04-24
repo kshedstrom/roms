@@ -1119,7 +1119,7 @@
           cff = Q(i)/(1.0_r8+Q(i))
           vap_p_i = slp*cff/(0.62197 + cff)
 #   ifdef LONGWAVE
-          qlwi = emmiss*StefBo*(TairK(i)**4)*                           &
+          qlwi = -emmiss*StefBo*(TairK(i)**4)*                          &
      &         (0.39_r8-0.005_r8*SQRT(vap_p_i))*                        &
      &                (1.0_r8-0.65_r8*cloud(i,j)) +                     &
      &          4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-TairK(i))
@@ -1144,7 +1144,7 @@
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-           Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
+           Qai(i,j) =-qsh_i - qlh_i - qswi - qlwi
 #  endif
 # endif
         END DO

@@ -255,13 +255,13 @@ contains
           cff1 = alb_s_wet - alb_s_dry
           cff2 = -0.075      ! alb_i_wet - alb_i_dry
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
-            IF (tis .gt. -1.0_r8) THEN
-              alb_snow = cff1*(tis+1.0_r8)+alb_s_dry
+            IF (tis(i,j) .gt. -1.0_r8) THEN
+              alb_snow = cff1*(tis(i,j)+1.0_r8)+alb_s_dry
             ELSE
               alb_snow = alb_s_dry
             ENDIF
-            IF (tis .gt. -1.0_r8) THEN
-              alb_ice = cff2*(tis+1.0_r8)+alb_i_dry
+            IF (tis(i,j) .gt. -1.0_r8) THEN
+              alb_ice = cff2*(tis(i,j)+1.0_r8)+alb_i_dry
             ELSE
               alb_ice = alb_i_dry
             ENDIF
@@ -274,14 +274,14 @@ contains
           cff2 = alb_i_wet - alb_i_dry
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (hsn(i,j,listp).gt.0._r8) THEN
-              IF (tis .gt. -1.0_r8) THEN
-                albedo_ice(i,j) = cff1*(tis+1.0_r8)+alb_s_dry
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff1*(tis(i,j)+1.0_r8)+alb_s_dry
               ELSE
                 albedo_ice(i,j) = alb_s_dry
               ENDIF
             ELSE
-              IF (tis .gt. -1.0_r8) THEN
-                albedo_ice(i,j) = cff2*(tis+1.0_r8)+alb_i_dry
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff2*(tis(i,j)+1.0_r8)+alb_i_dry
               ELSE
                 albedo_ice(i,j) = alb_i_dry
               ENDIF
