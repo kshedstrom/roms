@@ -56,7 +56,7 @@
 !***********************************************************************
 !
       USE mod_param
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
       USE mod_biology
 # endif
       USE mod_diags
@@ -457,7 +457,7 @@
           END DO
         END DO
 # endif
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
         DO idiag=1,NDbio2d
           IF (idiag.ne.ipCO2) THEN
             DO j=JstrR,JendR
@@ -515,7 +515,7 @@
 # endif
 
 # if defined DIAGNOSTICS_TS  || defined DIAGNOSTICS_UV || \
-     defined DIAGNOSTICS_BIO 
+     defined DIAGNOSTICS_BIO
 !
 !-----------------------------------------------------------------------
 !  Apply periodic or gradient boundary conditions for output purposes.
@@ -582,7 +582,7 @@
 #    endif
 #   endif
 #  endif
-#  if defined DIAGNOSTICS_BIO 
+#  if defined DIAGNOSTICS_BIO
 !
 !  Biological terms 2D diagnostics.
 !

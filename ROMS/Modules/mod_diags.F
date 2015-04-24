@@ -45,7 +45,7 @@
 
         TYPE T_DIAGS
 
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
           real(r8), pointer :: DiaBio2d(:,:,:)
           real(r8), pointer :: DiaBio3d(:,:,:,:)
 # endif
@@ -209,7 +209,7 @@
 !-----------------------------------------------------------------------
 !
       DO j=Jmin,Jmax
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
         IF (NDbio2d.gt.0) THEN
           DO idiag=1,NDbio2d
             DO i=Imin,Imax
