@@ -51,7 +51,7 @@
 #
 
 ifdef USE_NETCDF4
-        NC_CONFIG ?= nc-config
+        NC_CONFIG ?= nf-config
     NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
              LIBS := $(shell $(NC_CONFIG) --flibs)
 else
