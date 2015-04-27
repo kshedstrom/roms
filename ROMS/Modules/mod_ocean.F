@@ -100,6 +100,9 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef BULK_FLUXES 
+         real(r8), pointer :: u10_neutral(:,:)
+# endif
 # ifdef BEST_NPZ
 #   ifdef STATIONARY
           real(r8), pointer :: st(:,:,:,:,:)
@@ -399,6 +402,9 @@
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
+# ifdef BULK_FLUXES 
+      allocate ( OCEAN(ng) % u10_neutral(LBi:UBi,LBj:UBj) )
+# endif
 #ifdef BEST_NPZ
 # ifdef STATIONARY
       ! Add a 3D stationary array to the biology module
@@ -826,6 +832,11 @@
               END DO
             END DO
           END DO
+# ifdef BULK_FLUXES
+          DO i=Imin,Imax
+                OCEAN(ng) % u10_neutral(i,j) = IniVal
+          ENDDO
+# endif
 # ifdef BEST_NPZ
 #    ifdef STATIONARY
           DO itrc=1,NTS(ng)

@@ -112,6 +112,7 @@
      &                   FORCES(ng) % srflx,                            &
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
+     &                   OCEAN(ng) % u10_neutral,                       &
      &                   FORCES(ng) % Uwind,                            &
      &                   FORCES(ng) % Vwind,                            &
 # else
@@ -151,6 +152,7 @@
      &                         Hz, z_r, z_w, latr,srflx,                &
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
+     &                         u10_neutral,                             &
      &                         Uwind, Vwind,                            &
 # else
      &                         sustr, svstr,                            &
@@ -194,6 +196,7 @@
       real(r8), intent(in) :: latr(LBi:,LBj:)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
+      real(r8), intent(in) :: u10_neutral(LBi:,LBj:)
       real(r8), intent(in) :: Uwind(LBi:,LBj:)
       real(r8), intent(in) :: Vwind(LBi:,LBj:)
 #  else
@@ -226,6 +229,7 @@
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
+      real(r8), intent(in) :: u10_neutral(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
 #  else
@@ -1429,7 +1433,7 @@
 !  Compute wind speed.
 !
 # ifdef BULK_FLUXES
-           u10squ=Uwind(i,j)*Uwind(i,j)+Vwind(i,j)*Vwind(i,j)
+           u10squ=u10_neutral(i,j)*u10_neutral(i,j)
 # else
 !
 !  drag coefficient is 0.001, and air density is 1.2 kg per cube meter

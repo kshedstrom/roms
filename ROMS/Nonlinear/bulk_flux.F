@@ -186,6 +186,7 @@
      &                     FORCES(ng) % EminusP,                        &
      &                     FORCES(ng) % evap,                           &
 # endif
+     &                     OCEAN(ng) % u10_neutral,                     &
      &                     FORCES(ng) % sustr,                          &
      &                     FORCES(ng) % svstr)
 # ifdef PROFILE
@@ -265,6 +266,7 @@
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
 # endif
+     &                           u10_neutral,                           &
      &                           sustr, svstr)
 !***********************************************************************
 !
@@ -378,6 +380,7 @@
       real(r8), intent(out) :: EminusP(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
+      real(r8), intent(out) :: u10_neutral(LBi:,LBj:)
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
@@ -471,6 +474,7 @@
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
 #  endif
+      real(r8), intent(out) :: u10_neutral(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
 
@@ -809,6 +813,10 @@
           ZoT10(i)=10.0_r8/EXP(vonKar/Ct10(i))
           Cd=(vonKar/LOG(blk_ZW(ng)/Zo10(i)))**2
 !
+!  Save neutral wind at 10 meters for gas transfer piston velocity
+!
+          u10_neutral(i,j) = u10(i)
+!
 !  Compute Richardson number.
 !
           Ct(i)=vonKar/LOG(blk_ZT(ng)/ZoT10(i))  ! T transfer coefficient
@@ -1119,7 +1127,7 @@
           cff = Q(i)/(1.0_r8+Q(i))
           vap_p_i = slp*cff/(0.62197 + cff)
 #   ifdef LONGWAVE
-          qlwi = emmiss*StefBo*(TairK(i)**4)*                           &
+          qlwi = -emmiss*StefBo*(TairK(i)**4)*                          &
      &         (0.39_r8-0.005_r8*SQRT(vap_p_i))*                        &
      &                (1.0_r8-0.65_r8*cloud(i,j)) +                     &
      &          4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-TairK(i))
@@ -1144,7 +1152,7 @@
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-           Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
+           Qai(i,j) =-qsh_i - qlh_i - qswi - qlwi
 #  endif
 # endif
         END DO
