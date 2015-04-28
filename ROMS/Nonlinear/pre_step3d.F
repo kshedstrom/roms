@@ -105,6 +105,9 @@
      &                      DIAGS(ng) % DiaRU,                          &
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                      DIAGS(ng) % DiaBio3d,                       &
+# endif
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v)
@@ -147,6 +150,9 @@
      &                            DiaU3wrk, DiaV3wrk,                   &
      &                            DiaRU, DiaRV,                         &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                            DiaBio3d,                             &
+# endif
      &                            t, u, v)
 !***********************************************************************
 !
@@ -155,7 +161,7 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
-# if defined OFFLINE_BIOLOGY || defined BEST_NPZ
+# if defined OFFLINE_BIOLOGY || defined BEST_NPZ || defined BIO_COBALT
       USE mod_biology
 # endif
       USE mod_sources
@@ -222,6 +228,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: DiaBio3d(LBi:,LBj:,:,:)
+#  endif
 #  ifdef SUN
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  else
@@ -274,6 +283,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: DiaBio3d(LBi:UBi,LBj:UBj,N(ng),NDbio3d)
+#  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -298,6 +310,11 @@
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
+#ifdef OPTIC_MANIZZA
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: chl_conc ! RD: to be replaced by real values at point w
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FM       ! work array for z_w
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng),4) :: DK     ! work array for swdk
+#endif 
 # ifdef SOLAR_SOURCE
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: swdk
 # endif
@@ -318,6 +335,68 @@
 !=======================================================================
 
 #  ifdef SOLAR_SOURCE
+#    ifdef OPTIC_MANIZZA
+      ! RD: this has to be replaced by a proper read in an array at W
+      ! points
+#     ifdef BIO_COBALT
+      ! set upper (surface) W-point to value of Rho-point
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           chl_conc(i,j,N(ng)) = DiaBio3d(i,j,N(ng),ichl) * rho0 / 1000.0d0
+        END DO
+      END DO
+      ! set lower (bottom) value to value of the bottom rho-point
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           chl_conc(i,j,0) = DiaBio3d(i,j,1,ichl) * rho0 / 1000.0d0
+        END DO
+      END DO
+      DO k=1,N(ng)-1
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             chl_conc(i,j,k) = 0.5d0 * (DiaBio3d(i,j,k,ichl)+           &
+     &                                DiaBio3d(i,j,k+1,ichl)) * rho0 / 1000.0d0
+          END DO
+        END DO
+      ENDDO
+      ! 1.024 is density of seawater used to convert from ug Chl.kg-1 of Cobalt to mg Chl.m-3 of manizza
+      ! maybe we need to do something cleaner than that (RD)
+#     else
+      ! USING CONSTANT VALUE FOR TESTING ONLY !!!
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             chl_conc(i,j,k) = 0.005d0
+          END DO
+        END DO
+      ENDDO
+#     endif
+      ! copy depth array in a work array (for bounds)
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             FM(i,j,k) = z_w(i,j,N(ng))- z_w(i,j,k)
+          END DO
+        END DO
+      ENDDO
+!
+!  Compute fraction of the solar shortwave radiation, "swdk"
+!  (at vertical W-points) penetrating water column.
+!
+        CALL optic_manizza3_tile (ng, tile,                             &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        IminS, ImaxS, JminS, JmaxS,               &
+     &                        -1.0_r8, FM , chl_conc, DK)
+
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             swdk(i,j,k) = DK(i,j,k,1)
+          END DO
+        END DO
+      ENDDO
+
+#    else
 !
 !  Compute fraction of the solar shortwave radiation, "swdk"
 !  (at vertical W-points) penetrating water column.
@@ -338,6 +417,7 @@
           END DO
         END DO
       END DO
+#    endif
 #  endif
 !
 !-----------------------------------------------------------------------

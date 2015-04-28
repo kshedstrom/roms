@@ -1294,6 +1294,8 @@
 #  include <npzd_iron_wrt.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_wrt.h>
+# elif defined BIO_COBALT
+#  include <cobalt_wrt.h>
 # endif
 #endif
 

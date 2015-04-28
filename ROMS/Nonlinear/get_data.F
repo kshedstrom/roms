@@ -544,6 +544,52 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
+# if defined COBALT_CARBON
+!
+!-----------------------------------------------------------------------
+!  Atmospheric CO2
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idAtmCO2, ncFRCid(idAtmCO2,ng),         &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % atmCO2G)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
+# if defined COBALT_IRON
+!
+!-----------------------------------------------------------------------
+! Dust deposition
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idDustDepo, ncFRCid(idDustDepo,ng),     &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % dustdepoG)
+      IF (exit_flag.ne.NoError) RETURN
+
+!
+!-----------------------------------------------------------------------
+! iron from sediment
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idIronSed, ncFRCid(idIronSed,ng),       &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % ironsedG)
+      IF (exit_flag.ne.NoError) RETURN
+
+# endif
 # if !defined ANA_CLOUD && defined CLOUDS
 !
 !-----------------------------------------------------------------------

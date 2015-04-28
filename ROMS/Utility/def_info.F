@@ -286,6 +286,8 @@
           type='ROMS/TOMS restart file'
         ELSE IF (ncid.eq.STA(ng)%ncid) THEN
           type='ROMS/TOMS station file'
+        ELSE IF (ncid.eq.TMS(ng)%ncid) THEN
+          type='ROMS/TOMS timeserie file'
         ELSE IF (ncid.eq.TLF(ng)%ncid) THEN
           type='ROMS/TOMS tangent linear impulse forcing file'
         ELSE IF (ncid.eq.TLM(ng)%ncid) THEN
@@ -2740,6 +2742,8 @@
 #  include <npzd_iron_def.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_def.h>
+# elif defined BIO_COBALT
+#  include <cobalt_def.h>
 # endif
 #endif
 

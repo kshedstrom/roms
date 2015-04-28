@@ -27,6 +27,7 @@
 **         npzd_iron.h        NPZD_IRON                               **
 **         npzd_Powell.h      NPZD_POWELL                             **
 **         umaine.h           BIO_UMAINE                              **
+**         cobalt.h           BIO_COBALT                              **
 **                                                                    **
 **   (2) Internal model parameters declaration:                       **
 **                                                                    **
@@ -39,6 +40,7 @@
 **         npzd_iron_mod.h                                            **
 **         npzd_Powell_mod.h                                          **
 **         umaine_mod.h                                               **
+**         cobalt_mod.h                                               **
 **                                                                    **
 **   (3) Model parameters standard input script:                      **
 **                                                                    **
@@ -48,6 +50,7 @@
 **         npzd_Franks.in                                             **
 **         npzd_iron.in                                               **
 **         npzd_Powell.in                                             **
+**         bio_Cobalt.in                                              **
 **                                                                    **
 **   (4) Code to read input model parameters:                         **
 **                                                                    **
@@ -60,6 +63,7 @@
 **         npzd_iron_inp.h                                            **
 **         npzd_Powell_inp.h                                          **
 **         umaine_inp.h                                               **
+**         cobalt_inp.h                                               **
 **                                                                    **
 **   (5) Code to assign indices to model variables during the         **
 **       reading of metadata information from "varinfo.dat":          **
@@ -73,6 +77,7 @@
 **         npzd_iron_var.h                                            **
 **         npzd_Powell_var.h                                          **
 **         umaine_var.h                                               **
+**         cobalt_var.h                                               **
 **                                                                    **
 **   (6) Code to define input model parameters in all output          **
 **       NetCDF files:                                                **
@@ -84,6 +89,7 @@
 **         npzd_iron_def.h                                            **
 **         npzd_Powell_def.h                                          **
 **         umaine_def.h                                               **
+**         cobalt_def.h                                               **
 **                                                                    **
 **   (7) Code to write out input model parameters in all output       **
 **       NetCDF files:                                                **
@@ -95,6 +101,7 @@
 **         npzd_iron_wrt.h                                            **
 **         npzd_Powell_wrt.h                                          **
 **         umaine_wrt.h                                               **
+**         cobalt_wrt.h                                               **
 **                                                                    **
 **                                                                    **
 ** Note that all the *.h files are located in ROMS/Nonlinear/Biology  **
@@ -124,6 +131,8 @@
 #  include <goanpz_mod.h>
 # elif defined BEST_NPZ
 #  include <bestnpz_mod.h>
+# elif defined BIO_COBALT
+#  include <cobalt_mod.h>
 # endif
 #endif
 

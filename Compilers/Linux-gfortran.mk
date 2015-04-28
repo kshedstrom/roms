@@ -163,6 +163,12 @@ endif
 ifdef USE_TANGENT
 $(SCRATCH_DIR)/tl_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 endif
+ifdef BIO_COBALT
+$(SCRATCH_DIR)/mod_biology.mod: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/mod_biology.o: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/biology_mod.mod: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/biology.o: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003 -pedantic
+endif
 
 #
 # Supress free format in SWAN source files since there are comments

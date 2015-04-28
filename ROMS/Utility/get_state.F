@@ -27,6 +27,9 @@
 #if defined BEST_NPZ
       USE mod_biology
 #endif
+#if defined BENTHIC
+      USE mod_biology
+#endif
 #if defined ADJUST_BOUNDARY
       USE mod_boundary
 #endif
@@ -1730,38 +1733,38 @@
           END IF
         END DO
 #  endif
-#if defined BEST_NPZ && defined BERING_10K
+#if defined BENTHIC
     
 !  Read in benthic initial conditions.
-        DO itrc=1,1 !,NBeT(ng)
-          IF (get_var(idBvar(itrc))) THEN
+        DO itrc=1,NBeT(ng)
+          IF (get_var(idBeTvar(itrc))) THEN
             foundit=find_string(var_name, n_var,                        &
-     &                          TRIM(Vname(1,idBvar(itrc))), varid)
+     &                          TRIM(Vname(1,idBeTvar(itrc))), varid)
             gtype=var_flag(varid)*r2dvar
             IF (Perfect2D) THEN
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
-     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          Vname(1,idBeTvar(itrc)), varid,         &
      &                          InpRec, gtype, Vsize,                   &
-     &                          LBi, UBi, LBj, UBj, 1, 3,               &
+     &                          LBi, UBi, LBj, UBj, NBL(ng), 3,         &
      &                          Fscl, Fmin, Fmax,                       &
 #  ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 #  endif
-     &                          OCEAN(ng) % bt(:,:,1,:,itrc))
+     &                          OCEAN(ng) % bt(:,:,NBL(ng),:,itrc))
             ELSE
               status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
-     &                          Vname(1,idBvar(itrc)), varid,           &
+     &                          Vname(1,idBeTvar(itrc)), varid,         &
      &                          InpRec, gtype, Vsize,                   &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          Fscl, Fmin, Fmax,                       &
 #  ifdef MASKING
      &                          GRID(ng) % rmask,                       &
 #  endif
-     &                          OCEAN(ng) % bt(:,:,1,Tindex,itrc))
+     &                          OCEAN(ng) % bt(:,:,NBL(ng),Tindex,itrc))
             END IF
             IF (status.ne.nf90_noerr) THEN
               IF (Master) THEN
-                WRITE (stdout,60) string, TRIM(Vname(1,idBvar(itrc))),  &
+                WRITE (stdout,60) string, TRIM(Vname(1,idBeTvar(itrc))),  &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -1769,7 +1772,7 @@
               RETURN
             ELSE
               IF (Master) THEN
-                WRITE (stdout,70) TRIM(Vname(2,idBvar(itrc))),         &
+                WRITE (stdout,70) TRIM(Vname(2,idBeTvar(itrc))),         &
      &                             Fmin, Fmax
               END IF
             END IF

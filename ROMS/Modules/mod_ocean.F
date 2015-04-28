@@ -71,7 +71,9 @@
 !
         USE mod_kinds
         USE mod_types
-
+#if defined BENTHIC
+        USE mod_biology, only: NBeT, NBL
+#endif
         implicit none
 
         TYPE T_OCEAN
@@ -100,6 +102,12 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef BENTHIC
+          real(r8), pointer :: bt(:,:,:,:,:)
+# endif
+# ifdef TIMESERIES
+          real(r8), pointer :: tms(:,:,:)
+# endif
 # ifdef BULK_FLUXES 
          real(r8), pointer :: u10_neutral(:,:)
 # endif
@@ -402,6 +410,13 @@
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
+
+# ifdef BENTHIC
+      allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
+# endif
+# ifdef TIMESERIES
+      allocate ( OCEAN(ng) % tms(1,1,NT(ng)) )
+# endif
 # ifdef BULK_FLUXES 
       allocate ( OCEAN(ng) % u10_neutral(LBi:UBi,LBj:UBj) )
 # endif
@@ -832,6 +847,23 @@
               END DO
             END DO
           END DO
+
+# ifdef BENTHIC
+          DO itrc=1,NBeT(ng)
+            DO k=1,NBL(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % bt(i,j,k,1,itrc) = IniVal
+                OCEAN(ng) % bt(i,j,k,2,itrc) = IniVal
+                OCEAN(ng) % bt(i,j,k,3,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+# endif
+# ifdef TIMESERIES
+          DO itrc=1,NT(ng)
+                OCEAN(ng) % tms(1,1,itrc) = IniVal
+          END DO
+# endif
 # ifdef BULK_FLUXES
           DO i=Imin,Imax
                 OCEAN(ng) % u10_neutral(i,j) = IniVal

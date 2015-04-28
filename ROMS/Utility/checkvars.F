@@ -144,6 +144,11 @@
         DO itrc=1,NBT
           get_var(idTvar(idbio(itrc)))=.TRUE.
         END DO
+#   if defined BENTHIC
+          DO itrc=1,NBeT(ng)
+           get_var(idBeTvar(itrc))=.TRUE.
+          END DO
+#   endif
 #  endif
 # endif
 # if defined T_PASSIVE

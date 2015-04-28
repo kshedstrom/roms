@@ -551,6 +551,16 @@
       END IF
 # endif
 
+# ifdef TIMESERIES
+! Time-series diagnostics, we define a new file every new job
+! and write every timestep
+!
+      IF (iic(ng).eq.ntstart(ng)) THEN
+         CALL def_tms(ng, .true.)
+      ELSE
+         CALL wrt_tms(ng)
+      ENDIF
+# endif
 # ifdef FLOATS
 !
 !-----------------------------------------------------------------------

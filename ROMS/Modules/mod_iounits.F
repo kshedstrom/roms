@@ -138,6 +138,7 @@
       TYPE(T_IO), allocatable :: TIDE(:)    ! tidal forcing
       TYPE(T_IO), allocatable :: TLF(:)     ! TLM impulse fields
       TYPE(T_IO), allocatable :: TLM(:)     ! TLM history fields
+      TYPE(T_IO), allocatable :: TMS(:)     ! timeseries data
 !
 !  Input boundary condition data.
 !
@@ -256,6 +257,7 @@
       allocate ( TIDE(Ngrids) )
       allocate ( TLF(Ngrids) )
       allocate ( TLM(Ngrids) )
+      allocate ( TMS(Ngrids) )
 
       allocate ( NRM(4,Ngrids) )
       allocate ( STD(4,Ngrids) )

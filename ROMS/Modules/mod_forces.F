@@ -344,6 +344,16 @@
 #  if defined ALBEDO_CLOUD
           real(r8), pointer :: cawdir(:,:)
 #  endif
+#  ifdef COBALT_CARBON
+          real(r8), pointer :: atmCO2(:,:)
+          real(r8), pointer :: atmCO2G(:,:,:)
+#  endif
+#  ifdef COBALT_IRON
+          real(r8), pointer :: dustdepo(:,:)
+          real(r8), pointer :: dustdepoG(:,:,:)
+          real(r8), pointer :: ironsed(:,:)
+          real(r8), pointer :: ironsedG(:,:,:)
+#  endif
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -761,6 +771,16 @@
 #  endif
 #  if defined ALBEDO_CLOUD
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+#  endif
+#  ifdef COBALT_CARBON
+      allocate ( FORCES(ng) % atmCO2(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % atmCO2G(LBi:UBi,LBj:UBj,2) )
+#  endif
+#  ifdef COBALT_IRON
+      allocate ( FORCES(ng) % dustdepo(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % dustdepoG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1267,6 +1287,19 @@
 #  endif
 #  if defined ALBEDO_CLOUD
             FORCES(ng) % cawdir(i,j) = IniVal
+#  endif
+#  ifdef COBALT_CARBON
+            FORCES(ng) % atmCO2(i,j) = IniVal
+            FORCES(ng) % atmCO2G(i,j,1) = IniVal
+            FORCES(ng) % atmCO2G(i,j,2) = IniVal
+#  endif
+#  ifdef COBALT_IRON
+            FORCES(ng) % dustdepo(i,j) = IniVal
+            FORCES(ng) % dustdepoG(i,j,1) = IniVal
+            FORCES(ng) % dustdepoG(i,j,2) = IniVal
+            FORCES(ng) % ironsed(i,j) = IniVal
+            FORCES(ng) % ironsedG(i,j,1) = IniVal
+            FORCES(ng) % ironsedG(i,j,2) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES

@@ -3352,6 +3352,9 @@
             CASE ('STANAME')
               label='STA - stations time-series'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, STA)
+            CASE ('TMSNAME')
+              label='TMS - 3D time-series'
+              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, TMS)
             CASE ('FLTNAME')
               label='FLT - Lagragian particles trajectories'
               Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLT)

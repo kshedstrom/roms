@@ -141,6 +141,9 @@
 !=======================================================================
 !
         USE mod_kinds
+#if ( defined BIO_COBALT && defined BENTHIC )
+        USE mod_biology, only: NBeT, NBL, idBeTvar
+#endif
 
         implicit none
 
@@ -158,6 +161,11 @@
 
 # ifdef SOLVE3D
 
+#  ifdef BIO_COBALT
+#   ifdef BENTHIC
+          real(r8), pointer :: avgbt(:,:,:,:)
+#   endif
+#  endif
 #  ifdef BEST_NPZ
 #   ifdef STATIONARY
           real(r8), pointer :: avgst(:,:,:,:)
@@ -421,6 +429,15 @@
 
 # ifdef SOLVE3D
 
+#  ifdef BIO_COBALT
+#   ifdef BENTHIC
+!      IF ( ANY(Aout(idBeTvar,ng)) ) THEN
+!        PRINT *, 'RD : trying to allocate AVERAGE'
+!        PRINT *, 'RD', NBL(ng),NBeT(ng)
+!        allocate ( AVERAGE(ng) % avgbt(LBi:UBi,LBj:UBj,NBL(ng),NBeT(ng)) )
+!      END IF
+#   endif
+#  endif
 #  ifdef BEST_NPZ
 #   ifdef STATIONARY
       allocate ( AVERAGE(ng) % avgst(LBi:UBi,LBj:UBj,N(ng),NTS(ng)) )
@@ -1619,6 +1636,17 @@
       END IF
 # ifdef SOLVE3D
 
+#ifdef BIO_COBALT
+# ifdef BENTHIC
+!        DO itrc=1,NBeT(ng)
+!          DO k=1,NBL(ng)
+!            DO i=Imin,Imax
+!              AVERAGE(ng) % avgbt(i,j,k,itrc) = IniVal
+!              END DO
+!          END DO
+!        END DO
+# endif
+#endif
 #ifdef BEST_NPZ
 # ifdef STATIONARY
         DO itrc=1,NTS(ng)

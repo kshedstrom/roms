@@ -333,6 +333,31 @@
 #    endif
 #   endif
 
+#  if defined COBALT_CARBON 
+      CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%atmCO2G,                          &
+     &                     FORCES(ng)%atmCO2,                           &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
+#  if defined COBALT_IRON
+      CALL set_2dfld_tile (ng, tile, iNLM, idDustDepo,                  &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%dustdepoG,                        &
+     &                     FORCES(ng)%dustdepo,                         &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idIronSed,                   &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%ironsedG,                         &
+     &                     FORCES(ng)%ironsed,                          &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
 #   ifdef CLOUDS
 !
 !-----------------------------------------------------------------------

@@ -414,12 +414,10 @@
 !                                                 |                |
 !                                                 ----W(i,j,k-1)----
 
-#ifdef BEST_NPZ
-# ifdef BENTHIC
-        integer, allocatable :: NBL(:)
-# endif
-#endif
 
+#ifdef BENTHIC
+      integer, allocatable :: NBL(:)
+#endif
       integer, allocatable :: N(:)
 !
 !-----------------------------------------------------------------------
@@ -673,11 +671,9 @@
 
       allocate ( N(Ngrids) )
 
-#ifdef BEST_NPZ
 # ifdef BENTHIC
       allocate ( NBL(Ngrids) )
 # endif
-#endif
 
       allocate ( NT(Ngrids) )
 

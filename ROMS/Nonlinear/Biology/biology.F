@@ -39,6 +39,8 @@
 #  include <umaine.h>
 # elif defined BIO_GOANPZ
 #  include <goanpz.h>
+# elif defined BIO_COBALT
+#  include <cobalt.h>
 # else
       SUBROUTINE biology(ng, tile)
       integer ng, tile

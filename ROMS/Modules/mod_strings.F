@@ -167,7 +167,7 @@
         character (len=80) :: my_os = MY_OS
         character (len=80) :: my_cpu = MY_CPU
         character (len=80) :: my_fort = MY_FORT
-        character (len=80) :: my_fc = MY_FC
-        character (len=160) :: my_fflags = MY_FFLAGS
+        character (len=256) :: my_fc = MY_FC
+        character (len=512) :: my_fflags = MY_FFLAGS
 
       END MODULE mod_strings

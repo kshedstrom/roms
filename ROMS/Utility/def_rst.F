@@ -1095,7 +1095,7 @@
 !  Define benthic tracer type variables.
 !------------------------------------------   
         DO itrc=1,NBeT(ng)
-          rstBid(itrc,ng) = var_id(i)
+          RST(ng)%Vid(idBeTvar(itrc)) = var_id(i)
           IF (Hout(idBeTvar(itrc),ng)) THEN
 
             Vinfo( 1)=Vname(1,idBeTvar(itrc))
@@ -1105,7 +1105,8 @@
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
-            status=def_var(ng,iNLM,RST(ng)%ncid,RST(ng)%Bid(itrc),NF_FOUT, &
+            status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+     &                     RST(ng)%Vid(idBeTvar(itrc)),NF_FOUT,         &
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 !Will need to switch this if have more than one depth level for benthos 
@@ -2486,7 +2487,7 @@
           DO itrc=1,NBeT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBeTvar(itrc)))) THEN
               got_var(idBeTvar(itrc))=.TRUE.
-              rstBid(itrc,ng)=var_id(i)
+              RST(ng)%Vid(idBeTvar(itrc)) = var_id(i)
             END IF
           END DO
 #endif

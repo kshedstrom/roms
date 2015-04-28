@@ -177,6 +177,7 @@
         integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
         integer  :: idAlbe        ! shortwave albedo
+        integer  :: idAtmCO2      ! atmospheric CO2
         integer  :: idbath        ! bathymetry
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
@@ -184,6 +185,7 @@
         integer  :: idDano        ! density anomaly
         integer  :: idDENITsed    ! Denitrification in sediment
         integer  :: idDiff(2)     ! temperature and salinity diffusion
+        integer  :: idDustDepo    ! dust deposition
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
@@ -198,6 +200,7 @@
         integer  :: idHice        ! depth of ice cover
         integer  :: idHsbl        ! depth of surface boundary layer
         integer  :: idHsno        ! depth of snow cover
+        integer  :: idIronSed     ! iron from sediments
         integer  :: idKhor        ! convolution horizontal diffusion
         integer  :: idKver        ! convolution vertical diffusion
         integer  :: idLdwn        ! downwelling longwave radiation flux
@@ -1276,6 +1279,12 @@
               idTbry(inorth,isalt)=varid
             CASE ('idAlbe')
               idAlbe=varid
+            CASE ('idAtmCO2')
+              idAtmCO2=varid
+            CASE ('idDustDepo')
+              idDustDepo=varid
+            CASE ('idIronSed')
+              idIronSed=varid
             CASE ('idPwet')
               idPwet=varid
             CASE ('idRwet')
@@ -1996,6 +2005,8 @@
 #  include <npzd_Powell_var.h>
 # elif defined NPZD_IRON
 #  include <npzd_iron_var.h>
+# elif defined BIO_COBALT
+#  include <cobalt_var.h>
 # endif
 # if defined NEMURO_SAN
 #  include <fish_var.h>

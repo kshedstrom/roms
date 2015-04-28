@@ -567,6 +567,13 @@
       Coptions(is:is+12)=' BIO_UMAINE,'
       ibiology=ibiology+1
 #endif
+#ifdef BIO_COBALT
+      IF (Master) WRITE (stdout,20) 'BIO_COBALT',                       &
+     &   'GFDL Cobalt ecosystem model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' BIO_COBALT,'
+      ibiology=ibiology+1
+#endif
 #ifdef BODYFORCE
       IF (Master) WRITE (stdout,20) 'BODYFORCE',                        &
      &   'Momentum stresses as body-forces.'
