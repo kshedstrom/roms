@@ -103,7 +103,7 @@
      &                   GRID(ng) % rmask,                              &
 #endif
 #if defined WET_DRY && defined DIAGNOSTICS_BIO
-     &                   GRID(ng) % rmask_io,                           &
+     &                   GRID(ng) % rmask_full,                         &
 #endif
      &                   GRID(ng) % Hz,                                 &
      &                   GRID(ng) % z_r,                                &
@@ -147,7 +147,7 @@
      &                         rmask,                                   &
 #endif
 #if defined WET_DRY && defined DIAGNOSTICS_BIO
-     &                         rmask_io,                                &
+     &                         rmask_full,                              &
 #endif
      &                         Hz, z_r, z_w, latr,srflx,                &
 #if defined OXYGEN || defined CARBON
@@ -187,7 +187,7 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 # endif
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
-      real(r8), intent(in) :: rmask_io(LBi:,LBj:)
+      real(r8), intent(in) :: rmask_full(LBi:,LBj:)
 # endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
@@ -220,7 +220,7 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 # endif
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
-      real(r8), intent(in) :: rmask_io(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: rmask_full(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
@@ -1349,24 +1349,24 @@
 #ifdef DIAGNOSTICS_BIO
         DiaBio3d(i,j,k,iPPro1)=DiaBio3d(i,j,k,iPPro1)+                 &
 # ifdef WET_DRY
-        &            rmask_io(i,j)*                                    &
+        &            rmask_full(i,j)*                                  &
 # endif
         &         (n_nps1 + n_rps1)*dtdays
 
         DiaBio3d(i,j,k,iPPro2)=DiaBio3d(i,j,k,iPPro2)+                 &
 # ifdef WET_DRY
-        &            rmask_io(i,j)*                                    &
+        &            rmask_full(i,j)*                                  &
 # endif
         &            (n_nps2 + n_rps2)*dtdays
         DiaBio3d(i,j,k,iPPro3)=DiaBio3d(i,j,k,iPPro3)+                 &
 # ifdef WET_DRY
-        &            rmask_io(i,j)*                                    &
+        &            rmask_full(i,j)*                                  &
 # endif
         &            (n_nps3 + n_rps3)*dtdays
 
         DiaBio3d(i,j,k,iNO3u)=DiaBio3d(i,j,k,iNO3u)+                   &
 # ifdef WET_DRY
-        &              rmask_io(i,j)*                                  &
+        &              rmask_full(i,j)*                                &
 # endif
         &              (n_nps1+n_nps2)*dtdays
 # endif
@@ -1481,7 +1481,7 @@
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iO2fx)=DiaBio2d(i,j,iO2fx)+                   &
 #  ifdef WET_DRY
-     &                          rmask_io(i,j)*                         &
+     &                          rmask_full(i,j)*                       &
 #  endif
      &                          o2flx(i)*dtdays
 # endif
@@ -1512,13 +1512,13 @@
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iCOfx)=DiaBio2d(i,j,iCOfx)+                   &
 #  ifdef WET_DRY
-     &                          rmask_io(i,j)*                         &
+     &                          rmask_full(i,j)*                       &
 #  endif
      &                          co2flx(i)*dtdays
 
             DiaBio2d(i,j,ipCO2)=pco2s(i)
 #  ifdef WET_DRY
-            DiaBio2d(i,j,ipCO2)=DiaBio2d(i,j,ipCO2)*rmask_io(i,j)
+            DiaBio2d(i,j,ipCO2)=DiaBio2d(i,j,ipCO2)*rmask_full(i,j)
 #  endif
 # endif
 
