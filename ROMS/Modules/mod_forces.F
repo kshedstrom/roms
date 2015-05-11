@@ -349,8 +349,10 @@
           real(r8), pointer :: atmCO2G(:,:,:)
 #  endif
 #  ifdef COBALT_IRON
-          real(r8), pointer :: dustdepo(:,:)
-          real(r8), pointer :: dustdepoG(:,:,:)
+          real(r8), pointer :: soluble_fe(:,:)
+          real(r8), pointer :: soluble_feG(:,:,:)
+          real(r8), pointer :: mineral_fe(:,:)
+          real(r8), pointer :: mineral_feG(:,:,:)
           real(r8), pointer :: ironsed(:,:)
           real(r8), pointer :: ironsedG(:,:,:)
 #  endif
@@ -777,8 +779,10 @@
       allocate ( FORCES(ng) % atmCO2G(LBi:UBi,LBj:UBj,2) )
 #  endif
 #  ifdef COBALT_IRON
-      allocate ( FORCES(ng) % dustdepo(LBi:UBi,LBj:UBj) )
-      allocate ( FORCES(ng) % dustdepoG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % soluble_fe(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % soluble_feG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
 #  endif
@@ -1294,9 +1298,12 @@
             FORCES(ng) % atmCO2G(i,j,2) = IniVal
 #  endif
 #  ifdef COBALT_IRON
-            FORCES(ng) % dustdepo(i,j) = IniVal
-            FORCES(ng) % dustdepoG(i,j,1) = IniVal
-            FORCES(ng) % dustdepoG(i,j,2) = IniVal
+            FORCES(ng) % soluble_fe(i,j) = IniVal
+            FORCES(ng) % soluble_feG(i,j,1) = IniVal
+            FORCES(ng) % soluble_feG(i,j,2) = IniVal
+            FORCES(ng) % mineral_fe(i,j) = IniVal
+            FORCES(ng) % mineral_feG(i,j,1) = IniVal
+            FORCES(ng) % mineral_feG(i,j,2) = IniVal
             FORCES(ng) % ironsed(i,j) = IniVal
             FORCES(ng) % ironsedG(i,j,1) = IniVal
             FORCES(ng) % ironsedG(i,j,2) = IniVal

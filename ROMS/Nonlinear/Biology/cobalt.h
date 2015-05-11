@@ -58,7 +58,8 @@
      &                   FORCES(ng) % atmCO2,                           &
 #endif
 #ifdef COBALT_IRON
-     &                   FORCES(ng) % dustdepo,                         &
+     &                   FORCES(ng) % soluble_fe,                       &
+     &                   FORCES(ng) % mineral_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
 #endif
      &                   MIXING(ng) % hsbl,                             &
@@ -100,7 +101,7 @@
      &                         atmCO2,                                  &
 #endif
 #ifdef COBALT_IRON
-     &                         dustdepo, ironsed,                       &
+     &                         soluble_fe, mineral_fe, ironsed,         &
 #endif
      &                         hsbl, ksbl,                              &
      &                         DiaBio2d, DiaBio3d,                      &
@@ -160,7 +161,8 @@
       real(r8), intent(in) :: atmCO2(LBi:,LBj:)
 #endif
 # ifdef COBALT_IRON
-      real(r8), intent(in) :: dustdepo(LBi:,LBj:)
+      real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
+      real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
 #endif
       real(r8), intent(in)    :: hsbl(LBi:,LBj:)
@@ -199,7 +201,8 @@
       real(r8), intent(in) :: atmCO2(LBi:UBi,LBj:UBj)
 # endif
 # ifdef COBALT_IRON
-      real(r8), intent(in) :: dustdepo(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in)    :: hsbl(LBi:UBi,LBj:UBj)
@@ -330,8 +333,10 @@
     real(r8)                                         :: extra_frac_iron=0.03d0
     real(r8)                                         :: iron_dust_solub=0.02d0
     real(r8)                                         :: molar_feO2=87.8438d0    ! g/mol
-    real(r8)                                         :: dust_pen_depth=600.0d0 ! m
+    real(r8)                                         :: molar_fe=55.8450d0      ! g/mol
+    real(r8)                                         :: dust_pen_depth=600.0d0  ! m
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,UBk) :: iron_dust_src
+    real(r8), dimension(IminS:ImaxS,JminS:JmaxS,UBk) :: lith_dust_src
     
 
 !-----------------------------------------------------------------------
@@ -649,7 +654,6 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
 
 !   IF( Master ) WRITE(stdout,*) 'Atmospheric CO2 is ', MINVAL(atmCO2) , MAXVAL(atmCO2)
-!   IF( Master ) WRITE(stdout,*) 'Dust deposition range is  ', MINVAL(dustdepo) , MAXVAL(dustdepo)
 
    ! RD dev notes :
    ! carbon chemistry routines are then applied from susurface to bottom layer
@@ -740,6 +744,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 ! diagnostic tracers that are passed between time steps (except chlorophyll)
 
+#ifdef BENTHIC
 ! RD dev notes :
 ! bottom fluxes are passed into ROMS in the bt array, it is well suited for 2d 
 ! variables, is not advected/diffused and has a restart implementation
@@ -761,6 +766,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
     ENDDO
   ENDDO
   i=overflow ; j=overflow 
+#endif
 
   DO k=1,UBk
     DO j=Jstr,Jend
@@ -774,20 +780,19 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 
 
-   ! RD dev notes : dust deposition to iron surface source
+   ! RD dev notes : dust deposition to iron and lith surface source
    DO j=Jstr,Jend
      DO i=Istr,Iend
 
-! RD : 0.001d0 is for testing
-!        iron_dust_src(i,j,UBk) = (1.0_r8-iron_dust_solub) * frac_iron *  &
-        iron_dust_src(i,j,UBk) = 0.001d0 * iron_dust_solub * frac_iron * &
-  &                              dustdepo(i,j) * 1000.0d0 /              &
-  &                              ( molar_feO2 * rho0 * Hz(i,j,UBk) )
+       iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) )
+       ! units mol/kg/s       =  [mol.m-2.s-1]  / [kg.m-3] * [m]
 
-     ! units mol/kg/s          =  [no-unit] * [no-unit] * [kg.m-2.s-1] * [g/kg] /
-     !                            [g/mol] * [kg.m-3] * [m]
+       lith_dust_src(i,j,UBk) = mineral_fe(i,j) / (rho0 * Hz(i,j,UBk) )
+       ! units g/kg/s         = [g.m-2.s-1]     / [kg.m-3] * [m]
+
 #ifdef COBALT_CONSERVATION_TEST
         iron_dust_src(i,j,UBk) = 0.0d0
+        lith_dust_src(i,j,UBk) = 0.0d0
 #endif
         DiaBio3d(i,j,UBk,ife_bulk_flx) = iron_dust_src(i,j,UBk) * dt(ng)
 
@@ -795,33 +800,23 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
    i=overflow ; j=overflow
 
-   ! RD dev notes : dust deposition to iron subsurface source
+   ! RD dev notes : dust deposition to iron and lith subsurface source
    DO k=1,UBk-1
      DO j=Jstr,Jend
        DO i=Istr,Iend
 
-!          iron_dust_src(i,j,k) =  (1.0_r8 - iron_dust_solub) *           &
-! RD : this is just a test, no valid reason for that 0.001d0 #BUG #TEST
-          iron_dust_src(i,j,k) =   0.001d0 * iron_dust_solub *           &
-    &                              extra_frac_iron *                     &
-    &                              dustdepo(i,j) * 1000.0d0 /            &
-    &                              ( molar_feO2 * rho0 * Hz(i,j,UBk) ) * &
-    &                              exp(z_r(i,j,k) / dust_pen_depth )
-
-       ! units mol/kg/s          =  [no-unit] * [no-unit] * [kg.m-2.s-1] * [g/kg] /
-       !                            [g/mol] * [kg.m-3] * [m]
+          iron_dust_src(i,j,k) = 0.0d0
+          lith_dust_src(i,j,k) = 0.0d0
 #ifdef COBALT_CONSERVATION_TEST
-        iron_dust_src(i,j,k) = 0.0d0
+          iron_dust_src(i,j,k) = 0.0d0
+          lith_dust_src(i,j,k) = 0.0d0
 #endif
-         DiaBio3d(i,j,k,ife_bulk_flx) = iron_dust_src(i,j,k) * dt(ng)
+          DiaBio3d(i,j,k,ife_bulk_flx) = iron_dust_src(i,j,k) * dt(ng)
 
        ENDDO
      ENDDO
    ENDDO
    i=overflow ; j=overflow ; k=overflow
-
-
-
 
 !
 !-----------------------------------------------------------------------------------
@@ -2970,6 +2965,9 @@ ENDDO
 &                      phyto(SMALL)%juptake_fe(i,j,k) -                  &
 &                      cobalt%jfe_ads(i,j,k)
 
+  ! RD dev notes : add dust source from atmosphere
+  cobalt%jfed(i,j,k) = cobalt%jfed(i,j,k) + iron_dust_src(i,j,k)
+
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
 
@@ -3015,8 +3013,6 @@ ENDDO
 !
   DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
 
-  ! RD : add dust source
-  cobalt%jprod_fedet(i,j,k) = cobalt%jprod_fedet(i,j,k) + iron_dust_src(i,j,k)
 
   cobalt%jprod_fedet(i,j,k) = cobalt%jprod_fedet(i,j,k) + cobalt%jfe_ads(i,j,k)
 
@@ -3046,6 +3042,9 @@ ENDDO
 &                          lithdet_sinking(i,j,k)
 
   cobalt%jlith(i,j,k) = - cobalt%jlithdet(i,j,k)
+
+  ! RD dev notes : add dust source from atmosphere
+  cobalt%jlith(i,j,k) = cobalt%jlith(i,j,k) + lith_dust_src(i,j,k)
 
   ! diag on production term
   DiaBio3d(i,j,k,ijprod_lithdet) = cobalt%jprod_lithdet(i,j,k)
@@ -3267,6 +3266,7 @@ ENDDO
   ENDDO
   i=overflow ; j=overflow 
 
+#ifdef BENTHIC
 !
 !-----------------------------------------------------------------------
 !     Saving the bottom fluxes to the bt array
@@ -3296,6 +3296,8 @@ ENDDO
     bt(:,:,1,nstp,indet_btf)       = bt(:,:,1,nnew,indet_btf) 
     bt(:,:,1,nstp,ipdet_btf)       = bt(:,:,1,nnew,ipdet_btf)
     bt(:,:,1,nstp,isidet_btf)      = bt(:,:,1,nnew,isidet_btf)
+
+#endif
 
     !
     !-----------------------------------------------------------------------

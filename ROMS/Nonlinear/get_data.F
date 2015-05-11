@@ -563,16 +563,30 @@
 # if defined COBALT_IRON
 !
 !-----------------------------------------------------------------------
-! Dust deposition
+! Dust deposition to iron
 !-----------------------------------------------------------------------
 !
-      CALL get_2dfld (ng, iNLM, idDustDepo, ncFRCid(idDustDepo,ng),     &
+      CALL get_2dfld (ng, iNLM, idSolubleFe, ncFRCid(idSolubleFe,ng),   &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
 #  ifdef MASKING
      &                GRID(ng) % rmask,                                 &
 #  endif
-     &                FORCES(ng) % dustdepoG)
+     &                FORCES(ng) % soluble_feG)
+      IF (exit_flag.ne.NoError) RETURN
+
+!
+!-----------------------------------------------------------------------
+! Dust deposition to lith
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idMineralFe, ncFRCid(idMineralFe,ng),   &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % mineral_feG)
       IF (exit_flag.ne.NoError) RETURN
 
 !

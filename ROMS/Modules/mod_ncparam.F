@@ -185,7 +185,8 @@
         integer  :: idDano        ! density anomaly
         integer  :: idDENITsed    ! Denitrification in sediment
         integer  :: idDiff(2)     ! temperature and salinity diffusion
-        integer  :: idDustDepo    ! dust deposition
+        integer  :: idSolubleFe   ! dust deposition to iron
+        integer  :: idMineralFe   ! dust deposition to lith
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
@@ -1281,8 +1282,10 @@
               idAlbe=varid
             CASE ('idAtmCO2')
               idAtmCO2=varid
-            CASE ('idDustDepo')
-              idDustDepo=varid
+            CASE ('idSolubleFe')
+              idSolubleFe=varid
+            CASE ('idMineralFe')
+              idMineralFe=varid
             CASE ('idIronSed')
               idIronSed=varid
             CASE ('idPwet')

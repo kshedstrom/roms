@@ -343,10 +343,17 @@
 #  endif
 
 #  if defined COBALT_IRON
-      CALL set_2dfld_tile (ng, tile, iNLM, idDustDepo,                  &
+      CALL set_2dfld_tile (ng, tile, iNLM, idSolubleFe,                 &
      &                     LBi, UBi, LBj, UBj,                          &
-     &                     FORCES(ng)%dustdepoG,                        &
-     &                     FORCES(ng)%dustdepo,                         &
+     &                     FORCES(ng)%soluble_feG,                      &
+     &                     FORCES(ng)%soluble_fe,                       &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idMineralFe,                 &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%mineral_feG,                      &
+     &                     FORCES(ng)%mineral_fe,                       &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
