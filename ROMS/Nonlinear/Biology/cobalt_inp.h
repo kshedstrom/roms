@@ -585,7 +585,7 @@
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
 
   
-#ifdef TCLIMATOLOGY
+!!!#ifdef TCLIMATOLOGY
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -594,7 +594,7 @@
                   LtracerCLM(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-#endif
+!!!#endif
 #ifdef TS_PSOURCE
             CASE ('LtracerSrc')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)

@@ -591,6 +591,7 @@ contains
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: u10n_tmp
 #ifdef ICE_THERMO
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Coef_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: RHS_Ice
@@ -684,8 +685,10 @@ contains
       Hscale2=1.0_r8/(rho0*Cp)
 ! Note that this loop needs to be cleaned of all global arrays for
 ! OpenMP.
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
+!      DO j=Jstr-1,JendR
+!        DO i=Istr-1,IendR
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           !--- compute some needed quantities ---
 #if defined ICE_MODEL
           ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+0.001)
@@ -782,9 +785,9 @@ contains
           ustar = rd * vmag
           tstar = rh * delt
           qstar = re * delq
-          !--- save u10n to u10_neutral to reuse for gas transfer piston
-          ! velocity 
-          u10_neutral(i,j) = u10n
+          !--- RD: save u10n to u10n_tmp of dim IminS:ImaxS,JminS:JmaxS
+          ! otherwise there is an array overflow !!!
+          u10n_tmp(i,j) = u10n
 
           !------------------------------------------------------------
           ! compute the fluxes
@@ -1072,6 +1075,14 @@ contains
           svstr_aw(i,j) = svstr(i,j)
           tau_aiy_n(i,j) = Tauy_Ice(i,j)
 # endif
+        END DO
+      END DO
+
+      ! RD: save neutral wind at 10 meters to use for piston velocity
+      ! in biology routines
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           u10_neutral(i,j) = u10n_tmp(i,j)
         END DO
       END DO
 !
