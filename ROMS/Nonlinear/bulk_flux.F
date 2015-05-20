@@ -580,6 +580,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: u10n_tmp
 #ifdef ICE_THERMO
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Coef_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: RHS_Ice
@@ -815,7 +816,8 @@
 !
 !  Save neutral wind at 10 meters for gas transfer piston velocity
 !
-          u10_neutral(i,j) = u10(i)
+
+          u10n_tmp(i,j) = u10(i)
 !
 !  Compute Richardson number.
 !
@@ -1337,6 +1339,15 @@
 # endif
         END DO
       END DO
+
+      ! RD: save neutral wind at 10 meters to use for piston velocity
+      ! in biology routines
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           u10_neutral(i,j) = u10n_tmp(i,j)
+        END DO
+      END DO
+
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.
