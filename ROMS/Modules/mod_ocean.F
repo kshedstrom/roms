@@ -859,11 +859,6 @@
             END DO
           END DO
 # endif
-# ifdef TIMESERIES
-          DO itrc=1,NT(ng)
-                OCEAN(ng) % tms(1,1,itrc) = IniVal
-          END DO
-# endif
 # ifdef BULK_FLUXES
           DO i=Imin,Imax
                 OCEAN(ng) % u10_neutral(i,j) = IniVal
@@ -988,6 +983,11 @@
 # endif
 #endif
         END DO
+# ifdef TIMESERIES
+        DO itrc=1,NT(ng)
+              OCEAN(ng) % tms(1,1,itrc) = IniVal
+        END DO
+# endif
       END IF
 
 #if defined TANGENT || defined TL_IOMS
