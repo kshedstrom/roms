@@ -592,7 +592,6 @@
 !                idTbry(isouth,iirr_mem)=varid
 !              CASE ('idTbry(inorth,iirr_mem)')
 !                idTbry(inorth,iirr_mem)=varid
-#ifdef TS_PSOURCE
 
 !
 !  Biological tracers point Source/Sinks (river runoff).
@@ -701,8 +700,7 @@
 !                idRtrc(ihtotal)=varid
 !              CASE ('idRtrc(iirr_mem)')
 !                idRtrc(iirr_mem)=varid
-#endif
-/*
+!/*
 !**  Biological tracers term diagnostics.
 !*/
 
