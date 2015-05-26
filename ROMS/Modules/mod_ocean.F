@@ -124,10 +124,6 @@
 #   ifdef PROD3
           real(r8), pointer :: pt3(:,:,:,:,:)
 #   endif
-
-#   ifdef BENTHIC
-         real(r8), pointer :: bt(:,:,:,:,:)
-#   endif
 #   if defined ICE_BIO
           real(r8), pointer :: it(:,:,:,:)
           real(r8), pointer :: itL(:,:,:,:)
@@ -436,10 +432,6 @@
 # ifdef PROD3
       ! Add a 3D stationary production array to the biology module
       allocate ( OCEAN(ng) % pt3(LBi:UBi,LBj:UBj,N(ng),3,NPT3(ng)) )
-# endif
-
-# ifdef BENTHIC
-      allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
 # endif
 # if defined ICE_BIO
       allocate ( OCEAN(ng) % it(LBi:UBi,LBj:UBj,3,NIceT(ng)) )
@@ -905,18 +897,6 @@
             END DO
           END DO
 #    endif
-#    ifdef BENTHIC
-          DO itrc=1,NBeT(ng)
-            DO k=1,NBL(ng)
-              DO i=Imin,Imax
-                OCEAN(ng) % bt(i,j,k,1,itrc) = IniVal
-                OCEAN(ng) % bt(i,j,k,2,itrc) = IniVal
-                OCEAN(ng) % bt(i,j,k,3,itrc) = IniVal
-              END DO
-            END DO
-          END DO
-#  endif
-
 #  if defined ICE_BIO
           DO itrc=1,NIceT(ng)
             DO i=Imin,Imax
