@@ -71,6 +71,9 @@
 !
         USE mod_kinds
         USE mod_types
+#if defined BIO_COBALT
+        USE mod_biology, only: NOBGC
+#endif
 #if defined BENTHIC
         USE mod_biology, only: NBeT, NBL
 #endif
@@ -102,6 +105,9 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef BIO_COBALT
+          real(r8), pointer :: obgc(:,:,:,:,:)
+# endif 
 # ifdef BENTHIC
           real(r8), pointer :: bt(:,:,:,:,:)
 # endif
@@ -407,6 +413,9 @@
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
 
+# ifdef BIO_COBALT
+      allocate ( OCEAN(ng) % obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) )
+# endif
 # ifdef BENTHIC
       allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
 # endif
@@ -840,6 +849,17 @@
             END DO
           END DO
 
+# ifdef BIO_COBALT
+          DO itrc=1,NOBGC
+            DO k=1,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % obgc(i,j,k,1,itrc) = IniVal
+                OCEAN(ng) % obgc(i,j,k,2,itrc) = IniVal
+                OCEAN(ng) % obgc(i,j,k,3,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+# endif
 # ifdef BENTHIC
           DO itrc=1,NBeT(ng)
             DO k=1,NBL(ng)

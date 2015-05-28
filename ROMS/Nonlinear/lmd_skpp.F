@@ -51,9 +51,6 @@
       USE mod_ocean
       USE mod_stepping
       USE mod_clima
-#ifdef OPTIC_MANIZZA
-      USE mod_diags
-#endif
 !
 !  Imported variable declarations.
 !
@@ -97,7 +94,7 @@
      &                    CLIMA(ng) % tclm,                             &
 #endif
 # ifdef OPTIC_MANIZZA
-     &                    DIAGS(ng) % DiaBio3d,                         &
+     &                    OCEAN(ng) % obgc,                             &
 # endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
@@ -129,7 +126,7 @@
      &                          tclm,                                   &
 #endif
 # ifdef OPTIC_MANIZZA
-     &                          DiaBio3d,                               &
+     &                          obgc,                                   &
 # endif
      &                          hsbl, ksbl)
 !***********************************************************************
@@ -146,7 +143,7 @@
 # endif
 # ifdef OPTIC_MANIZZA 
 #  ifdef BIO_COBALT
-      USE mod_biology, ONLY: ichl
+      USE mod_biology, ONLY: iochl
 #  else
 ??? need to define index for cholorphyll in other bio model
 #  endif
@@ -187,7 +184,7 @@
       real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
 # endif
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: DiaBio3d(LBi:,LBj:,:,:)
+      real(r8), intent(in)    :: obgc(LBi:,LBj:,:,:,:)
 #  endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
@@ -222,7 +219,7 @@
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
 # endif
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: DiaBio3d(LBi:UBi,LBj:UBj,N(ng),NDbio3d)
+      real(r8), intent(in)    :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC)
 #  endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
@@ -350,20 +347,20 @@
       ! set upper (surface) W-point to value of Rho-point
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           chl_conc(i,j,N(ng)) = DiaBio3d(i,j,N(ng),ichl) * rho0 / 1000.0d0
+           chl_conc(i,j,N(ng)) = obgc(i,j,N(ng),nstp,iochl) * rho0 / 1000.0d0
         END DO
       END DO
       ! set lower (bottom) value to value of the bottom rho-point
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           chl_conc(i,j,0) = DiaBio3d(i,j,1,ichl) * rho0 / 1000.0d0
+           chl_conc(i,j,0) = obgc(i,j,1,nstp,iochl) * rho0 / 1000.0d0
         END DO
       END DO
       DO k=1,N(ng)-1
         DO j=Jstr,Jend
           DO i=Istr,Iend
-             chl_conc(i,j,k) = 0.5d0 * (DiaBio3d(i,j,k,ichl)+           &
-     &                                DiaBio3d(i,j,k+1,ichl)) * rho0 / 1000.0d0
+             chl_conc(i,j,k) = 0.5d0 * (obgc(i,j,k,nstp,iochl)+           &
+     &                                obgc(i,j,k+1,nstp,iochl)) * rho0 / 1000.0d0
           END DO
         END DO
       ENDDO

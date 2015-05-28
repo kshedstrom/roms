@@ -101,6 +101,15 @@
                  idTvar(ialk)=varid
 #endif
 
+! ----- Other BGC variables
+               CASE ('iDobgc(iochl)')
+                 iDobgc(iochl)=varid
+               CASE ('iDobgc(ioirr_mem)')
+                 iDobgc(ioirr_mem)=varid
+               CASE ('iDobgc(iohtotal)')
+                 iDobgc(iohtotal)=varid
+               CASE ('iDobgc(ioco3_ion)')
+                 iDobgc(ioco3_ion)=varid
 
 !RD : diag variables
 !               CASE ('idTvar(icased)')
@@ -700,10 +709,11 @@
 !                idRtrc(ihtotal)=varid
 !              CASE ('idRtrc(iirr_mem)')
 !                idRtrc(iirr_mem)=varid
-!/*
-!**  Biological tracers term diagnostics.
-!*/
 
+#ifdef DIAGNOSTICS_BIO
+!------------------------------------------------------
+!---  Biological tracers term diagnostics.
+!------------------------------------------------------
               CASE ('iDbio2(icased)')
                 iDbio2(icased)=varid
               CASE ('iDbio2(icadet_arag_btf)')
@@ -836,33 +846,30 @@
                 iDbio3(iomega_cadet_arag)=varid
               CASE ('iDbio3(iswdk)')
                 iDbio3(iswdk)=varid
-
-
-
-
+#endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')
                idBeTvar(icased)=varid
-               PRINT *, 'RD in mod_ncparam, icased=', icased
-               PRINT *, 'RD in mod_ncparam, idBeTvar(icased)=', idBeTvar(icased)
+!               PRINT *, 'RD in mod_ncparam, icased=', icased
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(icased)=', idBeTvar(icased)
               CASE ('idBeTvar(icadet_arag_btf)')
                 idBeTvar(icadet_arag_btf)=varid
-               PRINT *, 'RD in mod_ncparam, icadet_arag_btf=', icadet_arag_btf
-               PRINT *, 'RD in mod_ncparam, idBeTvar(icadet_arag_btf)=', idBeTvar(icadet_arag_btf)
+!               PRINT *, 'RD in mod_ncparam, icadet_arag_btf=', icadet_arag_btf
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(icadet_arag_btf)=', idBeTvar(icadet_arag_btf)
               CASE ('idBeTvar(icadet_calc_btf)')
                 idBeTvar(icadet_calc_btf)=varid
-               PRINT *, 'RD in mod_ncparam, icadet_calc_btf=', icadet_calc_btf
-               PRINT *, 'RD in mod_ncparam, idBeTvar(icadet_calc_btf)=', idBeTvar(icadet_calc_btf)
+!               PRINT *, 'RD in mod_ncparam, icadet_calc_btf=', icadet_calc_btf
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(icadet_calc_btf)=', idBeTvar(icadet_calc_btf)
               CASE ('idBeTvar(indet_btf)')
                idBeTvar(indet_btf)=varid
-               PRINT *, 'RD in mod_ncparam, indet_btf=', indet_btf
-               PRINT *, 'RD in mod_ncparam, idBeTvar(indet_btf)=', idBeTvar(indet_btf)
+!               PRINT *, 'RD in mod_ncparam, indet_btf=', indet_btf
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(indet_btf)=', idBeTvar(indet_btf)
               CASE ('idBeTvar(ipdet_btf)')
                idBeTvar(ipdet_btf)=varid
-               PRINT *, 'RD in mod_ncparam, ipdet_btf=', ipdet_btf
-               PRINT *, 'RD in mod_ncparam, idBeTvar(ipdet_btf)=', idBeTvar(ipdet_btf)
+!               PRINT *, 'RD in mod_ncparam, ipdet_btf=', ipdet_btf
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(ipdet_btf)=', idBeTvar(ipdet_btf)
               CASE ('idBeTvar(isidet_btf)')
                idBeTvar(isidet_btf)=varid
-               PRINT *, 'RD in mod_ncparam, isidet_btf=', isidet_btf
-               PRINT *, 'RD in mod_ncparam, idBeTvar(isidet_btf)=', idBeTvar(isidet_btf)
+!               PRINT *, 'RD in mod_ncparam, isidet_btf=', isidet_btf
+!               PRINT *, 'RD in mod_ncparam, idBeTvar(isidet_btf)=', idBeTvar(isidet_btf)
 #endif

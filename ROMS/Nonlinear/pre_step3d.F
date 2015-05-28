@@ -106,7 +106,7 @@
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
 # ifdef OPTIC_MANIZZA
-     &                      DIAGS(ng) % DiaBio3d,                       &
+     &                      OCEAN(ng) % obgc,                           &
 # endif
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
@@ -151,7 +151,7 @@
      &                            DiaRU, DiaRV,                         &
 # endif
 # ifdef OPTIC_MANIZZA
-     &                            DiaBio3d,                             &
+     &                            obgc,                                 &
 # endif
      &                            t, u, v)
 !***********************************************************************
@@ -229,7 +229,7 @@
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: DiaBio3d(LBi:,LBj:,:,:)
+      real(r8), intent(in)    :: obgc(LBi:,LBj:,:,:,:)
 #  endif
 #  ifdef SUN
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
@@ -284,7 +284,7 @@
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 #  endif
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: DiaBio3d(LBi:UBi,LBj:UBj,N(ng),NDbio3d)
+      real(r8), intent(in)    :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC)
 #  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
@@ -342,20 +342,20 @@
       ! set upper (surface) W-point to value of Rho-point
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           chl_conc(i,j,N(ng)) = DiaBio3d(i,j,N(ng),ichl) * rho0 / 1000.0d0
+           chl_conc(i,j,N(ng)) = obgc(i,j,N(ng),nstp,iochl) * rho0 / 1000.0d0
         END DO
       END DO
       ! set lower (bottom) value to value of the bottom rho-point
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           chl_conc(i,j,0) = DiaBio3d(i,j,1,ichl) * rho0 / 1000.0d0
+           chl_conc(i,j,0) = obgc(i,j,1,nstp,iochl) * rho0 / 1000.0d0
         END DO
       END DO
       DO k=1,N(ng)-1
         DO j=Jstr,Jend
           DO i=Istr,Iend
-             chl_conc(i,j,k) = 0.5d0 * (DiaBio3d(i,j,k,ichl)+           &
-     &                                DiaBio3d(i,j,k+1,ichl)) * rho0 / 1000.0d0
+             chl_conc(i,j,k) = 0.5d0 * (obgc(i,j,k,nstp,iochl)+         &
+     &                         obgc(i,j,k+1,nstp,iochl)) * rho0 / 1000.0d0
           END DO
         END DO
       ENDDO

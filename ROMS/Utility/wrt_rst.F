@@ -35,6 +35,9 @@
 #if (defined PERFECT_RESTART && defined ICE_MODEL) || defined NCEP_FLUXES
       USE mod_forces
 #endif
+#if defined BIO_COBALT
+      USE mod_biology, only: iDobgc
+#endif
 #if defined BENTHIC
       USE mod_biology, only: idBeTvar
 #endif
@@ -603,6 +606,42 @@
           RETURN
         END IF
       END DO
+
+#ifdef BIO_COBALT
+! ----------------Write Cobalt Other BGC variables in restart --------------
+
+      DO itrc=1,NOBGC
+        scale=1.0_r8
+        gtype=gfactor*r3dvar
+# ifdef PERFECT_RESTART
+        status=nf_fwrite4d(ng, iNLM, RST(ng)%ncid,                      &
+     &                     RST(ng)%Vid(iDobgc(itrc)),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng), 1, 2, scale,   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#  endif
+     &                     OCEAN(ng) % obgc(:,:,:,:,itrc))
+# else
+        status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(iDobgc(itrc)),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask_full,                       &
+#  endif
+     &                     OCEAN(ng) % obgc(:,:,:,NOUT,itrc))
+# endif
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,iDobgc(itrc))), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END DO
+#endif
 
 #ifdef BENTHIC
 !------------------ Benthic reservoir variables ------------------------

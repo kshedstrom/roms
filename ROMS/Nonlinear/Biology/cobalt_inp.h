@@ -28,9 +28,10 @@
       integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
 
       logical, dimension(NBT,Ngrids) :: Ltrc
+#ifdef DIAGNOSTICS_BIO
       logical, dimension(NDbio2d,Ngrids) :: Lbio2d
       logical, dimension(NDbio3d,Ngrids) :: Lbio3d
-
+#endif
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
       real(r8), dimension(200) :: Rval
@@ -646,9 +647,7 @@
               END DO
             END DO
 #endif
-
-
-!RD: diags variables for Cobalt
+#ifdef DIAGNOSTICS_BIO
             CASE ('Dout(iDbio2)')
               Npts=load_l(Nval, Cval, NDbio2d*Ngrids, Lbio2d)
               DO ng=1,Ngrids
@@ -677,6 +676,7 @@
                   Dout(i,ng)=Lbio3d(itrc,ng)
                 END DO
               END DO
+#endif
 #ifdef PRIMARY_PROD
             CASE ('Hout(idNPP)')
               IF (idNPP.eq.0) THEN

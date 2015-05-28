@@ -492,9 +492,13 @@
 !
 
       integer, allocatable :: idbio(:)    ! Biological tracers
-      integer, allocatable :: iDbio2(:)   ! 2D diag Biological tracers
-      integer, allocatable :: iDbio3(:)   ! 3D diag Biological tracers
+      integer, allocatable :: iDobgc(:)   ! Other BGC 
+#ifdef DIAGNOSTICS_BIO
+      integer, allocatable :: iDbio2(:)   ! 2D Biological diagnostics
+      integer, allocatable :: iDbio3(:)   ! 3D Biological diagnostics
+#endif
       integer, allocatable :: idsink(:)   ! Sinking material
+
 #if defined BENTHIC
       integer, allocatable :: NBeT(:)
       integer              :: NBEN
@@ -538,6 +542,12 @@
       integer              :: insmz       ! Small Zooplankton Nitrogen
       integer              :: inmdz       ! Medium-sized zooplankton Nitrogen
       integer              :: inlgz       ! large Zooplankton Nitrogen
+!RD: in the future NOBGC should be NOBGC(ngrids)
+      integer              :: NOBGC       ! Number of Other BGC variables
+      integer              :: iochl       ! chlorophyll in other BGC
+      integer              :: ioirr_mem   ! irradiance memory in other BGC
+      integer              :: iohtotal    ! htotal in other BGC
+      integer              :: ioco3_ion   ! co3_ion in other BGC
 
       integer              :: Nsink
 
@@ -1729,7 +1739,7 @@
 !  Determine number of biological tracers.
 !-----------------------------------------------------------------------
 !
-
+!
       ! Nitrogen Dynamics
       NBT=13
 #ifdef COBALT_MINERALS
@@ -1748,16 +1758,18 @@
       ! Oxygen, Carbon and Alkalinity
       NBT=NBT+3
 #endif
-
-
+      ! Other BGC
+      NOBGC = 4
+#ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
       NDbio3d = 37
-
+#endif
 #ifdef BENTHIC
+      ! Benthic reservoirs
       NBEN=6
 #endif
-
+      ! Sinking material
       Nsink=7
 
 !-----------------------------------------------------------------------
@@ -2487,6 +2499,11 @@
 !      IF (.not.allocated(IC_file)) THEN
 !        allocate ( IC_file(Ngrids) )
 !      END IF
+
+! RD TODO in the future
+!      IF (.not.allocated(NOBGC)) THEN
+!        allocate ( NOBGC(Ngrids) )
+!      END IF
 #ifdef BENTHIC
       IF (.not.allocated(NBeT)) THEN
         allocate ( NBeT(Ngrids) )
@@ -2520,6 +2537,12 @@
         allocate ( idbio(NBT) )
       END IF
 
+      ! Other BGC variables
+      IF (.not.allocated(iDobgc)) THEN
+        allocate ( iDobgc(NOBGC) )
+      END IF
+
+#ifdef DIAGNOSTICS_BIO
       ! 2D Diagnostic variables
       IF (.not.allocated(iDbio2)) THEN
         allocate ( iDbio2(NDbio2d) )
@@ -2529,6 +2552,7 @@
       IF (.not.allocated(iDbio3)) THEN
         allocate ( iDbio3(NDbio3d) )
       END IF
+#endif
 
       ! Sinking material
       IF (.not.allocated(idsink)) THEN
@@ -2595,7 +2619,17 @@
       ic=ic+3
 #endif
 
+      ! Other BGC variables (not in tracer array but necessary for
+      ! dynamics)
+      iochl=1
+      ioirr_mem=2
+      iohtotal=3
+      ioco3_ion=4
+
+#ifdef DIAGNOSTICS_BIO
       ! 2D Diagnostic variables
+      ! RD: not quite sure we need this because cobalt_var does also
+      ! attribute a var id
       DO i=1,NDbio2d
         iDbio2(i)=i
       END DO
@@ -2681,8 +2715,10 @@
       iomega_cadet_arag=36
      
       iswdk=37
+#endif
       
       ! Sediment variables
+      ! RD: convert to bottom reservoirs
 #ifdef BENTHIC
       DO i=1,Ngrids
          NBeT(i) = NBEN

@@ -464,13 +464,8 @@
 #endif
             DO j=JstrR,JendR
               DO i=IstrR,IendR
-#ifdef BIO_COBALT
-                DIAGS(ng)%DiaBio2d(i,j,idiag)=1.0_r8 *                &
-     &                    DIAGS(ng)%DiaBio2d(i,j,idiag)
-#else
                 DIAGS(ng)%DiaBio2d(i,j,idiag)=rfac(i,j)*                &
      &                    DIAGS(ng)%DiaBio2d(i,j,idiag)
-#endif
               END DO
             END DO
 #ifdef BIO_FENNEL
@@ -481,13 +476,8 @@
           DO k=1,N(ng)
             DO j=JstrR,JendR
               DO i=IstrR,IendR
-#ifdef BIO_COBALT
-                DIAGS(ng)%DiaBio3d(i,j,k,idiag)=1.0_r8 *                &
-     &                    DIAGS(ng)%DiaBio3d(i,j,k,idiag)
-#else
                 DIAGS(ng)%DiaBio3d(i,j,k,idiag)=rfac(i,j)*              &
      &                    DIAGS(ng)%DiaBio3d(i,j,k,idiag)
-#endif
               END DO
             END DO
           END DO

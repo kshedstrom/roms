@@ -64,10 +64,13 @@
 #endif
      &                   MIXING(ng) % hsbl,                             &
      &                   MIXING(ng) % ksbl,                             &
+#ifdef DIAGNOSTICS_BIO
      &                   DIAGS(ng) % DiaBio2d,                          &
      &                   DIAGS(ng) % DiaBio3d,                          &
+#endif
      &                   OCEAN(ng) % rho,                               &
      &                   OCEAN(ng) % zeta,                              &
+     &                   OCEAN(ng) % obgc,                              &
 #ifdef BENTHIC
      &                   OCEAN(ng) % bt,                                &
 #endif
@@ -104,8 +107,11 @@
      &                         soluble_fe, mineral_fe, ironsed,         &
 #endif
      &                         hsbl, ksbl,                              &
+#ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
+#endif
      &                         rho, zeta,                               &
+     &                         obgc,                                    &
 #ifdef BENTHIC
      &                         bt,                                      &
 #endif
@@ -122,6 +128,9 @@
       USE shapiro_mod
       USE FMS_ocmip2_co2calc_mod, only : FMS_ocmip2_co2calc, CO2_dope_vector
       USE mod_iounits, only : stdout
+# ifdef SOLVE3D
+      USE bc_3d_mod
+# endif
 
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_reduce
@@ -167,10 +176,13 @@
 #endif
       real(r8), intent(in)    :: hsbl(LBi:,LBj:)
       integer,  intent(in)    :: ksbl(LBi:,LBj:)
+#ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaBio3d(LBi:,LBj:,:,:)
+#endif
       real(r8), intent(in)    :: rho(LBi:,LBj:,:)
       real(r8), intent(in)    :: zeta(LBi:,LBj:,:)
+      real(r8), intent(inout) :: obgc(LBi:,LBj:,:,:,:)
 #ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
 #endif
@@ -207,10 +219,13 @@
 # endif
       real(r8), intent(in)    :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(in)    :: ksbl(LBi:UBi,LBj:UBj)
+#ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
       real(r8), intent(inout) :: DiaBio3d(LBi:UBi,LBj:UBj,UBk,NDbio3d)
+#endif
       real(r8), intent(in)    :: rho(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in)    :: zeta(LBi:UBi,LBj:UBj,3)
+      real(r8), intent(inout) :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) ! RD: not sure it'd work
 #ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,UBt) ! RD: not sure it'd work
 #endif
@@ -431,33 +446,59 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(temp)  =', MINVAL(cobalt%f_temp(:,:,:)),  MAXVAL(cobalt%f_temp(:,:,:))
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', MINVAL(cobalt%f_salt(:,:,:)), MAXVAL(cobalt%f_salt(:,:,:))
 #endif
+
+#ifdef DIAGNOSTICS_BIO
+!
+!-----------------------------------------------------------------------
+! If appropriate, initialize time-averaged diagnostic arrays.
+!-----------------------------------------------------------------------
+!
+      IF (((iic(ng).gt.ntsDIA(ng)).and.                                 &
+     &     (MOD(iic(ng),nDIA(ng)).eq.1)).or.                            &
+     &    ((iic(ng).ge.ntsDIA(ng)).and.(nDIA(ng).eq.1)).or.             &
+     &    ((nrrec(ng).gt.0).and.(iic(ng).eq.ntstart(ng)))) THEN
+        DO it=1,NDbio2d
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              DiaBio2d(i,j,it)=0.0_r8
+            END DO
+          END DO
+        END DO
+        DO it=1,NDbio3d
+          DO k=1,N(ng)
+            DO j=Jstr,Jend
+              DO i=Istr,Iend
+                DiaBio3d(i,j,k,it)=0.0_r8
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+#endif
+
 #ifdef COBALT_CARBON
 !---------------------------------------------------------------------
 !Calculate co3_ion
 !Also calculate co2 fluxes csurf and alpha for the next round of exchange
 !---------------------------------------------------------------------
-   
-    ! RD dev notes :
-    ! htotal is init at the beginning of each job (no restart for this field)
-    ! hopefully after NWRITE steps before first write, f_hotal forgets its initial condition
-    IF (iic(ng).eq.ntstart(ng)) THEN
-       cobalt%f_htotal(:,:,:) = htotal_in(ng) 
-    ELSE
+!   
+! RD dev notes :
+! htotal and co3_ion are read from restart even though it is not prognostic so that we
+! don't have a glitch at the begining of each job
        DO k=1,UBk
          DO j=Jstr,Jend
            DO i=Istr,Iend
-              cobalt%f_htotal(i,j,k) = max( DiaBio3d(i,j,k,ihtotal) , 0.0d0 )
+              cobalt%f_htotal(i,j,k)  = max( obgc(i,j,k,nstp,iohtotal) , 0.0d0 )
+              cobalt%f_co3_ion(i,j,k) = max( obgc(i,j,k,nstp,ioco3_ion) , 0.0d0 )
            ENDDO
          ENDDO
        ENDDO
        i=overflow ; j=overflow ; k=overflow
-    ENDIF
-
-
-    ! RD dev notes :
-    ! Copy some tracer variables (po4, sio4, dic and alk) to cobalt arrays
-    ! these will be used for the carbon chemistry routines
-    ! variables will be copied again after carbon routines
+!
+! RD dev notes :
+! Copy some tracer variables (po4, sio4, dic and alk) to cobalt arrays
+! these will be used for the carbon chemistry routines
+! variables will be copied again after carbon routines
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
@@ -470,12 +511,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
       ENDDO
     ENDDO
     i=overflow ; j=overflow ; k=overflow
-
-
-    ! RD dev notes :
-    ! carbon chemistry routines are first applied to surface ( k = UBk )
+!
+! RD dev notes :
+! carbon chemistry routines are first applied to surface ( k = UBk )
     k=UBk
-
     cobalt%htotallo(:,:) = cobalt%htotal_scale_lo * cobalt%f_htotal(:,:,k)
     cobalt%htotalhi(:,:) = cobalt%htotal_scale_hi * cobalt%f_htotal(:,:,k)
 
@@ -500,25 +539,27 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =
  &       alpha=cobalt%co2_alpha(:,:),                  &
  &       pCO2surf=cobalt%pco2_csurf(:,:),              &
  &       co3_ion=cobalt%f_co3_ion(:,:,k))
-
+!
 #ifdef DEBUG_COBALT
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(htotal)  =', MINVAL(cobalt%f_htotal(:,:,k)),  MAXVAL(cobalt%f_htotal(:,:,k))
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) =', MINVAL(cobalt%f_co3_ion(:,:,k)), MAXVAL(cobalt%f_co3_ion(:,:,k))
 #endif
-
-
+!
+#ifdef DIAGNOSTICS_BIO
+! RD dev notes:
+! save diagnostics on carbon chemistry
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        DiaBio2d(i,j,ialpha)    = cobalt%co2_alpha(i,j)
-        DiaBio2d(i,j,ico2star)  = cobalt%co2_csurf(i,j)
-        DiaBio2d(i,j,ipco2surf) = cobalt%pco2_csurf(i,j)
+        DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + cobalt%co2_alpha(i,j)
+        DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + cobalt%co2_csurf(i,j)
+        DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j)
      ENDDO
    ENDDO
-
-
-   ! RD dev notes : gas transfer for CO2
-   ! take code from cobalt set_boundary_values !!!
-
+#endif
+!
+! RD dev notes : gas transfer for CO2
+! code adapted from cobalt set_boundary_values
+!
    DO j=Jstr,Jend
      DO i=Istr,Iend
 
@@ -568,15 +609,13 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! convert airsea_co2_flx from mol.m-2.s-1 to mol.kg-1.s-1 
        airsea_co2_flx(i,j) = airsea_co2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk)
 
-       ! RD: for testing only
-       DiaBio2d(i,j,ico2_flx) = airsea_co2_flx(i,j) * dt(ng)
-
 #ifdef COBALT_CONSERVATION_TEST
        airsea_co2_flx(i,j) = 0.0d0
 #endif
 
-       ! RD: this one after is the good one
-       !DiaBio2d(i,j,ico2_flx) = airsea_co2_flx(i,j) * dt(ng)
+#ifdef DIAGNOSTICS_BIO
+       DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) + airsea_co2_flx(i,j) * dt(ng)
+#endif
 
        !---------------------------------------------------------------------
        !     O2
@@ -642,14 +681,12 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! don't think I need this now
        !o2_alpha(i,j) = (o2_saturation / 0.21)
 
-        DiaBio2d(i,j,io2_flx) = airsea_o2_flx(i,j) * dt(ng)
-
 #ifdef COBALT_CONSERVATION_TEST
         airsea_o2_flx(i,j) = 0.0d0
 #endif
-        !DiaBio2d(i,j,io2_flx) = airsea_o2_flx(i,j) * dt(ng)
-
-
+#ifdef DIAGNOSTICS_BIO
+        DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) + airsea_o2_flx(i,j) * dt(ng)
+#endif
      ENDDO
    ENDDO
 
@@ -746,6 +783,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 #ifdef BENTHIC
 ! RD dev notes :
+! RE DO THIS !!!
 ! bottom fluxes are passed into ROMS in the bt array, it is well suited for 2d 
 ! variables, is not advected/diffused and has a restart implementation
 ! irr_mem, hotal and co3_ion are in DiaBio3d (3d diagnostics variables) and
@@ -768,21 +806,21 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   i=overflow ; j=overflow 
 #endif
 
+! RD dev notes:
+! irradiance memory read from restart to avoid glitch at the begining of a new
+! job
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
-      cobalt%f_irr_mem(i,j,k)      = max( DiaBio3d(i,j,k,iirr_mem) , 0.0d0 )
+      cobalt%f_irr_mem(i,j,k)      = max( obgc(i,j,k,nstp,ioirr_mem) , 0.0d0 )
       ENDDO
     ENDDO
   ENDDO
   i=overflow ; j=overflow ; k=overflow
-
-
-
-
-   ! RD dev notes : dust deposition to iron and lith surface source
-   DO j=Jstr,Jend
-     DO i=Istr,Iend
+!
+! RD dev notes : dust deposition to iron and lith surface source
+  DO j=Jstr,Jend
+    DO i=Istr,Iend
 
        iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) )
        ! units mol/kg/s       =  [mol.m-2.s-1]  / [kg.m-3] * [m]
@@ -794,13 +832,17 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         iron_dust_src(i,j,UBk) = 0.0d0
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
-        DiaBio3d(i,j,UBk,ife_bulk_flx) = iron_dust_src(i,j,UBk) * dt(ng)
+#ifdef DIAGNOSTICS_BIO
+        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * dt(ng)
+#endif
 
-     ENDDO
-   ENDDO
-   i=overflow ; j=overflow
-
-   ! RD dev notes : dust deposition to iron and lith subsurface source
+    ENDDO
+  ENDDO
+  i=overflow ; j=overflow
+!
+! RD dev notes : dust deposition to iron and lith subsurface source
+! set to zero for now, some other models add iron and lith in the upper 600
+! meters below the surface. Here for future developments
    DO k=1,UBk-1
      DO j=Jstr,Jend
        DO i=Istr,Iend
@@ -811,7 +853,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
           iron_dust_src(i,j,k) = 0.0d0
           lith_dust_src(i,j,k) = 0.0d0
 #endif
-          DiaBio3d(i,j,k,ife_bulk_flx) = iron_dust_src(i,j,k) * dt(ng)
+#ifdef DIAGNOSTICS_BIO
+          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * dt(ng)
+#endif
 
        ENDDO
      ENDDO
@@ -906,30 +950,20 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 ! 1.2: Light Limitation/Growth Calculations
 !-----------------------------------------------------------------------
 !
+! RD dev notes : chlorophyll is store in obgc variable and does have a
+! restart, hence at first timestep we read from the restart to avoid a glitch
+! then value will be updated by cobalt main code
+! chl_conc is a temporary array located at W-point used to compute the light
+! penetration decay, hence we interpolate values from obgc which is on
+! rho-point
 
-   ! RD dev notes : chlorophyll is store in Diag variable and does not have a
-   ! restart, hence at first timestep of each job there will be a glitch
-   ! here initialization to 0.1 which is more appropriate than zero :
-
-   ! adding chlorophyll to a different type of array to have restart
-   ! or choice of this initial value is open to discussion
-
-   IF (iic(ng).eq.ntstart(ng)) THEN
-       DiaBio3d(:,:,:,ichl)  = 0.1d0 ! double-check units
-   ENDIF
-
-   ! RD dev notes :
-   ! chl_conc is a temporary array located at W-point used to compute the light
-   ! penetration decay, hence we interpolate values from DiaBio3d which is on
-   ! rho-point
-
-   ! the rho0 / 1000 = 1.025 is a unit conversion from ug Chl.kg-1 of Cobalt to
-   ! mg Chl.m-3 used in the light penetration ( manizza ) routine
+! the rho0 / 1000 is a unit conversion from ug Chl.kg-1 of Cobalt to
+! mg Chl.m-3 used in the light penetration ( manizza ) routine
 
    ! 1. set upper (surface) W-point to value of the surface rho-point
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        chl_conc(i,j,UBk) = DiaBio3d(i,j,UBk,ichl) * rho0 / 1000.0d0
+        chl_conc(i,j,UBk) = obgc(i,j,UBk,nstp,iochl) * rho0 / 1000.0d0
      END DO
    END DO
    i=overflow ; j=overflow
@@ -937,7 +971,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ! 2. set lower (bottom) value to value of the bottom rho-point
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        chl_conc(i,j,0) = DiaBio3d(i,j,1,ichl) * rho0 / 1000.0d0
+        chl_conc(i,j,0) = obgc(i,j,1,nstp,iochl) * rho0 / 1000.0d0
      END DO
    END DO
    i=overflow ; j=overflow
@@ -946,8 +980,8 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=1,UBk-1
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          chl_conc(i,j,k) = 0.5d0 * (DiaBio3d(i,j,k,ichl)+             &
-  &                                DiaBio3d(i,j,k+1,ichl)) * rho0 / 1000.0d0
+          chl_conc(i,j,k) = 0.5d0 * (obgc(i,j,k,nstp,iochl)+             &
+  &                                obgc(i,j,k+1,nstp,iochl)) * rho0 / 1000.0d0
        END DO
      END DO
    ENDDO
@@ -964,14 +998,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
    i=overflow ; j=overflow ; k=overflow
 
-!#ifdef DEBUG_COBALT
-!IF (Master) WRITE(stdout,*) 'COBALT : Setting chl = 0.1 everywhere to debug'
-!chl_conc(:,:,:) = 0.1
-!#endif
-
-   ! CALL ligh penetration scheme and get decay functions DK
-   ! manizza will compute 4 fractions : Total, InfraRed, Visible blue and
-   ! Visible red. In cobalt, only blue and red will be used
+! CALL ligh penetration scheme and get decay functions DK
+! manizza will compute 4 fractions : Total, InfraRed, Visible blue and
+! Visible red. In cobalt, only blue and red will be used
    CALL optic_manizza3_tile (ng, tile,                              &
  &                        LBi, UBi, LBj, UBj,                       &
  &                        IminS, ImaxS, JminS, JmaxS,               &
@@ -986,14 +1015,16 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
    i=overflow ; j=overflow ; k=overflow
 
+#ifdef DIAGNOSTICS_BIO
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          DiaBio3d(i,j,k,iswdk) = swdk3(i,j,k)
+          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
        END DO
      END DO
    ENDDO
    i=overflow ; j=overflow ; k=overflow
+#endif
 
 
    !------------ Compute mixed layer depth -----------------------------
@@ -1140,13 +1171,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! Calculate the temperature limitation (expkT) and the time integrated
   ! irradiance (f_irr_mem) to which the Chl:C ratio responds (~24 hours)
   !
-
-  ! RD dev notes :
-  ! at initial time set irradiance_memory to irr_mix because we don't have a
-  ! restart for iir_mem
-  IF ( iic(ng) .eq. ntstart(ng) ) THEN
-     cobalt%f_irr_mem(:,:,:) = cobalt%irr_mix(:,:,:)
-  ENDIF
 
   DO k=1,UBk
     DO j=LBj,UBj
@@ -2093,11 +2117,12 @@ ENDDO
        cobalt%omega_calc(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_calc(i,j,k)
 
 
-      DiaBio3d(i,j,k,ico3_sol_arag) = cobalt%co3_sol_arag(i,j,k)
-      DiaBio3d(i,j,k,ico3_sol_calc) = cobalt%co3_sol_calc(i,j,k)
-
-      DiaBio3d(i,j,k,iomega_cadet_arag) = cobalt%omega_arag(i,j,k)
-      DiaBio3d(i,j,k,iomega_cadet_calc) = cobalt%omega_calc(i,j,k)
+#ifdef DIAGNOSTICS_BIO
+      DiaBio3d(i,j,k,ico3_sol_arag)     = DiaBio3d(i,j,k,ico3_sol_arag)     + cobalt%co3_sol_arag(i,j,k)
+      DiaBio3d(i,j,k,ico3_sol_calc)     = DiaBio3d(i,j,k,ico3_sol_calc)     + cobalt%co3_sol_calc(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_arag) = DiaBio3d(i,j,k,iomega_cadet_arag) + cobalt%omega_arag(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_calc) = DiaBio3d(i,j,k,iomega_cadet_calc) + cobalt%omega_calc(i,j,k)
+#endif
 
       ENDDO
     ENDDO
@@ -2483,14 +2508,16 @@ ENDDO
 
          IF ( ibio == indet ) THEN
             ndet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
+#ifdef DIAGNOSTICS_BIO
             !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * t(i,j,k,nstp,indet) 
-            DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * qc(i,k)
+            !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * qc(i,k)
             !DiaBio3d(i,j,k,indet_b4sink) = 0.0d0
-            DiaBio3d(i,j,k,indet_flx)    = FC(i,k-1) !FC(N) is zero anyway
+            !DiaBio3d(i,j,k,indet_flx)    = FC(i,k-1) !FC(N) is zero anyway
             !DiaBio3d(i,j,k,indet_afsink) = Hz(i,j,k) * ( t(i,j,k,nstp,indet) + ndet_sinking(i,j,k) * dt(ng) )
             !DiaBio3d(i,j,k,indet_afsink) = Hz(i,j,k) * t(i,j,k,nstp,indet) + (FC(i,k)-FC(i,k-1))
-            DiaBio3d(i,j,k,indet_afsink) = Hz(i,j,k) * qc(i,k) + (FC(i,k)-FC(i,k-1))
+            !DiaBio3d(i,j,k,indet_afsink) = Hz(i,j,k) * qc(i,k) + (FC(i,k)-FC(i,k-1))
             !DiaBio3d(i,j,k,indet_afsink) = (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
+#endif
          ELSEIF ( ibio == isidet ) THEN
             sidet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
          ELSEIF ( ibio == icadet_calc ) THEN
@@ -2637,8 +2664,10 @@ ENDDO
 #ifdef COBALT_CONSERVATION_TEST
     cobalt%ffe_sed(i,j) = 0.0d0
 #endif
+#ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
-    DiaBio2d(i,j,iironsed_flx) = cobalt%ffe_sed(i,j) *  dt(ng) 
+    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  dt(ng) 
+#endif
 
 
     !
@@ -2727,21 +2756,23 @@ ENDDO
   ENDDO
   
 
+#ifdef DIAGNOSTICS_BIO
   DO j=Jstr,Jend
     DO i=Istr,Iend
        CALL cobalt_vertical_integral( cobalt%jprod_ndet(i,j,:), &
  &          Hz(i,j,:), z_w(i,j,:), 1000.0d0, 100.0d0 , UBk, twodim_int_diag(i,j) )
 
-    DiaBio2d(i,j,ijprod_ndet_100)  = twodim_int_diag(i,j)  * 86400 * 6.625 * 1000 * 12
+    DiaBio2d(i,j,ijprod_ndet_100)  = DiaBio2d(i,j,iironsed_flx) + twodim_int_diag(i,j)  * 86400 * 6.625 * 1000 * 12
 
        CALL cobalt_vertical_integral( cobalt%jremin_ndet(i,j,:), &
  &          Hz(i,j,:), z_w(i,j,:), 1000.0d0, 100.0d0 , UBk, twodim_int_diag(i,j) )
 ! &          Hz(i,j,:), z_w(i,j,:), omn(i,j), 100.0d0 , UBk, cobalt%jremin_ndet_100(i,j) )
 
-    DiaBio2d(i,j,ijremin_ndet_100) = twodim_int_diag(i,j) * 86400 * 6.625 * 1000 * 12
+    DiaBio2d(i,j,ijremin_ndet_100) = DiaBio2d(i,j,ijremin_ndet_100) + twodim_int_diag(i,j) * 86400 * 6.625 * 1000 * 12
 
     ENDDO
   ENDDO
+#endif
 
 
 !
@@ -2985,10 +3016,12 @@ ENDDO
 &                             cobalt%jdiss_cadet_arag(i,j,k) +           &
 &                             cadet_arag_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_cadet_arag) = cobalt%jprod_cadet_arag(i,j,k)
+  DiaBio3d(i,j,k,ijprod_cadet_arag) = DiaBio3d(i,j,k,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(i,j,k)
   ! diag on dissolution term
-  DiaBio3d(i,j,k,ijdiss_cadet_arag) = cobalt%jdiss_cadet_arag(i,j,k)
+  DiaBio3d(i,j,k,ijdiss_cadet_arag) = DiaBio3d(i,j,k,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3001,10 +3034,12 @@ ENDDO
 &                             cobalt%jdiss_cadet_calc(i,j,k) +           &
 &                             cadet_calc_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_cadet_calc) = cobalt%jprod_cadet_calc(i,j,k)
+  DiaBio3d(i,j,k,ijprod_cadet_calc) = DiaBio3d(i,j,k,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(i,j,k)
   ! diag on dissolution term
-  DiaBio3d(i,j,k,ijdiss_cadet_calc) = cobalt%jdiss_cadet_calc(i,j,k)
+  DiaBio3d(i,j,k,ijdiss_cadet_calc) = DiaBio3d(i,j,k,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3022,14 +3057,16 @@ ENDDO
 &                        cobalt%det_jhploss_fe(i,j,k) +                  &
 &                        fedet_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_fedet) = cobalt%jprod_fedet(i,j,k)
+  DiaBio3d(i,j,k,ijprod_fedet) = DiaBio3d(i,j,k,ijprod_fedet) + cobalt%jprod_fedet(i,j,k)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_fedet) = cobalt%jremin_fedet(i,j,k)
+  DiaBio3d(i,j,k,ijremin_fedet) = DiaBio3d(i,j,k,ijremin_fedet) + cobalt%jremin_fedet(i,j,k)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_fe) = cobalt%det_jzloss_fe(i,j,k)
+  DiaBio3d(i,j,k,idet_jzloss_fe) = DiaBio3d(i,j,k,idet_jzloss_fe) + cobalt%det_jzloss_fe(i,j,k)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_fe) = cobalt%det_jhploss_fe(i,j,k)
+  DiaBio3d(i,j,k,idet_jhploss_fe) = DiaBio3d(i,j,k,idet_jhploss_fe) +cobalt%det_jhploss_fe(i,j,k)
+#endif
   
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3046,8 +3083,10 @@ ENDDO
   ! RD dev notes : add dust source from atmosphere
   cobalt%jlith(i,j,k) = cobalt%jlith(i,j,k) + lith_dust_src(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_lithdet) = cobalt%jprod_lithdet(i,j,k)
+  DiaBio3d(i,j,k,ijprod_lithdet) = DiaBio3d(i,j,k,ijprod_lithdet) + cobalt%jprod_lithdet(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3062,14 +3101,16 @@ ENDDO
 &                       cobalt%det_jhploss_n(i,j,k) +                    &
 &                       ndet_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_ndet) = cobalt%jprod_ndet(i,j,k)
+  DiaBio3d(i,j,k,ijprod_ndet) = DiaBio3d(i,j,k,ijprod_ndet) + cobalt%jprod_ndet(i,j,k)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_ndet) = cobalt%jremin_ndet(i,j,k)
+  DiaBio3d(i,j,k,ijremin_ndet) = DiaBio3d(i,j,k,ijremin_ndet) + cobalt%jremin_ndet(i,j,k)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_n) = cobalt%det_jzloss_n(i,j,k)
+  DiaBio3d(i,j,k,idet_jzloss_n) = DiaBio3d(i,j,k,idet_jzloss_n) + cobalt%det_jzloss_n(i,j,k)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_n) = cobalt%det_jhploss_n(i,j,k)
+  DiaBio3d(i,j,k,idet_jhploss_n) = DiaBio3d(i,j,k,idet_jhploss_n) + cobalt%det_jhploss_n(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3084,14 +3125,16 @@ ENDDO
 &                       cobalt%det_jhploss_p(i,j,k) +                    &
 &                       pdet_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_pdet) = cobalt%jprod_pdet(i,j,k)
+  DiaBio3d(i,j,k,ijprod_pdet) = DiaBio3d(i,j,k,ijprod_pdet) + cobalt%jprod_pdet(i,j,k)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_pdet) = cobalt%jremin_pdet(i,j,k)
+  DiaBio3d(i,j,k,ijremin_pdet) = DiaBio3d(i,j,k,ijremin_pdet) + cobalt%jremin_pdet(i,j,k)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_p) = cobalt%det_jzloss_p(i,j,k)
+  DiaBio3d(i,j,k,idet_jzloss_p) = DiaBio3d(i,j,k,idet_jzloss_p) + cobalt%det_jzloss_p(i,j,k)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_p) = cobalt%det_jhploss_p(i,j,k)
+  DiaBio3d(i,j,k,idet_jhploss_p) = DiaBio3d(i,j,k,idet_jhploss_p) + cobalt%det_jhploss_p(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3106,8 +3149,10 @@ ENDDO
 &                        cobalt%det_jhploss_si(i,j,k) +                  &
 &                        sidet_sinking(i,j,k)
 
+#ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_sidet) = cobalt%jprod_sidet(i,j,k)
+  DiaBio3d(i,j,k,ijprod_sidet) = DiaBio3d(i,j,k,ijprod_sidet) + cobalt%jprod_sidet(i,j,k)
+#endif
 
   ENDDO ; ENDDO ; ENDDO
   i=overflow ; j=overflow ; k=overflow
@@ -3266,6 +3311,26 @@ ENDDO
   ENDDO
   i=overflow ; j=overflow 
 
+  ! RD dev notes : Copy other BGC variables to new step (this array is not passed to dynamics)
+  ! RD : Sanity check with values = iic done and successful, array with index nstp is previous step
+  DO k=1,UBk
+    DO j=Jstr,Jend
+      DO i=Istr,Iend
+         obgc(i,j,k,nnew,iochl)          = cobalt%f_chl(i,j,k)
+         obgc(i,j,k,nnew,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
+         obgc(i,j,k,nnew,iohtotal)       = cobalt%f_htotal(i,j,k)
+         obgc(i,j,k,nnew,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
+      ENDDO
+    ENDDO
+  ENDDO
+
+  ! Set value for boundaries
+  DO it=1,NOBGC
+     CALL bc_r3d_tile (ng, tile,                                     &
+  &                      LBi, UBi, LBj, UBj, 1, UBk,                 &
+  &                      obgc(:,:,:,nnew,it))
+  END DO
+
 #ifdef BENTHIC
 !
 !-----------------------------------------------------------------------
@@ -3299,6 +3364,7 @@ ENDDO
 
 #endif
 
+#ifdef DIAGNOSTICS_BIO
     !
     !-----------------------------------------------------------------------
     !       Save variables for diagnostics
@@ -3309,23 +3375,23 @@ ENDDO
     ! update 2d diagnostics variables in ROMS
     DO j=Jstr,Jend
       DO i=Istr,Iend
-         DiaBio2d(i,j,icased)          = cobalt%f_cased(i,j,1)
-         DiaBio2d(i,j,icadet_arag_btf) = cobalt%f_cadet_arag_btf(i,j,1)
-         DiaBio2d(i,j,icadet_calc_btf) = cobalt%f_cadet_calc_btf(i,j,1)
-         DiaBio2d(i,j,indet_btf)       = cobalt%f_ndet_btf(i,j,1)
-         DiaBio2d(i,j,ipdet_btf)       = cobalt%f_pdet_btf(i,j,1)
-         DiaBio2d(i,j,isidet_btf)      = cobalt%f_sidet_btf(i,j,1)
-         DiaBio2d(i,j,imxl_depth)      = mxl_depth(i,j)
-         DiaBio2d(i,j,imxl_level)      = mxl_blev(i,j)
+         DiaBio2d(i,j,icased)          = DiaBio2d(i,j,icased) + cobalt%f_cased(i,j,1)
+         DiaBio2d(i,j,icadet_arag_btf) = DiaBio2d(i,j,icadet_arag_btf) + cobalt%f_cadet_arag_btf(i,j,1)
+         DiaBio2d(i,j,icadet_calc_btf) = DiaBio2d(i,j,icadet_calc_btf) + cobalt%f_cadet_calc_btf(i,j,1)
+         DiaBio2d(i,j,indet_btf)       = DiaBio2d(i,j,indet_btf) + cobalt%f_ndet_btf(i,j,1)
+         DiaBio2d(i,j,ipdet_btf)       = DiaBio2d(i,j,ipdet_btf) + cobalt%f_pdet_btf(i,j,1)
+         DiaBio2d(i,j,isidet_btf)      = DiaBio2d(i,j,isidet_btf) + cobalt%f_sidet_btf(i,j,1)
+         DiaBio2d(i,j,imxl_depth)      = DiaBio2d(i,j,imxl_depth) + mxl_depth(i,j)
+         DiaBio2d(i,j,imxl_level)      = DiaBio2d(i,j,imxl_level) + mxl_blev(i,j)
 
-         DiaBio2d(i,j,ialk_btf)  = cobalt%b_alk(i,j)
-         DiaBio2d(i,j,idic_btf)  = cobalt%b_dic(i,j)
-         DiaBio2d(i,j,ifed_btf)  = cobalt%b_fed(i,j)
-         DiaBio2d(i,j,inh4_btf)  = cobalt%b_nh4(i,j)
-         DiaBio2d(i,j,ino3_btf)  = cobalt%b_no3(i,j)
-         DiaBio2d(i,j,io2_btf)   = cobalt%b_o2(i,j)
-         DiaBio2d(i,j,ipo4_btf)  = cobalt%b_po4(i,j)
-         DiaBio2d(i,j,isio4_btf) = cobalt%b_sio4(i,j)
+         DiaBio2d(i,j,ialk_btf)  = DiaBio2d(i,j,ialk_btf) + cobalt%b_alk(i,j)
+         DiaBio2d(i,j,idic_btf)  = DiaBio2d(i,j,idic_btf) + cobalt%b_dic(i,j)
+         DiaBio2d(i,j,ifed_btf)  = DiaBio2d(i,j,ifed_btf) + cobalt%b_fed(i,j)
+         DiaBio2d(i,j,inh4_btf)  = DiaBio2d(i,j,inh4_btf) + cobalt%b_nh4(i,j)
+         DiaBio2d(i,j,ino3_btf)  = DiaBio2d(i,j,ino3_btf) + cobalt%b_no3(i,j)
+         DiaBio2d(i,j,io2_btf)   = DiaBio2d(i,j,io2_btf)  + cobalt%b_o2(i,j)
+         DiaBio2d(i,j,ipo4_btf)  = DiaBio2d(i,j,ipo4_btf) + cobalt%b_po4(i,j)
+         DiaBio2d(i,j,isio4_btf) = DiaBio2d(i,j,isio4_btf)+ cobalt%b_sio4(i,j)
       ENDDO
     ENDDO
     i=overflow ; j=overflow
@@ -3335,12 +3401,12 @@ ENDDO
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,ichl)          = cobalt%f_chl(i,j,k)
-           DiaBio3d(i,j,k,ico3_ion)      = cobalt%f_co3_ion(i,j,k)
-           DiaBio3d(i,j,k,ihtotal)       = cobalt%f_htotal(i,j,k)
-           DiaBio3d(i,j,k,iirr_mem)      = cobalt%f_irr_mem(i,j,k)
-           DiaBio3d(i,j,k,iirr_mix)      = cobalt%irr_mix(i,j,k)
-           DiaBio3d(i,j,k,iirr_inst)     = cobalt%irr_inst(i,j,k)
+           DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)     + cobalt%f_chl(i,j,k)
+           DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) + cobalt%f_co3_ion(i,j,k)
+           DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  + cobalt%f_htotal(i,j,k)
+           DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) + cobalt%f_irr_mem(i,j,k)
+           DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
+           DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
            ! RD : debuuging variables (remove or replace later)
            !DiaBio3d(i,j,k,itheta_small)  = DK(i,j,k,2)
            !DiaBio3d(i,j,k,itheta_large)  = DK(i,j,k,3)
@@ -3352,7 +3418,7 @@ ENDDO
     ENDDO
     i=overflow ; j=overflow ; k=overflow
 
-
+#endif
 !
 !-----------------------------------------------------------------------------------
 ! End: Give back the tracers arrays to the dynamics
@@ -3465,17 +3531,6 @@ ENDDO
       RETURN
       END SUBROUTINE biology_tile
 !-------------------------------------------------------------------------------
-
-   ! Computes opacity from diagnosed chlorophyll and ...
-!   SUBROUTINE light_pen
-!
-!   !USE
-!
-!   IMPLICIT NONE
-!
-!
-!
-!   END SUBROUTINE
 
    SUBROUTINE check_overdrive(rhs,lhs,ratio,bioeqvar)
 

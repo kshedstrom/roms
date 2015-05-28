@@ -1090,17 +1090,36 @@
      &                   NF_FRST, nvd3, sv2dgrd, Aval, Vinfo, ncname)
         IF (exit_flag.ne.NoError) RETURN
 # endif
+#  if defined BIO_COBALT
+!------------------------------------------
+!  Define Other BGC tracer type variables.
+!------------------------------------------   
+        DO itrc=1,NOBGC
+
+          Vinfo( 1)=Vname(1,iDobgc(itrc))
+
+          Vinfo( 2)=Vname(2,iDobgc(itrc))
+          Vinfo( 3)=Vname(3,iDobgc(itrc))
+          Vinfo(14)=Vname(4,iDobgc(itrc))
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(iDobgc(itrc)),NF_FOUT,           &
+   &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+
+        ENDDO
+
+#  endif
 #  if defined BENTHIC
 !------------------------------------------
 !  Define benthic tracer type variables.
 !------------------------------------------   
         DO itrc=1,NBeT(ng)
-          RST(ng)%Vid(idBeTvar(itrc)) = var_id(i)
-          IF (Hout(idBeTvar(itrc),ng)) THEN
 
             Vinfo( 1)=Vname(1,idBeTvar(itrc))
             Vinfo( 2)=Vname(2,idBeTvar(itrc))
-            Vinfo(3)=Vname(3,idBeTvar(itrc))
+            Vinfo( 3)=Vname(3,idBeTvar(itrc))
             Vinfo(14)=Vname(4,idBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
@@ -1112,7 +1131,6 @@
 !Will need to switch this if have more than one depth level for benthos 
 !         status=def_var(ncRSTid(ng),hisBid(itrc,ng),NF_FOUT, &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
-          END IF
         END DO
 #  endif
 
@@ -2483,6 +2501,14 @@
             END IF
           END DO
 # endif
+# ifdef BIO_COBALT
+          DO itrc=1,NOBGC
+            IF (TRIM(var_name(i)).eq.TRIM(Vname(1,iDobgc(itrc)))) THEN
+              got_var(iDobgc(itrc))=.TRUE.
+              RST(ng)%Vid(iDobgc(itrc)) = var_id(i)
+            END IF
+          END DO
+# endif
 # ifdef BENTHIC
           DO itrc=1,NBeT(ng)
             IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idBeTvar(itrc)))) THEN
@@ -2490,7 +2516,7 @@
               RST(ng)%Vid(idBeTvar(itrc)) = var_id(i)
             END IF
           END DO
-#endif
+# endif
 # ifdef SEDIMENT
           DO itrc=1,NST
             IF (TRIM(var_name(i)).eq.                                   &

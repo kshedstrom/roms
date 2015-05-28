@@ -24,7 +24,7 @@
 !
       USE mod_param
       USE mod_parallel
-#if defined BEST_NPZ
+#if defined BEST_NPZ || defined BIO_COBALT
       USE mod_biology
 #endif
 #if defined BENTHIC
@@ -1733,8 +1733,52 @@
           END IF
         END DO
 #  endif
+# if defined BIO_COBALT
+! Read initial for Cobalt other BGC variables
+        DO itrc=1,NOBGC
+          IF (get_var(iDobgc(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,iDobgc(itrc))), varid)
+            gtype=var_flag(varid)*r3dvar
+            IF (Perfect3D) THEN
+              status=nf_fread4d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,iDobgc(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, N(ng), 1, 2,     &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % obgc(:,:,:,:,itrc))
+            ELSE
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,iDobgc(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
+     &                          Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                          GRID(ng) % rmask,                       &
+#  endif
+     &                          OCEAN(ng) % obgc(:,:,:,Tindex,itrc))
+            END IF
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,iDobgc(itrc))),  &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,iDobgc(itrc))),         &
+     &                             Fmin, Fmax
+              END IF
+            END IF
+          END IF
+        END DO
+# endif
 #if defined BENTHIC
-    
 !  Read in benthic initial conditions.
         DO itrc=1,NBeT(ng)
           IF (get_var(idBeTvar(itrc))) THEN

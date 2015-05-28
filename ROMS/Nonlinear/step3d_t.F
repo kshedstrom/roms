@@ -1591,17 +1591,22 @@
 #  endif
 # endif
 
+! RD : need to choose wether to update here or in cobalt
+! and be declared at beginning of subroutine !!!
+!# ifdef BIO_COBALT
+!      DO i=IstrR,IendR
+!        DO j=JstrR,JendR
+!          DO k=1,N(ng)
+!            ! ugly and may induce bugs RD
+!            obgc(i,j,k,nstp,1) = obgc(i,j,k,nnew,1)
+!            obgc(i,j,k,nstp,2) = obgc(i,j,k,nnew,2)
+!            obgc(i,j,k,nstp,3) = obgc(i,j,k,nnew,3)
+!            obgc(i,j,k,nstp,4) = obgc(i,j,k,nnew,4)
+!          END DO
+!        END DO
+!      END DO
+!# endif
 # ifdef BEST_NPZ
-#  ifdef BENTHIC
-      DO i=IstrR,IendR
-        DO j=JstrR,JendR
-          DO k=1,NBL(ng)
-            bt(i,j,k,nstp,1) = bt(i,j,k,nnew,1)
-            bt(i,j,k,nstp,2) = bt(i,j,k,nnew,2)
-          END DO
-        END DO
-      END DO
-#  endif
 #  if defined ICE_BIO
       DO j=Jstr,Jend
         DO itrc=1,NIB
@@ -1643,6 +1648,17 @@
         END DO
       END DO
 #  endif
+# endif
+! RD: BENTHIC needs to be outside of BEST NPZ
+# ifdef BENTHIC
+      DO i=IstrR,IendR
+        DO j=JstrR,JendR
+          DO k=1,NBL(ng)
+            bt(i,j,k,nstp,1) = bt(i,j,k,nnew,1)
+            bt(i,j,k,nstp,2) = bt(i,j,k,nnew,2)
+          END DO
+        END DO
+      END DO
 # endif
 
       RETURN
