@@ -680,8 +680,8 @@ contains
       Hscale2=1.0_r8/(rho0*Cp)
 ! Note that this loop needs to be cleaned of all global arrays for
 ! OpenMP.
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           !--- compute some needed quantities ---
 #if defined ICE_MODEL
           ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+0.001)
@@ -1442,8 +1442,8 @@ contains
       Hscale2=1.0_r8/(rho0*Cp)
 ! Note that this loop needs to be cleaned of all global arrays for
 ! OpenMP.
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
           !--- compute some needed quantities ---
           vmag   = max(umin, sqrt( (Uwind(i,j)-ubar(i,j,knew))**2 +  &
      &                             (Vwind(i,j)-vbar(i,j,knew))**2) )
