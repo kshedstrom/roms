@@ -2569,7 +2569,7 @@
       IF (Master) WRITE (stdout,20) 'ZOS_HSIG',                         &
      &   'Wave amplitude used for Zos calculation.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ZOS_HSIG,'
+      Coptions(is:is+10)=' ZOS_HSIG,'
 #endif
 !
 !-----------------------------------------------------------------------

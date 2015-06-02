@@ -79,7 +79,6 @@
               Tmin=Tscale*BRY(i,ng)%time_min(ifile)
               IF (time(ng).ge.Tmin) THEN
                 Fcount=ifile
-                EXIT
               END IF
             END DO
           ELSE
@@ -152,7 +151,6 @@
             Tmin=Tscale*FRC(i,ng)%time_min(ifile)
             IF (time(ng).ge.Tmin) THEN
               Fcount=ifile
-              EXIT
             END IF
           END DO
         ELSE
