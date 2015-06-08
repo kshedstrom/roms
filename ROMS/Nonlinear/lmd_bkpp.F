@@ -79,7 +79,7 @@
      &                    FORCES(ng) % bustr,                           &
      &                    FORCES(ng) % bvstr,                           &
 # ifdef OPTIC_MANIZZA
-     &                    OCEAN(ng) % obgc,                             &
+     &                    OCEAN(ng) % decayW,                           &
 # endif
      &                    MIXING(ng) % alpha,                           &
 # ifdef SALINITY
@@ -106,7 +106,7 @@
      &                          u, v, pden,                             &
      &                          srflx, btflx,  bustr, bvstr,            &
 # ifdef OPTIC_MANIZZA
-     &                          obgc,                                   &
+     &                          decayW,                                 &
 # endif
      &                          alpha,                                  &
 # ifdef SALINITY
@@ -125,14 +125,6 @@
 # endif
 # ifdef LMD_SHAPIRO
       USE shapiro_mod
-# endif
-# ifdef OPTIC_MANIZZA 
-#  ifdef BIO_COBALT
-      USE mod_biology, ONLY: iochl
-#  else
-??? RD : manizza coded for cobalt, other bio models are unlikely to work
-??? need to define index of cholorphyll variable
-#  endif
 # endif
 !
 !  Imported variable declarations.
@@ -159,7 +151,7 @@
       real(r8), intent(in) :: bustr(LBi:,LBj:)
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in) :: obgc(LBi:,LBj:,:,:,:)
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
 #  endif
       real(r8), intent(in) :: alpha(LBi:,LBj:)
 #  ifdef SALINITY
@@ -188,7 +180,7 @@
       real(r8), intent(in) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
 #  ifdef OPTIC_MANIZZA
-      real(r8), intent(in) :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC)
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
 #  endif
       real(r8), intent(in) :: alpha(LBi:UBi,LBj:UBj)
 #  ifdef SALINITY
@@ -243,12 +235,6 @@
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: wm
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: ws
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: zgrid
-#ifdef OPTIC_MANIZZA
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng))   :: chl_conc ! cholorphyll conc at point w
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng))   :: FM
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng))   :: swdk3
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng),4) :: DK
-#endif 
 
 # include "set_bounds.h"
 !
@@ -303,81 +289,9 @@
           Bosol(i,j)=g*alpha(i,j)*srflx(i,j)
         END DO
       END DO
-# ifdef OPTIC_MANIZZA
-#  ifdef BIO_COBALT
-      ! set upper (surface) W-point to value of Rho-point
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
-           chl_conc(i,j,N(ng)) = obgc(i,j,N(ng),nstp,iochl) * rho0 / 1000.0d0
-        END DO
-      END DO
-      ! set lower (bottom) value to value of the bottom rho-point
-      DO j=Jstr,Jend
-        DO i=Istr,Iend
-           chl_conc(i,j,0) = obgc(i,j,1,nstp,iochl) * rho0 / 1000.0d0
-        END DO
-      END DO
-      DO k=1,N(ng)-1
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-             chl_conc(i,j,k) = 0.5d0 * (obgc(i,j,k,nstp,iochl)+           &
-     &                                obgc(i,j,k+1,nstp,iochl)) * rho0 / 1000.0d0
-          END DO
-        END DO
-      ENDDO
-      ! 1.024 is density of seawater used to convert from ug Chl.kg-1 of Cobalt to mg Chl.m-3 of manizza
-      ! maybe we need to do something cleaner than that (RD)
-#  else
-
-      ! RD: this has to be replaced by a proper read in an array at W
-      ! points
-      DO k=0,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-             chl_conc(i,j,k) = 0.005d0
-          END DO
-        END DO
-      ENDDO
-#  endif
-      DO k=0,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-             FM(i,j,k) = z_w(i,j,N(ng))-z_w(i,j,k)
-          END DO
-        END DO
-      ENDDO
-
-
-! THIS IS THE MANIZZA (GRL, 2005) LIGHT PENETRATION SCHEME
-!
-!  Compute fraction of the solar shortwave radiation, "swdk"
-!  using chlorophyl concentration 
-! RD BUG : manizza or manizza3
-        CALL optic_manizza3_tile (ng, tile,                              &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        IminS, ImaxS, JminS, JmaxS,               &
-     &                        -1.0_r8, FM , chl_conc, DK)
-
-      DO k=0,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-             swdk3(i,j,k) = DK(i,j,k,1)
-          END DO
-        END DO
-      ENDDO
-
-      DO k=0,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            Bflux(i,j,k)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk3(i,j,k)))
-# ifdef MASKING
-            Bflux(i,j,k)=Bflux(i,j,k)*rmask(i,j)
-# endif
-          END DO
-        END DO
-      END DO
-
-# else
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
 !
 !-----------------------------------------------------------------------
 !  Compute total buoyancy flux (m2/s3) at W-points.
@@ -402,7 +316,7 @@
           END DO
         END DO
       END DO
-# endif
+!# endif
 !
 !=======================================================================
 !  Compute bulk Richardson number "Rib" and then find depth of the
@@ -608,21 +522,14 @@
 # endif
         END DO
       END DO
-# ifdef OPTIC_MANIZZA
-! THIS IS THE MANIZZA (GRL, 2005) LIGHT PENETRATION SCHEME
-!
-!  Compute fraction of the solar shortwave radiation, "swdk"
-!  using chlorophyl concentration 
-        CALL optic_manizza_tile (ng, tile,                              &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        IminS, ImaxS, JminS, JmaxS,               &
-     &                        -1.0_r8, zgrid, FM , chl_conc, swdk)
-# else
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
-# endif
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfbot(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))
@@ -723,21 +630,14 @@
 # endif
         END DO
       END DO
-# ifdef OPTIC_MANIZZA
-! THIS IS THE MANIZZA (GRL, 2005) LIGHT PENETRATION SCHEME
-!
-!  Compute fraction of the solar shortwave radiation, "swdk"
-!  using chlorophyl concentration 
-        CALL optic_manizza_tile (ng, tile,                              &
-     &                        LBi, UBi, LBj, UBj,                       &
-     &                        IminS, ImaxS, JminS, JmaxS,               &
-     &                        -1.0_r8, zgrid, FM , chl_conc, swdk)
-# else
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
-# endif
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfbot(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))

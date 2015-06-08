@@ -45,6 +45,9 @@
      &                   GRID(ng) % h,                                  &
      &                   GRID(ng) % omn,                                &
      &                   FORCES(ng) % srflx,                            &
+#ifdef OPTIC_MANIZZA
+     &                   OCEAN(ng) % decayW,                            &
+#endif
 #ifdef BULK_FLUXES
      &                   OCEAN(ng) % u10_neutral,                       &
      &                   FORCES(ng) % Uwind,                            &
@@ -94,6 +97,9 @@
      &                         rmask,                                   &
 #endif
      &                         Hz, z_r, z_w, h, omn, srflx,             &
+#ifdef OPTIC_MANIZZA
+     &                         decayW,                                  &
+#endif
 #ifdef BULK_FLUXES
      &                         u10_neutral,                             &
      &                         Uwind, Vwind, Pair,                      &
@@ -157,6 +163,9 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: omn(LBi:,LBj:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
+#endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:,LBj:)
       real(r8), intent(in) :: Uwind(LBi:,LBj:)
@@ -200,6 +209,9 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: omn(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:UBk,4)
+#endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
@@ -282,7 +294,7 @@
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FM,swdk3, chl_conc
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng),4) :: DK
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,1:N(ng)) :: tmp_decay
-    real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: mxl_depth
+    real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: mxl_depth, mxl_subgrid
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: rho_ref
     integer(4), dimension(IminS:ImaxS,JminS:JmaxS) :: mxl_blev
 
@@ -950,70 +962,22 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 ! 1.2: Light Limitation/Growth Calculations
 !-----------------------------------------------------------------------
 !
-! RD dev notes : chlorophyll is store in obgc variable and does have a
-! restart, hence at first timestep we read from the restart to avoid a glitch
-! then value will be updated by cobalt main code
-! chl_conc is a temporary array located at W-point used to compute the light
-! penetration decay, hence we interpolate values from obgc which is on
-! rho-point
+! RD dev notes : copy fractional decay for red and blue bands previously
+! computed in optic_manizza
 
-! the rho0 / 1000 is a unit conversion from ug Chl.kg-1 of Cobalt to
-! mg Chl.m-3 used in the light penetration ( manizza ) routine
-
-   ! 1. set upper (surface) W-point to value of the surface rho-point
-   DO j=Jstr,Jend
-     DO i=Istr,Iend
-        chl_conc(i,j,UBk) = obgc(i,j,UBk,nstp,iochl) * rho0 / 1000.0d0
-     END DO
-   END DO
-   i=overflow ; j=overflow
-
-   ! 2. set lower (bottom) value to value of the bottom rho-point
-   DO j=Jstr,Jend
-     DO i=Istr,Iend
-        chl_conc(i,j,0) = obgc(i,j,1,nstp,iochl) * rho0 / 1000.0d0
-     END DO
-   END DO
-   i=overflow ; j=overflow
-
-   ! 3. interpolate intermediate layers
-   DO k=1,UBk-1
-     DO j=Jstr,Jend
-       DO i=Istr,Iend
-          chl_conc(i,j,k) = 0.5d0 * (obgc(i,j,k,nstp,iochl)+             &
-  &                                obgc(i,j,k+1,nstp,iochl)) * rho0 / 1000.0d0
-       END DO
-     END DO
-   ENDDO
-   i=overflow ; j=overflow ; k=overflow
-
-   ! copy depth array in a work array (for bounds)
+#ifdef OPTIC_MANIZZA
    DO k=0,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          !FM(i,j,k) = z_w(i,j,UBk)- z_w(i,j,k)
-          FM(i,j,k) = z_w(i,j,UBk)- z_w(i,j,k) -zeta(i,j,nstp)
+          swdk3(i,j,k) = decayW(i,j,k,3) + decayW(i,j,k,4) ! use only visible bands
        END DO
      END DO
    ENDDO
    i=overflow ; j=overflow ; k=overflow
-
-! CALL ligh penetration scheme and get decay functions DK
-! manizza will compute 4 fractions : Total, InfraRed, Visible blue and
-! Visible red. In cobalt, only blue and red will be used
-   CALL optic_manizza3_tile (ng, tile,                              &
- &                        LBi, UBi, LBj, UBj,                       &
- &                        IminS, ImaxS, JminS, JmaxS,               &
- &                        -1.0_r8, FM , chl_conc, DK)
-
-   DO k=0,UBk
-     DO j=Jstr,Jend
-       DO i=Istr,Iend
-          swdk3(i,j,k) = DK(i,j,k,3) + DK(i,j,k,4) ! use only visible bands
-       END DO
-     END DO
-   ENDDO
-   i=overflow ; j=overflow ; k=overflow
+#else
+???
+# maybe put something with lmd_swfrac but does it make sense really ?
+#endif
 
 #ifdef DIAGNOSTICS_BIO
    DO k=1,UBk
@@ -1036,19 +1000,25 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ! rho_ref is set to the surface value
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        mxl_blev(i,j)  = 0
+        mxl_blev(i,j)  = 1
         mxl_depth(i,j) = -h(i,j)
         rho_ref(i,j)   = rho(i,j,UBk)
      ENDDO
    ENDDO
    i=overflow ; j=overflow
 
+   DO k=0,UBk
+     DO j=Jstr,Jend
+       DO i=Istr,Iend
+          FM(i,j,k) = z_w(i,j,UBk) - z_w(i,j,k)
+       ENDDO
+     ENDDO
+   ENDDO
+
    ! update the reference density to the density at z = rho_ref_depth
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-!          IF (z_r(i,j,k) < -1.0d0 * rho_ref_depth )   rho_ref(i,j) = rho(i,j,k)
-!          IF (FM(i,j,k-1) + zeta(i,j,nstp) > rho_ref_depth ) rho_ref(i,j) = rho(i,j,k)
           IF (FM(i,j,k-1)  > rho_ref_depth ) rho_ref(i,j) = rho(i,j,k)
        ENDDO
      ENDDO
@@ -1066,96 +1036,107 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
    i=overflow ; j=overflow ; k=overflow
 
-   ! mxl_blev gives the level just below the MXL, moving in up by one level
-   ! to get the last level that belongs to the MXL
-   DO j=Jstr,Jend
-     DO i=Istr,Iend
-        mxl_blev(i,j) = min(mxl_blev(i,j) + 1, UBk) 
-     ENDDO
-   ENDDO
-   i=overflow ; j=overflow
-
    ! find the real mxl with linear interpolation 
    DO j=Jstr,Jend
      DO i=Istr,Iend
 
       IF ( mxl_blev(i,j) > 1) THEN
-          drho_crit = rho_ref(i,j) + rho_crit - rho(i,j,mxl_blev(i,j))
+          ! this would be the depth if we consider all the level
+          mxl_depth(i,j) =  FM(i,j,mxl_blev(i,j))
 
-! remove this, not consistent with irr_mix 
-          mxl_depth(i,j) =  z_r(i,j,mxl_blev(i,j)) + drho_crit *       &
-  &       ( ( z_r(i,j,mxl_blev(i,j)-1) - z_r(i,j,mxl_blev(i,j)) ) /    &
-  &         max( rho(i,j,mxl_blev(i,j)-1) - rho(i,j,mxl_blev(i,j)), 1.0e-9 ) )
-!          mxl_depth(i,j) =  z_r(i,j,mxl_blev(i,j)) + drho_crit *       &
-!  &       ( ( z_r(i,j,mxl_blev(i,j)-1) - z_r(i,j,mxl_blev(i,j)) ) /    &
-!  &         max( rho(i,j,mxl_blev(i,j)-1) - rho(i,j,mxl_blev(i,j)), 1.0e-9 ) )
-          mxl_depth(i,j) = - 1.0d0 * mxl_depth(i,j) 
+          ! we approach the real mixed later depth with linear interp between
+          ! vertical levels
+          !drho_crit = rho_ref(i,j) + rho_crit - rho(i,j,mxl_blev(i,j)+1)
 
-          !mxl_depth(i,j) = FM(i,j,mxl_blev(i,j)-1) + zeta(i,j,nstp)
-          !mxl_depth(i,j) = FM(i,j,mxl_blev(i,j)-1) 
+!          mxl_subgrid(i,j) =  drho_crit *                                &
+!  &       ( ( z_w(i,j,mxl_blev(i,j)+1) - z_w(i,j,mxl_blev(i,j)) ) /      &
+!  &         max( rho(i,j,mxl_blev(i,j)) - rho(i,j,mxl_blev(i,j)+1), 1.0e-9 ) )
+
+          ! mixed layer depth is then shallower than depth of the bottom level
+!          mxl_depth(i,j) = FM(i,j,mxl_blev(i,j)) - mxl_subgrid(i,j)
+
       ELSE
-          !mxl_depth(i,j) = -1.0d0 * h(i,j)
           mxl_depth(i,j) = h(i,j)
       ENDIF
 
-     ! Add contribution of the free surface ?
-     !mxl_depth(i,j) = -1. * mxl_depth(i,j) + zeta(i,j,nstp)
-     !mxl_depth(i,j) = -1.0d0 * mxl_depth(i,j) 
-
      ENDDO
    ENDDO
    i=overflow ; j=overflow
 
-!! try to smooth with shapiro filter
+! I should use something like in pre_step3d to treat heating in layers with fluxes
+! at interfaces.
+
+!   DO j=Jstr,Jend
+!     DO i=Istr,Iend
+!      ! init the irradiance in the mixed layer and last level of mixed layer
+!      tmp_irrad_ML = 0.0d0 ; kblt = mxl_blev(i,j) + 1
 !
-!      CALL shapiro2d_tile (ng, tile, iNLM,                              &
-!     &                     LBi, UBi, LBj, UBj,                          &
-!     &                     IminS, ImaxS, JminS, JmaxS,                  &
-!#ifdef MASKING
-!     &                     rmask,                                       &
-!#endif
-!     &                     mxl_depth)
-
-
-
+!      DO k=1,N(ng)
+!         ! light penetration decay function at rho-point
+!         tmp_decay(i,j,k) = 0.5 * ( swdk3(i,j,k-1) + swdk3(i,j,k) )
+!         ! compute the instant irradiance 
+!         cobalt%irr_inst(i,j,k) = rho0 * Cp * srflx(i,j) * tmp_decay(i,j,k)
+!
+!         ! RD test :
+!         !cobalt%irr_inst(i,j,k) = cobalt%irr_inst(i,j,k) * 0.5
+!
+!         ! integrate along depth irradiances for all levels in mixed layer
+!         IF ( k .ge. kblt ) THEN
+!            tmp_irrad_ML = tmp_irrad_ML + ( cobalt%irr_inst(i,j,k) * Hz(i,j,k) )
+!         ENDIF
+!         ! set base value of irr_mix to irr_inst (Charles Stock told me to do so)
+!         cobalt%irr_mix(i,j,k) = cobalt%irr_inst(i,j,k)
+!      ENDDO
+!      ! update irr_mix in the mix layer to the integrated value
+!      cobalt%irr_mix(i,j,kblt:UBk) = tmp_irrad_ML * rmask(i,j) / mxl_depth(i,j)
+!
+!     ENDDO
+!   ENDDO
+!   i=overflow ; j=overflow
 
    DO j=Jstr,Jend
      DO i=Istr,Iend
-      ! init the irradiance in the mixed layer and last level of mixed layer
-      tmp_irrad_ML = 0.0d0 ; kblt = mxl_blev(i,j)
-
       DO k=1,N(ng)
-         ! light penetration decay function at rho-point
-         tmp_decay(i,j,k) = 0.5 * ( swdk3(i,j,k-1) + swdk3(i,j,k) )
-         ! compute the instant irradiance 
-         cobalt%irr_inst(i,j,k) = rho0 * Cp * srflx(i,j) * tmp_decay(i,j,k)
+         ! compute the instant irradiance in layer k as a difference of fluxes
+         ! between interfaces k and k-1 (like in pre_step3d)
+         cobalt%irr_inst(i,j,k) = rho0 * Cp * srflx(i,j) * &
+       & ( swdk3(i,j,k) - swdk3(i,j,k-1) )
 
-         ! RD test :
-         !cobalt%irr_inst(i,j,k) = cobalt%irr_inst(i,j,k) * 0.5
-
-         ! integrate along depth irradiances for all levels in mixed layer
-         IF ( k .ge. kblt ) THEN
-            tmp_irrad_ML = tmp_irrad_ML + ( cobalt%irr_inst(i,j,k) * Hz(i,j,k) )
-         ENDIF
          ! set base value of irr_mix to irr_inst (Charles Stock told me to do so)
          cobalt%irr_mix(i,j,k) = cobalt%irr_inst(i,j,k)
+
       ENDDO
-      ! update irr_mix in the mix layer to the integrated value
-      cobalt%irr_mix(i,j,kblt:UBk) = tmp_irrad_ML * rmask(i,j) / mxl_depth(i,j)
+     ENDDO
+   ENDDO
+   i=overflow ; j=overflow ; k=overflow
+
+   DO j=Jstr,Jend
+     DO i=Istr,Iend
+
+      ! init the irradiance in the mixed layer and last level of mixed layer
+      ! we are working on a layer-based integration hence +1 for last level of
+      ! mixed layer
+      tmp_irrad_ML = 0.0d0 ; kblt = mxl_blev(i,j) + 1
+
+      ! integrate irradiance in last level of mixed layer with correction for
+      ! depth
+!      k=kblt
+!      tmp_irrad_ML = tmp_irrad_ML + cobalt%irr_inst(i,j,k) * &
+!    &                max( Hz(i,j,k) - mxl_subgrid(i,j), 0.0d0 )
+      
+      DO k=kblt,N(ng)
+!      DO k=kblt+1,N(ng)
+         tmp_irrad_ML = tmp_irrad_ML + cobalt%irr_inst(i,j,k) * Hz(i,j,k)
+      ENDDO
+
+!      DO k=kblt+1,N(ng)
+      DO k=kblt,N(ng)
+         cobalt%irr_mix(i,j,k) = tmp_irrad_ML * rmask(i,j) / mxl_depth(i,j)
+      ENDDO
 
      ENDDO
    ENDDO
    i=overflow ; j=overflow
-
-!!! try to smooth with shapiro filter
-!!
-!      CALL shapiro3d_tile (ng, tile, iNLM,                              &
-!     &                     LBi, UBi, LBj, UBj, 1, UBk,                  &
-!     &                     IminS, ImaxS, JminS, JmaxS,                  &
-!#ifdef MASKING
-!     &                     rmask,                                       &
-!#endif
-!     &                     cobalt%irr_mix)
 
 
 

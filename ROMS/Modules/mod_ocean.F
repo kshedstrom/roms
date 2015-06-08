@@ -33,6 +33,13 @@
 !                                                                      !
 !  pH           Surface concentration of hydrogen ions.                !
 !                                                                      !
+#ifdef OPTIC_MANIZZA
+!  decayW       3D decay functions for shortwave radiation (Wpoint)    !
+#endif
+#ifdef BIO_COBALT
+!  obgc         3D Other BGC variables (not prognostic)                !
+#endif
+!                                                                      !
 #ifdef NEARSHORE_MELLOR
 !  Nearshore radiation stresses:                                       !
 !                                                                      !
@@ -105,6 +112,9 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef OPTIC_MANIZZA
+          real(r8), pointer :: decayW(:,:,:,:)
+# endif
 # ifdef BIO_COBALT
           real(r8), pointer :: obgc(:,:,:,:,:)
 # endif 
@@ -413,6 +423,9 @@
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
 
+# ifdef OPTIC_MANIZZA
+      allocate ( OCEAN(ng) % decayW(LBi:UBi,LBj:UBj,0:N(ng),4) )
+# endif
 # ifdef BIO_COBALT
       allocate ( OCEAN(ng) % obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) )
 # endif
@@ -849,6 +862,15 @@
             END DO
           END DO
 
+# ifdef OPTIC_MANIZZA
+          DO itrc=1,4
+            DO k=0,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % decayW(i,j,k,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+# endif
 # ifdef BIO_COBALT
           DO itrc=1,NOBGC
             DO k=1,N(ng)
