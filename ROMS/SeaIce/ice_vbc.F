@@ -70,6 +70,11 @@
      &                   FORCES(ng) % tau_aix_n,                        &
      &                   FORCES(ng) % tau_aiy_n,                        &
 # endif
+# ifdef ICE_LANDFAST
+     &                   ICE(ng) % h_loadu,                             &
+     &                   ICE(ng) % h_loadv,                             &
+     &                   GRID(ng) % h,                                  &
+# endif
 # ifdef ICE_SHOREFAST
      &                   GRID(ng) % h,                                  &
 # endif
@@ -103,6 +108,9 @@
 # ifdef ICE_BULK_FLUXES
      &                         sustr_aw, svstr_aw,                      &
      &                         tau_aix_n, tau_aiy_n,                    &
+# endif
+# ifdef ICE_LANDFAST
+     &                         h_loadu, h_loadv, h,                     &
 # endif
 # ifdef ICE_SHOREFAST
      &                         h,                                       &
@@ -142,15 +150,20 @@
       real(r8), intent(in) :: uwater(LBi:,LBj:)
       real(r8), intent(in) :: vwater(LBi:,LBj:)
       real(r8), intent(out) :: sealev(LBi:,LBj:)
-# ifdef ICE_BULK_FLUXES
+#  ifdef ICE_BULK_FLUXES
       real(r8), intent(in) :: sustr_aw(LBi:,LBj:)
       real(r8), intent(in) :: svstr_aw(LBi:,LBj:)
       real(r8), intent(in) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(in) :: tau_aiy_n(LBi:,LBj:)
-# endif
-# ifdef ICE_SHOREFAST
+#  endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(out) :: h_loadu(LBi:,LBj:)
+      real(r8), intent(out) :: h_loadv(LBi:,LBj:)
       real(r8), intent(in) :: h(LBi:,LBj:)
-# endif
+#  endif
+#  ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: utau_iw(LBi:,LBj:)
       real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
       real(r8), intent(in) :: spd_iw(LBi:,LBj:)
@@ -177,15 +190,20 @@
       real(r8), intent(in) :: uwater(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vwater(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: sealev(LBi:UBi,LBj:UBj)
-# ifdef ICE_BULK_FLUXES
+#  ifdef ICE_BULK_FLUXES
       real(r8), intent(in) :: sustr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr_aw(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: tau_aiy_n(LBi:UBi,LBj:UBj)
-# endif
-# ifdef ICE_SHOREFAST
+#  endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(out) :: h_loadu(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: h_loadv(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
-# endif
+#  endif
+#  ifdef ICE_SHOREFAST
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(out) :: utau_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: spd_iw(LBi:UBi,LBj:UBj)
@@ -233,6 +251,9 @@
       real(r8) :: thic
       real(r8) :: zdz0
       real(r8) :: z0
+# ifdef ICE_LANDFAST
+      real(r8) :: h_u, h_v, h_cu, h_cv, h_wu, h_wv
+# endif
 
       real(r8), parameter :: kappa = 0.4_r8
       real(r8), parameter :: z0ii = 0.02_r8
@@ -429,6 +450,41 @@
            utau_iw(i,j) = utauiw(i,j)
         END DO
       END DO
+
+# ifdef ICE_LANDFAST
+!
+! Compute the term (h_u - h_cu) * exp(-C(1-A_u)) (at u points)
+!
+      DO j=Jstr,Jend
+        DO i=IstrP,Iend
+          aix = max(ai(i,j,liold), ai(i-1,j,liold))
+          IF (aix > 0.01) THEN
+            h_u = max(h(i,j), h(i-1,j))
+            h_wu = min((h(i,j)+Zt_avg1(i,j)), (h(i-1,j)+Zt_avg1(i-1,j)))
+            h_cu = h_wu * aix / lf_k1(ng)
+            h_loadu(i,j) = (h_u - h_cu) * exp(-astren(ng)*(1.0_r8-aix))
+          ELSE
+            h_loadv(i,j) = 0._r8
+          END IF
+        END DO
+      END DO
+!
+! Compute the term (h_v - h_cv) * exp(-C(1-A_v)) (at v points)
+!
+      DO j=JstrP,Jend
+        DO i=Istr,Iend
+          aiy = max(ai(i,j,liold), ai(i,j-1,liold))
+          IF (aiy > 0.01) THEN
+            h_v = max(h(i,j), h(i,j-1))
+            h_wv = min((h(i,j)+Zt_avg1(i,j)), (h(i,j-1)+Zt_avg1(i,j-1)))
+            h_cv = h_wv * aiy / lf_k1(ng)
+            h_loadv(i,j) = (h_v - h_cv) * exp(-astren(ng)*(1.0_r8-aiy))
+          ELSE
+            h_loadv(i,j) = 0._r8
+          END IF
+        END DO
+      END DO
+# endif
 !
 !  Apply boundary conditions.
 !
@@ -453,7 +509,15 @@
       CALL bc_v2d_tile (ng, tile,                                       &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tauaiv)
-#ifdef DISTRIBUTE
+# ifdef ICE_LANDFAST
+      CALL bc_u2d_tile (ng, tile,                                       &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          h_loadu)
+      CALL bc_v2d_tile (ng, tile,                                       &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          h_loadv)
+# endif
+# ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
@@ -462,7 +526,13 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
      &                    svstr, tauaiu, tauaiv)
-#endif
+#  ifdef ICE_LANDFAST
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints, EWperiodic(ng), NSperiodic(ng), &
+     &                    h_loadu, h_loadv)
+#  endif
+# endif
 
       RETURN
       END SUBROUTINE ice_vbc_tile

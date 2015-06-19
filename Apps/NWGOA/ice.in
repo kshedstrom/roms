@@ -161,6 +161,12 @@
 
      t0deg = 273.15d0
 
+! tunable parameters for Lemieux landfast ice
+
+     lf_k1 = 8.0d0
+     lf_k2 = 15.0d0
+     lf_u0 = 5.0e-5
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
 Hout(idUice) == F

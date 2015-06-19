@@ -1723,6 +1723,11 @@
         real(r8), allocatable :: min_a(:)
         real(r8), allocatable :: max_a(:)
         real(r8), allocatable :: stressang(:)
+# ifdef ICE_LANDFAST
+        real(r8), allocatable :: lf_k1(:)
+        real(r8), allocatable :: lf_k2(:)
+        real(r8), allocatable :: lf_u0(:)
+# endif
 #endif
 
       CONTAINS
@@ -2231,6 +2236,11 @@
      allocate ( min_a(Ngrids) )
      allocate ( max_a(Ngrids) )
      allocate ( stressang(Ngrids) )
+# ifdef ICE_LANDFAST
+     allocate ( lf_k1(Ngrids) )
+     allocate ( lf_k2(Ngrids) )
+     allocate ( lf_u0(Ngrids) )
+# endif
 #endif
 
       RETURN

@@ -588,6 +588,8 @@
 ** ICE_MOMENTUM        use for momentum component
 ** ICE_MOM_BULK        hmmm, some option for ice-water stress computation
 ** ICE_EVP             use for elastic-viscous-plastic rheology
+** ICE_SHOREFAST       use for a simple shorefast-ice algorithm (Budgell)
+** ICE_LANDFAST        use for a different shorefast-ice algorithm (Lemieux et al)
 ** ICE_ADVECT          use for advection of ice tracers
 ** ICE_SMOLAR          use for MPDATA advection scheme
 ** ICE_UPWIND          use for upwind advection scheme

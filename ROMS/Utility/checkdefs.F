@@ -1012,6 +1012,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ICE_EVP,'
 #endif
+#ifdef ICE_LANDFAST
+      IF (Master) WRITE (stdout,20) 'ICE_LANDFAST',                    &
+     &   'Lemieux' shorefast ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ICE_LANDFAST,'
+#endif
 #ifdef ICE_MK
       IF (Master) WRITE (stdout,20) 'ICE_MK',                           &
      &   'Mellor-Kantha ice thermodynamics.'

@@ -43,6 +43,10 @@
           real(r8), pointer :: eta(:,:)
           real(r8), pointer :: tauaiu(:,:)
           real(r8), pointer :: tauaiv(:,:)
+#ifdef ICE_LANDFAST
+          real(r8), pointer :: h_loadu(:,:)
+          real(r8), pointer :: h_loadv(:,:)
+#endif
           real(r8), pointer :: uwater(:,:)
           real(r8), pointer :: vwater(:,:)
           real(r8), pointer :: sealev(:,:)
@@ -124,6 +128,10 @@
       allocate ( ICE(ng) % eta(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tauaiu(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tauaiv(LBi:UBi,LBj:UBj) )
+#ifdef ICE_LANDFAST
+      allocate ( ICE(ng) % h_loadu(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % h_loadv(LBi:UBi,LBj:UBj) )
+#endif
       allocate ( ICE(ng) % uwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % vwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % sealev(LBi:UBi,LBj:UBj) )
@@ -260,6 +268,10 @@
           ICE(ng) % eta(i,j) = IniVal
           ICE(ng) % tauaiu(i,j) = IniVal
           ICE(ng) % tauaiv(i,j) = IniVal
+#ifdef ICE_LANDFAST
+          ICE(ng) % h_loadu(i,j) = IniVal
+          ICE(ng) % h_loadv(i,j) = IniVal
+#endif
           ICE(ng) % uwater(i,j) = IniVal
           ICE(ng) % vwater(i,j) = IniVal
           ICE(ng) % sealev(i,j) = IniVal

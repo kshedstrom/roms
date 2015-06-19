@@ -110,6 +110,14 @@
               Npts=load_r(Nval, Rval, 1, sublim_latent_heat)
             CASE ('t0deg')
               Npts=load_r(Nval, Rval, 1, t0deg)
+#ifdef ICE_LANDFAST
+            CASE ('lf_k1')
+              Npts=load_r(Nval, Rval, 1, lf_k1)
+            CASE ('lf_k2')
+              Npts=load_r(Nval, Rval, 1, lf_k2)
+            CASE ('lf_u0')
+              Npts=load_r(Nval, Rval, 1, lf_u0)
+#endif
             CASE ('Hout(idUice)')
               IF (idUice.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idUice'
@@ -633,6 +641,14 @@
      &          'Latent_heat of sublimation.'
           WRITE (out,60) t0deg, 't0deg',                                &
      &          'Zero degrees Celsius in degrees Kelvin.'
+#ifdef ICE_LANDFAST
+          WRITE (out,60) lf_k1, 'lf_k1',                                &
+     &          'Landfast ice tunable k1.'
+          WRITE (out,60) lf_k2, 'lf_k2',                                &
+     &          'Landfast ice tunable k2.'
+          WRITE (out,60) lf_u0, 'lf_u0',                                &
+     &          'Landfast ice minimal velocity.'
+#endif
           IF (Hout(idUice,ng)) WRITE (out,70) Hout(idUice,ng),          &
      &       'Hout(idUice)',                                            &
      &       'Write out U-component ice velocity.'
