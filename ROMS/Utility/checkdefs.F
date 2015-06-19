@@ -1014,7 +1014,7 @@
 #endif
 #ifdef ICE_LANDFAST
       IF (Master) WRITE (stdout,20) 'ICE_LANDFAST',                    &
-     &   'Lemieux' shorefast ice.'
+     &   'Lemieux shorefast ice.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_LANDFAST,'
 #endif
