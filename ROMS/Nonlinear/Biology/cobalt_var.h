@@ -764,8 +764,6 @@
                 iDbio2(io2_flx)=varid
               CASE ('iDbio2(iironsed_flx)')
                 iDbio2(iironsed_flx)=varid
-              CASE ('iDbio2(indet_btm)')
-                iDbio2(indet_btm)=varid
 
 
               CASE ('iDbio3(ichl)')

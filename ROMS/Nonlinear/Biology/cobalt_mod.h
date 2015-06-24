@@ -841,12 +841,8 @@
       real(r8), allocatable :: gamma_sldop(:)                ! s-1
       real(r8), allocatable :: gamma_nitrif(:)               ! s-1
       real(r8), allocatable :: irr_inhibit(:)                ! m2 W-1
-      !real(r8), allocatable :: tracer_debug(:)               ! N/A
       real(r8), allocatable :: htotal_in(:)                  ! N/A
       real(r8), allocatable :: wsink(:)                      ! m s-1
-      !real(r8), allocatable :: ice_restart_file(:)           ! N/A
-      !real(r8), allocatable :: ocean_restart_file(:)         ! N/A
-      !real(r8), allocatable :: IC_file(:)                    ! N/A
 
 ! Cobalt parameters
 
@@ -1488,9 +1484,6 @@
           dry_po4, wet_po4
 
       integer :: nkml
-!      character(len=fm_string_len)          :: file
-!      character(len=fm_string_len) :: ice_restart_file
-!      character(len=fm_string_len) :: ocean_restart_file,IC_file
 
       integer               ::          &
           id_ndi           = -1,       &
@@ -2481,25 +2474,12 @@
       IF (.not.allocated(irr_inhibit)) THEN
         allocate ( irr_inhibit(Ngrids) )
       END IF
-      !IF (.not.allocated(tracer_debug)) THEN
-      !  allocate ( tracer_debug(Ngrids) )
-      !END IF
       IF (.not.allocated(htotal_in)) THEN
         allocate ( htotal_in(Ngrids) )
       END IF
       IF (.not.allocated(wsink)) THEN
         allocate ( wsink(Ngrids) )
       END IF
-!      IF (.not.allocated(ice_restart_file)) THEN
-!        allocate ( ice_restart_file(Ngrids) )
-!      END IF
-!      IF (.not.allocated(ocean_restart_file)) THEN
-!        allocate ( ocean_restart_file(Ngrids) )
-!      END IF
-!      IF (.not.allocated(IC_file)) THEN
-!        allocate ( IC_file(Ngrids) )
-!      END IF
-
 ! RD TODO in the future
 !      IF (.not.allocated(NOBGC)) THEN
 !        allocate ( NOBGC(Ngrids) )
@@ -2749,411 +2729,358 @@
       END SUBROUTINE initialize_biology
 
       SUBROUTINE cobalt_alloc_arrays(ng, tile,                          &
-     &                               LBi, UBi, LBj, UBj, UBk )
+     &                               IminS, ImaxS, JminS, JmaxS, UBk )
 
 
       integer, intent(in) :: ng, tile
-      integer, intent(in) :: LBi, UBi, LBj, UBj, UBk
+      integer, intent(in) :: IminS, ImaxS, JminS, JmaxS, UBk
 
       ! local
       integer :: nphyto, nzoo  ! loop index
 
-
-
-
-
-     allocate(cobalt%htotallo(LBi:UBi,LBj:UBj))
-     allocate(cobalt%htotalhi(LBi:UBi,LBj:UBj))
+     allocate(cobalt%htotallo(IminS:ImaxS,JminS:JmaxS))
+     allocate(cobalt%htotalhi(IminS:ImaxS,JminS:JmaxS))
 
      !-----------------------------------------------------------------------
      ! allocate arrays for prognostic variables
      !-----------------------------------------------------------------------
-
-     ! Nitrogen Dynamics
-     allocate(cobalt%p_nsm(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_nsm   = 0.0
-     allocate(cobalt%p_nlg(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_nlg   = 0.0
-     allocate(cobalt%p_ndi(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_ndi   = 0.0
-     allocate(cobalt%p_nsmz(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_nsmz  = 0.0
-     allocate(cobalt%p_nmdz(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_nmdz  = 0.0
-     allocate(cobalt%p_nlgz(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_nlgz  = 0.0
-     allocate(cobalt%p_ldon(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_ldon  = 0.0
-     allocate(cobalt%p_sldon(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_sldon = 0.0
-     allocate(cobalt%p_srdon(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_srdon = 0.0
-     allocate(cobalt%p_nbact(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_nbact = 0.0
-     allocate(cobalt%p_nh4(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_nh4   = 0.0
-     allocate(cobalt%p_no3(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_no3   = 0.0
-     allocate(cobalt%p_ndet(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_ndet  = 0.0
-
-#ifdef COBALT_MINERALS
-     ! Biogenic Minerals and Lithogenic Materials
-     allocate(cobalt%p_sio4(LBi:UBi,LBj:UBj,N(ng),2))       ; cobalt%p_sio4       = 0.0
-     allocate(cobalt%p_silg(LBi:UBi,LBj:UBj,N(ng),2))       ; cobalt%p_silg       = 0.0
-     allocate(cobalt%p_sidet(LBi:UBi,LBj:UBj,N(ng),2))      ; cobalt%p_sidet      = 0.0
-     allocate(cobalt%p_cadet_calc(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_cadet_calc = 0.0
-     allocate(cobalt%p_cadet_arag(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_cadet_arag = 0.0
-     allocate(cobalt%p_lith(LBi:UBi,LBj:UBj,N(ng),2))       ; cobalt%p_lith       = 0.0
-     allocate(cobalt%p_lithdet(LBi:UBi,LBj:UBj,N(ng),2))    ; cobalt%p_lithdet    = 0.0
-#endif
-
-#ifdef COBALT_PHOSPHORUS
-     ! Phosporus Dynamics
-     allocate(cobalt%p_ldop(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_ldop  = 0.0
-     allocate(cobalt%p_sldop(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_sldop = 0.0
-     allocate(cobalt%p_srdop(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_srdop = 0.0
-     allocate(cobalt%p_po4(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_po4   = 0.0
-     allocate(cobalt%p_pdet(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_pdet  = 0.0
-#endif
-
-#ifdef COBALT_IRON
-     ! Iron Dynamics
-     allocate(cobalt%p_fesm(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_fesm   = 0.0
-     allocate(cobalt%p_fedi(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_fedi   = 0.0
-     allocate(cobalt%p_felg(LBi:UBi,LBj:UBj,N(ng),2))   ; cobalt%p_felg   = 0.0
-     allocate(cobalt%p_fed(LBi:UBi,LBj:UBj,N(ng),2))    ; cobalt%p_fed    = 0.0
-     allocate(cobalt%p_fedet(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_fedet  = 0.0
-#endif
-
-#ifdef COBALT_CARBON
-     ! Oxygen, Carbon and Alkalinity
-     allocate(cobalt%p_o2(LBi:UBi,LBj:UBj,N(ng),2))  ; cobalt%p_o2  = 0.0
-     allocate(cobalt%p_dic(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_dic = 0.0
-     allocate(cobalt%p_alk(LBi:UBi,LBj:UBj,N(ng),2)) ; cobalt%p_alk = 0.0
-#endif
-
-
 
 !
 ! allocate and initialize array elements of all phytoplankton groups
 ! CAS: add fluxes for additional explicit phytoplankton loss terms
 
       do nphyto = 1, NUM_PHYTO
-       allocate(phyto(nphyto)%def_fe(LBi:UBi,LBj:UBj,N(ng)))       ; phyto(nphyto)%def_fe         = 0.0
-       allocate(phyto(nphyto)%def_p(LBi:UBi,LBj:UBj,N(ng)))        ; phyto(nphyto)%def_p          = 0.0
-       allocate(phyto(nphyto)%f_fe(LBi:UBi,LBj:UBj,N(ng)))         ; phyto(nphyto)%f_fe           = 0.0
-       allocate(phyto(nphyto)%f_n(LBi:UBi,LBj:UBj,N(ng)))          ; phyto(nphyto)%f_n            = 0.0
-       allocate(phyto(nphyto)%felim(LBi:UBi,LBj:UBj,N(ng)))        ; phyto(nphyto)%felim          = 0.0
-       allocate(phyto(nphyto)%irrlim(LBi:UBi,LBj:UBj,N(ng)))       ; phyto(nphyto)%irrlim         = 0.0
-       allocate(phyto(nphyto)%jzloss_fe(LBi:UBi,LBj:UBj,N(ng)))    ; phyto(nphyto)%jzloss_fe      = 0.0
-       allocate(phyto(nphyto)%jzloss_n(LBi:UBi,LBj:UBj,N(ng)))     ; phyto(nphyto)%jzloss_n       = 0.0
-       allocate(phyto(nphyto)%jzloss_p(LBi:UBi,LBj:UBj,N(ng)))     ; phyto(nphyto)%jzloss_p       = 0.0
-       allocate(phyto(nphyto)%jzloss_sio2(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%jzloss_sio2    = 0.0
-       allocate(phyto(nphyto)%jaggloss_fe(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%jaggloss_fe    = 0.0
-       allocate(phyto(nphyto)%jaggloss_n(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jaggloss_n     = 0.0
-       allocate(phyto(nphyto)%jaggloss_p(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jaggloss_p     = 0.0
-       allocate(phyto(nphyto)%jaggloss_sio2(LBi:UBi,LBj:UBj,N(ng))); phyto(nphyto)%jaggloss_sio2  = 0.0
-       allocate(phyto(nphyto)%jvirloss_fe(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%jvirloss_fe    = 0.0
-       allocate(phyto(nphyto)%jvirloss_n(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jvirloss_n     = 0.0
-       allocate(phyto(nphyto)%jvirloss_p(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jvirloss_p     = 0.0
-       allocate(phyto(nphyto)%jvirloss_sio2(LBi:UBi,LBj:UBj,N(ng))); phyto(nphyto)%jvirloss_sio2  = 0.0
-       allocate(phyto(nphyto)%jexuloss_fe(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%jexuloss_fe    = 0.0
-       allocate(phyto(nphyto)%jexuloss_n(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jexuloss_n     = 0.0
-       allocate(phyto(nphyto)%jexuloss_p(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jexuloss_p     = 0.0
-       allocate(phyto(nphyto)%jhploss_fe(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%jhploss_fe     = 0.0
-       allocate(phyto(nphyto)%jhploss_n(LBi:UBi,LBj:UBj,N(ng)))    ; phyto(nphyto)%jhploss_n      = 0.0
-       allocate(phyto(nphyto)%jhploss_p(LBi:UBi,LBj:UBj,N(ng)))    ; phyto(nphyto)%jhploss_p      = 0.0
-       allocate(phyto(nphyto)%jhploss_sio2(LBi:UBi,LBj:UBj,N(ng))) ; phyto(nphyto)%jhploss_sio2   = 0.0
-       allocate(phyto(nphyto)%juptake_fe(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%juptake_fe     = 0.0
-       allocate(phyto(nphyto)%juptake_nh4(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%juptake_nh4    = 0.0
-       allocate(phyto(nphyto)%juptake_no3(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%juptake_no3    = 0.0
-       allocate(phyto(nphyto)%juptake_po4(LBi:UBi,LBj:UBj,N(ng)))  ; phyto(nphyto)%juptake_po4    = 0.0
-       allocate(phyto(nphyto)%jprod_n(LBi:UBi,LBj:UBj,N(ng)))      ; phyto(nphyto)%jprod_n        = 0.0
-       allocate(phyto(nphyto)%liebig_lim(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(nphyto)%liebig_lim     = 0.0
-       allocate(phyto(nphyto)%mu(LBi:UBi,LBj:UBj,N(ng)))           ; phyto(nphyto)%mu             = 0.0
-       allocate(phyto(nphyto)%po4lim(LBi:UBi,LBj:UBj,N(ng)))       ; phyto(nphyto)%po4lim         = 0.0
-       allocate(phyto(nphyto)%q_fe_2_n(LBi:UBi,LBj:UBj,N(ng)))     ; phyto(nphyto)%q_fe_2_n       = 0.0
-       allocate(phyto(nphyto)%q_p_2_n(LBi:UBi,LBj:UBj,N(ng)))      ; phyto(nphyto)%q_p_2_n        = 0.0
-       allocate(phyto(nphyto)%q_si_2_n(LBi:UBi,LBj:UBj,N(ng)))     ; phyto(nphyto)%q_si_2_n       = 0.0
-       allocate(phyto(nphyto)%theta(LBi:UBi,LBj:UBj,N(ng)))        ; phyto(nphyto)%theta          = 0.0
+       allocate(phyto(nphyto)%def_fe(IminS:ImaxS,JminS:JmaxS,UBk))       ; phyto(nphyto)%def_fe         = 0.0
+       allocate(phyto(nphyto)%def_p(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(nphyto)%def_p          = 0.0
+       allocate(phyto(nphyto)%f_fe(IminS:ImaxS,JminS:JmaxS,UBk))         ; phyto(nphyto)%f_fe           = 0.0
+       allocate(phyto(nphyto)%f_n(IminS:ImaxS,JminS:JmaxS,UBk))          ; phyto(nphyto)%f_n            = 0.0
+       allocate(phyto(nphyto)%felim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(nphyto)%felim          = 0.0
+       allocate(phyto(nphyto)%irrlim(IminS:ImaxS,JminS:JmaxS,UBk))       ; phyto(nphyto)%irrlim         = 0.0
+       allocate(phyto(nphyto)%jzloss_fe(IminS:ImaxS,JminS:JmaxS,UBk))    ; phyto(nphyto)%jzloss_fe      = 0.0
+       allocate(phyto(nphyto)%jzloss_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%jzloss_n       = 0.0
+       allocate(phyto(nphyto)%jzloss_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%jzloss_p       = 0.0
+       allocate(phyto(nphyto)%jzloss_sio2(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%jzloss_sio2    = 0.0
+       allocate(phyto(nphyto)%jaggloss_fe(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%jaggloss_fe    = 0.0
+       allocate(phyto(nphyto)%jaggloss_n(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jaggloss_n     = 0.0
+       allocate(phyto(nphyto)%jaggloss_p(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jaggloss_p     = 0.0
+       allocate(phyto(nphyto)%jaggloss_sio2(IminS:ImaxS,JminS:JmaxS,UBk)); phyto(nphyto)%jaggloss_sio2  = 0.0
+       allocate(phyto(nphyto)%jvirloss_fe(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%jvirloss_fe    = 0.0
+       allocate(phyto(nphyto)%jvirloss_n(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jvirloss_n     = 0.0
+       allocate(phyto(nphyto)%jvirloss_p(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jvirloss_p     = 0.0
+       allocate(phyto(nphyto)%jvirloss_sio2(IminS:ImaxS,JminS:JmaxS,UBk)); phyto(nphyto)%jvirloss_sio2  = 0.0
+       allocate(phyto(nphyto)%jexuloss_fe(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%jexuloss_fe    = 0.0
+       allocate(phyto(nphyto)%jexuloss_n(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jexuloss_n     = 0.0
+       allocate(phyto(nphyto)%jexuloss_p(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jexuloss_p     = 0.0
+       allocate(phyto(nphyto)%jhploss_fe(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%jhploss_fe     = 0.0
+       allocate(phyto(nphyto)%jhploss_n(IminS:ImaxS,JminS:JmaxS,UBk))    ; phyto(nphyto)%jhploss_n      = 0.0
+       allocate(phyto(nphyto)%jhploss_p(IminS:ImaxS,JminS:JmaxS,UBk))    ; phyto(nphyto)%jhploss_p      = 0.0
+       allocate(phyto(nphyto)%jhploss_sio2(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(nphyto)%jhploss_sio2   = 0.0
+       allocate(phyto(nphyto)%juptake_fe(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%juptake_fe     = 0.0
+       allocate(phyto(nphyto)%juptake_nh4(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%juptake_nh4    = 0.0
+       allocate(phyto(nphyto)%juptake_no3(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%juptake_no3    = 0.0
+       allocate(phyto(nphyto)%juptake_po4(IminS:ImaxS,JminS:JmaxS,UBk))  ; phyto(nphyto)%juptake_po4    = 0.0
+       allocate(phyto(nphyto)%jprod_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%jprod_n        = 0.0
+       allocate(phyto(nphyto)%liebig_lim(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%liebig_lim     = 0.0
+       allocate(phyto(nphyto)%mu(IminS:ImaxS,JminS:JmaxS,UBk))           ; phyto(nphyto)%mu             = 0.0
+       allocate(phyto(nphyto)%po4lim(IminS:ImaxS,JminS:JmaxS,UBk))       ; phyto(nphyto)%po4lim         = 0.0
+       allocate(phyto(nphyto)%q_fe_2_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%q_fe_2_n       = 0.0
+       allocate(phyto(nphyto)%q_p_2_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%q_p_2_n        = 0.0
+       allocate(phyto(nphyto)%q_si_2_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%q_si_2_n       = 0.0
+       allocate(phyto(nphyto)%theta(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(nphyto)%theta          = 0.0
       enddo
 !
 ! allocate and initialize array elements of only some phytoplankton groups
 !
       do nphyto = 2, NUM_PHYTO
-       allocate(phyto(nphyto)%nh4lim(LBi:UBi,LBj:UBj,N(ng)))      ; phyto(nphyto)%nh4lim          = 0.0
-       allocate(phyto(nphyto)%no3lim(LBi:UBi,LBj:UBj,N(ng)))      ; phyto(nphyto)%no3lim          = 0.0
+       allocate(phyto(nphyto)%nh4lim(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%nh4lim          = 0.0
+       allocate(phyto(nphyto)%no3lim(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%no3lim          = 0.0
       enddo
 !
 ! allocate and initialize array elements of only one phytoplankton group
 !
-     allocate(phyto(DIAZO)%juptake_n2(LBi:UBi,LBj:UBj,N(ng)))   ; phyto(DIAZO)%juptake_n2   = 0.0
-     allocate(phyto(DIAZO)%o2lim(LBi:UBi,LBj:UBj,N(ng)))        ; phyto(DIAZO)%o2lim        = 0.0
-     allocate(phyto(LARGE)%juptake_sio4(LBi:UBi,LBj:UBj,N(ng))) ; phyto(LARGE)%juptake_sio4 = 0.0
-     allocate(phyto(LARGE)%silim(LBi:UBi,LBj:UBj,N(ng)))        ; phyto(LARGE)%silim      = 0.0
+     allocate(phyto(DIAZO)%juptake_n2(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(DIAZO)%juptake_n2   = 0.0
+     allocate(phyto(DIAZO)%o2lim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(DIAZO)%o2lim        = 0.0
+     allocate(phyto(LARGE)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(LARGE)%juptake_sio4 = 0.0
+     allocate(phyto(LARGE)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(LARGE)%silim        = 0.0
 !
 ! allocate and initialize arrays for bacteria
 !
-     allocate(bact(1)%f_n(LBi:UBi,LBj:UBj,N(ng)))              ; bact(1)%f_n             = 0.0
-     allocate(bact(1)%jzloss_n(LBi:UBi,LBj:UBj,N(ng)))         ; bact(1)%jzloss_n        = 0.0
-     allocate(bact(1)%jzloss_p(LBi:UBi,LBj:UBj,N(ng)))         ; bact(1)%jzloss_p        = 0.0
-     allocate(bact(1)%jvirloss_n(LBi:UBi,LBj:UBj,N(ng)))       ; bact(1)%jvirloss_n      = 0.0
-     allocate(bact(1)%jvirloss_p(LBi:UBi,LBj:UBj,N(ng)))       ; bact(1)%jvirloss_p      = 0.0
-     allocate(bact(1)%jhploss_n(LBi:UBi,LBj:UBj,N(ng)))        ; bact(1)%jhploss_n       = 0.0
-     allocate(bact(1)%jhploss_p(LBi:UBi,LBj:UBj,N(ng)))        ; bact(1)%jhploss_p       = 0.0
-     allocate(bact(1)%juptake_ldon(LBi:UBi,LBj:UBj,N(ng)))     ; bact(1)%juptake_ldon    = 0.0
-     allocate(bact(1)%juptake_ldop(LBi:UBi,LBj:UBj,N(ng)))     ; bact(1)%juptake_ldop    = 0.0
-     allocate(bact(1)%jprod_nh4(LBi:UBi,LBj:UBj,N(ng)))        ; bact(1)%jprod_nh4       = 0.0
-     allocate(bact(1)%jprod_po4(LBi:UBi,LBj:UBj,N(ng)))        ; bact(1)%jprod_po4       = 0.0
-     allocate(bact(1)%jprod_n(LBi:UBi,LBj:UBj,N(ng)))          ; bact(1)%jprod_n      = 0.0
-     allocate(bact(1)%temp_lim(LBi:UBi,LBj:UBj,N(ng)))         ; bact(1)%temp_lim        = 0.0
+     allocate(bact(1)%f_n(IminS:ImaxS,JminS:JmaxS,UBk))              ; bact(1)%f_n             = 0.0
+     allocate(bact(1)%jzloss_n(IminS:ImaxS,JminS:JmaxS,UBk))         ; bact(1)%jzloss_n        = 0.0
+     allocate(bact(1)%jzloss_p(IminS:ImaxS,JminS:JmaxS,UBk))         ; bact(1)%jzloss_p        = 0.0
+     allocate(bact(1)%jvirloss_n(IminS:ImaxS,JminS:JmaxS,UBk))       ; bact(1)%jvirloss_n      = 0.0
+     allocate(bact(1)%jvirloss_p(IminS:ImaxS,JminS:JmaxS,UBk))       ; bact(1)%jvirloss_p      = 0.0
+     allocate(bact(1)%jhploss_n(IminS:ImaxS,JminS:JmaxS,UBk))        ; bact(1)%jhploss_n       = 0.0
+     allocate(bact(1)%jhploss_p(IminS:ImaxS,JminS:JmaxS,UBk))        ; bact(1)%jhploss_p       = 0.0
+     allocate(bact(1)%juptake_ldon(IminS:ImaxS,JminS:JmaxS,UBk))     ; bact(1)%juptake_ldon    = 0.0
+     allocate(bact(1)%juptake_ldop(IminS:ImaxS,JminS:JmaxS,UBk))     ; bact(1)%juptake_ldop    = 0.0
+     allocate(bact(1)%jprod_nh4(IminS:ImaxS,JminS:JmaxS,UBk))        ; bact(1)%jprod_nh4       = 0.0
+     allocate(bact(1)%jprod_po4(IminS:ImaxS,JminS:JmaxS,UBk))        ; bact(1)%jprod_po4       = 0.0
+     allocate(bact(1)%jprod_n(IminS:ImaxS,JminS:JmaxS,UBk))          ; bact(1)%jprod_n         = 0.0
+     allocate(bact(1)%temp_lim(IminS:ImaxS,JminS:JmaxS,UBk))         ; bact(1)%temp_lim        = 0.0
 !
 ! CAS: allocate and initialize array elements for all zooplankton groups
 !
       do nzoo = 1, NUM_ZOO
-       allocate(zoo(nzoo)%f_n(LBi:UBi,LBj:UBj,N(ng)))           ; zoo(nzoo)%f_n            = 0.0
-       allocate(zoo(nzoo)%jzloss_n(LBi:UBi,LBj:UBj,N(ng)))      ; zoo(nzoo)%jzloss_n       = 0.0
-       allocate(zoo(nzoo)%jzloss_p(LBi:UBi,LBj:UBj,N(ng)))      ; zoo(nzoo)%jzloss_p       = 0.0
-       allocate(zoo(nzoo)%jhploss_n(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jhploss_n      = 0.0
-       allocate(zoo(nzoo)%jhploss_p(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jhploss_p      = 0.0
-       allocate(zoo(nzoo)%jingest_n(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jingest_n      = 0.0
-       allocate(zoo(nzoo)%jingest_p(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jingest_p      = 0.0
-       allocate(zoo(nzoo)%jingest_sio2(LBi:UBi,LBj:UBj,N(ng)))  ; zoo(nzoo)%jingest_sio2   = 0.0
-       allocate(zoo(nzoo)%jingest_fe(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jingest_fe     = 0.0
-       allocate(zoo(nzoo)%jprod_ndet(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_ndet     = 0.0
-       allocate(zoo(nzoo)%jprod_pdet(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_pdet     = 0.0
-       allocate(zoo(nzoo)%jprod_ldon(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_ldon     = 0.0
-       allocate(zoo(nzoo)%jprod_ldop(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_ldop     = 0.0
-       allocate(zoo(nzoo)%jprod_srdon(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_srdon     = 0.0
-       allocate(zoo(nzoo)%jprod_srdop(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_srdop     = 0.0
-       allocate(zoo(nzoo)%jprod_sldon(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_sldon     = 0.0
-       allocate(zoo(nzoo)%jprod_sldop(LBi:UBi,LBj:UBj,N(ng)))    ; zoo(nzoo)%jprod_sldop     = 0.0
-       allocate(zoo(nzoo)%jprod_fedet(LBi:UBi,LBj:UBj,N(ng)))   ; zoo(nzoo)%jprod_fedet    = 0.0
-       allocate(zoo(nzoo)%jprod_fed(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jprod_fed      = 0.0
-       allocate(zoo(nzoo)%jprod_sidet(LBi:UBi,LBj:UBj,N(ng)))   ; zoo(nzoo)%jprod_sidet    = 0.0
-       allocate(zoo(nzoo)%jprod_sio4(LBi:UBi,LBj:UBj,N(ng)))   ; zoo(nzoo)%jprod_sio4      = 0.0
-       allocate(zoo(nzoo)%jprod_po4(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jprod_po4      = 0.0
-       allocate(zoo(nzoo)%jprod_nh4(LBi:UBi,LBj:UBj,N(ng)))     ; zoo(nzoo)%jprod_nh4      = 0.0
-       allocate(zoo(nzoo)%jprod_n(LBi:UBi,LBj:UBj,N(ng)))      ; zoo(nzoo)%jprod_n       = 0.0
-       allocate(zoo(nzoo)%temp_lim(LBi:UBi,LBj:UBj,N(ng)))      ; zoo(nzoo)%temp_lim       = 0.0
+       allocate(zoo(nzoo)%f_n(IminS:ImaxS,JminS:JmaxS,UBk))           ; zoo(nzoo)%f_n            = 0.0
+       allocate(zoo(nzoo)%jzloss_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; zoo(nzoo)%jzloss_n       = 0.0
+       allocate(zoo(nzoo)%jzloss_p(IminS:ImaxS,JminS:JmaxS,UBk))      ; zoo(nzoo)%jzloss_p       = 0.0
+       allocate(zoo(nzoo)%jhploss_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jhploss_n      = 0.0
+       allocate(zoo(nzoo)%jhploss_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jhploss_p      = 0.0
+       allocate(zoo(nzoo)%jingest_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jingest_n      = 0.0
+       allocate(zoo(nzoo)%jingest_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jingest_p      = 0.0
+       allocate(zoo(nzoo)%jingest_sio2(IminS:ImaxS,JminS:JmaxS,UBk))  ; zoo(nzoo)%jingest_sio2   = 0.0
+       allocate(zoo(nzoo)%jingest_fe(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jingest_fe     = 0.0
+       allocate(zoo(nzoo)%jprod_ndet(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jprod_ndet     = 0.0
+       allocate(zoo(nzoo)%jprod_pdet(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jprod_pdet     = 0.0
+       allocate(zoo(nzoo)%jprod_ldon(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jprod_ldon     = 0.0
+       allocate(zoo(nzoo)%jprod_ldop(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jprod_ldop     = 0.0
+       allocate(zoo(nzoo)%jprod_srdon(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_srdon    = 0.0
+       allocate(zoo(nzoo)%jprod_srdop(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_srdop    = 0.0
+       allocate(zoo(nzoo)%jprod_sldon(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_sldon    = 0.0
+       allocate(zoo(nzoo)%jprod_sldop(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_sldop    = 0.0
+       allocate(zoo(nzoo)%jprod_fedet(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_fedet    = 0.0
+       allocate(zoo(nzoo)%jprod_fed(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jprod_fed      = 0.0
+       allocate(zoo(nzoo)%jprod_sidet(IminS:ImaxS,JminS:JmaxS,UBk))   ; zoo(nzoo)%jprod_sidet    = 0.0
+       allocate(zoo(nzoo)%jprod_sio4(IminS:ImaxS,JminS:JmaxS,UBk))    ; zoo(nzoo)%jprod_sio4     = 0.0
+       allocate(zoo(nzoo)%jprod_po4(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jprod_po4      = 0.0
+       allocate(zoo(nzoo)%jprod_nh4(IminS:ImaxS,JminS:JmaxS,UBk))     ; zoo(nzoo)%jprod_nh4      = 0.0
+       allocate(zoo(nzoo)%jprod_n(IminS:ImaxS,JminS:JmaxS,UBk))       ; zoo(nzoo)%jprod_n        = 0.0
+       allocate(zoo(nzoo)%temp_lim(IminS:ImaxS,JminS:JmaxS,UBk))      ; zoo(nzoo)%temp_lim       = 0.0
       enddo
 
 ! higher predator ingestion
-     allocate(cobalt%hp_jingest_n(LBi:UBi,LBj:UBj,N(ng)))     ; cobalt%hp_jingest_n      = 0.0
-     allocate(cobalt%hp_jingest_p(LBi:UBi,LBj:UBj,N(ng)))     ; cobalt%hp_jingest_p      = 0.0
-     allocate(cobalt%hp_jingest_sio2(LBi:UBi,LBj:UBj,N(ng)))  ; cobalt%hp_jingest_sio2   = 0.0
-     allocate(cobalt%hp_jingest_fe(LBi:UBi,LBj:UBj,N(ng)))    ; cobalt%hp_jingest_fe     = 0.0 
+     allocate(cobalt%hp_jingest_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%hp_jingest_n      = 0.0
+     allocate(cobalt%hp_jingest_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%hp_jingest_p      = 0.0
+     allocate(cobalt%hp_jingest_sio2(IminS:ImaxS,JminS:JmaxS,UBk))  ; cobalt%hp_jingest_sio2   = 0.0
+     allocate(cobalt%hp_jingest_fe(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%hp_jingest_fe     = 0.0 
 
-     allocate(cobalt%f_temp(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_temp=0.0
-     allocate(cobalt%f_salt(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_salt=0.0
-     allocate(cobalt%f_alk(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_alk=0.0
-     allocate(cobalt%f_cadet_arag(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%f_cadet_arag=0.0
-     allocate(cobalt%f_cadet_calc(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%f_cadet_calc=0.0
-     allocate(cobalt%f_dic(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_dic=0.0
-     allocate(cobalt%f_fed(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_fed=0.0
-     allocate(cobalt%f_fedet(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%f_fedet=0.0
-     allocate(cobalt%f_ldon(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_ldon=0.0
-     allocate(cobalt%f_ldop(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_ldop=0.0
-     allocate(cobalt%f_lith(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_lith=0.0
-     allocate(cobalt%f_lithdet(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%f_lithdet=0.0
-     allocate(cobalt%f_ndet(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_ndet=0.0
-     allocate(cobalt%f_nh4(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_nh4=0.0
-     allocate(cobalt%f_no3(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_no3=0.0
-     allocate(cobalt%f_o2(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%f_o2=0.0
-     allocate(cobalt%f_pdet(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_pdet=0.0
-     allocate(cobalt%f_po4(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_po4=0.0
-     allocate(cobalt%f_srdon(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_srdon=0.0
-     allocate(cobalt%f_srdop(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_srdop=0.0
-     allocate(cobalt%f_sldon(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_sldon=0.0
-     allocate(cobalt%f_sldop(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_sldop=0.0
-     allocate(cobalt%f_sidet(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%f_sidet=0.0
-     allocate(cobalt%f_silg(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_silg=0.0
-     allocate(cobalt%f_sio4(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%f_sio4=0.0
-     allocate(cobalt%co3_sol_arag(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%co3_sol_arag=0.0
-     allocate(cobalt%co3_sol_calc(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%co3_sol_calc=0.0
-     allocate(cobalt%omega_arag(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%omega_arag=0.0
-     allocate(cobalt%omega_calc(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%omega_calc=0.0
-     allocate(cobalt%f_chl(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%f_chl=0.0
-     allocate(cobalt%f_co3_ion(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%f_co3_ion=0.0
-     allocate(cobalt%f_htotal(LBi:UBi, LBj:UBj, 1:N(ng)))     ; cobalt%f_htotal=0.0
-     allocate(cobalt%f_irr_mem(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%f_irr_mem=0.0
-     allocate(cobalt%f_cased(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%f_cased=0.0
-     allocate(cobalt%f_cadet_arag_btf(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%f_cadet_arag_btf=0.0
-     allocate(cobalt%f_cadet_calc_btf(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%f_cadet_calc_btf=0.0
-     allocate(cobalt%f_fedet_btf(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%f_fedet_btf=0.0
-     allocate(cobalt%f_lithdet_btf(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%f_lithdet_btf=0.0
-     allocate(cobalt%f_ndet_btf(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%f_ndet_btf=0.0
-     allocate(cobalt%f_pdet_btf(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%f_pdet_btf=0.0
-     allocate(cobalt%f_sidet_btf(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%f_sidet_btf=0.0
+     allocate(cobalt%f_temp(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_temp=0.0
+     allocate(cobalt%f_salt(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_salt=0.0
+     allocate(cobalt%f_alk(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_alk=0.0
+     allocate(cobalt%f_cadet_arag(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%f_cadet_arag=0.0
+     allocate(cobalt%f_cadet_calc(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%f_cadet_calc=0.0
+     allocate(cobalt%f_dic(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_dic=0.0
+     allocate(cobalt%f_fed(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_fed=0.0
+     allocate(cobalt%f_fedet(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_fedet=0.0
+     allocate(cobalt%f_ldon(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_ldon=0.0
+     allocate(cobalt%f_ldop(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_ldop=0.0
+     allocate(cobalt%f_lith(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_lith=0.0
+     allocate(cobalt%f_lithdet(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%f_lithdet=0.0
+     allocate(cobalt%f_ndet(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_ndet=0.0
+     allocate(cobalt%f_nh4(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_nh4=0.0
+     allocate(cobalt%f_no3(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_no3=0.0
+     allocate(cobalt%f_o2(IminS:ImaxS,JminS:JmaxS,UBk))             ; cobalt%f_o2=0.0
+     allocate(cobalt%f_pdet(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_pdet=0.0
+     allocate(cobalt%f_po4(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_po4=0.0
+     allocate(cobalt%f_srdon(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_srdon=0.0
+     allocate(cobalt%f_srdop(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_srdop=0.0
+     allocate(cobalt%f_sldon(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_sldon=0.0
+     allocate(cobalt%f_sldop(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_sldop=0.0
+     allocate(cobalt%f_sidet(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_sidet=0.0
+     allocate(cobalt%f_silg(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_silg=0.0
+     allocate(cobalt%f_sio4(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%f_sio4=0.0
+     allocate(cobalt%co3_sol_arag(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%co3_sol_arag=0.0
+     allocate(cobalt%co3_sol_calc(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%co3_sol_calc=0.0
+     allocate(cobalt%omega_arag(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%omega_arag=0.0
+     allocate(cobalt%omega_calc(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%omega_calc=0.0
+     allocate(cobalt%f_chl(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%f_chl=0.0
+     allocate(cobalt%f_co3_ion(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%f_co3_ion=0.0
+     allocate(cobalt%f_htotal(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%f_htotal=0.0
+     allocate(cobalt%f_irr_mem(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%f_irr_mem=0.0
+     allocate(cobalt%f_cased(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%f_cased=0.0
+     allocate(cobalt%f_cadet_arag_btf(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%f_cadet_arag_btf=0.0
+     allocate(cobalt%f_cadet_calc_btf(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%f_cadet_calc_btf=0.0
+     allocate(cobalt%f_fedet_btf(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%f_fedet_btf=0.0
+     allocate(cobalt%f_lithdet_btf(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%f_lithdet_btf=0.0
+     allocate(cobalt%f_ndet_btf(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%f_ndet_btf=0.0
+     allocate(cobalt%f_pdet_btf(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%f_pdet_btf=0.0
+     allocate(cobalt%f_sidet_btf(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%f_sidet_btf=0.0
 
-     allocate(cobalt%jndi(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jndi=0.0
-     allocate(cobalt%jnsm(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jnsm=0.0
-     allocate(cobalt%jnlg(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jnlg=0.0
-     allocate(cobalt%jnbact(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%jnbact=0.0
-     allocate(cobalt%jnsmz(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jnsmz=0.0
-     allocate(cobalt%jnmdz(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jnmdz=0.0
-     allocate(cobalt%jnlgz(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jnlgz=0.0
-     allocate(cobalt%jalk(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jalk=0.0
-     allocate(cobalt%jcadet_arag(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jcadet_arag=0.0
-     allocate(cobalt%jcadet_calc(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jcadet_calc=0.0
-     allocate(cobalt%jdic(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jdic=0.0
-     allocate(cobalt%jfed(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jfed=0.0
-     allocate(cobalt%jfedi(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jfedi=0.0
-     allocate(cobalt%jfelg(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jfelg=0.0
-     allocate(cobalt%jfesm(LBi:UBi, LBj:UBj, 1:N(ng)))     ; cobalt%jfesm=0.0
-     allocate(cobalt%jfedet(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%jfedet=0.0
-     allocate(cobalt%jldon(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jldon=0.0
-     allocate(cobalt%jldop(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jldop=0.0
-     allocate(cobalt%jlith(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jlith=0.0
-     allocate(cobalt%jlithdet(LBi:UBi, LBj:UBj, 1:N(ng)))     ; cobalt%jlithdet=0.0
-     allocate(cobalt%jndet(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jndet=0.0
-     allocate(cobalt%jnh4(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jnh4=0.0
-     allocate(cobalt%jno3(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jno3=0.0
-     allocate(cobalt%jo2(LBi:UBi, LBj:UBj, 1:N(ng)))          ; cobalt%jo2=0.0
-     allocate(cobalt%jpdet(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jpdet=0.0
-     allocate(cobalt%jpo4(LBi:UBi, LBj:UBj, 1:N(ng)))         ; cobalt%jpo4=0.0
-     allocate(cobalt%jsrdon(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsrdon=0.0
-     allocate(cobalt%jsrdop(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsrdop=0.0
-     allocate(cobalt%jsldon(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsldon=0.0
-     allocate(cobalt%jsldop(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsldop=0.0
-     allocate(cobalt%jsidet(LBi:UBi, LBj:UBj, 1:N(ng)))       ; cobalt%jsidet=0.0
-     allocate(cobalt%jsilg(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsilg=0.0
-     allocate(cobalt%jsio4(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%jsio4=0.0
-     allocate(cobalt%jprod_ndet(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_ndet=0.0
-     allocate(cobalt%jprod_pdet(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_pdet=0.0
-     allocate(cobalt%jprod_srdon(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_srdon=0.0
-     allocate(cobalt%jprod_sldon(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_sldon=0.0
-     allocate(cobalt%jprod_ldon(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_ldon=0.0
-     allocate(cobalt%jprod_srdop(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_srdop=0.0
-     allocate(cobalt%jprod_sldop(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_sldop=0.0
-     allocate(cobalt%jprod_ldop(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%jprod_ldop=0.0
-     allocate(cobalt%jprod_fedet(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jprod_fedet=0.0
-     allocate(cobalt%jprod_fed(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%jprod_fed=0.0
-     allocate(cobalt%jprod_sidet(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jprod_sidet=0.0
-     allocate(cobalt%jprod_sio4(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jprod_sio4=0.0
-     allocate(cobalt%jprod_lithdet(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%jprod_lithdet=0.0
-     allocate(cobalt%jprod_cadet_arag(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%jprod_cadet_arag=0.0
-     allocate(cobalt%jprod_cadet_calc(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%jprod_cadet_calc=0.0
-     allocate(cobalt%jprod_nh4(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%jprod_nh4=0.0
-     allocate(cobalt%jprod_po4(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%jprod_po4=0.0
-     allocate(cobalt%det_jzloss_n(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%det_jzloss_n=0.0
-     allocate(cobalt%det_jzloss_p(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%det_jzloss_p=0.0
-     allocate(cobalt%det_jzloss_fe(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jzloss_fe=0.0
-     allocate(cobalt%det_jzloss_si(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jzloss_si=0.0
-     allocate(cobalt%det_jhploss_n(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jhploss_n=0.0
-     allocate(cobalt%det_jhploss_p(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jhploss_p=0.0
-     allocate(cobalt%det_jhploss_fe(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jhploss_fe=0.0
-     allocate(cobalt%det_jhploss_si(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%det_jhploss_si=0.0
-     allocate(cobalt%jdiss_cadet_arag(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%jdiss_cadet_arag=0.0
-     allocate(cobalt%jdiss_cadet_calc(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%jdiss_cadet_calc=0.0
-     allocate(cobalt%jdiss_sidet(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jdiss_sidet=0.0
-     allocate(cobalt%jremin_ndet(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jremin_ndet=0.0
-     allocate(cobalt%jremin_pdet(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%jremin_pdet=0.0
-     allocate(cobalt%jremin_fedet(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%jremin_fedet=0.0
-     allocate(cobalt%jfe_ads(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%jfe_ads=0.0
-     allocate(cobalt%jfe_coast(LBi:UBi, LBj:UBj, 1:N(ng)))    ; cobalt%jfe_coast=0.0
-     allocate(cobalt%kfe_eq_lig(LBi:UBi, LBj:UBj, 1:N(ng)))   ; cobalt%kfe_eq_lig=0.0
-     allocate(cobalt%expkT(LBi:UBi, LBj:UBj, 1:N(ng)))        ; cobalt%expkT=0.0
-     allocate(cobalt%hp_temp_lim(LBi:UBi, LBj:UBj, 1:N(ng)))  ; cobalt%hp_temp_lim=0.0
-     allocate(cobalt%irr_inst(LBi:UBi, LBj:UBj, 1:N(ng)))     ; cobalt%irr_inst=0.0
-     allocate(cobalt%irr_mix(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%irr_mix=0.0
-     allocate(cobalt%jno3denit_wc(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%jno3denit_wc=0.0
-     allocate(cobalt%jnitrif(LBi:UBi, LBj:UBj, 1:N(ng)))      ; cobalt%jnitrif=0.0
-     allocate(cobalt%total_filter_feeding(LBi:UBi,LBj:UBj,1:N(ng))); cobalt%total_filter_feeding=0.0
-     allocate(cobalt%zt(LBi:UBi, LBj:UBj, 1:N(ng)))           ; cobalt%zt=0.0
-     allocate(cobalt%zm(LBi:UBi, LBj:UBj, 1:N(ng)))           ; cobalt%zm=0.0
-     allocate(cobalt%tot_layer_int_c(LBi:UBi, LBj:UBj,1:N(ng)))  ; cobalt%tot_layer_int_c=0.0
-     allocate(cobalt%tot_layer_int_fe(LBi:UBi, LBj:UBj,1:N(ng))) ; cobalt%tot_layer_int_fe=0.0
-     allocate(cobalt%tot_layer_int_n(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%tot_layer_int_n=0.0
-     allocate(cobalt%tot_layer_int_p(LBi:UBi, LBj:UBj, 1:N(ng))) ; cobalt%tot_layer_int_p=0.0
-     allocate(cobalt%tot_layer_int_si(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%tot_layer_int_si=0.0
-     allocate(cobalt%net_prim_prod(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%net_prim_prod=0.0
-     allocate(cobalt%gross_prim_prod(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%gross_prim_prod=0.0
-     allocate(cobalt%nlg_diatoms(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%nlg_diatoms=0.0
-     allocate(cobalt%q_si_2_n_lg_diatoms(LBi:UBi, LBj:UBj, 1:N(ng))); cobalt%q_si_2_n_lg_diatoms=0.0
-     allocate(cobalt%b_alk(LBi:UBi, LBj:UBj))              ; cobalt%b_alk=0.0
-     allocate(cobalt%b_dic(LBi:UBi, LBj:UBj))              ; cobalt%b_dic=0.0
-     allocate(cobalt%b_fed(LBi:UBi, LBj:UBj))              ; cobalt%b_fed=0.0
-     allocate(cobalt%b_nh4(LBi:UBi, LBj:UBj))              ; cobalt%b_nh4=0.0
-     allocate(cobalt%b_no3(LBi:UBi, LBj:UBj))              ; cobalt%b_no3=0.0
-     allocate(cobalt%b_o2(LBi:UBi, LBj:UBj))               ; cobalt%b_o2=0.0
-     allocate(cobalt%b_po4(LBi:UBi, LBj:UBj))              ; cobalt%b_po4=0.0
-     allocate(cobalt%b_sio4(LBi:UBi, LBj:UBj))             ; cobalt%b_sio4=0.0
-     allocate(cobalt%pco2_csurf(LBi:UBi, LBj:UBj))         ; cobalt%pco2_csurf=0.0
-     allocate(cobalt%co2_csurf(LBi:UBi, LBj:UBj))          ; cobalt%co2_csurf=0.0
-     allocate(cobalt%co2_alpha(LBi:UBi, LBj:UBj))          ; cobalt%co2_alpha=0.0
-     allocate(cobalt%fcadet_arag_btm(LBi:UBi, LBj:UBj))    ; cobalt%fcadet_arag_btm=0.0
-     allocate(cobalt%fcadet_calc_btm(LBi:UBi, LBj:UBj))    ; cobalt%fcadet_calc_btm=0.0
-     allocate(cobalt%ffedet_btm(LBi:UBi, LBj:UBj))         ; cobalt%ffedet_btm=0.0
-     allocate(cobalt%flithdet_btm(LBi:UBi, LBj:UBj))       ; cobalt%flithdet_btm=0.0
-     allocate(cobalt%fpdet_btm(LBi:UBi, LBj:UBj))          ; cobalt%fpdet_btm=0.0
-     allocate(cobalt%fndet_btm(LBi:UBi, LBj:UBj))          ; cobalt%fndet_btm=0.0
-     allocate(cobalt%fsidet_btm(LBi:UBi, LBj:UBj))         ; cobalt%fsidet_btm=0.0
-     allocate(cobalt%fcased_burial(LBi:UBi, LBj:UBj))      ; cobalt%fcased_burial=0.0
-     allocate(cobalt%fcased_input(LBi:UBi, LBj:UBj))       ; cobalt%fcased_input=0.0
-     allocate(cobalt%fcased_redis(LBi:UBi, LBj:UBj))       ; cobalt%fcased_redis=0.0
-     allocate(cobalt%ffe_sed(LBi:UBi, LBj:UBj))            ; cobalt%ffe_sed=0.0
-     allocate(cobalt%fnfeso4red_sed(LBi:UBi, LBj:UBj))     ; cobalt%fnfeso4red_sed=0.0
-     allocate(cobalt%fno3denit_sed(LBi:UBi, LBj:UBj))      ; cobalt%fno3denit_sed=0.0
-     allocate(cobalt%fnoxic_sed(LBi:UBi, LBj:UBj))         ; cobalt%fnoxic_sed=0.0
-     allocate(cobalt%frac_burial(LBi:UBi, LBj:UBj))        ; cobalt%frac_burial=0.0
-     allocate(cobalt%fndet_burial(LBi:UBi, LBj:UBj))       ; cobalt%fndet_burial=0.0
-     allocate(cobalt%fpdet_burial(LBi:UBi, LBj:UBj))       ; cobalt%fpdet_burial=0.0
+     allocate(cobalt%jndi(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jndi=0.0
+     allocate(cobalt%jnsm(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jnsm=0.0
+     allocate(cobalt%jnlg(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jnlg=0.0
+     allocate(cobalt%jnbact(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jnbact=0.0
+     allocate(cobalt%jnsmz(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jnsmz=0.0
+     allocate(cobalt%jnmdz(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jnmdz=0.0
+     allocate(cobalt%jnlgz(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jnlgz=0.0
+     allocate(cobalt%jalk(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jalk=0.0
+     allocate(cobalt%jcadet_arag(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jcadet_arag=0.0
+     allocate(cobalt%jcadet_calc(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jcadet_calc=0.0
+     allocate(cobalt%jdic(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jdic=0.0
+     allocate(cobalt%jfed(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jfed=0.0
+     allocate(cobalt%jfedi(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jfedi=0.0
+     allocate(cobalt%jfelg(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jfelg=0.0
+     allocate(cobalt%jfesm(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jfesm=0.0
+     allocate(cobalt%jfedet(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jfedet=0.0
+     allocate(cobalt%jldon(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jldon=0.0
+     allocate(cobalt%jldop(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jldop=0.0
+     allocate(cobalt%jlith(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jlith=0.0
+     allocate(cobalt%jlithdet(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%jlithdet=0.0
+     allocate(cobalt%jndet(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jndet=0.0
+     allocate(cobalt%jnh4(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jnh4=0.0
+     allocate(cobalt%jno3(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jno3=0.0
+     allocate(cobalt%jo2(IminS:ImaxS,JminS:JmaxS,UBk))           ; cobalt%jo2=0.0
+     allocate(cobalt%jpdet(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jpdet=0.0
+     allocate(cobalt%jpo4(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jpo4=0.0
+     allocate(cobalt%jsrdon(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jsrdon=0.0
+     allocate(cobalt%jsrdop(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jsrdop=0.0
+     allocate(cobalt%jsldon(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jsldon=0.0
+     allocate(cobalt%jsldop(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jsldop=0.0
+     allocate(cobalt%jsidet(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jsidet=0.0
+     allocate(cobalt%jsilg(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jsilg=0.0
+     allocate(cobalt%jsio4(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jsio4=0.0
+     allocate(cobalt%jprod_ndet(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_ndet=0.0
+     allocate(cobalt%jprod_pdet(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_pdet=0.0
+     allocate(cobalt%jprod_srdon(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_srdon=0.0
+     allocate(cobalt%jprod_sldon(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_sldon=0.0
+     allocate(cobalt%jprod_ldon(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_ldon=0.0
+     allocate(cobalt%jprod_srdop(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_srdop=0.0
+     allocate(cobalt%jprod_sldop(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_sldop=0.0
+     allocate(cobalt%jprod_ldop(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_ldop=0.0
+     allocate(cobalt%jprod_fedet(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_fedet=0.0
+     allocate(cobalt%jprod_fed(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%jprod_fed=0.0
+     allocate(cobalt%jprod_sidet(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%jprod_sidet=0.0
+     allocate(cobalt%jprod_sio4(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_sio4=0.0
+     allocate(cobalt%jprod_lithdet(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%jprod_lithdet=0.0
+     allocate(cobalt%jprod_cadet_arag(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%jprod_cadet_arag=0.0
+     allocate(cobalt%jprod_cadet_calc(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%jprod_cadet_calc=0.0
+     allocate(cobalt%jprod_nh4(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jprod_nh4=0.0
+     allocate(cobalt%jprod_po4(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jprod_po4=0.0
+     allocate(cobalt%det_jzloss_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%det_jzloss_n=0.0
+     allocate(cobalt%det_jzloss_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%det_jzloss_p=0.0
+     allocate(cobalt%det_jzloss_fe(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%det_jzloss_fe=0.0
+     allocate(cobalt%det_jzloss_si(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%det_jzloss_si=0.0
+     allocate(cobalt%det_jhploss_n(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%det_jhploss_n=0.0
+     allocate(cobalt%det_jhploss_p(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%det_jhploss_p=0.0
+     allocate(cobalt%det_jhploss_fe(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%det_jhploss_fe=0.0
+     allocate(cobalt%det_jhploss_si(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%det_jhploss_si=0.0
+     allocate(cobalt%jdiss_cadet_arag(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%jdiss_cadet_arag=0.0
+     allocate(cobalt%jdiss_cadet_calc(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%jdiss_cadet_calc=0.0
+     allocate(cobalt%jdiss_sidet(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%jdiss_sidet=0.0
+     allocate(cobalt%jremin_ndet(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%jremin_ndet=0.0
+     allocate(cobalt%jremin_pdet(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%jremin_pdet=0.0
+     allocate(cobalt%jremin_fedet(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%jremin_fedet=0.0
+     allocate(cobalt%jfe_ads(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jfe_ads=0.0
+     allocate(cobalt%jfe_coast(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%jfe_coast=0.0
+     allocate(cobalt%kfe_eq_lig(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%kfe_eq_lig=0.0
+     allocate(cobalt%expkT(IminS:ImaxS,JminS:JmaxS,UBk))            ; cobalt%expkT=0.0
+     allocate(cobalt%hp_temp_lim(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%hp_temp_lim=0.0
+     allocate(cobalt%irr_inst(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%irr_inst=0.0
+     allocate(cobalt%irr_mix(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%irr_mix=0.0
+     allocate(cobalt%jno3denit_wc(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%jno3denit_wc=0.0
+     allocate(cobalt%jnitrif(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jnitrif=0.0
+
+     allocate(cobalt%total_filter_feeding(IminS:ImaxS,JminS:JmaxS,UBk)); cobalt%total_filter_feeding=0.0
+     allocate(cobalt%zt(IminS:ImaxS,JminS:JmaxS,UBk))                  ; cobalt%zt=0.0
+     allocate(cobalt%zm(IminS:ImaxS,JminS:JmaxS,UBk))                  ; cobalt%zm=0.0
+     allocate(cobalt%tot_layer_int_c(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%tot_layer_int_c=0.0
+     allocate(cobalt%tot_layer_int_fe(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%tot_layer_int_fe=0.0
+     allocate(cobalt%tot_layer_int_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%tot_layer_int_n=0.0
+     allocate(cobalt%tot_layer_int_p(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%tot_layer_int_p=0.0
+     allocate(cobalt%tot_layer_int_si(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%tot_layer_int_si=0.0
+     allocate(cobalt%net_prim_prod(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%net_prim_prod=0.0
+     allocate(cobalt%gross_prim_prod(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%gross_prim_prod=0.0
+     allocate(cobalt%nlg_diatoms(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%nlg_diatoms=0.0
+     allocate(cobalt%q_si_2_n_lg_diatoms(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%q_si_2_n_lg_diatoms=0.0
+
+     allocate(cobalt%b_alk(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_alk=0.0
+     allocate(cobalt%b_dic(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_dic=0.0
+     allocate(cobalt%b_fed(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_fed=0.0
+     allocate(cobalt%b_nh4(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_nh4=0.0
+     allocate(cobalt%b_no3(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_no3=0.0
+     allocate(cobalt%b_o2(IminS:ImaxS,JminS:JmaxS))               ; cobalt%b_o2=0.0
+     allocate(cobalt%b_po4(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_po4=0.0
+     allocate(cobalt%b_sio4(IminS:ImaxS,JminS:JmaxS))             ; cobalt%b_sio4=0.0
+
+     allocate(cobalt%pco2_csurf(IminS:ImaxS,JminS:JmaxS))         ; cobalt%pco2_csurf=0.0
+     allocate(cobalt%co2_csurf(IminS:ImaxS,JminS:JmaxS))          ; cobalt%co2_csurf=0.0
+     allocate(cobalt%co2_alpha(IminS:ImaxS,JminS:JmaxS))          ; cobalt%co2_alpha=0.0
+
+     allocate(cobalt%fcadet_arag_btm(IminS:ImaxS,JminS:JmaxS))    ; cobalt%fcadet_arag_btm=0.0
+     allocate(cobalt%fcadet_calc_btm(IminS:ImaxS,JminS:JmaxS))    ; cobalt%fcadet_calc_btm=0.0
+     allocate(cobalt%ffedet_btm(IminS:ImaxS,JminS:JmaxS))         ; cobalt%ffedet_btm=0.0
+     allocate(cobalt%flithdet_btm(IminS:ImaxS,JminS:JmaxS))       ; cobalt%flithdet_btm=0.0
+     allocate(cobalt%fpdet_btm(IminS:ImaxS,JminS:JmaxS))          ; cobalt%fpdet_btm=0.0
+     allocate(cobalt%fndet_btm(IminS:ImaxS,JminS:JmaxS))          ; cobalt%fndet_btm=0.0
+     allocate(cobalt%fsidet_btm(IminS:ImaxS,JminS:JmaxS))         ; cobalt%fsidet_btm=0.0
+     allocate(cobalt%fcased_burial(IminS:ImaxS,JminS:JmaxS))      ; cobalt%fcased_burial=0.0
+     allocate(cobalt%fcased_input(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fcased_input=0.0
+     allocate(cobalt%fcased_redis(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fcased_redis=0.0
+     allocate(cobalt%ffe_sed(IminS:ImaxS,JminS:JmaxS))            ; cobalt%ffe_sed=0.0
+     allocate(cobalt%fnfeso4red_sed(IminS:ImaxS,JminS:JmaxS))     ; cobalt%fnfeso4red_sed=0.0
+     allocate(cobalt%fno3denit_sed(IminS:ImaxS,JminS:JmaxS))      ; cobalt%fno3denit_sed=0.0
+     allocate(cobalt%fnoxic_sed(IminS:ImaxS,JminS:JmaxS))         ; cobalt%fnoxic_sed=0.0
+     allocate(cobalt%frac_burial(IminS:ImaxS,JminS:JmaxS))        ; cobalt%frac_burial=0.0
+     allocate(cobalt%fndet_burial(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fndet_burial=0.0
+     allocate(cobalt%fpdet_burial(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fpdet_burial=0.0
 
 !
 ! allocate 100m integrated quantities
 !
       do nphyto = 1, NUM_PHYTO
-       allocate(phyto(nphyto)%jprod_n_100(LBi:UBi,LBj:UBj))      ; phyto(nphyto)%jprod_n_100      = 0.0
-       allocate(phyto(nphyto)%jprod_n_new_100(LBi:UBi,LBj:UBj))  ; phyto(nphyto)%jprod_n_new_100  = 0.0
-       allocate(phyto(nphyto)%jzloss_n_100(LBi:UBi,LBj:UBj))     ; phyto(nphyto)%jzloss_n_100  = 0.0
-       allocate(phyto(nphyto)%jexuloss_n_100(LBi:UBi,LBj:UBj))   ; phyto(nphyto)%jexuloss_n_100  = 0.0
-       allocate(phyto(nphyto)%f_n_100(LBi:UBi,LBj:UBj))          ; phyto(nphyto)%f_n_100  = 0.0
+       allocate(phyto(nphyto)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(nphyto)%jprod_n_100     = 0.0
+       allocate(phyto(nphyto)%jprod_n_new_100(IminS:ImaxS,JminS:JmaxS))  ; phyto(nphyto)%jprod_n_new_100 = 0.0
+       allocate(phyto(nphyto)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(nphyto)%jzloss_n_100    = 0.0
+       allocate(phyto(nphyto)%jexuloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(nphyto)%jexuloss_n_100  = 0.0
+       allocate(phyto(nphyto)%f_n_100(IminS:ImaxS,JminS:JmaxS))          ; phyto(nphyto)%f_n_100         = 0.0
       enddo
-     allocate(phyto(DIAZO)%jprod_n_n2_100(LBi:UBi,LBj:UBj)); phyto(DIAZO)%jprod_n_n2_100 = 0.0
-     allocate(phyto(SMALL)%jvirloss_n_100(LBi:UBi,LBj:UBj))  ; phyto(SMALL)%jvirloss_n_100 = 0.0
-     allocate(phyto(SMALL)%jaggloss_n_100(LBi:UBi,LBj:UBj))  ; phyto(SMALL)%jaggloss_n_100 = 0.0
-     allocate(phyto(LARGE)%jaggloss_n_100(LBi:UBi,LBj:UBj))  ; phyto(LARGE)%jaggloss_n_100 = 0.0
-     allocate(cobalt%jprod_allphytos_100(LBi:UBi,LBj:UBj))   ; cobalt%jprod_allphytos_100 = 0.0
+     allocate(phyto(DIAZO)%jprod_n_n2_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_n2_100 = 0.0
+     allocate(phyto(SMALL)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jvirloss_n_100 = 0.0
+     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jaggloss_n_100 = 0.0
+     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jaggloss_n_100 = 0.0
+     allocate(cobalt%jprod_allphytos_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jprod_allphytos_100  = 0.0
 
       do nzoo = 1, NUM_ZOO
-       allocate(zoo(nzoo)%jprod_n_100(LBi:UBi,LBj:UBj))      ; zoo(nzoo)%jprod_n_100      = 0.0
-       allocate(zoo(nzoo)%jingest_n_100(LBi:UBi,LBj:UBj))    ; zoo(nzoo)%jingest_n_100    = 0.0
-       allocate(zoo(nzoo)%jremin_n_100(LBi:UBi,LBj:UBj))     ; zoo(nzoo)%jremin_n_100     = 0.0
-       allocate(zoo(nzoo)%f_n_100(LBi:UBi,LBj:UBj))          ; zoo(nzoo)%f_n_100          = 0.0
+       allocate(zoo(nzoo)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; zoo(nzoo)%jprod_n_100   = 0.0
+       allocate(zoo(nzoo)%jingest_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jingest_n_100 = 0.0
+       allocate(zoo(nzoo)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jremin_n_100  = 0.0
+       allocate(zoo(nzoo)%f_n_100(IminS:ImaxS,JminS:JmaxS))              ; zoo(nzoo)%f_n_100       = 0.0
       enddo
 
       do nzoo = 1,2
-       allocate(zoo(nzoo)%jzloss_n_100(LBi:UBi,LBj:UBj))     ; zoo(nzoo)%jzloss_n_100     = 0.0
-       allocate(zoo(nzoo)%jprod_don_100(LBi:UBi,LBj:UBj))    ; zoo(nzoo)%jprod_don_100    = 0.0
+       allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
+       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
       enddo
 
       do nzoo = 2,3
-       allocate(zoo(nzoo)%jhploss_n_100(LBi:UBi,LBj:UBj))    ; zoo(nzoo)%jhploss_n_100     = 0.0
-       allocate(zoo(nzoo)%jprod_ndet_100(LBi:UBi,LBj:UBj))   ; zoo(nzoo)%jprod_ndet_100    = 0.0
+       allocate(zoo(nzoo)%jhploss_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jhploss_n_100  = 0.0
+       allocate(zoo(nzoo)%jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; zoo(nzoo)%jprod_ndet_100 = 0.0
       enddo
 
-     allocate(cobalt%hp_jingest_n_100(LBi:UBi,LBj:UBj))    ; cobalt%hp_jingest_n_100    = 0.0
-     allocate(cobalt%hp_jremin_n_100(LBi:UBi,LBj:UBj))     ; cobalt%hp_jremin_n_100     = 0.0
-     allocate(cobalt%hp_jprod_ndet_100(LBi:UBi,LBj:UBj))   ; cobalt%hp_jprod_ndet_100   = 0.0
+     allocate(cobalt%hp_jingest_n_100(IminS:ImaxS,JminS:JmaxS))      ; cobalt%hp_jingest_n_100    = 0.0
+     allocate(cobalt%hp_jremin_n_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%hp_jremin_n_100     = 0.0
+     allocate(cobalt%hp_jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%hp_jprod_ndet_100   = 0.0
 
-     allocate(bact(1)%jprod_n_100(LBi:UBi,LBj:UBj))   ; bact(1)%jprod_n_100 = 0.0
-     allocate(bact(1)%jzloss_n_100(LBi:UBi,LBj:UBj))  ; bact(1)%jzloss_n_100 = 0.0
-     allocate(bact(1)%jvirloss_n_100(LBi:UBi,LBj:UBj)); bact(1)%jvirloss_n_100 = 0.0
-     allocate(bact(1)%jremin_n_100(LBi:UBi,LBj:UBj))  ; bact(1)%jremin_n_100 = 0.0
-     allocate(bact(1)%juptake_ldon_100(LBi:UBi,LBj:UBj)) ; bact(1)%juptake_ldon_100 = 0.0
-     allocate(bact(1)%f_n_100(LBi:UBi,LBj:UBj))       ; bact(1)%f_n_100 = 0.0
+     allocate(bact(1)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; bact(1)%jprod_n_100 = 0.0
+     allocate(bact(1)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jzloss_n_100 = 0.0
+     allocate(bact(1)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))       ; bact(1)%jvirloss_n_100 = 0.0
+     allocate(bact(1)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jremin_n_100 = 0.0
+     allocate(bact(1)%juptake_ldon_100(IminS:ImaxS,JminS:JmaxS))     ; bact(1)%juptake_ldon_100 = 0.0
+     allocate(bact(1)%f_n_100(IminS:ImaxS,JminS:JmaxS))              ; bact(1)%f_n_100 = 0.0
 
-     allocate(cobalt%jprod_lithdet_100(LBi:UBi,LBj:UBj))      ; cobalt%jprod_lithdet_100 = 0.0
-     allocate(cobalt%jprod_sidet_100(LBi:UBi,LBj:UBj))        ; cobalt%jprod_sidet_100 = 0.0
-     allocate(cobalt%jprod_cadet_calc_100(LBi:UBi,LBj:UBj))   ; cobalt%jprod_cadet_calc_100 = 0.0
-     allocate(cobalt%jprod_cadet_arag_100(LBi:UBi,LBj:UBj))   ; cobalt%jprod_cadet_arag_100 = 0.0
-     allocate(cobalt%jremin_ndet_100(LBi:UBi,LBj:UBj))        ; cobalt%jremin_ndet_100 = 0.0
-     allocate(cobalt%jprod_mesozoo_200(LBi:UBi,LBj:UBj))      ; cobalt%jprod_mesozoo_200 = 0.0
+     allocate(cobalt%jprod_lithdet_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_lithdet_100 = 0.0
+     allocate(cobalt%jprod_sidet_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jprod_sidet_100 = 0.0
+     allocate(cobalt%jprod_cadet_calc_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_calc_100 = 0.0
+     allocate(cobalt%jprod_cadet_arag_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_arag_100 = 0.0
+     allocate(cobalt%jremin_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jremin_ndet_100 = 0.0
+     allocate(cobalt%jprod_mesozoo_200(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_200 = 0.0
 
-     allocate(cobalt%f_ndet_100(LBi:UBi,LBj:UBj))             ; cobalt%f_ndet_100 = 0.0
-     allocate(cobalt%f_don_100(LBi:UBi,LBj:UBj))              ; cobalt%f_don_100  = 0.0
-     allocate(cobalt%f_silg_100(LBi:UBi,LBj:UBj))             ; cobalt%f_silg_100 = 0.0
-     allocate(cobalt%f_mesozoo_200(LBi:UBi,LBj:UBj))          ; cobalt%f_mesozoo_200 = 0.0
+     allocate(cobalt%f_ndet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_ndet_100 = 0.0
+     allocate(cobalt%f_don_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_don_100  = 0.0
+     allocate(cobalt%f_silg_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_silg_100 = 0.0
+     allocate(cobalt%f_mesozoo_200(IminS:ImaxS,JminS:JmaxS))         ; cobalt%f_mesozoo_200 = 0.0
 
-     allocate(cobalt%fndet_100(LBi:UBi,LBj:UBj))             ; cobalt%fndet_100 = 0.0
-     allocate(cobalt%fpdet_100(LBi:UBi,LBj:UBj))             ; cobalt%fpdet_100 = 0.0
-     allocate(cobalt%fsidet_100(LBi:UBi,LBj:UBj))            ; cobalt%fsidet_100 = 0.0
-     allocate(cobalt%flithdet_100(LBi:UBi,LBj:UBj))          ; cobalt%flithdet_100 = 0.0
-     allocate(cobalt%fcadet_calc_100(LBi:UBi,LBj:UBj))       ; cobalt%fcadet_calc_100 = 0.0
-     allocate(cobalt%fcadet_arag_100(LBi:UBi,LBj:UBj))       ; cobalt%fcadet_arag_100 = 0.0
-     allocate(cobalt%ffedet_100(LBi:UBi,LBj:UBj))            ; cobalt%ffedet_100 = 0.0
+     allocate(cobalt%fndet_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%fndet_100 = 0.0
+     allocate(cobalt%fpdet_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%fpdet_100 = 0.0
+     allocate(cobalt%fsidet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%fsidet_100 = 0.0
+     allocate(cobalt%flithdet_100(IminS:ImaxS,JminS:JmaxS))          ; cobalt%flithdet_100 = 0.0
+     allocate(cobalt%fcadet_calc_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fcadet_calc_100 = 0.0
+     allocate(cobalt%fcadet_arag_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%fcadet_arag_100 = 0.0
+     allocate(cobalt%ffedet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%ffedet_100 = 0.0
 
-     allocate(cobalt%btm_temp(LBi:UBi,LBj:UBj))            ; cobalt%btm_temp = 0.0
-     allocate(cobalt%btm_o2(LBi:UBi,LBj:UBj))            ; cobalt%btm_o2 = 0.0
+     allocate(cobalt%btm_temp(IminS:ImaxS,JminS:JmaxS))              ; cobalt%btm_temp = 0.0
+     allocate(cobalt%btm_o2(IminS:ImaxS,JminS:JmaxS))                ; cobalt%btm_o2 = 0.0
 
       RETURN
 
@@ -3408,7 +3335,6 @@
       cobalt%gamma_sldop   = gamma_sldop(ng)
       cobalt%gamma_nitrif  = gamma_nitrif(ng)
       cobalt%irr_inhibit   = irr_inhibit(ng)
-      !cobalt%tracer_debug = tracer_debug(ng)
       cobalt%htotal_in     = htotal_in(ng)
       cobalt%wsink         = wsink(ng)
 
