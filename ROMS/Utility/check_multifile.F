@@ -71,19 +71,22 @@
           END DO
 !
 !  Set the appropriate file counter to use during initialization or
-!  restart.
+!  restart. The EXIT below is removed because when restarting there is
+!  a possibility that the restart time is not included in the first
+!  boundary file in the list to avoid getting an IO error.
 !
-          Fcount=0
-          IF (Lcheck) THEN
-            DO ifile=1,Nfiles
-              Tmin=Tscale*BRY(i,ng)%time_min(ifile)
-              IF (time(ng).ge.Tmin) THEN
-                Fcount=ifile
-              END IF
-            END DO
-          ELSE
-            Fcount=1
-          END IF
+        Fcount=0
+        IF (Lcheck) THEN
+          DO ifile=1,Nfiles
+            Tmin=Tscale*BRY(ng)%time_min(ifile)
+            IF (time(ng).ge.Tmin) THEN
+              Fcount=ifile
+!!            EXIT
+            END IF
+          END DO
+        ELSE
+          Fcount=1
+        END IF
 !
 !  Initialize other structure parameters or issue an error if data does
 !  not include initalization time.
@@ -143,7 +146,9 @@
         END DO
 !
 !  Set the appropriate file counter to use during initialization or
-!  restart.
+!  restart. The EXIT below is removed because when restarting there is
+!  a possibility that the restart time is not included in the first
+!  forcing file in the list to avoid getting an IO error.
 !
         Fcount=0
         IF (Lcheck) THEN
@@ -151,6 +156,7 @@
             Tmin=Tscale*FRC(i,ng)%time_min(ifile)
             IF (time(ng).ge.Tmin) THEN
               Fcount=ifile
+!!            EXIT
             END IF
           END DO
         ELSE
