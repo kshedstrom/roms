@@ -14,7 +14,8 @@
 
 #define NO_HIS
 #define GLOBAL_PERIODIC
-#undef NETCDF4
+#undef HDF5
+#undef DEFLATE
 #undef PARALLEL_IO
 #define PERFECT_RESTART
 #undef NO_LBC_ATT

@@ -459,12 +459,13 @@
         DO i=IstrP,Iend
           aix = max(ai(i,j,liold), ai(i-1,j,liold))
           IF (aix > 0.01) THEN
-            h_u = max(h(i,j), h(i-1,j))
+            h_u = max(hi(i,j,liold), hi(i-1,j,liold))
             h_wu = min((h(i,j)+Zt_avg1(i,j)), (h(i-1,j)+Zt_avg1(i-1,j)))
             h_cu = h_wu * aix / lf_k1(ng)
-            h_loadu(i,j) = (h_u - h_cu) * exp(-astren(ng)*(1.0_r8-aix))
+            h_loadu(i,j) = MAX(0._r8,                                   &
+     &                (h_u - h_cu) * exp(-astren(ng)*(1.0_r8-aix)))
           ELSE
-            h_loadv(i,j) = 0._r8
+            h_loadu(i,j) = 0._r8
           END IF
         END DO
       END DO
@@ -475,10 +476,11 @@
         DO i=Istr,Iend
           aiy = max(ai(i,j,liold), ai(i,j-1,liold))
           IF (aiy > 0.01) THEN
-            h_v = max(h(i,j), h(i,j-1))
+            h_v = max(hi(i,j,liold), hi(i,j-1,liold))
             h_wv = min((h(i,j)+Zt_avg1(i,j)), (h(i,j-1)+Zt_avg1(i,j-1)))
             h_cv = h_wv * aiy / lf_k1(ng)
-            h_loadv(i,j) = (h_v - h_cv) * exp(-astren(ng)*(1.0_r8-aiy))
+            h_loadv(i,j) = MAX(0._r8,                                   &
+     &                (h_v - h_cv) * exp(-astren(ng)*(1.0_r8-aiy)))
           ELSE
             h_loadv(i,j) = 0._r8
           END IF
