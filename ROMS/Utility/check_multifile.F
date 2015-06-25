@@ -75,18 +75,18 @@
 !  a possibility that the restart time is not included in the first
 !  boundary file in the list to avoid getting an IO error.
 !
-        Fcount=0
-        IF (Lcheck) THEN
-          DO ifile=1,Nfiles
-            Tmin=Tscale*BRY(ng)%time_min(ifile)
-            IF (time(ng).ge.Tmin) THEN
-              Fcount=ifile
-!!            EXIT
-            END IF
-          END DO
-        ELSE
-          Fcount=1
-        END IF
+          Fcount=0
+          IF (Lcheck) THEN
+            DO ifile=1,Nfiles
+              Tmin=Tscale*BRY(i,ng)%time_min(ifile)
+              IF (time(ng).ge.Tmin) THEN
+                Fcount=ifile
+!!              EXIT
+              END IF
+            END DO
+          ELSE
+            Fcount=1
+          END IF
 !
 !  Initialize other structure parameters or issue an error if data does
 !  not include initalization time.
