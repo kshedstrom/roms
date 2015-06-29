@@ -595,15 +595,8 @@
             v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
      &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
             speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-!            if (i==267 .and. j==954) then
-!              print *, 'uforce ', uforce, uie(i,j,lieol), speed,  &
-!     &             h_loadu(i,j)
-!            end if
             uforce = uforce - uie(i,j,lieol)*                           &
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
-!            if (i==267 .and. j==954) then
-!              print *, 'uforce after ', uforce
-!            end if
           END IF
 #endif
 !
@@ -821,15 +814,8 @@
             u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
      &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
             speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-!            if (i==277 .and. j==954) then
-!              print *, 'vforce ', vforce, vie(i,j,lieol), speed,  &
-!     &             h_loadv(i,j)
-!            end if
             vforce = vforce - vie(i,j,lieol)*                           &
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
-!            if (i==277 .and. j==954) then
-!              print *, 'vforce after ', vforce
-!            end if
           END IF
 #endif
 !
