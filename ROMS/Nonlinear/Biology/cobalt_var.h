@@ -764,6 +764,10 @@
                 iDbio2(io2_flx)=varid
               CASE ('iDbio2(iironsed_flx)')
                 iDbio2(iironsed_flx)=varid
+              CASE ('iDbio2(inpp_100)')
+                iDbio2(inpp_100)=varid
+              CASE ('iDbio2(imesozoo_200)')
+                iDbio2(imesozoo_200)=varid
 
 
               CASE ('iDbio3(ichl)')

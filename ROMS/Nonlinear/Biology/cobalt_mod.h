@@ -600,6 +600,8 @@
       integer :: ijremin_ndet_100
       integer :: ialpha, ico2star,ipco2surf, ico2_flx, io2_flx
       integer :: iironsed_flx
+      integer :: inpp_100
+      integer :: imesozoo_200
       integer :: iswdk
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
@@ -931,67 +933,67 @@
           silim       , &
           q_si_2_n    , &
           theta
-      integer ::            &
-          id_def_fe       = -1, &
-          id_def_p        = -1, &
-          id_felim        = -1, &
-          id_irrlim       = -1, &
-          id_jzloss_fe    = -1, &
-          id_jzloss_n     = -1, &
-          id_jzloss_p     = -1, &
-          id_jzloss_sio2  = -1, &
-          id_jaggloss_fe  = -1, &
-          id_jaggloss_n   = -1, &
-          id_jaggloss_p   = -1, &
-          id_jaggloss_sio2= -1, &
-          id_jvirloss_fe  = -1, &
-          id_jvirloss_n   = -1, &
-          id_jvirloss_p   = -1, &
-          id_jvirloss_sio2= -1, &
-          id_jexuloss_n   = -1, &
-          id_jexuloss_p   = -1, &
-          id_jexuloss_fe  = -1, &
-          id_jhploss_fe   = -1, &
-          id_jhploss_n    = -1, &
-          id_jhploss_p    = -1, &
-          id_jhploss_sio2 = -1, &
-          id_juptake_n2   = -1, &
-          id_juptake_fe   = -1, &
-          id_juptake_nh4  = -1, &
-          id_juptake_no3  = -1, &
-          id_juptake_po4  = -1, &
-          id_juptake_sio4 = -1, &
-          id_jprod_n      = -1, &
-          id_liebig_lim   = -1, &
-          id_mu           = -1, &
-          id_nh4lim       = -1, &
-          id_no3lim       = -1, &
-          id_po4lim       = -1, &
-          id_o2lim        = -1, &
-          id_q_fe_2_n     = -1, &
-          id_q_p_2_n      = -1, &
-          id_silim        = -1, &
-          id_q_si_2_n     = -1, &
-          id_theta        = -1, &
-          id_jprod_n_100  = -1, &
-          id_jprod_n_new_100  = -1, &
-          id_jprod_n_n2_100 = -1, &
-          id_jzloss_n_100     = -1, &
-          id_jaggloss_n_100   = -1, &
-          id_jvirloss_n_100   = -1, &
-          id_jexuloss_n_100   = -1, &
-          id_f_n_100          = -1, &
-          id_sfc_f_n          = -1, &
-          id_sfc_chl          = -1, &
-          id_sfc_def_fe       = -1, &
-          id_sfc_felim        = -1, &
-          id_sfc_q_fe_2_n     = -1, &
-          id_sfc_nh4lim       = -1, &
-          id_sfc_no3lim       = -1, &
-          id_sfc_po4lim       = -1, &
-          id_sfc_irrlim       = -1, &
-          id_sfc_theta        = -1, &
-          id_sfc_mu           = -1
+!      integer ::            &
+!          id_def_fe       = -1, &
+!          id_def_p        = -1, &
+!          id_felim        = -1, &
+!          id_irrlim       = -1, &
+!          id_jzloss_fe    = -1, &
+!          id_jzloss_n     = -1, &
+!          id_jzloss_p     = -1, &
+!          id_jzloss_sio2  = -1, &
+!          id_jaggloss_fe  = -1, &
+!          id_jaggloss_n   = -1, &
+!          id_jaggloss_p   = -1, &
+!          id_jaggloss_sio2= -1, &
+!          id_jvirloss_fe  = -1, &
+!          id_jvirloss_n   = -1, &
+!          id_jvirloss_p   = -1, &
+!          id_jvirloss_sio2= -1, &
+!          id_jexuloss_n   = -1, &
+!          id_jexuloss_p   = -1, &
+!          id_jexuloss_fe  = -1, &
+!          id_jhploss_fe   = -1, &
+!          id_jhploss_n    = -1, &
+!          id_jhploss_p    = -1, &
+!          id_jhploss_sio2 = -1, &
+!          id_juptake_n2   = -1, &
+!          id_juptake_fe   = -1, &
+!          id_juptake_nh4  = -1, &
+!          id_juptake_no3  = -1, &
+!          id_juptake_po4  = -1, &
+!          id_juptake_sio4 = -1, &
+!          id_jprod_n      = -1, &
+!          id_liebig_lim   = -1, &
+!          id_mu           = -1, &
+!          id_nh4lim       = -1, &
+!          id_no3lim       = -1, &
+!          id_po4lim       = -1, &
+!          id_o2lim        = -1, &
+!          id_q_fe_2_n     = -1, &
+!          id_q_p_2_n      = -1, &
+!          id_silim        = -1, &
+!          id_q_si_2_n     = -1, &
+!          id_theta        = -1, &
+!          id_jprod_n_100  = -1, &
+!          id_jprod_n_new_100  = -1, &
+!          id_jprod_n_n2_100 = -1, &
+!          id_jzloss_n_100     = -1, &
+!          id_jaggloss_n_100   = -1, &
+!          id_jvirloss_n_100   = -1, &
+!          id_jexuloss_n_100   = -1, &
+!          id_f_n_100          = -1, &
+!          id_sfc_f_n          = -1, &
+!          id_sfc_chl          = -1, &
+!          id_sfc_def_fe       = -1, &
+!          id_sfc_felim        = -1, &
+!          id_sfc_q_fe_2_n     = -1, &
+!          id_sfc_nh4lim       = -1, &
+!          id_sfc_no3lim       = -1, &
+!          id_sfc_po4lim       = -1, &
+!          id_sfc_irrlim       = -1, &
+!          id_sfc_theta        = -1, &
+!          id_sfc_mu           = -1
       end type phytoplankton
 
 
@@ -1059,39 +1061,39 @@
           jprod_nh4,        & ! ammonia production by zooplankton
           jprod_n,          & ! zooplankton production
           temp_lim            ! Temperature limitation
-      integer ::              &
-          id_jzloss_n       = -1, &
-          id_jzloss_p       = -1, &
-          id_jhploss_n      = -1, &
-          id_jhploss_p      = -1, &
-          id_jingest_n      = -1, &
-          id_jingest_p      = -1, &
-          id_jingest_sio2   = -1, &
-          id_jingest_fe     = -1, &
-          id_jprod_ndet     = -1, &
-          id_jprod_pdet     = -1, &
-          id_jprod_ldon     = -1, &
-          id_jprod_ldop     = -1, &
-          id_jprod_srdon    = -1, &
-          id_jprod_srdop    = -1, &
-          id_jprod_sldon    = -1, &
-          id_jprod_sldop    = -1, &
-          id_jprod_fedet    = -1, &
-          id_jprod_fed      = -1, &
-          id_jprod_sidet    = -1, &
-          id_jprod_sio4     = -1, &
-          id_jprod_po4      = -1, &
-          id_jprod_nh4      = -1, &
-          id_jprod_n        = -1, &
-          id_temp_lim       = -1, &
-          id_jprod_n_100    = -1, &
-          id_jingest_n_100  = -1, &
-          id_jzloss_n_100   = -1, &
-          id_jhploss_n_100  = -1, &
-          id_jprod_ndet_100 = -1, &
-          id_jprod_don_100  = -1, &
-          id_jremin_n_100   = -1, &
-          id_f_n_100        = -1
+!      integer ::              &
+!          id_jzloss_n       = -1, &
+!          id_jzloss_p       = -1, &
+!          id_jhploss_n      = -1, &
+!          id_jhploss_p      = -1, &
+!          id_jingest_n      = -1, &
+!          id_jingest_p      = -1, &
+!          id_jingest_sio2   = -1, &
+!          id_jingest_fe     = -1, &
+!          id_jprod_ndet     = -1, &
+!          id_jprod_pdet     = -1, &
+!          id_jprod_ldon     = -1, &
+!          id_jprod_ldop     = -1, &
+!          id_jprod_srdon    = -1, &
+!          id_jprod_srdop    = -1, &
+!          id_jprod_sldon    = -1, &
+!          id_jprod_sldop    = -1, &
+!          id_jprod_fedet    = -1, &
+!          id_jprod_fed      = -1, &
+!          id_jprod_sidet    = -1, &
+!          id_jprod_sio4     = -1, &
+!          id_jprod_po4      = -1, &
+!          id_jprod_nh4      = -1, &
+!          id_jprod_n        = -1, &
+!          id_temp_lim       = -1, &
+!          id_jprod_n_100    = -1, &
+!          id_jingest_n_100  = -1, &
+!          id_jzloss_n_100   = -1, &
+!          id_jhploss_n_100  = -1, &
+!          id_jprod_ndet_100 = -1, &
+!          id_jprod_don_100  = -1, &
+!          id_jremin_n_100   = -1, &
+!          id_f_n_100        = -1
       end type zooplankton
 
 ! ---------------------------------------------------------------------
@@ -1126,27 +1128,27 @@
           jprod_po4,        & ! production of phosphate by bacteria
           jprod_n,          & ! bacterial production
           temp_lim            ! Temperature limitation
-      integer ::              &
-          id_jzloss_n       = -1, &
-          id_jzloss_p       = -1, &
-          id_jhploss_n      = -1, &
-          id_jhploss_p      = -1, &
-          id_jvirloss_n     = -1, &
-          id_jvirloss_p     = -1, &
-          id_juptake_ldon   = -1, &
-          id_juptake_ldop   = -1, &
-          id_jprod_nh4      = -1, &
-          id_jprod_po4      = -1, &
-          id_jprod_n        = -1, &
-          id_temp_lim       = -1, &
-          id_jprod_n_100    = -1, &
-          id_jzloss_n_100   = -1, &
-          id_jvirloss_n_100 = -1, &
-          id_jremin_n_100   = -1, &
-          id_juptake_ldon_100 = -1, &
-          id_f_n_100
+!      integer ::              &
+!          id_jzloss_n       = -1, &
+!          id_jzloss_p       = -1, &
+!          id_jhploss_n      = -1, &
+!          id_jhploss_p      = -1, &
+!          id_jvirloss_n     = -1, &
+!          id_jvirloss_p     = -1, &
+!          id_juptake_ldon   = -1, &
+!          id_juptake_ldop   = -1, &
+!          id_jprod_nh4      = -1, &
+!          id_jprod_po4      = -1, &
+!          id_jprod_n        = -1, &
+!          id_temp_lim       = -1, &
+!          id_jprod_n_100    = -1, &
+!          id_jzloss_n_100   = -1, &
+!          id_jvirloss_n_100 = -1, &
+!          id_jremin_n_100   = -1, &
+!          id_juptake_ldon_100 = -1, &
+!          id_f_n_100
       end type bacteria
-
+!
 ! ---------------------------------------------------------------------
 
       type generic_COBALT_type
@@ -1291,6 +1293,8 @@
           f_ndet_btf,&
           f_pdet_btf,&
           f_sidet_btf,&
+          f_npp,&
+          f_mesozoo,&
           jnbact,&
           jndi,&
           jnsm,&
@@ -1417,6 +1421,7 @@
           f_ndet_100, &
           f_don_100, &
           f_silg_100, &
+          f_npp_100, &
           f_mesozoo_200, &
           fndet_100, &
           fpdet_100, &
@@ -1428,40 +1433,40 @@
           btm_temp,     &
           btm_o2
 
-     real(8), dimension(:,:,:,:), pointer :: &
-          p_alk,&
-          p_cadet_arag,&
-          p_cadet_calc,&
-          p_dic,&
-          p_fed,&
-          p_fedi,&
-          p_felg,&
-          p_fedet,&
-          p_fesm,&
-          p_ldon,&
-          p_ldop,&
-          p_lith,&
-          p_lithdet,&
-          p_nbact,&
-          p_ndet,&
-          p_ndi,&
-          p_nlg,&
-          p_nsm,&
-          p_nh4,&
-          p_no3,&
-          p_o2,&
-          p_pdet,&
-          p_po4,&
-          p_srdon,&
-          p_srdop,&
-          p_sldon,&
-          p_sldop,&
-          p_sidet,&
-          p_silg,&
-          p_sio4,&
-          p_nsmz,&
-          p_nmdz,&
-          p_nlgz
+!     real(8), dimension(:,:,:,:), pointer :: &
+!          p_alk,&
+!          p_cadet_arag,&
+!          p_cadet_calc,&
+!          p_dic,&
+!          p_fed,&
+!          p_fedi,&
+!          p_felg,&
+!          p_fedet,&
+!          p_fesm,&
+!          p_ldon,&
+!          p_ldop,&
+!          p_lith,&
+!          p_lithdet,&
+!          p_nbact,&
+!          p_ndet,&
+!          p_ndi,&
+!          p_nlg,&
+!          p_nsm,&
+!          p_nh4,&
+!          p_no3,&
+!          p_o2,&
+!          p_pdet,&
+!          p_po4,&
+!          p_srdon,&
+!          p_srdop,&
+!          p_sldon,&
+!          p_sldop,&
+!          p_sidet,&
+!          p_silg,&
+!          p_sio4,&
+!          p_nsmz,&
+!          p_nmdz,&
+!          p_nlgz
 
       real(8), dimension (:,:), pointer :: &
           runoff_flux_alk,&
@@ -1485,207 +1490,208 @@
 
       integer :: nkml
 
-      integer               ::          &
-          id_ndi           = -1,       &
-          id_nlg           = -1,       &
-          id_nsm           = -1,       &
-          id_nsmz          = -1,       &
-          id_nmdz          = -1,       &
-          id_nlgz          = -1,       &
-          id_nbact         = -1,       &
-          id_alk           = -1,       &
-          id_cadet_arag    = -1,       &
-          id_cadet_calc    = -1,       &
-          id_dic           = -1,       &
-          id_fed           = -1,       &
-          id_fedi          = -1,       &
-          id_felg          = -1,       &
-          id_fesm          = -1,       &
-          id_fedet         = -1,       &
-          id_ldon          = -1,       &
-          id_ldop          = -1,       &
-          id_lith          = -1,       &
-          id_lithdet       = -1,       &
-          id_ndet          = -1,       &
-          id_nh4           = -1,       &
-          id_no3           = -1,       &
-          id_o2            = -1,       &
-          id_pdet          = -1,       &
-          id_po4           = -1,       &
-          id_srdop         = -1,       &
-          id_srdon         = -1,       &
-          id_sldon         = -1,       &
-          id_sldop         = -1,       &
-          id_sidet         = -1,       &
-          id_silg          = -1,       &
-          id_sio4          = -1,       &
-          id_co3_sol_arag  = -1,       &
-          id_co3_sol_calc  = -1,       &
-          id_dep_dry_fed   = -1,       &
-          id_dep_dry_nh4   = -1,       &
-          id_dep_dry_no3   = -1,       &
-          id_dep_dry_po4   = -1,       &
-          id_dep_wet_fed   = -1,       &
-          id_dep_wet_nh4   = -1,       &
-          id_dep_wet_no3   = -1,       &
-          id_dep_wet_po4   = -1,       &
-          id_dep_wet_lith  = -1,       &
-          id_dep_dry_lith  = -1,       &
-          id_omega_arag    = -1,       &
-          id_omega_calc    = -1,       &
-          id_chl           = -1,       &
-          id_co3_ion       = -1,       &
-          id_htotal        = -1,       &
-          id_irr_mem       = -1,       &
-          id_cased         = -1,       &
-          id_cadet_arag_btf = -1,      &
-          id_cadet_calc_btf = -1,      &
-          id_fedet_btf     = -1,       &
-          id_lithdet_btf   = -1,       &
-          id_ndet_btf      = -1,       &
-          id_pdet_btf      = -1,       &
-          id_sidet_btf     = -1,       &
-          id_jprod_ndet    = -1,       &
-          id_jprod_pdet    = -1,       &
-          id_jprod_sldon   = -1,       &
-          id_jprod_ldon    = -1,       &
-          id_jprod_srdon   = -1,       &
-          id_jprod_sldop   = -1,       &
-          id_jprod_ldop    = -1,       &
-          id_jprod_srdop   = -1,       &
-          id_jprod_fedet   = -1,       &
-          id_jprod_fed     = -1,       &
-          id_jprod_sidet   = -1,       &
-          id_jprod_sio4    = -1,       &
-          id_jprod_lithdet = -1,       &
-          id_jprod_cadet_arag = -1,    &
-          id_jprod_cadet_calc = -1,    &
-          id_jprod_po4     = -1,       &
-          id_jprod_nh4     = -1,       &
-          id_det_jzloss_n  = -1,       &
-          id_det_jzloss_p  = -1,       &
-          id_det_jzloss_fe = -1,       &
-          id_det_jzloss_si = -1,       &
-          id_det_jhploss_n = -1,       &
-          id_det_jhploss_p = -1,       &
-          id_det_jhploss_fe = -1,      &
-          id_det_jhploss_si = -1,      &
-          id_jdiss_sidet   = -1,       &
-          id_jdiss_cadet_arag = -1,    &
-          id_jdiss_cadet_calc = -1,    &
-          id_jremin_ndet   = -1,       &
-          id_jremin_pdet   = -1,       &
-          id_jremin_fedet  = -1,       &
-          id_jfe_ads       = -1,       &
-          id_jfe_coast     = -1,       &
-          id_kfe_eq_lig    = -1,       &
-          id_expkT         = -1,       &
-          id_hp_temp_lim   = -1,       &
-          id_hp_jingest_n  = -1,       &
-          id_hp_jingest_p  = -1,       &
-          id_hp_jingest_fe = -1,       &
-          id_hp_jingest_sio2 = -1,     &
-          id_irr_inst      = -1,       &
-          id_irr_mix       = -1,       &
-          id_jno3denit_wc  = -1,       &
-          id_jnitrif       = -1,       &
-          id_co2_csurf     = -1,       &
-          id_pco2_csurf    = -1,       &
-          id_co2_alpha     = -1,       &
-          id_fcadet_arag   = -1,       &
-          id_fcadet_calc   = -1,       &
-          id_ffedet        = -1,       &
-          id_fndet         = -1,       &
-          id_fpdet         = -1,       &
-          id_fsidet        = -1,       &
-          id_flithdet      = -1,       &
-          id_fcadet_arag_btm = -1,     &
-          id_fcadet_calc_btm = -1,     &
-          id_ffedet_btm    = -1,       &
-          id_flithdet_btm  = -1,       &
-          id_fndet_btm     = -1,       &
-          id_fpdet_btm     = -1,       &
-          id_fsidet_btm    = -1,       &
-          id_fcased_burial = -1,       &
-          id_fcased_input  = -1,       &
-          id_fcased_redis  = -1,       &
-          id_ffe_sed       = -1,       &
-          id_fnfeso4red_sed= -1,       &
-          id_fno3denit_sed = -1,       &
-          id_fnoxic_sed    = -1,       &
-          id_frac_burial   = -1,       &
-          id_fndet_burial  = -1,       &
-          id_fpdet_burial  = -1,       &
-          id_nphyto_tot    = -1,       &
-          id_no3_in_source = -1,       &
-          id_pco2surf      = -1,       &
-          id_sfc_alk       = -1,       &
-          id_sfc_cadet_arag= -1,       &
-          id_sfc_cadet_calc= -1,       &
-          id_sfc_dic       = -1,       &
-          id_sfc_fed       = -1,       &
-          id_sfc_ldon      = -1,       &
-          id_sfc_sldon     = -1,       &
-          id_sfc_srdon     = -1,       &
-          id_sfc_no3       = -1,       &
-          id_sfc_nh4       = -1,       &
-          id_sfc_po4       = -1,       &
-          id_sfc_sio4      = -1,       &
-          id_sfc_htotal    = -1,       &
-          id_sfc_o2        = -1,       &
-          id_sfc_chl       = -1,       &
-          id_sfc_irr       = -1,       &
-          id_sfc_irr_mem   = -1,       &
-          id_sfc_temp      = -1,       &
-          id_btm_temp      = -1,       &
-          id_btm_o2        = -1,       &
-          id_sfc_co3_ion   = -1,       &
-          id_sfc_co3_sol_arag = -1,    &
-          id_sfc_co3_sol_calc = -1,    &
-          id_runoff_flux_alk = -1,     &
-          id_runoff_flux_dic = -1,     &
-          id_runoff_flux_fed = -1,     &
-          id_runoff_flux_lith = -1,    &
-          id_runoff_flux_no3 = -1,     &
-          id_runoff_flux_ldon = -1,    &
-          id_runoff_flux_sldon = -1,   &
-          id_runoff_flux_srdon = -1,   &
-          id_runoff_flux_ndet = -1,    &
-          id_runoff_flux_po4 = -1,     &
-          id_runoff_flux_ldop = -1,    &
-          id_runoff_flux_sldop = -1,   &
-          id_runoff_flux_srdop = -1,   &
-          id_tot_layer_int_c = -1,     &
-          id_tot_layer_int_fe = -1,    &
-          id_tot_layer_int_n = -1,     &
-          id_tot_layer_int_p = -1,     &
-          id_tot_layer_int_si = -1,    &
-          id_total_filter_feeding = -1,&
-          id_net_prim_prod = -1,       &
-          id_gross_prim_prod = -1,     &
-          id_nlg_diatoms = -1,         &
-          id_jprod_allphytos_100 = -1, &
-          id_q_si_2_n_lg_diatoms = -1, &
-          id_hp_jingest_n_100 = -1,    &
-          id_hp_jremin_n_100 = -1,     &
-          id_hp_jprod_ndet_100 = -1,   &
-          id_jprod_lithdet_100 = -1,   &
-          id_jprod_sidet_100 = -1,     &
-          id_jprod_cadet_calc_100 = -1, &
-          id_jprod_cadet_arag_100 = -1, &
-          id_jprod_mesozoo_200 = -1,   &
-          id_jremin_ndet_100 = -1,     &
-          id_f_ndet_100 = -1,          &
-          id_f_don_100 = -1,           &
-          id_f_silg_100 = -1,          &
-          id_f_mesozoo_200 = -1,       &
-          id_fndet_100 = -1,           &
-          id_fpdet_100 = -1,           &
-          id_ffedet_100 = -1,          &
-          id_fcadet_calc_100 = -1,     &
-          id_fcadet_arag_100 = -1,     &
-          id_flithdet_100 = -1,        &
-          id_fsidet_100
+!      integer               ::          &
+!          id_ndi           = -1,       &
+!          id_nlg           = -1,       &
+!          id_nsm           = -1,       &
+!          id_nsmz          = -1,       &
+!          id_nmdz          = -1,       &
+!          id_nlgz          = -1,       &
+!          id_nbact         = -1,       &
+!          id_alk           = -1,       &
+!          id_cadet_arag    = -1,       &
+!          id_cadet_calc    = -1,       &
+!          id_dic           = -1,       &
+!          id_fed           = -1,       &
+!          id_fedi          = -1,       &
+!          id_felg          = -1,       &
+!          id_fesm          = -1,       &
+!          id_fedet         = -1,       &
+!          id_ldon          = -1,       &
+!          id_ldop          = -1,       &
+!          id_lith          = -1,       &
+!          id_lithdet       = -1,       &
+!          id_ndet          = -1,       &
+!          id_nh4           = -1,       &
+!          id_no3           = -1,       &
+!          id_o2            = -1,       &
+!          id_pdet          = -1,       &
+!          id_po4           = -1,       &
+!          id_srdop         = -1,       &
+!          id_srdon         = -1,       &
+!          id_sldon         = -1,       &
+!          id_sldop         = -1,       &
+!          id_sidet         = -1,       &
+!          id_silg          = -1,       &
+!          id_sio4          = -1,       &
+!          id_co3_sol_arag  = -1,       &
+!          id_co3_sol_calc  = -1,       &
+!          id_dep_dry_fed   = -1,       &
+!          id_dep_dry_nh4   = -1,       &
+!          id_dep_dry_no3   = -1,       &
+!          id_dep_dry_po4   = -1,       &
+!          id_dep_wet_fed   = -1,       &
+!          id_dep_wet_nh4   = -1,       &
+!          id_dep_wet_no3   = -1,       &
+!          id_dep_wet_po4   = -1,       &
+!          id_dep_wet_lith  = -1,       &
+!          id_dep_dry_lith  = -1,       &
+!          id_omega_arag    = -1,       &
+!          id_omega_calc    = -1,       &
+!          id_chl           = -1,       &
+!          id_co3_ion       = -1,       &
+!          id_htotal        = -1,       &
+!          id_irr_mem       = -1,       &
+!          id_cased         = -1,       &
+!          id_cadet_arag_btf = -1,      &
+!          id_cadet_calc_btf = -1,      &
+!          id_fedet_btf     = -1,       &
+!          id_lithdet_btf   = -1,       &
+!          id_ndet_btf      = -1,       &
+!          id_pdet_btf      = -1,       &
+!          id_sidet_btf     = -1,       &
+!          id_jprod_ndet    = -1,       &
+!          id_jprod_pdet    = -1,       &
+!          id_jprod_sldon   = -1,       &
+!          id_jprod_ldon    = -1,       &
+!          id_jprod_srdon   = -1,       &
+!          id_jprod_sldop   = -1,       &
+!          id_jprod_ldop    = -1,       &
+!          id_jprod_srdop   = -1,       &
+!          id_jprod_fedet   = -1,       &
+!          id_jprod_fed     = -1,       &
+!          id_jprod_sidet   = -1,       &
+!          id_jprod_sio4    = -1,       &
+!          id_jprod_lithdet = -1,       &
+!          id_jprod_cadet_arag = -1,    &
+!          id_jprod_cadet_calc = -1,    &
+!          id_jprod_po4     = -1,       &
+!          id_jprod_nh4     = -1,       &
+!          id_det_jzloss_n  = -1,       &
+!          id_det_jzloss_p  = -1,       &
+!          id_det_jzloss_fe = -1,       &
+!          id_det_jzloss_si = -1,       &
+!          id_det_jhploss_n = -1,       &
+!          id_det_jhploss_p = -1,       &
+!         id_det_jhploss_fe = -1,      &
+!         id_det_jhploss_si = -1,      &
+!         id_jdiss_sidet   = -1,       &
+!         id_jdiss_cadet_arag = -1,    &
+!         id_jdiss_cadet_calc = -1,    &
+!         id_jremin_ndet   = -1,       &
+!         id_jremin_pdet   = -1,       &
+!         id_jremin_fedet  = -1,       &
+!         id_jfe_ads       = -1,       &
+!         id_jfe_coast     = -1,       &
+!         id_kfe_eq_lig    = -1,       &
+!         id_expkT         = -1,       &
+!         id_hp_temp_lim   = -1,       &
+!         id_hp_jingest_n  = -1,       &
+!         id_hp_jingest_p  = -1,       &
+!         id_hp_jingest_fe = -1,       &
+!         id_hp_jingest_sio2 = -1,     &
+!         id_irr_inst      = -1,       &
+!         id_irr_mix       = -1,       &
+!         id_jno3denit_wc  = -1,       &
+!         id_jnitrif       = -1,       &
+!         id_co2_csurf     = -1,       &
+!         id_pco2_csurf    = -1,       &
+!         id_co2_alpha     = -1,       &
+!         id_fcadet_arag   = -1,       &
+!         id_fcadet_calc   = -1,       &
+!         id_ffedet        = -1,       &
+!         id_fndet         = -1,       &
+!         id_fpdet         = -1,       &
+!         id_fsidet        = -1,       &
+!         id_flithdet      = -1,       &
+!         id_fcadet_arag_btm = -1,     &
+!         id_fcadet_calc_btm = -1,     &
+!         id_ffedet_btm    = -1,       &
+!         id_flithdet_btm  = -1,       &
+!         id_fndet_btm     = -1,       &
+!         id_fpdet_btm     = -1,       &
+!         id_fsidet_btm    = -1,       &
+!         id_fcased_burial = -1,       &
+!         id_fcased_input  = -1,       &
+!         id_fcased_redis  = -1,       &
+!         id_ffe_sed       = -1,       &
+!         id_fnfeso4red_sed= -1,       &
+!         id_fno3denit_sed = -1,       &
+!         id_fnoxic_sed    = -1,       &
+!         id_frac_burial   = -1,       &
+!         id_fndet_burial  = -1,       &
+!         id_fpdet_burial  = -1,       &
+!         id_nphyto_tot    = -1,       &
+!         id_no3_in_source = -1,       &
+!         id_pco2surf      = -1,       &
+!         id_sfc_alk       = -1,       &
+!         id_sfc_cadet_arag= -1,       &
+!         id_sfc_cadet_calc= -1,       &
+!         id_sfc_dic       = -1,       &
+!         id_sfc_fed       = -1,       &
+!         id_sfc_ldon      = -1,       &
+!         id_sfc_sldon     = -1,       &
+!         id_sfc_srdon     = -1,       &
+!         id_sfc_no3       = -1,       &
+!         id_sfc_nh4       = -1,       &
+!         id_sfc_po4       = -1,       &
+!         id_sfc_sio4      = -1,       &
+!         id_sfc_htotal    = -1,       &
+!         id_sfc_o2        = -1,       &
+!         id_sfc_chl       = -1,       &
+!         id_sfc_irr       = -1,       &
+!         id_sfc_irr_mem   = -1,       &
+!         id_sfc_temp      = -1,       &
+!         id_btm_temp      = -1,       &
+!         id_btm_o2        = -1,       &
+!         id_sfc_co3_ion   = -1,       &
+!         id_sfc_co3_sol_arag = -1,    &
+!         id_sfc_co3_sol_calc = -1,    &
+!         id_runoff_flux_alk = -1,     &
+!         id_runoff_flux_dic = -1,     &
+!         id_runoff_flux_fed = -1,     &
+!         id_runoff_flux_lith = -1,    &
+!         id_runoff_flux_no3 = -1,     &
+!         id_runoff_flux_ldon = -1,    &
+!         id_runoff_flux_sldon = -1,   &
+!         id_runoff_flux_srdon = -1,   &
+!         id_runoff_flux_ndet = -1,    &
+!         id_runoff_flux_po4 = -1,     &
+!         id_runoff_flux_ldop = -1,    &
+!         id_runoff_flux_sldop = -1,   &
+!         id_runoff_flux_srdop = -1,   &
+!         id_tot_layer_int_c = -1,     &
+!         id_tot_layer_int_fe = -1,    &
+!         id_tot_layer_int_n = -1,     &
+!         id_tot_layer_int_p = -1,     &
+!         id_tot_layer_int_si = -1,    &
+!         id_total_filter_feeding = -1,&
+!         id_net_prim_prod = -1,       &
+!         id_gross_prim_prod = -1,     &
+!         id_nlg_diatoms = -1,         &
+!         id_jprod_allphytos_100 = -1, &
+!         id_q_si_2_n_lg_diatoms = -1, &
+!         id_hp_jingest_n_100 = -1,    &
+!         id_hp_jremin_n_100 = -1,     &
+!         id_hp_jprod_ndet_100 = -1,   &
+!         id_jprod_lithdet_100 = -1,   &
+!         id_jprod_sidet_100 = -1,     &
+!         id_jprod_cadet_calc_100 = -1, &
+!         id_jprod_cadet_arag_100 = -1, &
+!         id_jprod_mesozoo_200 = -1,   &
+!         id_jremin_ndet_100 = -1,     &
+!         id_f_ndet_100 = -1,          &
+!         id_f_don_100 = -1,           &
+!         id_f_silg_100 = -1,          &
+!         id_f_npp_100 = -1,           &
+!         id_f_mesozoo_200 = -1,       &
+!         id_fndet_100 = -1,           &
+!         id_fpdet_100 = -1,           &
+!         id_ffedet_100 = -1,          &
+!         id_fcadet_calc_100 = -1,     &
+!         id_fcadet_arag_100 = -1,     &
+!         id_flithdet_100 = -1,        &
+!         id_fsidet_100
       end type generic_COBALT_type
 
 ! ---------------------------------------------------------------------
@@ -1755,7 +1761,7 @@
       NOBGC = 4
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
-      NDbio2d = 24
+      NDbio2d = 26
       NDbio3d = 37
 #endif
 #ifdef BENTHIC
@@ -2642,6 +2648,8 @@
 
       io2_flx=23
       iironsed_flx=24
+      inpp_100=25
+      imesozoo_200=26
 
       ! 3D Diagnostic variables
       DO i=1,NDbio3d
@@ -2984,6 +2992,10 @@
      allocate(cobalt%nlg_diatoms(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%nlg_diatoms=0.0
      allocate(cobalt%q_si_2_n_lg_diatoms(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%q_si_2_n_lg_diatoms=0.0
 
+     !diagnostics
+     allocate(cobalt%f_npp(IminS:ImaxS,JminS:JmaxS,UBk))     ; cobalt%f_npp=0.0
+     allocate(cobalt%f_mesozoo(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%f_mesozoo=0.0
+
      allocate(cobalt%b_alk(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_alk=0.0
      allocate(cobalt%b_dic(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_dic=0.0
      allocate(cobalt%b_fed(IminS:ImaxS,JminS:JmaxS))              ; cobalt%b_fed=0.0
@@ -3069,6 +3081,7 @@
      allocate(cobalt%f_ndet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_ndet_100 = 0.0
      allocate(cobalt%f_don_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_don_100  = 0.0
      allocate(cobalt%f_silg_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_silg_100 = 0.0
+     allocate(cobalt%f_npp_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_npp_100 = 0.0
      allocate(cobalt%f_mesozoo_200(IminS:ImaxS,JminS:JmaxS))         ; cobalt%f_mesozoo_200 = 0.0
 
      allocate(cobalt%fndet_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%fndet_100 = 0.0

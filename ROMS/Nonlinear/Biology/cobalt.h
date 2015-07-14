@@ -50,9 +50,6 @@
 #endif
 #ifdef BULK_FLUXES
      &                   OCEAN(ng) % u10_neutral,                       &
-     &                   FORCES(ng) % Uwind,                            &
-     &                   FORCES(ng) % Vwind,                            &
-     &                   FORCES(ng) % Pair,                             &
 #else
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
@@ -65,8 +62,6 @@
      &                   FORCES(ng) % mineral_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
 #endif
-     &                   MIXING(ng) % hsbl,                             &
-     &                   MIXING(ng) % ksbl,                             &
 #ifdef DIAGNOSTICS_BIO
      &                   DIAGS(ng) % DiaBio2d,                          &
      &                   DIAGS(ng) % DiaBio3d,                          &
@@ -102,7 +97,6 @@
 #endif
 #ifdef BULK_FLUXES
      &                         u10_neutral,                             &
-     &                         Uwind, Vwind, Pair,                      &
 #else
      &                         sustr, svstr,                            &
 #endif
@@ -112,7 +106,6 @@
 #ifdef COBALT_IRON
      &                         soluble_fe, mineral_fe, ironsed,         &
 #endif
-     &                         hsbl, ksbl,                              &
 #ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
 #endif
@@ -168,9 +161,6 @@
 #endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:,LBj:)
-      real(r8), intent(in) :: Uwind(LBi:,LBj:)
-      real(r8), intent(in) :: Vwind(LBi:,LBj:)
-      real(r8), intent(in) :: Pair(LBi:,LBj:)
 # else
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
@@ -183,8 +173,6 @@
       real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
 #endif
-      real(r8), intent(in)    :: hsbl(LBi:,LBj:)
-      integer,  intent(in)    :: ksbl(LBi:,LBj:)
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaBio3d(LBi:,LBj:,:,:)
@@ -214,9 +202,6 @@
 #endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
 # else
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
@@ -229,8 +214,6 @@
       real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(in)    :: hsbl(LBi:UBi,LBj:UBj)
-      integer,  intent(in)    :: ksbl(LBi:UBi,LBj:UBj)
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
       real(r8), intent(inout) :: DiaBio3d(LBi:UBi,LBj:UBj,UBk,NDbio3d)
@@ -298,12 +281,17 @@
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: rho_ref
     integer(4), dimension(IminS:ImaxS,JminS:JmaxS) :: mxl_blev
 
+    real(8) :: depth_integration
+    integer(4) :: kdi
+
     integer(4) :: overflow
 
     real(8) :: rho_crit = 0.03d0
     real(8) :: rho_ref_depth = 10.0d0
     real(8) :: drho_crit 
-    real(8) :: cff_ts, cff_btf
+    !real(8) :: cff_ts, cff_btf
+    real(r8), dimension(IminS:ImaxS,JminS:JmaxS)     :: cff_btf
+    real(r8), dimension(IminS:ImaxS,JminS:JmaxS,UBk) :: cff_ts
 
     type(CO2_dope_vector) :: CO2_dope_vec
 
@@ -414,6 +402,8 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
   CO2_dope_vec%jsd = JminS ; CO2_dope_vec%jsc = JminS
   CO2_dope_vec%jed = JmaxS ; CO2_dope_vec%jec = JmaxS
 
+!!!! RD DO NOTHING
+#endif
 !----------------------------------------------------------------------------
 !
 !  Create a 3D-mask to avoid loops in tracer update 
@@ -431,8 +421,6 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
   ENDDO
   k=overflow
 
-!!!! RD DO NOTHING
-#endif
 
 !----------------------------------------------------------------------------
 !
@@ -757,55 +745,120 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !----------------------------------------------------------------------------
 
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
       ! Nitrogen dynamics
-      phyto(SMALL)%f_n(i,j,k)    = max( t(i,j,k,nstp,insm) ,   0.0d0 )
-      phyto(LARGE)%f_n(i,j,k)    = max( t(i,j,k,nstp,inlg) ,   0.0d0 )
-      phyto(DIAZO)%f_n(i,j,k)    = max( t(i,j,k,nstp,indi) ,   0.0d0 )
-      zoo(1)%f_n(i,j,k)          = max( t(i,j,k,nstp,insmz) ,  0.0d0 )
-      zoo(2)%f_n(i,j,k)          = max( t(i,j,k,nstp,inmdz) ,  0.0d0 )
-      zoo(3)%f_n(i,j,k)          = max( t(i,j,k,nstp,inlgz) ,  0.0d0 )
-      cobalt%f_ldon(i,j,k)       = max( t(i,j,k,nstp,ildon) ,  0.0d0 )
-      cobalt%f_sldon(i,j,k)      = max( t(i,j,k,nstp,isldon) , 0.0d0 )
-      cobalt%f_srdon(i,j,k)      = max( t(i,j,k,nstp,isrdon) , 0.0d0 )
-      bact(1)%f_n(i,j,k)         = max( t(i,j,k,nstp,inbact) , 0.0d0 )
-      cobalt%f_nh4(i,j,k)        = max( t(i,j,k,nstp,inh4) ,   0.0d0 )
-      cobalt%f_no3(i,j,k)        = max( t(i,j,k,nstp,ino3) ,   0.0d0 )
-      cobalt%f_ndet(i,j,k)       = max( t(i,j,k,nstp,indet) ,  0.0d0 )
+      phyto(SMALL)%f_n(Istr:Iend,Jstr:Jend,1:UBk)    = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,insm) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      phyto(LARGE)%f_n(Istr:Iend,Jstr:Jend,1:UBk)    = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,inlg) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      phyto(DIAZO)%f_n(Istr:Iend,Jstr:Jend,1:UBk)    = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,indi) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      zoo(1)%f_n(Istr:Iend,Jstr:Jend,1:UBk)          = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,insmz) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      zoo(2)%f_n(Istr:Iend,Jstr:Jend,1:UBk)          = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,inmdz) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      zoo(3)%f_n(Istr:Iend,Jstr:Jend,1:UBk)          = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,inlgz) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_ldon(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ildon) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_sldon(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isldon) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_srdon(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isrdon) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      bact(1)%f_n(Istr:Iend,Jstr:Jend,1:UBk)         = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,inbact) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_nh4(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,inh4) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_no3(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ino3) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_ndet(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,indet) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
 #ifdef COBALT_MINERALS
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
       ! Biogenic Minerals and Lithogenic Materials
-      cobalt%f_sio4(i,j,k)       = max( t(i,j,k,nstp,isio4) ,       0.0d0 )
-      cobalt%f_silg(i,j,k)       = max( t(i,j,k,nstp,isilg) ,       0.0d0 )
-      cobalt%f_sidet(i,j,k)      = max( t(i,j,k,nstp,isidet) ,      0.0d0 )
-      cobalt%f_cadet_calc(i,j,k) = max( t(i,j,k,nstp,icadet_calc) , 0.0d0 )
-      cobalt%f_cadet_arag(i,j,k) = max( t(i,j,k,nstp,icadet_arag) , 0.0d0 )
-      cobalt%f_lith(i,j,k)       = max( t(i,j,k,nstp,ilith) ,       0.0d0 )
-      cobalt%f_lithdet(i,j,k)    = max( t(i,j,k,nstp,ilithdet) ,    0.0d0 )
+      cobalt%f_sio4(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isio4) ,       0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_silg(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isilg) ,       0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_sidet(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isidet) ,      0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_cadet_calc(Istr:Iend,Jstr:Jend,1:UBk) = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,icadet_calc) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_cadet_arag(Istr:Iend,Jstr:Jend,1:UBk) = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,icadet_arag) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_lith(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ilith) ,       0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_lithdet(Istr:Iend,Jstr:Jend,1:UBk)    = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ilithdet) ,    0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
 #endif
 #ifdef COBALT_PHOSPHORUS
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
       ! Phosporus Dynamics
-      cobalt%f_ldop(i,j,k)       = max( t(i,j,k,nstp,ildop) ,  0.0d0 )
-      cobalt%f_sldop(i,j,k)      = max( t(i,j,k,nstp,isldop) , 0.0d0 )
-      cobalt%f_srdop(i,j,k)      = max( t(i,j,k,nstp,isrdop) , 0.0d0 )
-      cobalt%f_po4(i,j,k)        = max( t(i,j,k,nstp,ipo4) ,   0.0d0 )
-      cobalt%f_pdet(i,j,k)       = max( t(i,j,k,nstp,ipdet) ,  0.0d0 )
+      cobalt%f_ldop(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ildop) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_sldop(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isldop) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_srdop(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,isrdop) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_po4(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ipo4) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_pdet(Istr:Iend,Jstr:Jend,1:UBk)       = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ipdet) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
 #endif
 #ifdef COBALT_IRON
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
       ! Iron Dynamics
-      phyto(SMALL)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifesm) ,  0.0d0 )
-      phyto(DIAZO)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifedi) ,  0.0d0 )
-      phyto(LARGE)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifelg) ,  0.0d0 )
-      cobalt%f_fed(i,j,k)        = max( t(i,j,k,nstp,ifed) ,   0.0d0 )
-      cobalt%f_fedet(i,j,k)      = max( t(i,j,k,nstp,ifedet) , 0.0d0 )
+      phyto(SMALL)%f_fe(Istr:Iend,Jstr:Jend,1:UBk)   = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ifesm) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      phyto(DIAZO)%f_fe(Istr:Iend,Jstr:Jend,1:UBk)   = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ifedi) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      phyto(LARGE)%f_fe(Istr:Iend,Jstr:Jend,1:UBk)   = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ifelg) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_fed(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ifed) ,   0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_fedet(Istr:Iend,Jstr:Jend,1:UBk)      = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ifedet) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
 #endif
 #ifdef COBALT_CARBON
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
       ! Oxygen, Carbon and Alkalinity
-      cobalt%f_o2(i,j,k)         = max( t(i,j,k,nstp,io2) ,  0.0d0 )
-      cobalt%f_dic(i,j,k)        = max( t(i,j,k,nstp,idic) , 0.0d0 )
-      cobalt%f_alk(i,j,k)        = max( t(i,j,k,nstp,ialk) , 0.0d0 )
+      cobalt%f_o2(Istr:Iend,Jstr:Jend,1:UBk)         = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,io2) ,  0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_dic(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,idic) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
+!  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+      cobalt%f_alk(Istr:Iend,Jstr:Jend,1:UBk)        = max( t(Istr:Iend,Jstr:Jend,1:UBk,nstp,ialk) , 0.0d0 )
+!  ENDDO ; ENDDO ; ENDDO
 #endif
-  ENDDO ; ENDDO ; ENDDO
 
+!!!! DO_NOTHING  key
+!!!#endif 
 ! diagnostic tracers that are passed between time steps (except chlorophyll)
 
 #ifndef COBALT_DO_NOTHING
@@ -2755,22 +2808,87 @@ ENDDO
   
 
 #ifdef DIAGNOSTICS_BIO
+
+  !!------------------ DIAGNOSTICS FOR BIOLOGY  -----------------
+
+  DO k=1,UBk
+    DO j=Jstr,Jend
+      DO i=Istr,Iend
+
+         cobalt%f_npp(i,j,k) = - phyto(DIAZO)%juptake_no3(i,j,k) -       &
+&                                phyto(LARGE)%juptake_no3(i,j,k) -       &
+&                                phyto(SMALL)%juptake_no3(i,j,k) -       &
+&                                phyto(DIAZO)%juptake_nh4(i,j,k) -       &
+&                                phyto(LARGE)%juptake_nh4(i,j,k) -       &
+&                                phyto(SMALL)%juptake_nh4(i,j,k) -       &
+&                                phyto(DIAZO)%juptake_n2(i,j,k) 
+
+         cobalt%f_mesozoo(i,j,k) = zoo(2)%f_n(i,j,k) + &
+&                                  zoo(3)%f_n(i,j,k)
+
+      ENDDO
+    ENDDO
+  ENDDO
+
+  !!------------------ 100 meters integrals ---------------------
+
+  depth_integration = -100.0d0
+  kdi=0
+
   DO j=Jstr,Jend
     DO i=Istr,Iend
-! array overflow !!!
-!       CALL cobalt_vertical_integral( cobalt%jprod_ndet(i,j,:), &
-! &          Hz(i,j,:), z_w(i,j,:), 1000.0d0, 100.0d0 , UBk, twodim_int_diag(i,j) )
 
-!    DiaBio2d(i,j,ijprod_ndet_100)  = DiaBio2d(i,j,iironsed_flx) + twodim_int_diag(i,j)  * 86400 * 6.625 * 1000 * 12
+      ! while below depth of integration, keep incrementing kdi
+      ! this only has to be done once for all diags
+      DO k=0,UBk
+         IF (z_w(i,j,k) < depth_integration )  kdi = k
+      ENDDO
 
-!       CALL cobalt_vertical_integral( cobalt%jremin_ndet(i,j,:), &
-! &          Hz(i,j,:), z_w(i,j,:), 1000.0d0, 100.0d0 , UBk, twodim_int_diag(i,j) )
-! &          Hz(i,j,:), z_w(i,j,:), omn(i,j), 100.0d0 , UBk, cobalt%jremin_ndet_100(i,j) )
+      cobalt%f_npp_100(i,j) = 0.0d0 
+      ! new diag here
 
-!    DiaBio2d(i,j,ijremin_ndet_100) = DiaBio2d(i,j,ijremin_ndet_100) + twodim_int_diag(i,j) * 86400 * 6.625 * 1000 * 12
+      DO k=kdi+1,UBk
+         cobalt%f_npp_100(i,j) = cobalt%f_npp_100(i,j) + cobalt%f_npp(i,j,k) * Hz(i,j,k)
+         ! new diag here
+      ENDDO
+
+      DiaBio2d(i,j,inpp_100) = Diabio2d(i,j,inpp_100) + &
+ &                             cobalt%f_npp_100(i,j) * depth_integration / z_w(i,j,kdi)
+      ! new diag here
 
     ENDDO
   ENDDO
+
+  !!------------------ 200 meters integrals ---------------------
+
+  depth_integration = -200.0d0
+  kdi=0
+
+  DO j=Jstr,Jend
+    DO i=Istr,Iend
+
+      ! while below depth of integration, keep incrementing kdi
+      ! this only has to be done once for all diags
+      DO k=0,UBk
+         IF (z_w(i,j,k) < depth_integration )  kdi = k
+      ENDDO
+
+      cobalt%f_mesozoo_200(i,j) = 0.0d0
+      ! new diag here
+
+      DO k=kdi+1,UBk
+         cobalt%f_mesozoo_200(i,j) = cobalt%f_mesozoo_200(i,j) + cobalt%f_mesozoo(i,j,k) * Hz(i,j,k)
+         ! new diag here
+      ENDDO
+
+      DiaBio2d(i,j,imesozoo_200) = DiaBio2d(i,j,imesozoo_200) + &
+ &                                 cobalt%f_mesozoo_200(i,j) * depth_integration / z_w(i,j,kdi)
+      ! new diag here
+
+    ENDDO
+  ENDDO
+
+
 #endif
 
 
@@ -2788,43 +2906,43 @@ ENDDO
 !   *** Diazotrophic Phytoplankton Nitrogen
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jndi(i,j,k) = phyto(DIAZO)%mu(i,j,k)*phyto(DIAZO)%f_n(i,j,k) -  &
-&                      phyto(DIAZO)%jzloss_n(i,j,k)   -                  &
-&                      phyto(DIAZO)%jhploss_n(i,j,k)  -                  &
-&                      phyto(DIAZO)%jaggloss_n(i,j,k) -                  &
-&                      phyto(DIAZO)%jvirloss_n(i,j,k) - phyto(DIAZO)%jexuloss_n(i,j,k)
+  cobalt%jndi(:,:,:) = phyto(DIAZO)%mu(:,:,:)*phyto(DIAZO)%f_n(:,:,:) -  &
+&                      phyto(DIAZO)%jzloss_n(:,:,:)   -                  &
+&                      phyto(DIAZO)%jhploss_n(:,:,:)  -                  &
+&                      phyto(DIAZO)%jaggloss_n(:,:,:) -                  &
+&                      phyto(DIAZO)%jvirloss_n(:,:,:) - phyto(DIAZO)%jexuloss_n(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Large Phytoplankton Nitrogen
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnlg(i,j,k) = phyto(LARGE)%mu(i,j,k)*phyto(LARGE)%f_n(i,j,k) -  &
-&                      phyto(LARGE)%jzloss_n(i,j,k)   -                  &
-&                      phyto(LARGE)%jhploss_n(i,j,k)  -                  &
-&                      phyto(LARGE)%jaggloss_n(i,j,k) -                  &
-&                      phyto(LARGE)%jvirloss_n(i,j,k) -                  &
-&                      phyto(LARGE)%jexuloss_n(i,j,k)
+  cobalt%jnlg(:,:,:) = phyto(LARGE)%mu(:,:,:)*phyto(LARGE)%f_n(:,:,:) -  &
+&                      phyto(LARGE)%jzloss_n(:,:,:)   -                  &
+&                      phyto(LARGE)%jhploss_n(:,:,:)  -                  &
+&                      phyto(LARGE)%jaggloss_n(:,:,:) -                  &
+&                      phyto(LARGE)%jvirloss_n(:,:,:) -                  &
+&                      phyto(LARGE)%jexuloss_n(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Small Phytoplankton Nitrogen
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnsm(i,j,k) = phyto(SMALL)%mu(i,j,k)*phyto(SMALL)%f_n(i,j,k) -  &
-&                      phyto(SMALL)%jzloss_n(i,j,k) -                    &
-&                      phyto(SMALL)%jhploss_n(i,j,k) -                   &
-&                      phyto(SMALL)%jaggloss_n(i,j,k) -                  &
-&                      phyto(SMALL)%jvirloss_n(i,j,k) -                  &
-&                      phyto(SMALL)%jexuloss_n(i,j,k)                                         
+  cobalt%jnsm(:,:,:) = phyto(SMALL)%mu(:,:,:)*phyto(SMALL)%f_n(:,:,:) -  &
+&                      phyto(SMALL)%jzloss_n(:,:,:) -                    &
+&                      phyto(SMALL)%jhploss_n(:,:,:) -                   &
+&                      phyto(SMALL)%jaggloss_n(:,:,:) -                  &
+&                      phyto(SMALL)%jvirloss_n(:,:,:) -                  &
+&                      phyto(SMALL)%jexuloss_n(:,:,:)                                         
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 ! * Phytoplankton Silicon and Iron
 !
@@ -2832,69 +2950,69 @@ ENDDO
 !   *** Large Phytoplankton Silicon
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsilg(i,j,k) = phyto(LARGE)%juptake_sio4(i,j,k)  -              &
-&                       phyto(LARGE)%jzloss_sio2(i,j,k)   -              &
-&                       phyto(LARGE)%jhploss_sio2(i,j,k)  -              &
-&                       phyto(LARGE)%jaggloss_sio2(i,j,k) -              &
-&                       phyto(LARGE)%jvirloss_sio2(i,j,k)
+  cobalt%jsilg(:,:,:) = phyto(LARGE)%juptake_sio4(:,:,:)  -              &
+&                       phyto(LARGE)%jzloss_sio2(:,:,:)   -              &
+&                       phyto(LARGE)%jhploss_sio2(:,:,:)  -              &
+&                       phyto(LARGE)%jaggloss_sio2(:,:,:) -              &
+&                       phyto(LARGE)%jvirloss_sio2(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Diazotrophic Phytoplankton Iron
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jfedi(i,j,k) = phyto(DIAZO)%juptake_fe(i,j,k)  -                &
-&                       phyto(DIAZO)%jzloss_fe(i,j,k)   -                &
-&                       phyto(DIAZO)%jhploss_fe(i,j,k)  -                &
-&                       phyto(DIAZO)%jaggloss_fe(i,j,k) -                &
-&                       phyto(DIAZO)%jvirloss_fe(i,j,k) -                &
-&                       phyto(DIAZO)%jexuloss_fe(i,j,k)
+  cobalt%jfedi(:,:,:) = phyto(DIAZO)%juptake_fe(:,:,:)  -                &
+&                       phyto(DIAZO)%jzloss_fe(:,:,:)   -                &
+&                       phyto(DIAZO)%jhploss_fe(:,:,:)  -                &
+&                       phyto(DIAZO)%jaggloss_fe(:,:,:) -                &
+&                       phyto(DIAZO)%jvirloss_fe(:,:,:) -                &
+&                       phyto(DIAZO)%jexuloss_fe(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Large Phytoplankton Iron
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jfelg(i,j,k) = phyto(LARGE)%juptake_fe(i,j,k)  -                & 
-&                       phyto(LARGE)%jzloss_fe(i,j,k)   -                &
-&                       phyto(LARGE)%jhploss_fe(i,j,k)  -                &
-&                       phyto(LARGE)%jaggloss_fe(i,j,k) -                &
-&                       phyto(LARGE)%jvirloss_fe(i,j,k) -                &
-&                       phyto(LARGE)%jexuloss_fe(i,j,k)
+  cobalt%jfelg(:,:,:) = phyto(LARGE)%juptake_fe(:,:,:)  -                & 
+&                       phyto(LARGE)%jzloss_fe(:,:,:)   -                &
+&                       phyto(LARGE)%jhploss_fe(:,:,:)  -                &
+&                       phyto(LARGE)%jaggloss_fe(:,:,:) -                &
+&                       phyto(LARGE)%jvirloss_fe(:,:,:) -                &
+&                       phyto(LARGE)%jexuloss_fe(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Small Phytoplankton Iron
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jfesm(i,j,k) = phyto(SMALL)%juptake_fe(i,j,k)  -                &
-&                       phyto(SMALL)%jzloss_fe(i,j,k)   -                &
-&                       phyto(SMALL)%jhploss_fe(i,j,k)  -                &
-&                       phyto(SMALL)%jaggloss_fe(i,j,k) -                &
-&                       phyto(SMALL)%jvirloss_fe(i,j,k) -                &
-&                       phyto(SMALL)%jexuloss_fe(i,j,k)
+  cobalt%jfesm(:,:,:) = phyto(SMALL)%juptake_fe(:,:,:)  -                &
+&                       phyto(SMALL)%jzloss_fe(:,:,:)   -                &
+&                       phyto(SMALL)%jhploss_fe(:,:,:)  -                &
+&                       phyto(SMALL)%jaggloss_fe(:,:,:) -                &
+&                       phyto(SMALL)%jvirloss_fe(:,:,:) -                &
+&                       phyto(SMALL)%jexuloss_fe(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Bacteria
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnbact(i,j,k) = bact(1)%jprod_n(i,j,k)    -                     &
-&                        bact(1)%jzloss_n(i,j,k)   -                     &
-&                        bact(1)%jvirloss_n(i,j,k) -                     &
-&                        bact(1)%jhploss_n(i,j,k)  
+  cobalt%jnbact(:,:,:) = bact(1)%jprod_n(:,:,:)    -                     &
+&                        bact(1)%jzloss_n(:,:,:)   -                     &
+&                        bact(1)%jvirloss_n(:,:,:) -                     &
+&                        bact(1)%jhploss_n(:,:,:)  
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !
 ! * Zooplankton 
@@ -2903,46 +3021,46 @@ ENDDO
 !   *** Small zooplankton
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnsmz(i,j,k) = zoo(1)%jprod_n(i,j,k) - zoo(1)%jzloss_n(i,j,k) - &
-&                       zoo(1)%jhploss_n(i,j,k)
+  cobalt%jnsmz(:,:,:) = zoo(1)%jprod_n(:,:,:) - zoo(1)%jzloss_n(:,:,:) - &
+&                       zoo(1)%jhploss_n(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Medium zooplankton
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnmdz(i,j,k) = zoo(2)%jprod_n(i,j,k) - zoo(2)%jzloss_n(i,j,k) - &
-&                       zoo(2)%jhploss_n(i,j,k)
+  cobalt%jnmdz(:,:,:) = zoo(2)%jprod_n(:,:,:) - zoo(2)%jzloss_n(:,:,:) - &
+&                       zoo(2)%jhploss_n(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Large zooplankton
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jnlgz(i,j,k) = zoo(3)%jprod_n(i,j,k) - zoo(3)%jzloss_n(i,j,k) - &
-&                       zoo(3)%jhploss_n(i,j,k)
+  cobalt%jnlgz(:,:,:) = zoo(3)%jprod_n(:,:,:) - zoo(3)%jzloss_n(:,:,:) - &
+&                       zoo(3)%jhploss_n(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !
 ! * NO3
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jno3(i,j,k) =  cobalt%jnitrif(i,j,k) -                          &
-&                       phyto(DIAZO)%juptake_no3(i,j,k) -                &
-&                       phyto(LARGE)%juptake_no3(i,j,k) -                &
-&                       phyto(SMALL)%juptake_no3(i,j,k) -                &
-&                       cobalt%jno3denit_wc(i,j,k)
+  cobalt%jno3(:,:,:) =  cobalt%jnitrif(:,:,:) -                          &
+&                       phyto(DIAZO)%juptake_no3(:,:,:) -                &
+&                       phyto(LARGE)%juptake_no3(:,:,:) -                &
+&                       phyto(SMALL)%juptake_no3(:,:,:) -                &
+&                       cobalt%jno3denit_wc(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 ! * Other nutrients
 !
@@ -2950,59 +3068,59 @@ ENDDO
 !   *** NH4
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jprod_nh4(i,j,k) = cobalt%jprod_nh4(i,j,k) + cobalt%jremin_ndet(i,j,k)
+  cobalt%jprod_nh4(:,:,:) = cobalt%jprod_nh4(:,:,:) + cobalt%jremin_ndet(:,:,:)
 
-  cobalt%jnh4(i,j,k) = cobalt%jprod_nh4(i,j,k)         -                 &
-&                      phyto(DIAZO)%juptake_nh4(i,j,k) -                 &
-&                      phyto(LARGE)%juptake_nh4(i,j,k) -                 &
-&                      phyto(SMALL)%juptake_nh4(i,j,k) -                 &
-&                      cobalt%jnitrif(i,j,k)
+  cobalt%jnh4(:,:,:) = cobalt%jprod_nh4(:,:,:)         -                 &
+&                      phyto(DIAZO)%juptake_nh4(:,:,:) -                 &
+&                      phyto(LARGE)%juptake_nh4(:,:,:) -                 &
+&                      phyto(SMALL)%juptake_nh4(:,:,:) -                 &
+&                      cobalt%jnitrif(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** PO4
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jprod_po4(i,j,k) = cobalt%jprod_po4(i,j,k) + cobalt%jremin_pdet(i,j,k) 
+  cobalt%jprod_po4(:,:,:) = cobalt%jprod_po4(:,:,:) + cobalt%jremin_pdet(:,:,:) 
 
-  cobalt%jpo4(i,j,k) = cobalt%jprod_po4(i,j,k)         -                 &
-&                      phyto(DIAZO)%juptake_po4(i,j,k) -                 &
-&                      phyto(LARGE)%juptake_po4(i,j,k) -                 &
-&                      phyto(SMALL)%juptake_po4(i,j,k)
+  cobalt%jpo4(:,:,:) = cobalt%jprod_po4(:,:,:)         -                 &
+&                      phyto(DIAZO)%juptake_po4(:,:,:) -                 &
+&                      phyto(LARGE)%juptake_po4(:,:,:) -                 &
+&                      phyto(SMALL)%juptake_po4(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** SiO4
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsio4(i,j,k) = cobalt%jprod_sio4(i,j,k) - phyto(LARGE)%juptake_sio4(i,j,k)
+  cobalt%jsio4(:,:,:) = cobalt%jprod_sio4(:,:,:) - phyto(LARGE)%juptake_sio4(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Fed
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jprod_fed(i,j,k) = cobalt%jprod_fed(i,j,k)    +                 &
-&                           cobalt%jremin_fedet(i,j,k) +                 &
-&                           cobalt%jfe_coast(i,j,k)  
-  cobalt%jfed(i,j,k) = cobalt%jprod_fed(i,j,k)        -                  &
-&                      phyto(DIAZO)%juptake_fe(i,j,k) -                  &
-&                      phyto(LARGE)%juptake_fe(i,j,k) -                  &
-&                      phyto(SMALL)%juptake_fe(i,j,k) -                  &
-&                      cobalt%jfe_ads(i,j,k)
+  cobalt%jprod_fed(:,:,:) = cobalt%jprod_fed(:,:,:)    +                 &
+&                           cobalt%jremin_fedet(:,:,:) +                 &
+&                           cobalt%jfe_coast(:,:,:)  
+  cobalt%jfed(:,:,:) = cobalt%jprod_fed(:,:,:)        -                  &
+&                      phyto(DIAZO)%juptake_fe(:,:,:) -                  &
+&                      phyto(LARGE)%juptake_fe(:,:,:) -                  &
+&                      phyto(SMALL)%juptake_fe(:,:,:) -                  &
+&                      cobalt%jfe_ads(:,:,:)
 
   ! RD dev notes : add dust source from atmosphere
-  cobalt%jfed(i,j,k) = cobalt%jfed(i,j,k) + iron_dust_src(i,j,k)
+  cobalt%jfed(:,:,:) = cobalt%jfed(:,:,:) + iron_dust_src(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 
 !
 !-----------------------------------------------------------------------
@@ -3013,151 +3131,151 @@ ENDDO
 !   *** Cadet_arag
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jcadet_arag(i,j,k) = cobalt%jprod_cadet_arag(i,j,k) -           &
-&                             cobalt%jdiss_cadet_arag(i,j,k) +           &
-&                             cadet_arag_sinking(i,j,k)
+  cobalt%jcadet_arag(:,:,:) = cobalt%jprod_cadet_arag(:,:,:) -           &
+&                             cobalt%jdiss_cadet_arag(:,:,:) +           &
+&                             cadet_arag_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_cadet_arag) = DiaBio3d(i,j,k,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(i,j,k)
+  DiaBio3d(:,:,:,ijprod_cadet_arag) = DiaBio3d(:,:,:,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(:,:,:)
   ! diag on dissolution term
-  DiaBio3d(i,j,k,ijdiss_cadet_arag) = DiaBio3d(i,j,k,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(i,j,k)
+  DiaBio3d(:,:,:,ijdiss_cadet_arag) = DiaBio3d(:,:,:,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Cadet_calc
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jcadet_calc(i,j,k) = cobalt%jprod_cadet_calc(i,j,k) -           &
-&                             cobalt%jdiss_cadet_calc(i,j,k) +           &
-&                             cadet_calc_sinking(i,j,k)
+  cobalt%jcadet_calc(:,:,:) = cobalt%jprod_cadet_calc(:,:,:) -           &
+&                             cobalt%jdiss_cadet_calc(:,:,:) +           &
+&                             cadet_calc_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_cadet_calc) = DiaBio3d(i,j,k,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(i,j,k)
+  DiaBio3d(:,:,:,ijprod_cadet_calc) = DiaBio3d(:,:,:,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(:,:,:)
   ! diag on dissolution term
-  DiaBio3d(i,j,k,ijdiss_cadet_calc) = DiaBio3d(i,j,k,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(i,j,k)
+  DiaBio3d(:,:,:,ijdiss_cadet_calc) = DiaBio3d(:,:,:,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Fedet
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
 
-  cobalt%jprod_fedet(i,j,k) = cobalt%jprod_fedet(i,j,k) + cobalt%jfe_ads(i,j,k)
+  cobalt%jprod_fedet(:,:,:) = cobalt%jprod_fedet(:,:,:) + cobalt%jfe_ads(:,:,:)
 
-  cobalt%jfedet(i,j,k) = cobalt%jprod_fedet(i,j,k)   -                   &
-&                        cobalt%jremin_fedet(i,j,k)  -                   &
-&                        cobalt%det_jzloss_fe(i,j,k) -                   & 
-&                        cobalt%det_jhploss_fe(i,j,k) +                  &
-&                        fedet_sinking(i,j,k)
+  cobalt%jfedet(:,:,:) = cobalt%jprod_fedet(:,:,:)   -                   &
+&                        cobalt%jremin_fedet(:,:,:)  -                   &
+&                        cobalt%det_jzloss_fe(:,:,:) -                   & 
+&                        cobalt%det_jhploss_fe(:,:,:) +                  &
+&                        fedet_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_fedet) = DiaBio3d(i,j,k,ijprod_fedet) + cobalt%jprod_fedet(i,j,k)
+  DiaBio3d(:,:,:,ijprod_fedet) = DiaBio3d(:,:,:,ijprod_fedet) + cobalt%jprod_fedet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_fedet) = DiaBio3d(i,j,k,ijremin_fedet) + cobalt%jremin_fedet(i,j,k)
+  DiaBio3d(:,:,:,ijremin_fedet) = DiaBio3d(:,:,:,ijremin_fedet) + cobalt%jremin_fedet(:,:,:)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_fe) = DiaBio3d(i,j,k,idet_jzloss_fe) + cobalt%det_jzloss_fe(i,j,k)
+  DiaBio3d(:,:,:,idet_jzloss_fe) = DiaBio3d(:,:,:,idet_jzloss_fe) + cobalt%det_jzloss_fe(:,:,:)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_fe) = DiaBio3d(i,j,k,idet_jhploss_fe) +cobalt%det_jhploss_fe(i,j,k)
+  DiaBio3d(:,:,:,idet_jhploss_fe) = DiaBio3d(:,:,:,idet_jhploss_fe) +cobalt%det_jhploss_fe(:,:,:)
 #endif
   
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Lithdet and Lith
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jlithdet(i,j,k) = cobalt%jprod_lithdet(i,j,k) + &
-&                          lithdet_sinking(i,j,k)
+  cobalt%jlithdet(:,:,:) = cobalt%jprod_lithdet(:,:,:) + &
+&                          lithdet_sinking(:,:,:)
 
-  cobalt%jlith(i,j,k) = - cobalt%jlithdet(i,j,k)
+  cobalt%jlith(:,:,:) = - cobalt%jlithdet(:,:,:)
 
   ! RD dev notes : add dust source from atmosphere
-  cobalt%jlith(i,j,k) = cobalt%jlith(i,j,k) + lith_dust_src(i,j,k)
+  cobalt%jlith(:,:,:) = cobalt%jlith(:,:,:) + lith_dust_src(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_lithdet) = DiaBio3d(i,j,k,ijprod_lithdet) + cobalt%jprod_lithdet(i,j,k)
+  DiaBio3d(:,:,:,ijprod_lithdet) = DiaBio3d(:,:,:,ijprod_lithdet) + cobalt%jprod_lithdet(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Ndet
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jndet(i,j,k) = cobalt%jprod_ndet(i,j,k)   -                     &
-&                       cobalt%jremin_ndet(i,j,k)  -                     &
-&                       cobalt%det_jzloss_n(i,j,k) -                     &
-&                       cobalt%det_jhploss_n(i,j,k) +                    &
-&                       ndet_sinking(i,j,k)
+  cobalt%jndet(:,:,:) = cobalt%jprod_ndet(:,:,:)   -                     &
+&                       cobalt%jremin_ndet(:,:,:)  -                     &
+&                       cobalt%det_jzloss_n(:,:,:) -                     &
+&                       cobalt%det_jhploss_n(:,:,:) +                    &
+&                       ndet_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_ndet) = DiaBio3d(i,j,k,ijprod_ndet) + cobalt%jprod_ndet(i,j,k)
+  DiaBio3d(:,:,:,ijprod_ndet) = DiaBio3d(:,:,:,ijprod_ndet) + cobalt%jprod_ndet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_ndet) = DiaBio3d(i,j,k,ijremin_ndet) + cobalt%jremin_ndet(i,j,k)
+  DiaBio3d(:,:,:,ijremin_ndet) = DiaBio3d(:,:,:,ijremin_ndet) + cobalt%jremin_ndet(:,:,:)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_n) = DiaBio3d(i,j,k,idet_jzloss_n) + cobalt%det_jzloss_n(i,j,k)
+  DiaBio3d(:,:,:,idet_jzloss_n) = DiaBio3d(:,:,:,idet_jzloss_n) + cobalt%det_jzloss_n(:,:,:)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_n) = DiaBio3d(i,j,k,idet_jhploss_n) + cobalt%det_jhploss_n(i,j,k)
+  DiaBio3d(:,:,:,idet_jhploss_n) = DiaBio3d(:,:,:,idet_jhploss_n) + cobalt%det_jhploss_n(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Pdet
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jpdet(i,j,k) = cobalt%jprod_pdet(i,j,k)   -                     &
-&                       cobalt%jremin_pdet(i,j,k)  -                     &
-&                       cobalt%det_jzloss_p(i,j,k) -                     &
-&                       cobalt%det_jhploss_p(i,j,k) +                    &
-&                       pdet_sinking(i,j,k)
+  cobalt%jpdet(:,:,:) = cobalt%jprod_pdet(:,:,:)   -                     &
+&                       cobalt%jremin_pdet(:,:,:)  -                     &
+&                       cobalt%det_jzloss_p(:,:,:) -                     &
+&                       cobalt%det_jhploss_p(:,:,:) +                    &
+&                       pdet_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_pdet) = DiaBio3d(i,j,k,ijprod_pdet) + cobalt%jprod_pdet(i,j,k)
+  DiaBio3d(:,:,:,ijprod_pdet) = DiaBio3d(:,:,:,ijprod_pdet) + cobalt%jprod_pdet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(i,j,k,ijremin_pdet) = DiaBio3d(i,j,k,ijremin_pdet) + cobalt%jremin_pdet(i,j,k)
+  DiaBio3d(:,:,:,ijremin_pdet) = DiaBio3d(:,:,:,ijremin_pdet) + cobalt%jremin_pdet(:,:,:)
   ! diag
-  DiaBio3d(i,j,k,idet_jzloss_p) = DiaBio3d(i,j,k,idet_jzloss_p) + cobalt%det_jzloss_p(i,j,k)
+  DiaBio3d(:,:,:,idet_jzloss_p) = DiaBio3d(:,:,:,idet_jzloss_p) + cobalt%det_jzloss_p(:,:,:)
   ! diag 
-  DiaBio3d(i,j,k,idet_jhploss_p) = DiaBio3d(i,j,k,idet_jhploss_p) + cobalt%det_jhploss_p(i,j,k)
+  DiaBio3d(:,:,:,idet_jhploss_p) = DiaBio3d(:,:,:,idet_jhploss_p) + cobalt%det_jhploss_p(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Sidet
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsidet(i,j,k) = cobalt%jprod_sidet(i,j,k)   -                   & 
-&                        cobalt%jdiss_sidet(i,j,k)   -                   &
-&                        cobalt%det_jzloss_si(i,j,k) -                   &
-&                        cobalt%det_jhploss_si(i,j,k) +                  &
-&                        sidet_sinking(i,j,k)
+  cobalt%jsidet(:,:,:) = cobalt%jprod_sidet(:,:,:)   -                   & 
+&                        cobalt%jdiss_sidet(:,:,:)   -                   &
+&                        cobalt%det_jzloss_si(:,:,:) -                   &
+&                        cobalt%det_jhploss_si(:,:,:) +                  &
+&                        sidet_sinking(:,:,:)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(i,j,k,ijprod_sidet) = DiaBio3d(i,j,k,ijprod_sidet) + cobalt%jprod_sidet(i,j,k)
+  DiaBio3d(:,:,:,ijprod_sidet) = DiaBio3d(:,:,:,ijprod_sidet) + cobalt%jprod_sidet(:,:,:)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 ! * Dissolved Organic Matter
 !
@@ -3165,78 +3283,79 @@ ENDDO
 !   *** Labile Dissolved Organic Nitrogen
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jldon(i,j,k) = cobalt%jprod_ldon(i,j,k)                 +       &
-&                       cobalt%gamma_sldon*cobalt%f_sldon(i,j,k) +       &
-&                       cobalt%gamma_srdon*cobalt%f_srdon(i,j,k) -       &
-&                       bact(1)%juptake_ldon(i,j,k)
+  cobalt%jldon(:,:,:) = cobalt%jprod_ldon(:,:,:)                 +       &
+&                       cobalt%gamma_sldon*cobalt%f_sldon(:,:,:) +       &
+&                       cobalt%gamma_srdon*cobalt%f_srdon(:,:,:) -       &
+&                       bact(1)%juptake_ldon(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Labile Dissolved Organic Phosphorous
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jldop(i,j,k) = cobalt%jprod_ldop(i,j,k)                 +       &
-&                       cobalt%gamma_sldop*cobalt%f_sldop(i,j,k) +       &
-&                       cobalt%gamma_srdop*cobalt%f_srdop(i,j,k) -       &
-&                       bact(1)%juptake_ldop(i,j,k)
+  cobalt%jldop(:,:,:) = cobalt%jprod_ldop(:,:,:)                 +       &
+&                       cobalt%gamma_sldop*cobalt%f_sldop(:,:,:) +       &
+&                       cobalt%gamma_srdop*cobalt%f_srdop(:,:,:) -       &
+&                       bact(1)%juptake_ldop(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Semilabile Dissolved Organic Nitrogen
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsldon(i,j,k) = cobalt%jprod_sldon(i,j,k) -                     &
-&                        cobalt%gamma_sldon*cobalt%f_sldon(i,j,k)
+  cobalt%jsldon(:,:,:) = cobalt%jprod_sldon(:,:,:) -                     &
+&                        cobalt%gamma_sldon*cobalt%f_sldon(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Semilabile dissolved organic phosphorous  
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsldop(i,j,k) = cobalt%jprod_sldop(i,j,k) -                     &
-&                        cobalt%gamma_sldop*cobalt%f_sldop(i,j,k)
+  cobalt%jsldop(:,:,:) = cobalt%jprod_sldop(:,:,:) -                     &
+&                        cobalt%gamma_sldop*cobalt%f_sldop(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Refractory Dissolved Organic Nitrogen
 ! 
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsrdon(i,j,k) = cobalt%jprod_srdon(i,j,k) -  cobalt%gamma_srdon * cobalt%f_srdon(i,j,k)
+  cobalt%jsrdon(:,:,:) = cobalt%jprod_srdon(:,:,:) -  cobalt%gamma_srdon * cobalt%f_srdon(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Refractory dissolved organic phosphorous
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jsrdop(i,j,k) = cobalt%jprod_srdop(i,j,k) - cobalt%gamma_srdop * cobalt%f_srdop(i,j,k)
+  cobalt%jsrdop(:,:,:) = cobalt%jprod_srdop(:,:,:) - cobalt%gamma_srdop * cobalt%f_srdop(:,:,:)
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 ! * O2
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+
+  cobalt%jo2(:,:,:) =(cobalt%o2_2_no3*(phyto(DIAZO)%juptake_no3(:,:,:) + &
+&                    phyto(LARGE)%juptake_no3(:,:,:)                   + &
+&                    phyto(SMALL)%juptake_no3(:,:,:))                  + & 
+&                    cobalt%o2_2_nh4*(phyto(DIAZO)%juptake_nh4(:,:,:)  + &
+&                    phyto(LARGE)%juptake_nh4(:,:,:)                   + &
+&                    phyto(SMALL)%juptake_nh4(:,:,:)                   + &  
+&                    phyto(DIAZO)%juptake_n2(:,:,:))) * rmask3d(:,:,:)
+
   DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
-
-  cobalt%jo2(i,j,k) =(cobalt%o2_2_no3*(phyto(DIAZO)%juptake_no3(i,j,k) + &
-&                    phyto(LARGE)%juptake_no3(i,j,k)                   + &
-&                    phyto(SMALL)%juptake_no3(i,j,k))                  + & 
-&                    cobalt%o2_2_nh4*(phyto(DIAZO)%juptake_nh4(i,j,k)  + &
-&                    phyto(LARGE)%juptake_nh4(i,j,k)                   + &
-&                    phyto(SMALL)%juptake_nh4(i,j,k)                   + &  
-&                    phyto(DIAZO)%juptake_n2(i,j,k))) * rmask3d(i,j,k)
-
        IF (cobalt%f_o2(i,j,k) .gt. cobalt%o2_min) THEN 
           cobalt%jo2(i,j,k) = cobalt%jo2(i,j,k)                       -  &
         &                     cobalt%o2_2_nh4*cobalt%jprod_nh4(i,j,k) -  &
@@ -3244,13 +3363,14 @@ ENDDO
        ENDIF  
 
   ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 
   ! RD dev notes : add contribution from O2 air/sea fluxes
-  DO j=Jstr,Jend ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO i=Istr,Iend
+!  cobalt%jo2(i,j,UBk) = cobalt%jo2(i,j,UBk) + airsea_o2_flx(i,j)
+!  ENDDO ; ENDDO 
 
-  cobalt%jo2(i,j,UBk) = cobalt%jo2(i,j,UBk) + airsea_o2_flx(i,j)
-
-  ENDDO ; ENDDO 
+  cobalt%jo2(:,:,UBk) = cobalt%jo2(:,:,UBk) + airsea_o2_flx(:,:)
 
 !
 ! * The Carbon system
@@ -3259,38 +3379,37 @@ ENDDO
 !   *** Alkalinity
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jalk(i,j,k) = (2.0 * (cobalt%jdiss_cadet_arag(i,j,k)          + &
-&    cobalt%jdiss_cadet_calc(i,j,k) - cobalt%jprod_cadet_arag(i,j,k)   - &
-&    cobalt%jprod_cadet_calc(i,j,k)) + phyto(DIAZO)%juptake_no3(i,j,k) + &
-&    phyto(LARGE)%juptake_no3(i,j,k) + phyto(SMALL)%juptake_no3(i,j,k) + &
-&    cobalt%jprod_nh4(i,j,k) - phyto(DIAZO)%juptake_nh4(i,j,k)         - & 
-&    phyto(LARGE)%juptake_nh4(i,j,k) - phyto(SMALL)%juptake_nh4(i,j,k) - &
-&    2.0 * cobalt%jnitrif(i,j,k) + cobalt%alk_2_n_denit * cobalt%jno3denit_wc(i,j,k))
+  cobalt%jalk(:,:,:) = (2.0 * (cobalt%jdiss_cadet_arag(:,:,:)          + &
+&    cobalt%jdiss_cadet_calc(:,:,:) - cobalt%jprod_cadet_arag(:,:,:)   - &
+&    cobalt%jprod_cadet_calc(:,:,:)) + phyto(DIAZO)%juptake_no3(:,:,:) + &
+&    phyto(LARGE)%juptake_no3(:,:,:) + phyto(SMALL)%juptake_no3(:,:,:) + &
+&    cobalt%jprod_nh4(:,:,:) - phyto(DIAZO)%juptake_nh4(:,:,:)         - & 
+&    phyto(LARGE)%juptake_nh4(:,:,:) - phyto(SMALL)%juptake_nh4(:,:,:) - &
+&    2.0 * cobalt%jnitrif(:,:,:) + cobalt%alk_2_n_denit * cobalt%jno3denit_wc(:,:,:))
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 !
 !   *** Dissolved Inorganic Carbon
 !
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-  cobalt%jdic(i,j,k) =(cobalt%c_2_n * (cobalt%jno3(i,j,k)              + &
-&    cobalt%jnh4(i,j,k) + cobalt%jno3denit_wc(i,j,k)                   - &
-&    phyto(DIAZO)%juptake_n2(i,j,k))                                   + &
-&    cobalt%jdiss_cadet_arag(i,j,k) + cobalt%jdiss_cadet_calc(i,j,k)   - &
-&    cobalt%jprod_cadet_arag(i,j,k) - cobalt%jprod_cadet_calc(i,j,k)) 
+  cobalt%jdic(:,:,:) =(cobalt%c_2_n * (cobalt%jno3(:,:,:)              + &
+&    cobalt%jnh4(:,:,:) + cobalt%jno3denit_wc(:,:,:)                   - &
+&    phyto(DIAZO)%juptake_n2(:,:,:))                                   + &
+&    cobalt%jdiss_cadet_arag(:,:,:) + cobalt%jdiss_cadet_calc(:,:,:)   - &
+&    cobalt%jprod_cadet_arag(:,:,:) - cobalt%jprod_cadet_calc(:,:,:)) 
 
-  ENDDO ; ENDDO ; ENDDO
+!  ENDDO ; ENDDO ; ENDDO
 
   ! RD dev notes : add contribution from CO2 air/sea fluxes
-  DO j=Jstr,Jend ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO i=Istr,Iend
+!  cobalt%jdic(i,j,UBk) = cobalt%jdic(i,j,UBk) + airsea_co2_flx(i,j)
+!  ENDDO ; ENDDO 
 
-  cobalt%jdic(i,j,UBk) = cobalt%jdic(i,j,UBk) + airsea_co2_flx(i,j)
-
-  ENDDO ; ENDDO 
-
+  cobalt%jdic(:,:,UBk) = cobalt%jdic(:,:,UBk) + airsea_co2_flx(:,:)
 
   ! RD dev notes :
   ! adding the bottom flux b_var to the bottom level concentration
@@ -3298,27 +3417,29 @@ ENDDO
   DO j=Jstr,Jend
     DO i=Istr,Iend
       cff_btf = 1.0d0 / ( rho0 * Hz(i,j,1) )
-      !
-      cobalt%jalk(i,j,1)  = cobalt%jalk(i,j,1)  - cobalt%b_alk(i,j)  * cff_btf
-      cobalt%jdic(i,j,1)  = cobalt%jdic(i,j,1)  - cobalt%b_dic(i,j)  * cff_btf
-      cobalt%jfed(i,j,1)  = cobalt%jfed(i,j,1)  - cobalt%b_fed(i,j)  * cff_btf
-      cobalt%jnh4(i,j,1)  = cobalt%jnh4(i,j,1)  - cobalt%b_nh4(i,j)  * cff_btf
-      cobalt%jno3(i,j,1)  = cobalt%jno3(i,j,1)  - cobalt%b_no3(i,j)  * cff_btf
-      cobalt%jo2(i,j,1)   = cobalt%jo2(i,j,1)   - cobalt%b_o2(i,j)   * cff_btf
-      cobalt%jpo4(i,j,1)  = cobalt%jpo4(i,j,1)  - cobalt%b_po4(i,j)  * cff_btf 
-      cobalt%jsio4(i,j,1) = cobalt%jsio4(i,j,1) - cobalt%b_sio4(i,j) * cff_btf
     ENDDO
   ENDDO
+      !
+      cobalt%jalk(Istr:Iend,Jstr:Jend,1)  = cobalt%jalk(Istr:Iend,Jstr:Jend,1)  - cobalt%b_alk(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jdic(Istr:Iend,Jstr:Jend,1)  = cobalt%jdic(Istr:Iend,Jstr:Jend,1)  - cobalt%b_dic(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jfed(Istr:Iend,Jstr:Jend,1)  = cobalt%jfed(Istr:Iend,Jstr:Jend,1)  - cobalt%b_fed(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jnh4(Istr:Iend,Jstr:Jend,1)  = cobalt%jnh4(Istr:Iend,Jstr:Jend,1)  - cobalt%b_nh4(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jno3(Istr:Iend,Jstr:Jend,1)  = cobalt%jno3(Istr:Iend,Jstr:Jend,1)  - cobalt%b_no3(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jo2(Istr:Iend,Jstr:Jend,1)   = cobalt%jo2(Istr:Iend,Jstr:Jend,1)   - cobalt%b_o2(Istr:Iend,Jstr:Jend)   * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jpo4(Istr:Iend,Jstr:Jend,1)  = cobalt%jpo4(Istr:Iend,Jstr:Jend,1)  - cobalt%b_po4(Istr:Iend,Jstr:Jend)  * cff_btf(Istr:Iend,Jstr:Jend)
+      cobalt%jsio4(Istr:Iend,Jstr:Jend,1) = cobalt%jsio4(Istr:Iend,Jstr:Jend,1) - cobalt%b_sio4(Istr:Iend,Jstr:Jend) * cff_btf(Istr:Iend,Jstr:Jend)
+!    ENDDO
+!  ENDDO
 
   ! RD dev notes : Copy other BGC variables to new step (this array is not passed to dynamics)
   ! RD : Sanity check with values = iic done and successful, array with index nstp is previous step
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
-         obgc(i,j,k,nnew,iochl)          = cobalt%f_chl(i,j,k)
-         obgc(i,j,k,nnew,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
-         obgc(i,j,k,nnew,iohtotal)       = cobalt%f_htotal(i,j,k)
-         obgc(i,j,k,nnew,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
-  ENDDO ; ENDDO ; ENDDO
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+         obgc(Istr:Iend,Jstr:Jend,1:UBk,nnew,iochl)          = cobalt%f_chl(Istr:Iend,Jstr:Jend,1:UBk)
+         obgc(Istr:Iend,Jstr:Jend,1:UBk,nnew,ioco3_ion)      = cobalt%f_co3_ion(Istr:Iend,Jstr:Jend,1:UBk)
+         obgc(Istr:Iend,Jstr:Jend,1:UBk,nnew,iohtotal)       = cobalt%f_htotal(Istr:Iend,Jstr:Jend,1:UBk)
+         obgc(Istr:Iend,Jstr:Jend,1:UBk,nnew,ioirr_mem)      = cobalt%f_irr_mem(Istr:Iend,Jstr:Jend,1:UBk)
+!  ENDDO ; ENDDO ; ENDDO
 
   ! Set value for boundaries
   DO it=1,NOBGC
@@ -3425,61 +3546,66 @@ ENDDO
 ! Remark : Xa = Xa + (Xb -Xa) * Hz
 
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
+!  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-   cff_ts = dt(ng) * rmask(i,j) * Hz(i,j,k)
+!   cff_ts = dt(ng) * rmask(i,j) * Hz(i,j,k)
+
+
+  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
+   cff_ts(i,j,k) = dt(ng) * rmask(i,j) * Hz(i,j,k)
+  ENDDO ; ENDDO ; ENDDO
 #ifdef COBALT_NOSOURCE
    cff_ts = 0.0d0
 #endif
    ! Nitrogen dynamics
-   t(i,j,k,nnew,insm)   = t(i,j,k,nnew,insm)   + cobalt%jnsm(i,j,k)   * cff_ts
-   t(i,j,k,nnew,inlg)   = t(i,j,k,nnew,inlg)   + cobalt%jnlg(i,j,k)   * cff_ts
-   t(i,j,k,nnew,indi)   = t(i,j,k,nnew,indi)   + cobalt%jndi(i,j,k)   * cff_ts
-   t(i,j,k,nnew,insmz)  = t(i,j,k,nnew,insmz)  + cobalt%jnsmz(i,j,k)  * cff_ts
-   t(i,j,k,nnew,inmdz)  = t(i,j,k,nnew,inmdz)  + cobalt%jnmdz(i,j,k)  * cff_ts
-   t(i,j,k,nnew,inlgz)  = t(i,j,k,nnew,inlgz)  + cobalt%jnlgz(i,j,k)  * cff_ts
-   t(i,j,k,nnew,ildon)  = t(i,j,k,nnew,ildon)  + cobalt%jldon(i,j,k)  * cff_ts
-   t(i,j,k,nnew,isldon) = t(i,j,k,nnew,isldon) + cobalt%jsldon(i,j,k) * cff_ts
-   t(i,j,k,nnew,isrdon) = t(i,j,k,nnew,isrdon) + cobalt%jsrdon(i,j,k) * cff_ts
-   t(i,j,k,nnew,inbact) = t(i,j,k,nnew,inbact) + cobalt%jnbact(i,j,k) * cff_ts
-   t(i,j,k,nnew,inh4)   = t(i,j,k,nnew,inh4)   + cobalt%jnh4(i,j,k)   * cff_ts
-   t(i,j,k,nnew,ino3)   = t(i,j,k,nnew,ino3)   + cobalt%jno3(i,j,k)   * cff_ts
-   t(i,j,k,nnew,indet)  = t(i,j,k,nnew,indet)  + cobalt%jndet(i,j,k)  * cff_ts
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,insm)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,insm)   + cobalt%jnsm(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inlg)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inlg)   + cobalt%jnlg(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,indi)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,indi)   + cobalt%jndi(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,insmz)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,insmz)  + cobalt%jnsmz(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inmdz)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inmdz)  + cobalt%jnmdz(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inlgz)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inlgz)  + cobalt%jnlgz(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ildon)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ildon)  + cobalt%jldon(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isldon) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isldon) + cobalt%jsldon(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isrdon) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isrdon) + cobalt%jsrdon(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inbact) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inbact) + cobalt%jnbact(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inh4)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,inh4)   + cobalt%jnh4(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ino3)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ino3)   + cobalt%jno3(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,indet)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,indet)  + cobalt%jndet(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
 #ifdef COBALT_MINERALS
    ! Biogenic Minerals and Lithogenic Materials
-   t(i,j,k,nnew,isio4)       = t(i,j,k,nnew,isio4)       + cobalt%jsio4(i,j,k)       * cff_ts
-   t(i,j,k,nnew,isilg)       = t(i,j,k,nnew,isilg)       + cobalt%jsilg(i,j,k)       * cff_ts
-   t(i,j,k,nnew,isidet)      = t(i,j,k,nnew,isidet)      + cobalt%jsidet(i,j,k)      * cff_ts
-   t(i,j,k,nnew,icadet_calc) = t(i,j,k,nnew,icadet_calc) + cobalt%jcadet_calc(i,j,k) * cff_ts
-   t(i,j,k,nnew,icadet_arag) = t(i,j,k,nnew,icadet_arag) + cobalt%jcadet_arag(i,j,k) * cff_ts
-   t(i,j,k,nnew,ilith)       = t(i,j,k,nnew,ilith)       + cobalt%jlith(i,j,k)       * cff_ts
-   t(i,j,k,nnew,ilithdet)    = t(i,j,k,nnew,ilithdet)    + cobalt%jlithdet(i,j,k)    * cff_ts
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isio4)       = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isio4)       + cobalt%jsio4(Istr:Iend,Jstr:Jend,1:UBk)       * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isilg)       = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isilg)       + cobalt%jsilg(Istr:Iend,Jstr:Jend,1:UBk)       * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isidet)      = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isidet)      + cobalt%jsidet(Istr:Iend,Jstr:Jend,1:UBk)      * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,icadet_calc) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,icadet_calc) + cobalt%jcadet_calc(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,icadet_arag) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,icadet_arag) + cobalt%jcadet_arag(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ilith)       = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ilith)       + cobalt%jlith(Istr:Iend,Jstr:Jend,1:UBk)       * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ilithdet)    = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ilithdet)    + cobalt%jlithdet(Istr:Iend,Jstr:Jend,1:UBk)    * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
 #endif
 #ifdef COBALT_PHOSPHORUS
    ! Phosporus Dynamics
-   t(i,j,k,nnew,ildop)  = t(i,j,k,nnew,ildop)  + cobalt%jldop(i,j,k)  * cff_ts
-   t(i,j,k,nnew,isldop) = t(i,j,k,nnew,isldop) + cobalt%jsldop(i,j,k) * cff_ts
-   t(i,j,k,nnew,isrdop) = t(i,j,k,nnew,isrdop) + cobalt%jsrdop(i,j,k) * cff_ts
-   t(i,j,k,nnew,ipo4)   = t(i,j,k,nnew,ipo4)   + cobalt%jpo4(i,j,k)   * cff_ts
-   t(i,j,k,nnew,ipdet)  = t(i,j,k,nnew,ipdet)  + cobalt%jpdet(i,j,k)  * cff_ts
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ildop)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ildop)  + cobalt%jldop(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isldop) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isldop) + cobalt%jsldop(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isrdop) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,isrdop) + cobalt%jsrdop(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ipo4)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ipo4)   + cobalt%jpo4(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ipdet)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ipdet)  + cobalt%jpdet(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
 #endif
 #ifdef COBALT_IRON
    ! Iron Dynamics
-   t(i,j,k,nnew,ifesm)  = t(i,j,k,nnew,ifesm)  + cobalt%jfesm(i,j,k)  * cff_ts
-   t(i,j,k,nnew,ifedi)  = t(i,j,k,nnew,ifedi)  + cobalt%jfedi(i,j,k)  * cff_ts
-   t(i,j,k,nnew,ifelg)  = t(i,j,k,nnew,ifelg)  + cobalt%jfelg(i,j,k)  * cff_ts
-   t(i,j,k,nnew,ifed)   = t(i,j,k,nnew,ifed)   + cobalt%jfed(i,j,k)   * cff_ts
-   t(i,j,k,nnew,ifedet) = t(i,j,k,nnew,ifedet) + cobalt%jfedet(i,j,k) * cff_ts
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifesm)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifesm)  + cobalt%jfesm(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifedi)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifedi)  + cobalt%jfedi(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifelg)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifelg)  + cobalt%jfelg(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifed)   = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifed)   + cobalt%jfed(Istr:Iend,Jstr:Jend,1:UBk)   * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifedet) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ifedet) + cobalt%jfedet(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
 #endif
 #ifdef COBALT_CARBON
    ! Oxygen, Carbon and Alkalinity
-   t(i,j,k,nnew,io2)  = t(i,j,k,nnew,io2)  + cobalt%jo2(i,j,k)  * cff_ts
-   t(i,j,k,nnew,idic) = t(i,j,k,nnew,idic) + cobalt%jdic(i,j,k) * cff_ts
-   t(i,j,k,nnew,ialk) = t(i,j,k,nnew,ialk) + cobalt%jalk(i,j,k) * cff_ts
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,io2)  = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,io2)  + cobalt%jo2(Istr:Iend,Jstr:Jend,1:UBk)  * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,idic) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,idic) + cobalt%jdic(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
+   t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ialk) = t(Istr:Iend,Jstr:Jend,1:UBk,nnew,ialk) + cobalt%jalk(Istr:Iend,Jstr:Jend,1:UBk) * cff_ts(Istr:Iend,Jstr:Jend,1:UBk)
 #endif
 
-  ENDDO ; ENDDO ; ENDDO
-  i=overflow ; j=overflow ; k=overflow
+!  ENDDO ; ENDDO ; ENDDO
+!  i=overflow ; j=overflow ; k=overflow
 
 #ifdef TIMESERIES
 !----------------------------------------------------------------------------------------
@@ -3526,7 +3652,7 @@ ENDDO
 #endif
 
 ! DO_NOTHING
-!!!!#endif
+!!#endif
 
 
       RETURN
@@ -3553,30 +3679,30 @@ ENDDO
 
 !---------------------------------------------------------------------------------------------
 
-   SUBROUTINE cobalt_vertical_integral(lar_tracer, lar_layerthick, lar_depth_w_point, \
-              lsr_cell_area, lsr_depth_integration, lsi_number_levels, lsr_tracer_vert_integral)
-
-   IMPLICIT NONE
-
-   REAL(8),DIMENSION(:),INTENT(in)  :: lar_tracer, lar_layerthick, lar_depth_w_point
-   REAL(8),INTENT(in)               :: lsr_cell_area, lsr_depth_integration
-   INTEGER(4),INTENT(in)            :: lsi_number_levels
-   REAL(8),INTENT(out)              :: lsr_tracer_vert_integral
-
-   INTEGER :: k, kdi, overflow
-
-   overflow=1e6
-
-   ! while below depth of integration, keep incrementing kdi
-   DO k=1,lsi_number_levels
-      IF (lar_depth_w_point(k) < -1.0 * lsr_depth_integration )  kdi = k
-   ENDDO
-   k=overflow
-
-   lsr_tracer_vert_integral = 0.
-   DO k=lsi_number_levels,kdi,-1
-      lsr_tracer_vert_integral = lsr_tracer_vert_integral + lar_tracer(k) * lar_layerthick(k) * lsr_cell_area
-   ENDDO
-
-   END SUBROUTINE
+!   SUBROUTINE cobalt_vertical_integral(lar_tracer, lar_layerthick, lar_depth_w_point, \
+!              lsr_cell_area, lsr_depth_integration, lsi_number_levels, lsr_tracer_vert_integral)
+!
+!   IMPLICIT NONE
+!
+!   REAL(8),DIMENSION(:),INTENT(in)  :: lar_tracer, lar_layerthick, lar_depth_w_point
+!   REAL(8),INTENT(in)               :: lsr_cell_area, lsr_depth_integration
+!   INTEGER(4),INTENT(in)            :: lsi_number_levels
+!   REAL(8),INTENT(out)              :: lsr_tracer_vert_integral
+!
+!   INTEGER :: k, kdi, overflow
+!
+!   overflow=1e6
+!
+!   ! while below depth of integration, keep incrementing kdi
+!   DO k=1,lsi_number_levels
+!      IF (lar_depth_w_point(k) < -1.0 * lsr_depth_integration )  kdi = k
+!   ENDDO
+!   k=overflow
+!
+!   lsr_tracer_vert_integral = 0.
+!   DO k=lsi_number_levels,kdi,-1
+!      lsr_tracer_vert_integral = lsr_tracer_vert_integral + lar_tracer(k) * lar_layerthick(k) * lsr_cell_area
+!   ENDDO
+!
+!   END SUBROUTINE
 
