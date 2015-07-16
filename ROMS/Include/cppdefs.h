@@ -83,6 +83,7 @@
 ** TS_SMAGORINSKY      use to turn ON or OFF Smagorinsky-like diffusion      **
 ** TS_FIXED            use if diagnostic run, no evolution of tracers        **
 ** T_PASSIVE           use if inert passive tracers (dyes, etc)              **
+** AGE_MEAN            use if computing Mean Age of inert passive tracers    **
 ** SALINITY            use if having salinity                                **
 ** NONLIN_EOS          use if using nonlinear equation of state              **
 ** QCORRECTION         use if net heat flux correction                       **
@@ -93,8 +94,6 @@
 ** TRC_PSOURCE         use if source of inert passive tracers (dyes, etc)    **
 ** ONE_TRACER_SOURCE   use if one value per tracer for all sources           **
 ** TWO_D_TRACER_SOURCE use if one value per tracer per source                **
-** AGE_PASSIVE         use if aging of inert passive tracers                 **
-** AGE_DISTRIBUTION    use if aging of inert passive tracers                 **
 ** WTYPE_GRID          use to turn ON spatially varying Jerlov water type    **
 **                                                                           **
 ** OPTION to suppress further surface cooling if the SST is at freezing      **

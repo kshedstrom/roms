@@ -282,6 +282,9 @@
 !  Local variable declarations.
 !
       integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -306,9 +309,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: curv
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
-# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-      integer :: iactrc, iwctrc
-# endif
 # include "set_bounds.h"
 
 # ifndef TS_FIXED
@@ -579,83 +579,34 @@
           END DO
         END DO K_LOOP
       END DO T_LOOP1
+
+#  if (defined AGE_MEAN && defined T_PASSIVE) && !defined TS_MPDATA
 !
-#   if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!  Add water concentration to the right-hand-side of age concentration
-!  equation.
-!------Added by W.G.Zhang
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index).
+!  Implemented and tested by W.G. Zhang and J. Wilkin. (m Tunits)
+!
       IF (iic(ng).eq.ntfirst(ng)) THEN
         cff=0.5_r8*dt(ng)
       ELSE
         cff=(1.0_r8-Gamma)*dt(ng)
       END IF
-
-      DO it=1,NPT,2
-        iactrc=inert(it+1)
-        iwctrc=inert(it)
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
         DO k=1,N(ng)
           DO j=Jstr,Jend
             DO i=Istr,Iend
-              t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-!            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
-!     &                           cff*3.168808781402895e-08
-!            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
-!     &                           cff*3.168808781402895e-08
+              t(i,j,k,3,iage)=t(i,j,k,3,iage)+                          &
+     &                        cff*Hz(i,j,k)*                            &
+     &                        t(i,j,k,nnew,inert(itrc))
             END DO
           END DO
         END DO
       END DO
-
-!      iactrc=inert(4)
-!      iwctrc=inert(2)
-!      DO k=1,N(ng)
-!        DO j=Jstr,Jend
-!          DO i=Istr,Iend
-!            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-!     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-!          END DO
-!        END DO
-!      END DO
-#   endif
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#   ifdef AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! Time-step the aging term (dc/dtau) in the equation of age
-! concentration distribution function.
-! -----Added by W.G.Zhang to compute the age concentration distribution
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  endif
 !
-      IF (iic(ng).eq.ntfirst(ng)) THEN
-        cff=0.5_r8*dt(ng)/dtau(ng)
-      ELSE
-        cff=(1.0_r8-Gamma)*dt(ng)/dtau(ng)
-      END IF
-!
-      itrc=inert(3)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-              t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
-     &                        t(i,j,k,nstp,itrc)
-          END DO
-        END DO
-      END DO
-!
-      itrc=inert(4)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
-     &                        (t(i,j,k,nstp,itrc)-t(i,j,k,nstp,itrc-1))
-          END DO
-        END DO
-      END DO
-!
-#   endif
 !----------------------------------------------------------------------
 !  Compute artificial continuity equation (same for all tracers) and
 !  load it into private array DC (1/m). Notice pipelined J-loop.

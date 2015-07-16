@@ -75,6 +75,7 @@
       integer :: Npts, Nval, i, itrc, ivar, k, ng, nl, status
       integer :: ifield, ifile, igrid, itracer, nline, max_Ffiles
       integer :: ibcfile, iclmfile
+      integer :: Cdim, Clen, Rdim
       integer :: Ivalue(1)
 
       integer :: decode_line, load_i, load_l, load_lbc, load_r
@@ -94,7 +95,7 @@
 
       character (len=1  ), parameter :: blank = ' '
       character (len=19 ) :: ref_att
-      character (len=40 ) :: KeyWord
+      character (len=40 ) :: KeyWord, text
       character (len=50 ) :: label
       character (len=256) :: fname, line
       character (len=256), dimension(200) :: Cval
@@ -114,6 +115,9 @@
       END DO
       got_Ngrids=.FALSE.
       got_NestLayers=.FALSE.
+      Cdim=SIZE(Cval,1)
+      Clen=LEN(Cval(1))
+      Rdim=SIZE(Rval,1)
 !
 !-----------------------------------------------------------------------
 !  Read in physical model parameters. Then, load input data into module.
@@ -292,6 +296,14 @@
                 exit_flag=5
                 RETURN
               END IF
+# ifdef AGE_MEAN
+              IF (MOD(NPT,2).ne.0) THEN
+                IF (Master) WRITE (out,290) 'NPT = ', NPT,              &
+     &            'must be an even number when Mean Age is activated.'
+                exit_flag=5
+                RETURN
+              END IF
+# endif
 #endif
 #if defined SEDIMENT && defined SOLVE3D
             CASE ('NCS')
@@ -579,6 +591,15 @@
               Npts=load_i(Nval, Rval, Ngrids, nFLT)
             CASE ('NINFO')
               Npts=load_i(Nval, Rval, Ngrids, ninfo)
+              DO ng=1,Ngrids
+                IF (ninfo(ng).le.0) THEN
+                  WRITE (text,'(a,i2.2,a)') 'ninfo(', ng, ') = '
+                  IF (Master) WRITE (out,260) TRIM(text), ninfo(ng),    &
+     &               'must be greater than zero.'
+                  exit_flag=5
+                  RETURN
+                END IF
+              END DO
             CASE ('LDEFOUT')
               Npts=load_l(Nval, Cval, Ngrids, ldefout)
             CASE ('NHIS')
@@ -3287,62 +3308,80 @@
               deflate_level=Ivalue(1)
             CASE ('GSTNAME')
               label='GST - generalized stability theory analysis'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GST)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, GST)
             CASE ('RSTNAME')
               label='RST - restart fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, RST)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, RST)
             CASE ('HISNAME')
               label='HIS - nonlinear model history fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, HIS)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, HIS)
             CASE ('HIS2NAME')
               label='HIS2 - nonlinear model surface fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, HIS2)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, HIS2)
             CASE ('TLMNAME')
               label='TLM - tangent linear model history fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, TLM)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, TLM)
             CASE ('TLFNAME')
               label='TLF - tangent linear model impulse forcing'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, TLF)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, TLF)
             CASE ('ADJNAME')
               label='ADM - adjoint model history fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, ADM)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, ADM)
             CASE ('AVGNAME')
               label='AVG - time-averaged history fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, AVG)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, AVG)
             CASE ('AVG2NAME')
               label='AVG2 - time-averaged history fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles,     &
-     &                     AVG2)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, AVG2)
             CASE ('DIANAME')
               label='DIA - time-averaged diagnostics fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, DIA)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, DIA)
             CASE ('STANAME')
               label='STA - stations time-series'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, STA)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, STA)
             CASE ('FLTNAME')
               label='FLT - Lagragian particles trajectories'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLT)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, FLT)
             CASE ('GRDNAME')
               label='GRD - application grid'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, GRD)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, GRD)
             CASE ('ININAME')
               label='INI - nonlinear model initial conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, INI)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, INI)
             CASE ('IRPNAME')
               label='IRP - representer model initial conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, IRP)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, IRP)
             CASE ('ITLNAME')
               label='ITL - tangent linear model initial conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, ITL)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, ITL)
             CASE ('IADNAME')
               label='IAD - adjoint model initial conditions'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, IAD)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, IAD)
             CASE ('FWDNAME')
               label='FWD - basic state forward trajectory'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FWD)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, FWD)
             CASE ('ADSNAME')
               label='ADS - adjoint sensitivity functional'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, ADS)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, ADS)
             CASE ('NGCNAME')
               DO i=1,LEN(NGCname)
                 NGCname(i:i)=blank
@@ -3366,8 +3405,8 @@
               NBCcount(1:max_Ffiles,1:Ngrids)=0
             CASE ('BRYNAME')
               label='BRY - lateral open boundary conditions'
-              Npts=load_s2d(Nval, Cval, line, label, ibcfile, igrid,    &
-     &                      max_Ffiles, NBCcount, nBCfiles, BRY)
+              Npts=load_s2d(Nval, Cval, Cdim, line, label, ibcfile,     &
+     &                      igrid, max_Ffiles, NBCcount, nBCfiles, BRY)
             CASE ('NCLMFILES')
               Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
               DO ng=1,Ngrids
@@ -3387,14 +3426,16 @@
               NCLMcount(1:max_Ffiles,1:Ngrids)=0
             CASE ('CLMNAME')
               label='CLM - climatology fields'
-              Npts=load_s2d(Nval, Cval, line, label, iclmfile, igrid,   &
-     &                      max_Ffiles, NCLMcount, nCLMfiles, CLM)
+              Npts=load_s2d(Nval, Cval, Cdim, line, label, iclmfile,    &
+     &                      igrid, max_Ffiles, NCLMcount, nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, NUD)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, NUD)
             CASE ('SSFNAME')
               label='SSF - Sources/Sinks forcing fields'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, SSF)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, SSF)
             CASE ('NFFILES')
               Npts=load_i(Nval, Rval, Ngrids, nFfiles)
               DO ng=1,Ngrids
@@ -3413,8 +3454,8 @@
               Ncount(1:max_Ffiles,1:Ngrids)=0
             CASE ('FRCNAME')
               label='FRC - forcing fields'
-              Npts=load_s2d(Nval, Cval, line, label, ifile, igrid,      &
-     &                      nFfiles, Ncount, max_Ffiles, FRC)
+              Npts=load_s2d(Nval, Cval, Cdim, line, label, ifile,       &
+     &                      igrid, nFfiles, Ncount, max_Ffiles, FRC)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank

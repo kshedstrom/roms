@@ -135,17 +135,12 @@
       Coptions(is:is+16)=' AFT_EIGENMODES,'
       idriver=idriver+1
 #endif
-#ifdef AGE_DISTRIBUTION
-      IF (Master) WRITE (stdout,20) 'AGE_DISTRIBUTION',                 &
-     &   'Water/tracer age passive tracers distribution simulation.'
+#if defined AGE_MEAN && defined T_PASSIVE && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'AGE_MEAN',                         &
+     &   'Computing Mean Age of inert passive tracer.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+18)=' AGE_DISTRIBUTION,'
-#endif
-#ifdef AGE_PASSIVE
-      IF (Master) WRITE (stdout,20) 'AGE_PASSIVE',                      &
-     &   'Mean water/tracer age passive tracers simulation.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' AGE_PASSIVE,'
+      Coptions(is:is+10)=' AGE_MEAN,'
+      idriver=idriver+1
 #endif
 #ifdef AICLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'AICLIMATOLOGY',                    &
@@ -159,7 +154,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' AICLM_NUDGING,'
 #endif
-#if defined ALBEDO
+#if defined ALBEDO && defined ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation with albedo correction.'
       is=LEN_TRIM(Coptions)+1
