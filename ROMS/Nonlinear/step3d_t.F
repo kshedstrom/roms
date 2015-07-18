@@ -1402,7 +1402,7 @@
           DO j=Jstr,Jend
             DO i=Istr,Iend
               t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                &
-     &                             dt(ng)*t(i,j,k,nnew,iwctrc)
+     &                             dt(ng)*t(i,j,k,3,iwctrc)
             END DO
           END DO
         END DO
