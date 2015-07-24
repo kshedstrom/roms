@@ -860,9 +860,9 @@
       END DO
 #endif
 #ifdef ICE_MODEL
-#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+# if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
       ic=ic+1
-#endif
+# endif
       isUice=ic+1
       isVice=ic+2
       isAice=ic+3
@@ -1425,10 +1425,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
-# ifdef UV_WAVEDRAG
+#ifdef UV_WAVEDRAG
             CASE ('idragW')
               idragW=varid
-# endif
+#endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')
@@ -2261,7 +2261,6 @@
                   END DO
                 END IF
             END SELECT
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
 !

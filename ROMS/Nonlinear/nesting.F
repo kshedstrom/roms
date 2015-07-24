@@ -1290,8 +1290,7 @@
                   Lweight(3)=cff*Lweight(3)    ! of contact points
                   Lweight(4)=cff*Lweight(4)
                 ELSE
-                  Lweight(:)=Rcontact(cr)%LweightUnmasked(:,m)
-!                  Lweight=0.0_r8               ! all the donor grid
+                  Lweight=0.0_r8               ! all the donor grid
                 END IF                         ! corners are on land
                 LWsum_check=SUM(Lweight)
 #  ifdef DISTRIBUTE
@@ -1378,8 +1377,7 @@
                   Qweight(8)=cff*Qweight(8)
                   Qweight(9)=cff*Qweight(9)
                 ELSE
-                  Qweight(:)=Rcontact(cr)%QweightUnmasked(:,m)
-!                  Qweight=0.0_r8               ! all the donor grid
+                  Qweight=0.0_r8               ! all the donor grid
                 END IF                         ! corners are on land
                 QWsum_check=SUM(Qweight)
 #   ifdef DISTRIBUTE
@@ -1839,6 +1837,7 @@
                 ELSE
                   Qweight=0.0_r8               ! All the donor grid
                 END IF                         ! corners are on land
+                END IF
                 QWsum_check=SUM(Qweight)
 #   ifdef DISTRIBUTE
                 QW(1,m)=Qweight(1)
@@ -3491,8 +3490,8 @@
      &                          GRID(rg)%pm,                            &
      &                          GRID(rg)%pn,                            &
 #  ifdef MASKING
-     &                          GRID(dg)%rmask,                         &
-     &                          GRID(rg)%rmask,                         &
+     &                          GRID(dg)%rmask_full,                    &
+     &                          GRID(rg)%rmask_full,                    &
 #  endif
      &                          COUPLING(dg)%Zt_avg1,                   &
      &                          COUPLING(rg)%Zt_avg1)
@@ -3508,8 +3507,8 @@
      &                          GRID(rg)%pm,                            &
      &                          GRID(rg)%pn,                            &
 #  ifdef MASKING
-     &                          GRID(dg)%rmask,                         &
-     &                          GRID(rg)%rmask,                         &
+     &                          GRID(dg)%rmask_full,                    &
+     &                          GRID(rg)%rmask_full,                    &
 #  endif
      &                          OCEAN(dg)%zeta(:,:,Dindex2d),           &
      &                          OCEAN(rg)%zeta(:,:,Rindex2d))
@@ -3588,8 +3587,8 @@
      &                            GRID(rg)%pm,                          &
      &                            GRID(rg)%pn,                          &
 #  ifdef MASKING
-     &                            GRID(dg)%rmask,                       &
-     &                            GRID(rg)%rmask,                       &
+     &                            GRID(dg)%rmask_full,                  &
+     &                            GRID(rg)%rmask_full,                  &
 #  endif
      &                            OCEAN(dg)%t(:,:,:,Dindex3d,itrc),     &
      &                            OCEAN(rg)%t(:,:,:,Rindex3d,itrc))
