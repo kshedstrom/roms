@@ -547,6 +547,94 @@
 # if defined COBALT_CARBON
 !
 !-----------------------------------------------------------------------
+!  nutrients from rivers
+!-----------------------------------------------------------------------
+!
+     CALL get_2dfld (ng, iNLM, idriver_no3, ncFRCid(idriver_no3,ng),    &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_no3G)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_ldon, ncFRCid(idriver_ldon,ng),  &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_ldonG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_sldon, ncFRCid(idriver_sldon,ng),&
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_sldonG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_srdon, ncFRCid(idriver_srdon,ng),&
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_srdonG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_ndet, ncFRCid(idriver_ndet,ng),  &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_ndetG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_po4, ncFRCid(idriver_po4,ng),    &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_po4G)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_ldop, ncFRCid(idriver_ldop,ng),  &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_ldopG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_sldop, ncFRCid(idriver_sldop,ng),&
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_sldopG)
+      IF (exit_flag.ne.NoError) RETURN
+
+     CALL get_2dfld (ng, iNLM, idriver_srdop, ncFRCid(idriver_srdop,ng),&
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_srdopG)
+      IF (exit_flag.ne.NoError) RETURN
+
+# endif
+# if defined COBALT_CARBON
+!
+!-----------------------------------------------------------------------
 !  Atmospheric CO2
 !-----------------------------------------------------------------------
 !

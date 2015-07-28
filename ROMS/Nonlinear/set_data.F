@@ -333,6 +333,70 @@
 #    endif
 #   endif
 
+#  if defined BIO_COBALT
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_no3,                 &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_no3G,                       &
+     &                     FORCES(ng)%river_no3,                        &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_ldon,                &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_ldonG,                      &
+     &                     FORCES(ng)%river_ldon,                       &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_sldon,               &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_sldonG,                     &
+     &                     FORCES(ng)%river_sldon,                      &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_srdon,               &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_srdonG,                     &
+     &                     FORCES(ng)%river_srdon,                      &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_ndet,                &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_ndetG,                      &
+     &                     FORCES(ng)%river_ndet,                       &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_po4,                 &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_po4G,                       &
+     &                     FORCES(ng)%river_po4,                        &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_ldop,                &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_ldopG,                      &
+     &                     FORCES(ng)%river_ldop,                       &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_sldop,               &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_sldopG,                     &
+     &                     FORCES(ng)%river_sldop,                      &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_srdop,               &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_srdopG,                     &
+     &                     FORCES(ng)%river_srdop,                      &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
 #  if defined COBALT_CARBON 
       CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
      &                     LBi, UBi, LBj, UBj,                          &
