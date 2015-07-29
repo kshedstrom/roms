@@ -325,7 +325,7 @@
     real(8) :: rho_crit = 0.03d0
     real(8) :: rho_ref_depth = 10.0d0
     real(8) :: drho_crit 
-    real(8) :: cff_ts, cff_btf
+    real(8) :: cff_ts, cff_btf, cff_rivr
 
     type(CO2_dope_vector) :: CO2_dope_vec
 
@@ -3598,6 +3598,23 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%jo2(i,j,1)   = cobalt%jo2(i,j,1)   - cobalt%b_o2(i,j)   * cff_btf
       cobalt%jpo4(i,j,1)  = cobalt%jpo4(i,j,1)  - cobalt%b_po4(i,j)  * cff_btf
       cobalt%jsio4(i,j,1) = cobalt%jsio4(i,j,1) - cobalt%b_sio4(i,j) * cff_btf
+    ENDDO
+  ENDDO
+
+  ! RD dev notes :
+  ! adding the river input for nutrients
+  DO j=Jstr,Jend
+    DO i=Istr,Iend
+      cff_rivr = 1.0d0 / ( rho0 * Hz(i,j,UBk) )
+      cobalt%jno3(i,j,UBk)   = cobalt%jno3(i,j,UBk)   + river_no3(i,j)   * cff_rivr
+      cobalt%jldon(i,j,UBk)  = cobalt%jldon(i,j,UBk)  + river_ldon(i,j)  * cff_rivr
+      cobalt%jsldon(i,j,UBk) = cobalt%jsldon(i,j,UBk) + river_sldon(i,j) * cff_rivr
+      cobalt%jsrdon(i,j,UBk) = cobalt%jsrdon(i,j,UBk) + river_srdon(i,j) * cff_rivr
+      cobalt%jndet(i,j,UBk)  = cobalt%jndet(i,j,UBk)  + river_ndet(i,j)  * cff_rivr
+      cobalt%jpo4(i,j,UBk)   = cobalt%jpo4(i,j,UBk)   + river_po4(i,j)   * cff_rivr
+      cobalt%jldop(i,j,UBk)  = cobalt%jldop(i,j,UBk)  + river_ldop(i,j)  * cff_rivr
+      cobalt%jsldop(i,j,UBk) = cobalt%jsldop(i,j,UBk) + river_sldop(i,j) * cff_rivr
+      cobalt%jsrdop(i,j,UBk) = cobalt%jsrdop(i,j,UBk) + river_srdop(i,j) * cff_rivr
     ENDDO
   ENDDO
 
