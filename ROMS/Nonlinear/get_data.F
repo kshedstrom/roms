@@ -544,7 +544,7 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# if defined COBALT_CARBON
+# if defined BIO_COBALT
 !
 !-----------------------------------------------------------------------
 !  nutrients from rivers
