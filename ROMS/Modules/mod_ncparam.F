@@ -255,6 +255,17 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
+#ifdef BIO_COBALT
+        integer  :: idriver_no3
+        integer  :: idriver_ldon
+        integer  :: idriver_sldon
+        integer  :: idriver_srdon
+        integer  :: idriver_ndet
+        integer  :: idriver_po4
+        integer  :: idriver_ldop
+        integer  :: idriver_sldop
+        integer  :: idriver_srdop
+#endif
         integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient

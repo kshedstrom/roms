@@ -344,6 +344,26 @@
 #  if defined ALBEDO_CLOUD
           real(r8), pointer :: cawdir(:,:)
 #  endif
+#  ifdef BIO_COBALT
+          real(r8), pointer :: river_no3(:,:)
+          real(r8), pointer :: river_no3G(:,:,:)
+          real(r8), pointer :: river_ldon(:,:)
+          real(r8), pointer :: river_ldonG(:,:,:)
+          real(r8), pointer :: river_sldon(:,:)
+          real(r8), pointer :: river_sldonG(:,:,:)
+          real(r8), pointer :: river_srdon(:,:)
+          real(r8), pointer :: river_srdonG(:,:,:)
+          real(r8), pointer :: river_ndet(:,:)
+          real(r8), pointer :: river_ndetG(:,:,:)
+          real(r8), pointer :: river_po4(:,:)
+          real(r8), pointer :: river_po4G(:,:,:)
+          real(r8), pointer :: river_ldop(:,:)
+          real(r8), pointer :: river_ldopG(:,:,:)
+          real(r8), pointer :: river_sldop(:,:)
+          real(r8), pointer :: river_sldopG(:,:,:)
+          real(r8), pointer :: river_srdop(:,:)
+          real(r8), pointer :: river_srdopG(:,:,:)
+#  endif
 #  ifdef COBALT_CARBON
           real(r8), pointer :: atmCO2(:,:)
           real(r8), pointer :: atmCO2G(:,:,:)
@@ -773,6 +793,26 @@
 #  endif
 #  if defined ALBEDO_CLOUD
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+#  endif
+#  ifdef BIO_COBALT
+      allocate ( FORCES(ng) % river_no3(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_no3G(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ldon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ldonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_sldon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_sldonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_srdon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_srdonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ndet(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ndetG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_po4(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_po4G(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ldop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ldopG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_sldop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_sldopG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_srdop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_srdopG(LBi:UBi,LBj:UBj,2) )
 #  endif
 #  ifdef COBALT_CARBON
       allocate ( FORCES(ng) % atmCO2(LBi:UBi,LBj:UBj) )
@@ -1291,6 +1331,35 @@
 #  endif
 #  if defined ALBEDO_CLOUD
             FORCES(ng) % cawdir(i,j) = IniVal
+#  endif
+#  ifdef BIO_COBALT
+            FORCES(ng) % river_no3(i,j) = IniVal
+            FORCES(ng) % river_no3G(i,j,1) = IniVal
+            FORCES(ng) % river_no3G(i,j,2) = IniVal
+            FORCES(ng) % river_ldon(i,j) = IniVal
+            FORCES(ng) % river_ldonG(i,j,1) = IniVal
+            FORCES(ng) % river_ldonG(i,j,2) = IniVal
+            FORCES(ng) % river_sldon(i,j) = IniVal
+            FORCES(ng) % river_sldonG(i,j,1) = IniVal
+            FORCES(ng) % river_sldonG(i,j,2) = IniVal
+            FORCES(ng) % river_srdon(i,j) = IniVal
+            FORCES(ng) % river_srdonG(i,j,1) = IniVal
+            FORCES(ng) % river_srdonG(i,j,2) = IniVal
+            FORCES(ng) % river_ndet(i,j) = IniVal
+            FORCES(ng) % river_ndetG(i,j,1) = IniVal
+            FORCES(ng) % river_ndetG(i,j,2) = IniVal
+            FORCES(ng) % river_po4(i,j) = IniVal
+            FORCES(ng) % river_po4G(i,j,1) = IniVal
+            FORCES(ng) % river_po4G(i,j,2) = IniVal
+            FORCES(ng) % river_ldop(i,j) = IniVal
+            FORCES(ng) % river_ldopG(i,j,1) = IniVal
+            FORCES(ng) % river_ldopG(i,j,2) = IniVal
+            FORCES(ng) % river_sldop(i,j) = IniVal
+            FORCES(ng) % river_sldopG(i,j,1) = IniVal
+            FORCES(ng) % river_sldopG(i,j,2) = IniVal
+            FORCES(ng) % river_srdop(i,j) = IniVal
+            FORCES(ng) % river_srdopG(i,j,1) = IniVal
+            FORCES(ng) % river_srdopG(i,j,2) = IniVal
 #  endif
 #  ifdef COBALT_CARBON
             FORCES(ng) % atmCO2(i,j) = IniVal

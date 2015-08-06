@@ -54,6 +54,15 @@
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
 #endif
+     &                   FORCES(ng) % river_no3,                        &
+     &                   FORCES(ng) % river_ldon,                       &
+     &                   FORCES(ng) % river_sldon,                      &
+     &                   FORCES(ng) % river_srdon,                      &
+     &                   FORCES(ng) % river_ndet,                       &
+     &                   FORCES(ng) % river_po4,                        &
+     &                   FORCES(ng) % river_ldop,                       &
+     &                   FORCES(ng) % river_sldop,                      &
+     &                   FORCES(ng) % river_srdop,                      &
 #ifdef COBALT_CARBON
      &                   FORCES(ng) % atmCO2,                           &
 #endif
@@ -100,6 +109,15 @@
 #else
      &                         sustr, svstr,                            &
 #endif
+     &                         river_no3,                               &
+     &                         river_ldon,                              &
+     &                         river_sldon,                             &
+     &                         river_srdon,                             &
+     &                         river_ndet,                              &
+     &                         river_po4,                               &
+     &                         river_ldop,                              &
+     &                         river_sldop,                             &
+     &                         river_srdop,                             &
 #ifdef COBALT_CARBON
      &                         atmCO2,                                  &
 #endif
@@ -165,6 +183,15 @@
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
 # endif
+      real(r8), intent(in) :: river_no3(LBi:,LBj:)
+      real(r8), intent(in) :: river_ldon(LBi:,LBj:)
+      real(r8), intent(in) :: river_sldon(LBi:,LBj:)
+      real(r8), intent(in) :: river_srdon(LBi:,LBj:)
+      real(r8), intent(in) :: river_ndet(LBi:,LBj:)
+      real(r8), intent(in) :: river_po4(LBi:,LBj:)
+      real(r8), intent(in) :: river_ldop(LBi:,LBj:)
+      real(r8), intent(in) :: river_sldop(LBi:,LBj:)
+      real(r8), intent(in) :: river_srdop(LBi:,LBj:)
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:,LBj:)
 #endif
@@ -206,6 +233,15 @@
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
 # endif
+      real(r8), intent(in) :: river_no3(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_ldon(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_sldon(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_srdon(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_ndet(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_po4(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_ldop(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_sldop(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_srdop(LBi:UBi,LBj:UBj)
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:UBi,LBj:UBj)
 # endif
@@ -289,7 +325,7 @@
     real(8) :: rho_crit = 0.03d0
     real(8) :: rho_ref_depth = 10.0d0
     real(8) :: drho_crit 
-    real(8) :: cff_ts, cff_btf
+    real(8) :: cff_ts, cff_btf, cff_rivr
 
     type(CO2_dope_vector) :: CO2_dope_vec
 
@@ -3562,6 +3598,23 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%jo2(i,j,1)   = cobalt%jo2(i,j,1)   - cobalt%b_o2(i,j)   * cff_btf
       cobalt%jpo4(i,j,1)  = cobalt%jpo4(i,j,1)  - cobalt%b_po4(i,j)  * cff_btf
       cobalt%jsio4(i,j,1) = cobalt%jsio4(i,j,1) - cobalt%b_sio4(i,j) * cff_btf
+    ENDDO
+  ENDDO
+
+  ! RD dev notes :
+  ! adding the river input for nutrients
+  DO j=Jstr,Jend
+    DO i=Istr,Iend
+      cff_rivr = 1.0d0 / ( rho0 * Hz(i,j,UBk) )
+      cobalt%jno3(i,j,UBk)   = cobalt%jno3(i,j,UBk)   + river_no3(i,j)   * cff_rivr
+      cobalt%jldon(i,j,UBk)  = cobalt%jldon(i,j,UBk)  + river_ldon(i,j)  * cff_rivr
+      cobalt%jsldon(i,j,UBk) = cobalt%jsldon(i,j,UBk) + river_sldon(i,j) * cff_rivr
+      cobalt%jsrdon(i,j,UBk) = cobalt%jsrdon(i,j,UBk) + river_srdon(i,j) * cff_rivr
+      cobalt%jndet(i,j,UBk)  = cobalt%jndet(i,j,UBk)  + river_ndet(i,j)  * cff_rivr
+      cobalt%jpo4(i,j,UBk)   = cobalt%jpo4(i,j,UBk)   + river_po4(i,j)   * cff_rivr
+      cobalt%jldop(i,j,UBk)  = cobalt%jldop(i,j,UBk)  + river_ldop(i,j)  * cff_rivr
+      cobalt%jsldop(i,j,UBk) = cobalt%jsldop(i,j,UBk) + river_sldop(i,j) * cff_rivr
+      cobalt%jsrdop(i,j,UBk) = cobalt%jsrdop(i,j,UBk) + river_srdop(i,j) * cff_rivr
     ENDDO
   ENDDO
 
