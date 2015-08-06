@@ -214,7 +214,7 @@
         integer  :: idMtke        ! turbulent kinetic energy
         integer  :: idMtls        ! turbulent length scale
         integer  :: idM2nc        ! 2D momentum nudging coefficients
-        integer  :: idM3nc        ! 2D momentum nudging coefficients
+        integer  :: idM3nc        ! 3D momentum nudging coefficients
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
