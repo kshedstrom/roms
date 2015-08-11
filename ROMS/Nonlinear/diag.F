@@ -606,7 +606,7 @@
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max
+              print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max, ng
             END IF
 #else
             uv_max = max(ubar(Istr,Jstr,krhs),vbar(Istr,Jstr,krhs))
@@ -620,8 +620,7 @@
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
-            END IF
+              print *, 'DIAG speed ij ', uv_max, ii_max, jj_max, ng
 #endif
           END IF
 #ifdef SOLVE3D
@@ -633,7 +632,7 @@
 !
           IF (maxrho(ng).gt.max_rho) THEN
             exit_flag=1
-            IF (Master) print *, 'DIAG rho trouble ', maxrho(ng)
+            IF (Master) print *, 'DIAG rho trouble ', maxrho(ng), ng
           END IF
 # ifdef BIOLOGY
           DO ibt=1,NBT

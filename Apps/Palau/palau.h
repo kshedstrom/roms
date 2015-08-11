@@ -14,6 +14,7 @@
 
 #undef NO_HIS
 #define NESTING
+#undef ONE_WAY
 #define HISTORY2
 #undef HDF5
 #undef PARALLEL_IO
@@ -142,7 +143,7 @@
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # undef FILTERED
 # define SSH_TIDES
@@ -166,7 +167,7 @@
 
 /* Using Runoff instead now */
 #ifdef SOLVE3D
-# define RUNOFF
+# undef RUNOFF /* no runoff in domain */
 # undef ANA_PSOURCE
 #endif
 

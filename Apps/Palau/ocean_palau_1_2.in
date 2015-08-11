@@ -91,7 +91,7 @@ GridsInLayer = 1 1
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 800 600           ! Number of I-direction INTERIOR RHO-points
+          Lm == 720 600           ! Number of I-direction INTERIOR RHO-points
           Mm == 600 480           ! Number of J-direction INTERIOR RHO-points
            N == 50 50            ! Number of vertical levels
 
@@ -107,8 +107,8 @@ GridsInLayer = 1 1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
        NtileI == 8 8                               ! I-direction partition
-       NtileJ == 4 4                               ! J-direction partition
-!       NtileJ == 24 24                             ! J-direction partition
+!       NtileJ == 4 4                               ! J-direction partition
+       NtileJ == 20 20                             ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -221,7 +221,7 @@ ad_VolCons(north) == F F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 86400 259200
+       NTIMES == 108000 324000
 !          DT == 30.0d0
           DT == 24.0d0 8.0d0
      NDTFAST == 10 10
@@ -256,6 +256,7 @@ ad_VolCons(north) == F F                            ! northern boundary
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T T
+!        NHIS == 5 20
         NHIS == 3600 10800
      NDEFHIS == 3600 10800
        NHIS2 == 150 450

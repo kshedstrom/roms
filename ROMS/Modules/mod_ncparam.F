@@ -2143,7 +2143,6 @@
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
                 END IF
-            END SELECT
               CASE ('age_west_')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
