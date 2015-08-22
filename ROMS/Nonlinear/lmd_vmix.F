@@ -64,7 +64,7 @@
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      nstp(ng),                                   &
      &                      GRID(ng) % Hz,                              &
-# ifndef SPLINES
+# ifndef RI_SPLINES
      &                      GRID(ng) % z_r,                             &
 # endif
      &                      OCEAN(ng) % rho,                            &
@@ -97,7 +97,7 @@
      &                          IminS, ImaxS, JminS, JmaxS,             &
      &                          nstp,                                   &
      &                          Hz,                                     &
-# ifndef SPLINES
+# ifndef RI_SPLINES
      &                          z_r,                                    &
 # endif
      &                          rho, u, v,                              &
@@ -119,7 +119,7 @@
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
-#  ifndef SPLINES
+#  ifndef RI_SPLINES
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
 #  endif
       real(r8), intent(in) :: rho(LBi:,LBj:,:)
@@ -135,7 +135,7 @@
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
 # else
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
-#  ifndef SPLINES
+#  ifndef RI_SPLINES
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
 #  endif
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
@@ -181,7 +181,7 @@
 !  vertical W-points.  If zero or very small velocity shear, bound
 !  computation by a large negative value.
 !
-#  ifdef SPLINES
+#  ifdef RI_SPLINES
       DO j=MAX(1,Jstr-1),MIN(Jend+1,Mm(ng))
         DO i=MAX(1,Istr-1),MIN(Iend+1,Lm(ng))
           FC(i,0)=0.0_r8
@@ -465,9 +465,6 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      nstp(ng),                                   &
      &                      GRID(ng) % Hz,                              &
-# ifndef SPLINES
-     &                      GRID(ng) % z_r,                             &
-# endif
 # ifdef M2TIDE_DIFF
      &                      GRID(ng) % z_w,                             &
      &                      MIXING(ng) % m2_amp,                        &
@@ -483,9 +480,6 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            nstp,                                 &
      &                            Hz,                                   &
-# ifndef SPLINES
-     &                            z_r,                                  &
-# endif
 # ifdef M2TIDE_DIFF
      &                            z_w,                                  &
      &                            m2_amp,                               &
@@ -509,9 +503,6 @@
 !
 # ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
-#  ifndef SPLINES
-      real(r8), intent(in) :: z_r(LBi:,LBj:,:)
-#  endif
 # ifdef M2TIDE_DIFF
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: m2_amp(LBi:,LBj:)
@@ -522,9 +513,6 @@
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
 # else
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
-#  ifndef SPLINES
-      real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
-#  endif
 # ifdef M2TIDE_DIFF
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: m2_amp(LBi:UBi,LBj:UBj)
