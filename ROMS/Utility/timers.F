@@ -137,7 +137,7 @@
 #else
       NSUB=numthreads
 #endif
-!  
+!
 !  Insure that MyModel is not zero.  Notice that zero value is used to
 !  indicate restart of the nonlinear model.
 !
