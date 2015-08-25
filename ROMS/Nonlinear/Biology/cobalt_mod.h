@@ -1761,8 +1761,8 @@
       NOBGC = 4
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
-      NDbio2d = 26
-      NDbio3d = 37
+      NDbio2d = 24
+      NDbio3d = 9
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
@@ -2638,18 +2638,18 @@
       ipo4_btf=15
       isio4_btf=16
 
-      ijprod_ndet_100=17
-      ijremin_ndet_100=18
+      !ijprod_ndet_100=17
+      !ijremin_ndet_100=18
       
-      ialpha=19
-      ico2star=20
-      ipco2surf=21
-      ico2_flx=22
+      ialpha=17
+      ico2star=18
+      ipco2surf=19
+      ico2_flx=20
 
-      io2_flx=23
-      iironsed_flx=24
-      inpp_100=25
-      imesozoo_200=26
+      io2_flx=21
+      iironsed_flx=22
+      inpp_100=23
+      imesozoo_200=24
 
       ! 3D Diagnostic variables
       DO i=1,NDbio3d
@@ -2661,48 +2661,48 @@
       ihtotal=3
       iirr_mem=4
       ! RD: maybe all the following could be removed someday:
-      iirr_mix=5
-      iirr_inst=6
+      !iirr_mix=5
+      !iirr_inst=6
 
-      ijprod_cadet_arag=7
-      ijprod_cadet_calc=8
-      ijprod_fedet=9
-      ijprod_lithdet=10
-      ijprod_ndet=11
-      ijprod_pdet=12
-      ijprod_sidet=13
+      !ijprod_cadet_arag=7
+      !ijprod_cadet_calc=8
+      !ijprod_fedet=9
+      !ijprod_lithdet=10
+      !ijprod_ndet=11
+      !ijprod_pdet=12
+      !ijprod_sidet=13
 
-      ijdiss_cadet_arag=14
-      ijdiss_cadet_calc=15
-      ijremin_ndet=16
-      ijremin_pdet=17
-      ijremin_fedet=18
-      idet_jzloss_n=19
-      idet_jzloss_p=20
-      idet_jzloss_fe=21
-      idet_jhploss_n=22
-      idet_jhploss_p=23
-      idet_jhploss_fe=24
+      !ijdiss_cadet_arag=14
+      !ijdiss_cadet_calc=15
+      !ijremin_ndet=16
+      !ijremin_pdet=17
+      !ijremin_fedet=18
+      !idet_jzloss_n=19
+      !idet_jzloss_p=20
+      !idet_jzloss_fe=21
+      !idet_jhploss_n=22
+      !idet_jhploss_p=23
+      !idet_jhploss_fe=24
       
 
-      indet_b4sink=25
-      ipdet_b4sink=26
-      ifedet_b4sink=27
+      !indet_b4sink=25
+      !ipdet_b4sink=26
+      !ifedet_b4sink=27
 
-      indet_afsink=28
-      ipdet_afsink=29
-      ifedet_afsink=30
-      indet_flx=31
+      !indet_afsink=28
+      !ipdet_afsink=29
+      !ifedet_afsink=30
+      !indet_flx=31
 
-      ico3_sol_arag=32
-      ico3_sol_calc=33
+      ico3_sol_arag=5
+      ico3_sol_calc=6
 
-      ife_bulk_flx=34
+      ife_bulk_flx=7
 
-      iomega_cadet_calc=35
-      iomega_cadet_arag=36
+      iomega_cadet_calc=8
+      iomega_cadet_arag=9
      
-      iswdk=37
+      !iswdk=37
 #endif
       
       ! Sediment variables

@@ -1160,14 +1160,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
 
 #ifdef DIAGNOSTICS_BIO
-   DO k=1,UBk
-     DO j=Jstr,Jend
-       DO i=Istr,Iend
-          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
-       END DO
-     END DO
-   ENDDO
-   i=overflow ; j=overflow ; k=overflow
+!   DO k=1,UBk
+!     DO j=Jstr,Jend
+!       DO i=Istr,Iend
+!          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
+!       END DO
+!     END DO
+!   ENDDO
+!   i=overflow ; j=overflow ; k=overflow
 #endif
 
 
@@ -3384,9 +3384,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_cadet_arag) = DiaBio3d(:,:,:,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_cadet_arag) = DiaBio3d(:,:,:,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(:,:,:)
   ! diag on dissolution term
-  DiaBio3d(:,:,:,ijdiss_cadet_arag) = DiaBio3d(:,:,:,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(:,:,:)
+!  DiaBio3d(:,:,:,ijdiss_cadet_arag) = DiaBio3d(:,:,:,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(:,:,:)
 #endif
 !
 !   *** Cadet_calc
@@ -3397,9 +3397,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_cadet_calc) = DiaBio3d(:,:,:,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_cadet_calc) = DiaBio3d(:,:,:,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(:,:,:)
   ! diag on dissolution term
-  DiaBio3d(:,:,:,ijdiss_cadet_calc) = DiaBio3d(:,:,:,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(:,:,:)
+!  DiaBio3d(:,:,:,ijdiss_cadet_calc) = DiaBio3d(:,:,:,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(:,:,:)
 #endif
 !
 !   *** Fedet
@@ -3414,13 +3414,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_fedet) = DiaBio3d(:,:,:,ijprod_fedet) + cobalt%jprod_fedet(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_fedet) = DiaBio3d(:,:,:,ijprod_fedet) + cobalt%jprod_fedet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(:,:,:,ijremin_fedet) = DiaBio3d(:,:,:,ijremin_fedet) + cobalt%jremin_fedet(:,:,:)
+!  DiaBio3d(:,:,:,ijremin_fedet) = DiaBio3d(:,:,:,ijremin_fedet) + cobalt%jremin_fedet(:,:,:)
   ! diag
-  DiaBio3d(:,:,:,idet_jzloss_fe) = DiaBio3d(:,:,:,idet_jzloss_fe) + cobalt%det_jzloss_fe(:,:,:)
+!  DiaBio3d(:,:,:,idet_jzloss_fe) = DiaBio3d(:,:,:,idet_jzloss_fe) + cobalt%det_jzloss_fe(:,:,:)
   ! diag 
-  DiaBio3d(:,:,:,idet_jhploss_fe) = DiaBio3d(:,:,:,idet_jhploss_fe) +cobalt%det_jhploss_fe(:,:,:)
+!  DiaBio3d(:,:,:,idet_jhploss_fe) = DiaBio3d(:,:,:,idet_jhploss_fe) +cobalt%det_jhploss_fe(:,:,:)
 #endif
 !
 !   *** Lithdet and Lith
@@ -3435,7 +3435,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_lithdet) = DiaBio3d(:,:,:,ijprod_lithdet) + cobalt%jprod_lithdet(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_lithdet) = DiaBio3d(:,:,:,ijprod_lithdet) + cobalt%jprod_lithdet(:,:,:)
 #endif
 !
 !   *** Ndet
@@ -3448,13 +3448,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_ndet) = DiaBio3d(:,:,:,ijprod_ndet) + cobalt%jprod_ndet(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_ndet) = DiaBio3d(:,:,:,ijprod_ndet) + cobalt%jprod_ndet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(:,:,:,ijremin_ndet) = DiaBio3d(:,:,:,ijremin_ndet) + cobalt%jremin_ndet(:,:,:)
+!  DiaBio3d(:,:,:,ijremin_ndet) = DiaBio3d(:,:,:,ijremin_ndet) + cobalt%jremin_ndet(:,:,:)
   ! diag
-  DiaBio3d(:,:,:,idet_jzloss_n) = DiaBio3d(:,:,:,idet_jzloss_n) + cobalt%det_jzloss_n(:,:,:)
+!  DiaBio3d(:,:,:,idet_jzloss_n) = DiaBio3d(:,:,:,idet_jzloss_n) + cobalt%det_jzloss_n(:,:,:)
   ! diag 
-  DiaBio3d(:,:,:,idet_jhploss_n) = DiaBio3d(:,:,:,idet_jhploss_n) + cobalt%det_jhploss_n(:,:,:)
+!  DiaBio3d(:,:,:,idet_jhploss_n) = DiaBio3d(:,:,:,idet_jhploss_n) + cobalt%det_jhploss_n(:,:,:)
 #endif
 !
 !   *** Pdet
@@ -3467,13 +3467,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_pdet) = DiaBio3d(:,:,:,ijprod_pdet) + cobalt%jprod_pdet(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_pdet) = DiaBio3d(:,:,:,ijprod_pdet) + cobalt%jprod_pdet(:,:,:)
   ! diag on remineralization
-  DiaBio3d(:,:,:,ijremin_pdet) = DiaBio3d(:,:,:,ijremin_pdet) + cobalt%jremin_pdet(:,:,:)
+!  DiaBio3d(:,:,:,ijremin_pdet) = DiaBio3d(:,:,:,ijremin_pdet) + cobalt%jremin_pdet(:,:,:)
   ! diag
-  DiaBio3d(:,:,:,idet_jzloss_p) = DiaBio3d(:,:,:,idet_jzloss_p) + cobalt%det_jzloss_p(:,:,:)
+!  DiaBio3d(:,:,:,idet_jzloss_p) = DiaBio3d(:,:,:,idet_jzloss_p) + cobalt%det_jzloss_p(:,:,:)
   ! diag 
-  DiaBio3d(:,:,:,idet_jhploss_p) = DiaBio3d(:,:,:,idet_jhploss_p) + cobalt%det_jhploss_p(:,:,:)
+!  DiaBio3d(:,:,:,idet_jhploss_p) = DiaBio3d(:,:,:,idet_jhploss_p) + cobalt%det_jhploss_p(:,:,:)
 #endif
 !
 !   *** Sidet
@@ -3486,7 +3486,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-  DiaBio3d(:,:,:,ijprod_sidet) = DiaBio3d(:,:,:,ijprod_sidet) + cobalt%jprod_sidet(:,:,:)
+!  DiaBio3d(:,:,:,ijprod_sidet) = DiaBio3d(:,:,:,ijprod_sidet) + cobalt%jprod_sidet(:,:,:)
 #endif
 !
 ! * Dissolved Organic Matter
@@ -3708,8 +3708,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) + cobalt%f_co3_ion(i,j,k)
            DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  + cobalt%f_htotal(i,j,k)
            DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) + cobalt%f_irr_mem(i,j,k)
-           DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
-           DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
+!          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
+!          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
            ! RD : debuuging variables (remove or replace later)
            !DiaBio3d(i,j,k,itheta_small)  = DK(i,j,k,2)
            !DiaBio3d(i,j,k,itheta_large)  = DK(i,j,k,3)
