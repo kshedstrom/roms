@@ -30,7 +30,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: iregion, MyModel
+      integer :: iregion, MyModel, NSUB
 
       integer :: my_getpid
 #ifndef DISTRIBUTE
@@ -45,7 +45,15 @@
 ! Initialize timing for all threads.
 !-----------------------------------------------------------------------
 !
-!  Insure that MyModel is not zero.  Notice that zero value is used to
+!  Set number of subdivisions, same as for global reductions.
+!
+#ifdef MPI
+      NSUB=1
+#else
+      NSUB=numthreads
+#endif
+!
+!  Ensure that MyModel is not zero.  Notice that zero value is used to
 !  indicate restart of the nonlinear model.
 !
       MyModel=MAX(1,model)
@@ -70,7 +78,7 @@
 #endif
  10     FORMAT (a,i3,a,i8,a)
         thread_count=thread_count+1
-        IF (thread_count.eq.numthreads) thread_count=0
+        IF (thread_count.eq.NSUB) thread_count=0
 !$OMP END CRITICAL (START_WCLOCK)
       END IF
       RETURN
@@ -101,7 +109,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: imodel, iregion, NSUB, MyModel
+      integer :: imodel, iregion, MyModel, NSUB
 
       integer :: my_threadnum
 
@@ -125,7 +133,7 @@
 !  Set number of subdivisions, same as for global reductions.
 !
 #ifdef MPI
-      NSUB=2
+      NSUB=1
 #else
       NSUB=numthreads
 #endif
