@@ -1586,11 +1586,17 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' OXYGEN,'
 #endif
-#if defined PARALLEL_IO && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'PARALLEL_IO',                      &
+#if defined PARALLEL_IN && defined DISTRIBUTE
+      IF (Master) WRITE (stdout,20) 'PARALLEL_IN',                      &
      &   'Parallel I/O processing.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' PARALLEL_IO,'
+      Coptions(is:is+13)=' PARALLEL_IN,'
+#endif
+#if defined PARALLEL_OUT && defined DISTRIBUTE
+      IF (Master) WRITE (stdout,20) 'PARALLEL_OUT',                      &
+     &   'Parallel I/O processing.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' PARALLEL_OUT,'
 #endif
 #ifdef PERFECT_RESTART
       IF (Master) WRITE (stdout,20) 'PERFECT_RESTART',                  &
@@ -2794,7 +2800,7 @@
         exit_flag=5
       END IF
 #endif
-#ifdef PARALLEL_IO
+#ifdef PARALLEL_OUT
 # if !(defined HDF5 || defined PNETCDF)
       IF (Master) THEN
         WRITE (stdout,170) uppercase('hdf5'),                           &
