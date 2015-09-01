@@ -31,7 +31,9 @@
 #ifdef SOLVE3D
 # define SALINITY
 # define NONLIN_EOS
-# define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #endif
 #undef FLOATS
 #define STATIONS

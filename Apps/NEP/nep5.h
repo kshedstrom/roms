@@ -25,7 +25,9 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# undef SPLINES
+# undef SPLINES_VDIFF
+# undef SPLINES_VVISC
+# undef RI_SPLINES
 #endif
 #define FLOATS
 #define STATIONS

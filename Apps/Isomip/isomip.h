@@ -19,7 +19,9 @@
 #define NONLIN_EOS
 #define CURVGRID
 #define SPHERICAL
-#define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #define ICESHELF
 #undef  AVERAGES
 

@@ -35,7 +35,9 @@
 #define UV_VIS2
 #define SPONGE
 #define SOLVE3D
-#define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #undef AVERAGES
 
 #define ANA_GRID

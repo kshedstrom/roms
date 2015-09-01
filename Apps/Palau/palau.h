@@ -13,7 +13,7 @@
 */
 
 #undef NO_HIS
-#define NESTING
+#undef NESTING
 #undef ONE_WAY
 #define HISTORY2
 #undef HDF5
@@ -28,7 +28,9 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #endif
 #undef FLOATS
 #undef STATIONS
