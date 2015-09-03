@@ -226,13 +226,17 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
           IF (t(i,j,N(ng),1,itemp) < -1.4) THEN
+#ifndef ARCTIC
             ai(i,j,1) = 1._r8
             hi(i,j,1) = 2._r8
+#endif
             hsn(i,j,1) = 0.2_r8
             ti(i,j,1) = -5._r8
           ELSE
+#ifndef ARCTIC
             ai(i,j,1) = 0._r8
             hi(i,j,1) = 0._r8
+#endif
             hsn(i,j,1) = 0._r8
             ti(i,j,1) = t(i,j,N(ng),1,itemp)
           END IF
@@ -246,8 +250,8 @@
           sig12(i,j,1) = 0._r8
           ai(i,j,2) = ai(i,j,1)
           hi(i,j,2) = hi(i,j,1)
-          hsn(i,j,2) = hsn(i,j,1)
           ti(i,j,2) = ti(i,j,1)
+          hsn(i,j,2) = hsn(i,j,1)
 #ifdef MELT_PONDS
           apond(i,j,2) = apond(i,j,1)
           hpond(i,j,2) = hpond(i,j,1)
@@ -267,7 +271,9 @@
           ce_m(i,j) = 1.0E-4_r8
           rhoa_n(i,j) = 1.4_r8
 #endif
+#ifndef ARCTIC
           tis(i,j) = -10._r8
+#endif
           s0mk(i,j) = t(i,j,N(ng),1,isalt)
           t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8

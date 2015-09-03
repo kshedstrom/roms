@@ -37,7 +37,7 @@
 #define STATIONS
 #undef WET_DRY
 
-#define T_PASSIVE
+#undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX 
@@ -61,8 +61,8 @@
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
-#  define ICE_LANDFAST
+#  define  FASTICE_CLIMATOLOGY
+#  undef ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
 #  define ICE_MOMENTUM
@@ -88,7 +88,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
-#undef AVERAGES2
+#define AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS

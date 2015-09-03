@@ -1127,7 +1127,7 @@
      &    - 4.0_r8)
 #   else
            qlwi = lrflx(i,j)*Hscale
-           RHS_Ice(i,j) = RHS_Ice(i,j) -                      &
+           RHS_Ice(i,j) = RHS_Ice(i,j) -                                &
      &           lrflx(i,j)*Hscale -                                    &
      &     4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-2._r8*TairK(i))
 

@@ -98,7 +98,7 @@ GridsInLayer =  1
         Nbed =  0             ! Number of sediment bed layers
 
          NAT =  2             ! Number of active tracers (usually, 2)
-         NPT =  2             ! Number of inactive passive tracers
+         NPT =  6             ! Number of inactive passive tracers
          NCS =  0             ! Number of cohesive (mud) sediment tracers
          NNS =  0             ! Number of non-cohesive (sand) sediment tracers
 
@@ -106,12 +106,15 @@ GridsInLayer =  1
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-!      NtileI == 1                               ! I-direction partition
-!      NtileI == 2                               ! I-direction partition
-       NtileI == 6                               ! I-direction partition
+!       NtileI == 1                               ! I-direction partition
+!       NtileI == 2                               ! I-direction partition
+!       NtileI == 7                               ! I-direction partition
+       NtileI == 8                               ! I-direction partition
 !       NtileI == 3                               ! I-direction partition
 ! ORDER MATTERS HERE!
+!       NtileJ == 8                              ! J-direction partition
        NtileJ == 32                              ! J-direction partition
+!       NtileJ == 36                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -161,6 +164,8 @@ GridsInLayer =  1
                     Clo     Clo     Clo     Clo    \    ! inert(1)
                     Clo     Clo     Clo     Clo    \    ! inert(2)
                     Clo     Clo     Clo     Clo    \    ! inert(3)
+                    Clo     Clo     Clo     Clo    \    ! inert(2)
+                    Clo     Clo     Clo     Clo    \    ! inert(3)
                     Clo     Clo     Clo     Clo         ! inert(4)
 
 ! Ice boundary conditions
@@ -207,8 +212,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-!       NTIMES == 864
-       NTIMES == 50400
+!       NTIMES == 4
+       NTIMES == 86400
           DT == 120.0d0
 !          DT == 100.0d0
      NDTFAST == 20
@@ -282,8 +287,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Harmonic/biharmonic horizontal diffusion of tracer for nonlinear model
 ! and adjoint-based algorithms: [1:NAT+NPT,Ngrids].
 
-        TNU2 == 4*5.0d0                         ! m2/s
-        TNU4 == 4*0.0d0                         ! m4/s
+        TNU2 == 8*5.0d0                         ! m2/s
+        TNU4 == 8*0.0d0                         ! m4/s
 
      ad_TNU2 == 0.0d0  0.0d0                    ! m2/s
      ad_TNU4 == 0.0d0  0.0d0                    ! m4/s
@@ -307,7 +312,7 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! Vertical mixing coefficients for tracers in nonlinear model and
 ! basic state scale factor in adjoint-based algorithms: [1:NAT+NPT,Ngrids]
 
-     AKT_BAK == 4*1.0d-6                        ! m2/s
+     AKT_BAK == 8*1.0d-6                        ! m2/s
 
   ad_AKT_fac == 1.0d0  1.0d0                    ! nondimensional
 
@@ -406,7 +411,9 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! NetCDF units attribute.
 
 !      DSTART =  28856.5d0                  ! days (1979)
-      DSTART =  32876.5d0                  ! days (1990)
+!      DSTART =  32876.5d0                  ! days (1990)
+       DSTART =  37991.5d0                  ! days (2004)
+!      DSTART =  40907.0d0                  ! days (2012)
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -450,23 +457,23 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! point Sources/Sinks (like river runoff transport) and mass point
 ! Sources/Sinks (like volume vertical influx), [1:Ngrids].
 
-      LuvSrc == F                          ! horizontal momentum transport
+      LuvSrc == T                          ! horizontal momentum transport
        LwSrc == F                          ! volume vertical influx
 
 ! Logical switches (TRUE/FALSE) to activate tracers point Sources/Sinks
 ! (like river runoff) and to specify which tracer variables to consider:
 ! [1:NAT+NPT,Ngrids].  See glossary below for details.
 
-  LtracerSrc == F F F F                    ! temperature, salinity, inert
+  LtracerSrc == T T F F F F F F            ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to read and process climatology fields.
 ! See glossary below for details.
 
-     LsshCLM == T                          ! sea-surface height
+     LsshCLM == F                          ! sea-surface height
       Lm2CLM == T                          ! 2D momentum
       Lm3CLM == T                          ! 3D momentum
 
-  LtracerCLM == T T F F                    ! temperature, salinity, inert
+  LtracerCLM == T T F F F F F F            ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to nudge the desired climatology field(s).
 ! If not analytical climatology fields, users need to turn ON the logical
@@ -476,7 +483,7 @@ LtracerSponge == F F                            ! temperature, salinity, inert
  LnudgeM2CLM == T                          ! 2D momentum
  LnudgeM3CLM == T                          ! 3D momentum
 
-  LnudgeTCLM == T T F F                    ! temperature, salinity, inert
+  LnudgeTCLM == T T F F F F F F            ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -629,7 +636,7 @@ Hout(idMtls) == F       ! gls                turbulent length scale
 ! NPT values are expected. However, these switches can be activated using
 ! compact parameter specification.
 
- Hout(inert) == T T                              ! inert passive tracers
+ Hout(inert) == T T T T T T                      ! inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into HISTORY output file.  Currently, MBOTP properties
@@ -740,14 +747,14 @@ Aout2(inert) == F                           ! inert passive tracers
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 
-Aout(idUvel) == T       ! u                  3D U-velocity
-Aout(idVvel) == T       ! v                  3D V-velocity
+Aout(idUvel) == F       ! u                  3D U-velocity
+Aout(idVvel) == F       ! v                  3D V-velocity
 Aout(idu3dE) == T       ! u_eastward         3D U-eastward  at RHO-points
 Aout(idv3dN) == T       ! v_northward        3D V-northward at RHO-points
 Aout(idWvel) == T       ! w                  3D W-velocity
 Aout(idOvel) == T       ! omega              omega vertical velocity
-Aout(idUbar) == T       ! ubar               2D U-velocity
-Aout(idVbar) == T       ! vbar               2D V-velocity
+Aout(idUbar) == F       ! ubar               2D U-velocity
+Aout(idVbar) == F       ! vbar               2D V-velocity
 Aout(idu2dE) == T       ! ubar_eastward      2D U-eastward  at RHO-points
 Aout(idv2dN) == T       ! vbar_northward     2D V-northward at RHO-points
 Aout(idFsur) == T       ! zeta               free-surface
@@ -794,7 +801,7 @@ Aout(idrain) == T       ! rain               precipitation rate
 
 Aout(idDano) == T       ! rho                density anomaly
 Aout(idVvis) == F       ! AKv                vertical viscosity
-Aout(idTdif) == F       ! AKt                vertical T-diffusion
+Aout(idTdif) == T       ! AKt                vertical T-diffusion
 Aout(idSdif) == F       ! AKs                vertical Salinity diffusion
 Aout(idHsbl) == T       ! Hsbl               depth of surface boundary layer
 Aout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
@@ -829,8 +836,11 @@ Aout(iHVTav) == F F     ! Hvom_temp, ...     tracer volume flux, <Hvom*t>
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the AVERAGE file.
+! These tracers include, for example, dyes, pollutants, oil spills, etc.
+! NPT values are expected. However, these switches can be activated using
+! compact parameter specification.
 
- Aout(inert) == T T     ! dye_01, ...        inert passive tracers
+ Aout(inert) == T T T T T T    ! dye_01, ...        inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged,
 ! 2D momentum (ubar,vbar) diagnostic terms into DIAGNOSTIC output file.
@@ -895,7 +905,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
      GRDNAME == /center/w/kate/Arctic2/Files/grid_Arctic_2.nc
 !     ININAME == /center/w/kate/Arctic2/Files/SODA_2.1.6_19790101-19790106_ic_ARCTIC2.nc
-     ININAME == /center/w/kate/Arctic2/Files/Arctic2_ini_Lev_plus.nc
+     ININAME == /center/w/kate/Arctic2/Files/SODA_2.1.6_20031231-20040105_ic_ARCTIC2.nc
 !     ININAME == arctic2_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -916,14 +926,16 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! except the last one.
 
    NCLMFILES == 1                         ! number of climate files
-!     CLMNAME == /center/w/kate/Arctic2/Files/Arctic2_clim_1989.nc |
-     CLMNAME == /center/w/kate/Arctic2/Files/Arctic2_clim_1990.nc |
-                /center/w/kate/Arctic2/Files/Arctic2_clim_1991.nc
+     CLMNAME == /center/w/kate/Arctic2/Files/Arctic2_clim_2003.nc |
+                /center/w/kate/Arctic2/Files/Arctic2_clim_2004.nc
+!     CLMNAME == /center/w/kate/Arctic2/Files/Arctic2_clim_1979.nc |
+!                /center/w/kate/Arctic2/Files/Arctic2_clim_1980.nc
 
     NBCFILES == 1                          ! number of boundary files
-!     BRYNAME == /center/w/kate/Arctic2/Files/SODA_Arctic2_bdry.nc
-     BRYNAME == /center/w/kate/Arctic2/Files/Arctic2_bdry_1990.nc |
-                /center/w/kate/Arctic2/Files/Arctic2_bdry_1991.nc
+     BRYNAME == /center/w/kate/Arctic2/Files/Arctic2_bdry_2004.nc |
+                /center/w/kate/Arctic2/Files/Arctic2_bdry_2005.nc
+!     BRYNAME == /center/w/kate/Arctic2/Files/Arctic2_bdry_1979.nc |
+!                /center/w/kate/Arctic2/Files/Arctic2_bdry_1980.nc
 
 ! Input climatology nudging coefficients file name.
 
@@ -931,7 +943,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
-     SSFNAME == ocean_rivers.nc
+     SSFNAME == /center/w/kate/Arctic2/Files/Arctic2_rivers.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -944,51 +956,55 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 14                          ! number of forcing files
+    NFFILES == 13                          ! number of forcing files
 
-!    FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1979.nc   |
-!               /center/w/kate/MERRA/MERRA_Pair_3hours_1980.nc   \
-!               /center/w/kate/MERRA/MERRA_Qair_3hours_1979.nc   |
-!               /center/w/kate/MERRA/MERRA_Qair_3hours_1980.nc   \
-!               /center/w/kate/MERRA/MERRA_Tair_3hours_1979.nc   |
-!               /center/w/kate/MERRA/MERRA_Tair_3hours_1980.nc   \
-!               /center/w/kate/MERRA/MERRA_rain_3hours_1979.nc   |
-!               /center/w/kate/MERRA/MERRA_rain_3hours_1980.nc   \
-!               /center/w/kate/MERRA/MERRA_swrad_3hours_1979.nc  |
-!               /center/w/kate/MERRA/MERRA_swrad_3hours_1980.nc  \
-!               /center/w/kate/MERRA/MERRA_Uwind_3hours_1979.nc  |
-!               /center/w/kate/MERRA/MERRA_Uwind_3hours_1980.nc  \
-!               /center/w/kate/MERRA/MERRA_Vwind_3hours_1979.nc  |
-!               /center/w/kate/MERRA/MERRA_Vwind_3hours_1980.nc  \
-!               /center/w/kate/MERRA/MERRA_albedo_daily_1979.nc  |
-!               /center/w/kate/MERRA/MERRA_albedo_daily_1980.nc  \
-!               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1979.nc  |
-!               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1980.nc  \
-    FRCNAME == /center/w/kate/MERRA/MERRA_Pair_3hours_1990.nc   |
-               /center/w/kate/MERRA/MERRA_Pair_3hours_1991.nc   \
-               /center/w/kate/MERRA/MERRA_Qair_3hours_1990.nc   |
-               /center/w/kate/MERRA/MERRA_Qair_3hours_1991.nc   \
-               /center/w/kate/MERRA/MERRA_Tair_3hours_1990.nc   |
-               /center/w/kate/MERRA/MERRA_Tair_3hours_1991.nc   \
-               /center/w/kate/MERRA/MERRA_rain_3hours_1990.nc   |
-               /center/w/kate/MERRA/MERRA_rain_3hours_1991.nc   \
-               /center/w/kate/MERRA/MERRA_snow_3hours_1990.nc   |
-               /center/w/kate/MERRA/MERRA_snow_3hours_1991.nc   \
-               /center/w/kate/MERRA/MERRA_swrad_3hours_1990.nc  |
-               /center/w/kate/MERRA/MERRA_swrad_3hours_1991.nc  \
-               /center/w/kate/MERRA/MERRA_Uwind_3hours_1990.nc  |
-               /center/w/kate/MERRA/MERRA_Uwind_3hours_1991.nc  \
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_1990.nc  |
-               /center/w/kate/MERRA/MERRA_Vwind_3hours_1991.nc  \
-               /center/w/kate/MERRA/MERRA_albedo_daily_1990.nc  |
-               /center/w/kate/MERRA/MERRA_albedo_daily_1991.nc  \
-               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1990.nc  |
-               /center/w/kate/MERRA/MERRA_lwrad_down_3hours_1991.nc  \
+    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2004.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_snow_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_snow_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2005.nc \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2004.nc |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2005.nc \
                /center/w/kate/CORE2/sss_fill_2004.nc \
                /center/w/kate/Arctic2/Files/runoff_ARCTIC2_daitren_inter_annual_1948-2007.nc \
                /center/w/kate/Arctic2/Files/fastice_Arctic2.nc \
                /center/w/kate/Arctic2/Files/Arctic2_tides_otps.nc
 
+!    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1979.nc   |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1980.nc   \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1979.nc   |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1980.nc   \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1979.nc   |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1980.nc   \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1979.nc   |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1980.nc   \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_snow_3hours_1979.nc   |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_snow_3hours_1980.nc   \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1979.nc  |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1980.nc  \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1979.nc  |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1980.nc  \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1979.nc  |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1980.nc  \
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1979.nc  |
+!               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1980.nc  \
+!               /center/w/kate/CORE2/sss_fill_2004.nc \
+!               /center/w/kate/Arctic2/Files/runoff_ARCTIC2_daitren_inter_annual_1948-2007.nc \
+!               /center/w/kate/Arctic2/Files/fastice_Arctic2.nc \
+!               /center/w/kate/Arctic2/Files/Arctic2_tides_otps.nc
+
+!               /center/w/kate/Arctic2/Files/runoff_ARCTIC2_daitren_clim.nc \
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc

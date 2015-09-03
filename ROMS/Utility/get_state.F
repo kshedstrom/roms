@@ -1871,6 +1871,10 @@
             WRITE (stdout,70) TRIM(Vname(2,idVice)), Fmin, Fmax
           END IF
         END IF
+#ifdef ARCTIC
+! HACK warning! Read initial GLORYS ice thickness and concentration
+      END IF
+#endif
 !
 !  Read in ice concentration.
 !
@@ -1957,6 +1961,9 @@
             WRITE (stdout,70) TRIM(Vname(2,idHice)), Fmin, Fmax
           END IF
         END IF
+#ifdef ARCTIC
+      IF (read_ice) THEN
+#endif
 !
 !  Read in snow average thickness.
 !
@@ -2000,6 +2007,9 @@
             WRITE (stdout,70) TRIM(Vname(2,idHsno)), Fmin, Fmax
           END IF
         END IF
+#ifdef ARCTIC
+      END IF
+#endif
 !
 !  Read in ice/snow surface temperature.
 !
@@ -2027,6 +2037,9 @@
             WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
           END IF
         END IF
+#ifdef ARCTIC
+      IF (read_ice) THEN
+#endif
 #ifdef MELT_PONDS
 !
 !  Read in surface water fraction (on ice).
