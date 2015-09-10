@@ -310,7 +310,7 @@
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: twodim_int_diag
 
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,1:N(ng)) :: rmask3d
-    real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FM,swdk3, chl_conc
+    real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FM, FM2, swdk3, chl_conc
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng),4) :: DK
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,1:N(ng)) :: tmp_decay
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: mxl_depth, mxl_subgrid
@@ -326,6 +326,7 @@
     real(8) :: rho_ref_depth = 10.0d0
     real(8) :: drho_crit 
     real(8) :: cff_ts, cff_btf, cff_rivr
+    integer(4) :: krhoref
 
     type(CO2_dope_vector) :: CO2_dope_vec
 
@@ -959,7 +960,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * dt(ng)
+        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt
 #endif
 
     ENDDO
@@ -980,7 +981,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
           lith_dust_src(i,j,k) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * dt(ng)
+          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * rmask(i,j) * n_dt
 #endif
 
        ENDDO
@@ -1190,23 +1191,44 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=0,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          FM(i,j,k) = z_w(i,j,UBk) - z_w(i,j,k)
+          FM(i,j,k) = z_w(i,j,UBk) - z_w(i,j,k) ! get zeta out ?
+          FM2(i,j,k) = ABS( FM(i,j,k) - rho_ref_depth )
        ENDDO
      ENDDO
    ENDDO
 
-   ! update the reference density to the density at z = rho_ref_depth
-   DO k=1,UBk
-     DO j=Jstr,Jend
-       DO i=Istr,Iend
-          IF (FM(i,j,k-1)  > rho_ref_depth ) rho_ref(i,j) = rho(i,j,k)
-       ENDDO
+!--------------- this might be replaced ------------------------
+!   ! update the reference density to the density at z = rho_ref_depth
+!   DO k=1,UBk
+!     DO j=Jstr,Jend
+!       DO i=Istr,Iend
+!          IF (FM(i,j,k-1)  > rho_ref_depth ) rho_ref(i,j) = rho(i,j,k)
+!       ENDDO
+!     ENDDO
+!   ENDDO
+!   i=overflow ; j=overflow ; k=overflow
+
+!   ! find which is the level just below the mixed layer and update the array
+!   ! bottom to top, if rho > rho_ref + 0.03 increase k until not true anymore
+!   DO k=1,UBk
+!     DO j=Jstr,Jend
+!       DO i=Istr,Iend
+!          IF (rho(i,j,k) > rho_ref(i,j) + rho_crit)   mxl_blev(i,j) = k
+!       ENDDO
+!     ENDDO
+!   ENDDO
+!   i=overflow ; j=overflow ; k=overflow
+!----------------------------------------------------------------------
+
+   DO j=Jstr,Jend
+     DO i=Istr,Iend
+        krhoref = MINLOC( FM2(i,j,:),1) 
+        krhoref = MAX(krhoref,1)
+        rho_ref(i,j) = rho(i,j,krhoref)
+        !mxl_blev(i,j) = MINLOC( ABS( rho(i,j,:) - rho_ref(i,j) - rho_crit ) )
      ENDDO
    ENDDO
-   i=overflow ; j=overflow ; k=overflow
 
-   ! find which is the level just below the mixed layer and update the array
-   ! bottom to top, if rho > rho_ref + 0.03 increase k until not true anymore
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
@@ -1214,7 +1236,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ENDDO
      ENDDO
    ENDDO
-   i=overflow ; j=overflow ; k=overflow
+
 
    ! find the real mxl with linear interpolation 
    DO j=Jstr,Jend
@@ -2832,7 +2854,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !  participating in FC.
 !
        !cff=dtdays*ABS(wsink(ng))
-       cff=dt(ng)*ABS(wsink(ng)) ! RD : in cobalt wsink is in m.s-1
+       cff=n_dt*ABS(wsink(ng)) ! RD : in cobalt wsink is in m.s-1
        !cff=86400*dt(ng)*ABS(wsink(ng)) ! RD test
        DO k=1,UBk
          DO i=Istr,Iend
@@ -3041,7 +3063,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #endif
 #ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
-    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  dt(ng) 
+    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt
 #endif
 
 
@@ -3075,7 +3097,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   &                        (cobalt%f_cadet_calc_btf(i,j,1) -             &
   &                         cobalt%fcased_redis(i,j) -                   &
   &                         cobalt%fcased_burial(i,j)) / cobalt%z_sed *  &
-  &                         dt(ng) * rmask(i,j)              
+  &                         n_dt * rmask(i,j)              
 
 
    !
