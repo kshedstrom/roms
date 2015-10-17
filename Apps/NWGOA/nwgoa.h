@@ -219,6 +219,7 @@
 **  Biological model options.
 */
 #undef NEMURO
+#define BIO_UMAINE
 
 #if defined NEMURO
 # define BIO_SEDIMENT
@@ -231,4 +232,18 @@
 # undef  IVLEV_EXPLICIT
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
+#endif
+
+#ifdef BIO_UMAINE
+# define CARBON
+# define OXYGEN
+# define PRIMARY_PROD
+# define SINK_OP2
+# define TALK_NONCONSERV
+# undef OPTIC_UMaine
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+# define IRON_RELAX
+# undef  IRON_RSIN
 #endif

@@ -184,6 +184,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
+#if defined ARCTIC_MERRA_HACK
+      IF (Master) WRITE (stdout,20) 'ARCTIC_MERRA_HACK',                &
+     &   'Tweaking MERRA over the Arctic.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ARCTIC_MERRA_HACK,'
+#endif
 #if defined BIOLOGY && defined ANA_BIOLOGY
       IF (Master) WRITE (stdout,20) 'ANA_BIOLOGY',                      &
      &   'Analytical biology initial conditions.'
@@ -1073,6 +1079,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' IMPLICIT_VCONV,'
 #endif
+#if defined INI_GLORYS_ICE
+      IF (Master) WRITE (stdout,20) 'INI_GLORYS_ICE',                    &
+     &   'Ice initial conditions from GLORYS.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' INI_GLORYS_ICE,'
+#endif
 #if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
       IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
      &   'Limit bottom stress to maintain bottom velocity direction.'
@@ -1084,18 +1096,6 @@
      &   'Suppress further cooling if SST is at freezing point.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
-#endif
-#if defined NPZD_IRON && defined IRON_LIMIT
-      IF (Master) WRITE (stdout,20) 'IRON_LIMIT',                       &
-     &   'Include dissolved iron limitation on phytoplankton growth.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' IRON_LIMIT,'
-#endif
-#if defined NPZD_IRON && defined IRON_LIMIT && defined IRON_RELAX
-      IF (Master) WRITE (stdout,20) 'IRON_RELAX',                       &
-     &   'Nudge dissolved iron over the shelf, h <= FeHmin.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' IRON_RELAX,'
 #endif
 #ifdef IMPULSE
       IF (Master) WRITE (stdout,20) 'IMPULSE',                          &
@@ -1110,11 +1110,25 @@
       Coptions(is:is+15)=' INNER_PRODUCT,'
       idriver=idriver+1
 #endif
-#if defined IRON_LIMIT && (defined NEMURO || defined BIO_GOANPZ)
+#if defined IRON_LIMIT && (NPZD_IRON || defined NEMURO || \
+             defined BIO_GOANPZ || defined BIO_UMAINE)
       IF (Master) WRITE (stdout,20) 'IRON LIMITATION',                  &
      &   'Iron limitation on phytoplankton growth.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' IRON_LIMIT,'
+#endif
+#if defined IRON_RELAX && (defined NPZD_IRON || defined NEMURO || \
+          defined BIO_UMAINE)
+      IF (Master) WRITE (stdout,20) 'IRON_RELAX',                       &
+     &   'Nudge dissolved iron to climatology'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' IRON_RELAX,'
+#endif
+#if defined IRON_RSIN && (defined NEMURO || defined BIO_UMAINE)
+      IF (Master) WRITE (stdout,20) 'IRON_RSIN',                       &
+     &   'Variable Si:N ratio based on iron'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' IRON_RSIN,'
 #endif
 #ifdef IS4DVAR
       IF (Master) WRITE (stdout,20) 'IS4DVAR',                          &

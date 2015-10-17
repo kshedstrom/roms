@@ -87,10 +87,18 @@
               CASE ('idTvar(iTAlk)')
                 idTvar(iTAlk)=varid
 #endif
-# ifdef PRIMARY_PROD
+#ifdef IRON_LIMIT
+              CASE ('idTvar(iFeSp)')
+                idTvar(iFeSp)=varid
+              CASE ('idTvar(iFeLp)')
+                idTvar(iFeLp)=varid
+              CASE ('idTvar(iFeD_)')
+                idTvar(iFeD_)=varid
+#endif
+#ifdef PRIMARY_PROD
               CASE ('idNPP')
                 idNPP=varid
-# endif
+#endif
 
 !
 !  Biological tracers open boundary conditions.
@@ -349,6 +357,32 @@
               CASE ('idTbry(inorth,iTAlk)')
                 idTbry(inorth,iTAlk)=varid
 #endif
+# ifdef IRON_LIMIT
+              CASE ('idTbry(iwest,iFeSp)')
+                idTbry(iwest,iFeSp)=varid
+              CASE ('idTbry(ieast,iFeSp)')
+                idTbry(ieast,iFeSp)=varid
+              CASE ('idTbry(isouth,iFeSp)')
+                idTbry(isouth,iFeSp)=varid
+              CASE ('idTbry(inorth,iFeSp)')
+                idTbry(inorth,iFeSp)=varid
+              CASE ('idTbry(iwest,iFeLp)')
+                idTbry(iwest,iFeLp)=varid
+              CASE ('idTbry(ieast,iFeLp)')
+                idTbry(ieast,iFeLp)=varid
+              CASE ('idTbry(isouth,iFeLp)')
+                idTbry(isouth,iFeLp)=varid
+              CASE ('idTbry(inorth,iFeLp)')
+                idTbry(inorth,iFeLp)=varid
+              CASE ('idTbry(iwest,iFeD_)')
+                idTbry(iwest,iFeD_)=varid
+              CASE ('idTbry(ieast,iFeD_)')
+                idTbry(ieast,iFeD_)=varid
+              CASE ('idTbry(isouth,iFeD_)')
+                idTbry(isouth,iFeD_)=varid
+              CASE ('idTbry(inorth,iFeD_)')
+                idTbry(inorth,iFeD_)=varid
+# endif
 
 #ifdef TS_PSOURCE
 

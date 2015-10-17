@@ -267,6 +267,11 @@
       integer :: iTIC_                 ! Total inorganic carbon
       integer :: iTAlk                 ! Total alkalinity
 #endif
+# ifdef IRON_LIMIT
+      integer :: iFeSp                  ! Small phytoplankton iron
+      integer :: iFeLp                  ! Large phytoplankton iron
+      integer :: iFeD_                  ! Available disolved iron
+# endif
 
 #if defined DIAGNOSTICS_BIO
 !
@@ -390,6 +395,14 @@
       real(r8), allocatable :: RtUVSDIC(:)        ! mmol_C/m2/d
       real(r8), allocatable :: colorFR1(:)        ! nondimensional
       real(r8), allocatable :: colorFR2(:)        ! nondimensional
+#ifdef IRON_LIMIT
+      real(r8), allocatable :: T_Fe(:)               ! day
+      real(r8), allocatable :: A_Fe(:)               ! nondimensional
+      real(r8), allocatable :: B_Fe(:)               ! 1/M-C
+      real(r8), allocatable :: SK_FeC(:)             ! muM-Fe/M-C
+      real(r8), allocatable :: LK_FeC(:)             ! muM-Fe/M-C
+      real(r8), allocatable :: FeRR(:)               ! 1/day
+#endif
 
       CONTAINS
 
@@ -422,6 +435,9 @@
 # else
       NBT=28
 # endif
+#endif
+#ifdef IRON_LIMIT
+      NBT = NBT + 3
 #endif
 
 #if defined DIAGNOSTICS_BIO
@@ -733,6 +749,26 @@
       IF (.not.allocated(colorFR2)) THEN
         allocate ( colorFR2(Ngrids) )
       END IF
+#ifdef IRON_LIMIT
+      IF (.not.allocated(T_Fe)) THEN
+        allocate ( T_Fe(Ngrids) )
+      END IF
+      IF (.not.allocated(A_Fe)) THEN
+        allocate ( A_Fe(Ngrids) )
+      END IF
+      IF (.not.allocated(B_Fe)) THEN
+        allocate ( B_Fe(Ngrids) )
+      END IF
+      IF (.not.allocated(SK_FeC)) THEN
+        allocate ( SK_FeC(Ngrids) )
+      END IF
+      IF (.not.allocated(LK_FeC)) THEN
+        allocate ( LK_FeC(Ngrids) )
+      END IF
+      IF (.not.allocated(FeRR)) THEN
+        allocate ( FeRR(Ngrids) )
+      END IF
+#endif
 
 #if defined DIAGNOSTICS_BIO
 !
@@ -800,6 +836,12 @@
       iTIC_=ic+1
       iTAlk=ic+2
       ic=ic+2
+# endif
+# ifdef IRON_LIMIT
+      iFeSp=ic+1
+      iFeLp=ic+2
+      iFeD_=ic+3
+      ic=ic+3
 # endif
 
 #if defined DIAGNOSTICS_BIO

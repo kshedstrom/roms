@@ -5945,54 +5945,78 @@
 !
       SELECT CASE (omode)
         CASE (0)
-!!        status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
-!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
 #if defined PARALLEL_IN && defined DISTRIBUTE
           status=nf90_open(path = TRIM(ncname),                         &
      &                     mode = nf90_nowrite,                         &
      &                     ncid = ncid,                                 &
      &                     comm = OCN_COMM_WORLD,                       &
      &                     info = MP_INFO)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
+            exit_flag=3
+            ioerror=status
+          END IF
 #else
           IF (InpThread) THEN
             status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
+              exit_flag=3
+              ioerror=status
+            END IF
           END IF
 #endif
         CASE (1)
-!!        status=nf90_open_par(TRIM(ncname), nf90_write,                &
-!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
 #if defined PARALLEL_OUT && defined DISTRIBUTE
           status=nf90_open(path = TRIM(ncname),                         &
      &                     mode = nf90_write,                           &
      &                     ncid = ncid,                                 &
      &                     comm = OCN_COMM_WORLD,                       &
      &                     info = MP_INFO)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
+            exit_flag=3
+            ioerror=status
+          END IF
 #else
           IF (OutThread) THEN
             status=nf90_open(TRIM(ncname), nf90_write, ncid)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
+              exit_flag=3
+              ioerror=status
+            END IF
           END IF
 #endif
         CASE DEFAULT
-!!        status=nf90_open_par(TRIM(ncname), nf90_nowrite,              &
-!!   &                         OCN_COMM_WORLD, MP_INFO, ncid)
 #if defined PARALLEL_IN && defined DISTRIBUTE
           status=nf90_open(path = TRIM(ncname),                         &
      &                     mode = nf90_nowrite,                         &
      &                     ncid = ncid,                                 &
      &                     comm = OCN_COMM_WORLD,                       &
      &                     info = MP_INFO)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
+            exit_flag=3
+            ioerror=status
+          END IF
 #else
           IF (InpThread) THEN
             status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
+              exit_flag=3
+              ioerror=status
+            END IF
           END IF
 #endif
       END SELECT
-      IF (status.ne.nf90_noerr) THEN
-        IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
-        PRINT *, trim(nf90_strerror(status))
-        exit_flag=3
-        ioerror=status
-      END IF
 #if !defined PARALLEL_OUT && defined DISTRIBUTE
       IF (omode == 1) THEN
         ibuffer(1)=exit_flag

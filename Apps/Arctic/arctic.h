@@ -60,6 +60,7 @@
 # define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
+#  define INI_GLORYS_ICE
 #  define  OUTFLOW_MASK
 #  define  FASTICE_CLIMATOLOGY
 #  undef ICE_LANDFAST
@@ -155,6 +156,7 @@
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
+# define ARCTIC_MERRA_HACK
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
 #  undef DIURNAL_SRFLUX

@@ -1871,7 +1871,7 @@
             WRITE (stdout,70) TRIM(Vname(2,idVice)), Fmin, Fmax
           END IF
         END IF
-#ifdef ARCTIC
+#ifdef INI_GLORYS_ICE
 ! HACK warning! Read initial GLORYS ice thickness and concentration
       END IF
 #endif
@@ -1961,7 +1961,7 @@
             WRITE (stdout,70) TRIM(Vname(2,idHice)), Fmin, Fmax
           END IF
         END IF
-#ifdef ARCTIC
+#ifdef INI_GLORYS_ICE
       IF (read_ice) THEN
 #endif
 !
@@ -2007,7 +2007,7 @@
             WRITE (stdout,70) TRIM(Vname(2,idHsno)), Fmin, Fmax
           END IF
         END IF
-#ifdef ARCTIC
+#ifdef INI_GLORYS_ICE
       END IF
 #endif
 !
@@ -2037,7 +2037,7 @@
             WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
           END IF
         END IF
-#ifdef ARCTIC
+#ifdef INI_GLORYS_ICE
       IF (read_ice) THEN
 #endif
 #ifdef MELT_PONDS

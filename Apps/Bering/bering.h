@@ -16,11 +16,13 @@
 #undef WRF_MODEL
 #undef MCT_LIB
 #undef ATM2OCN_FLUXES  /* not sure about this with ice */
-#define NO_LBC_ATT
+#undef NO_LBC_ATT
 
 #define NO_HIS
-#undef NETCDF4
-#undef PARALLEL_IO
+#undef HDF5
+#undef DEFLATE
+#undef PARALLEL_IN
+#undef PARALLEL_OUT
 #define PERFECT_RESTART
 
 /* general */
@@ -156,6 +158,7 @@
 #  define CORE_FORCING
 #  define BULK_FLUXES
 #  define CCSM_FLUXES
+#  undef ARCTIC_MERRA_HACK
 # endif
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT

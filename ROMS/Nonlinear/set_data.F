@@ -60,6 +60,10 @@
 # if defined TRC_PSOURCE
       USE mod_trc_sources
 # endif
+# ifdef ARCTIC_MERRA_HACK
+      USE mod_ice
+      USE hack_mod
+# endif
 !
 # ifdef ANALYTICAL
       USE analytical_mod
@@ -170,14 +174,14 @@
      &                     FORCES(ng)%rainG,                            &
      &                     FORCES(ng)%rain,                             &
      &                     update)
-#ifdef SNOWFALL
+#   ifdef SNOWFALL
       CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%snowG,                            &
      &                     FORCES(ng)%snow,                             &
      &                     update)
-#endif
-#ifdef SNOW_FROM_RAIN
+#   endif
+#   ifdef SNOW_FROM_RAIN
 ! Subtract snowfall from total precip
       DO j=JstrR,JendR
         DO i=IstrR,IendR
@@ -190,21 +194,21 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          FORCES(ng)%rain)
       END IF
-# ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    FORCES(ng)%rain)
-# endif
-#endif
-#ifdef RUNOFF
+#    endif
+#   endif
+#   ifdef RUNOFF
       CALL set_2dfld_tile (ng, tile, iNLM, idRunoff,                    &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%runoffG,                          &
      &                     FORCES(ng)%runoff,                           &
      &                     update)
-#endif
+#   endif
       CALL set_2dfld_tile (ng, tile, iNLM, idSkt,                       &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%sktG,                             &
@@ -242,7 +246,7 @@
 #    endif
 #   endif
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -268,16 +272,16 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            FORCES(ng)%nvstr)
         END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%nustr,                           &
      &                      FORCES(ng)%nvstr)
-#     endif
-      END IF
 #    endif
+      END IF
+#   endif
 #  endif
 # else
 
@@ -406,17 +410,24 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+#  ifdef ARCTIC_MERRA_HACK
+      CALL hack_flux_tile (ng, tile, iNLM,                              &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%srflx,                            &
+     &                     FORCES(ng)%lrflx,                            &
+     &                     ICE(ng)%ai)
+#  endif
 # endif
 
-#  if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
+# if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
 !
 !-----------------------------------------------------------------------
 !  Set surface winds (m/s).
 !-----------------------------------------------------------------------
 !
-#   ifdef ANA_WINDS
+#  ifdef ANA_WINDS
       CALL ana_winds (ng, tile, iNLM)
-#   else
+#  else
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%UwindG,                           &
@@ -431,7 +442,7 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -459,18 +470,18 @@
      &                            FORCES(ng)%VWind)
         END IF
 
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%UWind,                           &
      &                      FORCES(ng)%VWind)
-#     endif
-      END IF
 #    endif
+      END IF
 #   endif
 #  endif
+# endif
 
 # ifdef SOLVE3D
 #  ifdef BULK_FLUXES

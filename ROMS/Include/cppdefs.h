@@ -164,6 +164,7 @@
 **                                                                           **
 ** BULK_FLUXES         use if bulk fluxes computation                        **
 ** CCSM_FLUXES         use if CCSM version of bulk fluxes computation        **
+** ARCTIC_MERRA_HACK   may be used with MERRA forcing over the Arctic        **
 ** NCEP_FLUXES         use if NCEP forcing files are used                    **
 ** NL_BULK_FLUXES      use bulk fluxes computed by nonlinear model           **
 ** COOL_SKIN           use if cool skin correction                           **
@@ -600,6 +601,7 @@
 ** ICE_BULK_FLUXES     use for ice part of bulk flux computation
 ** ICE_CONVSNOW        use for conversion of flooded snow to ice
 ** ICE_STRENGTH_QUAD   use for ice strength a quadratic function of thickness
+** INI_GLORYS_ICE      use for ice initial conditions from GLORYS
 ** NO_SCORRECTION_ICE  use for no scorrection under the ice
 ** OUTFLOW_MASK        use for Hibler style outflow cells
 **
