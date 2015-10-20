@@ -335,6 +335,9 @@
       integer :: dg, cr, rg
 # endif
       integer :: i, ibt, ic, is, it, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
 # ifdef DIAGNOSTICS_TS
       integer :: idiag
 # endif
@@ -362,9 +365,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Ua
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: Va
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: Wa
-# endif
-# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-      integer :: iactrc, iwctrc
 # endif
 # ifdef AGE_DISTRIBUTION
       real(r8) :: fac
@@ -967,7 +967,7 @@
 !  Time-step vertical advection for intermediate diffusive tracer, Ta
 !  (Tunits).
 # else
-#  ifdef SPLINES
+#  ifdef SPLINES_VDIFF
 !  Time-step vertical advection term (Tunits).
 #  else
 !  Time-step vertical advection term (m Tunits).
@@ -1030,7 +1030,7 @@
 #  endif
 # else
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-cff1
-#  ifdef SPLINES
+#  ifdef SPLINES_VDIFF
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)*oHz(i,j,k)
 #  endif
 #  ifdef DIAGNOSTICS_TS
@@ -1176,7 +1176,7 @@
 #endif
           ltrc=MIN(NAT,itrc)
 
-# if defined SPLINES && !defined TS_MPDATA
+# if defined SPLINES_VDIFF && !defined TS_MPDATA
 !
 !  Use conservative, parabolic spline reconstruction of vertical
 !  diffusion derivatives.  Then, time step vertical diffusion term
@@ -1361,6 +1361,40 @@
 # endif
         END DO
       END DO
+
+# if defined AGE_MEAN && defined T_PASSIVE
+!
+!-----------------------------------------------------------------------
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index). Mean
+!  Age is age concentration divided by conservative passive tracer
+!  concentration. Code implements NPT/2 mean age tracer pairs.
+!
+!  Implemented and tested by W.G. Zhang and J. Wilkin. See following
+!  reference for details.
+!
+!   Zhang et al. (2010): Simulation of water age and residence time in
+!      the New York Bight, JPO, 40,965-982, doi:10.1175/2009JPO4249.1
+!-----------------------------------------------------------------------
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,nnew,iage)=t(i,j,k,nnew,iage)+                    &
+     &                           dt(ng)*                                &
+#  ifdef TS_MPDATA
+     &                           t(i,j,k,nnew,inert(itrc))
+#  else
+     &                           t(i,j,k,3,inert(itrc))
+#  endif
+            END DO
+          END DO
+        END DO
+      END DO
+# endif
 # if defined TRC_PSOURCE
 !
 !  Apply tracers point sources to the horizontal advection terms.
@@ -1388,53 +1422,6 @@
             END DO
           END DO
         END DO
-# endif
-# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!  Add water concentration to the right-hand-side of age concentration
-!  equation.
-!------Added by W.G.Zhang
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      DO it=1,NPT,2
-        iactrc=inert(it+1)
-        iwctrc=inert(it)
-        DO k=1,N(ng)
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
-              t(i,j,k,nnew,iactrc)=t(i,j,k,nnew,iactrc)+                &
-     &                             dt(ng)*t(i,j,k,nnew,iwctrc)
-            END DO
-          END DO
-        END DO
-      END DO
-# endif
-# ifdef AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! The aging term (dc/dtau) in the equation of age concentration
-! distribution function.
-! ------Added by W.G.Zhang to compute the age concentration distribution
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!
-      fac=dt(ng)/dtau(ng)
-      itrc=inert(3)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
-     &                           t(i,j,k,nnew,itrc)
-          END DO
-        END DO
-      END DO
-!
-      itrc=inert(4)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-fac*                &
-     &                         (t(i,j,k,nnew,itrc)-t(i,j,k,nnew,itrc-1))
-          END DO
-        END DO
-      END DO
 # endif
 !-----------------------------------------------------------------------
 !  Apply lateral boundary conditions and, if appropriate, nudge

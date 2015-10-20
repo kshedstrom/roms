@@ -107,7 +107,7 @@ GridsInLayer =  1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 1                               ! I-direction partition
-      NtileJ == 1                               ! J-direction partition
+      NtileJ == 4                               ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -199,7 +199,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-      NTIMES == 1440
+      NTIMES == 12
+!      NTIMES == 1440
           DT == 300.0d0
      NDTFAST == 30
 
@@ -1813,7 +1814,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 ! TNUDG_SSS    Nudging time scale (days) for surface salinity.
 !
-! SSS_MISMATCH_THRESHOLD   Threshold to trigger SSS correction 
+! SSS_MISMATCH_THRESHOLD   Threshold to trigger SSS correction.
 !
 ! OBCFAC       Factor between passive (outflow) and active (inflow) open
 !                boundary conditions.  The nudging time scales for the

@@ -102,6 +102,9 @@
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 #endif
+#ifdef IRON_LIMIT
+     &                   GRID(ng) % h,                                  &
+#endif
 #if defined WET_DRY && defined DIAGNOSTICS_BIO
      &                   GRID(ng) % rmask_full,                         &
 #endif
@@ -146,6 +149,9 @@
 #ifdef MASKING
      &                         rmask,                                   &
 #endif
+#ifdef IRON_LIMIT
+     &                         h,                                       &
+#endif
 #if defined WET_DRY && defined DIAGNOSTICS_BIO
      &                         rmask_full,                              &
 #endif
@@ -186,6 +192,9 @@
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 # endif
+#ifdef IRON_LIMIT
+      real(r8), intent(in) :: h(LBi:,LBj:)
+# endif
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
       real(r8), intent(in) :: rmask_full(LBi:,LBj:)
 # endif
@@ -218,6 +227,9 @@
 #else
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+# endif
+# ifdef IRON_LIMIT
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
 # endif
 # if defined WET_DRY && defined DIAGNOSTICS_BIO
       real(r8), intent(in) :: rmask_full(LBi:UBi,LBj:UBj)
@@ -387,6 +399,11 @@
       real(r8) :: sms21,sms22,sms23,sms24,sms25
       real(r8) :: sms26,sms27,sms28,sms29,sms30
       real(r8) :: sms31,sms32,sms33,sms34,sms35
+#ifdef IRON_LIMIT
+      real(r8) :: FNratio, FCratio, FCratioE
+      real(r8) :: cffFe, Fndgcf
+      real(r8) :: h_max, Fe_min, Fe_max, Fe_rel, SiN_min, SiN_max
+#endif
 
 #include "set_bounds.h"
 !

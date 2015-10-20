@@ -19,13 +19,19 @@
 #define NONLIN_EOS
 #define SOLVE3D
 #define SALINITY
-#define SPLINES
-# undef FLOATS
-# undef STATIONS
 #undef CCSM_COUPLED
 #define CORE_FORCING
 #define CCSM_FLUXES
  
+#ifdef SOLVE3D
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
+#endif
+#undef FLOATS
+#undef STATIONS
+#undef WET_DRY
+
 /* ice */
 
 #ifdef SOLVE3D

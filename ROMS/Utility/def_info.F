@@ -70,7 +70,7 @@
       USE mod_strings
 !
       USE def_var_mod, ONLY : def_var
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
       USE strings_mod, ONLY : join_string
@@ -100,7 +100,7 @@
 
       integer :: biodim(2)
 #endif
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
       integer :: p2dgrd(2), tbrydim(2)
@@ -994,7 +994,7 @@
 #endif
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       CALL mp_bcasti (ng, model, ibuffer)

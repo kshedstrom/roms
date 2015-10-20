@@ -265,7 +265,12 @@
 !  Local variable declarations.
 !
       integer :: i, ic, is, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
+# ifdef DIAGNOSTICS_TS
       integer :: idiag
+# endif
 
       real(r8), parameter :: eps = 1.0E-16_r8
 
@@ -276,7 +281,7 @@
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: CF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: BC
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC
-# ifdef SPLINES
+# ifdef SPLINES_VDIFF
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: DC1
 # endif
       real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
@@ -514,6 +519,48 @@
      &                      nstp, nnew,                                 &
      &                      ad_t)
       END DO
+
+# if defined AGE_MEAN && defined T_PASSIVE
+!
+!-----------------------------------------------------------------------
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index). Mean
+!  Age is age concentration divided by conservative passive tracer
+!  concentration. Code implements NPT/2 mean age tracer pairs.
+!
+!  Implemented and tested by W.G. Zhang and J. Wilkin. See following
+!  reference for details.
+!
+!   Zhang et al. (2010): Simulation of water age and residence time in
+!      the New York Bight, JPO, 40,965-982, doi:10.1175/2009JPO4249.1
+!-----------------------------------------------------------------------
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+!>            tl_t(i,j,k,nnew,iage)=tl_t(i,j,k,nnew,iage)+              &
+!>   &                              dt(ng)*                             &
+#  ifdef TS_MPDATA
+!>   &                              tl_t(i,j,k,nnew,inert(itrc))
+#  else
+!>   &                              tl_t(i,j,k,3,inert(itrc))
+#  endif
+!>
+#  ifdef TS_MPDATA
+              ad_t(i,j,k,nnew,inert(itrc))=ad_t(i,j,k,nnew,inert(itrc))+&
+     &                                     dt(ng)*ad_t(i,j,k,nnew,iage)
+#  else
+              ad_t(i,j,k,3,inert(itrc))=ad_t(i,j,k,3,inert(itrc))+      &
+     &                                  dt(ng)*ad_t(i,j,k,nnew,iage)
+#  endif
+            END DO
+          END DO
+        END DO
+      END DO
+# endif
 !
 !-----------------------------------------------------------------------
 !  Time-step adjoint vertical diffusion term.
@@ -545,7 +592,7 @@
         DO itrc=1,NT(ng)
           ltrc=MIN(NAT,itrc)
 
-# if defined SPLINES && !defined TS_MPDATA_NOT_YET
+# if defined SPLINES_VDIFF && !defined TS_MPDATA_NOT_YET
 !
 !  Use conservative, parabolic spline reconstruction of BASIC STATE
 !  vertical diffusion derivatives.  Solve BASIC STATE tridiagonal
@@ -1660,7 +1707,7 @@
 # endif
 !
 !  Time-step vertical advection term.
-# ifdef SPLINES
+# ifdef SPLINES_VDIFF
 !  The BASIC STATE "t" used below must be in transport units, but "t"
 !  retrived is in Tunits so we multiply by "Hz".
 # endif
@@ -1693,7 +1740,7 @@
 !!            END DO
 !!            DiaTwrk(i,j,k,itrc,iTvadv)=-cff1
 #  endif
-#  ifdef SPLINES
+#  ifdef SPLINES_VDIFF
 !>            tl_t(i,j,k,nnew,itrc)=tl_t(i,j,k,nnew,itrc)*              &
 !>   &                              oHz(i,j,k)+                         &
 !>   &                              (t(i,j,k,nnew,itrc)*Hz(i,j,k))*     &

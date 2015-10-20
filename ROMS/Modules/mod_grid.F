@@ -609,7 +609,6 @@
 !
 #ifdef NESTING
       IniMetricVal=spval                   ! very large value
-      IniMetricVal=IniVal
 #else
       IniMetricVal=IniVal
 #endif

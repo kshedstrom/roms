@@ -1900,7 +1900,8 @@
       RETURN
       END FUNCTION load_r
 
-      FUNCTION load_s1d (Nval, Fname, line, label, igrid, Nfiles, S)
+      FUNCTION load_s1d (Nval, Fname, Fdim, line, label, igrid, Nfiles, &
+     &                   S)
 !
 !=======================================================================
 !                                                                      !
@@ -1911,6 +1912,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     igrid      Nested grid counter (integer)                         !
@@ -1935,12 +1937,12 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval
+      integer, intent(in)    :: Nval, Fdim
       integer, intent(inout) :: igrid
       integer, intent(inout) :: Nfiles(Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(Ngrids)
@@ -2107,7 +2109,7 @@
       RETURN
       END FUNCTION load_s1d
 
-      FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
+      FUNCTION load_s2d (Nval, Fname, Fdim, line, label, ifile, igrid,  &
      &                   Nfiles, Ncount, idim, S)
 !
 !=======================================================================
@@ -2119,6 +2121,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     ifile      File structure counter (integer)                      !
@@ -2147,13 +2150,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval, idim
+      integer, intent(in)    :: Nval, Fdim, idim
       integer, intent(in)    :: Nfiles(Ngrids)
       integer, intent(inout) :: ifile, igrid
       integer, intent(inout) :: Ncount(idim,Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(idim,Ngrids)

@@ -90,10 +90,10 @@
 !-----------------------------------------------------------------------
 !
 #ifdef MY_APPLICATION
-      fac=day2sec/30.0_r8            ! 30 day relaxation scale 1/s/decC
+      fac=1.0_r8/(day2sec*30.0_r8)           ! 30 day relaxation scale 1/s/decC
       DO j=JstrT,JendT
         DO i=IstrT,IendT
-          dqdt(i,j)=fac*Hz(i,j,N(ng))
+          dqdt(i,j)=-fac*Hz(i,j,N(ng))
         END DO
       END DO
 #else

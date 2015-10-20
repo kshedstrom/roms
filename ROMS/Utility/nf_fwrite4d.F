@@ -51,7 +51,7 @@
 
       CONTAINS
 
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_OUT && defined DISTRIBUTE
 !
 !***********************************************************************
       FUNCTION nf_fwrite4d (ng, model, ncid, ncvarid, tindex, gtype,    &

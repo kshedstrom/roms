@@ -252,6 +252,20 @@
               Npts=load_r(Nval, Rval, Ngrids, colorFR1)
             CASE ('colorFR2')
               Npts=load_r(Nval, Rval, Ngrids, colorFR2)
+# ifdef IRON_LIMIT
+            CASE ('T_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, T_Fe)
+            CASE ('A_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, A_Fe)
+            CASE ('B_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, B_Fe)
+            CASE ('SK_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, SK_FeC)
+            CASE ('LK_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, LK_FeC)
+            CASE ('FeRR')
+              Npts=load_r(Nval, Rval, Ngrids, FeRR)
+# endif
   
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
@@ -662,6 +676,20 @@
      &            'Color fraction for labile DOC [nondimensional].'
             WRITE (out,100) colorFR2(ng), 'colorFR2',                   &
      &           'Color fraction for semi-labile DOC [nondimensional].'
+#ifdef IRON_LIMIT
+            WRITE (out,70) T_Fe(ng), 'T_Fe',                            &
+     &            'Iron uptake time scale (day-1).'
+            WRITE (out,70) A_Fe(ng), 'A_Fe',                            &
+     &            'Empirical Fe:C power (-).'
+            WRITE (out,70) B_Fe(ng), 'B_Fe',                            &
+     &            'Empirical Fe:C coefficient (1/M-C).'
+            WRITE (out,70) SK_FeC(ng), 'SK_FeC',                        &
+     &            'Small P Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) LK_FeC(ng), 'LK_FeC',                        &
+     &            'Large P Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) FeRR(ng), 'FeRR',                            &
+     &            'Fe remineralization rate (day-1).'
+#endif
 #ifdef TS_DIF2
             DO itrc=1,NBT
               i=idbio(itrc)

@@ -707,13 +707,14 @@
         real(r8), allocatable :: gamma2(:)
 !
 !  Weighting coefficient for the newest (implicit) time step derivatives
-!  in the Crack-Nicolson implicit scheme (usually, lambda=0.5).
+!  using either a Crack-Nicolson implicit scheme (lambda=0.5) or a
+!  backward implicit scheme (lambda=1.0).
 !
-#ifdef SPLINES
-        real(r8) :: lambda = 1.0_r8             ! backward implicit
+#if defined SPLINES_VDIFF || defined SPLINES_VVISC
+        real(r8) :: lambda = 1.0_r8
 #else
 !!      real(r8) :: lambda = 0.5_r8
-        real(r8) :: lambda = 1.0_r8             ! backward implicit
+        real(r8) :: lambda = 1.0_r8
 #endif
 !
 !  Jerlov water type to assign everywhere, range values: 1 - 5.
@@ -1802,6 +1803,11 @@
         real(r8), allocatable :: min_a(:)
         real(r8), allocatable :: max_a(:)
         real(r8), allocatable :: stressang(:)
+# ifdef ICE_LANDFAST
+        real(r8), allocatable :: lf_k1(:)
+        real(r8), allocatable :: lf_k2(:)
+        real(r8), allocatable :: lf_u0(:)
+# endif
 #endif
 
       CONTAINS
@@ -2361,6 +2367,11 @@
      allocate ( min_a(Ngrids) )
      allocate ( max_a(Ngrids) )
      allocate ( stressang(Ngrids) )
+# ifdef ICE_LANDFAST
+     allocate ( lf_k1(Ngrids) )
+     allocate ( lf_k2(Ngrids) )
+     allocate ( lf_u0(Ngrids) )
+# endif
 #endif
 
       RETURN

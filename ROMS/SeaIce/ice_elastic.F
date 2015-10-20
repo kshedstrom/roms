@@ -68,6 +68,10 @@
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 # endif
+# ifdef ICE_LANDFAST
+     &                      ICE(ng) % h_loadu,                          &
+     &                      ICE(ng) % h_loadv,                          &
+# endif
 # ifdef FASTICE_CLIMATOLOGY
      &                      FORCES(ng) % fastice_clm,                   &
 # endif
@@ -117,6 +121,9 @@
 # ifdef ICE_SHOREFAST
      &                        h,                                        &
      &                        Zt_avg1,                                  &
+# endif
+# ifdef ICE_LANDFAST
+     &                        h_loadu, h_loadv,                         &
 # endif
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
@@ -175,6 +182,10 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(in) :: h_loadu(LBi:,LBj:)
+      real(r8), intent(in) :: h_loadv(LBi:,LBj:)
+#  endif
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
 # endif
@@ -221,6 +232,10 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(in) :: h_loadu(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: h_loadv(LBi:UBi,LBj:UBj)
+#  endif
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
 # endif
@@ -248,9 +263,6 @@
 
 ! Local variable definitions
 !
-# ifdef ICE_SHOREFAST
-      real(r8) :: clear
-# endif
       integer :: i, j
 
 # ifdef MICLM_NUDGING
@@ -286,8 +298,12 @@
       real(r8) :: mfv12
       real(r8) :: mfv22
 # ifdef ICE_SHOREFAST
+      real(r8) :: clear
       real(r8) :: hu
       real(r8) :: hv
+# endif
+# ifdef ICE_LANDFAST
+      real(r8) :: speed, v_u, u_v, tau_bu, tau_bv
 # endif
 
 # include "set_bounds.h"
@@ -572,6 +588,17 @@
 ! *** stress from ocean current 
           uforce = uforce/(om_u(i,j)*on_u(i,j)) +                       &
      &                         auf*chux*rho0*uwater(i,j)
+#ifdef ICE_LANDFAST
+!
+! *** stress on bottom of keels
+          IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
+            v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
+     &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
+            speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
+            uforce = uforce - uie(i,j,lieol)*                           &
+     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
+          END IF
+#endif
 !
           alfa = masu + dte(ng)*auf*rho0*chux
 !
@@ -780,6 +807,17 @@
 ! *** stress from ocean current 
           vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
      &                         avf*chuy*rho0*vwater(i,j)
+#ifdef ICE_LANDFAST
+!
+! *** stress on bottom of keels
+          IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
+            u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
+     &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
+            speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
+            vforce = vforce - vie(i,j,lieol)*                           &
+     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+          END IF
+#endif
 !
           alfa = masv + dte(ng)*avf*rho0*chuy
 

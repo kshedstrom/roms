@@ -27,7 +27,9 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #endif
 #define FLOATS
 #define STATIONS
@@ -40,7 +42,7 @@
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
-# define AGE_PASSIVE
+# define AGE_MEAN
 #endif
 
 /* ice */
@@ -217,6 +219,7 @@
 **  Biological model options.
 */
 #undef NEMURO
+#define BIO_UMAINE
 
 #if defined NEMURO
 # define BIO_SEDIMENT
@@ -229,4 +232,18 @@
 # undef  IVLEV_EXPLICIT
 # undef  ANA_BIOSWRAD
 # undef  DIAGNOSTICS_BIO
+#endif
+
+#ifdef BIO_UMAINE
+# define CARBON
+# define OXYGEN
+# define PRIMARY_PROD
+# define SINK_OP2
+# define TALK_NONCONSERV
+# undef OPTIC_UMaine
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+# define IRON_RELAX
+# undef  IRON_RSIN
 #endif

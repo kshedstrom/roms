@@ -19,7 +19,9 @@
 #define NONLIN_EOS
 #define SOLVE3D
 #define SALINITY
-#define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 # undef FLOATS
 # undef STATIONS
  

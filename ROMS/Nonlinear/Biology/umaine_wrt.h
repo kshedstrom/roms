@@ -481,3 +481,34 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
+#ifdef IRON_LIMIT
+      CALL netcdf_put_fvar (ng, model, ncname, 'T_Fe',                  &
+     &                      T_Fe(ng), (/0/), (/0/),                     &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'A_Fe',                  &
+     &                      A_Fe(ng), (/0/), (/0/),                     &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'B_Fe',                  &
+     &                      B_Fe(ng), (/0/), (/0/),                     &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'SK_FeC',                &
+     &                      SK_FeC(ng), (/0/), (/0/),                   &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'LK_FeC',                &
+     &                      LK_FeC(ng), (/0/), (/0/),                   &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'FeRR',                  &
+     &                      FeRR(ng), (/0/), (/0/),                     &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
