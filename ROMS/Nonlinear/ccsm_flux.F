@@ -846,7 +846,7 @@ contains
 # ifdef LONGWAVE
           qlwi = emmiss*StefBo*(TairK(i)**4)*                           &
      &         (0.39_r8-0.005_r8*SQRT(vap_p_i))*                        &
-     &                (1.0_r8-0.65_r8*cloud(i,j)) +                     &
+     &                (1.0_r8-0.65_r8*cloud(i,j)) -                     &
      &          4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-TairK(i))
 
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
@@ -856,20 +856,19 @@ contains
      &    (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1.0_r8-0.65_r8*cloud(i,j))  &
      &    - 4.0_r8)
 # else
-          qlwi = lrflx(i,j)*Hscale
-          RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
-     &           lrflx(i,j)*Hscale -                                    &
-     &     4._r8*StefBo*emmiss*TairK(i)**3*(sfc_temp-2._r8*TairK(i))
-
+          qlwi = lrflx(i,j)*Hscale - emmiss*StefBo*sfc_temp**4
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
-     &            4._r8*StefBo*emmiss*TairK(i)**3
+     &            4._r8*StefBo*emmiss*sfc_temp**3
+          RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
+     &           lrflx(i,j)*Hscale +                                    &
+     &     3*StefBo*emmiss*sfc_temp**4
 # endif
 ! Correct for Kelvin to Celsius in RHS
           RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-          Qai(i,j) =-qsh_i - qlh_i - qswi + qlwi
+          Qai(i,j) =-qsh_i - qlh_i - qswi - qlwi
 #  endif
 # endif
           !--- heat flux ---

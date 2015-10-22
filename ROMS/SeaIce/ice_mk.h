@@ -450,6 +450,7 @@
       real(r8) :: d1
       real(r8) :: d2i
       real(r8) :: d3
+      real(r8) :: tis_old
 
       real(r8) :: fac_shflx
 
@@ -550,10 +551,14 @@
 ! downward conductivity term, assuming the ocean at the freezing point
             rhs_ice_heat(i,j) = rhs_ice_heat(i,j) +                     &
      &              b2d(i,j)*ti(i,j,linew)
+	    tis_old = tis(i,j)
             tis(i,j) = rhs_ice_heat(i,j)/coef_ice_heat(i,j)
             tis(i,j) = MAX(tis(i,j),-45._r8)
+            qai(i,j) = qai_n(i,j) + 4*emmiss*StefBo*tis_old**3*       &
+     &                         (tis(i,j) - tis_old)
           ELSE
             tis(i,j) = temp_top(i,j)
+            qai(i,j) = qai_n(i,j)
           END IF
         END DO
       END DO
@@ -586,7 +591,6 @@
           END IF
 
 !  Compute net heat flux from ice to atmosphere - Mellor and Kantha (7)
-          qai(i,j) = qai_n(i,j)
         END DO
       END DO
 

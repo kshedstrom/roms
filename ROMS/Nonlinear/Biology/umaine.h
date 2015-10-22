@@ -580,6 +580,29 @@
           PARsur(i)=PARsur(i)*unit4
 #endif
         END DO
+
+#if defined IRON_LIMIT && defined IRON_RELAX
+!  Relaxation of dissolved iron to climatology
+        DO k=1,N(ng)
+          DO i=Istr,Iend
+!  Set concentration and depth parameters for FeD climatology
+!  Fe concentration in (micromol-Fe/m3, or nM-Fe)
+            h_max = 200.0_r8
+            Fe_max = 2.0_r8
+!  Set nudging time scales to 5 days
+            Fe_rel = 5.0_r8
+            Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
+!  Relaxation for depths < h_max to simulate Fe input at coast
+            IF (h(i,j).le.h_max) THEN
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
+            ELSE IF (h(i,j).gt.h_max .and. Bio(i,k,iFeD_).lt.0.1_r8) THEN
+                    Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                      &
+     &                       dt(ng)*Fndgcf*(0.1_r8-Bio(i,k,iFeD_))
+            END IF
+          END DO
+        END DO
+#endif
 !
         ITER_LOOP: DO Iter=1,BioIter(ng)
 
@@ -769,6 +792,25 @@
             UPO4S1=GNUTS1
             UCO2S1=GNUTS1
 
+#ifdef IRON_LIMIT
+! HACK: Need to connect this
+! Small phytoplankton growth reduction factor due to iron limitation
+!
+! Current Fe:N ratio [umol-Fe/mmol-N]
+              FNratio=Bio(i,k,iFeSp)/MAX(MinVal,Bio(i,k,iSphy))
+! Current F:C ratio [umol-Fe/mol-C]
+! (umol-Fe/mmol-N)*(16 M-N/106 M-C)*(1e3 mmol-C/mol-C),
+              FCratio=FNratio*(16.0_r8/106.0_r8)*1.0e3_r8
+! Empirical FCratio
+              FCratioE= B_Fe(ng)*Bio(i,k,iFeD_)**A_Fe(ng)
+! Phytoplankton growth reduction factor due to iron limitation
+! based on F:C ratio
+              Flimit = FCratio**2.0_r8/                                 &
+     &                 (FCratio**2.0_r8+SK_FeC(ng)**2.0_r8)
+!JF              Flimit = FCratio/(FCratio+SK_FeC(ng))
+#else
+              Flimit = 1.0_r8
+#endif
 !      S1 THE SPECIFIC GROWTH RATE
           gno3S1   = VncrefS1*Tfunc*uno3S1                           &
      &                     * (1.0_r8-fnitS1)/(ini_v-fnitS1)
@@ -797,6 +839,29 @@
             UPO4S2=GNUTS2
             UCO2S2=GNUTS2
 
+#ifdef IRON_LIMIT
+! HACK here too plus S3
+! Iron uptake proportional to growth
+              cffFe=GppPS*FNratio/MAX(MinVal,Bio(i,k,iFeD_))
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)+                            &
+     &                       Bio(i,k,iFeD_)*cffFe
+!
+! Iron uptake to reach appropriate Fe:C ratio
+              cffFe=dtdays*(FCratioE-FCratio)/T_fe(ng)
+              cffFe=Bio(i,k,iSphy)*cffFe*(106.0_r8/16.0_r8)*1.0e-3_r8
+              IF (cffFe.ge.0.0_r8) THEN
+                cffFe=cffFe/MAX(MinVal,Bio(i,k,iFeD_))
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
+                Bio(i,k,iFeSp)=Bio(i,k,iFeSp)+                          &
+     &                         Bio(i,k,iFeD_)*cffFe
+              ELSE
+                cffFe=-cffFe/MAX(MinVal,Bio(i,k,iFeSp))
+                Bio(i,k,iFeSp)=Bio(i,k,iFeSp)/(1.0_r8+cffFe)
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+     &                         Bio(i,k,iFeSp)*cffFe
+              END IF
+#endif
 !      S2 SPECIFIC GROWTH RATE
             gno3S2   = VncrefS2*Tfunc*uno3S2                           &
      &                     * (1.0_r8-fnitS2)/(ini_v-fnitS2)
@@ -822,6 +887,26 @@
             uno3s3=GNUTS3
             UPO4S3=GNUTS3
             UCO2S3=GNUTS3
+#ifdef IRON_LIMIT
+! HACK, hack, hack
+! Large phytoplankton growth reduction factor due to iron limitation
+!
+! Current Fe:N ratio [umol-Fe/mmol-N]
+              FNratio=Bio(i,k,iFeLp)/MAX(MinVal,Bio(i,k,iLphy))
+! Current F:C ratio [umol-Fe/mol-C]
+! (umol-Fe/mmol-N)*(16 M-N/106 M-C)*(1e3 mmol-C/mol-C),
+              FCratio=FNratio*(16.0_r8/106.0_r8)*1.0e3_r8
+! Empirical FCratio
+              FCratioE= B_Fe(ng)*Bio(i,k,iFeD_)**A_Fe(ng)
+! Phytoplankton growth reduction factor due to Iron limitation
+! based on F:C ratio
+              Flimit = FCratio**2.0_r8/                                 &
+     &                 (FCratio**2.0_r8+LK_FeC(ng)**2.0_r8)
+!JF              Flimit = FCratio/(FCratio+LK_FeC(ng))
+#else
+              Flimit = 1.0_r8
+#endif
+
 !      S3 SPECIFIC GROWTH RATE
 !using a constat Tfunc here
                gno3S3   = VncrefS3*uno3S3*0.5_r8                      &
@@ -869,6 +954,42 @@
      &  * (1.0_r8-exp((-1.0_r8*alphachl_s1(ng)*thetaCS1*cff3)           &
      &  / PCmaxS1))
 
+#ifdef IRON_LIMIT
+! HACK, no end
+! Iron Uptake proportional to growth
+              cffFe=GppPL*FNratio/MAX(MinVal,Bio(i,k,iFeD_))
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)+                            &
+     &                       Bio(i,k,iFeD_)*cffFe
+!
+! Iron uptake to reach appropriate Fe:C ratio
+              cffFe=dtdays*(FCratioE-FCratio)/T_fe(ng)
+              cffFe=Bio(i,k,iLphy)*cffFe*(106.0_r8/16.0_r8)*1.0e-3_r8
+              IF (cffFe.ge.0.0_r8) THEN
+                cffFe=cffFe/MAX(MinVal,Bio(i,k,iFeD_))
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
+                Bio(i,k,iFeLp)=Bio(i,k,iFeLp)+                          &
+     &                         Bio(i,k,iFeD_)*cffFe
+              ELSE
+                cffFe=-cffFe/MAX(MinVal,Bio(i,k,iFeLp))
+                Bio(i,k,iFeLp)=Bio(i,k,iFeLp)/(1.0_r8+cffFe)
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+     &                         Bio(i,k,iFeLp)*cffFe
+              END IF
+#endif
+#ifdef IRON_LIMIT
+! Large Phytoplankton respiration Fe terms
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)/(1.0_r8+cff5)
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       Bio(i,k,iFeLp)*cff5*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+! Large Phytoplankton excretion Fe terms
+              cffFe=ExcPL*Bio(i,k,iFeLp)/MAX(MinVal,Bio(i,k,iLphy))
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
+
       n_pps1 =  n_nps1+n_rps1
       n_pps2 =  n_nps2+n_rps2
       n_pps3 =  n_nps3+n_rps3
@@ -876,6 +997,60 @@
               NPP_slice(i,k)=NPP_slice(i,k)+n_pps1+n_pps2+n_pps3
 #endif
 
+#ifdef IRON_LIMIT
+!----------------------------------------------------------------------
+!     respiration of Iron
+!----------------------------------------------------------------------
+! HACK: still more
+! Small phytoplankton respiration Fe terms
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)/(1.0_r8+cff4)
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       Bio(i,k,iFeSp)*cff4*FeRR(ng)
+! Small phytoplankton excretion Fe terms
+              cffFe=ExcPS*Bio(i,k,iFeSp)/MAX(MinVal,Bio(i,k,iSphy))
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+
+#endif
+#ifdef IRON_LIMIT
+! Phytoplankton Mortality Fe terms
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)/(1.0_r8+cff1)
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       Bio(i,k,iFeSp)*cff1*FeRR(ng)
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)/(1.0_r8+cff2)
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
+     &                       Bio(i,k,iFeLp)*cff2*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+!     Grazing Fe terms
+              cffFe=GraPS2ZS*Bio(i,k,iFeSp)/MAX(MinVal,Bio(i,k,iSphy))
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+!     Grazing Fe terms
+              cffFe=GraPL2ZS*Bio(i,k,iFeLp)/MAX(MinVal,Bio(i,k,iLphy))
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+!     Grazing Fe terms
+              cffFe=GraPS2ZL*Bio(i,k,iFeSp)/MAX(MinVal,Bio(i,k,iSphy))
+              Bio(i,k,iFeSp)=Bio(i,k,iFeSp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+!     Grazing Fe terms
+              cffFe=GraPL2ZL*Bio(i,k,iFeLp)/MAX(MinVal,Bio(i,k,iLphy))
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
+#ifdef IRON_LIMIT
+!     Grazing Fe terms
+              cffFe=GraPL2ZP*Bio(i,k,iFeLp)/MAX(MinVal,Bio(i,k,iLphy))
+              Bio(i,k,iFeLp)=Bio(i,k,iFeLp)-cffFe
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+cffFe*FeRR(ng)
+#endif
 !----------------------------------------------------------------------
 !     rate for c1,c2,c3
 !----------------------------------------------------------------------
