@@ -383,7 +383,9 @@
 #   endif
 #  endif
 
-#  if defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
+#  ifdef ANA_LRFLUX
+      CALL ana_lrflux (ng, tile, iNLM)
+#  elif defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation (degC m/s).
@@ -397,7 +399,7 @@
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
-#  if defined LONGWAVE_OUT && defined BULK_FLUXES
+#  if defined LONGWAVE_OUT && defined BULK_FLUXES && !defined ANA_LRFLUX
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation (degC m/s).
@@ -501,12 +503,16 @@
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 #   ifdef SNOWFALL
+#    ifdef ANA_SNOW
+      CALL ana_snow (ng, tile, iNLM)
+#    else
       CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%snowG,                            &
      &                     FORCES(ng)%snow,                             &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+#    endif
 #   endif
 !
 !-----------------------------------------------------------------------

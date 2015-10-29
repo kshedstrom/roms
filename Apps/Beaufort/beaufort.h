@@ -9,37 +9,32 @@
 **
 *******************************************************************************
 **
-**  Options for BERING simulation
+**  Options for ARCTIC simulation
 */
 
-#undef ROMS_MODEL
-#undef WRF_MODEL
-#undef MCT_LIB
-#undef ATM2OCN_FLUXES  /* not sure about this with ice */
-#undef NO_LBC_ATT
-
 #define NO_HIS
-#undef HDF5
-#undef DEFLATE
-#undef PARALLEL_IN
-#undef PARALLEL_OUT
+#undef GLOBAL_PERIODIC
+#define HDF5
+#define DEFLATE
+#undef PARALLEL_IO
 #define PERFECT_RESTART
+#undef NO_LBC_ATT
 
 /* general */
 
 #define CURVGRID
 #define MASKING
+#define NONLIN_EOS
 #define SOLVE3D
+#define SALINITY
 #ifdef SOLVE3D
-# define SALINITY
-# define NONLIN_EOS
 # define SPLINES_VDIFF
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#define STATIONS
-#define WET_DRY
+#undef STATIONS
+#undef WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -63,24 +58,21 @@
 
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  define ANA_ICE
+#  undef ANA_ICE
 #  undef  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
-#  define  ICE_THERMO
-#  define  ICE_MK
-#  define  ICE_MOMENTUM
-#  define  ICE_MOM_BULK
-#  define  ICE_EVP
-#  define  ICE_STRENGTH_QUAD
-#  define  ICE_ADVECT
-#  define  ICE_SMOLAR
-#  define  ICE_UPWIND
-#  define  ICE_BULK_FLUXES
+#  define  FASTICE_CLIMATOLOGY
+#  undef ICE_LANDFAST
+#  define ICE_THERMO
+#  define ICE_MK
+#  define ICE_MOMENTUM
+#  define ICE_MOM_BULK
+#  define ICE_EVP
+#  define ICE_STRENGTH_QUAD
+#  define ICE_ADVECT
+#  define ICE_SMOLAR
+#  define ICE_UPWIND
+#  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
-#  undef  MELT_PONDS
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -116,15 +108,16 @@
 #endif
 
 #define UV_VIS2
+#undef UV_SMAGORINSKY
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
 #undef SPONGE
 
 #ifdef SOLVE3D
-# undef TS_DIF2
-# undef MIX_GEO_TS
-# undef DIFF_GRID
+# define TS_DIF2
+# define MIX_GEO_TS
+# define DIFF_GRID
 #endif
 
 /* vertical mixing */
@@ -137,30 +130,27 @@
 #  define LMD_RIMIX
 #  define LMD_CONVEC
 #  define LMD_SKPP
-#  undef LMD_BKPP
+#  define LMD_BKPP
 #  define LMD_NONLOCAL
 #  define LMD_SHAPIRO
 #  undef LMD_DDMIX
 # endif
 
 # undef GLS_MIXING
+# undef MY25_MIXING
 
-# if defined GLS_MIXING
+# if defined GLS_MIXING || defined MY25_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
-#  define AKLIMIT
 # endif
 #endif
 
 /* surface forcing */
 
 #ifdef SOLVE3D
-# ifndef ATM2OCN_FLUXES
-#  define CORE_FORCING
-#  define BULK_FLUXES
-#  define CCSM_FLUXES
-#  define ARCTIC_MERRA_HACK
-# endif
+# define CORE_FORCING
+# define BULK_FLUXES
+# define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
 #  undef DIURNAL_SRFLUX
@@ -169,9 +159,9 @@
 #  undef ANA_SRFLUX
 #  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
-#  undef ICE_ALB_EC92  /* for ice */
+#  undef ICE_ALB_EC92   /* for ice */
 #  define ALBEDO_CSIM   /* for ice */
-#  undef ALBEDO_FILE  /* for both */
+#  undef ALBEDO_FILE    /* for both */
 #  undef LONGWAVE
 # endif
 #endif
@@ -190,30 +180,29 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Using both for different regions */
 #ifdef SOLVE3D
-# define RUNOFF
+# undef RUNOFF
+# define TWO_D_TRACER_SOURCE
 #endif
 
 /* tides */
 
 #define LTIDES
 #ifdef LTIDES
-# ifdef AVERAGES
-#  define FILTERED
-# endif
+# undef FILTERED
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
 # define ADD_M2OBC
 # undef RAMP_TIDES
 # define TIDES_ASTRO
-# define POT_TIDES
+# undef POT_TIDES
 
-# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
+# undef UV_LDRAG
 # define UV_QDRAG
 #else
 # define UV_QDRAG

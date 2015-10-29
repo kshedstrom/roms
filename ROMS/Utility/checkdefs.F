@@ -184,11 +184,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
-#if defined ARCTIC_MERRA_HACK
-      IF (Master) WRITE (stdout,20) 'ARCTIC_MERRA_HACK',                &
-     &   'Tweaking MERRA over the Arctic.'
+#ifdef ANA_ALBEDO
+      IF (Master) WRITE (stdout,20) 'ANA_ALBEDO',                       &
+     &   'Analytical surface albedo.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' ARCTIC_MERRA_HACK,'
+      Coptions(is:is+12)=' ANA_ALBEDO,'
 #endif
 #if defined BIOLOGY && defined ANA_BIOLOGY
       IF (Master) WRITE (stdout,20) 'ANA_BIOLOGY',                      &
@@ -276,6 +276,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_INITIAL,'
 #endif
+#ifdef ANA_LRFLUX
+      IF (Master) WRITE (stdout,20) 'ANA_LRFLUX',                       &
+     &   'Analytical incoming longwave radiation flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' ANA_LRFLUX,'
+#endif
 #ifdef ANA_M2CLIMA
       IF (Master) WRITE (stdout,20) 'ANA_M2CLIMA',                      &
      &   'Analytical 2D momentum climatology.'
@@ -338,6 +344,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_PSOURCE,'
 #endif
+#if defined ANA_PTOBC && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
+     &   'Analytical passive tracers boundary conditions.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ANA_PTOBC,'
+#endif
 #if defined ANA_RAIN && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ANA_RAIN',                         &
      &   'Analytical rain fall rate.'
@@ -364,6 +376,12 @@
      &   'Analytical kinematic surface momentum flux.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_SMFLUX,'
+#endif
+#if defined ANA_SNOW
+      IF (Master) WRITE (stdout,20) 'ANA_SNOW',                         &
+     &   'Analytical snowfall rate.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' ANA_SNOW,'
 #endif
 #if defined BIOLOGY || defined SEDIMENT || defined T_PASSIVE
 # ifdef ANA_SPFLUX
@@ -435,12 +453,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_TOBC,'
 #endif
-#if defined ANA_PTOBC && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
-     &   'Analytical passive tracers boundary conditions.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' ANA_PTOBC,'
-#endif
 #if defined ANA_VMIX && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'ANA_VMIX',                         &
      &   'Analytical vertical mixing coefficients.'
@@ -466,6 +478,12 @@
      &   'Analytical wind induced waves.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ANA_WWAVE,'
+#endif
+#if defined ARCTIC_MERRA_HACK
+      IF (Master) WRITE (stdout,20) 'ARCTIC_MERRA_HACK',                &
+     &   'Tweaking MERRA over the Arctic.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ARCTIC_MERRA_HACK,'
 #endif
 #ifdef ARRAY_MODES
       IF (Master) WRITE (stdout,20) 'ARRAY_MODES',                      &

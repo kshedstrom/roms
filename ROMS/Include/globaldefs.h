@@ -687,7 +687,8 @@
     (!defined BULK_FLUXES  && !defined ANA_STFLUX)   || \
     ( defined BIOLOGY      && !defined ANA_SPFLUX)   || \
     ( defined BIOLOGY      && !defined ANA_BPFLUX)   || \
-    ( defined BULK_FLUXES  && !defined LONGWAVE)     || \
+    ( defined BULK_FLUXES  && !defined LONGWAVE      && \
+     !defined ANA_LRFLUX)                            || \
     ( defined BULK_FLUXES  && !defined ANA_PAIR)     || \
     ( defined BULK_FLUXES  && !defined ANA_TAIR)     || \
     ( defined BULK_FLUXES  && !defined ANA_HUMIDITY) || \
@@ -780,7 +781,7 @@
 */
 
 #if defined ALBEDO_CLOUD   || defined ALBEDO_CSIM \
-  || defined ALBEDO_CURVE  || defined ALBEDO_FILE
+  || defined ALBEDO_CURVE  || defined ALBEDO_FILE || defined ANA_ALBEDO
 # define ALBEDO
 #endif
 

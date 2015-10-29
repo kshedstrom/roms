@@ -504,6 +504,7 @@
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL ana_initial (ng, tile, iNLM)
           END DO
+          io_time = time(ng)
 !$OMP BARRIER
         END IF
       END DO

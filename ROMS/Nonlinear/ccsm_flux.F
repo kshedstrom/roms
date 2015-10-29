@@ -134,6 +134,9 @@ contains
      &                     ICE(ng) % coef_ice_heat,                     &
      &                     ICE(ng) % rhs_ice_heat,                      &
      &                     FORCES(ng) % snow_n,                         &
+#   ifdef SNOWFALL
+     &                     FORCES(ng) % snow,                           &
+#   endif
 #  endif
      &                     FORCES(ng) % sustr_aw,                       &
      &                     FORCES(ng) % svstr_aw,                       &
@@ -215,10 +218,12 @@ contains
 # ifdef ICE_MODEL
      &                           ai, hi,                                &
 #  ifdef ICE_THERMO
-     &                           qai_n,                                 &
-     &                           qswi_n,                                &
-     &                           hsn, tis,                              &
-     &                           coef_ice_heat, rhs_ice_heat, snow_n,   &
+     &                           qai_n, qswi_n,                         &
+     &                           hsn, tis, coef_ice_heat,               &
+     &                           rhs_ice_heat, snow_n,                  &
+#   ifdef SNOWFALL
+     &                           snow,                                  &
+#   endif
 #  endif
      &                           sustr_aw, svstr_aw, qao_n,             &
      &                           tau_aix_n, tau_aiy_n,                  &
@@ -341,6 +346,9 @@ contains
       real(r8), intent(out) :: coef_ice_heat(LBi:,LBj:)
       real(r8), intent(out) :: rhs_ice_heat(LBi:,LBj:)
       real(r8), intent(out) :: snow_n(LBi:,LBj:)
+#    ifdef SNOWFALL
+      real(r8), intent(in) :: snow(LBi:,LBj:)
+#    endif
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:,LBj:)
       real(r8), intent(out) :: tau_aiy_n(LBi:,LBj:)
@@ -433,6 +441,9 @@ contains
       real(r8), intent(out) :: coef_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rhs_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: snow_n(LBi:UBi,LBj:UBj)
+#    ifdef SNOWFALL
+      real(r8), intent(in) :: snow(LBi:UBi,LBj:UBj)
+#    endif
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
@@ -454,12 +465,13 @@ contains
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
-
 # endif
 !
 !  Local variable declarations.
 !
       integer :: i, j, listp
+      integer :: iday, month, year
+      real(r8) :: hour, yday
 
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
@@ -484,6 +496,14 @@ contains
       real(r8), parameter :: coef_shallow = 5.28_r8
 !      real(r8), parameter :: coef_shallow = 4.69_r8
       real(r8) :: cffe
+#endif
+#ifdef ICE_BOX
+      real(r8), parameter :: sensible_MU(12) =                          &
+     &        (/ 19.1, 12.3, 11.6, 4.7, -7.3, -6.3,                     &
+     &           -4.8, -6.5, -2.7, 1.6, 9.0, 12.8     /)
+      real(r8), parameter :: latent_MU(12) =                            &
+     &        (/ 0.0, -0.32, -0.48, -1.45, -7.4, -11.3,                &
+     &           -10.3, -10.7, -6.3, -3.1, -.16, -.16   /)
 #endif
 
 ! ------------------------------------------------------------------
@@ -520,7 +540,7 @@ contains
 
 ! !INPUT/OUTPUT PARAMETERS:
 
-   !--- input arguments --------------------------------
+!--- input arguments --------------------------------
 !  integer(IN),intent(in) :: rmask(imax) ! ocn domain mask 0
 !  real(R8)   ,intent(in) :: blk_ZX (imax) ! atm level height      (m)
 !  real(R8)   ,intent(in) :: Uwind (imax) ! atm u wind            (m/s)
@@ -532,7 +552,7 @@ contains
 !  real(R8)   ,intent(in) :: v   (imax) ! ocn v-velocity        (m/s)
 !  real(R8)   ,intent(in) :: t   (imax) ! ocn temperature       (K)
 
-   !--- output arguments -------------------------------
+!--- output arguments -------------------------------
 !  real(R8),intent(out)  ::  shflx  (imax) ! heat flux: sensible    (W/m^2)
 !  real(R8),intent(out)  ::  lhflx  (imax) ! heat flux: latent      (W/m^2)
 !  real(R8),intent(out)  ::  lwup (imax) ! heat flux: lw upward   (W/m^2)
@@ -545,12 +565,12 @@ contains
 
 !EOP
 
-   !--- local constants --------------------------------
+!--- local constants --------------------------------
       real(R8),parameter :: umin  =  0.5    ! minimum wind speed       (m/s)
       real(R8),parameter :: zref  = 10.0    ! reference height           (m)
       real(R8),parameter :: ztref =  2.0    ! reference height for air T (m)
 
-   !--- local variables --------------------------------
+!--- local variables --------------------------------
       real(r8)    :: lwup   ! upward longwave radiation
       real(r8)    :: vmag   ! surface wind magnitude   (m/s)
       real(r8)    :: thvbot ! virtual temperature      (K)
@@ -597,7 +617,7 @@ contains
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
 #endif
 
-   !--- local functions --------------------------------
+!--- local functions --------------------------------
       real(r8)    :: qsat   ! function: the saturation humididty of air (kg/m^3)
       real(r8)    :: cdn    ! function: neutral drag coeff at 10m
       real(r8)    :: psimhu ! function: unstable part of psimh
@@ -675,6 +695,9 @@ contains
       END IF
 #endif
 
+#ifdef ICE_BOX
+      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+#endif
 
       Hscale=rho0*Cp
       Hscale2=1.0_r8/(rho0*Cp)
@@ -813,17 +836,24 @@ contains
           ELSE
             sfc_temp = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           ENDIF
+#   ifdef ICE_BOX
+          qsh_i = sensible_MU(month)
+          RHS_Ice(i,j) = RHS_Ice(i,j) + qsh_i
+#   else
           qsh_i = rhoAir(i)*blk_Cpa*Ch*vmag*                            &
      &            (TairK(i)+0.0098*blk_ZT(ng)-sfc_temp)
-
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
      &          rhoAir(i)*blk_Cpa*Ch*vmag
           RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
      &        rhoAir(i)*blk_Cpa*Ch*vmag*(TairK(i)+0.0098*blk_ZT(ng))
+#   endif
 
 ! Latent heat flux over ice
-          le_i=2.834E+6_r8
+          le_i=2.834E+6_r8    ! Latent heat of sublimation
 
+#   ifdef ICE_BOX
+          qlh_i = latent_MU(month)
+#   else
 ! Qsati is saturation specific humidity over the ice from
 ! Parkinson and Washington (1979)
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
@@ -833,17 +863,20 @@ contains
           dq_i=Hair(i,j)-Qsati
           fqlat1=rhoAir(i)*Ce*vmag
           qlh_i = fqlat1*le_i*dq_i
+#   endif
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
 !
 ! Short-wave radiation to ice
+#   if defined ALBEDO && defined SHORTWAVE
           qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
+#   endif
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
 
 ! Net long-wave radiation from ice
           cff = Hair(i,j)/(1.0_r8+Hair(i,j))
           vap_p_i = slp*cff/(0.62197 + cff)
-# ifdef LONGWAVE
+#   ifdef LONGWAVE
           qlwi = emmiss*StefBo*(TairK(i)**4)*                           &
      &         (0.39_r8-0.005_r8*SQRT(vap_p_i))*                        &
      &                (1.0_r8-0.65_r8*cloud(i,j)) -                     &
@@ -855,25 +888,35 @@ contains
      &         emmiss*StefBo*(TairK(i)**4)*(                            &
      &    (0.39_r8-0.005_r8*SQRT(vap_p_i))*(1.0_r8-0.65_r8*cloud(i,j))  &
      &    - 4.0_r8)
-# else
+#   else
           qlwi = lrflx(i,j)*Hscale - emmiss*StefBo*sfc_temp**4
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
      &            4._r8*StefBo*emmiss*sfc_temp**3
-          RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
-     &           lrflx(i,j)*Hscale +                                    &
-     &     3*StefBo*emmiss*sfc_temp**4
-# endif
+          RHS_Ice(i,j) = RHS_Ice(i,j) + lrflx(i,j)*Hscale +             &
+     &            3._r8*StefBo*emmiss*sfc_temp**4
+#   endif
 ! Correct for Kelvin to Celsius in RHS
           RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
 
 ! Net heat flux from ice to atmosphere
-          Qai(i,j) =-qsh_i - qlh_i - qswi - qlwi
+          Qai(i,j) = -qsh_i - qlh_i - qswi - qlwi
 #  endif
 # endif
           !--- heat flux ---
-          SHeat (i,j) = cpair * tau * tstar / ustar
-          LHeat (i,j) = shr_const_latvap * tau * qstar / ustar
+# ifdef ICE_BOX
+          SHeat(i,j) = sensible_MU(month)
+          LHeat(i,j) = latent_MU(month)
+# else
+          SHeat(i,j) = cpair * tau * tstar / ustar
+          LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
+#  ifdef ICE_MODEL
+          SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
+     &                    ai(i,j,listp)*qsh_i
+          LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
+     &                    ai(i,j,listp)*qlh_i
+#  endif
+# endif
         END DO
       END DO
 
@@ -974,7 +1017,7 @@ contains
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
           srflx(i,j)=(1-ai(i,j,listp))*srflx(i,j)                       &
      &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1-cff2)
-#  else
+#  elif !defined ICE_BOX
           srflx(i,j)=(1-ai(i,j,listp))*srflx(i,j)                       &
      &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
 #  endif
@@ -984,7 +1027,11 @@ contains
           IF (Tair(i,j).ge.0.0) THEN
             snow_n(i,j) = 0.0_r8
           ELSE
+#  ifdef SNOWFALL
+            snow_n(i,j) = snow(i,j)/rhosnow_dry(ng)
+#  else
             snow_n(i,j) = rain(i,j)/rhosnow_dry(ng)
+#  endif
           ENDIF
           coef_ice_heat(i,j) = Coef_Ice(i,j)
           rhs_ice_heat(i,j) = RHS_Ice(i,j)

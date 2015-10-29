@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE albedo_mod
-#if defined ALBEDO && !defined ALBEDO_FILE
+#if defined ALBEDO && !defined ALBEDO_FILE && !defined ANA_ALBEDO
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

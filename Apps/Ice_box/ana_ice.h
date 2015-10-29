@@ -106,7 +106,7 @@
       USE mod_param
       USE mod_scalars
 !
-      USE exchange_2d_mod, ONLY : exchange_r2d_tile
+      USE exchange_2d_mod
 #ifdef DISTRIBUTE
       USE mp_exchange_mod
 #endif
@@ -119,83 +119,83 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
 
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(inout) :: ui(LBi:,LBj:,:)
-      real(r8), intent(inout) :: vi(LBi:,LBj:,:)
-      real(r8), intent(inout) :: uie(LBi:,LBj:,:)
-      real(r8), intent(inout) :: vie(LBi:,LBj:,:)
-      real(r8), intent(inout) :: ai(LBi:,LBj:,:)
-      real(r8), intent(inout) :: hi(LBi:,LBj:,:)
-      real(r8), intent(inout) :: hsn(LBi:,LBj:,:)
-      real(r8), intent(inout) :: ti(LBi:,LBj:,:)
-      real(r8), intent(inout) :: ageice(LBi:,LBj:,:)
+      real(r8), intent(out) :: ui(LBi:,LBj:,:)
+      real(r8), intent(out) :: vi(LBi:,LBj:,:)
+      real(r8), intent(out) :: uie(LBi:,LBj:,:)
+      real(r8), intent(out) :: vie(LBi:,LBj:,:)
+      real(r8), intent(out) :: ai(LBi:,LBj:,:)
+      real(r8), intent(out) :: hi(LBi:,LBj:,:)
+      real(r8), intent(out) :: hsn(LBi:,LBj:,:)
+      real(r8), intent(out) :: ti(LBi:,LBj:,:)
+      real(r8), intent(out) :: ageice(LBi:,LBj:,:)
 # ifdef MELT_PONDS
-      real(r8), intent(inout) :: apond(LBi:,LBj:,:)
-      real(r8), intent(inout) :: hpond(LBi:,LBj:,:)
+      real(r8), intent(out) :: apond(LBi:,LBj:,:)
+      real(r8), intent(out) :: hpond(LBi:,LBj:,:)
 # endif
-      real(r8), intent(inout) :: sig11(LBi:,LBj:,:)
-      real(r8), intent(inout) :: sig22(LBi:,LBj:,:)
-      real(r8), intent(inout) :: sig12(LBi:,LBj:,:)
+      real(r8), intent(out) :: sig11(LBi:,LBj:,:)
+      real(r8), intent(out) :: sig22(LBi:,LBj:,:)
+      real(r8), intent(out) :: sig12(LBi:,LBj:,:)
 # ifdef NCEP_FLUXES
-      real(r8), intent(inout) :: wg2_d(LBi:,LBj:)
-      real(r8), intent(inout) :: cd_d(LBi:,LBj:)
-      real(r8), intent(inout) :: ch_d(LBi:,LBj:)
-      real(r8), intent(inout) :: ce_d(LBi:,LBj:)
-      real(r8), intent(inout) :: wg2_m(LBi:,LBj:)
-      real(r8), intent(inout) :: cd_m(LBi:,LBj:)
-      real(r8), intent(inout) :: ch_m(LBi:,LBj:)
-      real(r8), intent(inout) :: ce_m(LBi:,LBj:)
-      real(r8), intent(inout) :: rhoa_n(LBi:,LBj:)
+      real(r8), intent(out) :: wg2_d(LBi:,LBj:)
+      real(r8), intent(out) :: cd_d(LBi:,LBj:)
+      real(r8), intent(out) :: ch_d(LBi:,LBj:)
+      real(r8), intent(out) :: ce_d(LBi:,LBj:)
+      real(r8), intent(out) :: wg2_m(LBi:,LBj:)
+      real(r8), intent(out) :: cd_m(LBi:,LBj:)
+      real(r8), intent(out) :: ch_m(LBi:,LBj:)
+      real(r8), intent(out) :: ce_m(LBi:,LBj:)
+      real(r8), intent(out) :: rhoa_n(LBi:,LBj:)
 # endif
-      real(r8), intent(inout) :: tis(LBi:,LBj:)
-      real(r8), intent(inout) :: s0mk(LBi:,LBj:)
-      real(r8), intent(inout) :: t0mk(LBi:,LBj:)
-      real(r8), intent(inout) :: utau_iw(LBi:,LBj:)
-      real(r8), intent(inout) :: chu_iw(LBi:,LBj:)
+      real(r8), intent(out) :: tis(LBi:,LBj:)
+      real(r8), intent(out) :: s0mk(LBi:,LBj:)
+      real(r8), intent(out) :: t0mk(LBi:,LBj:)
+      real(r8), intent(out) :: utau_iw(LBi:,LBj:)
+      real(r8), intent(out) :: chu_iw(LBi:,LBj:)
 # ifdef ICE_BIO
-      real(r8), intent(inout) :: IcePhL(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
-      real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
-      integer, intent(inout) :: IceLog(LBi:,LBj:,:)
+      real(r8), intent(out) :: IcePhL(LBi:,LBj:,:)
+      real(r8), intent(out) :: IceNO3(LBi:,LBj:,:)
+      real(r8), intent(out) :: IceNH4(LBi:,LBj:,:)
+      integer, intent(out) :: IceLog(LBi:,LBj:,:)
 # endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
-      real(r8), intent(inout) :: ui(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: vi(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: uie(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: vie(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: ai(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: hi(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: hsn(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: ageice(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: uie(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: vie(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: ai(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: hsn(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: ageice(LBi:UBi,LBj:UBj,2)
 # ifdef MELT_PONDS
-      real(r8), intent(inout) :: apond(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: hpond(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: apond(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: hpond(LBi:UBi,LBj:UBj,2)
 # endif
-      real(r8), intent(inout) :: sig11(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: sig22(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: sig12(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: sig11(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: sig22(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: sig12(LBi:UBi,LBj:UBj,2)
 # ifdef NCEP_FLUXES
-      real(r8), intent(inout) :: wg2_d(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: cd_d(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ch_d(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ce_d(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: wg2_m(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: cd_m(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ch_m(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: ce_m(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: rhoa_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: wg2_d(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: cd_d(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ch_d(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ce_d(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: wg2_m(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: cd_m(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ch_m(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: ce_m(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: rhoa_n(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: s0mk(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: t0mk(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: utau_iw(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: chu_iw(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: tis(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: s0mk(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: t0mk(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: utau_iw(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: chu_iw(LBi:UBi,LBj:UBj)
 # ifdef ICE_BIO
-      real(r8), intent(inout) :: IcePhL(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
-      integer, intent(inout) :: IceLog(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: IcePhL(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: IceNO3(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: IceNH4(LBi:UBi,LBj:UBj,2)
+      integer, intent(out) :: IceLog(LBi:UBi,LBj:UBj,2)
 # endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #endif
@@ -208,7 +208,7 @@
 
 #include "set_bounds.h"
 
-#ifdef ICE_BASIN
+#ifdef ICE_BOX
       DO j=JstrT,JendT
         DO i=Istr,IendT
           ui(i,j,1) = 0._r8
@@ -229,7 +229,8 @@
         DO i=IstrT,IendT
           ai(i,j,1) = 1._r8
           hi(i,j,1) = 2._r8
-          hsn(i,j,1) = 0.2_r8
+          hsn(i,j,1) = 0._r8
+!          hsn(i,j,1) = 0.2_r8
           ti(i,j,1) = -5._r8
 # ifdef MELT_PONDS
           apond(i,j,1) = 0._r8
@@ -263,79 +264,10 @@
           rhoa_n(i,j) = 1.4_r8
 # endif
           tis(i,j) = -10._r8
-          s0mk(i,j) = t(i,j,N(ng),1,isalt)
-          t0mk(i,j) = t(i,j,N(ng),1,itemp)
+          s0mk(i,j) = 30._r8
+          t0mk(i,j) = -0.0543_r8*s0mk(i,j)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
-#elif defined ICE_OCEAN_1D
-      DO j=JstrT,JendT
-        DO i=Istr,IendT
-          ui(i,j,1) = 0.0_r8
-          uie(i,j,1) = 0.0_r8
-          ui(i,j,2) = ui(i,j,1)
-          uie(i,j,2) = uie(i,j,1)
-        ENDDO
-      ENDDO
-      DO j=Jstr,JendT
-        DO i=IstrT,IendT
-          vi(i,j,1) = 0.0_r8
-          vie(i,j,1) = 0.0_r8
-          vi(i,j,2) = vi(i,j,1)
-          vie(i,j,2) = vie(i,j,1)
-        ENDDO
-      ENDDO
-      DO j=JstrT,JendT
-        DO i=IstrT,IendT
-          ai(i,j,1) = 0._r8
-          hi(i,j,1) = 0._r8
-          hsn(i,j,1) = 0.2_r8
-          ti(i,j,1) = -5._r8
-# ifdef MELT_PONDS
-          apond(i,j,1) = 0._r8
-          hpond(i,j,1) = 0._r8
-# endif
-          ageice(i,j,1) = 0._r8
-          sig11(i,j,1) = 0._r8
-          sig22(i,j,1) = 0._r8
-          sig12(i,j,1) = 0._r8
-          ai(i,j,2) = ai(i,j,1)
-          hi(i,j,2) = hi(i,j,1)
-          hsn(i,j,2) = hsn(i,j,1)
-          ti(i,j,2) = ti(i,j,1)
-# ifdef MELT_PONDS
-          apond(i,j,2) = apond(i,j,1)
-          hpond(i,j,2) = hpond(i,j,1)
-# endif
-          ageice(i,j,2) = ageice(i,j,1)
-          sig11(i,j,2) = sig11(i,j,1)
-          sig22(i,j,2) = sig22(i,j,1)
-          sig12(i,j,2) = sig12(i,j,1)
-# ifdef NCEP_FLUXES
-          wg2_d(i,j) = 1._r8
-          cd_d(i,j) = 0.00319_r8
-          ch_d(i,j) = 1.0E-4_r8
-          ce_d(i,j) = 1.0E-4_r8
-          wg2_m(i,j) = 1._r8
-          cd_m(i,j) = 0.00319_r8
-          ch_m(i,j) = 1.0E-4_r8
-          ce_m(i,j) = 1.0E-4_r8
-          rhoa_n(i,j) = 1.4_r8
-# endif
-          tis(i,j) = -10._r8
-          s0mk(i,j) = t(i,j,N(ng),1,isalt)
-          t0mk(i,j) = t(i,j,N(ng),1,itemp)
-          utau_iw(i,j) = 0.001_r8
-          chu_iw(i,j) = 0.001125_r8
-# ifdef ICE_BIO
-          IcePhL(i,j,1) = 0._r8
-          IceNO3(i,j,1) = 0._r8
-          IceNH4(i,j,1) = 0._r8
-          IceLog(i,j,1) = -1
-          IcePhL(i,j,2) = IcePhL(i,j,1)
-          IceNO3(i,j,2) = IceNO3(i,j,1)
-          IceNH4(i,j,2) = IceNH4(i,j,1)
-          IceLog(i,j,2) = IceLog(i,j,1)
-# endif
 #else
         Must define a case for ice initialization.
 #endif

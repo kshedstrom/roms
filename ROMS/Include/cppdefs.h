@@ -234,6 +234,7 @@
 **                                                                           **
 **    Any of the analytical expressions are coded in "analytical.F".         **
 **                                                                           **
+** ANA_ALBEDO          use if analytical albedo values                       **
 ** ANA_BIOLOGY         use if analytical biology initial conditions          **
 ** ANA_BPFLUX          use if analytical bottom passive tracers fluxes       **
 ** ANA_BSFLUX          use if analytical bottom salinity flux                **
@@ -247,6 +248,7 @@
 ** ANA_HUMIDITY        use if analytical surface air humidity                **
 ** ANA_ICE             use for analytic ice initial conditions               **
 ** ANA_INITIAL         use if analytical initial conditions                  **
+** ANA_LRFLUX          use if analytical surface longwave radiation flux     **
 ** ANA_M2CLIMA         use if analytical 2D momentum climatology             **
 ** ANA_M2OBC           use if analytical 2D momentum boundary conditions     **
 ** ANA_M3CLIMA         use if analytical 3D momentum climatology             **
@@ -261,6 +263,7 @@
 ** ANA_RAIN            use if analytical rain fall rate                      **
 ** ANA_SEDIMENT        use if analytical sediment initial fields             **
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
+** ANA_SNOW            use for analytic snowfall rate                        **
 ** ANA_SPFLUX          use if analytical surface passive tracers fluxes      **
 ** ANA_SPINNING        use if analytical time-varying rotation force         **
 ** ANA_SPONGE          use if analytical enhanced viscosity/diffusion sponge **

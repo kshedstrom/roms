@@ -50,10 +50,6 @@
             CASE ('Lice')
               Npts=load_l(Nval, Cval, Ngrids, Lfloats)
               Npts=load_l(Nval, Cval, Ngrids, Lice)
-            CASE ('DTICE')
-              Npts=load_r(Nval, Rval, Ngrids, dtice)
-            CASE ('DTICE_EQ')
-              Npts=load_r(Nval, Rval, Ngrids, dtice_eq)
             CASE ('nstrs')
               Npts=load_i(Nval, Rval, Ngrids, nstrs)
             CASE ('nevp')
@@ -601,8 +597,6 @@
           WRITE(out,*) 'Ice time step = ocean time step'
           WRITE (out,60) dtice(ng), 'DTICE',                            &
      &          'Ice model time step (s).'
-          WRITE (out,60) dtice_eq(ng), 'DTICE_EQ',                      &
-     &          'Ice drift update (equilibrium) time step (s).'
           WRITE (out,50) nstrs(ng), 'nstrs',                            &
      &          'Number of iterations for nonlinear ice dynamics.'
           WRITE (out,50) nevp(ng), 'nevp',                              &

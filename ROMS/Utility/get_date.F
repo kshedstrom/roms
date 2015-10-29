@@ -334,7 +334,7 @@
      &       (r_date(6)+(r_date(7)+r_date(8)/60.0_r8)/60.0_r8)/24.0_r8
         year=INT(r_date(2))+INT(rday/360.0_r8)
         yday=MAX(1.0_r8,MOD(rday,360.0_r8))
-        month=INT(yday/30.0_r8)
+        month=INT(yday/30.0_r8) + 1
         day=INT(MOD(yday,30.0_r8))
         hour=(rday-AINT(rday))*24.0_r8
 !

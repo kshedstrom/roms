@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2014 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2015 ROMS/TOMS Group                             !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -209,7 +209,7 @@
 !                               (t3 in Mellor..)
 !            brnfr(i,j)      -  brine fraction
 !            wsm(i,j)        -  snow melting rate
-!            wai(i,j)        -  production rate at atmos./ice
+!            wai(i,j)        -  melt rate at atmos./ice
 !            apond(i,j,linew)-  melt water fraction
 !            hpond(i,j,linew)-  melt water depth
 !            ageice(i,j,linew)- ice age
@@ -372,6 +372,8 @@
 !
 
       integer :: i, j
+      integer :: iday, month, year
+      real(r8) :: hour, yday
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: b2d
 
@@ -403,14 +405,13 @@
 #endif
       real(r8) :: tfrz
       real(r8) :: cot
-      real(r8) :: xmelt
       real(r8) :: ai_tmp
 #ifdef MELT_PONDS
       real(r8) :: vpond
       real(r8) :: vpond_new
-      real(r8) :: pmelt
       real(r8) :: pond_r, apond_old
 #endif
+      real(r8) :: pmelt
 
       real(r8), parameter :: eps = 1.E-4_r8
       real(r8), parameter :: prt = 13._r8
@@ -512,15 +513,15 @@
       DO j = Jstr,Jend
         DO i = Istr,Iend
           sice(i,j) = MIN(sice_ref,salt_top(i,j))
-          ice_thick(i,j) = 0.05_r8+hi(i,j,linew)/                       &
-     &                    MAX(ai(i,j,linew),eps)
+          ice_thick(i,j) = MAX(0.05_r8,                                 &
+     &                hi(i,j,linew)/MAX(ai(i,j,linew),eps))
           snow_thick(i,j) = hsn(i,j,linew)/MAX(ai(i,j,linew),eps)
           ai_old(i,j) = ai(i,j,linew)
-          brnfr(i,j) = frln*sice(i,j)/(ti(i,j,linew)-eps)
-          brnfr(i,j) = min(brnfr(i,j),0.2_r8)
-          brnfr(i,j) = max(brnfr(i,j),0.0_r8)
+          brnfr(i,j) = frln*sice(i,j)/MIN(ti(i,j,linew),-eps)
+          brnfr(i,j) = MIN(brnfr(i,j),0.2_r8)
+          brnfr(i,j) = MAX(brnfr(i,j),0.0_r8)
 !      alph - thermal conductivity of ice
-          alph(i,j) = alphic*MAX(1._r8-1.2_r8*brnfr(i,j),0.25_r8)
+          alph(i,j) = alphic*(1._r8-1.2_r8*brnfr(i,j))
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
           alph(i,j) = alph(i,j)*corfac
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
@@ -539,6 +540,8 @@
 !-----------------------------------------------------------------------
 !     SOLVE FOR TEMPERATURE AT THE TOP OF THE ICE LAYER
 !-----------------------------------------------------------------------
+#define RATIO
+#ifdef RATIO
       DO j = Jstr,Jend
         DO i = Istr,Iend
 ! gradient coefficient for heat conductivity part
@@ -554,14 +557,35 @@
 	    tis_old = tis(i,j)
             tis(i,j) = rhs_ice_heat(i,j)/coef_ice_heat(i,j)
             tis(i,j) = MAX(tis(i,j),-45._r8)
-            qai(i,j) = qai_n(i,j) + 4*emmiss*StefBo*tis_old**3*       &
-     &                         (tis(i,j) - tis_old)
+            qai(i,j) = qai_n(i,j)
+!            qai(i,j) = qai_n(i,j) + 4*emmiss*StefBo*tis_old**3*         &
+!     &                         (tis(i,j) - tis_old)
           ELSE
             tis(i,j) = temp_top(i,j)
             qai(i,j) = qai_n(i,j)
           END IF
         END DO
       END DO
+#else
+      DO j = Jstr,Jend
+        DO i = Istr,Iend
+          IF (ai(i,j,linew) .gt. min_a(ng)) THEN
+            t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/(1._r8+coa(i,j))
+            hicehinv = 1._r8/(0.5_r8*ice_thick(i,j))
+            qi2(i,j) = alph(i,j)*(ti(i,j,linew)-t2(i,j))*hicehinv
+            qai(i,j) = qai_n(i,j)
+            b2d(i,j) = 2.0_r8*alph(i,j)/(ice_thick(i,j)*(1._r8+coa(i,j)))
+            tis(i,j) = tis(i,j) -                                       &
+     &            (emmiss*StefBo*(tis(i,j)+t0deg)**4 +                  &
+     &                qai(i,j) - qi2(i,j) ) /                           &
+     &           (4*StefBo*(tis(i,j)+t0deg)**3 + b2d(i,j))
+          ELSE
+            tis(i,j) = temp_top(i,j)
+            qai(i,j) = qai_n(i,j)
+          END IF
+        END DO
+      END DO
+#endif
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
@@ -667,6 +691,7 @@
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
 !    compute ice production rate (negative here) from atmosphere-ice exchange
+!    Means wai is positive for melt
                 wai(i,j) = -(qai(i,j) -qi2(i,j)) /(hfus1(i,j)*rhosw)
 !    compute production rate for melt water (melting rate)
                 wsm(i,j) = ws(i,j)
@@ -711,7 +736,7 @@
           IF (ai(i,j,linew) > min_a(ng)) THEN
             vpond = apond(i,j,linew)*hpond(i,j,linew)*ai(i,j,linew)
 !  pond growth (should have rain...)
-            pmelt = -MIN(0._r8,wai(i,j)+wsm(i,j))
+            pmelt = MAX(0._r8,wai(i,j)+wsm(i,j))
             pond_r = pond_rmin+(pond_rmax-pond_rmin)*ai(i,j,linew)
             vpond = vpond + pmelt*pond_r*dtice(ng)
             wro(i,j) = (1.0_r8-pond_r)*pmelt
@@ -737,6 +762,9 @@
             apond(i,j,linew) = 0.0_r8
             hpond(i,j,linew) = 0.0_r8
           END IF
+#else
+          pmelt = MAX(0._r8,wai(i,j)+wsm(i,j))
+          wro(i,j) = pmelt
 #endif
         END DO
       END DO
@@ -765,7 +793,7 @@
           wao(i,j) = 0._r8
           wio(i,j) = 0._r8
 
-          xwai = max(0._r8,wai(i,j))
+!          xwai = max(0._r8,wai(i,j))
           hfus1(i,j) = hfus*(1.0_r8-brnfr(i,j))+t0mk(i,j)*cpw           &
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
           IF (temp_top(i,j) .le. tfz)                                   &
@@ -779,6 +807,11 @@
           ELSE
 
 ! MK89 version
+#ifdef ICE_BOX
+            wio(i,j) = (qio(i,j) - 1.9)/(rhosw*hfus1(i,j))
+            xtot = ai(i,j,linew)*wio(i,j)                               &
+     &              +(1._r8-ai(i,j,linew))*wao(i,j)
+#else
             wio(i,j) = (qio(i,j)/rhosw +                                &
      &               cpw*cht(i,j)*(t0mk(i,j)-temp_top(i,j)))/hfus1(i,j)
 
@@ -786,12 +819,13 @@
      &              +(1._r8-ai(i,j,linew))*wao(i,j)
 
             s0mk(i,j) =                                                 &
-     &             (chs(i,j)*salt_top(i,j)+(xwai-wio(i,j))*sice(i,j))   &
-     &                /(chs(i,j)+xwai+wro(i,j)-wio(i,j))
+     &            (chs(i,j)*salt_top(i,j)+(wro(i,j)-wio(i,j))*sice(i,j))&
+     &                /(chs(i,j)+wro(i,j)-wio(i,j))
             s0mk(i,j) = max(s0mk(i,j),0._r8)
             s0mk(i,j) = min(s0mk(i,j),40._r8)
 
             t0mk(i,j) = frln*s0mk(i,j)
+#endif
 
           END IF
 
@@ -846,15 +880,12 @@
 #endif
 #ifdef ICE_SHOREFAST
             stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
-     &        (- (xtot-ai(i,j,linew)*xwai)*                             &
-     &          (sice(i,j)-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))          &
-     &        - ai(i,j,linew)*wro(i,j)*                                 &
-     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8))*fac_sf
+     &        (- (xtot-ai(i,j,linew)*wro(i,j))*                         &
+     &          (sice(i,j)-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)) )        &
+     &                     *fac_sf
 #else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
-     &          - (xtot-ai(i,j,linew)*xwai)*(sice(i,j)-s0mk(i,j))       &
-     &          - ai(i,j,linew)*wro(i,j)*                               &
-     &          MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)
+     &          - (xtot-ai(i,j,linew)*wro(i,j))*(sice(i,j)-s0mk(i,j))
 #endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
@@ -865,8 +896,7 @@
             END IF
 #endif
 !  io_mflux is ice production rate (+ve for growth)
-            io_mflux(i,j) = xtot -ai(i,j,linew)*xwai -                    &
-     &                            ai(i,j,linew)*wro(i,j) + wfr(i,j)
+            io_mflux(i,j) = xtot - ai(i,j,linew)*wro(i,j) + wfr(i,j)
 #ifdef MASKING
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask(i,j)
@@ -889,10 +919,9 @@
         DO i = Istr,Iend
           phi = 4._r8
           if (wao(i,j) .lt. 0.0_r8 ) phi = 0.5_r8
-          xmelt = min((wio(i,j)+wai(i,j)),0.0_r8)
           hi(i,j,linew) = hi(i,j,linew)+dtice(ng)                       &
      &             *(ai(i,j,linew)                                      &
-     &             *(wio(i,j)+wai(i,j))                                 &
+     &             *(wio(i,j)-wai(i,j))                                 &
      &        +(1.0_r8-ai(i,j,linew))*wao(i,j) + wfr(i,j))
 
           ai_tmp = ai(i,j,linew)
@@ -972,7 +1001,7 @@
 #ifdef DIAG_WPB
       IF (i.eq.156.and.j.eq.481) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
-     &              xmelt,ai(i,j,linew),tis(i,j),                       &
+     &              ai(i,j,linew),tis(i,j),                             &
 #ifdef MELT_PONDS
      &              apond(i,j,linew), hpond(i,j,linew),                 &
 #endif

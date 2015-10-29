@@ -78,8 +78,8 @@
       SUBROUTINE ana_ice_tile (ng, tile, model,                         &
      &                             LBi, UBi, LBj, UBj,                  &
      &                             ui, vi, uie, vie, ai, hi, hsn,       &
-#ifdef MELT_PONDS
      &                             ti, ageice,                          &
+#ifdef MELT_PONDS
      &                             apond, hpond,                        &
 #endif
      &                             sig11, sig22, sig12,                 &

@@ -1,6 +1,7 @@
 #include "cppdefs.h"
       MODULE ice_frazil_mod
-#if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
+#if (defined ICE_MODEL && defined ICE_THERMO && !defined TS_FIXED) \
+      || defined CICE_MODEL
 !
 !=======================================================================
 !  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !

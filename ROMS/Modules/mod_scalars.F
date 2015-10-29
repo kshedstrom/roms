@@ -369,7 +369,11 @@
         real(r8) :: Csolar = 1353.0_r8          ! 1360-1380 W/m2
         real(r8) :: Infinity                    ! Infinity = 1.0/0.0
         real(r8) :: Eradius = 6371315.0_r8      ! m
+#ifdef ICE_BOX
+        real(r8) :: StefBo = 5.78E-8_r8         ! Watts/m2/K4 (Match MU)
+#else
         real(r8) :: StefBo = 5.67E-8_r8         ! Watts/m2/K4
+#endif
         real(r8) :: emmiss = 0.97_r8            ! non_dimensional
         real(r8) :: rhow = 1000.0_r8            ! kg/m3
 #ifdef SOLITON
@@ -1705,7 +1709,6 @@
         real(r8) :: t0deg = 273.15_r8
 
         real(r8), allocatable :: dtice(:)
-        real(r8), allocatable :: dtice_eq(:)
         real(r8), allocatable :: dte(:)
         real(r8), allocatable :: rhoice(:)
         real(r8), allocatable :: cdiw(:)
@@ -2218,7 +2221,6 @@
      allocate ( ievp(Ngrids) )
 
      allocate ( dtice(Ngrids) )
-     allocate ( dtice_eq(Ngrids) )
      allocate ( dte(Ngrids) )
      allocate ( rhoice(Ngrids) )
      allocate ( cdiw(Ngrids) )
