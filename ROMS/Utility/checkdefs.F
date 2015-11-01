@@ -1031,6 +1031,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ICE_EVP,'
 #endif
+#ifdef ICE_I_O
+      IF (Master) WRITE (stdout,20) 'ICE_I_O',                          &
+     &   'Put shortwave heat into ice interior.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' ICE_I_O,'
+#endif
 #ifdef ICE_LANDFAST
       IF (Master) WRITE (stdout,20) 'ICE_LANDFAST',                    &
      &   'Lemieux shorefast ice.'

@@ -200,7 +200,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 8640
+       NTIMES == 259200
           DT == 3600.0d0
      NDTFAST == 30
 

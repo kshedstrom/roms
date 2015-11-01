@@ -228,9 +228,9 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
           ai(i,j,1) = 1._r8
-          hi(i,j,1) = 2._r8
-          hsn(i,j,1) = 0._r8
-!          hsn(i,j,1) = 0.2_r8
+          hi(i,j,1) = 3.4_r8
+!          hsn(i,j,1) = 0._r8
+          hsn(i,j,1) = 0.2_r8
           ti(i,j,1) = -5._r8
 # ifdef MELT_PONDS
           apond(i,j,1) = 0._r8

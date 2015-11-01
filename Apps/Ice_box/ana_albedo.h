@@ -112,7 +112,8 @@
         DO i=IstrT,IendT
 #ifdef ICE_BOX
           albedo_ice(i,j)=alb(month)
-#elif defined ALBEDO_CURVE
+#endif
+#ifdef ALBEDO_CURVE
 # ifdef BIO_1D
 !using lat for M2 for whole domain
           albedo(i,j) = (0.069_r8 - 0.011_r8*                           &

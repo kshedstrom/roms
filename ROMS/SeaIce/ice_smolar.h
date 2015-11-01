@@ -225,8 +225,7 @@
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % IcePhL                            &
      &                      )
-!
-FOOOO 
+!  FOOOO 
 ! Need to change this to i2d_bc_tile calls
       CALL IcePhLbc_tile (ng, tile,                                   &
      &                          LBi, UBi, LBj, UBj,                      &

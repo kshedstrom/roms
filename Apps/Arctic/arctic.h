@@ -75,6 +75,7 @@
 #  define ICE_UPWIND
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
+#  define ICE_I_O
 #  undef  ANA_AIOBC
 #  undef  ANA_HIOBC
 #  undef  ANA_HSNOBC

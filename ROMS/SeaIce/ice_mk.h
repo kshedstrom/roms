@@ -91,6 +91,7 @@
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
      &                      FORCES(ng) % qai_n,                         &
+     &                      FORCES(ng) % qi_o_n,                        &
      &                      FORCES(ng) % qao_n,                         &
      &                      FORCES(ng) % snow_n,                        &
      &                      FORCES(ng) % rain,                          &
@@ -134,7 +135,7 @@
      &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
      &                        sustr, svstr,                             &
-     &                        qai_n, qao_n,                             &
+     &                        qai_n, qi_o_n, qao_n,                     &
      &                        snow_n,                                   &
      &                        rain,                                     &
      &                        stflx)
@@ -304,6 +305,7 @@
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: qai_n(LBi:,LBj:)
+      real(r8), intent(in) :: qi_o_n(LBi:,LBj:)
       real(r8), intent(in) :: qao_n(LBi:,LBj:)
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
@@ -362,6 +364,7 @@
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qai_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: qi_o_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qao_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
@@ -451,7 +454,6 @@
       real(r8) :: d1
       real(r8) :: d2i
       real(r8) :: d3
-      real(r8) :: tis_old
 
       real(r8) :: fac_shflx
 
@@ -522,8 +524,10 @@
           brnfr(i,j) = MAX(brnfr(i,j),0.0_r8)
 !      alph - thermal conductivity of ice
           alph(i,j) = alphic*(1._r8-1.2_r8*brnfr(i,j))
+#ifndef ICE_BOX
           corfac = 1._r8/(0.5_r8*(1._r8+EXP(-(hi(i,j,linew)/1._r8)**2)))
           alph(i,j) = alph(i,j)*corfac
+#endif
           coa(i,j) = 2.0_r8*alph(i,j)*snow_thick(i,j)/                  &
      &                   (alphsn*ice_thick(i,j))
         END DO
@@ -540,8 +544,6 @@
 !-----------------------------------------------------------------------
 !     SOLVE FOR TEMPERATURE AT THE TOP OF THE ICE LAYER
 !-----------------------------------------------------------------------
-#define RATIO
-#ifdef RATIO
       DO j = Jstr,Jend
         DO i = Istr,Iend
 ! gradient coefficient for heat conductivity part
@@ -554,38 +556,15 @@
 ! downward conductivity term, assuming the ocean at the freezing point
             rhs_ice_heat(i,j) = rhs_ice_heat(i,j) +                     &
      &              b2d(i,j)*ti(i,j,linew)
-	    tis_old = tis(i,j)
             tis(i,j) = rhs_ice_heat(i,j)/coef_ice_heat(i,j)
             tis(i,j) = MAX(tis(i,j),-45._r8)
             qai(i,j) = qai_n(i,j)
-!            qai(i,j) = qai_n(i,j) + 4*emmiss*StefBo*tis_old**3*         &
-!     &                         (tis(i,j) - tis_old)
           ELSE
             tis(i,j) = temp_top(i,j)
             qai(i,j) = qai_n(i,j)
           END IF
         END DO
       END DO
-#else
-      DO j = Jstr,Jend
-        DO i = Istr,Iend
-          IF (ai(i,j,linew) .gt. min_a(ng)) THEN
-            t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/(1._r8+coa(i,j))
-            hicehinv = 1._r8/(0.5_r8*ice_thick(i,j))
-            qi2(i,j) = alph(i,j)*(ti(i,j,linew)-t2(i,j))*hicehinv
-            qai(i,j) = qai_n(i,j)
-            b2d(i,j) = 2.0_r8*alph(i,j)/(ice_thick(i,j)*(1._r8+coa(i,j)))
-            tis(i,j) = tis(i,j) -                                       &
-     &            (emmiss*StefBo*(tis(i,j)+t0deg)**4 +                  &
-     &                qai(i,j) - qi2(i,j) ) /                           &
-     &           (4*StefBo*(tis(i,j)+t0deg)**3 + b2d(i,j))
-          ELSE
-            tis(i,j) = temp_top(i,j)
-            qai(i,j) = qai_n(i,j)
-          END IF
-        END DO
-      END DO
-#endif
 
       DO j = Jstr,Jend
         DO i = Istr,Iend
@@ -593,10 +572,18 @@
 !       new temperature in ice
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
             cot = -frln*sice(i,j)*hfus/(ti(i,j,linew)-eps)**2 + cpi
+#ifdef ICE_I_O
+            ti(i,j,linew) = ti(i,j,linew) +                             &
+     &               dtice(ng)/(rhoice(ng)*ice_thick(i,j)*cot)*         &
+     &        (2._r8*alph(i,j)/ice_thick(i,j)*                          &
+     &         (t0mk(i,j) + (tis(i,j) - (2._r8+coa(i,j))*ti(i,j,linew)) &
+     &                      /(1._r8+coa(i,j))) - qi_o_n(i,j))
+#else
             ti(i,j,linew) = ti(i,j,linew) + dtice(ng)*(                 &
-     &      2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)          &
-     &         *(t0mk(i,j) + (tis(i,j) - (2._r8+coa(i,j))*ti(i,j,linew))&
+     &        2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)        &
+     &        *(t0mk(i,j) + (tis(i,j) - (2._r8+coa(i,j))*ti(i,j,linew)) &
      &                                        /(1._r8+coa(i,j))))
+#endif
             ti(i,j,linew) = max(ti(i,j,linew),-35._r8)
             ti(i,j,linew) = min(ti(i,j,linew),-eps)
           ELSE
@@ -679,13 +666,14 @@
 ! Melt ice or freeze surface water in the fall if there is no snow
             IF (hsn(i,j,linew) .le. 0.0_r8) THEN
 #ifdef MELT_PONDS
-              IF (tis(i,j) .gt. tfrz .or. hpond(i,j,linew) .gt. 0._r8)   &
+              IF (tis(i,j) .gt. tfrz .or. hpond(i,j,linew) .gt. 0._r8)  &
      &                                                            THEN
 #else
               IF (tis(i,j) .gt. tfrz) THEN
 #endif
 !   ice warmer than freezing point
                 tis(i,j) = tfrz
+!   ice warmer than freezing point
                 hfus1(i,j) = hfus*(1._r8-brnfr(i,j))+tis(i,j)*cpw       &
      &         -((1._r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
                 qai(i,j) = qai_n(i,j)
@@ -754,7 +742,7 @@
               hpond(i,j,linew) = 0.9_r8*hi(i,j,linew)
               apond(i,j,linew) = hi(i,j,linew)/pond_delta
             END IF
-	    vpond_new = apond(i,j,linew)*hpond(i,j,linew)*ai(i,j,linew)
+            vpond_new = apond(i,j,linew)*hpond(i,j,linew)*ai(i,j,linew)
             wro(i,j) = wro(i,j) + (vpond-vpond_new)/dtice(ng)
           ELSE
             vpond = apond(i,j,linew)*hpond(i,j,linew)*ai(i,j,linew)
@@ -808,7 +796,7 @@
 
 ! MK89 version
 #ifdef ICE_BOX
-            wio(i,j) = (qio(i,j) - 1.9)/(rhosw*hfus1(i,j))
+            wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &
      &              +(1._r8-ai(i,j,linew))*wao(i,j)
 #else
@@ -975,7 +963,7 @@
 !
           IF (ai(i,j,linew) > min_a(ng) .and.                           &
      &                       apond(i,j,linew) > 0._r8) THEN
-	    apond_old = apond(i,j,linew)
+            apond_old = apond(i,j,linew)
             apond(i,j,linew) = apond(i,j,linew)*ai_old(i,j)/            &
      &                      ai(i,j,linew)
             hpond(i,j,linew) = hpond(i,j,linew)*apond_old*ai_old(i,j)   &
