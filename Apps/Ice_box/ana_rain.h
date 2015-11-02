@@ -1,4 +1,4 @@
-      SUBROUTINE ana_snow (ng, tile, model)
+      SUBROUTINE ana_rain (ng, tile, model)
 !
 !! svn $Id$
 !!======================================================================
@@ -7,14 +7,14 @@
 !!   See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This routine sets surface snowfall rate.                            !
+!  This routine sets precipitation rate (kg/m2/s) using an             !
+!  analytical expression.                                              !
 !                                                                      !
 !=======================================================================
 !
       USE mod_param
       USE mod_forces
       USE mod_ncparam
-      USE mod_ice
 !
 ! Imported variable declarations.
 !
@@ -22,11 +22,10 @@
 
 #include "tile.h"
 !
-      CALL ana_snow_tile (ng, tile, model,                              &
+      CALL ana_rain_tile (ng, tile, model,                              &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    IminS, ImaxS, JminS, JmaxS,                   &
-     &                    ICE(ng) % tis,                                &
-     &                    FORCES(ng) % snow)
+     &                    FORCES(ng) % rain)
 !
 ! Set analytical header file name used.
 !
@@ -35,20 +34,21 @@
 #else
       IF (Lanafile.and.(tile.eq.0)) THEN
 #endif
-        ANANAME(17)=__FILE__
+        ANANAME(21)=__FILE__
       END IF
 
       RETURN
-      END SUBROUTINE ana_snow
+      END SUBROUTINE ana_rain
 !
 !***********************************************************************
-      SUBROUTINE ana_snow_tile (ng, tile, model,                        &
+      SUBROUTINE ana_rain_tile (ng, tile, model,                        &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          IminS, ImaxS, JminS, JmaxS,             &
-     &                          tis, snow)
+     &                          rain)
 !***********************************************************************
 !
       USE mod_param
+      USE mod_ncparam
       USE mod_scalars
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
@@ -63,39 +63,24 @@
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
 #ifdef ASSUMED_SHAPE
-      real(r8), intent(in)  :: tis(LBi:,LBj:)
-      real(r8), intent(out) :: snow(LBi:,LBj:)
+      real(r8), intent(out) :: rain(LBi:,LBj:)
 #else
-      real(r8), intent(in)  :: tis(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: snow(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: rain(LBi:UBi,LBj:UBj)
 #endif
 !
 !  Local variable declarations.
 !
       integer :: i, j
-      integer :: iday, month, year
-      real(r8) :: hour, yday
-      real(r8), parameter :: sn(12) =                                   &
-     &        (/ 1.1e-6, 1.1e-6, 1.1e-6, 1.1e-6, 6.4e-6, 0.,            &
-     &           0., 0., 1.64e-5, 1.64e-5, 1.1e-6, 1.1e-6    /)
-!
-! Snow from Maykut and Untersteiner:
-!   30 cm between Aug 20 and Oct 30, 5 cm to April 30  + 5 cm in May.
-! Assuming dry snow density of 330 kg/m^3
-!
 
 #include "set_bounds.h"
 !
 !-----------------------------------------------------------------------
-!  Set snow precipitation rate (kg/m2/s).
+!  Set analytical precipitation rate (kg/m2/s).
 !-----------------------------------------------------------------------
 !
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
-      IF (month == 8 .and. iday >= 20) month = 9
       DO j=JstrT,JendT
         DO i=IstrT,IendT
-          snow(i,j)=sn(month)
-	  IF (tis(i,j) > 0.0_r8) snow(i,j) = 0.0_r8
+          rain(i,j)=0.0_r8
         END DO
       END DO
 !
@@ -104,7 +89,7 @@
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          snow)
+     &                          rain)
       END IF
 
 #ifdef DISTRIBUTE
@@ -112,8 +97,8 @@
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    snow)
+     &                    rain)
 #endif
 
       RETURN
-      END SUBROUTINE ana_snow_tile
+      END SUBROUTINE ana_rain_tile

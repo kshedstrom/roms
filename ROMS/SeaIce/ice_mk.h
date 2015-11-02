@@ -468,6 +468,7 @@
 
 #include "set_bounds.h"
 
+      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)
@@ -577,7 +578,7 @@
      &               dtice(ng)/(rhoice(ng)*ice_thick(i,j)*cot)*         &
      &        (2._r8*alph(i,j)/ice_thick(i,j)*                          &
      &         (t0mk(i,j) + (tis(i,j) - (2._r8+coa(i,j))*ti(i,j,linew)) &
-     &                      /(1._r8+coa(i,j))) - qi_o_n(i,j))
+     &                      /(1._r8+coa(i,j))) + qi_o_n(i,j))
 #else
             ti(i,j,linew) = ti(i,j,linew) + dtice(ng)*(                 &
      &        2._r8*alph(i,j)/(rhoice(ng)*ice_thick(i,j)**2*cot)        &
@@ -694,8 +695,9 @@
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
 !          snow melting
+! Was wet density, but when does it compress?
                 wsm(i,j) = max(0.0_r8,-(qai(i,j)-qi2(i,j))/             &
-     &                    (rhosnow_wet(ng)*hfus)) + ws(i,j)
+     &                    (rhosnow_dry(ng)*hfus)) + ws(i,j)
               END IF
 
 #ifdef MELT_PONDS
@@ -986,17 +988,19 @@
           ENDIF
 
 #undef DIAG_WPB
-#ifdef DIAG_WPB
-      IF (i.eq.156.and.j.eq.481) THEN
+#ifdef ICE_BOX
+      IF (i.eq.1.and.j.eq.1.and.iday==15.and.int(hour)==0) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
-     &              ai(i,j,linew),tis(i,j),                             &
+     &              ai(i,j,linew),hi(i,j,linew),tis(i,j),                             &
 #ifdef MELT_PONDS
      &              apond(i,j,linew), hpond(i,j,linew),                 &
 #endif
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
      &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),           &
      &              qio(i,j), ti(i,j,linew), brnfr(i,j),                &
-     &              t2(i,j)
+     &              t2(i,j), qao_n(i,j), qi2(i,j), qai_n(i,j),          &
+     &              alph(i,j), coa(i,j), b2d(i,j)
+        print *
       END IF
 #endif
 
