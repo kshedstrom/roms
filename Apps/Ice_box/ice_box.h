@@ -66,7 +66,7 @@
 #  define  ICE_BULK_FLUXES
 #  undef ICE_CONVSNOW
 #  undef  MELT_PONDS
-#  undef ICE_I_O
+#  define ICE_I_O
 # endif
 #endif
 

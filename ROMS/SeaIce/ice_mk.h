@@ -695,9 +695,9 @@
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
 !          snow melting
-! Was wet density, but when does it compress?
+! When does snow get denser???
                 wsm(i,j) = max(0.0_r8,-(qai(i,j)-qi2(i,j))/             &
-     &                    (rhosnow_dry(ng)*hfus)) + ws(i,j)
+     &                    (rhosnow_wet(ng)*hfus)) + ws(i,j)
               END IF
 
 #ifdef MELT_PONDS
