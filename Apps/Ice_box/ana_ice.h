@@ -228,10 +228,10 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
           ai(i,j,1) = 1._r8
-          hi(i,j,1) = 3.4_r8
+          hi(i,j,1) = 2.9_r8
 !          hsn(i,j,1) = 0._r8
-          hsn(i,j,1) = 0.2_r8
-          ti(i,j,1) = -5._r8
+          hsn(i,j,1) = 0.25_r8
+          ti(i,j,1) = -8._r8
 # ifdef MELT_PONDS
           apond(i,j,1) = 0._r8
           hpond(i,j,1) = 0._r8
@@ -263,7 +263,7 @@
           ce_m(i,j) = 1.0E-4_r8
           rhoa_n(i,j) = 1.4_r8
 # endif
-          tis(i,j) = -10._r8
+          tis(i,j) = -30._r8
           s0mk(i,j) = 30._r8
           t0mk(i,j) = -0.0543_r8*s0mk(i,j)
           utau_iw(i,j) = 0.001_r8

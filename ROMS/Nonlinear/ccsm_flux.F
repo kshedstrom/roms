@@ -845,8 +845,8 @@ contains
      &        rhoAir(i)*blk_Cpa*Ch*vmag*(TairK(i)+0.0098*blk_ZT(ng))
 #   endif
 
-! Latent heat flux over ice
-          le_i=2.834E+6_r8    ! Latent heat of sublimation
+! Latent heat of sublimation
+          le_i=2.834E+6_r8
 
 #   ifdef ICE_BOX
           qlh_i = latent_MU(month)
@@ -873,8 +873,11 @@ contains
           IF (hsn(i,j,listp) > 0._r8) THEN
             qi_o_n(i,j) = 0._r8
           ELSE
+!          IF (ai(i,j,listp).gt.min_a(ng)) THEN
             qi_o_n(i,j) = qswi * Io_frac
             qswi = qswi - qi_o_n(i,j)
+!          ELSE
+!            qi_o_n(i,j) = 0._r8
           END IF
 #   endif
 ! Already in W/m**2

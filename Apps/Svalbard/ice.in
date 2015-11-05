@@ -117,7 +117,7 @@
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a == 0.00d0
+     min_a == 1.00d-30
 
 ! Maximum ice concentration
 ! (nondimensional)

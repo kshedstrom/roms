@@ -402,6 +402,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ai_old
+!      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,2) :: enthal
 
 #ifdef AICLM_NUDGING
       real(r8) :: cff
@@ -448,7 +449,6 @@
       real(r8) :: termt
       real(r8) :: terms
       real(r8) :: tfz
-      real(r8) :: xwai
       real(r8) :: xtot
       real(r8) :: phi
       real(r8) :: d1
@@ -549,8 +549,7 @@
         DO i = Istr,Iend
 ! gradient coefficient for heat conductivity part
           b2d(i,j) = 2.0_r8*alph(i,j)/(ice_thick(i,j)*(1._r8+coa(i,j)))
-          coef_ice_heat(i,j) = coef_ice_heat(i,j) +                     &
-     &          b2d(i,j)
+          coef_ice_heat(i,j) = coef_ice_heat(i,j) + b2d(i,j)
 
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
 
@@ -573,6 +572,8 @@
 !       new temperature in ice
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
             cot = -frln*sice(i,j)*hfus/(ti(i,j,linew)-eps)**2 + cpi
+!            enthal(i,j,1) = brnfr(i,j) * (hfus + cpw*ti(i,j,linew)) +  &
+!     &                (1 - brnfr(i,j)) * cpi * ti(i,j,linew)
 #ifdef ICE_I_O
             ti(i,j,linew) = ti(i,j,linew) +                             &
      &               dtice(ng)/(rhoice(ng)*ice_thick(i,j)*cot)*         &
@@ -587,6 +588,9 @@
 #endif
             ti(i,j,linew) = max(ti(i,j,linew),-35._r8)
             ti(i,j,linew) = min(ti(i,j,linew),-eps)
+!            brnfr(i,j) = frln*sice(i,j)/MIN(ti(i,j,linew),-eps)
+!            enthal(i,j,2) = brnfr(i,j) * (hfus + cpw*ti(i,j,linew)) +  &
+!     &                (1 - brnfr(i,j)) * cpi * ti(i,j,linew)
           ELSE
             ti(i,j,linew) = temp_top(i,j)
           END IF
@@ -681,7 +685,7 @@
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
 !    compute ice production rate (negative here) from atmosphere-ice exchange
 !    Means wai is positive for melt
-                wai(i,j) = -(qai(i,j) -qi2(i,j)) /(hfus1(i,j)*rhosw)
+                wai(i,j) = -(qai(i,j)-qi2(i,j)) /(hfus1(i,j)*rhosw)
 !    compute production rate for melt water (melting rate)
                 wsm(i,j) = ws(i,j)
               END IF
@@ -783,7 +787,6 @@
           wao(i,j) = 0._r8
           wio(i,j) = 0._r8
 
-!          xwai = max(0._r8,wai(i,j))
           hfus1(i,j) = hfus*(1.0_r8-brnfr(i,j))+t0mk(i,j)*cpw           &
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
           IF (temp_top(i,j) .le. tfz)                                   &
@@ -988,17 +991,38 @@
           ENDIF
 
 #undef DIAG_WPB
-#ifdef ICE_BOX
-      IF (i.eq.1.and.j.eq.1.and.iday==15.and.int(hour)==0) THEN
+#ifdef DIAG_WPB
+      IF (i.eq.1.and.j.eq.1) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
-     &              ai(i,j,linew),hi(i,j,linew),tis(i,j),                             &
+     &              ai(i,j,linew),hi(i,j,linew),tis(i,j),               &
 #ifdef MELT_PONDS
      &              apond(i,j,linew), hpond(i,j,linew),                 &
 #endif
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
      &              salt_top(i,j),s0mk(i,j),stflx(i,j,isalt),           &
      &              qio(i,j), ti(i,j,linew), brnfr(i,j),                &
-     &              t2(i,j), qao_n(i,j), qi2(i,j), qai_n(i,j),          &
+     &              t2(i,j), qao_n(i,j), qi2(i,j), qai_n(i,j)
+        print *
+      END IF
+#endif
+#ifdef ICE_BOX
+!      IF (i.eq.1.and.j.eq.1) THEN
+!         write(*,*) tdays,enthal(i,j,1),enthal(i,j,2),                  &
+!     &              hi(i,j,linew),hsn(i,j,linew),tis(i,j),              &
+!     &              ti(i,j,linew), t2(i,j),                             &
+!     &              qio(i,j), qi2(i,j), qi_o_n(i,j),                    &
+!     &              (qio(i,j) - qi2(i,j) + qi_o_n(i,j))*dtice(ng)/      &
+!     &              (ice_thick(i,j)*rhoice(ng))
+!        print *
+!      END IF
+      IF (i.eq.1.and.j.eq.1.and.iday==15.and.int(hour)==0) THEN
+         write(*,*) tdays,wio(i,j),wai(i,j),wro(i,j),                   &
+     &              hi(i,j,linew),hsn(i,j,linew),tis(i,j),              &
+#ifdef MELT_PONDS
+     &              apond(i,j,linew), hpond(i,j,linew),                 &
+#endif
+     &              ti(i,j,linew), t2(i,j),                             &
+     &              qio(i,j), qi2(i,j), qai_n(i,j),                     &
      &              alph(i,j), coa(i,j), b2d(i,j)
         print *
       END IF
