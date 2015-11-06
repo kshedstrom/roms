@@ -31,6 +31,9 @@
            FFLAGS :=
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
+ifdef USE_DEBUG
+         CPPFLAGS += -DUSE_DEBUG
+endif
                CC := gcc
               CXX := g++
            CFLAGS :=

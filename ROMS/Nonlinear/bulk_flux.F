@@ -498,8 +498,10 @@
 
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
+      real(r8), parameter :: Ch_i = 1.75e-3
+      real(r8), parameter :: Ce_i = 1.75e-3
 
-      real(r8) :: Bf, Cd, Ce, Ch, Hl, Hlw, Hscale, Hscale2, Hs, Hsr, IER
+      real(r8) :: Bf, Cd, Ch, Hl, Hlw, Hscale, Hscale2, Hs, Hsr, IER
       real(r8) :: PairM,  RH, Taur
       real(r8) :: Wspeed, ZQoL, ZToL
 # ifdef ICE_BULK_FLUXES
@@ -1005,7 +1007,6 @@
 # endif
           Cd=Wstar(i)*Wstar(i)/(Wspeed*Wspeed+eps)
           Ch=Wstar(i)*Tstar(i)/(-Wspeed*delT(i)+0.0098_r8*blk_ZT(ng))
-          Ce=Wstar(i)*Qstar(i)/(-Wspeed*delQ(i)+eps)
 !
 !  Compute turbulent sensible heat flux (W/m2), Hs.
 !
@@ -1098,12 +1099,12 @@
           qsh_i = sensible_MU(month)
           RHS_Ice(i,j) = RHS_Ice(i,j) + qsh_i
 #   else
-          qsh_i = rhoAir(i)*blk_Cpa*Ch*delW(i)*                         &
+          qsh_i = rhoAir(i)*blk_Cpa*Ch_i*delW(i)*                         &
      &            (TairK(i)+0.0098*blk_ZT(ng)-sfc_temp)
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
-     &          rhoAir(i)*blk_Cpa*Ch*delW(i)
+     &          rhoAir(i)*blk_Cpa*Ch_i*delW(i)
           RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
-     &        rhoAir(i)*blk_Cpa*Ch*delW(i)*(TairK(i)+0.0098*blk_ZT(ng))
+     &        rhoAir(i)*blk_Cpa*Ch_i*delW(i)*(TairK(i)+0.0098*blk_ZT(ng))
 #   endif
 
 ! Latent heat flux over ice
@@ -1120,7 +1121,7 @@
 !         Qsati=eps*cff/(slp-(1._r8-.62197_r8)*cff)
           Qsati=0.62197_r8*cff/(slp-(1._r8-.62197_r8)*cff)
           dq_i=Q(i)-Qsati
-          fqlat1=rhoAir(i)*Ce*delW(i)
+          fqlat1=rhoAir(i)*Ce_i*delW(i)
           qlh_i = fqlat1*le_i*dq_i
 #   endif
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
@@ -1142,7 +1143,7 @@
           qswi = qswi_n(i,j)
 #   endif
 #   ifdef ICE_I_O
-          IF (hsn(i,j,listp) > 0._r8) THEN
+          IF (hsn(i,j,listp) > 1.e-3_r8) THEN
             qi_o_n(i,j) = 0._r8
           ELSE
             qi_o_n(i,j) = qswi * Io_frac

@@ -197,7 +197,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# ifndef USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC

@@ -398,7 +398,7 @@
 #  endif
 # endif
 # ifdef NCEP_FLUXES
-            CALL ncep_flux(ng, tile)
+                CALL ncep_flux(ng, tile)
 # endif
 # ifdef BBL_MODEL
                 CALL bblm (ng, tile)

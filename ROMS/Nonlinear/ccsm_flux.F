@@ -477,8 +477,10 @@ contains
 
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
+      real(r8), parameter :: Ch = 1.75e-3
+      real(r8), parameter :: Ce = 1.75e-3
 
-      real(r8) :: Ce, Ch, Hscale, Hscale2
+      real(r8) :: Hscale, Hscale2
       real(r8) :: RH, cff1, cff2
       real(r8) :: cff
 # ifdef ICE_BULK_FLUXES
@@ -820,8 +822,8 @@ contains
 !  Correct ocean net short-wave radiation for ice cover and convert to
 !  kinematic units
 
-          Ch=ustar*tstar/(vmag*delt+0.0098_r8*blk_ZT(ng))
-          Ce=ustar*qstar/(vmag*delq+eps)
+!          Ch=ustar*tstar/(vmag*delt+0.0098_r8*blk_ZT(ng))
+!          Ce=ustar*qstar/(vmag*delq+eps)
 
           Coef_Ice(i,j) = 0._r8
           RHS_Ice(i,j) = 0._r8
@@ -844,6 +846,9 @@ contains
           RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
      &        rhoAir(i)*blk_Cpa*Ch*vmag*(TairK(i)+0.0098*blk_ZT(ng))
 #   endif
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            print *, 'In CCSM_FLUX 0', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
+!          END IF
 
 ! Latent heat of sublimation
           le_i=2.834E+6_r8
@@ -862,6 +867,9 @@ contains
           qlh_i = fqlat1*le_i*dq_i
 #   endif
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            print *, 'In CCSM_FLUX 1', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
+!          END IF
 !
 ! Short-wave radiation to ice
 #   if defined ALBEDO && defined SHORTWAVE
@@ -870,7 +878,7 @@ contains
           qswi = qswi_n(i,j)
 #   endif
 #   ifdef ICE_I_O
-          IF (hsn(i,j,listp) > 0._r8) THEN
+          IF (hsn(i,j,listp) > 1.e-3_r8) THEN
             qi_o_n(i,j) = 0._r8
           ELSE
 !          IF (ai(i,j,listp).gt.min_a(ng)) THEN
@@ -882,6 +890,9 @@ contains
 #   endif
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            print *, 'In CCSM_FLUX 2', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
+!          END IF
 
 ! Net long-wave radiation from ice
           cff = Hair(i,j)/(1.0_r8+Hair(i,j))
@@ -905,9 +916,15 @@ contains
           RHS_Ice(i,j) = RHS_Ice(i,j) + lrflx(i,j)*Hscale +             &
      &            3._r8*StefBo*emmiss*sfc_temp**4
 #   endif
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            print *, 'In CCSM_FLUX 3', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
+!          END IF
 ! Correct for Kelvin to Celsius in RHS
           RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            print *, 'In CCSM_FLUX 4', i, j, RHS_Ice(i,j)/Coef_Ice(i,j)
+!          END IF
 
 ! Net heat flux from ice to atmosphere
           Qai(i,j) = -qsh_i - qlh_i - qswi - qlwi
@@ -927,6 +944,12 @@ contains
      &                    ai(i,j,listp)*qlh_i
 #  endif
 # endif
+!          IF ((i==133 .or. i==134) .and. j==610) THEN
+!            snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
+!            print *, 'In CCSM_FLUX ', i, j, qsh_i, lrflx(i,j)*Hscale,   &
+!     &        vmag, qlh_i, qswi, qi_o_n(i,j), qlwi, Qai(i,j),           &
+!     &          sfc_temp, snow_thick(i,j), hi(i,j,listp)
+!          END IF
         END DO
       END DO
 
@@ -1389,7 +1412,7 @@ contains
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
 
-      real(r8) :: Ce, Ch, Hscale, Hscale2
+      real(r8) :: Hscale, Hscale2
       real(r8) :: RH, cff1, cff2
       real(r8) :: cff
 
