@@ -64,7 +64,7 @@
 #  define  ICE_SMOLAR   /* timestepping to work correctly.     */
 #  undef  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef ICE_CONVSNOW
+#  define ICE_CONVSNOW
 #  undef  MELT_PONDS
 #  define ICE_I_O
 # endif
