@@ -1161,14 +1161,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
 
 #ifdef DIAGNOSTICS_BIO
-!   DO k=1,UBk
-!     DO j=Jstr,Jend
-!       DO i=Istr,Iend
-!          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
-!       END DO
-!     END DO
-!   ENDDO
-!   i=overflow ; j=overflow ; k=overflow
+   DO k=1,UBk
+     DO j=Jstr,Jend
+       DO i=Istr,Iend
+          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
+       END DO
+     END DO
+   ENDDO
+   i=overflow ; j=overflow ; k=overflow
 #endif
 
 
@@ -1301,8 +1301,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
       DO k=1,UBk
          ! compute the instant irradiance in layer k as a difference of fluxes
          ! between interfaces k and k-1 (like in pre_step3d)
+         ! this was maybe a bad idea, replaced by half-sum
          cobalt%irr_inst(i,j,k) = rho0 * Cp * srflx(i,j) * &
-       & ( swdk3(i,j,k) - swdk3(i,j,k-1) )
+       & 0.5d0 * ( swdk3(i,j,k) + swdk3(i,j,k-1) )
 
          ! set base value of irr_mix to irr_inst (Charles Stock told me to do so)
          cobalt%irr_mix(i,j,k) = cobalt%irr_inst(i,j,k)
@@ -3164,16 +3165,25 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO j=Jstr,Jend
       DO i=Istr,Iend
 
-         cobalt%f_npp(i,j,k) = - phyto(DIAZO)%juptake_no3(i,j,k) -       &
-&                                phyto(LARGE)%juptake_no3(i,j,k) -       &
-&                                phyto(SMALL)%juptake_no3(i,j,k) -       &
-&                                phyto(DIAZO)%juptake_nh4(i,j,k) -       &
-&                                phyto(LARGE)%juptake_nh4(i,j,k) -       &
-&                                phyto(SMALL)%juptake_nh4(i,j,k) -       &
+         cobalt%f_npp(i,j,k) =   phyto(DIAZO)%juptake_no3(i,j,k) +       &
+&                                phyto(LARGE)%juptake_no3(i,j,k) +       &
+&                                phyto(SMALL)%juptake_no3(i,j,k) +       &
+&                                phyto(DIAZO)%juptake_nh4(i,j,k) +       &
+&                                phyto(LARGE)%juptake_nh4(i,j,k) +       &
+&                                phyto(SMALL)%juptake_nh4(i,j,k) +       &
 &                                phyto(DIAZO)%juptake_n2(i,j,k) 
+
+         ! convert in mgC m-3 day-1
+         ! uptake in mol/kg/s, we multiply by 1035 kg/m3 * 86400 s/day *
+         ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
+         cobalt%f_npp(i,j,k) = cobalt%f_npp(i,j,k) * 1035 * 86400 * cobalt%c_2_n * 12 * 1000
 
          cobalt%f_mesozoo(i,j,k) = zoo(2)%f_n(i,j,k) + &
 &                                  zoo(3)%f_n(i,j,k)
+
+         ! convert from mol/kg to mgC/m2
+         ! multiply by 1035 kg/m2 *  C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
+         cobalt%f_mesozoo(i,j,k) = cobalt%f_mesozoo(i,j,k) * 1035 * cobalt%c_2_n * 12 * 1000
 
       ENDDO
     ENDDO
@@ -3730,8 +3740,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) + cobalt%f_co3_ion(i,j,k)
            DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  + cobalt%f_htotal(i,j,k)
            DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) + cobalt%f_irr_mem(i,j,k)
-!          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
-!          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
+          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
+          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
            ! RD : debuuging variables (remove or replace later)
            !DiaBio3d(i,j,k,itheta_small)  = DK(i,j,k,2)
            !DiaBio3d(i,j,k,itheta_large)  = DK(i,j,k,3)

@@ -773,10 +773,10 @@
                 iDbio3(ihtotal)=varid
               CASE ('iDbio3(iirr_mem)')
                 iDbio3(iirr_mem)=varid
-!              CASE ('iDbio3(iirr_mix)')
-!                iDbio3(iirr_mix)=varid
-!              CASE ('iDbio3(iirr_inst)')
-!                iDbio3(iirr_inst)=varid
+              CASE ('iDbio3(iirr_mix)')
+                iDbio3(iirr_mix)=varid
+              CASE ('iDbio3(iirr_inst)')
+                iDbio3(iirr_inst)=varid
 
 !              CASE ('iDbio3(ijprod_cadet_arag)')
 !                iDbio3(ijprod_cadet_arag)=varid
@@ -841,8 +841,8 @@
                 iDbio3(iomega_cadet_calc)=varid
               CASE ('iDbio3(iomega_cadet_arag)')
                 iDbio3(iomega_cadet_arag)=varid
-!              CASE ('iDbio3(iswdk)')
-!                iDbio3(iswdk)=varid
+              CASE ('iDbio3(iswdk)')
+                iDbio3(iswdk)=varid
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')

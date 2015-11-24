@@ -1762,7 +1762,7 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
-      NDbio3d = 9
+      NDbio3d = 12
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
@@ -2661,8 +2661,8 @@
       ihtotal=3
       iirr_mem=4
       ! RD: maybe all the following could be removed someday:
-      !iirr_mix=5
-      !iirr_inst=6
+      iirr_mix=5
+      iirr_inst=6
 
       !ijprod_cadet_arag=7
       !ijprod_cadet_calc=8
@@ -2694,15 +2694,15 @@
       !ifedet_afsink=30
       !indet_flx=31
 
-      ico3_sol_arag=5
-      ico3_sol_calc=6
+      ico3_sol_arag=7
+      ico3_sol_calc=8
 
-      ife_bulk_flx=7
+      ife_bulk_flx=9
 
-      iomega_cadet_calc=8
-      iomega_cadet_arag=9
+      iomega_cadet_calc=10
+      iomega_cadet_arag=11
      
-      !iswdk=37
+      iswdk=12
 #endif
       
       ! Sediment variables
