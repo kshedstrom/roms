@@ -283,7 +283,7 @@
             END IF
           END DO
 !
-!  Southern edge, Shchepetkin boundary condition (Maison et al., 2010).
+!  Southern edge, Shchepetkin boundary condition (Mason et al., 2010).
 !
         ELSE IF (LBC(isouth,isVbar,ng)%Shchepetkin) THEN
           DO i=Istr,Iend
@@ -644,7 +644,7 @@
             END IF
           END DO
 !
-!  Northern edge, Shchepetkin boundary condition (Maison et al., 2010).
+!  Northern edge, Shchepetkin boundary condition (Mason et al., 2010).
 !
         ELSE IF (LBC(inorth,isVbar,ng)%Shchepetkin) THEN
           DO i=Istr,Iend

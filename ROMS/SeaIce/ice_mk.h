@@ -1023,7 +1023,7 @@
 #endif
      &              ti(i,j,linew), t2(i,j),                             &
      &              qio(i,j), qi2(i,j), qai_n(i,j),                     &
-     &              alph(i,j), coa(i,j), b2d(i,j)
+     &              alph(i,j), coa(i,j), qi_o_n(i,j), cot, t0mk(i,j)
         print *
       END IF
 #endif

@@ -240,6 +240,20 @@
 ! call CICE_MODEL
           zlvl = 2.0_r8   ! MERRA
           IF (iic(ng).eq.ntstart(ng) .and. .not. restart) THEN
+#ifdef ARCTIC
+! ai
+          call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
+     &                ICE(ng)%ai, wrk_big)
+          wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
+          call scatter_global(aice_init2, wrk_small, master_task,       &
+     &             distrb_info, field_loc_center, field_type_scalar)
+! hi
+          call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
+     &                ICE(ng)%hi, wrk_big)
+          wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
+          call scatter_global(hice_init, wrk_small, master_task,        &
+     &             distrb_info, field_loc_center, field_type_scalar)
+#endif
             CALL init_state
           END IF
           CALL ice_step

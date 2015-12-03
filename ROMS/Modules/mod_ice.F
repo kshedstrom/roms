@@ -308,6 +308,7 @@
           real(r8), pointer :: wfr(:,:)
           real(r8), pointer :: ai(:,:)
           real(r8), pointer :: hi(:,:)
+          real(r8), pointer :: tis(:,:)
         END TYPE T_ICE
 
         TYPE (T_ICE), allocatable :: ICE(:)
@@ -330,6 +331,7 @@
       allocate ( ICE(ng) % wfr(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % ai(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % hi(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % tis(LBi:UBi,LBj:UBj) )
 
       RETURN
       END SUBROUTINE allocate_ice
@@ -390,6 +392,7 @@
           ICE(ng) % wfr(i,j) = IniVal
           ICE(ng) % ai(i,j) = IniVal
           ICE(ng) % hi(i,j) = IniVal
+          ICE(ng) % tis(i,j) = IniVal
         END DO
       END DO
 !

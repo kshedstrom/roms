@@ -160,7 +160,7 @@
 #  define CORE_FORCING
 #  define BULK_FLUXES
 #  define CCSM_FLUXES
-#  undef ARCTIC_MERRA_HACK
+#  define ARCTIC_MERRA_HACK
 # endif
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
