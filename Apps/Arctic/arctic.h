@@ -19,7 +19,6 @@
 #undef PARALLEL_IN
 #undef PARALLEL_OUT
 #define PERFECT_RESTART
-#undef NO_LBC_ATT
 
 /* general */
 
@@ -77,9 +76,6 @@
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
 #  define ICE_I_O
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -106,7 +102,6 @@
 
 #define UV_ADV
 #define UV_COR
-#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -119,7 +114,6 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -132,7 +126,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -143,7 +137,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -164,7 +158,6 @@
 #  undef DIURNAL_SRFLUX
 #  define SOLAR_SOURCE
 #  define EMINUSP
-#  undef ANA_SRFLUX
 #  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  undef ICE_ALB_EC92   /* for ice */
@@ -229,22 +222,4 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
-#endif
-
-/*
-**  Biological model options.
-*/
-#undef NEMURO
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
 #endif

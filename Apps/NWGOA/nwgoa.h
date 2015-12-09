@@ -13,11 +13,9 @@
 */
 
 #undef NO_HIS
-#undef GLOBAL_PERIODIC
-#undef NETCDF4
-#undef PARALLEL_IO
+#undef HDF5
+#undef DEFLATE
 #define PERFECT_RESTART
-#undef NO_LBC_ATT
 
 /* general */
 
@@ -31,8 +29,8 @@
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
-#define FLOATS
-#define STATIONS
+#undef FLOATS
+#undef STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -48,7 +46,7 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define  ICE_MODEL
+/* FOR TIDES TEST # define  ICE_MODEL */
 # ifdef ICE_MODEL
 #  undef ANA_ICE
 #  undef  OUTFLOW_MASK
@@ -63,9 +61,6 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -76,10 +71,9 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#define AVERAGES
+#undef AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
-# undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
 #endif
 #undef DIAGNOSTICS_UV
@@ -92,7 +86,6 @@
 
 #define UV_ADV
 #define UV_COR
-#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # undef TS_A4HADVECTION
@@ -145,7 +138,8 @@
 
 /* surface forcing */
 
-#ifdef SOLVE3D
+/* #ifdef SOLVE3D */
+# ifdef FOOOO /* FOR TIDES TEST */
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
@@ -162,14 +156,17 @@
 #  undef ALBEDO_FILE  /* for both */
 #  undef LONGWAVE
 # endif
+# define SCORRECTION
+#else
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
 #endif
 
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SCORRECTION
 # define NO_SCORRECTION_ICE
-# undef QCORRECTION
 #endif
 
 /* point sources (rivers, line sources) */
@@ -219,7 +216,7 @@
 **  Biological model options.
 */
 #undef NEMURO
-#define BIO_UMAINE
+#undef BIO_UMAINE
 
 #if defined NEMURO
 # define BIO_SEDIMENT
