@@ -226,7 +226,6 @@
 !            t2(i,j)         -  temperature at ice/snow interface
 !            hsn(i,j,linew)  -  snow avg. thickness next time step
 !
-!
 !***********************************************************************
 
       USE mod_param
@@ -601,7 +600,7 @@
         DO i = Istr,Iend
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
             t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/(1._r8+coa(i,j))
-            hicehinv = 1._r8/(0.5_r8*ice_thick(i,j))
+            hicehinv = 2._r8/ice_thick(i,j)
             qi2(i,j) = alph(i,j)*(ti(i,j,linew)-t2(i,j))*hicehinv
             qio(i,j) = alph(i,j)*(t0mk(i,j)-ti(i,j,linew))*hicehinv
           END IF
@@ -678,6 +677,7 @@
 #endif
 !   ice warmer than freezing point
                 tis(i,j) = tfrz
+		t2(i,j) = tfrz
 !   ice warmer than freezing point
                 hfus1(i,j) = hfus*(1._r8-brnfr(i,j))+tis(i,j)*cpw       &
      &         -((1._r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
@@ -698,10 +698,13 @@
                 tis(i,j) = 0._r8
                 qai(i,j) = qai_n(i,j)
                 qi2(i,j) = b2d(i,j)*(ti(i,j,linew)-tis(i,j))
+                t2(i,j) = (tis(i,j)+coa(i,j)*ti(i,j,linew))/            &
+     &                (1._r8+coa(i,j))
 !          snow melting
 ! When does snow get denser???
                 wsm(i,j) = max(0.0_r8,-(qai(i,j)-qi2(i,j))/             &
-     &                    (rhosnow_wet(ng)*hfus)) + ws(i,j)
+     &                    (rhosnow_dry(ng)*hfus)) + ws(i,j)
+!     &                    (rhosnow_wet(ng)*hfus)) + ws(i,j)
               END IF
 
 #ifdef MELT_PONDS

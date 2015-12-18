@@ -90,14 +90,22 @@
 !  Set snow precipitation rate (kg/m2/s).
 !-----------------------------------------------------------------------
 !
+#ifdef NO_SNOW
+      DO j=JstrT,JendT
+        DO i=IstrT,IendT
+          snow(i,j)=0.0_r8
+        END DO
+      END DO
+#else
       CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
       IF (month == 8 .and. iday >= 20) month = 9
       DO j=JstrT,JendT
         DO i=IstrT,IendT
           snow(i,j)=sn(month)
-	  IF (tis(i,j) > 0.0_r8) snow(i,j) = 0.0_r8
+          IF (tis(i,j) > 0.0_r8) snow(i,j) = 0.0_r8
         END DO
       END DO
+#endif
 !
 !  Exchange boundary data.
 !

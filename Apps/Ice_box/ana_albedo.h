@@ -15,6 +15,7 @@
       USE mod_param
       USE mod_forces
       USE mod_ncparam
+      USE mod_ice
 !
 ! Imported variable declarations.
 !
@@ -30,6 +31,9 @@
 # endif
 # ifdef ICE_MODEL
      &                     FORCES(ng) % albedo_ice,                     &
+#  ifdef NO_SNOW
+     &                     ICE(ng) % tis,                               &
+#  endif
 # endif
      &                     FORCES(ng) % albedo)
 !
@@ -55,6 +59,9 @@
 # endif
 # ifdef ICE_MODEL
      &                            albedo_ice,                           &
+#  ifdef NO_SNOW
+     &                            tis,                                  &
+#  endif
 # endif
      &                            albedo)
 !***********************************************************************
@@ -79,6 +86,9 @@
 #  endif
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: albedo_ice(LBi:,LBj:)
+#   ifdef NO_SNOW
+      real(r8), intent(in) :: tis(LBi:,LBj:)
+#   endif
 #  endif
       real(r8), intent(out) :: albedo(LBi:,LBj:)
 #else
@@ -87,6 +97,9 @@
 #  endif
 #  ifdef ICE_MODEL
       real(r8), intent(out) :: albedo_ice(LBi:UBi,LBj:UBj)
+#   ifdef NO_SNOW
+      real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
       real(r8), intent(out) :: albedo(LBi:UBi,LBj:UBj)
 #endif
@@ -111,7 +124,15 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
 #ifdef ICE_BOX
+# ifdef NO_SNOW
+          if (tis(i,j) > -0.1) then
+            albedo_ice(i,j)= 0.64
+	  else
+            albedo_ice(i,j)= 0.75
+	  end if
+# else
           albedo_ice(i,j)=alb(month)
+# endif
 #endif
 #ifdef ALBEDO_CURVE
 # ifdef BIO_1D

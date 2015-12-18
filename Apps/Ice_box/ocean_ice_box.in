@@ -73,7 +73,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = /center/w/kate/Bering/External/varinfo.dat
+     VARNAME = Apps/varinfo.dat
 
 ! Number of nested grids.
 
@@ -200,7 +200,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 259200
+!       NTIMES == 259200
+       NTIMES == 86400
           DT == 3600.0d0
      NDTFAST == 30
 
@@ -882,7 +883,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
      GRDNAME == ocean_grd.nc
      ININAME == ocean_ini.nc
-!     ININAME == bering_rst.nc
+!     ININAME == icebox_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -943,24 +944,24 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == bering_rst.nc
-     HISNAME == bering_his.nc
-    HIS2NAME == bering_his2.nc
-     TLMNAME == bering_tlm.nc
-     TLFNAME == bering_tlf.nc
-     ADJNAME == bering_tlm.nc
-     AVGNAME == bering_avg.nc
-    AVG2NAME == bering_avg2.nc
-     DIANAME == bering_dia.nc
-     STANAME == bering_sta.nc
-     FLTNAME == bering_flt.nc
+     RSTNAME == icebox_rst.nc
+     HISNAME == icebox_his.nc
+    HIS2NAME == icebox_his2.nc
+     TLMNAME == icebox_tlm.nc
+     TLFNAME == icebox_tlf.nc
+     ADJNAME == icebox_tlm.nc
+     AVGNAME == icebox_avg.nc
+    AVG2NAME == icebox_avg2.nc
+     DIANAME == icebox_dia.nc
+     STANAME == icebox_sta.nc
+     FLTNAME == icebox_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/Ice_box/External/stations_ice_box.in
-     FPOSNAM =  External/floats_bering.in
-     IPARNAM =  /center/w/kate/Ice_box/External/ice.in
+     SPOSNAM =  Apps/Ice_box/stations_ice_box.in
+     FPOSNAM =  External/floats_icebox.in
+     IPARNAM =  Apps/Ice_box/ice.in
      BPARNAM =  External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat

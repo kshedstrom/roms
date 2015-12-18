@@ -51,6 +51,7 @@
 # endif
 
 # define  ICE_MODEL
+# undef NO_SNOW
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define SNOWFALL
