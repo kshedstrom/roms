@@ -229,7 +229,11 @@
         DO i=IstrR,IendR
           ai(i,j,1) = 1._r8
           hi(i,j,1) = 2._r8
+#ifdef NO_SNOW
+          hsn(i,j,1) = 0.0_r8
+#else
           hsn(i,j,1) = 0.2_r8
+#endif
           ti(i,j,1) = -5._r8
 # ifdef MELT_PONDS
           apond(i,j,1) = 0._r8
