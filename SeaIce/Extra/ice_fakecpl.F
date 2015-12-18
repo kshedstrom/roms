@@ -240,7 +240,7 @@
 ! call CICE_MODEL
           zlvl = 2.0_r8   ! MERRA
           IF (iic(ng).eq.ntstart(ng) .and. .not. restart) THEN
-#ifdef ARCTIC
+#ifdef INI_GLORYS_ICE
 ! ai
           call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
      &                ICE(ng)%ai, wrk_big)

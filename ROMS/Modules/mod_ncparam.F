@@ -2746,7 +2746,7 @@
       ic=ic+1
       idBvar(ic)=idMtke
 # endif
-# if defined ICE_MODEL || defined CICE_MODEL
+# if defined ICE_MODEL
       ic=ic+11
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice
