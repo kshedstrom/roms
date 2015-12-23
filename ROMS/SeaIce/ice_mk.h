@@ -224,7 +224,6 @@
 !            hfus1(i,j)      -  heat of fusion (L_o or L_3)
 !            wro(i,j)        -  production rate of surface runoff
 !            t2(i,j)         -  temperature at ice/snow interface
-!            hsn(i,j,linew)  -  snow avg. thickness next time step
 !
 !***********************************************************************
 
@@ -570,7 +569,7 @@
 !**** calculate interior ice temp and heat fluxes
 !       new temperature in ice
           IF (ai(i,j,linew) .gt. min_a(ng)) THEN
-            cot = -frln*sice(i,j)*hfus/(ti(i,j,linew)-eps)**2 + cpi
+            cot = cpi - frln*sice(i,j)*hfus/(ti(i,j,linew)-eps)**2
 !            enthal(i,j,1) = brnfr(i,j) * (hfus + cpw*ti(i,j,linew)) +  &
 !     &                (1 - brnfr(i,j)) * cpi * ti(i,j,linew)
 #ifdef ICE_I_O
@@ -721,9 +720,13 @@
 !
 !***** compute snow thickness
 !       hsn - snow thickness
+#ifdef NO_SNOW
+            hsn(i,j,linew) = 0.0_r8
+#else
             hsn(i,j,linew) = hsn(i,j,linew)+(ai(i,j,linew)              &
      &                             *(-wsm(i,j)+ws(i,j)))*dtice(ng)
             hsn(i,j,linew) = max(0.0_r8,hsn(i,j,linew))
+#endif
           END IF
 #ifdef MELT_PONDS
 !
@@ -804,6 +807,7 @@
 
 ! MK89 version
 #ifdef ICE_BOX
+!  F_t set to 2 W/m^2
             wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &
      &              +(1._r8-ai(i,j,linew))*wao(i,j)
@@ -926,12 +930,13 @@
      &                      *(phi*wao(i,j)+wfr(i,j))
           ai(i,j,linew) = min(ai(i,j,linew),max_a(ng))
 
+#ifndef NO_SNOW
 ! adjust snow volume when ice melting out from under it
           IF (ai(i,j,linew) .lt. ai_tmp)                                &
      &        hsn(i,j,linew) =                                          &
      &           hsn(i,j,linew)*ai(i,j,linew)/max(ai_tmp,eps)
 
-#ifdef ICE_CONVSNOW
+# ifdef ICE_CONVSNOW
 !
 ! If snow base is below sea level, then raise the snow base to sea level
 !  by converting some snow to ice (N.B. hstar is also weighted by ai
@@ -943,6 +948,7 @@
             hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
             hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
           ENDIF
+# endif
 #endif
 #ifdef AICLM_NUDGING
           cff = AInudgcof(i,j)

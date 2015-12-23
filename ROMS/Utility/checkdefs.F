@@ -1487,6 +1487,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+20)=' NO_SCORRECTION_ICE,'
 #endif
+#ifdef NO_SNOW
+      IF (Master) WRITE (stdout,20) 'NO_SNOW',                           &
+     &   'Turn off snow in sea-ice model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+9)=' NO_SNOW,'
+#endif
 #ifdef NO_WRITE_GRID
       IF (Master) WRITE (stdout,20) 'NO_WRITE_GRID',                    &
      &   'Not Writing grid arrays into NetCDF ouput files.'
