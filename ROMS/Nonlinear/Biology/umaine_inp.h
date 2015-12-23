@@ -261,14 +261,16 @@
               Npts=load_r(Nval, Rval, Ngrids, A_Fe)
             CASE ('B_Fe')
               Npts=load_r(Nval, Rval, Ngrids, B_Fe)
-            CASE ('SK_FeC')
-              Npts=load_r(Nval, Rval, Ngrids, SK_FeC)
-            CASE ('LK_FeC')
-              Npts=load_r(Nval, Rval, Ngrids, LK_FeC)
+            CASE ('S1_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S1_FeC)
+            CASE ('S2_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S2_FeC)
+            CASE ('S3_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S3_FeC)
             CASE ('FeRR')
               Npts=load_r(Nval, Rval, Ngrids, FeRR)
 # endif
-  
+
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
               DO ng=1,Ngrids
@@ -311,7 +313,7 @@
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
      &                      idbio(iTrcStr), idbio(iTrcEnd),             &
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
-  
+
 #ifdef TCLIMATOLOGY
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
@@ -673,10 +675,12 @@
      &            'Empirical Fe:C power (-).'
             WRITE (out,70) B_Fe(ng), 'B_Fe',                            &
      &            'Empirical Fe:C coefficient (1/M-C).'
-            WRITE (out,70) SK_FeC(ng), 'SK_FeC',                        &
+            WRITE (out,70) S1_FeC(ng), 'S1_FeC',                        &
      &            'Small P Fe:C at F=0.5 (muM-Fe/M-C).'
-            WRITE (out,70) LK_FeC(ng), 'LK_FeC',                        &
-     &            'Large P Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) S2_FeC(ng), 'S2_FeC',                        &
+     &            'Diatoms Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) S3_FeC(ng), 'S3_FeC',                        &
+     &            'Coccolithophores Fe:C at F=0.5 (muM-Fe/M-C).'
             WRITE (out,70) FeRR(ng), 'FeRR',                            &
      &            'Fe remineralization rate (day-1).'
 #endif
