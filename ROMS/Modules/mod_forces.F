@@ -315,6 +315,8 @@
 #endif
 #ifdef CICE_MODEL
           real(r8), pointer :: PotT(:,:)
+          real(r8), pointer :: LW_down(:,:)
+          real(r8), pointer :: SW_down(:,:)
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -732,6 +734,8 @@
 #endif
 #ifdef CICE_MODEL
       allocate ( FORCES(ng) % PotT(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % LW_down(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % SW_down(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -1240,6 +1244,8 @@
 #endif
 #ifdef CICE_MODEL
             FORCES(ng) % PotT(i,j) = IniVal
+            FORCES(ng) % LW_down(i,j) = IniVal
+            FORCES(ng) % SW_down(i,j) = IniVal
 #endif
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
      defined CCSM_FLUXES2D
