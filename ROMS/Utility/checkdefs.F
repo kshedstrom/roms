@@ -1109,18 +1109,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' INI_GLORYS_ICE,'
 #endif
-#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
-      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BSTRESS,'
-#endif
-#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
-#endif
 #ifdef IMPULSE
       IF (Master) WRITE (stdout,20) 'IMPULSE',                          &
      &   'Processing Adjoint Impulse forcing.'
@@ -1185,6 +1173,24 @@
      &   'Kantha and Clayson stability function formulation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' KANTHA_CLAYSON,'
+#endif
+#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
+      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
+     &   'Limit bottom stress to maintain bottom velocity direction.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LIMIT_BSTRESS,'
+#endif
+#if defined LIMIT_ICE_BSTRESS
+      IF (Master) WRITE (stdout,20) 'LIMIT_ICE_BSTRESS',                &
+     &   'Limit bottom stress to maintain ice velocity direction.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LIMIT_ICE_BSTRESS,'
+#endif
+#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
+     &   'Suppress further cooling if SST is at freezing point.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
 #endif
 #ifdef LMD_BKPP
       IF (Master) WRITE (stdout,20) 'LMD_BKPP',                         &

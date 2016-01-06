@@ -102,6 +102,7 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
           snow(i,j)=sn(month)
+!          snow(i,j)=sn(month) * 2.0_r8
           IF (tis(i,j) > 0.0_r8) snow(i,j) = 0.0_r8
         END DO
       END DO

@@ -479,6 +479,8 @@ contains
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
       real(r8), parameter :: Ch = 1.75e-3
       real(r8), parameter :: Ce = 1.75e-3
+! ratio of molecular weight of water to dry air
+      real(r8), parameter :: epsilon = 0.622_r8
 
       real(r8) :: Hscale, Hscale2
       real(r8) :: RH, cff1, cff2
@@ -822,9 +824,6 @@ contains
 !  Correct ocean net short-wave radiation for ice cover and convert to
 !  kinematic units
 
-!          Ch=ustar*tstar/(vmag*delt+0.0098_r8*blk_ZT(ng))
-!          Ce=ustar*qstar/(vmag*delq+eps)
-
           Coef_Ice(i,j) = 0._r8
           RHS_Ice(i,j) = 0._r8
 
@@ -861,7 +860,7 @@ contains
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
           cff = 611._r8*                                                &
      &      10._r8**(9.5_r8*(sfc_temp-273.16_r8)/(sfc_temp-7.66_r8))
-          Qsati=eps*cff/(slp-(1._r8-.62197_r8)*cff)
+          Qsati=epsilon*cff/(slp-(1._r8-.62197_r8)*cff)
           dq_i=Hair(i,j)-Qsati
           fqlat1=rhoAir(i)*Ce*vmag
           qlh_i = fqlat1*le_i*dq_i
@@ -1408,9 +1407,6 @@ contains
 !  Local variable declarations.
 !
       integer :: i, j, listp
-
-      real(r8), parameter :: eps = 1.0E-20_r8
-      real(r8), parameter :: r3 = 1.0_r8/3.0_r8
 
       real(r8) :: Hscale, Hscale2
       real(r8) :: RH, cff1, cff2

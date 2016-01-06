@@ -265,9 +265,7 @@
 !
       integer :: i, j
 
-# ifdef MICLM_NUDGING
-      real(r8) :: cff
-# endif
+      real(r8) :: cff, cff2, cff3, udrag, vdrag
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
@@ -408,6 +406,15 @@
 # endif
       ENDIF
 #endif
+
+#   ifdef lIMIT_ICE_BSTRESS
+!
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down 
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.75_r8/dte(ng)
+#   endif
 ! ...................................
 !
 ! *** momentum equation 
@@ -595,8 +602,15 @@
             v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
      &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
             speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-            uforce = uforce - uie(i,j,lieol)*                           &
+	    udrag = uie(i,j,lieol)*
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
+# ifdef LIMIT_ICE_BSTRESS
+            cff3=cff*masu
+            udrag=SIGN(1.0_r8, udrag(i,j))*                               &
+     &               MIN(ABS(udrag(i,j)),                               &
+     &                   ABS(uie(i,j,1ieol))*cff3)
+# endif
+            uforce = uforce - udrag
           END IF
 #endif
 !
@@ -607,9 +621,9 @@
      &                       dte(ng)*uforce)/alfa 
 !
 # ifdef MICLM_NUDGING
-          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
+          cff2 = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
           uie(i,j,lienw)=uie(i,j,lienw)+                                &
-     &                  dte(ng)*cff*(uiclm(i,j)-uie(i,j,lienw))
+     &                  dte(ng)*cff2*(uiclm(i,j)-uie(i,j,lienw))
 # endif
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
@@ -814,8 +828,15 @@
             u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
      &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
             speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-            vforce = vforce - vie(i,j,lieol)*                           &
+            vdrag = vie(i,j,lieol)*                                     &
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+# ifdef LIMIT_ICE_BSTRESS
+            cff3=cff*masv
+            udrag=SIGN(1.0_r8, vdrag(i,j))*                             &
+     &               MIN(ABS(vdrag(i,j)),                               &
+     &                   ABS(vie(i,j,1ieol))*cff3)
+# endif
+            vforce = vforce - vdrag
           END IF
 #endif
 !

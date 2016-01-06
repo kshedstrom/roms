@@ -267,7 +267,7 @@
           rhoa_n(i,j) = 1.4_r8
 # endif
           tis(i,j) = -30._r8
-          s0mk(i,j) = 30._r8
+          s0mk(i,j) = 33._r8
           t0mk(i,j) = -0.0543_r8*s0mk(i,j)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8

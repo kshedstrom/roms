@@ -114,7 +114,8 @@
 #  define EMINUSP
 #  define ANA_LRFLUX
 #  define ANA_SRFLUX
-#  define ANA_ALBEDO
+#  undef ANA_ALBEDO
+#  define ALBEDO
 #  define ANA_SNOW
 #  undef ALBEDO_CLOUD
 #  undef ALBEDO_CURVE  /* for water */

@@ -175,10 +175,17 @@ contains
       real(r8), parameter :: alb_s_dry=0.83_r8
       real(r8), parameter :: alb_s_wet=0.70_r8
 #  else
+#ifdef ICE_BOX
+      real(r8), parameter :: alb_i_dry=0.75_r8
+      real(r8), parameter :: alb_i_wet=0.64_r8
+      real(r8), parameter :: alb_s_dry=0.85_r8
+      real(r8), parameter :: alb_s_wet=0.82_r8
+#else
       real(r8), parameter :: alb_i_dry=0.65_r8
       real(r8), parameter :: alb_i_wet=0.60_r8
       real(r8), parameter :: alb_s_dry=0.85_r8
       real(r8), parameter :: alb_s_wet=0.72_r8
+#endif
 #  endif
       real(r8) :: albs, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, slp, Qsati
@@ -266,6 +273,24 @@ contains
               alb_ice = alb_i_dry
             ENDIF
             albedo_ice(i,j) = fsn*alb_snow + (1-fsn)*alb_ice
+          ELSE
+            albedo_ice(i,j)=alb_w
+          ENDIF
+#  elif defined ICE_BOX
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            IF (hsn(i,j,listp).gt.0._r8) THEN
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = alb_s_wet
+              ELSE
+                albedo_ice(i,j) = alb_s_dry
+              ENDIF
+            ELSE
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = alb_i_wet
+              ELSE
+                albedo_ice(i,j) = alb_i_dry
+              ENDIF
+            ENDIF
           ELSE
             albedo_ice(i,j)=alb_w
           ENDIF

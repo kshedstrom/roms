@@ -500,23 +500,17 @@
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
       real(r8), parameter :: Ch_i = 1.75e-3
       real(r8), parameter :: Ce_i = 1.75e-3
+! ratio of molecular weight of water to dry air
+      real(r8), parameter :: epsilon = 0.622_r8
 
       real(r8) :: Bf, Cd, Ch, Hl, Hlw, Hscale, Hscale2, Hs, Hsr, IER
       real(r8) :: PairM,  RH, Taur
       real(r8) :: Wspeed, ZQoL, ZToL
 # ifdef ICE_BULK_FLUXES
-      real(r8), parameter :: alb_i_dry=0.65_r8
-      real(r8), parameter :: alb_i_wet=0.60_r8
-      real(r8), parameter :: alb_s_dry=0.85_r8
-      real(r8), parameter :: alb_s_wet=0.72_r8
-      real(r8), parameter :: alb_w=0.1_r8
-      real(r8) :: albs, qswi, qlwi, qlh_i, qsh_i
+      real(r8) :: qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
       real(r8) :: vap_p_i
       real(r8), parameter :: Io_frac = 0.17_r8   ! from MU
-#  ifdef ICE_ALB_EC92
-      real(r8) :: albi, albsn, thki_n, thksn_n
-#  endif
 # endif
 
       real(r8) :: cff, cff1, cff2, diffh, diffw, oL, upvel
@@ -1118,7 +1112,7 @@
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
           cff = 611._r8*                                                &
      &      10._r8**(9.5_r8*(sfc_temp-273.16_r8)/(sfc_temp-7.66_r8))
-!         Qsati=eps*cff/(slp-(1._r8-.62197_r8)*cff)
+!         Qsati=epsilon*cff/(slp-(1._r8-.62197_r8)*cff)
           Qsati=0.62197_r8*cff/(slp-(1._r8-.62197_r8)*cff)
           dq_i=Q(i)-Qsati
           fqlat1=rhoAir(i)*Ce_i*delW(i)
