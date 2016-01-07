@@ -1186,6 +1186,9 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          LW_down)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          SW_down)
 # endif
 #  ifdef ICE_MODEL
         CALL exchange_r2d_tile (ng, tile,                               &
@@ -1253,18 +1256,18 @@ contains
      &                    lrflx, lhflx, shflx,                          &
      &                    stflx(:,:,itemp))
 #  ifdef CICE_MODEL
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    LW_down)
+     &                    LW_down, SW_down)
 #  endif
 #  ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    srflx, qao_n, Tau_aix_n, Tau_aiy_n )
+     &                    srflx, qao_n, tau_aix_n, tau_aiy_n )
 #   ifdef ICE_THERMO
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &

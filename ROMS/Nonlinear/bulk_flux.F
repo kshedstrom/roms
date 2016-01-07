@@ -143,6 +143,10 @@
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
      &                     FORCES(ng) % stflx,                          &
+# ifdef CICE_MODEL
+     &                     FORCES(ng) % LW_down,                        &
+     &                     FORCES(ng) % SW_down,                        &
+# endif
 # if defined ALBEDO && defined SHORTWAVE
      &                     FORCES(ng) % albedo,                         &
 #  ifdef ICE_MODEL
@@ -233,6 +237,9 @@
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
+# ifdef CICE_MODEL
+     &                           LW_down, SW_down,                      &
+# endif
 # if defined ALBEDO && defined SHORTWAVE
      &                           albedo,                                &
 #  ifdef ICE_MODEL
@@ -343,6 +350,10 @@
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+# ifdef CICE_MODEL
+      real(r8), intent(out) :: LW_down(LBi:,LBj:)
+      real(r8), intent(out) :: SW_down(LBi:,LBj:)
+# endif
 # if defined ALBEDO && defined SHORTWAVE
       real(r8), intent(in) :: albedo(LBi:,LBj:)
 #  ifdef ICE_MODEL
@@ -440,10 +451,14 @@
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+# ifdef CICE_MODEL
+      real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
+# endif
 # if defined ALBEDO && defined SHORTWAVE
-      real(r8), intent(in) :: albedo(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
 #  ifdef ICE_MODEL
-      real(r8), intent(in) :: albedo_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: albedo_ice(LBi:UBi,LBj:UBj)
 #  endif
 # endif
 # if defined ALBEDO_CLOUD && defined SHORTWAVE && !defined BENCHMARK
@@ -465,6 +480,9 @@
       real(r8), intent(out) :: coef_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: rhs_ice_heat(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: snow_n(LBi:UBi,LBj:UBj)
+#    ifdef SNOWFALL
+      real(r8), intent(in) :: snow(LBi:UBi,LBj:UBj)
+#    endif
 #   endif
       real(r8), intent(out) :: tau_aix_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: tau_aiy_n(LBi:UBi,LBj:UBj)
@@ -600,7 +618,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
-# endif
+#endif
 #ifdef EVAP_SHALLOW
       real(r8), parameter :: coef_shallow = 5.28_r8
 !      real(r8), parameter :: coef_shallow = 4.69_r8
@@ -1224,6 +1242,10 @@
       cff=1.0_r8/rhow
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+# ifdef CICE_MODEL
+          LW_down(i,j) = lrflx(i,j)*Hscale
+          SW_down(i,j) = srflx(i,j)*Hscale
+# endif
 # if defined ALBEDO && defined SHORTWAVE
 #   if defined ALBEDO_CLOUD && !defined BENCHMARK
           cawdif = 1._r8-albw_d
@@ -1394,6 +1416,14 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,itemp))
+# ifdef CICE_MODEL
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          LW_down)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          SW_down)
+# endif
 # ifdef ICE_MODEL
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1459,6 +1489,13 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    lrflx, lhflx, shflx,                          &
      &                    stflx(:,:,itemp))
+#  ifdef CICE_MODEL
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    LW_down, SW_down)
+#  endif
 #  ifdef ICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &
