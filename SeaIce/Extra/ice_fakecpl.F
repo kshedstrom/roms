@@ -220,7 +220,7 @@
 
 ! Shortwave
           call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
-     &                FORCES(ng)%srflx, wrk_big)
+     &                FORCES(ng)%SW_down, wrk_big)
           wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
           call scatter_global(swvdr, wrk_small, master_task,            &
      &             distrb_info, field_loc_center, field_type_scalar)
@@ -232,7 +232,7 @@
 
 ! Longwave
           call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
-     &                FORCES(ng)%lrflx, wrk_big)
+     &                FORCES(ng)%LW_down, wrk_big)
           wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
           call scatter_global(flw, wrk_small, master_task, distrb_info, &
      &             field_loc_center, field_type_scalar)
