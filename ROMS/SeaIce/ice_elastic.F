@@ -602,11 +602,11 @@
             v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
      &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
             speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-	    udrag = uie(i,j,lieol)*
+            udrag = uie(i,j,lieol)*                                     &
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
 # ifdef LIMIT_ICE_BSTRESS
             cff3=cff*masu
-            udrag=SIGN(1.0_r8, udrag(i,j))*                               &
+            udrag=SIGN(1.0_r8, udrag(i,j))*                             &
      &               MIN(ABS(udrag(i,j)),                               &
      &                   ABS(uie(i,j,1ieol))*cff3)
 # endif
