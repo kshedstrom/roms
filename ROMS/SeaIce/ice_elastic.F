@@ -606,9 +606,9 @@
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
 # ifdef LIMIT_ICE_BSTRESS
             cff3=cff*masu
-            udrag=SIGN(1.0_r8, udrag(i,j))*                             &
-     &               MIN(ABS(udrag(i,j)),                               &
-     &                   ABS(uie(i,j,1ieol))*cff3)
+            udrag=SIGN(1.0_r8, udrag)*                                  &
+     &               MIN(ABS(udrag),                                    &
+     &                   ABS(uie(i,j,lieol))*cff3)
 # endif
             uforce = uforce - udrag
           END IF
@@ -832,9 +832,9 @@
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
 # ifdef LIMIT_ICE_BSTRESS
             cff3=cff*masv
-            udrag=SIGN(1.0_r8, vdrag(i,j))*                             &
-     &               MIN(ABS(vdrag(i,j)),                               &
-     &                   ABS(vie(i,j,1ieol))*cff3)
+            udrag=SIGN(1.0_r8, vdrag)*                                  &
+     &               MIN(ABS(vdrag),                                    &
+     &                   ABS(vie(i,j,lieol))*cff3)
 # endif
             vforce = vforce - vdrag
           END IF
