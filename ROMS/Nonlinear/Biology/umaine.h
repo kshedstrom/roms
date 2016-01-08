@@ -413,12 +413,12 @@
       real(r8) :: FlimitS1,FlimitS2,FlimitS3
 #ifdef IRON_LIMIT
       real(r8) :: UFeS1
-      real(r8) :: FNratioS1,FNratioS2,FNratioS3,
+      real(r8) :: FNratioS1,FNratioS2,FNratioS3
       real(r8) :: FCratioS1,FCratioS2,FCratioS3,FCratioE
-      real(r8) :: cffFeS1_G,cffFeS3_G,cffFeS3_G
-      real(r8) :: cffFeS1_R,cffFeS3_R,cffFeS3_R
+      real(r8) :: cffFeS1_G,cffFeS2_G,cffFeS3_G
+      real(r8) :: cffFeS1_R,cffFeS2_R,cffFeS3_R
       real(r8) :: cffFeExuS1,cffFeExuS2,cffFeExuS3
-      real(r8) :: gs1Fezz1,gs1Fezz2,gs1Fezz3
+      real(r8) :: gs1Fezz1,gs2Fezz2,gs3Fezz2
       real(r8) :: morts1Fe,morts2Fe,morts3Fe
       real(r8) :: Qsms36,Qsms37,Qsms38,Qsms39
       real(r8) :: NQsms36,NQsms37,NQsms38,NQsms39
@@ -1069,7 +1069,7 @@
 
 !For S2
 ! Iron uptake proportional to growth
-              cffFeS2_G=n_pps2*FNratio/MAX(MinVal,Bio(i,k,iFeD_))
+              cffFeS2_G=n_pps2*FNratioS2/MAX(MinVal,Bio(i,k,iFeD_))
              ! Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
              ! Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                            &
      !&                       Bio(i,k,iFeD_)*cffFe
@@ -1092,7 +1092,7 @@
 
 !For S3
 ! Iron uptake proportional to growth
-              cffFeS3_G=n_pps3*FNratio/MAX(MinVal,Bio(i,k,iFeD_))
+              cffFeS3_G=n_pps3*FNratioS3/MAX(MinVal,Bio(i,k,iFeD_))
    !          Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
    !          Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+                            &
    ! &                       Bio(i,k,iFeD_)*cffFe
@@ -1308,7 +1308,7 @@
 !     -------------------------------------------------------
 
       nitrif = bgamma7(ng)*Bio(i,k,iNH4_)
-      if(k.gt.1)then
+      if (k.gt.1) then
         cent1=max(0.15_r8*Bio(i,k,itemp)/25.0_r8+0.005_r8,0.005_r8)
         MIDDN = 0.05_r8*cent1*Bio(i,k,iDD_N)    !PON to DON
         MIDDc = 0.05_r8*cent1*Bio(i,k,iDD_C)    !POC to DOC
@@ -1327,7 +1327,7 @@
 
       endif
 
-      if(k.gt.1)then
+      if (k.gt.1) then
         cent1=max(0.19_r8*Bio(i,k,itemp)/25.0_r8+0.005_r8,0.005_r8)
         MIDDSI = cent1*Bio(i,k,iDDSi)
       else
@@ -1336,7 +1336,7 @@
         MIDDSI = cent1*Bio(i,k+1,iDDSi)
       endif
 
-      if(k.gt.1)then
+      if (k.gt.1) then
 !        cent1=max(0.19_r8*Bio(i,k,itemp)/25.0_r8+0.005_r8,0.005_r8)
         cent1=0.002
         MIDDCA = cent1*Bio(i,k,iDDCA)
@@ -1534,17 +1534,17 @@
         Qsms37= cffFeS2_G +  cffFeS2_R - gs2Fezz2 - morts2Fe             !iS2_Fe
         Qsms38= cffFeS3_G +  cffFeS3_R - gs3Fezz2 - morts3Fe             !iS3_Fe  !S2 and S3 need sinking term????
 !iFe_
-        Qsms39= - (cffFeS1_G/(1.0_r8-ES1(ng))                           &
-     &          - (cffFe2_G/(1.0_r8-ES2(ng))                            &
-     &          - (cffFeS3_G/(1.0_r8-ES1(ng))                           & !growth associated Fe uptake (exudation needs separate treatment)
+        Qsms39= - cffFeS1_G/(1.0_r8-ES1(ng))                            &
+     &          - cffFeS2_G/(1.0_r8-ES2(ng))                            &
+     &          - cffFeS3_G/(1.0_r8-ES1(ng))                            & !growth associated Fe uptake (exudation needs separate treatment)
      &          + (morts1Fe+morts2Fe+morts3Fe)*FeRR(ng)                 & !mortality
      &          + (gs1Fezz1+gs2Fezz2+gs3Fezz2)*FeRR(ng)                 & !Z grazing
-     &          + FeRR*(cffFeExuS1 + cffFeExuS2 + cffFeExuS3)           & !P exudation (separated from growth associated Fe uptake)
-     &          - cffFeS1_R - cffFeS2_R - cffFeS3_R                     & !luxury iron uptake!
+     &          + FeRR(ng)*(cffFeExuS1 + cffFeExuS2 + cffFeExuS3)       & !P exudation (separated from growth associated Fe uptake)
+     &          - cffFeS1_R - cffFeS2_R - cffFeS3_R                       !luxury iron uptake!
 #endif
 
 #ifdef OXYGEN
-      if(k.gt.1)then
+      if (k.gt.1) then
         Qsms11= (n_nps1/(1.0_r8-ES1(ng))+n_nps2/(1.0_r8-ES2(ng))        &
      &          +n_nps3/(1.0_r8-ES3(ng)))*o2no(ng)                      &
      &          +(n_rps1/(1.0_r8-ES1(ng))+n_rps2/(1.0_r8-ES2(ng))       &
@@ -1732,7 +1732,7 @@
         bio(i,k,iS1_Fe)=bio(i,k,iS1_Fe)+dtdays*sms36
         bio(i,k,iS2_Fe)=bio(i,k,iS2_Fe)+dtdays*sms37
         bio(i,k,iS3_Fe)=bio(i,k,iS3_Fe)+dtdays*sms38
-        bio(i,k,iFe_)=bio(i,k,iFe_)+dtdays*sms39
+        bio(i,k,iFeD_)=bio(i,k,iFeD_)+dtdays*sms39
 #endif
 
 
@@ -1882,7 +1882,7 @@
                  cff1=min(0.9_r8*cff0,wbio(isink))
                  if(k.eq.N(ng))then
                     sinkindx(k) = cff1*Bio(i,k,indx)/thick
-                 elseif(k.gt.1.and.k.lt.n(ng))then
+                 else if (k.gt.1.and.k.lt.n(ng)) then
                sinkindx(k) = cff1*(Bio(i,k,indx)-Bio(i,k+1,indx))/thick
                 elseif(k.eq.1)then
                        sinkindx(k) = cff1*(-Bio(i,k+1,indx))/thick

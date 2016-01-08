@@ -94,6 +94,17 @@
 
 #define UV_QDRAG
 
+# define LMD_MIXING
+# ifdef LMD_MIXING
+#  define LMD_RIMIX
+#  define LMD_CONVEC
+#  define LMD_SKPP
+#  undef LMD_BKPP
+#  define LMD_NONLOCAL
+#  define LMD_SHAPIRO
+#  undef LMD_DDMIX
+# endif
+
 /* roms quirks */
 
 #ifdef SOLVE3D
@@ -110,7 +121,7 @@
 # define SINK_OP1
 # define TALK_NONCONSERV
 # undef DIURNAL_LIGHT
-# undef IRON_LIMIT
+# define IRON_LIMIT
 # define ANA_BPFLUX
 # define ANA_SPFLUX
 #endif
