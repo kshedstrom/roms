@@ -23,15 +23,17 @@
 !
       integer :: Npts, Nval
       integer :: iTrcStr, iTrcEnd
-      integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
+      integer :: i, ifield, is, itracer, itrc, ng, nline, status
 
       integer :: decode_line, load_i, load_l, load_r,load_lbc
 
-      integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
+      integer :: igrid
 
       logical, dimension(NBT,Ngrids) :: Ltrc
+# if defined DIAGNOSTICS_BIO
       logical, dimension(NDbio2d,Ngrids) :: Lbio2d
       logical, dimension(NDbio3d,Ngrids) :: Lbio3d
+# endif
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
 

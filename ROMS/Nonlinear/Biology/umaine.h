@@ -410,11 +410,11 @@
       real(r8) :: sms21,sms22,sms23,sms24,sms25
       real(r8) :: sms26,sms27,sms28,sms29,sms30
       real(r8) :: sms31,sms32,sms33,sms34,sms35
+      real(r8) :: FlimitS1,FlimitS2,FlimitS3
 #ifdef IRON_LIMIT
       real(r8) :: UFeS1
       real(r8) :: FNratioS1,FNratioS2,FNratioS3,
       real(r8) :: FCratioS1,FCratioS2,FCratioS3,FCratioE
-      real(r8) :: FlimitS1,FlimitS2,FlimitS3
       real(r8) :: cffFeS1_G,cffFeS3_G,cffFeS3_G
       real(r8) :: cffFeS1_R,cffFeS3_R,cffFeS3_R
       real(r8) :: cffFeExuS1,cffFeExuS2,cffFeExuS3
@@ -941,6 +941,7 @@
             unh4s3 = Bio(i,k,iNH4_)/(aknh4s3(ng)+Bio(i,k,iNH4_))
             UPO4S3 = Bio(i,k,iPO4_)/(akpo4s3(ng)+Bio(i,k,iPO4_))
 
+#ifdef IRON_LIMIT
 !Current F:C ratio [umol-Fe/mol-C]
             FCratioS3=Bio(i,k,iS3_Fe)/MAX(MinVal,Bio(i,k,iS3_C))
 
@@ -980,7 +981,7 @@
 !      Production rate
 !-----------------------------------------------------------------------
 
-!     using a constat Tfunc for S3
+!     using a constant Tfunc for S3
                PCmaxS1 = gmaxs1(ng) * fnitS1 * Tfunc
                PCmaxS2 = gmaxs2(ng) * fnitS2 * Tfunc
                PCmaxS3 = gmaxs3(ng) * fnitS3 * 0.8_r8  !Tfunc
@@ -1513,7 +1514,7 @@
 
         Qsms27 = ldonpp
         Qsms28 = ldocpp
-        Qsms29 = isdonpp
+        Qsms29 = sdonpp
         Qsms30 = sdocpp
 
         Qsms2 = - sio4uts2/(1.0_r8-ES2(ng))+MIDDSI                           !iSiOH

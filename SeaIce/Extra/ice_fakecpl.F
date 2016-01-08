@@ -225,6 +225,7 @@
           call scatter_global(swvdr, wrk_small, master_task,            &
      &             distrb_info, field_loc_center, field_type_scalar)
 ! HACK has to be this order:
+          fsw = swvdr
           swvdf = 0.24*swvdr
           swidr = 0.31*swvdr
           swidf = 0.16*swvdr
