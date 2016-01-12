@@ -91,7 +91,7 @@ GridsInLayer =  1
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 41            ! Number of I-direction INTERIOR RHO-points
+          Lm == 4             ! Number of I-direction INTERIOR RHO-points
           Mm == 80            ! Number of J-direction INTERIOR RHO-points
            N == 16            ! Number of vertical levels
 
@@ -107,7 +107,7 @@ GridsInLayer =  1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
       NtileI == 1                               ! I-direction partition
-      NtileJ == 1                               ! J-direction partition
+      NtileJ == 2                               ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
