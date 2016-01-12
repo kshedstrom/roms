@@ -252,7 +252,6 @@
 #  endif
             thickness = 0.0_r8
             DO k=N(ng),1,-1
-              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
               dz = Hz(i,j,k)
               t_fr = t_freeze(t(i,j,k,nnew,isalt),z_r(i,j,k))
               IF ((thickness + dz) > bl_thick) THEN
@@ -262,7 +261,7 @@
               thickness = thickness + dz
               potice = (t_fr - t(i,j,k,nnew,itemp)) * dz
 !
-!*** if potice < 0, use the heat to melt any ice from upper layers
+!*** if potice < 0, compute again later
 !*** if potice > 0, keep on freezing (wfr > 0)
 !
               IF ((wfr(i,j) + potice) > 0) THEN
@@ -275,7 +274,8 @@
      &                potice/Hz(i,j,k)
               t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)               &
      &              + (salref-salice)*potice*cp_over_lhfusion/Hz(i,j,k)
-!*** accumulate freezing potential
+!*** jump out if done with surface layer
+              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
             END DO
 #  if defined WET_DRY || defined MASKING
           END IF
@@ -396,7 +396,6 @@
           heat = 0.0_r8
           thickness = 0.0_r8
           DO k=N(ng),1,-1
-            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
             dz = Hz(i,j,k)
             tfr = t_freeze(t(i,j,k,nnew,isalt),0.0_r8)
             IF ((thickness + dz) < bl_thick) THEN
@@ -407,6 +406,7 @@
 !              thickness = thickness + dz*fract
               heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz*fract
             END IF
+            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
           END DO
 ! convert units to W/m^2
           wfr(i,j) = (wfr(i,j) - heat)*rhocpr/dt(ng)

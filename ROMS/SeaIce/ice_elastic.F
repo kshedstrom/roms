@@ -832,7 +832,7 @@
      &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
 # ifdef LIMIT_ICE_BSTRESS
             cff3=cff*masv
-            udrag=SIGN(1.0_r8, vdrag)*                                  &
+            vdrag=SIGN(1.0_r8, vdrag)*                                  &
      &               MIN(ABS(vdrag),                                    &
      &                   ABS(vie(i,j,lieol))*cff3)
 # endif
