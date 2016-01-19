@@ -121,7 +121,7 @@
 # define SINK_OP1
 # define TALK_NONCONSERV
 # undef DIURNAL_LIGHT
-# define IRON_LIMIT
+# undef IRON_LIMIT
 # define ANA_BPFLUX
 # define ANA_SPFLUX
 #endif
