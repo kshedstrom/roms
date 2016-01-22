@@ -712,12 +712,6 @@
 !
         integer :: Nuser
         real(r8), dimension(25) :: user(25)
-#ifdef CICE_MODEL
-!
-!  Ice initialization date
-!
-        integer :: iROMSdate
-#endif
 !
 !  Weights for the time average of 2D fields.
 !

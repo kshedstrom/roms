@@ -3293,10 +3293,6 @@
               Nuser=Ivalue(1)
             CASE ('USER')
               Npts=load_r(Nval, Rval, MAX(1,Nuser), user)
-#ifdef CICE_MODEL
-            CASE ('iROMSdate')
-              Npts=load_i(Nval, Rval, Ngrids, iROMSdate)
-#endif
             CASE ('NC_SHUFFLE')
               Npts=load_i(Nval, Rval, 1, Ivalue)
               shuffle=Ivalue(1)

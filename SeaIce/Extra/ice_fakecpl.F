@@ -308,6 +308,7 @@
 ! Shortwave
           CALL gather_global(wrk_small, fswthru, master_task,           &
      &                       distrb_info)
+          wrk_small = Hscale*wrk_small
           wrk_big(1:Lm(ng),1:Mm(Ng)) = wrk_small
           wrk_big(0,1:Mm(Ng)) = wrk_big(1,1:Mm(Ng))
           wrk_big(Lm(ng)+1,1:Mm(Ng)) = wrk_big(Lm(ng),1:Mm(Ng))

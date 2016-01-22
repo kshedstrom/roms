@@ -50,14 +50,14 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE_MODEL
+# define CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 #  define INI_GLORYS_ICE
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
@@ -192,7 +192,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# ifndef USE_DEBUG
+# if defined AVERAGES && !defined USE_DEBUG
 #  define FILTERED
 # endif
 # define SSH_TIDES

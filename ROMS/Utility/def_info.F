@@ -1005,16 +1005,6 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-#ifdef CICE_MODEL
-      Vinfo( 1)='iROMSdate'
-      Vinfo( 2)='Ice model initialization date'
-      Vinfo( 3)='meter'
-      status=def_var(ng, model, ncid, varid, nf90_int,                  &
-     &               1, (/0/), Aval, Vinfo, ncname,                     &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
-
       Vinfo( 1)='dstart'
       Vinfo( 2)='time stamp assigned to model initilization'
       IF (INT(time_ref).eq.-2) THEN

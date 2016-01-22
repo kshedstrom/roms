@@ -200,7 +200,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# ifdef AVERAGES
+# if defined AVERAGES && !defined USE_DEBUG
 #  define FILTERED
 # endif
 # define SSH_TIDES

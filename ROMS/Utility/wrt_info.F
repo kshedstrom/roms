@@ -128,13 +128,6 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#ifdef CICE_MODEL
-      CALL netcdf_put_ivar (ng, model, ncname, 'iROMSdate',             &
-     &                      iROMSdate, (/0/), (/0/),                    &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
-
       CALL netcdf_put_fvar (ng, model, ncname, 'dstart',                &
      &                      dstart, (/0/), (/0/),                       &
      &                      ncid = ncid)
