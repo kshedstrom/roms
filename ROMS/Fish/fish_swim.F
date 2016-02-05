@@ -400,7 +400,7 @@
 !                    xdis=0.0_r8
 !                    ydis=0.0_r8
 !
-                    IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng)-1.ne.ntstart(ng))) THEN 
+                    IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN 
                     !IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN ! RD bug
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
                       dist=0.01_r8*Uswim*dtfish
