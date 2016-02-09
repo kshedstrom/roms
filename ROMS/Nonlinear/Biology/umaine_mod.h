@@ -286,7 +286,7 @@
       integer :: iS1_Fe                 ! Small phytoplankton iron
       integer :: iS2_Fe                 ! Diatom concentration iron
       integer :: iS3_Fe                 ! coccolithophores concentration iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
 
 #if defined DIAGNOSTICS_BIO

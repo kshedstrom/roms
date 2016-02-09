@@ -1069,6 +1069,7 @@
 
 !For S2
 ! Iron uptake proportional to growth
+              FNratioS2=Bio(i,k,iS2_Fe)/MAX(MinVal,Bio(i,k,iS2_N))
               cffFeS2_G=n_pps2*FNratioS2/MAX(MinVal,Bio(i,k,iFeD_))
              ! Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
              ! Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                            &
@@ -1092,6 +1093,7 @@
 
 !For S3
 ! Iron uptake proportional to growth
+              FNratioS3=Bio(i,k,iS3_Fe)/MAX(MinVal,Bio(i,k,iS3_N))
               cffFeS3_G=n_pps3*FNratioS3/MAX(MinVal,Bio(i,k,iFeD_))
    !          Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)
    !          Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+                            &
@@ -1873,28 +1875,29 @@
 !-----------------------------------------------------------------------
 !
 #ifdef SINK_OP1
+! Nonconservative?
       SINK_LOOP: DO isink=1,Nsink
-            indx=idsink(isink)
-            DO i=Istr,Iend
-               DO k=1,N(ng)
-                 thick=HZ(i,j,k)
-                 cff0=HZ(i,j,k)/dtdays
-                 cff1=min(0.9_r8*cff0,wbio(isink))
-                 if(k.eq.N(ng))then
-                    sinkindx(k) = cff1*Bio(i,k,indx)/thick
-                 else if (k.gt.1.and.k.lt.n(ng)) then
-               sinkindx(k) = cff1*(Bio(i,k,indx)-Bio(i,k+1,indx))/thick
-                elseif(k.eq.1)then
-                       sinkindx(k) = cff1*(-Bio(i,k+1,indx))/thick
-                 endif
-               END DO
-             DO k=1,N(ng)
-                 bio(i,k,indx)=bio(i,k,indx)-dtdays*sinkindx(k)
-                 bio(i,k,indx)=max(bio(i,k,indx),0.00001_r8)
-             END DO
-         END DO
+          indx=idsink(isink)
+          DO i=Istr,Iend
+            DO k=1,N(ng)
+              thick=Hz(i,j,k)
+              cff0=Hz(i,j,k)/dtdays
+              cff1=min(0.9_r8*cff0,wbio(isink))
+              if (k.eq.N(ng)) then
+                sinkindx(k) = cff1*Bio(i,k,indx)/thick
+              else if (k.gt.1.and.k.lt.n(ng)) then
+                sinkindx(k) = cff1*(Bio(i,k,indx)-Bio(i,k+1,indx))/ &
+     &                thick
+              else if (k.eq.1) then
+                sinkindx(k) = cff1*(-Bio(i,k+1,indx))/thick
+              endif
+            END DO
+            DO k=1,N(ng)
+              bio(i,k,indx)=bio(i,k,indx)-dtdays*sinkindx(k)
+              bio(i,k,indx)=max(bio(i,k,indx),0.00001_r8)
+            END DO
+          END DO
         END DO SINK_LOOP
-
 # endif
 
 #ifdef SINK_OP2

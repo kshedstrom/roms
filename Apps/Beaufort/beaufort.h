@@ -60,8 +60,8 @@
 # ifdef ICE_MODEL
 #  undef ANA_ICE
 #  undef  OUTFLOW_MASK
-#  define  FASTICE_CLIMATOLOGY
-#  undef ICE_LANDFAST
+#  undef  FASTICE_CLIMATOLOGY
+#  define ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
 #  define ICE_MOMENTUM
