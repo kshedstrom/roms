@@ -1180,12 +1180,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
-#if defined LIMIT_ICE_BSTRESS
-      IF (Master) WRITE (stdout,20) 'LIMIT_ICE_BSTRESS',                &
-     &   'Limit bottom stress to maintain ice velocity direction.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_ICE_BSTRESS,'
-#endif
 #if defined LIMIT_STFLX_COOLING && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
      &   'Suppress further cooling if SST is at freezing point.'

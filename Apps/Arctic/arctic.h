@@ -64,7 +64,6 @@
 #  define  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define ICE_LANDFAST
-#  define LIMIT_ICE_BSTRESS
 #  define ICE_THERMO
 #  define ICE_MK
 #  define ICE_MOMENTUM
