@@ -50,20 +50,20 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
+# undef CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 #  define INI_GLORYS_ICE
 # endif
 
-# undef  ICE_MODEL
+# define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
 #  define  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
-#  define ICE_LANDFAST
+#  define  FASTICE_CLIMATOLOGY
+#  undef ICE_LANDFAST
 #  define LIMIT_ICE_BSTRESS
 #  define ICE_THERMO
 #  define ICE_MK
@@ -193,7 +193,7 @@
 #define LTIDES
 #ifdef LTIDES
 # if defined AVERAGES && !defined USE_DEBUG
-#  define FILTERED
+#  undef FILTERED
 # endif
 # define SSH_TIDES
 # define UV_TIDES
