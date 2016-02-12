@@ -306,8 +306,7 @@
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           aix = 0.5_r8*(ai(i,j,liold)+ai(i-1,j,liold))
           chux = 0.5_r8*(chuiw(i,j)+chuiw(i-1,j))
-          tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
-     &                        /rhoice(ng)
+          tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))
 #  ifdef WET_DRY
           tauaiu(i,j) = tauaiu(i,j)*umask_wet(i,j)
 #  endif
@@ -332,8 +331,7 @@
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           aiy = 0.5_r8*(ai(i,j,liold)+ai(i,j-1,liold))
           chuy = 0.5_r8*(chuiw(i,j)+chuiw(i,j-1))
-          tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
-     &                        /rhoice(ng)
+          tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))
 #  ifdef WET_DRY
           tauaiv(i,j) = tauaiv(i,j)*vmask_wet(i,j)
 #  endif
