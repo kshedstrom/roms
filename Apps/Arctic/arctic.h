@@ -55,6 +55,7 @@
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 #  define INI_GLORYS_ICE
+#  define ICE_LOG_LAYER
 # endif
 
 # undef  ICE_MODEL
