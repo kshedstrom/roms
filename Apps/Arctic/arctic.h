@@ -55,7 +55,7 @@
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 #  define INI_GLORYS_ICE
-#  define ICE_LOG_LAYER
+#  undef ICE_LOG_LAYER
 # endif
 
 # undef  ICE_MODEL
@@ -153,7 +153,7 @@
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
-# define ARCTIC_MERRA_HACK
+# undef ARCTIC_MERRA_HACK
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
 #  undef DIURNAL_SRFLUX
