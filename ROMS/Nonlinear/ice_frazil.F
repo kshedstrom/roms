@@ -186,9 +186,8 @@
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
       real(r8), parameter :: ykf = 3.14
       real(r8), parameter :: eps = 1.0e-20_r8
-      real(r8) :: ice_thick
       real(r8) :: utau, dztop, rno, termt, terms, cht, chs, z0, zdz0
-#  else
+#  endif
       real(r8) :: dz, heat, tfr
       real(r8), parameter :: bl_thick = 5.0_r8
       real(r8) :: ice_thick, thickness, fract
@@ -198,7 +197,6 @@
       real(r8), parameter :: rho_fw             = 1000.0_r8    ! kg/m^3
       real(r8), parameter :: cp_over_lhfusion   =                       &
      &                 rho_sw*cp_sw/(latent_heat_fusion*rho_fw)
-#  endif
       real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
       real(r8), parameter :: salice = 4.0_r8
       real(r8), parameter :: salref = 34.7_r8
@@ -308,7 +306,7 @@
                 t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + gamma_k *   &
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
-     &                                  (1.0_r8 + gamma_k)
+     &                  (1.0_r8 + gamma_k) - sice_ref*gamma_k
               ELSE IF (wfr(i,j) > 0 .and.                               &
      &                 t(i,j,k,nnew,itemp) .gt. t_fr) THEN
 ! Use heat at this level to melt some ice from below.

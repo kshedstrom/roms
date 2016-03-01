@@ -509,16 +509,16 @@
 #endif
 !
            s2 = (f1-f2)*pnu
-           uforce = (s1 + s2)*om_u(i,j)*on_u(i,j)
+           uforce = s1 + s2
 #undef ACTIVE
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force 
-           uforce = uforce + rhoice(ng)*tauaiu(i,j)*om_u(i,j)*on_u(i,j)
+           uforce = uforce + tauaiu(i,j)
 
 ! *** pressure from tilting ocean surface 
-           uforce = uforce - g*(masu)*on_u(i,j)                         &
+           uforce = uforce - g*(masu)*pmu                               &
      &            *(sealev(i,j)-sealev(i-1,j))
 
            fakt = 0.0_r8
@@ -589,12 +589,11 @@
      &                      vie(i,j+1,lieol)
 #endif
 ! *** coriolis force u
-          uforce = uforce + fakt*rhoice(ng)*om_u(i,j)*on_u(i,j)*        &
+          uforce = uforce + fakt*rhoice(ng)*                            &
      &                            (mfv11 + mfv21 + mfv12 + mfv22)
 !
 ! *** stress from ocean current 
-          uforce = uforce/(om_u(i,j)*on_u(i,j)) +                       &
-     &                         auf*chux*rho0*uwater(i,j)
+          uforce = uforce + auf*chux*rho0*uwater(i,j)
 !
           alfa = masu + dte(ng)*auf*rho0*chux
 !
@@ -728,15 +727,15 @@
 #endif
 !
           s2 = (f1-f2)*pmv 
-          vforce = (s1+s2)*om_v(i,j)*on_v(i,j)
+          vforce = s1+s2
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force
-          vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
+          vforce = vforce + tauaiv(i,j)
 
 ! *** pressure from tilting ocean surface 
-          vforce = vforce - g*(masv)*om_v(i,j)                          &
+          vforce = vforce - g*(masv)*pnv                                &
      &            *(sealev(i,j)-sealev(i,j-1))
 !
           fakt = 0.0_r8
@@ -808,12 +807,11 @@
 #endif
 
 ! *** coriolis force v
-          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*        &
+          vforce = vforce - fakt*rhoice(ng)*                            &
      &                            (mfu11 + mfu21 + mfu12 + mfu22)
 !
 ! *** stress from ocean current 
-          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
-     &                         avf*chuy*rho0*vwater(i,j)
+          vforce = vforce + avf*chuy*rho0*vwater(i,j)
 !
           alfa = masv + dte(ng)*avf*rho0*chuy
 !
