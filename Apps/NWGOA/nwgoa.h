@@ -240,7 +240,7 @@
 # undef OPTIC_UMaine
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
 # define IRON_RELAX
 # undef  IRON_RSIN
 #endif

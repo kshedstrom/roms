@@ -3921,15 +3921,6 @@
   'r3dvar'
   1.0d0
 
-'FeD'                                             ! Input/Output
-  'disolved iron concentration'
-  'millimole_iron  meter-3'                       ! [millimole/m3]
-  'iron, scalar, series'
-  'ocean_time'
-  'idTclm(iFeD_)'
-  'r3dvar'
-  1.0d0
-
 'phytoplankton'                                    ! Input/Output
   'phytoplankton concentration'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -4634,6 +4625,33 @@
   'alkalinity, scalar, series'
   'ocean_time'
   'idTvar(iTAlk)'
+  'r3dvar'
+  1.0d0
+
+'s1_Fe'                                              ! Input/Output
+  'S1_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S1_Fe, scalar, series'
+  'ocean_time'
+  'idTvar(iS1_Fe)'
+  'r3dvar'
+  1.0d0
+
+'s2_Fe'                                              ! Input/Output
+  'S2_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S2_Fe, scalar, series'
+  'ocean_time'
+  'idTvar(iS2_Fe)'
+  'r3dvar'
+  1.0d0
+
+'s3_Fe'                                              ! Input/Output
+  'S3_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'S3_Fe, scalar, series'
+  'ocean_time'
+  'idTvar(iS3_Fe)'
   'r3dvar'
   1.0d0
 

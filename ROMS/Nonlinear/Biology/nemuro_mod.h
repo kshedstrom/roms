@@ -202,7 +202,7 @@
 # ifdef IRON_LIMIT
       integer :: iFeSp                  ! Small phytoplankton iron
       integer :: iFeLp                  ! Large phytoplankton iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
 !
 !  Biological parameters.

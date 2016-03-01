@@ -595,26 +595,19 @@
 ! *** stress from ocean current 
           uforce = uforce/(om_u(i,j)*on_u(i,j)) +                       &
      &                         auf*chux*rho0*uwater(i,j)
-#ifdef ICE_LANDFAST
 !
+          alfa = masu + dte(ng)*auf*rho0*chux
+!
+#ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
             v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
      &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
             speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-            udrag = uie(i,j,lieol)*                                     &
-     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
-# ifdef LIMIT_ICE_BSTRESS
-            cff3=cff*masu
-            udrag=SIGN(1.0_r8, udrag)*                                  &
-     &               MIN(ABS(udrag),                                    &
-     &                   ABS(uie(i,j,lieol))*cff3)
-# endif
-            uforce = uforce - udrag
+            udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
+            alfa = alfa + udrag
           END IF
 #endif
-!
-          alfa = masu + dte(ng)*auf*rho0*chux
 !
 !  solving the momentum equation for u
           uie(i,j,lienw) = (masu*uie(i,j,lieol) +                       &
@@ -821,26 +814,19 @@
 ! *** stress from ocean current 
           vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
      &                         avf*chuy*rho0*vwater(i,j)
-#ifdef ICE_LANDFAST
 !
+          alfa = masv + dte(ng)*avf*rho0*chuy
+!
+#ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
             u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
      &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
             speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-            vdrag = vie(i,j,lieol)*                                     &
-     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
-# ifdef LIMIT_ICE_BSTRESS
-            cff3=cff*masv
-            vdrag=SIGN(1.0_r8, vdrag)*                                  &
-     &               MIN(ABS(vdrag),                                    &
-     &                   ABS(vie(i,j,lieol))*cff3)
-# endif
-            vforce = vforce - vdrag
+            vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+            alfa = alfa + vdrag
           END IF
 #endif
-!
-          alfa = masv + dte(ng)*avf*rho0*chuy
 
 !  solving the momentum equation for v
           vie(i,j,lienw) = (masv*vie(i,j,lieol) +                       &
