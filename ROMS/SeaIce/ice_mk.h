@@ -424,7 +424,6 @@
       real(r8), parameter :: kappa = 0.4_r8
       real(r8), parameter :: rhosw = 1026._r8           ! [kg m-3]
       real(r8), parameter :: frln = -0.0543_r8          ! [psu C-1]
-      real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
       real(r8), parameter :: alphic = 2.034_r8          ! [W m-1 K-1]
       real(r8), parameter :: alphsn = 0.31_r8           ! [W m-1 K-1]
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
@@ -806,7 +805,7 @@
           ELSE
 
 ! MK89 version
-#ifdef ICE_BOX
+#ifdef ICE_BOX0
 !  F_t set to 2 W/m^2
             wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &

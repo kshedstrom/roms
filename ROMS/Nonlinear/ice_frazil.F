@@ -306,7 +306,7 @@
                 t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + gamma_k *   &
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
-     &                                  (1.0_r8 + gamma_k)
+     &                  (1.0_r8 + gamma_k) - sice_ref*gamma_k
               ELSE IF (wfr(i,j) > 0 .and.                               &
      &                 t(i,j,k,nnew,itemp) .gt. t_fr) THEN
 ! Use heat at this level to melt some ice from below.
