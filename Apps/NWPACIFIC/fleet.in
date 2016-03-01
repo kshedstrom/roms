@@ -88,13 +88,13 @@
 ! {Hachinohe (JP), Ishinomaki (JP), Choshi (JP), Toba (JP), Kochi (JP)}
 
 !       LonPort == 141.49 141.30 140.85 136.91 133.59
-       iPort == 147 166 185 166 150
+       iPort == 155 173 192 174 159
 
 ! Port grid j location.
 ! {Hachinohe (JP), Ishinomaki (JP), Choshi (JP), Toba (JP), Kochi (JP)}
 
 !       LatPort == 40.66 38.36 35.76 34.53 33.47
-       jPort == 316 292 264 225 192
+       jPort == 318 294 268 229 197
  
 !
 !  GLOSSARY:
