@@ -34,12 +34,25 @@
 # define SPLINES_VDIFF
 # define SPLINES_VVISC
 # define RI_SPLINES
-# define TS_FIXED
+# undef TS_FIXED
 #endif
 #define STATIONS
 #define ANA_INITIAL
 #define ANA_GRID
 #define SPHERICAL
+
+/* mixing */
+
+# define LMD_MIXING
+# ifdef LMD_MIXING
+#  define LMD_RIMIX
+#  define LMD_CONVEC
+#  define LMD_SKPP
+#  undef LMD_BKPP
+#  define LMD_NONLOCAL
+#  define LMD_SHAPIRO
+#  undef LMD_DDMIX
+# endif
 
 /* ice */
 
