@@ -548,6 +548,9 @@
       integer              :: ioirr_mem   ! irradiance memory in other BGC
       integer              :: iohtotal    ! htotal in other BGC
       integer              :: ioco3_ion   ! co3_ion in other BGC
+      integer              :: iomu_mem_sm ! mum_mem_sm in other BGC
+      integer              :: iomu_mem_di ! mum_mem_di in other BGC
+      integer              :: iomu_mem_lg ! mum_mem_lg in other BGC
 
       integer              :: Nsink
 
@@ -603,6 +606,8 @@
       integer :: inpp_100
       integer :: imesozoo_200
       integer :: iswdk
+      integer :: imu_mem_sm, imu_mem_di, imu_mem_lg
+      integer :: iagg_lim_sm, iagg_lim_di, iagg_lim_lg
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
 
@@ -677,6 +682,7 @@
       real(r8), allocatable :: thetamin_nolim(:)             ! g Chl g C-1
       real(r8), allocatable :: zpllgr(:)                     ! dimensionless
       real(r8), allocatable :: gamma_irr_mem(:)              ! s-1
+      real(r8), allocatable :: gamma_mu_mem(:)               ! s-1
       real(r8), allocatable :: k_n_inhib_Di(:)               ! mol NO3 kg-1
       real(r8), allocatable :: o2_inhib_Di_pow(:)            ! mol O2-1 m3
       real(r8), allocatable :: o2_inhib_Di_sat(:)            ! mol O2 kg-1
@@ -924,6 +930,9 @@
           jprod_n     , &
           liebig_lim  , &
           mu          , &
+          mu_mix      , &
+          f_mu_mem    , &
+          agg_lim     , &
           nh4lim      , &
           no3lim      , &
           po4lim      , &
@@ -1172,6 +1181,7 @@
           gamma_cadet_arag, &
           gamma_cadet_calc, &
           gamma_irr_mem,    &
+          gamma_mu_mem,     &
           gamma_ndet,       &
           gamma_nitrif,     &
           gamma_sidet,      &
@@ -1758,11 +1768,11 @@
       NBT=NBT+3
 #endif
       ! Other BGC
-      NOBGC = 4
+      NOBGC = 7
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
-      NDbio3d = 12
+      NDbio3d = 18
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
@@ -1981,6 +1991,9 @@
       END IF
       IF (.not.allocated(gamma_irr_mem)) THEN
         allocate ( gamma_irr_mem(Ngrids) )
+      END IF
+      IF (.not.allocated(gamma_mu_mem)) THEN
+        allocate ( gamma_mu_mem(Ngrids) )
       END IF
       IF (.not.allocated(k_n_inhib_Di)) THEN
         allocate ( k_n_inhib_Di(Ngrids) )
@@ -2611,6 +2624,9 @@
       ioirr_mem=2
       iohtotal=3
       ioco3_ion=4
+      iomu_mem_sm=5
+      iomu_mem_di=6
+      iomu_mem_lg=7
 
 #ifdef DIAGNOSTICS_BIO
       ! 2D Diagnostic variables
@@ -2703,6 +2719,14 @@
       iomega_cadet_arag=11
      
       iswdk=12
+
+      imu_mem_sm=13
+      imu_mem_di=14
+      imu_mem_lg=15
+
+      iagg_lim_sm=16
+      iagg_lim_di=17
+      iagg_lim_lg=18
 #endif
       
       ! Sediment variables
@@ -2790,6 +2814,9 @@
        allocate(phyto(nphyto)%jprod_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%jprod_n        = 0.0
        allocate(phyto(nphyto)%liebig_lim(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(nphyto)%liebig_lim     = 0.0
        allocate(phyto(nphyto)%mu(IminS:ImaxS,JminS:JmaxS,UBk))           ; phyto(nphyto)%mu             = 0.0
+       allocate(phyto(nphyto)%mu_mix(IminS:ImaxS,JminS:JmaxS,UBk))       ; phyto(nphyto)%mu_mix         = 0.0
+       allocate(phyto(nphyto)%f_mu_mem(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%f_mu_mem       = 0.0
+       allocate(phyto(nphyto)%agg_lim(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%agg_lim        = 0.0
        allocate(phyto(nphyto)%po4lim(IminS:ImaxS,JminS:JmaxS,UBk))       ; phyto(nphyto)%po4lim         = 0.0
        allocate(phyto(nphyto)%q_fe_2_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%q_fe_2_n       = 0.0
        allocate(phyto(nphyto)%q_p_2_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%q_p_2_n        = 0.0
@@ -3172,6 +3199,7 @@
       cobalt%thetamin_nolim  = thetamin_nolim(ng)
       cobalt%zeta            = zpllgr(ng)
       cobalt%gamma_irr_mem   = gamma_irr_mem(ng)
+      cobalt%gamma_mu_mem    = gamma_mu_mem(ng)
       cobalt%k_n_inhib_Di    = k_n_inhib_Di(ng)
       cobalt%o2_inhib_Di_pow = o2_inhib_Di_pow(ng)
       cobalt%o2_inhib_Di_sat = o2_inhib_Di_sat(ng)

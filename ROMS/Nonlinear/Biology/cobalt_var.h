@@ -110,6 +110,12 @@
                  iDobgc(iohtotal)=varid
                CASE ('iDobgc(ioco3_ion)')
                  iDobgc(ioco3_ion)=varid
+               CASE ('iDobgc(iomu_mem_sm)')
+                 iDobgc(iomu_mem_sm)=varid
+               CASE ('iDobgc(iomu_mem_di)')
+                 iDobgc(iomu_mem_di)=varid
+               CASE ('iDobgc(iomu_mem_lg)')
+                 iDobgc(iomu_mem_lg)=varid
 
 !RD : diag variables
 !               CASE ('idTvar(icased)')
@@ -843,6 +849,18 @@
                 iDbio3(iomega_cadet_arag)=varid
               CASE ('iDbio3(iswdk)')
                 iDbio3(iswdk)=varid
+              CASE ('iDbio3(imu_mem_sm)')
+                iDbio3(imu_mem_sm)=varid
+              CASE ('iDbio3(imu_mem_di)')
+                iDbio3(imu_mem_di)=varid
+              CASE ('iDbio3(imu_mem_lg)')
+                iDbio3(imu_mem_lg)=varid
+              CASE ('iDbio3(iagg_lim_sm)')
+                iDbio3(iagg_lim_sm)=varid
+              CASE ('iDbio3(iagg_lim_di)')
+                iDbio3(iagg_lim_di)=varid
+              CASE ('iDbio3(iagg_lim_lg)')
+                iDbio3(iagg_lim_lg)=varid
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')

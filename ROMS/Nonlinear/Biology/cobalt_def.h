@@ -485,6 +485,13 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='gamma_mu_mem' 
+      Vinfo( 2)='gamma_mu_mem: Phytoplankton aggregation limit rate' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
       Vinfo( 1)='k_n_inhib_Di' 
       Vinfo( 2)='k_n_inhib_Di: Nitrogen fixation inhibition parameters' 
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
