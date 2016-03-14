@@ -16,7 +16,8 @@
 #undef NESTING
 #undef ONE_WAY
 #define HISTORY2
-#undef HDF5
+#define HDF5
+#define DEFLATE
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
 

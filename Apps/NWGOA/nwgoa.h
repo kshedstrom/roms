@@ -13,8 +13,8 @@
 */
 
 #undef NO_HIS
-#undef HDF5
-#undef DEFLATE
+#define HDF5
+#define DEFLATE
 #define PERFECT_RESTART
 
 /* general */
@@ -46,9 +46,9 @@
 /* ice */
 
 #ifdef SOLVE3D
-/* FOR TIDES TEST # define  ICE_MODEL */
+# define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE
+#  define ANA_ICE
 #  undef  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
@@ -71,7 +71,7 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#undef AVERAGES
+#define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef DIAGNOSTICS_TS
@@ -112,7 +112,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -123,7 +123,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -138,8 +138,7 @@
 
 /* surface forcing */
 
-/* #ifdef SOLVE3D */
-# ifdef FOOOO /* FOR TIDES TEST */
+#ifdef SOLVE3D
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
@@ -171,7 +170,7 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Not using Runoff now */
 #ifdef SOLVE3D
 # undef RUNOFF
 # define ONE_TRACER_SOURCE
@@ -190,7 +189,6 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 
-# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
@@ -215,21 +213,7 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
 #undef BIO_UMAINE
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
-#endif
 
 #ifdef BIO_UMAINE
 # define CARBON
@@ -240,7 +224,7 @@
 # undef OPTIC_UMaine
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# define IRON_LIMIT        /* Add iron as passive Nth tracer */
-# define IRON_RELAX
+# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
+# undef IRON_RELAX
 # undef  IRON_RSIN
 #endif
