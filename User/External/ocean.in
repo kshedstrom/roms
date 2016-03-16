@@ -949,6 +949,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      APARNAM =  ROMS/External/s4dvar.in
      SPOSNAM =  ROMS/External/stations.in
      FPOSNAM =  ROMS/External/floats.in
+     IPARNAM =  ROMS/External/ice.in
      BPARNAM =  ROMS/External/bio_Fennel.in
      SPARNAM =  ROMS/External/sediment.in
      FISHPOSNAM =  ROMS/External/fish.in

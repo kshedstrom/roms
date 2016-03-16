@@ -266,6 +266,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idAice,:))
             CASE ('Sout(idHice)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idHice,:))
+            CASE ('Sout(idHsno)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idHsno,:))
             CASE ('Sout(idTice)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,:))
             CASE ('Sout(idTimid)')

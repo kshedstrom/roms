@@ -223,7 +223,22 @@
 !   colorFR1  Color fraction for labile DOC [nondimensional].          !
 !                                                                      !
 !   colorFR2  Color fraction for semi-labile DOC [nondimensional].     !
-!=======================================================================
+!           							       !	
+!   T_Fe      Iron uptake timescale [day]                              !
+!								       !
+!   A_Fe      Empirical FE:C power [nondimensional]                    !
+!  								       !
+!   B_Fe      Empirical FE:C coefficient [meter-1 C]                   !
+!        							       !
+!   S1_FeC    Small phytoplankton Fe:C at F=0.5 [muM-Fe/M-C]           !
+!                                                                      !
+!   S2_FeC    Diatom Fe:C at F=0.5 [muM-Fe/M-C]                        !
+! 								       !
+!   S3_FeC    Coccolithophores Fe:C at F=0.5 [muM-Fe/M-C]              !
+! 								       !	
+!   FeRR      Fe remineralization rate [day-1]                         !
+!								       !
+!======================================================================!
 !
       USE mod_param
 
@@ -268,9 +283,10 @@
       integer :: iTAlk                 ! Total alkalinity
 #endif
 # ifdef IRON_LIMIT
-      integer :: iFeSp                  ! Small phytoplankton iron
-      integer :: iFeLp                  ! Large phytoplankton iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iS1_Fe                 ! Small phytoplankton iron
+      integer :: iS2_Fe                 ! Diatom concentration iron
+      integer :: iS3_Fe                 ! coccolithophores concentration iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
 
 #if defined DIAGNOSTICS_BIO
@@ -399,8 +415,9 @@
       real(r8), allocatable :: T_Fe(:)               ! day
       real(r8), allocatable :: A_Fe(:)               ! nondimensional
       real(r8), allocatable :: B_Fe(:)               ! 1/M-C
-      real(r8), allocatable :: SK_FeC(:)             ! muM-Fe/M-C
-      real(r8), allocatable :: LK_FeC(:)             ! muM-Fe/M-C
+      real(r8), allocatable :: S1_FeC(:)             ! muM-Fe/M-C
+      real(r8), allocatable :: S2_FeC(:)             ! muM-Fe/M-C
+      real(r8), allocatable :: S3_FeC(:)             ! muM-Fe/M-C
       real(r8), allocatable :: FeRR(:)               ! 1/day
 #endif
 
@@ -437,7 +454,7 @@
 # endif
 #endif
 #ifdef IRON_LIMIT
-      NBT = NBT + 3
+      NBT = NBT + 4
 #endif
 
 #if defined DIAGNOSTICS_BIO
@@ -759,11 +776,14 @@
       IF (.not.allocated(B_Fe)) THEN
         allocate ( B_Fe(Ngrids) )
       END IF
-      IF (.not.allocated(SK_FeC)) THEN
-        allocate ( SK_FeC(Ngrids) )
+      IF (.not.allocated(S1_FeC)) THEN
+        allocate ( S1_FeC(Ngrids) )
       END IF
-      IF (.not.allocated(LK_FeC)) THEN
-        allocate ( LK_FeC(Ngrids) )
+      IF (.not.allocated(S2_FeC)) THEN
+        allocate ( S2_FeC(Ngrids) )
+      END IF
+      IF (.not.allocated(S3_FeC)) THEN
+        allocate ( S3_FeC(Ngrids) )
       END IF
       IF (.not.allocated(FeRR)) THEN
         allocate ( FeRR(Ngrids) )
@@ -838,10 +858,11 @@
       ic=ic+2
 # endif
 # ifdef IRON_LIMIT
-      iFeSp=ic+1
-      iFeLp=ic+2
-      iFeD_=ic+3
-      ic=ic+3
+      iS1_Fe=ic+1
+      iS2_Fe=ic+2
+      iS3_Fe=ic+3
+      iFeD_=ic+4
+      ic=ic+4
 # endif
 
 #if defined DIAGNOSTICS_BIO

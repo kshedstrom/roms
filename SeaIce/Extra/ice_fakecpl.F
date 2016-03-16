@@ -220,11 +220,12 @@
 
 ! Shortwave
           call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
-     &                FORCES(ng)%srflx, wrk_big)
+     &                FORCES(ng)%SW_down, wrk_big)
           wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
           call scatter_global(swvdr, wrk_small, master_task,            &
      &             distrb_info, field_loc_center, field_type_scalar)
 ! HACK has to be this order:
+          fsw = swvdr
           swvdf = 0.24*swvdr
           swidr = 0.31*swvdr
           swidf = 0.16*swvdr
@@ -232,7 +233,7 @@
 
 ! Longwave
           call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
-     &                FORCES(ng)%lrflx, wrk_big)
+     &                FORCES(ng)%LW_down, wrk_big)
           wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
           call scatter_global(flw, wrk_small, master_task, distrb_info, &
      &             field_loc_center, field_type_scalar)
@@ -240,6 +241,20 @@
 ! call CICE_MODEL
           zlvl = 2.0_r8   ! MERRA
           IF (iic(ng).eq.ntstart(ng) .and. .not. restart) THEN
+#ifdef INI_GLORYS_ICE
+! ai
+          call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
+     &                ICE(ng)%ai, wrk_big)
+          wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
+          call scatter_global(aice_init2, wrk_small, master_task,       &
+     &             distrb_info, field_loc_center, field_type_scalar)
+! hi
+          call gather(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar,             &
+     &                ICE(ng)%hi, wrk_big)
+          wrk_small = wrk_big(1:Lm(ng),1:Mm(Ng))
+          call scatter_global(hice_init, wrk_small, master_task,        &
+     &             distrb_info, field_loc_center, field_type_scalar)
+#endif
             CALL init_state
           END IF
           CALL ice_step
@@ -293,6 +308,7 @@
 ! Shortwave
           CALL gather_global(wrk_small, fswthru, master_task,           &
      &                       distrb_info)
+          wrk_small = Hscale*wrk_small
           wrk_big(1:Lm(ng),1:Mm(Ng)) = wrk_small
           wrk_big(0,1:Mm(Ng)) = wrk_big(1,1:Mm(Ng))
           wrk_big(Lm(ng)+1,1:Mm(Ng)) = wrk_big(Lm(ng),1:Mm(Ng))

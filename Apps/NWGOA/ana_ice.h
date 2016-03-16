@@ -84,8 +84,8 @@
       SUBROUTINE ana_ice_tile (ng, tile, model,                         &
      &                             LBi, UBi, LBj, UBj,                  &
      &                             ui, vi, uie, vie, ai, hi, hsn,       &
-#ifdef MELT_PONDS
      &                             ti, ageice,                          &
+#ifdef MELT_PONDS
      &                             apond, hpond,                        &
 #endif
      &                             sig11, sig22, sig12,                 &
@@ -227,8 +227,12 @@
         DO i=IstrT,IendT
           IF (t(i,j,N(ng),1,itemp) < -1.6) THEN
             ai(i,j,1) = 1._r8
-            hi(i,j,1) = 2._r8
-            hsn(i,j,1) = 0.2_r8
+            hi(i,j,1) = .1_r8
+#ifdef NO_SNOW
+            hsn(i,j,1) = 0.0_r8
+#else
+            hsn(i,j,1) = 0.0_r8
+#endif
             ti(i,j,1) = -5._r8
           ELSE
             ai(i,j,1) = 0._r8
@@ -256,32 +260,11 @@
           sig11(i,j,2) = sig11(i,j,1)
           sig22(i,j,2) = sig22(i,j,1)
           sig12(i,j,2) = sig12(i,j,1)
-#ifdef NCEP_FLUXES
-          wg2_d(i,j) = 1._r8
-          cd_d(i,j) = 0.00319_r8
-          ch_d(i,j) = 1.0E-4_r8
-          ce_d(i,j) = 1.0E-4_r8
-          wg2_m(i,j) = 1._r8
-          cd_m(i,j) = 0.00319_r8
-          ch_m(i,j) = 1.0E-4_r8
-          ce_m(i,j) = 1.0E-4_r8
-          rhoa_n(i,j) = 1.4_r8
-#endif
           tis(i,j) = -10._r8
           s0mk(i,j) = t(i,j,N(ng),1,isalt)
           t0mk(i,j) = t(i,j,N(ng),1,itemp)
           utau_iw(i,j) = 0.001_r8
           chu_iw(i,j) = 0.001125_r8
-#ifdef ICE_BIO
-          IcePhL(i,j,1) = 0._r8
-          IceNO3(i,j,1) = 0._r8
-          IceNH4(i,j,1) = 0._r8
-          IceLog(i,j,1) = -1
-          IcePhL(i,j,2) = IcePhL(i,j,1)
-          IceNO3(i,j,2) = IceNO3(i,j,1)
-          IceNH4(i,j,2) = IceNH4(i,j,1)
-          IceLog(i,j,2) = IceLog(i,j,1)
-#endif
         ENDDO
       ENDDO
 !
@@ -334,35 +317,6 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            sig12(:,:,i))
         END DO
-#ifdef NCEP_FLUXES
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          wg2_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          cd_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ch_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ce_d)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          wg2_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          cd_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ch_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          ce_m)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          rhoa_n)
-#endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tis)
@@ -402,23 +356,6 @@
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    apond, hpond)
-# endif
-# ifdef NCEP_FLUXES
-      CALL mp_exchange2d (ng, tile, model, 4,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    wg2_d, cd_d, ch_d, ce_d)
-      CALL mp_exchange2d (ng, tile, model, 4,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    wg2_m, cd_m, ch_m, ce_m)
-      CALL mp_exchange2d (ng, tile, model, 1,                           &
-     &                    LBi, UBi, LBj, UBj,                           &
-     &                    NghostPoints,                                 &
-     &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    rhoa_n)
 # endif
       CALL mp_exchange2d (ng, tile, model, 4,                           &
      &                    LBi, UBi, LBj, UBj,                           &

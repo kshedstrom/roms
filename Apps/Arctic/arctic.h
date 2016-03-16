@@ -19,7 +19,6 @@
 #undef PARALLEL_IN
 #undef PARALLEL_OUT
 #define PERFECT_RESTART
-#undef NO_LBC_ATT
 
 /* general */
 
@@ -51,19 +50,21 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE_MODEL
+# define CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
+#  define INI_GLORYS_ICE
+#  undef ICE_LOG_LAYER
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
 #  define  OUTFLOW_MASK
-#  define  FASTICE_CLIMATOLOGY
-#  undef ICE_LANDFAST
+#  undef  FASTICE_CLIMATOLOGY
+#  define ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
 #  define ICE_MOMENTUM
@@ -75,9 +76,7 @@
 #  define ICE_UPWIND
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define ICE_I_O
 # endif
 #endif
 
@@ -104,7 +103,6 @@
 
 #define UV_ADV
 #define UV_COR
-#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # define TS_U3HADVECTION
@@ -117,7 +115,6 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -130,7 +127,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -141,7 +138,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -156,13 +153,12 @@
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
-# define ARCTIC_MERRA_HACK
+# undef ARCTIC_MERRA_HACK
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
 #  undef DIURNAL_SRFLUX
 #  define SOLAR_SOURCE
 #  define EMINUSP
-#  undef ANA_SRFLUX
 #  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  undef ICE_ALB_EC92   /* for ice */
@@ -196,7 +192,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -225,22 +223,4 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
-#endif
-
-/*
-**  Biological model options.
-*/
-#undef NEMURO
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
 #endif

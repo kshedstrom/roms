@@ -225,8 +225,7 @@
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % IcePhL                            &
      &                      )
-!
-FOOOO 
+!  FOOOO 
 ! Need to change this to i2d_bc_tile calls
       CALL IcePhLbc_tile (ng, tile,                                   &
      &                          LBi, UBi, LBj, UBj,                      &
@@ -896,9 +895,9 @@ FOOOO
      &                       +aif(i-1,j)+FE(i-1,j+1)-FE(i-1,j)          &
      &                                                      ))
 
-          Cu=0.5*dtice*(pm(i,j)+pm(i-1,j))*ui(i,j,liunw)
+          Cu=0.5*dtice(ng)*(pm(i,j)+pm(i-1,j))*ui(i,j,liunw)
 
-          Cu_crss=0.5*dtice * 0.0625*( pn(i-1,j+1)+pn(i,j+1)            &
+          Cu_crss=0.5*dtice(ng) * 0.0625*( pn(i-1,j+1)+pn(i,j+1)        &
      &                                 +pn(i-1,j-1)+pn(i,j-1)           &
      &                  )*( vi(i-1,j+1,liunw)+vi(i,j+1,liunw)           &
      &                       +vi(i-1,j,liunw)  +vi(i,j,liunw)           &
@@ -921,9 +920,9 @@ FOOOO
      &                       +aif(i,j-1)+FX(i+1,j-1)-FX(i,j-1)          &
      &                                                      ))
 
-          Cu=0.5*dtice*(pn(i,j)+pn(i,j-1))*vi(i,j,liunw)
+          Cu=0.5*dtice(ng)*(pn(i,j)+pn(i,j-1))*vi(i,j,liunw)
 
-          Cu_crss=0.5*dtice * 0.0625*( pm(i+1,j)+pm(i+1,j-1)            &
+          Cu_crss=0.5*dtice(ng) * 0.0625*( pm(i+1,j)+pm(i+1,j-1)        &
      &                                 +pm(i-1,j)+pm(i-1,j-1)           &
      &                 )*(  ui(i,j,liunw)    +ui(i+1,j,liunw)           &
      &                     +ui(i,j-1,liunw)+ui(i+1,j-1,liunw)           &
@@ -939,7 +938,7 @@ FOOOO
 
       DO j=Jstr,Jend
         DO i=Istr,Iend
-          aif(i,j)=aif(i,j) -dtice*pm(i,j)*pn(i,j)*                     &
+          aif(i,j)=aif(i,j) -dtice(ng)*pm(i,j)*pn(i,j)*                 &
      &             (aflxu(i+1,j)-aflxu(i,j) + aflxv(i,j+1)-aflxv(i,j))
 #  ifdef MASKING
           aif(i,j)=aif(i,j)*rmask(i,j)

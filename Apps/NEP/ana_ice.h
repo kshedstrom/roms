@@ -84,8 +84,8 @@
       SUBROUTINE ana_ice_tile (ng, tile, model,                         &
      &                             LBi, UBi, LBj, UBj,                  &
      &                             ui, vi, uie, vie, ai, hi, hsn,       &
-#ifdef MELT_PONDS
      &                             ti, ageice,                          &
+#ifdef MELT_PONDS
      &                             apond, hpond,                        &
 #endif
      &                             sig11, sig22, sig12,                 &
@@ -228,7 +228,11 @@
           IF (t(i,j,N(ng),1,itemp) < -1.4) THEN
             ai(i,j,1) = 1._r8
             hi(i,j,1) = 2._r8
+#ifdef NO_SNOW
+            hsn(i,j,1) = 0.0_r8
+#else
             hsn(i,j,1) = 0.2_r8
+#endif
             ti(i,j,1) = -5._r8
           ELSE
             ai(i,j,1) = 0._r8

@@ -21,11 +21,19 @@
       integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj 
 # ifdef ASSUMED_SHAPE
+#  ifdef CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:,LBj:)
+#  else
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
+#  endif
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: lrflx(LBi:,LBj:)
 # else
+#  ifdef CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj)
+#  else
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+#  endif
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: lrflx(LBi:UBi,LBj:UBj)
 # endif
@@ -62,8 +70,13 @@
       fac2 = sw_off(month)/(rho0*Cp)
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+#  ifdef CICE_MODEL
+          lrflx(i,j)=lrflx(i,j) + ai(i,j)*fac1
+          srflx(i,j)=MAX(0.0_r8, srflx(i,j) + ai(i,j)*fac2)
+#  else
           lrflx(i,j)=lrflx(i,j) + ai(i,j,linew(ng))*fac1
           srflx(i,j)=MAX(0.0_r8, srflx(i,j) + ai(i,j,linew(ng))*fac2)
+#  endif
         END DO
       END DO
 !

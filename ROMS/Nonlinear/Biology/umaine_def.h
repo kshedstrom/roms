@@ -792,7 +792,7 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='SK_FeC'
+      Vinfo( 1)='S1_FeC'
       Vinfo( 2)='Small phytoplankton Fe:C at F=0.5'
       Vinfo( 3)='muM-Fe/M-C'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
@@ -800,8 +800,16 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='LK_FeC'
+      Vinfo( 1)='S2_FeC'
       Vinfo( 2)='Large phytoplankton Fe:C at F=0.5'
+      Vinfo( 3)='muM-Fe/M-C'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='S3_FeC'
+      Vinfo( 2)='Coccolithophores Fe:C at F=0.5'
       Vinfo( 3)='muM-Fe/M-C'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &

@@ -497,13 +497,18 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-      CALL netcdf_put_fvar (ng, model, ncname, 'SK_FeC',                &
-     &                      SK_FeC(ng), (/0/), (/0/),                   &
+      CALL netcdf_put_fvar (ng, model, ncname, 'S1_FeC',                &
+     &                      S1_FeC(ng), (/0/), (/0/),                   &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-      CALL netcdf_put_fvar (ng, model, ncname, 'LK_FeC',                &
-     &                      LK_FeC(ng), (/0/), (/0/),                   &
+      CALL netcdf_put_fvar (ng, model, ncname, 'S2_FeC',                &
+     &                      S2_FeC(ng), (/0/), (/0/),                   &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+
+      CALL netcdf_put_fvar (ng, model, ncname, 'S3_FeC',                &
+     &                      S3_FeC(ng), (/0/), (/0/),                   &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 

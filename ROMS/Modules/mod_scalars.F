@@ -428,7 +428,11 @@
         real(r8) :: Csolar = 1353.0_r8          ! 1360-1380 W/m2
         real(r8) :: Infinity                    ! Infinity = 1.0/0.0
         real(r8) :: Eradius = 6371315.0_r8      ! m
+#ifdef ICE_BOX
+        real(r8) :: StefBo = 5.78E-8_r8         ! Watts/m2/K4 (Match MU)
+#else
         real(r8) :: StefBo = 5.67E-8_r8         ! Watts/m2/K4
+#endif
         real(r8) :: emmiss = 0.97_r8            ! non_dimensional
         real(r8) :: rhow = 1000.0_r8            ! kg/m3
 #ifdef SOLITON
@@ -767,12 +771,6 @@
 !
         integer :: Nuser
         real(r8), dimension(25) :: user(25)
-#ifdef CICE_MODEL
-!
-!  Ice initialization date
-!
-        integer :: iROMSdate
-#endif
 !
 !  Weights for the time average of 2D fields.
 !
@@ -1781,10 +1779,10 @@
         real(r8) :: spec_heat_air =  1004._r8
         real(r8) :: trans_coeff = 1.75E-3
         real(r8) :: sublim_latent_heat = 2.834E+6
-        real(r8) :: t0deg = 273.15_r8
+        real(r8) :: t0deg = 273.15_r8                     ! [Kelvin]
+        real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
 
         real(r8), allocatable :: dtice(:)
-        real(r8), allocatable :: dtice_eq(:)
         real(r8), allocatable :: dte(:)
         real(r8), allocatable :: rhoice(:)
         real(r8), allocatable :: cdiw(:)
@@ -2348,7 +2346,6 @@
      allocate ( ievp(Ngrids) )
 
      allocate ( dtice(Ngrids) )
-     allocate ( dtice_eq(Ngrids) )
      allocate ( dte(Ngrids) )
      allocate ( rhoice(Ngrids) )
      allocate ( cdiw(Ngrids) )

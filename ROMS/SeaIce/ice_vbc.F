@@ -306,24 +306,23 @@
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i-1,j,N(ng)))
           aix = 0.5_r8*(ai(i,j,liold)+ai(i-1,j,liold))
           chux = 0.5_r8*(chuiw(i,j)+chuiw(i-1,j))
-          tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))    &
-     &                        /rhoice(ng)
-# ifdef WET_DRY
+          tauaiu(i,j) = 0.5_r8*aix*(tau_aix_n(i,j)+tau_aix_n(i-1,j))
+#  ifdef WET_DRY
           tauaiu(i,j) = tauaiu(i,j)*umask_wet(i,j)
-# endif
-# ifdef ICE_BULK_FLUXES
-#  ifdef ICESHELF
-          IF (zice(i,j).eq.0.0_r8) THEN
 #  endif
+#  ifdef ICE_BULK_FLUXES
+#   ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#   endif
           sustr(i,j) = aix*chux*(ui(i,j,liuol)-uwater(i,j))             &
      &                 + (1.0_r8-aix)*sustr_aw(i,j)
-#  ifdef WET_DRY
+#   ifdef WET_DRY
           sustr(i,j) = sustr(i,j)*umask_wet(i,j)
-#  endif
-#  ifdef ICESHELF
+#   endif
+#   ifdef ICESHELF
           ENDIF
+#   endif
 #  endif
-# endif
         END DO
       END DO
 
@@ -332,24 +331,23 @@
           rhoO = 1000._r8 + 0.5_r8*(rho(i,j,N(ng))+rho(i,j-1,N(ng)))
           aiy = 0.5_r8*(ai(i,j,liold)+ai(i,j-1,liold))
           chuy = 0.5_r8*(chuiw(i,j)+chuiw(i,j-1))
-          tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))    &
-     &                        /rhoice(ng)
-# ifdef WET_DRY
+          tauaiv(i,j) = 0.5_r8*aiy*(tau_aiy_n(i,j)+tau_aiy_n(i,j-1))
+#  ifdef WET_DRY
           tauaiv(i,j) = tauaiv(i,j)*vmask_wet(i,j)
-# endif
-# ifdef ICE_BULK_FLUXES
-#  ifdef ICESHELF
-          IF (zice(i,j).eq.0.0_r8) THEN
 #  endif
+#  ifdef ICE_BULK_FLUXES
+#   ifdef ICESHELF
+          IF (zice(i,j).eq.0.0_r8) THEN
+#   endif
           svstr(i,j) = aiy*chuy*(vi(i,j,liuol)-vwater(i,j))             &
      &                 + (1.0_r8-aiy)*svstr_aw(i,j)
-#  ifdef WET_DRY
+#   ifdef WET_DRY
           svstr(i,j) = svstr(i,j)*vmask_wet(i,j)
-#  endif
-#  ifdef ICESHELF
+#   endif
+#   ifdef ICESHELF
           ENDIF
+#   endif
 #  endif
-# endif
         END DO
       END DO
 # else
@@ -375,14 +373,14 @@
      &                        /rhoice(ng))
            wind_speed(i,j) = 0.5*sqrt((windu(i,j) +  windu(i+1,j))**2   &
      &                        +(windv(i,j) +  windv(i,j+1))**2)
-# ifdef ICE_SHOREFAST
+#  ifdef ICE_SHOREFAST
           clear = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)-0.9*hi(i,j,liold)
           clear = MAX(clear,0.001_r8)
           IF (clear < 5.0_r8) THEN
             spdiw(i,j) = (clear/5.0_r8)*spdiw(i,j)
             wind(i,j) = (clear/5.0_r8)*wind(i,j)
           END IF
-# endif
+#  endif
         END DO
       END DO
 

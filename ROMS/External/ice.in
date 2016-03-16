@@ -37,16 +37,6 @@
 
     Lice == T
 
-!
-!   Time step for sea ice model [s]
-
-     DTICE == 600.d0
-
-!
-!   Time step for updating (equilibrium) ice drift in sea ice model [s]
-
-     DTICE_EQ == 10800.d0
-
 ! Maximum number of iterations to achieve convergence of the nonlinear
 ! ice dynamics solution
 
@@ -127,7 +117,7 @@
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a = 0.00d0
+     min_a == 1.00d-30
 
 ! Maximum ice concentration
 ! (nondimensional)

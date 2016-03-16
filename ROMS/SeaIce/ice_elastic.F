@@ -265,9 +265,7 @@
 !
       integer :: i, j
 
-# ifdef MICLM_NUDGING
-      real(r8) :: cff
-# endif
+      real(r8) :: cff, cff2, cff3, udrag, vdrag
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
@@ -408,6 +406,15 @@
 # endif
       ENDIF
 #endif
+
+#   ifdef lIMIT_ICE_BSTRESS
+!
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down 
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.75_r8/dte(ng)
+#   endif
 ! ...................................
 !
 ! *** momentum equation 
@@ -502,16 +509,16 @@
 #endif
 !
            s2 = (f1-f2)*pnu
-           uforce = (s1 + s2)*om_u(i,j)*on_u(i,j)
+           uforce = s1 + s2
 #undef ACTIVE
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force 
-           uforce = uforce + rhoice(ng)*tauaiu(i,j)*om_u(i,j)*on_u(i,j)
+           uforce = uforce + tauaiu(i,j)
 
 ! *** pressure from tilting ocean surface 
-           uforce = uforce - g*(masu)*on_u(i,j)                         &
+           uforce = uforce - g*(masu)*pmu                               &
      &            *(sealev(i,j)-sealev(i-1,j))
 
            fakt = 0.0_r8
@@ -582,34 +589,33 @@
      &                      vie(i,j+1,lieol)
 #endif
 ! *** coriolis force u
-          uforce = uforce + fakt*rhoice(ng)*om_u(i,j)*on_u(i,j)*        &
+          uforce = uforce + fakt*rhoice(ng)*                            &
      &                            (mfv11 + mfv21 + mfv12 + mfv22)
 !
 ! *** stress from ocean current 
-          uforce = uforce/(om_u(i,j)*on_u(i,j)) +                       &
-     &                         auf*chux*rho0*uwater(i,j)
-#ifdef ICE_LANDFAST
+          uforce = uforce + auf*chux*rho0*uwater(i,j)
 !
+          alfa = masu + dte(ng)*auf*rho0*chux
+!
+#ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
             v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
      &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
             speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-            uforce = uforce - uie(i,j,lieol)*                           &
-     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadu(i,j)
+            udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
+            alfa = alfa + udrag
           END IF
 #endif
-!
-          alfa = masu + dte(ng)*auf*rho0*chux
 !
 !  solving the momentum equation for u
           uie(i,j,lienw) = (masu*uie(i,j,lieol) +                       &
      &                       dte(ng)*uforce)/alfa 
 !
 # ifdef MICLM_NUDGING
-          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
+          cff2 = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
           uie(i,j,lienw)=uie(i,j,lienw)+                                &
-     &                  dte(ng)*cff*(uiclm(i,j)-uie(i,j,lienw))
+     &                  dte(ng)*cff2*(uiclm(i,j)-uie(i,j,lienw))
 # endif
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
@@ -721,15 +727,15 @@
 #endif
 !
           s2 = (f1-f2)*pmv 
-          vforce = (s1+s2)*om_v(i,j)*on_v(i,j)
+          vforce = s1+s2
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force
-          vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
+          vforce = vforce + tauaiv(i,j)
 
 ! *** pressure from tilting ocean surface 
-          vforce = vforce - g*(masv)*om_v(i,j)                          &
+          vforce = vforce - g*(masv)*pnv                                &
      &            *(sealev(i,j)-sealev(i,j-1))
 !
           fakt = 0.0_r8
@@ -801,25 +807,24 @@
 #endif
 
 ! *** coriolis force v
-          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*        &
+          vforce = vforce - fakt*rhoice(ng)*                            &
      &                            (mfu11 + mfu21 + mfu12 + mfu22)
 !
 ! *** stress from ocean current 
-          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
-     &                         avf*chuy*rho0*vwater(i,j)
-#ifdef ICE_LANDFAST
+          vforce = vforce + avf*chuy*rho0*vwater(i,j)
 !
+          alfa = masv + dte(ng)*avf*rho0*chuy
+!
+#ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
             u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
      &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
             speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-            vforce = vforce - vie(i,j,lieol)*                           &
-     &                   (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+            vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+            alfa = alfa + vdrag
           END IF
 #endif
-!
-          alfa = masv + dte(ng)*avf*rho0*chuy
 
 !  solving the momentum equation for v
           vie(i,j,lienw) = (masv*vie(i,j,lieol) +                       &

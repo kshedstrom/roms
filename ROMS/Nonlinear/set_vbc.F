@@ -31,7 +31,7 @@
       USE mod_grid
       USE mod_forces
       USE mod_ocean
-# ifdef ICE_MODEL
+# if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice
 # endif
       USE mod_stepping
@@ -112,9 +112,11 @@
 #  endif
 #  ifdef ICE_MODEL
      &                   FORCES(ng) % qao_n,                            &
-#    ifdef NO_SCORRECTION_ICE
+#  endif
+#  if defined ICE_MODEL || defined CICE_MODEL
+#   ifdef NO_SCORRECTION_ICE
      &                   ICE(ng) % ai,                                  &
-#    endif
+#   endif
 #  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
@@ -186,9 +188,11 @@
 #  endif
 #  ifdef ICE_MODEL
      &                         qao_n,                                   &
-#    ifdef NO_SCORRECTION_ICE
+#  endif
+#  if defined ICE_MODEL || defined CICE_MODEL
+#   ifdef NO_SCORRECTION_ICE
      &                         ai,                                      &
-#    endif
+#   endif
 #  endif
      &                         stflx, btflx)
 !***********************************************************************
@@ -270,8 +274,12 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:,LBj:)
-#    ifdef NO_SCORRECTION_ICE
+#   endif
+#   ifdef NO_SCORRECTION_ICE
+#    ifdef ICE_MODEL
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
+#    elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:,LBj:)
 #    endif
 #   endif
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
@@ -335,8 +343,12 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:UBi,LBj:UBj)
-#    ifdef NO_SCORRECTION_ICE
+#   endif
+#   ifdef NO_SCORRECTION_ICE
+#    if defined ICE_MODEL
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+#    elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj)
 #    endif
 #   endif
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
@@ -374,7 +386,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wrk
 #  endif
 
-#  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+#  ifdef NO_SCORRECTION_ICE
       real(r8) :: fac_ice
 #  endif
       real(r8), parameter :: eps = 1.e-20_r8
@@ -438,10 +450,14 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 #   if defined SCORRECTION
-#     ifdef ICE_THERMO
+#     if defined ICE_MODEL || defined CICE_MODEL
 #      ifdef NO_SCORRECTION_ICE
           fac_ice = 1.0_r8
+#ifdef ICE_MODEL
           IF(ai(i,j,liold).GE.0.1_r8) fac_ice = 0.0_r8
+#else
+          IF(ai(i,j).GE.0.1_r8) fac_ice = 0.0_r8
+#endif
 #      endif
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
 #      ifdef NO_SCORRECTION_ICE

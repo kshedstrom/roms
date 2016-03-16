@@ -219,7 +219,7 @@
 # ifdef IRON_LIMIT
       integer :: iFeSp                  ! Small phytoplankton iron
       integer :: iFeLp                  ! Large phytoplankton iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
       integer, parameter :: max_species = 5
       integer, parameter :: max_lstages = 6

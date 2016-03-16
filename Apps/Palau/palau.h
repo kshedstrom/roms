@@ -16,7 +16,8 @@
 #undef NESTING
 #undef ONE_WAY
 #define HISTORY2
-#undef HDF5
+#define HDF5
+#define DEFLATE
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS
 
@@ -32,7 +33,7 @@
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
-#undef FLOATS
+#define FLOATS
 #undef STATIONS
 #undef WET_DRY
 
@@ -51,6 +52,17 @@
 # undef DIAGNOSTICS_TS
 #endif
 #undef DIAGNOSTICS_UV
+
+#define T_PASSIVE
+#ifdef T_PASSIVE
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX 
+# define ANA_PASSIVE
+# define TRC_PSOURCE
+# define ANA_TRC_PSOURCE
+# define AGE_MEAN
+# undef PTOBC
+#endif
 
 /* advection, dissipation, pressure grad, etc. */
 

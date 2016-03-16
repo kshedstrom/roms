@@ -316,7 +316,7 @@
 !
 !  If cycling restart records, write solution into the next record.
 !
-      IF (exit_flag.eq.1) THEN
+      IF (exit_flag==1 .or. exit_flag==9) THEN
         DO ng=1,Ngrids
           IF (LwrtRST(ng)) THEN
             IF (Master) WRITE (stdout,10)

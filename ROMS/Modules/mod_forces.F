@@ -315,6 +315,8 @@
 #endif
 #ifdef CICE_MODEL
           real(r8), pointer :: PotT(:,:)
+          real(r8), pointer :: LW_down(:,:)
+          real(r8), pointer :: SW_down(:,:)
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -384,6 +386,7 @@
           real(r8), pointer :: tau_aix_n(:,:)
           real(r8), pointer :: tau_aiy_n(:,:)
           real(r8), pointer :: qai_n(:,:)
+          real(r8), pointer :: qi_o_n(:,:)
           real(r8), pointer :: qswi_n(:,:)
           real(r8), pointer :: qao_n(:,:)
           real(r8), pointer :: snow_n(:,:)
@@ -763,6 +766,8 @@
 #endif
 #ifdef CICE_MODEL
       allocate ( FORCES(ng) % PotT(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % LW_down(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % SW_down(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -834,6 +839,7 @@
       allocate ( FORCES(ng) % tau_aix_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % tau_aiy_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qai_n(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % qi_o_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qswi_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qao_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % snow_n(LBi:UBi,LBj:UBj) )
@@ -1302,6 +1308,8 @@
 #endif
 #ifdef CICE_MODEL
             FORCES(ng) % PotT(i,j) = IniVal
+            FORCES(ng) % LW_down(i,j) = IniVal
+            FORCES(ng) % SW_down(i,j) = IniVal
 #endif
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
      defined CCSM_FLUXES2D
@@ -1384,6 +1392,7 @@
             FORCES(ng) % tau_aix_n(i,j) = IniVal
             FORCES(ng) % tau_aiy_n(i,j) = IniVal
             FORCES(ng) % qai_n(i,j) = IniVal
+            FORCES(ng) % qi_o_n(i,j) = IniVal
             FORCES(ng) % qswi_n(i,j) = IniVal
             FORCES(ng) % qao_n(i,j) = IniVal
             FORCES(ng) % snow_n(i,j) = IniVal

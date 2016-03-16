@@ -55,13 +55,13 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE_MODEL
+# define CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  undef  OUTFLOW_MASK
@@ -76,6 +76,8 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define ICE_CONVSNOW
+#  define ICE_I_O
 #  undef  MELT_PONDS
 #  undef  ANA_AIOBC
 #  undef  ANA_HIOBC
@@ -158,7 +160,7 @@
 #  define CORE_FORCING
 #  define BULK_FLUXES
 #  define CCSM_FLUXES
-#  define ARCTIC_MERRA_HACK
+#  undef ARCTIC_MERRA_HACK
 # endif
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
@@ -198,7 +200,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# ifdef AVERAGES
+# if defined AVERAGES && !defined USE_DEBUG
 #  define FILTERED
 # endif
 # define SSH_TIDES

@@ -56,7 +56,7 @@
       USE mod_sedbed
       USE mod_sediment
 #endif
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice
 #endif
 #ifdef NCEP_FLUXES
@@ -2604,6 +2604,92 @@
 #   endif
       END IF
 !
+#  elif defined CICE_MODEL && defined INI_GLORYS_ICE
+        IF (nrrec(ng).eq.0) THEN
+!
+!  Read in ice concentration.
+!
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idAice)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idAice), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      ICE(ng) % ai)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idAice)),          &
+     &                        InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idAice)), Fmin, Fmax
+            END IF
+          END IF
+!
+!  Read in ice average thickness.
+!
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idHice)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idHice), varid,                     &
+     &                      InpRec, gtype, Vsize,                       &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      Fscl, Fmin, Fmax,                           &
+# ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+# endif
+     &                      ICE(ng) % hi)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idHice)),          &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idHice)), Fmin, Fmax
+            END IF
+          END IF
+!
+!  Read in ice/snow surface temperature.
+!
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idTice)),   &
+     &                        varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                      Vname(1,idTice), varid, InpRec, gtype,      &
+     &                      Vsize, LBi, UBi, LBj, UBj,                  &
+     &                      Fscl, Fmin, Fmax,                           &
+#   ifdef MASKING
+     &                      GRID(ng) % rmask,                           &
+#   endif
+     &                      ICE(ng) % tis)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idTice)),          &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
+            END IF
+          END IF
+        END IF
 #  endif
 #  ifdef NCEP_FLUXES
 !

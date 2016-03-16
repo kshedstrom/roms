@@ -216,7 +216,7 @@
 # endif
      &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
-# ifdef SNOWFALL
+# if defined SNOWFALL && !defined ANA_SNOW
 !
 !  Snowfall
 !
@@ -724,7 +724,8 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# if defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
+# if defined BULK_FLUXES && !defined LONGWAVE && \
+    !defined ANA_LRFLUX  && !defined LONGWAVE_OUT
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation.
@@ -740,7 +741,7 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# if defined BULK_FLUXES && defined LONGWAVE_OUT
+# if defined BULK_FLUXES && defined LONGWAVE_OUT && !defined ANA_LRFLUX
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation.
@@ -770,7 +771,7 @@
 #  endif
      &                FORCES(ng) % rainG)
       IF (exit_flag.ne.NoError) RETURN
-#  ifdef SNOWFALL
+#  if defined SNOWFALL && !defined ANA_SNOW
       CALL get_2dfld (ng, iNLM, idsnow, ncFRCid(idsnow,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
@@ -1587,8 +1588,8 @@
      &                    JLB, JUB, 1, 2, 0, Mm(ng)+1, 1,               &
      &                    BOUNDARY(ng) % sig22G_west)
           IF (exit_flag.ne.NoError) RETURN
-        IF (LBC(ieast,isSig22,ng)%acquire) THEN
         END IF
+        IF (LBC(ieast,isSig22,ng)%acquire) THEN
           CALL get_ngfld (ng, iNLM, idS22bc(ieast),                     &
      &                    ncBRYid(idS22bc(ieast),ng),                   &
      &                    nBCfiles(ng), BRY(1,ng), update(1),           &

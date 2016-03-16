@@ -584,7 +584,7 @@
         integer, allocatable :: idBvar(:)     ! LBC variables indices
         integer, allocatable :: idSvar(:)     ! state vector indices
         integer, allocatable :: idSbry(:)     ! state boundaries indices
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
         integer  :: isUice                    ! ice U-velocity
         integer  :: isVice                    ! ice V-velocity
         integer  :: isAice                    ! ice concentration
@@ -967,7 +967,7 @@
         isTsur(i)=ic
       END DO
 #endif
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
 # if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
       ic=ic+1
 # endif
@@ -1937,7 +1937,7 @@
               CASE ('idVnms')
                 idVnms=varid
 #endif
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
               CASE ('idUice')
                 idUice=varid
               CASE ('idVice')
@@ -2867,7 +2867,7 @@
       ic=ic+1
       idBvar(ic)=idMtke
 # endif
-# ifdef ICE_MODEL
+# if defined ICE_MODEL
       ic=ic+11
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice

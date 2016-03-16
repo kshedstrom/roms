@@ -88,10 +88,12 @@
                 idTvar(iTAlk)=varid
 #endif
 #ifdef IRON_LIMIT
-              CASE ('idTvar(iFeSp)')
-                idTvar(iFeSp)=varid
-              CASE ('idTvar(iFeLp)')
-                idTvar(iFeLp)=varid
+              CASE ('idTvar(iS1_Fe)')
+                idTvar(iS1_Fe)=varid
+              CASE ('idTvar(iS2_Fe)')
+                idTvar(iS2_Fe)=varid
+              CASE ('idTvar(iS3_Fe)')
+                idTvar(iS3_Fe)=varid
               CASE ('idTvar(iFeD_)')
                 idTvar(iFeD_)=varid
 #endif
@@ -358,22 +360,30 @@
                 idTbry(inorth,iTAlk)=varid
 #endif
 # ifdef IRON_LIMIT
-              CASE ('idTbry(iwest,iFeSp)')
-                idTbry(iwest,iFeSp)=varid
-              CASE ('idTbry(ieast,iFeSp)')
-                idTbry(ieast,iFeSp)=varid
-              CASE ('idTbry(isouth,iFeSp)')
-                idTbry(isouth,iFeSp)=varid
-              CASE ('idTbry(inorth,iFeSp)')
-                idTbry(inorth,iFeSp)=varid
-              CASE ('idTbry(iwest,iFeLp)')
-                idTbry(iwest,iFeLp)=varid
-              CASE ('idTbry(ieast,iFeLp)')
-                idTbry(ieast,iFeLp)=varid
-              CASE ('idTbry(isouth,iFeLp)')
-                idTbry(isouth,iFeLp)=varid
-              CASE ('idTbry(inorth,iFeLp)')
-                idTbry(inorth,iFeLp)=varid
+              CASE ('idTbry(iwest,iS1_Fe)')
+                idTbry(iwest,iS1_Fe)=varid
+              CASE ('idTbry(ieast,iS1_Fe)')
+                idTbry(ieast,iS1_Fe)=varid
+              CASE ('idTbry(isouth,iS1_Fe)')
+                idTbry(isouth,iS1_Fe)=varid
+              CASE ('idTbry(inorth,iS1_Fe)')
+                idTbry(inorth,iS1_Fe)=varid
+              CASE ('idTbry(iwest,iS2_Fe)')
+                idTbry(iwest,iS2_Fe)=varid
+              CASE ('idTbry(ieast,iS2_Fe)')
+                idTbry(ieast,iS2_Fe)=varid
+              CASE ('idTbry(isouth,iS2_Fe)')
+                idTbry(isouth,iS2_Fe)=varid
+              CASE ('idTbry(inorth,iS2_Fe)')
+                idTbry(inorth,iS2_Fe)=varid
+              CASE ('idTbry(iwest,iS3_Fe)')
+                idTbry(iwest,iS3_Fe)=varid
+              CASE ('idTbry(ieast,iS3_Fe)')
+                idTbry(ieast,iS3_Fe)=varid
+              CASE ('idTbry(isouth,iS3_Fe)')
+                idTbry(isouth,iS3_Fe)=varid
+              CASE ('idTbry(inorth,iS3_Fe)')
+                idTbry(inorth,iS3_Fe)=varid
               CASE ('idTbry(iwest,iFeD_)')
                 idTbry(iwest,iFeD_)=varid
               CASE ('idTbry(ieast,iFeD_)')
