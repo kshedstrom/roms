@@ -411,7 +411,7 @@
 !--- Shinichi custom fish initial position ---
             CALL ran1 (snudg)
             IF (isp.eq.if_sardine) THEN
-! sardines :
+! sardines (shinichi) :
 ! lowest_point_j=171.
 ! lowest_point_i=154.
 ! extension_j=100.
@@ -419,15 +419,33 @@
 ! mid_point1_i=197.
 ! upper_point_j=279
 ! upper_point_i=183
-               yini=171.0_r8+snudg*REAL(100,r8)
-               IF (yini .lt. 258.) THEN
-                  xini = 154.0_r8 + (yini - 171.0_r8) * (197.0_r8 - 154.0_r8) / (258.0_r8 - 171.0_r8)
+!
+!               yini=171.0_r8+snudg*REAL(100,r8)
+!               IF (yini .lt. 258.) THEN
+!                  xini = 154.0_r8 + (yini - 171.0_r8) * (197.0_r8 - 154.0_r8) / (258.0_r8 - 171.0_r8)
+!               ELSE
+!                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+!               ENDIF
+
+! sardines (takaaki) :
+! lowest_point_j=177.
+! lowest_point_i=162.
+! extension_j=100.
+! mid_point1_j=261.
+! mid_point1_i=203.
+! upper_point_j=282
+! upper_point_i=190
+
+               yini=177.0_r8+snudg*REAL(100,r8)
+               IF (yini .lt. 261.) THEN
+                  xini = 162.0_r8 + (yini - 177.0_r8) * (203.0_r8 - 162.0_r8) / (261.0_r8 - 177.0_r8)
                ELSE
-                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+                  xini = 203.0_r8 + (yini - 261.0_r8) * (190.0_r8 - 203.0_r8) / (282.0_r8 - 261.0_r8)
                ENDIF
 
             ELSEIF (isp.eq.if_anchovy) THEN
-! anchovies  
+
+! anchovies (shinichi) : 
 ! lowest_point_j=166.
 ! lowest_point_i=152.
 ! extension_j=105.
@@ -435,12 +453,29 @@
 ! mid_point1_i=197.
 ! upper_point_j=279
 ! upper_point_i=183
-               yini=166.0_r8+snudg*REAL(105,r8)
-               IF (yini .lt. 258.) THEN
-                  xini = 152.0_r8 + (yini - 166.0_r8) * (197.0_r8 - 152.0_r8) / (258.0_r8 - 166.0_r8)
+!               yini=166.0_r8+snudg*REAL(105,r8)
+!               IF (yini .lt. 258.) THEN
+!                  xini = 152.0_r8 + (yini - 166.0_r8) * (197.0_r8 - 152.0_r8) / (258.0_r8 - 166.0_r8)
+!               ELSE
+!                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+!               ENDIF
+
+! anchovies (takaaki) : 
+! west_point_j=172.
+! lowest_point_i=160.
+! extension_j=105.
+! mid_point1_j=261.
+! mid_point1_i=203.
+! upper_point_j=282
+! upper_point_i=190
+
+               yini=172.0_r8+snudg*REAL(105,r8)
+               IF (yini .lt. 261.) THEN
+                  xini = 160.0_r8 + (yini - 172.0_r8) * (203.0_r8 - 160.0_r8) / (261.0_r8 - 172.0_r8)
                ELSE
-                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+                  xini = 203.0_r8 + (yini - 261.0_r8) * (190.0_r8 - 203.0_r8) / (282.0_r8 - 261.0_r8)
                ENDIF
+
             ELSE
               STOP ! no other species
             ENDIF

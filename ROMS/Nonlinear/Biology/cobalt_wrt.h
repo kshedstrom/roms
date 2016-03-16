@@ -346,6 +346,11 @@
       &                      ncid = ncid) 
        IF (exit_flag.ne.NoError) RETURN 
 
+       CALL netcdf_put_fvar (ng, model, ncname, 'gamma_mu_mem',        &
+      &                      gamma_mu_mem(ng), (/0/), (/0/),           &
+      &                      ncid = ncid) 
+       IF (exit_flag.ne.NoError) RETURN 
+
        CALL netcdf_put_fvar (ng, model, ncname, 'k_n_inhib_Di',         &
       &                      k_n_inhib_Di(ng), (/0/), (/0/),            &
       &                      ncid = ncid) 

@@ -607,7 +607,8 @@
         DO ig=1,GridsInLayer(nl)
           ng=GridNumber(ig,nl)
           ! RD: need control for leap year
-          IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0) THEN
+          !IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng))) THEN ! RD bug
+          IF ((MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN
 #  ifdef _OPENMP
               chunk_size=(Nfish(ng)+numthreads-1)/numthreads
               Lstr=1+MyThread*chunk_size
@@ -1058,7 +1059,8 @@
 #  endif
                   END IF
 !  Make new fish once a day
-                  IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN
+                  !IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN ! RD bug
+                  IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN
                     CALL fish_spawn (ng, tile)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION

@@ -300,6 +300,7 @@
     real                                  :: p_lim_nhet
     real                                  :: TK, PRESS, PKSPA, PKSPC
     real                                  :: tmp_hblt, tmp_irrad, tmp_irrad_ML,tmp_opacity
+    real                                  :: tmp_mu_ML
     real                                  :: drho_dzt
     real                                  :: tot_prey_hp, sw_fac_denom, ingest_p2n, refuge_conc 
     real                                  :: bact_ldon_lim, bact_uptake_ratio, vmax_bact
@@ -528,6 +529,17 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
            cobalt%f_temp(i,j,k) = t(i,j,k,nstp,itemp)
            ! avoid negative salinity
            cobalt%f_salt(i,j,k) = max( t(i,j,k,nstp,isalt) ,  0.0d0 )
+        ENDDO
+      ENDDO
+    ENDDO
+
+    ! RD : add aggregation memory
+    DO k=1,UBk
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           phyto(1)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_sm) , 0.0d0 )
+           phyto(2)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_di) , 0.0d0 )
+           phyto(3)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_lg) , 0.0d0 )
         ENDDO
       ENDDO
     ENDDO
@@ -1161,14 +1173,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
 
 #ifdef DIAGNOSTICS_BIO
-!   DO k=1,UBk
-!     DO j=Jstr,Jend
-!       DO i=Istr,Iend
-!          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
-!       END DO
-!     END DO
-!   ENDDO
-!   i=overflow ; j=overflow ; k=overflow
+   DO k=1,UBk
+     DO j=Jstr,Jend
+       DO i=Istr,Iend
+          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
+       END DO
+     END DO
+   ENDDO
+   i=overflow ; j=overflow ; k=overflow
 #endif
 
 
@@ -1301,8 +1313,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
       DO k=1,UBk
          ! compute the instant irradiance in layer k as a difference of fluxes
          ! between interfaces k and k-1 (like in pre_step3d)
+         ! this was maybe a bad idea, replaced by half-sum
          cobalt%irr_inst(i,j,k) = rho0 * Cp * srflx(i,j) * &
-       & ( swdk3(i,j,k) - swdk3(i,j,k-1) )
+       & 0.5d0 * ( swdk3(i,j,k) + swdk3(i,j,k-1) )
 
          ! set base value of irr_mix to irr_inst (Charles Stock told me to do so)
          cobalt%irr_mix(i,j,k) = cobalt%irr_inst(i,j,k)
@@ -1400,6 +1413,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
           & phyto(nphyto)%bresp * phyto(nphyto)%f_n(i,j,k)        /      &
           & (refuge_conc + phyto(nphyto)%f_n(i,j,k))
 
+            ! CAS: revised aggregation, mu_mix new 3D diagnostic for phyto type
+            phyto(nphyto)%mu_mix(i,j,k) = phyto(nphyto)%mu(i,j,k)
+
 !            cobalt%gross_prim_prod(i,j,k)=cobalt%gross_prim_prod(i,j,k)+ &
 !          & P_C_m*phyto(nphyto)%irrlim(i,j,k) * phyto(nphyto)%f_n(i,j,k)
 
@@ -1421,6 +1437,42 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ENDDO
   !i=overflow ; j=overflow ; k=overflow
 
+   ! CAS: revised aggregation (modified RD code for irr_mix, RD confirm ROMS compat.)
+   DO j=Jstr,Jend
+     DO i=Istr,Iend
+       DO nphyto=1,NUM_PHYTO
+
+         ! init the growth rate in the mixed layer and last level of mixed layer
+         ! we are working on a layer-based integration hence +1 for last level of
+         ! mixed layer
+         tmp_mu_ML = 0.0d0 ; kblt = mxl_blev(i,j) + 1
+
+         DO k=kblt,UBk
+           tmp_mu_ML = tmp_mu_ML + phyto(nphyto)%mu_mix(i,j,k) * Hz(i,j,k)
+         ENDDO
+
+         DO k=kblt,UBk
+           phyto(nphyto)%mu_mix(i,j,k) = tmp_mu_ML * rmask(i,j) / mxl_depth(i,j)
+         ENDDO
+      
+       ENDDO
+     ENDDO
+   ENDDO
+   i=overflow ; j=overflow
+
+  ! CAS: revised (modified RD code for irr_mem, f_mu_mem new 3D diag for phyto type 
+  DO k=1,UBk
+    DO j=Jstr,Jend
+      DO i=Istr,Iend
+        cobalt%expkT(i,j,k) = exp(cobalt%kappa_eppley * cobalt%f_temp(i,j,k))
+        DO nphyto = 1,NUM_PHYTO
+        phyto(nphyto)%f_mu_mem(i,j,k) = (phyto(nphyto)%f_mu_mem(i,j,k) + &
+     & (phyto(nphyto)%mu_mix(i,j,k)  - phyto(nphyto)%f_mu_mem(i,j,k)) *  &
+     & min(1.0d0,cobalt%gamma_mu_mem * n_dt)) * rmask(i,j)
+        ENDDO
+      ENDDO
+    ENDDO
+  ENDDO
 !   call system_clock(clock1stop)
 !   time_clock1 = elapsed_time(clock1start,clock1stop)
 !   IF ( Master ) PRINT *, 'Time spent in part 1.2 routine = ', time_clock1
@@ -2088,9 +2140,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !  ENDDO 
 
   ! RD rewritten code
-  phyto(1)%jaggloss_n(:,:,:) = phyto(1)%agg*phyto(1)%f_n(:,:,:)**2.0 
-  phyto(2)%jaggloss_n(:,:,:) = phyto(2)%agg*phyto(2)%f_n(:,:,:)**2.0 
-  phyto(3)%jaggloss_n(:,:,:) = phyto(3)%agg*phyto(3)%f_n(:,:,:)**2.0 
+  ! CAS, aggregation revision, aggregation doesn't ramp up until you are in limiting light
+  ! conditions, as determined by the ratio of the 24 hour growth to 1/4 of the maximum.
+  ! agg_lim is a new 3D diag variable for the phytoplankton type.
+  phyto(1)%agg_lim(:,:,:) = max(1.0 - phyto(1)%f_mu_mem(:,:,:)/(0.25*phyto(1)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(2)%agg_lim(:,:,:) = max(1.0 - phyto(2)%f_mu_mem(:,:,:)/(0.25*phyto(2)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(3)%agg_lim(:,:,:) = max(1.0 - phyto(3)%f_mu_mem(:,:,:)/(0.25*phyto(3)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(1)%jaggloss_n(:,:,:) = (phyto(1)%agg_lim(:,:,:)**2)*phyto(1)%agg*phyto(1)%f_n(:,:,:)**2.0 
+  phyto(2)%jaggloss_n(:,:,:) = (phyto(2)%agg_lim(:,:,:)**2)*phyto(2)%agg*phyto(2)%f_n(:,:,:)**2.0 
+  phyto(3)%jaggloss_n(:,:,:) = (phyto(3)%agg_lim(:,:,:)**2)*phyto(3)%agg*phyto(3)%f_n(:,:,:)**2.0 
 
   phyto(1)%jaggloss_p(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_p_2_n(:,:,:)
   phyto(2)%jaggloss_p(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_p_2_n(:,:,:)
@@ -3164,16 +3222,25 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO j=Jstr,Jend
       DO i=Istr,Iend
 
-         cobalt%f_npp(i,j,k) = - phyto(DIAZO)%juptake_no3(i,j,k) -       &
-&                                phyto(LARGE)%juptake_no3(i,j,k) -       &
-&                                phyto(SMALL)%juptake_no3(i,j,k) -       &
-&                                phyto(DIAZO)%juptake_nh4(i,j,k) -       &
-&                                phyto(LARGE)%juptake_nh4(i,j,k) -       &
-&                                phyto(SMALL)%juptake_nh4(i,j,k) -       &
+         cobalt%f_npp(i,j,k) =   phyto(DIAZO)%juptake_no3(i,j,k) +       &
+&                                phyto(LARGE)%juptake_no3(i,j,k) +       &
+&                                phyto(SMALL)%juptake_no3(i,j,k) +       &
+&                                phyto(DIAZO)%juptake_nh4(i,j,k) +       &
+&                                phyto(LARGE)%juptake_nh4(i,j,k) +       &
+&                                phyto(SMALL)%juptake_nh4(i,j,k) +       &
 &                                phyto(DIAZO)%juptake_n2(i,j,k) 
+
+         ! convert in mgC m-3 day-1
+         ! uptake in mol/kg/s, we multiply by 1035 kg/m3 * 86400 s/day *
+         ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
+         cobalt%f_npp(i,j,k) = cobalt%f_npp(i,j,k) * 1035 * 86400 * cobalt%c_2_n * 12 * 1000
 
          cobalt%f_mesozoo(i,j,k) = zoo(2)%f_n(i,j,k) + &
 &                                  zoo(3)%f_n(i,j,k)
+
+         ! convert from mol/kg to mgC/m2
+         ! multiply by 1035 kg/m2 *  C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
+         cobalt%f_mesozoo(i,j,k) = cobalt%f_mesozoo(i,j,k) * 1035 * cobalt%c_2_n * 12 * 1000
 
       ENDDO
     ENDDO
@@ -3647,6 +3714,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          obgc(i,j,k,nnew,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
          obgc(i,j,k,nnew,iohtotal)       = cobalt%f_htotal(i,j,k)
          obgc(i,j,k,nnew,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_sm)    = phyto(1)%f_mu_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_di)    = phyto(2)%f_mu_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_lg)    = phyto(3)%f_mu_mem(i,j,k)
   ENDDO ; ENDDO ; ENDDO
 
   ! Set value for boundaries
@@ -3730,8 +3800,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) + cobalt%f_co3_ion(i,j,k)
            DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  + cobalt%f_htotal(i,j,k)
            DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) + cobalt%f_irr_mem(i,j,k)
-!          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
-!          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
+          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
+          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
            ! RD : debuuging variables (remove or replace later)
            !DiaBio3d(i,j,k,itheta_small)  = DK(i,j,k,2)
            !DiaBio3d(i,j,k,itheta_large)  = DK(i,j,k,3)
@@ -3742,6 +3812,19 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
     ENDDO
     i=overflow ; j=overflow ; k=overflow
+
+    DO k=1,UBk
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           DiaBio3d(i,j,k,imu_mem_sm)    = DiaBio3d(i,j,k,imu_mem_sm)   + phyto(1)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_di)    = DiaBio3d(i,j,k,imu_mem_di)   + phyto(2)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_lg)    = DiaBio3d(i,j,k,imu_mem_lg)   + phyto(3)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_sm)   = DiaBio3d(i,j,k,iagg_lim_sm)  + phyto(1)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_di)   = DiaBio3d(i,j,k,iagg_lim_di)  + phyto(2)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_lg)   = DiaBio3d(i,j,k,iagg_lim_lg)  + phyto(3)%agg_lim(i,j,k)
+        ENDDO
+      ENDDO
+    ENDDO
 
 #endif
 !   call system_clock(clock1stop)

@@ -192,12 +192,26 @@
 ! lowest_pt_i=175.
 ! extension_j=45.
 ! extension_i=30.
+!          CALL ran1 (snudg)
+!          yini=90.0_r8+snudg*REAL(45,r8)
+!          xini=175.0_r8
+!          CALL ran1 (snudg)
+!          xini=xini+30.0_r8*snudg
+!          zini=REAL(N(ng),r8)
+
+! Takaaki custom values for predator
+! lowest_pt_j=99.
+! lowest_pt_i=181.
+! extension_j=45.
+! extension_i=30.
           CALL ran1 (snudg)
-          yini=90.0_r8+snudg*REAL(45,r8)
-          xini=175.0_r8
+          yini=99.0_r8+snudg*REAL(45,r8)
+          xini=181.0_r8
           CALL ran1 (snudg)
           xini=xini+30.0_r8*snudg
           zini=REAL(N(ng),r8)
+
+
 # endif
 # ifdef NEMSAN_TEST
 ! ---- FOR TEST CONFIGURATION ----

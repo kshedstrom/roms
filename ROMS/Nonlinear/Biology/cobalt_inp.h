@@ -197,6 +197,8 @@
                Npts=load_r(Nval, Rval, Ngrids, zpllgr) 
              CASE ('gamma_irr_mem')
                Npts=load_r(Nval, Rval, Ngrids, gamma_irr_mem) 
+             CASE ('gamma_mu_mem')
+               Npts=load_r(Nval, Rval, Ngrids, gamma_mu_mem) 
              CASE ('k_n_inhib_Di')
                Npts=load_r(Nval, Rval, Ngrids, k_n_inhib_Di) 
              CASE ('o2_inhib_Di_pow')
@@ -888,6 +890,8 @@
      &            'zpllgr: Phytoplankton light limitation/growth rate[dimensionless].'
              WRITE (out,100) gamma_irr_mem(ng), 'gamma_irr_mem',                           &
      &            'gamma_irr_mem: Phytoplankton light limitation/growth rate[s-1].'
+             WRITE (out,100) gamma_mu_mem(ng), 'gamma_mu_mem',                           &
+     &            'gamma_mu_mem: Phytoplankton aggregation rate[s-1].'
              WRITE (out,100) k_n_inhib_Di(ng), 'k_n_inhib_Di',                           &
      &            'k_n_inhib_Di: Nitrogen fixation inhibition parameters[mol NO3 kg-1].'
              WRITE (out,100) o2_inhib_Di_pow(ng), 'o2_inhib_Di_pow',                           &
