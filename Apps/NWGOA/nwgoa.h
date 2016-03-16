@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
@@ -213,7 +213,7 @@
 /*
 **  Biological model options.
 */
-#undef BIO_UMAINE
+#define BIO_UMAINE
 
 #ifdef BIO_UMAINE
 # define CARBON

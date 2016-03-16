@@ -469,6 +469,9 @@
             DO i=Istr,Iend
               FE(i,j)=t(i,j  ,k,nstp,itrc)-                             &
      &                t(i,j-1,k,nstp,itrc)
+#   ifdef MASKING
+              FE(i,j)=FE(i,j)*vmask(i,j)
+#   endif
             END DO
           END DO
           IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN

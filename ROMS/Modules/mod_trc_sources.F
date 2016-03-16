@@ -53,7 +53,7 @@
 !
       allocate ( Msrcpt(Ngrids) )
       allocate ( Nsrcpt(Ngrids) )
-      Msrcpt(ng)=200
+      Msrcpt(ng)=1000
       Nsrcpt(ng)=Msrcpt(ng)
 !
 !  Allocate structure.
