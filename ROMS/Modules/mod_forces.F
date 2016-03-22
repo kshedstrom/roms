@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -223,15 +223,15 @@
 
           real(r8), pointer :: sustr(:,:)
           real(r8), pointer :: svstr(:,:)
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
       BULK_FLUXES2D || defined NL_BULK_FLUXES
           real(r8), pointer :: sustrG(:,:,:)
           real(r8), pointer :: svstrG(:,:,:)
 # endif
-#ifdef ADJUST_WSTRESS
+# ifdef ADJUST_WSTRESS
           real(r8), pointer :: ustr(:,:,:,:)
           real(r8), pointer :: vstr(:,:,:,:)
-#endif
+# endif
           real(r8), pointer :: bustr(:,:)
           real(r8), pointer :: bvstr(:,:)
 #endif
@@ -449,6 +449,9 @@
 # ifdef ECOSIM
           real(r8), pointer :: SpecIr(:,:,:)
           real(r8), pointer :: avcos(:,:,:)
+# endif
+# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+          real(r8), pointer :: chl(:,:,:)
 # endif
 #endif
 
@@ -881,6 +884,9 @@
 # ifdef ECOSIM
       allocate ( FORCES(ng) % SpecIr(LBi:UBi,LBj:UBj,NBands) )
       allocate ( FORCES(ng) % avcos(LBi:UBi,LBj:UBj,NBands) )
+# endif
+# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+      allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
 #endif
@@ -1397,6 +1403,11 @@
             DO itrc=1,NBands
               FORCES(ng) % SpecIr(i,j,itrc) = IniVal
               FORCES(ng) % avcos(i,j,itrc) = IniVal
+            END DO
+# endif
+# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+            DO k=1,N(ng)
+              FORCES(ng) % chl(i,j,k) = IniVal
             END DO
 # endif
 #endif

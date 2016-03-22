@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -30,7 +30,7 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -221,10 +221,10 @@
 # define PRIMARY_PROD
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef OPTIC_UMaine
+# define OPTIC_UMaine
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
-# undef IRON_RELAX
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
+# define IRON_RELAX
 # undef  IRON_RSIN
 #endif

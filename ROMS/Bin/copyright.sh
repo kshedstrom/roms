@@ -27,8 +27,8 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-set search = "2002-2014 The ROMS/TOMS"
-set replace = "2002-2015 The ROMS/TOMS"
+set search = "2002-2015 The ROMS/TOMS"
+set replace = "2002-2016 The ROMS/TOMS"
 
 # Directories to search for replacements.
 
@@ -118,14 +118,14 @@ echo "Done."
 echo ""
 
 if ( $setsvn == 1 ) then
-  svn propset -R copyright '(c) 2002-2015 The ROMS/TOMS Group' Compilers
-  svn propset -R copyright '(c) 2002-2015 The ROMS/TOMS Group' Data
-  svn propset -R copyright '(c) 2002-2015 The ROMS/TOMS Group' Master
-  svn propset -R copyright '(c) 2002-2015 The ROMS/TOMS Group' ROMS
-  svn propset -R copyright '(c) 2002-2015 The ROMS/TOMS Group' User
-  svn propset copyright '(c) 2002-2015 The ROMS/TOMS Group' . makefile
-  svn propset copyright '(c) 2002-2015 The ROMS/TOMS Group' Waves/SWAN/Src/Module.mk
-  svn propset copyright '(c) 2002-2015 The ROMS/TOMS Group' Waves/SWAN/Src/waves_coupler.F
+  svn propset -R copyright '(c) 2002-2016 The ROMS/TOMS Group' Compilers
+  svn propset -R copyright '(c) 2002-2016 The ROMS/TOMS Group' Data
+  svn propset -R copyright '(c) 2002-2016 The ROMS/TOMS Group' Master
+  svn propset -R copyright '(c) 2002-2016 The ROMS/TOMS Group' ROMS
+  svn propset -R copyright '(c) 2002-2016 The ROMS/TOMS Group' User
+  svn propset copyright '(c) 2002-2016 The ROMS/TOMS Group' . makefile
+  svn propset copyright '(c) 2002-2016 The ROMS/TOMS Group' Waves/SWAN/Src/Module.mk
+  svn propset copyright '(c) 2002-2016 The ROMS/TOMS Group' Waves/SWAN/Src/waves_coupler.F
 else
   echo ""
   echo "Not updating svn properties."

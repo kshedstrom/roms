@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -343,12 +343,6 @@
      &   'Analytical point sources and sinks.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_PSOURCE,'
-#endif
-#if defined ANA_PTOBC && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
-     &   'Analytical passive tracers boundary conditions.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' ANA_PTOBC,'
 #endif
 #if defined ANA_RAIN && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ANA_RAIN',                         &

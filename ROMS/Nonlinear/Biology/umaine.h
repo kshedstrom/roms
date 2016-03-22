@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -123,6 +123,9 @@
      &                   GRID(ng) % z_w,                                &
      &                   GRID(ng) % latr,                               &
      &                   FORCES(ng) % srflx,                            &
+#ifdef OPTIC_MANIZZA
+     &                   OCEAN(ng) % decayW,                            &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                   FORCES(ng) % Uwind,                            &
@@ -165,6 +168,9 @@
      &                         rmask_io,                                &
 #endif
      &                         Hz, z_r, z_w, latr,srflx,                &
+#ifdef OPTIC_MANIZZA
+     &                         decayW,                                  &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                         Uwind, Vwind,                            &
@@ -210,6 +216,9 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
+#endif
       real(r8), intent(in) :: latr(LBi:,LBj:)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -245,6 +254,9 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:UBk,4)
+#endif
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -705,6 +717,14 @@
         END DO
 #endif
 
+#ifdef OPTIC_MANIZZA
+        DO k=N(ng),1,-1
+          DO i=Istr,Iend
+	  ! Visible light only
+            PAR(i,k)=PARsur(i)*(decayW(i,j,k,3) + decayW(i,j,k,4))
+          END DO
+        END DO
+#else
 ! calculate PAR
         DO i=Istr,Iend
           PIO(i,N(ng)+1)=PARsur(i)
@@ -719,14 +739,15 @@
                     cff1=(AK1(ng)+(Bio(i,k,iS1_N)+Bio(i,k,iS2_N)+       &
      &               Bio(i,k,iS3_N))*AK2(ng))*HZ(i,j,k)
              endif
-             PIO(i,K)=PIO(i,K+1)*EXP(-cff1)
-             PAR(i,K)=(PIO(i,K+1)-PIO(i,K))/cff1
+             PIO(i,k)=PIO(i,k+1)*EXP(-cff1)
+             PAR(i,k)=(PIO(i,k+1)-PIO(i,k))/cff1
 
-            END DO
           END DO
+        END DO
+#endif
 
-          DO k=1,N(ng)
-            DO i=Istr,Iend
+        DO k=1,N(ng)
+          DO i=Istr,Iend
 
 !-----------------------------------------------------------------------
 !     CALCULATING the temperature dependence of biology processes
@@ -1044,11 +1065,12 @@
 
 ! For S1
 ! Iron uptake proportional to growth
-              cffFeS1_G = n_pps1*FNratioS1                                 & !here exudation is accounted for in n_pps1 - needs separate treatment in final rate calc
+! here exudation is accounted for in n_pps1 - needs separate treatment in final rate calc
+              cffFeS1_G = n_pps1*FNratioS1                              &
      &                    /MAX(MinVal,Bio(i,k,iFeD_))                                    !!!DONT understand this equation yet
               !Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)                  !The division is how you subtract a quantity in the ROMS semi-implicit scheme.
-              !Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                            &
-     &         !              Bio(i,k,iFeD_)*cffFe
+!              Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                          &
+!     &                       Bio(i,k,iFeD_)*cffFe
 
 ! Iron uptake to reach appropriate Fe:C ratio
               cffFeS1_R=dtdays*(FCratioE-FCratioS1)/T_fe(ng)
@@ -1057,13 +1079,13 @@
               IF (cffFeS1_R.ge.0.0_r8) THEN
                 cffFeS1_R=cffFeS1_R/MAX(MinVal,Bio(i,k,iFeD_))               !The "else" statement is when the realized Fe:C ratio is greater than the theoretical one.
                 !Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFe)                !In that case, you decrease the iron already incororated in the cell and put it back into the dissolved pool.
-                !Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                          &
-     &          !               Bio(i,k,iFeD_)*cffFe
+!                Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                        &
+!     &                         Bio(i,k,iFeD_)*cffFe
               ELSE
                 cffFeS1_R=-cffFeS1_R/MAX(MinVal,Bio(i,k,iS1_Fe))
-                !Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)/(1.0_r8+cffFe)
-                !Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
-     &          !              Bio(i,k,iS1_Fe)*cffFe
+!                Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)/(1.0_r8+cffFe)
+!                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+!     &                        Bio(i,k,iS1_Fe)*cffFe
               END IF
 
 
@@ -1616,7 +1638,7 @@
         NQsms13 = 0.0_r8
 #endif
 
-#ifdef IRON_LIMT
+#ifdef IRON_LIMIT
         NQsms36 =  0.0_r8
         NQsms37 =  0.0_r8
         NQsms38 =  0.0_r8
@@ -1661,7 +1683,7 @@
         sms11= Q10*Qsms11 + NQsms11
 #endif
 
-#ifdef IRON_LIMT
+#ifdef IRON_LIMIT
         sms36 =  Q10*Qsms36 + NQsms36
         sms37 =  Q10*Qsms37 + NQsms37
         sms38 =  Q10*Qsms38 + NQsms38
@@ -1698,50 +1720,50 @@
         &              (n_nps1+n_nps2)*dtdays
 # endif
 
-        bio(i,k,iNO3_)=bio(i,k,iNO3_)+dtdays*sms1
-        bio(i,k,iSiOH)=bio(i,k,iSiOH)+dtdays*sms2
-        bio(i,k,iNH4_)=bio(i,k,iNH4_)+dtdays*sms3
-        bio(i,k,iPO4_)=bio(i,k,iPO4_)+dtdays*sms10
-        bio(i,k,iS1_N)=bio(i,k,iS1_N)+dtdays*sms4
-        bio(i,k,iS1_C)=bio(i,k,iS1_C)+dtdays*sms15
-        bio(i,k,iS1CH)=bio(i,k,iS1CH)+dtdays*sms18
-        bio(i,k,iS2_N)=bio(i,k,iS2_N)+dtdays*sms5
-        bio(i,k,iS2_C)=bio(i,k,iS2_C)+dtdays*sms16
-        bio(i,k,iS2CH)=bio(i,k,iS2CH)+dtdays*sms19
-        bio(i,k,iS3_N)=bio(i,k,iS3_N)+dtdays*sms25
-        bio(i,k,iS3_C)=bio(i,k,iS3_C)+dtdays*sms31
-        bio(i,k,iS3CH)=bio(i,k,iS3CH)+dtdays*sms26
-        bio(i,k,iZ1_N)=bio(i,k,iZ1_N)+dtdays*sms6
-        bio(i,k,iZ1_C)=bio(i,k,iZ1_C)+dtdays*sms23
-        bio(i,k,iZ2_N)=bio(i,k,iZ2_N)+dtdays*sms7
-        bio(i,k,iZ2_C)=bio(i,k,iZ2_C)+dtdays*sms24
-        bio(i,k,iBAC_)=bio(i,k,iBAC_)+dtdays*sms33
-        bio(i,k,iDD_N)=bio(i,k,iDD_N)+dtdays*sms8
-        bio(i,k,iDD_C)=bio(i,k,iDD_C)+dtdays*sms22
-        bio(i,k,iDDSi)=bio(i,k,iDDSi)+dtdays*sms9
-        bio(i,k,iLDON)=bio(i,k,iLDON)+dtdays*sms27
-        bio(i,k,iLDOC)=bio(i,k,iLDOC)+dtdays*sms28
-        bio(i,k,iSDON)=bio(i,k,iSDON)+dtdays*sms29
-        bio(i,k,iSDOC)=bio(i,k,iSDOC)+dtdays*sms30
-        bio(i,k,iCLDC)=bio(i,k,iCLDC)+dtdays*sms34
-        bio(i,k,iCSDC)=bio(i,k,iCSDC)+dtdays*sms35
-        bio(i,k,iDDCA)=bio(i,k,iDDCA)+dtdays*sms32
+        Bio(i,k,iNO3_)=Bio(i,k,iNO3_)+dtdays*sms1
+        Bio(i,k,iSiOH)=Bio(i,k,iSiOH)+dtdays*sms2
+        Bio(i,k,iNH4_)=Bio(i,k,iNH4_)+dtdays*sms3
+        Bio(i,k,iPO4_)=Bio(i,k,iPO4_)+dtdays*sms10
+        Bio(i,k,iS1_N)=Bio(i,k,iS1_N)+dtdays*sms4
+        Bio(i,k,iS1_C)=Bio(i,k,iS1_C)+dtdays*sms15
+        Bio(i,k,iS1CH)=Bio(i,k,iS1CH)+dtdays*sms18
+        Bio(i,k,iS2_N)=Bio(i,k,iS2_N)+dtdays*sms5
+        Bio(i,k,iS2_C)=Bio(i,k,iS2_C)+dtdays*sms16
+        Bio(i,k,iS2CH)=Bio(i,k,iS2CH)+dtdays*sms19
+        Bio(i,k,iS3_N)=Bio(i,k,iS3_N)+dtdays*sms25
+        Bio(i,k,iS3_C)=Bio(i,k,iS3_C)+dtdays*sms31
+        Bio(i,k,iS3CH)=Bio(i,k,iS3CH)+dtdays*sms26
+        Bio(i,k,iZ1_N)=Bio(i,k,iZ1_N)+dtdays*sms6
+        Bio(i,k,iZ1_C)=Bio(i,k,iZ1_C)+dtdays*sms23
+        Bio(i,k,iZ2_N)=Bio(i,k,iZ2_N)+dtdays*sms7
+        Bio(i,k,iZ2_C)=Bio(i,k,iZ2_C)+dtdays*sms24
+        Bio(i,k,iBAC_)=Bio(i,k,iBAC_)+dtdays*sms33
+        Bio(i,k,iDD_N)=Bio(i,k,iDD_N)+dtdays*sms8
+        Bio(i,k,iDD_C)=Bio(i,k,iDD_C)+dtdays*sms22
+        Bio(i,k,iDDSi)=Bio(i,k,iDDSi)+dtdays*sms9
+        Bio(i,k,iLDON)=Bio(i,k,iLDON)+dtdays*sms27
+        Bio(i,k,iLDOC)=Bio(i,k,iLDOC)+dtdays*sms28
+        Bio(i,k,iSDON)=Bio(i,k,iSDON)+dtdays*sms29
+        Bio(i,k,iSDOC)=Bio(i,k,iSDOC)+dtdays*sms30
+        Bio(i,k,iCLDC)=Bio(i,k,iCLDC)+dtdays*sms34
+        Bio(i,k,iCSDC)=Bio(i,k,iCSDC)+dtdays*sms35
+        Bio(i,k,iDDCA)=Bio(i,k,iDDCA)+dtdays*sms32
 #ifdef OXYGEN
-        bio(i,k,iOXYG)=bio(i,k,iOXYG)+dtdays*sms11
+        Bio(i,k,iOXYG)=Bio(i,k,iOXYG)+dtdays*sms11
 #endif
 
 #ifdef IRON_LIMIT
-        bio(i,k,iS1_Fe)=bio(i,k,iS1_Fe)+dtdays*sms36
-        bio(i,k,iS2_Fe)=bio(i,k,iS2_Fe)+dtdays*sms37
-        bio(i,k,iS3_Fe)=bio(i,k,iS3_Fe)+dtdays*sms38
-        bio(i,k,iFeD_)=bio(i,k,iFeD_)+dtdays*sms39
+        Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+dtdays*sms36
+        Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+dtdays*sms37
+        Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+dtdays*sms38
+        Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+dtdays*sms39
 #endif
 
 
 #ifdef CARBON
-        bio(i,k,iTIC_)=bio(i,k,iTIC_)+dtdays*sms12
+        Bio(i,k,iTIC_)=Bio(i,k,iTIC_)+dtdays*sms12
 #ifdef TALK_NONCONSERV
-        bio(i,k,iTAlk)=bio(i,k,iTAlk)+dtdays*sms13
+        Bio(i,k,iTAlk)=Bio(i,k,iTAlk)+dtdays*sms13
 #endif
 #endif
           END DO  !i loop
@@ -1812,7 +1834,7 @@
      &                     Bio(IminS:,k,iOxyg), kw660,                  &
      &                     1.0_r8, o2sat, o2flx)
          DO i=Istr,Iend
-          bio(i,k,iOxyg)=bio(i,k,iOxyg)+dtdays*o2flx(i)*Hz_inv(i,k)
+          Bio(i,k,iOxyg)=Bio(i,k,iOxyg)+dtdays*o2flx(i)*Hz_inv(i,k)
 
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iO2fx)=DiaBio2d(i,j,iO2fx)+                   &
@@ -1843,7 +1865,7 @@
      &                     Bio(IminS:,k,iPO4_), Bio(IminS:,k,iSiOH),    &
      &                     kw660, 1.0_r8,pco2a(ng), co2flx,pco2s)
        DO i=Istr,Iend
-        bio(i,k,iTIC_)=bio(i,k,iTIC_)+dtdays*co2flx(i)*Hz_inv(i,k)
+        Bio(i,k,iTIC_)=Bio(i,k,iTIC_)+dtdays*co2flx(i)*Hz_inv(i,k)
 
 # ifdef DIAGNOSTICS_BIO
             DiaBio2d(i,j,iCOfx)=DiaBio2d(i,j,iCOfx)+                   &
@@ -1865,7 +1887,7 @@
 !           DO k=1,N(ng)
 !         cff0=Bio_bak(i,k,iNO3_)-Bio(i,k,iNO3_)-                         &
 !     &       (Bio_bak(i,k,iNH4_)-Bio(i,k,iNH4_))
-!        bio(i,k,iTAlk)=bio(i,k,iTAlk)+cff0
+!        Bio(i,k,iTAlk)=Bio(i,k,iTAlk)+cff0
 !           END DO
 !        END DO
 #endif
@@ -1893,8 +1915,8 @@
               endif
             END DO
             DO k=1,N(ng)
-              bio(i,k,indx)=bio(i,k,indx)-dtdays*sinkindx(k)
-              bio(i,k,indx)=max(bio(i,k,indx),0.00001_r8)
+              Bio(i,k,indx)=Bio(i,k,indx)-dtdays*sinkindx(k)
+              Bio(i,k,indx)=max(Bio(i,k,indx),0.00001_r8)
             END DO
           END DO
         END DO SINK_LOOP
