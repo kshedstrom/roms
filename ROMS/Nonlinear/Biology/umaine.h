@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -14,37 +14,37 @@
 !  Carbon, Silicon, Nitrogen Ecosystem (CoSiNE) model (Chai et al.,    !
 !  2002). The model state variables are:                               !
 !                                                                      !
-!    iNO3_              ! Nitrate concentration                        !
-!    iNH4_              ! Ammonium concentration                       !
-!    iSiOH              ! Silicate concentration                       !
-!    iPO4_              ! Phosphate concentration                      !
-!    iS1_N              ! Small phytoplankton N                        !
-!    iS1_C              ! Small phytoplankton C                        !
-!    iS1CH              ! Small phytoplankton CHL                      !
-!    iS2_N              ! Diatom concentration N                       !
-!    iS2_C              ! Diatom concentration C                       !
-!    iS2CH              ! Diatom concentration CHL                     !
-!    iS3_N              ! Coccolithophores N                           !
-!    iS3_C              ! Coccolithophores C                           !
-!    iS3CH              ! Coccolithophores CHL                         !
-!    iZ1_N              ! Small zooplankton N                          !
-!    iZ1_C              ! Small zooplankton C                          !
-!    iZ2_N              ! Mesozooplankton N                            !
-!    iZ2_C              ! Mesozooplankton C                            !
-!    iBAC_              ! Bacteria concentration N                     !
-!    iDD_N              ! Detritus concentration N                     !
-!    iDD_C              ! Detritus concentration C                     !
-!    iDDSi              ! Biogenic silicate concentration              !
-!    iLDON              ! Labile dissolved organic N                   !
-!    iLDOC              ! Labile dissolved organic C                   !
-!    iSDON              ! Semi-labile dissolved organic N              !
-!    iSDOC              ! Semi-labile dissolved organic C              !
-!    iCLDC              ! Colored labile dissolved organic C           !
-!    iCSDC              ! Colored semi-labile dissolved organic C      !
-!    iDDCA              ! Particulate inorganic C                      !
-!    iOxyg              ! Dissolved oxygen                             !
-!    iTAlk              ! Total alkalinity                             !
-!    iTIC_              ! Total CO2                                    !
+!    iNO3_    (no3)     ! Nitrate concentration                        !
+!    iNH4_    (nh4)     ! Ammonium concentration                       !
+!    iSiOH    (sio4)    ! Silicate concentration                       !
+!    iPO4_    (po4)     ! Phosphate concentration                      !
+!    iS1_N    (s1)      ! Small phytoplankton N                        !
+!    iS1_C    (c1)      ! Small phytoplankton C                        !
+!    iS1CH    (chl1)    ! Small phytoplankton CHL                      !
+!    iS2_N    (s2)      ! Diatom concentration N                       !
+!    iS2_C    (c2)      ! Diatom concentration C                       !
+!    iS2CH    (chl2)    ! Diatom concentration CHL                     !
+!    iS3_N    (s3)      ! Coccolithophores N                           !
+!    iS3_C    (c3)      ! Coccolithophores C                           !
+!    iS3CH    (chl3)    ! Coccolithophores CHL                         !
+!    iZ1_N    (zz1)     ! Small zooplankton N                          !
+!    iZ1_C    (zzc1)    ! Small zooplankton C                          !
+!    iZ2_N    (zz2)     ! Mesozooplankton N                            !
+!    iZ2_C    (zzc2)    ! Mesozooplankton C                            !
+!    iBAC_    (bac)     ! Bacteria concentration N                     !
+!    iDD_N    (ddn)     ! Detritus concentration N                     !
+!    iDD_C    (ddc)     ! Detritus concentration C                     !
+!    iDDSi    (ddsi)    ! Biogenic silicate concentration              !
+!    iLDON    (ldon)    ! Labile dissolved organic N                   !
+!    iLDOC    (ldoc)    ! Labile dissolved organic C                   !
+!    iSDON    (sdon)    ! Semi-labile dissolved organic N              !
+!    iSDOC    (ldoc)    ! Semi-labile dissolved organic C              !
+!    iCLDC    (cldoc)   ! Colored labile dissolved organic C           !
+!    iCSDC    (csdoc)   ! Colored semi-labile dissolved organic C      !
+!    iDDCA    (ddca)    ! Particulate inorganic C                      !
+!    iOxyg    (ox)      ! Dissolved oxygen                             !
+!    iTAlk    (talk)    ! Total alkalinity                             !
+!    iTIC_    (tco2)    ! Total CO2                                    !
 !    iS1_Fe             ! Small phytoplankton Fe                       !
 !    iS2_Fe             ! Diatom concentration Fe                      !
 !    iS3_Fe             ! Coccolithophore concentration Fe             !

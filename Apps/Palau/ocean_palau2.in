@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -98,7 +98,7 @@ GridsInLayer =  1
         Nbed =  0             ! Number of sediment bed layers
 
          NAT =  2             ! Number of active tracers (usually, 2)
-         NPT =  0             ! Number of inactive passive tracers
+         NPT =  4             ! Number of inactive passive tracers
          NCS =  0             ! Number of cohesive (mud) sediment tracers
          NNS =  0             ! Number of non-cohesive (sand) sediment tracers
 
@@ -106,8 +106,8 @@ GridsInLayer =  1
 ! shared-memory configurations used to determine tile horizontal range
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
-       NtileI == 8                               ! I-direction partition
-       NtileJ == 24                              ! J-direction partition
+       NtileI == 4                               ! I-direction partition
+       NtileJ == 16                               ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -153,7 +153,11 @@ GridsInLayer =  1
    LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
    LBC(isTvar) ==   RadNud  RadNud  RadNud  RadNud \    ! temperature
-                    RadNud  RadNud  RadNud  RadNud      ! salinity
+                    RadNud  RadNud  RadNud  RadNud \    ! salinity
+                    Clo     Clo     Clo     Clo    \    ! salinity
+                    Clo     Clo     Clo     Clo    \    ! salinity
+                    Clo     Clo     Clo     Clo    \    ! salinity
+                    Clo     Clo     Clo     Clo         ! salinity
 
 ! Ice boundary conditions
 
@@ -221,7 +225,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Input/Output parameters.
 
-       NRREC == 0
+       NRREC == -1
    LcycleRST == T
        NRST == 8640
        NSTA == 360
@@ -230,9 +234,9 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Output history, average, diagnostic files parameters.
 
-     LDEFOUT == T
-        NHIS == 8640
-     NDEFHIS == 8640
+     LDEFOUT == F
+        NHIS == 1080
+     NDEFHIS == 1080
        NHIS2 == 360
     NDEFHIS2 == 8640
       NTSAVG == 1
@@ -884,8 +888,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /center/w/kate/Palau/Files/grid_Palau_2.nc
-     ININAME == /center/w/kate/Palau/Files/HYCOM_GLBa0.08_2015_001_ic_PALAU2.nc
-!     ININAME == scs_rst.nc
+!     ININAME == /center/w/kate/Palau/Files/HYCOM_GLBa0.08_2015_001_ic_PALAU2.nc
+     ININAME == palau2_rst.nc
      ITLNAME == scs_itl.nc
      IRPNAME == scs_irp.nc
      IADNAME == scs_iad.nc
@@ -918,7 +922,9 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! at the each entry, except the last one.
 
      NBCFILES == 1                          ! number of boundary files
-     BRYNAME == /center/w/kate/Palau/Files/HYCOM_Bdry_SCS_2013.nc
+!     BRYNAME == /center/w/kate/Palau/Files/scs_his_00001_PALAU2_bdry.nc |
+!                /center/w/kate/Palau/Files/Palau2_bdry.nc
+     BRYNAME == /center/w/kate/Palau/Files/Palau2_bdry.nc
 
 ! Input climatology nudging coefficients file name.
 
@@ -938,7 +944,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! and so on.  Use a single line per entry with a continuation (\) symbol
 ! at the each entry, except the last one.
 
-    NFFILES == 12                          ! number of forcing files
+    NFFILES == 10                          ! number of forcing files
 
     FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2014.nc   |
                /center/d/kate/MERRA/MERRA_Pair_3hours_2015.nc   \
@@ -958,31 +964,29 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
                /center/d/kate/MERRA/MERRA_albedo_daily_2015.nc  \
                /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2014.nc  |
                /center/d/kate/MERRA/MERRA_lwrad_down_3hours_2015.nc  \
-               /center/w/kate/Palau/Files/runoff_PALAU2_daitren_clim.nc   \
-               /center/w/kate/CORE2/sss_fill_2004.nc  \
-               /center/w/kate/Palau/Files/Palau2_tides_otps.nc
+               /center/w/kate/CORE2/sss_fill_2004.nc
 
 
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == scs_rst.nc
-     HISNAME == scs_his.nc
-    HIS2NAME == scs_his2.nc
-     TLMNAME == scs_tlm.nc
-     TLFNAME == scs_tlf.nc
-     ADJNAME == scs_tlm.nc
-     AVGNAME == scs_avg.nc
-    AVG2NAME == scs_avg2.nc
-     DIANAME == scs_dia.nc
-     STANAME == scs_sta.nc
-     FLTNAME == scs_flt.nc
+     RSTNAME == palau2_rst.nc
+     HISNAME == palau2_his.nc
+    HIS2NAME == palau2_his2.nc
+     TLMNAME == palau2_tlm.nc
+     TLFNAME == palau2_tlf.nc
+     ADJNAME == palau2_tlm.nc
+     AVGNAME == palau2_avg.nc
+    AVG2NAME == palau2_avg2.nc
+     DIANAME == palau2_dia.nc
+     STANAME == palau2_sta.nc
+     FLTNAME == palau2_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/Palau/External/stations_SCS.in
-     FPOSNAM =  /center/w/kate/Palau/External/floats_SCS.in
+     SPOSNAM =  /center/w/kate/Palau/External/stations_palau.in
+     FPOSNAM =  /center/w/kate/Palau/External/floats_palau.in
      IPARNAM =  /center/w/kate/Palau/External/ice.in
      BPARNAM =  /center/w/kate/Palau/External/bioUMaine.in
      SPARNAM =  External/sediment.in
