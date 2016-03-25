@@ -120,8 +120,9 @@
 # define CARBON
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef DIURNAL_LIGHT
+# undef OPTIC_UMAINE
 # define IRON_LIMIT
+# undef IRON_RELAX
 # define ANA_BPFLUX
 # define ANA_SPFLUX
 #endif

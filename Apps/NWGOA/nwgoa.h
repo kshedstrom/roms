@@ -181,7 +181,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -222,7 +224,7 @@
 # define PRIMARY_PROD
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef OPTIC_UMaine
+# undef OPTIC_UMAINE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # undef IRON_LIMIT        /* Add iron as passive Nth tracer */

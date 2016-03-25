@@ -186,11 +186,19 @@
      &                              total = (/Iend-Istr+1,Jrec,1/))
             ELSE
               npts=Iend-Istr+1
-              CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
-     &                              A,                                  &
-     &                              ncid = ncid,                        &
-     &                              start = (/1,Trec/),                 &
-     &                              total = (/Iend-Istr+1,1/))
+              IF (npts == 1) THEN
+                CALL netcdf_get_fvar(ng, model, ncfile, Vname(1,ifield),&
+     &                               A,                                 &
+     &                               ncid = ncid,                       &
+     &                               start = (/Trec/),                  &
+     &                               total = (/1/))
+              ELSE
+                CALL netcdf_get_fvar(ng, model, ncfile, Vname(1,ifield),&
+     &                               A,                                 &
+     &                               ncid = ncid,                       &
+     &                               start = (/1,Trec/),                &
+     &                               total = (/Iend-Istr+1,1/))
+              END IF
             END IF
             IF (exit_flag.ne.NoError) THEN
               IF (Master) WRITE (stdout,50) TRIM(Vname(1,ifield)), Trec
