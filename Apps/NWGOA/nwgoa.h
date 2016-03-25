@@ -30,7 +30,7 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -221,7 +221,7 @@
 # define PRIMARY_PROD
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef OPTIC_UMaine
+# undef OPTIC_UMAINE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # undef IRON_LIMIT        /* Add iron as passive Nth tracer */

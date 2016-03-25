@@ -44,13 +44,12 @@
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
 # define AGE_MEAN
-# define PTOBC
 #endif
 
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
+# undef CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
@@ -58,7 +57,7 @@
 #  undef ICE_LOG_LAYER
 # endif
 
-# undef  ICE_MODEL
+# define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
@@ -193,7 +192,7 @@
 #define LTIDES
 #ifdef LTIDES
 # if defined AVERAGES && !defined USE_DEBUG
-#  define FILTERED
+#  undef FILTERED
 # endif
 # define SSH_TIDES
 # define UV_TIDES

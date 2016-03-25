@@ -44,7 +44,6 @@
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
 # define AGE_MEAN
-# define PTOBC
 #endif
 
 /* ice */
@@ -73,6 +72,7 @@
 #  define ICE_UPWIND
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
+#  define ICE_I_O
 # endif
 #endif
 
@@ -84,7 +84,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
-#undef AVERAGES2
+#define AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -112,7 +112,6 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#undef SPONGE
 
 #ifdef SOLVE3D
 # define TS_DIF2
@@ -133,7 +132,7 @@
 #  define LMD_BKPP
 #  define LMD_NONLOCAL
 #  define LMD_SHAPIRO
-#  undef LMD_DDMIX
+#  define LMD_DDMIX
 # endif
 
 # undef GLS_MIXING
@@ -219,22 +218,4 @@
 # define ANA_BTFLUX
 #else
 # define ANA_SMFLUX
-#endif
-
-/*
-**  Biological model options.
-*/
-#undef NEMURO
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
 #endif
