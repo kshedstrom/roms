@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -223,15 +223,15 @@
 
           real(r8), pointer :: sustr(:,:)
           real(r8), pointer :: svstr(:,:)
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
       BULK_FLUXES2D || defined NL_BULK_FLUXES
           real(r8), pointer :: sustrG(:,:,:)
           real(r8), pointer :: svstrG(:,:,:)
 # endif
-#ifdef ADJUST_WSTRESS
+# ifdef ADJUST_WSTRESS
           real(r8), pointer :: ustr(:,:,:,:)
           real(r8), pointer :: vstr(:,:,:,:)
-#endif
+# endif
           real(r8), pointer :: bustr(:,:)
           real(r8), pointer :: bvstr(:,:)
 #endif

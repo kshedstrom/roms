@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -120,8 +120,9 @@
 # define CARBON
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef DIURNAL_LIGHT
+# undef OPTIC_UMAINE
 # define IRON_LIMIT
+# undef IRON_RELAX
 # define ANA_BPFLUX
 # define ANA_SPFLUX
 #endif

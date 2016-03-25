@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -344,12 +344,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_PSOURCE,'
 #endif
-#if defined ANA_PTOBC && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
-     &   'Analytical passive tracers boundary conditions.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' ANA_PTOBC,'
-#endif
 #if defined ANA_RAIN && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ANA_RAIN',                         &
      &   'Analytical rain fall rate.'
@@ -617,7 +611,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' CANUTO_B,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && (defined BIO_FENNEL || defined BIO_UMAINE)
       IF (Master) WRITE (stdout,20) 'CARBON',                           &
      &   'Add Carbon constituents.'
       is=LEN_TRIM(Coptions)+1
@@ -1613,13 +1607,19 @@
       Coptions(is:is+18)=' OPT_PERTURBATION,'
       idriver=idriver+1
 #endif
-#if defined OXYGEN && defined BIO_FENNEL
+#ifdef OPTIC_UMAINE
+      IF (Master) WRITE (stdout,20) 'OPTIC_UMAINE',                     &
+     &   'Optics subroutine from UMaine.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' OPTIC_UMAINE,'
+#endif
+#if defined OXYGEN && (defined BIO_FENNEL || defined BIO_UMAINE)
 # ifdef OCMIP_OXYGEN_SC
       IF (Master) WRITE (stdout,20) 'OCMIP_OXYGEN_SC',                  &
      &   'Schmidt number from Keeling et al. (1998).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OCMIP_OXYGEN_SC,'
-# else
+# elif defined BIO_FENNEL
       IF (Master) WRITE (stdout,20) '!OCMIP_OXYGEN_SC',                 &
      &   'Schmidt number from Wanninkhof (1992).'
       is=LEN_TRIM(Coptions)+1
@@ -2125,7 +2125,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' SWAN_COUPLING,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && (defined BIO_FENNEL || defined BIO_UMAINE)
 # ifdef TALK_NONCONSERV
       IF (Master) WRITE (stdout,20) 'TALK_NONCONSERV',                  &
      &   'Alkalinity is affected by changes in nitrate or ammonium.'
