@@ -30,7 +30,7 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -61,6 +61,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define  ICE_I_O
 # endif
 #endif
 
@@ -213,7 +214,7 @@
 /*
 **  Biological model options.
 */
-#define BIO_UMAINE
+#undef BIO_UMAINE
 
 #ifdef BIO_UMAINE
 # define CARBON
