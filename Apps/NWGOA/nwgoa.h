@@ -224,9 +224,10 @@
 # define SINK_OP2
 # define TALK_NONCONSERV
 # undef OPTIC_UMAINE
+# define OPTIC_MANIZZA
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
-# undef IRON_RELAX
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
+# define IRON_RELAX
 # undef  IRON_RSIN
 #endif

@@ -123,6 +123,9 @@
      &                   GRID(ng) % z_w,                                &
      &                   GRID(ng) % latr,                               &
      &                   FORCES(ng) % srflx,                            &
+#ifdef OPTIC_MANIZZA
+     &                   OCEAN(ng) % decayW,                            &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                   FORCES(ng) % Uwind,                            &
@@ -165,6 +168,9 @@
      &                         rmask_io,                                &
 #endif
      &                         Hz, z_r, z_w, latr,srflx,                &
+#ifdef OPTIC_MANIZZA
+     &                         decayW,                                  &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                         Uwind, Vwind,                            &
@@ -210,6 +216,9 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
+#endif
       real(r8), intent(in) :: latr(LBi:,LBj:)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -245,6 +254,9 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:UBk,4)
+#endif
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -705,6 +717,14 @@
         END DO
 #endif
 
+#ifdef OPTIC_MANIZZA
+        DO k=N(ng),1,-1
+          DO i=Istr,Iend
+	  ! Visible light only
+            PAR(i,k)=PARsur(i)*(decayW(i,j,k,3) + decayW(i,j,k,4))
+          END DO
+        END DO
+#else
 ! calculate PAR
         DO i=Istr,Iend
           PIO(i,N(ng)+1)=PARsur(i)
@@ -724,6 +744,7 @@
 
           END DO
         END DO
+#endif
 
         DO k=1,N(ng)
           DO i=Istr,Iend

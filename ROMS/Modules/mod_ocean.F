@@ -33,6 +33,10 @@
 !                                                                      !
 !  pH           Surface concentration of hydrogen ions.                !
 !                                                                      !
+#ifdef OPTIC_MANIZZA
+!  decayW       3D decay functions for shortwave radiation (Wpoint)    !
+#endif
+!
 #ifdef NEARSHORE_MELLOR
 !  Nearshore radiation stresses:                                       !
 !                                                                      !
@@ -78,6 +82,9 @@
           real(r8), pointer :: v(:,:,:,:)
           real(r8), pointer :: W(:,:,:)
           real(r8), pointer :: wvel(:,:,:)
+# ifdef OPTIC_MANIZZA
+          real(r8), pointer :: decayW(:,:,:,:)
+# endif
 # ifdef BEST_NPZ
 #   ifdef STATIONARY
           real(r8), pointer :: st(:,:,:,:,:)
@@ -350,6 +357,9 @@
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
+# ifdef OPTIC_MANIZZA
+      allocate ( OCEAN(ng) % decayW(LBi:UBi,LBj:UBj,0:N(ng),4) )
+# endif
 #ifdef BEST_NPZ
 # ifdef STATIONARY
       ! Add a 3D stationary array to the biology module
@@ -751,6 +761,15 @@
               END DO
             END DO
           END DO
+# ifdef OPTIC_MANIZZA
+          DO itrc=1,4
+            DO k=0,N(ng)
+              DO i=Imin,Imax
+                OCEAN(ng) % decayW(i,j,k,itrc) = IniVal
+              END DO
+            END DO
+          END DO
+# endif
 # ifdef BEST_NPZ
 #    ifdef STATIONARY
           DO itrc=1,NTS(ng)

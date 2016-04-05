@@ -120,6 +120,7 @@
 # define CARBON
 # define SINK_OP2
 # define TALK_NONCONSERV
+# undef OPTIC_MANIZZA
 # undef OPTIC_UMAINE
 # define IRON_LIMIT
 # undef IRON_RELAX

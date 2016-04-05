@@ -118,6 +118,9 @@
      &                   ICE(ng) % ai,                                  &
 #   endif
 #  endif
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+     &                   FORCES(ng) % chl,                              &
+#  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
 #  ifdef PROFILE
@@ -194,6 +197,9 @@
      &                         ai,                                      &
 #   endif
 #  endif
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+     &                         chl,                                     &
+#  endif
      &                         stflx, btflx)
 !***********************************************************************
 !
@@ -203,6 +209,9 @@
       USE bc_2d_mod
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      USE mod_biology, ONLY : iS1CH, iS2CH, iS3CH
 # endif
 !
 !  Imported variable declarations.
@@ -282,6 +291,9 @@
       real(r8), intent(in) :: ai(LBi:,LBj:)
 #    endif
 #   endif
+#   if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      real(r8), intent(out) :: chl(LBi:,LBj:,:)
+#   endif
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
       real(r8), intent(inout) :: btflx(LBi:,LBj:,:)
 #  else
@@ -351,13 +363,16 @@
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj)
 #    endif
 #   endif
+#   if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      real(r8), intent(out) :: chl(LBi:UBi,LBj:UBj,N(ng))
+#   endif
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(inout) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
 #  endif
 !
 !  Local variable declarations.
 !
-      integer :: i, j
+      integer :: i, j, k
 
 # ifdef ICESHELF
 
@@ -1007,6 +1022,17 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    bustr, bvstr)
 #   endif
+#  endif
+
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            chl(i,j,k) = t(i,j,N(ng),nrhs,iS1CH) +                      &
+     &              t(i,j,N(ng),nrhs,iS2CH) + t(i,j,N(ng),nrhs,iS3CH)
+          END DO
+        END DO
+      END DO
 #  endif
 
       RETURN
