@@ -306,7 +306,7 @@
       END IF
 #  elif defined ARCTIC
 ! Just off Greenland
-      cff = 0.5_r8
+      cff = 0.05_r8
 ! Old ARCTIC domain
 !      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 !        DO j=MAX(JstrR,Mm(ng)/2),JendR
