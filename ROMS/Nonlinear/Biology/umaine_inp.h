@@ -25,7 +25,7 @@
       integer :: iTrcStr, iTrcEnd
       integer :: i, ifield, is, itracer, itrc, ng, nline, status
 
-      integer :: decode_line, load_i, load_l, load_r,load_lbc
+      integer :: decode_line, load_i, load_l, load_lbc, load_r
 
       integer :: igrid
 
@@ -278,7 +278,7 @@
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
-                  tnu2(i,ng)=Rbio(itrc,ng)
+                  nl_tnu2(i,ng)=Rbio(itrc,ng)
                 END DO
               END DO
             CASE ('TNU4')
@@ -286,7 +286,33 @@
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
-                  tnu4(i,ng)=Rbio(itrc,ng)
+                  nl_tnu4(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('ad_TNU2')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  ad_tnu2(i,ng)=Rbio(itrc,ng)
+                  tl_tnu2(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('ad_TNU4')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  ad_tnu4(i,ng)=Rbio(itrc,ng)
+                  ad_tnu4(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('LtracerSponge')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerSponge(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
             CASE ('AKT_BAK')
@@ -305,7 +331,7 @@
                   Tnudg(i,ng)=Rbio(itrc,ng)
                 END DO
               END DO
-            CASE ( 'LBC(isTvar)')
+            CASE ('LBC(isTvar)')
               IF (itracer.lt.NBT) THEN
                 itracer=itracer+1
               ELSE
@@ -316,6 +342,14 @@
      &                      idbio(iTrcStr), idbio(iTrcEnd),             &
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
 
+            CASE ('LtracerSrc')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerSrc(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
             CASE ('LtracerCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -324,12 +358,12 @@
                   LtracerCLM(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-            CASE ('LtracerSrc')
+            CASE ('LnudgeTCLM')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
-                  LtracerSrc(i,ng)=Ltrc(itrc,ng)
+                  LnudgeTCLM(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
             CASE ('Hout(idTvar)')
@@ -339,7 +373,7 @@
                   i=idTvar(idbio(itrc))
                   IF (i.eq.0) THEN
                     IF (Master) WRITE (out,120)                           &
-       &                      'idTvar(idbio(', itrc, '))'
+     &                      'idTvar(idbio(', itrc, '))'
                     exit_flag=5
                     RETURN
                   END IF
@@ -353,7 +387,7 @@
                   i=idTsur(idbio(itrc))
                   IF (i.eq.0) THEN
                     IF (Master) WRITE (out,120)                           &
-       &                      'idTsur(idbio(', itrc, '))'
+     &                      'idTsur(idbio(', itrc, '))'
                     exit_flag=5
                     RETURN
                   END IF

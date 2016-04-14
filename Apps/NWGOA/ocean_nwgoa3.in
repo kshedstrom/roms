@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -73,7 +73,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = /center/w/kate/NEP/External/varinfo.dat
+     VARNAME = /center/w/kate/NWGOA/External/varinfo.dat
 
 ! Number of nested grids.
 
@@ -107,7 +107,7 @@ GridsInLayer =  1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
-       NtileI == 6                               ! I-direction partition
+       NtileI == 8                               ! I-direction partition
 !      NtileI == 4                               ! I-direction partition
 ! ORDER MATTERS HERE!
        NtileJ == 8                              ! J-direction partition
@@ -148,21 +148,15 @@ GridsInLayer =  1
 !
 !                   1       2       3       4
 
-   LBC(isFsur) ==   Che     Che     Che     Che         ! free-surface
-   LBC(isUbar) ==   Shc     Shc     Shc     Shc         ! 2D U-momentum
-   LBC(isVbar) ==   Shc     Shc     Shc     Shc         ! 2D V-momentum
-   LBC(isUvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D U-momentum
-   LBC(isVvel) ==   RadNud  RadNud  RadNud  RadNud      ! 3D V-momentum
+   LBC(isFsur) ==   Che     Che     Clo     Clo         ! free-surface
+   LBC(isUbar) ==   Shc     Shc     Clo     Clo         ! 2D U-momentum
+   LBC(isVbar) ==   Shc     Shc     Clo     Clo         ! 2D V-momentum
+   LBC(isUvel) ==   RadNud  RadNud  Clo     Clo         ! 3D U-momentum
+   LBC(isVvel) ==   RadNud  RadNud  Clo     Clo         ! 3D V-momentum
    LBC(isMtke) ==   Clo     Clo     Clo     Clo         ! mixing TKE
 
-   LBC(isTvar) ==   RadNud  RadNud  RadNud  RadNud \    ! temperature
-                    RadNud  RadNud  RadNud  RadNud \    ! salinity
-                    Clo     Clo     Clo     Clo    \    ! inert(1)
-                    Clo     Clo     Clo     Clo    \    ! inert(2)
-                    Clo     Clo     Clo     Clo    \    ! inert(3)
-                    Clo     Clo     Clo     Clo    \    ! inert(4)
-                    Clo     Clo     Clo     Clo    \    ! inert(5)
-                    Clo     Clo     Clo     Clo         ! inert(6)
+   LBC(isTvar) ==   RadNud  RadNud  Clo     Clo    \    ! temperature
+                    RadNud  RadNud  Clo     Clo         ! salinity
 
 ! Ice boundary conditions
 
@@ -208,10 +202,10 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-!       NTIMES == 864
-       NTIMES == 7200
-!          DT == 40.0d0
+       NTIMES == 144000
+!       NTIMES == 259200
           DT == 120.0d0
+!          DT == 100.0d0
      NDTFAST == 10
 
 ! Model iteration loops parameters.
@@ -233,24 +227,24 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
+!        NRST == 8640
+!        NSTA == 36
+!        NFLT == 36
         NRST == 7200
         NSTA == 30
         NFLT == 30
-!        NRST == 2160
-!        NSTA == 90
-!        NFLT == 90
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 120
-     NDEFHIS == 120
+        NHIS == 30
+     NDEFHIS == 30
       NTSAVG == 1
-!        NAVG == 2160
-!     NDEFAVG == 2160
         NAVG == 720
      NDEFAVG == 720
+!        NAVG == 864
+!     NDEFAVG == 864
      NTSAVG2 == 1
        NAVG2 == 120
     NDEFAVG2 == 2880
@@ -464,20 +458,20 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! See glossary below for details.
 
      LsshCLM == F                          ! sea-surface height
-      Lm2CLM == F                          ! 2D momentum
-      Lm3CLM == F                          ! 3D momentum
+      Lm2CLM == T                          ! 2D momentum
+      Lm3CLM == T                          ! 3D momentum
 
-  LtracerCLM == F F                        ! temperature, salinity, inert
+  LtracerCLM == T T                        ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to nudge the desired climatology field(s).
 ! If not analytical climatology fields, users need to turn ON the logical
 ! switches above to process the fields from the climatology NetCDF file
 ! that are needed for nudging. See glossary below for details.
 
- LnudgeM2CLM == F                          ! 2D momentum
- LnudgeM3CLM == F                          ! 3D momentum
+ LnudgeM2CLM == T                          ! 2D momentum
+ LnudgeM3CLM == T                          ! 3D momentum
 
-  LnudgeTCLM == F F                        ! temperature, salinity, inert
+  LnudgeTCLM == T T                        ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -916,7 +910,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! except the last one.
 
    NCLMFILES == 1                         ! number of climate files
-     CLMNAME == ocean_clm.nc
+     CLMNAME == /center/w/kate/NWGOA/Files/NWGOA3_clm_2008.nc
 
     NBCFILES == 1                          ! number of boundary files
      BRYNAME == /center/w/kate/NWGOA/Files/NWGOA3_bdry_2008.nc
@@ -927,7 +921,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
-     SSFNAME == /center/w/kate/NWGOA/Files/NWGOA3_rivers_2008_2009.nc
+     SSFNAME == /center/w/kate/NWGOA/Files/NWGOA3_rivers.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -964,7 +958,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == nwgoa_rst.nc
+     RSTNAME == ngoa_rst.nc
      HISNAME == nwgoa_his.nc
     HIS2NAME == nwgoa_his2.nc
      TLMNAME == nwgoa_tlm.nc
@@ -979,10 +973,10 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/NWGOA/External/stations_nwgoa.in
+     SPOSNAM =  /center/w/kate/NWGOA/External/stations_ngoa.in
      FPOSNAM =  /center/w/kate/NWGOA/External/floats_nwgoa.in
      IPARNAM =  /center/w/kate/NWGOA/External/ice.in
-     BPARNAM =  /center/w/kate/NWGOA/External/nemuro_iron.in
+     BPARNAM =  /center/w/kate/NWGOA/External/bioUMaine.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 

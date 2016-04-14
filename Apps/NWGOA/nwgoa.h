@@ -202,6 +202,7 @@
 /* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
+#define ANA_NUDGCOEF
 
 /* roms quirks */
 

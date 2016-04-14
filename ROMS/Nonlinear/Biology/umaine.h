@@ -424,6 +424,7 @@
       real(r8) :: sms31,sms32,sms33,sms34,sms35
       real(r8) :: FlimitS1,FlimitS2,FlimitS3
 #ifdef IRON_LIMIT
+      real(r8), parameter :: k_FeC = 0.0169 ! micromole-Fe/mole-C
       real(r8) :: UFeS1
       real(r8) :: FNratioS1,FNratioS2,FNratioS3
       real(r8) :: FCratioS1,FCratioS2,FCratioS3,FCratioE
@@ -862,7 +863,7 @@
 ! Phytoplankton growth reduction factor through Michaelis Menten kinetics
 ! of iron limitation based on local Phyto and dissolved iron realized Fe:C ratio
               FlimitS1 = FCratioS1**2.0_r8/                                 &
-     &                  (FCratioS1**2.0_r8+S1_FeC(ng)**2.0_r8)
+     &                  (FCratioS1**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS1 = FCratioS1/(FCratioS1+S1_FeC(ng))
 
 
@@ -922,7 +923,7 @@
 ! Phytoplankton growth reduction factor due to iron limitation
 ! based on Fe:C ratio
               FlimitS2 = FCratioS2**2.0_r8/                                 &
-     &                 (FCratioS2**2.0_r8+S2_FeC(ng)**2.0_r8)
+     &                 (FCratioS2**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS2 = FCratioS2/(FCratioS2+S2_FeC(ng))
 
 
@@ -965,7 +966,7 @@
 ! Phytoplankton growth reduction factor due to iron limitation
 ! based on F:C ratio
             FlimitS3 = FCratioS3**2.0_r8/                                 &
-     &                 (FCratioS3**2.0_r8+S3_FeC(ng)**2.0_r8)
+     &                 (FCratioS3**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS3 = FCratioS3/(FCratioS3+S3_FeC(ng))
 
 
