@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
@@ -30,18 +30,8 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#define STATIONS
+#undef STATIONS
 #define WET_DRY
-
-#undef T_PASSIVE
-#ifdef T_PASSIVE
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
-# define ANA_PASSIVE
-# define TRC_PSOURCE
-# define ANA_TRC_PSOURCE
-# define AGE_MEAN
-#endif
 
 /* ice */
 
@@ -49,8 +39,6 @@
 # define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
-#  undef  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
 #  define  ICE_MK
 #  define  ICE_MOMENTUM
@@ -61,6 +49,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define  ICE_I_O
 # endif
 #endif
 
@@ -71,7 +60,7 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#define AVERAGES
+#undef AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef DIAGNOSTICS_TS
@@ -99,7 +88,6 @@
 #undef VISC_3DCOEF
 #define MIX_S_UV
 #define VISC_GRID
-#undef SPONGE
 
 #ifdef SOLVE3D
 # undef TS_DIF2
@@ -147,8 +135,6 @@
 #  undef DIURNAL_SRFLUX
 #  define SOLAR_SOURCE
 #  define EMINUSP
-#  undef ANA_SRFLUX
-#  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  define ICE_ALB_EC92  /* for ice */
 #  undef ALBEDO_CSIM   /* for ice */
@@ -172,13 +158,12 @@
 
 /* Not using Runoff now */
 #ifdef SOLVE3D
-# undef RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
 /* tides */
 
-#define LTIDES
+#undef LTIDES
 #ifdef LTIDES
 # if defined AVERAGES && !defined USE_DEBUG
 #  define FILTERED
@@ -187,22 +172,18 @@
 # define UV_TIDES
 # define ADD_FSOBC
 # define ADD_M2OBC
-# undef RAMP_TIDES
 # define TIDES_ASTRO
 # undef POT_TIDES
-
-# define UV_DRAG_GRID
-# define ANA_DRAG
-# define LIMIT_BSTRESS
-# define UV_QDRAG
-#else
-# define UV_QDRAG
 #endif
+
+#define UV_DRAG_GRID
+#define ANA_DRAG
+#define UV_QDRAG
+#define LIMIT_BSTRESS
 
 /* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
-#define ANA_NUDGCOEF
 
 /* roms quirks */
 
@@ -213,22 +194,3 @@
 # define ANA_SMFLUX
 #endif
 
-/*
-**  Biological model options.
-*/
-#define BIO_UMAINE
-
-#ifdef BIO_UMAINE
-# define CARBON
-# define OXYGEN
-# define PRIMARY_PROD
-# define SINK_OP2
-# define TALK_NONCONSERV
-# undef OPTIC_UMAINE
-# define OPTIC_MANIZZA
-# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
-# undef IRON_RELAX
-# undef  IRON_RSIN
-#endif

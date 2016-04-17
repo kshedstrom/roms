@@ -140,6 +140,9 @@
 # if defined ICE_MODEL
       USE ice_flux_mod
 # endif
+# ifdef OPTIC_MANIZZA
+      USE optic_manizza_mod
+# endif
 !
       implicit none
 !
@@ -489,6 +492,21 @@
               END IF
             END DO
 # endif
+#ifdef OPTIC_MANIZZA
+!
+!-----------------------------------------------------------------------
+!  Compute fractional decay for light penetration as a function of
+!  Chlorophyll concentration
+!-----------------------------------------------------------------------
+!
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
+              DO tile=last_tile(ng),first_tile(ng),-1
+                CALL optic_manizza (ng, tile)
+              END DO
+!$OMP BARRIER
+            END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Compute time-dependent vertical/horizontal mixing coefficients for

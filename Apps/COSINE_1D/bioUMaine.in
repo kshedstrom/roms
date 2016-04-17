@@ -474,21 +474,21 @@
 
          A_Fe == 0.6d0
 
-! Empirical Fe:C coefficient, [1/M-C], {64.0d0}.
+! Empirical Fe:C coefficient, [1/mMol-C], {64.0d0 1/Mol-C}.
 
-         B_Fe == 64.0d0
+         B_Fe == 0.064d0
 
-! Small phytoplankton Fe:C at F=0.5, [muM-Fe/M-C], {1.69d0}.
+! Small phytoplankton Fe:C at F=0.5, [muMol-Fe/mMol-C], {1.69d0 muMol-Fe/Mol-C}.
 
-         S1_FeC == 1.69d0
+         S1_FeC == 0.00169d0
 
-! Diatom Fe:C at F=0.5, [muM-Fe/M-C], {??}.
+! Diatom Fe:C at F=0.5, [muMol-Fe/mMol-C], {16.9d0 muMol-Fe/Mol-C}.
 
-         S2_FeC == 1.69d0
+         S2_FeC == 0.0169d0
 
-! Large phytoplankton Fe:C at F=0.5, [muM-Fe/M-C], {16.9d0}.
+! Coccolithophores Fe:C at F=0.5, [muMol-Fe/mMol-C], {1.69d0 muMol-Fe/Mol-C}.
 
-         S3_FeC == 16.9d0
+         S3_FeC == 0.00169d0
 
 ! Fe remineralization rate, [1/day], {1.0d0}.
 

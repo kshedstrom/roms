@@ -105,6 +105,9 @@
      &                      DIAGS(ng) % DiaRU,                          &
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                      OCEAN(ng) % decayW,                         &
+# endif
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v)
@@ -147,6 +150,9 @@
      &                            DiaU3wrk, DiaV3wrk,                   &
      &                            DiaRU, DiaRV,                         &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                            decayW,                               &
+# endif
      &                            t, u, v)
 !***********************************************************************
 !
@@ -155,7 +161,7 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
-# if defined OFFLINE_BIOLOGY || defined BEST_NPZ
+# if defined OFFLINE_BIOLOGY || defined BEST_NPZ || defined OPTIC_MANIZZA
       USE mod_biology
 # endif
       USE mod_sources
@@ -222,6 +228,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
+#  endif
 #  ifdef SUN
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  else
@@ -274,6 +283,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -318,6 +330,20 @@
 !=======================================================================
 
 #  ifdef SOLAR_SOURCE
+#   ifdef OPTIC_MANIZZA
+!
+! Use the fraction of solar shortwave radiation, as computed by optic_manizza,
+! (at vertical W-points) penetrating water column.
+!
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             swdk(i,j,k) = decayW(i,j,k,1)
+          END DO
+        END DO
+      ENDDO
+
+#   else
 !
 !  Compute fraction of the solar shortwave radiation, "swdk"
 !  (at vertical W-points) penetrating water column.
@@ -338,6 +364,7 @@
           END DO
         END DO
       END DO
+#   endif
 #  endif
 !
 !-----------------------------------------------------------------------

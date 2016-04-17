@@ -123,6 +123,9 @@
      &                   GRID(ng) % z_w,                                &
      &                   GRID(ng) % latr,                               &
      &                   FORCES(ng) % srflx,                            &
+#ifdef OPTIC_MANIZZA
+     &                   OCEAN(ng) % decayW,                            &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                   FORCES(ng) % Uwind,                            &
@@ -165,6 +168,9 @@
      &                         rmask_io,                                &
 #endif
      &                         Hz, z_r, z_w, latr,srflx,                &
+#ifdef OPTIC_MANIZZA
+     &                         decayW,                                  &
+#endif
 #if defined OXYGEN || defined CARBON
 # ifdef BULK_FLUXES
      &                         Uwind, Vwind,                            &
@@ -210,6 +216,9 @@
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: srflx(LBi:,LBj:)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
+#endif
       real(r8), intent(in) :: latr(LBi:,LBj:)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -245,6 +254,9 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:UBk)
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
+# ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:UBk,4)
+#endif
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
 # if defined OXYGEN || defined CARBON
 #  ifdef BULK_FLUXES
@@ -412,6 +424,7 @@
       real(r8) :: sms31,sms32,sms33,sms34,sms35
       real(r8) :: FlimitS1,FlimitS2,FlimitS3
 #ifdef IRON_LIMIT
+      real(r8), parameter :: k_FeC = 0.0169 ! micromole-Fe/mole-C
       real(r8) :: UFeS1
       real(r8) :: FNratioS1,FNratioS2,FNratioS3
       real(r8) :: FCratioS1,FCratioS2,FCratioS3,FCratioE
@@ -554,7 +567,7 @@
           indx=idbio(ibio)
           DO k=1,N(ng)
             DO i=Istr,Iend
-              Bio_bak(i,k,indx)=MAX(t(i,j,k,nstp,indx),0.0001_r8)
+              Bio_bak(i,k,indx)=MAX(t(i,j,k,nstp,indx),Minval)
               Bio(i,k,indx)=Bio_bak(i,k,indx)
             END DO
           END DO
@@ -705,6 +718,14 @@
         END DO
 #endif
 
+#ifdef OPTIC_MANIZZA
+        DO k=N(ng),1,-1
+          DO i=Istr,Iend
+	  ! Visible light only
+            PAR(i,k)=PARsur(i)*(decayW(i,j,k,3) + decayW(i,j,k,4))
+          END DO
+        END DO
+#else
 ! calculate PAR
         DO i=Istr,Iend
           PIO(i,N(ng)+1)=PARsur(i)
@@ -724,6 +745,7 @@
 
           END DO
         END DO
+#endif
 
         DO k=1,N(ng)
           DO i=Istr,Iend
@@ -841,7 +863,7 @@
 ! Phytoplankton growth reduction factor through Michaelis Menten kinetics
 ! of iron limitation based on local Phyto and dissolved iron realized Fe:C ratio
               FlimitS1 = FCratioS1**2.0_r8/                                 &
-     &                  (FCratioS1**2.0_r8+S1_FeC(ng)**2.0_r8)
+     &                  (FCratioS1**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS1 = FCratioS1/(FCratioS1+S1_FeC(ng))
 
 
@@ -901,7 +923,7 @@
 ! Phytoplankton growth reduction factor due to iron limitation
 ! based on Fe:C ratio
               FlimitS2 = FCratioS2**2.0_r8/                                 &
-     &                 (FCratioS2**2.0_r8+S2_FeC(ng)**2.0_r8)
+     &                 (FCratioS2**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS2 = FCratioS2/(FCratioS2+S2_FeC(ng))
 
 
@@ -944,7 +966,7 @@
 ! Phytoplankton growth reduction factor due to iron limitation
 ! based on F:C ratio
             FlimitS3 = FCratioS3**2.0_r8/                                 &
-     &                 (FCratioS3**2.0_r8+S3_FeC(ng)**2.0_r8)
+     &                 (FCratioS3**2.0_r8+k_FeC**2.0_r8)
 !JF              FlimitS3 = FCratioS3/(FCratioS3+S3_FeC(ng))
 
 
@@ -1068,24 +1090,24 @@
               cffFeS2_R=dtdays*(FCratioE-FCratioS2)/T_fe(ng)
               cffFeS2_R=Bio(i,k,iS2_C)*cffFeS2_R                        !used biomass in C - no need for redfield conversion (106.0_r8/16.0_r8)
               IF (cffFeS2_R.ge.0.0_r8) THEN
-                cffFeS2_R=cffFeS2_R/MAX(MinVal,Bio(i,k,iFeD_))
+                cffFeS2_R=cffFeS2_R/MAX(Minval,Bio(i,k,iFeD_))
               ELSE
-                cffFeS2_R=-cffFeS2_R/MAX(MinVal,Bio(i,k,iS2_Fe))
+                cffFeS2_R=-cffFeS2_R/MAX(Minval,Bio(i,k,iS2_Fe))
               END IF
 
 
 !For S3
 ! Iron uptake proportional to growth
-              FNratioS3=Bio(i,k,iS3_Fe)/MAX(MinVal,Bio(i,k,iS3_N))
-              cffFeS3_G=n_pps3*FNratioS3/MAX(MinVal,Bio(i,k,iFeD_))
+              FNratioS3=Bio(i,k,iS3_Fe)/MAX(Minval,Bio(i,k,iS3_N))
+              cffFeS3_G=n_pps3*FNratioS3/MAX(Minval,Bio(i,k,iFeD_))
 
 ! Iron uptake to reach appropriate Fe:C ratio
               cffFeS3_R=dtdays*(FCratioE-FCratioS3)/T_fe(ng)
               cffFeS3_R=Bio(i,k,iS3_C)*cffFeS3_R                         !used biomass in C - no need for redfield conversion (106.0_r8/16.0_r8)
               IF (cffFeS3_R.ge.0.0_r8) THEN
-                cffFeS3_R=cffFeS3_R/MAX(MinVal,Bio(i,k,iFeD_))
+                cffFeS3_R=cffFeS3_R/MAX(Minval,Bio(i,k,iFeD_))
               ELSE
-                cffFeS3_R=-cffFeS3_R/MAX(MinVal,Bio(i,k,iS3_Fe))
+                cffFeS3_R=-cffFeS3_R/MAX(Minval,Bio(i,k,iS3_Fe))
               END IF
 
 #endif
@@ -1868,7 +1890,7 @@
             END DO
             DO k=1,N(ng)
               Bio(i,k,indx)=Bio(i,k,indx)-dtdays*sinkindx(k)
-              Bio(i,k,indx)=max(Bio(i,k,indx),0.00001_r8)
+              Bio(i,k,indx)=max(Bio(i,k,indx),Minval)
             END DO
           END DO
         END DO SINK_LOOP
@@ -2079,7 +2101,7 @@
               t(i,j,k,nnew,indx)=MAX(t(i,j,k,nnew,indx)+                &
      &                               (Bio(i,k,indx)-Bio_bak(i,k,indx))* &
      &                               Hz(i,j,k),                         &
-     &                               0.0001_r8)
+     &                               Minval)
 !#ifdef TS_MPDATA
 !              t(i,j,k,3,indx)=t(i,j,k,nnew,indx)*Hz_inv(i,k)
 !#endif

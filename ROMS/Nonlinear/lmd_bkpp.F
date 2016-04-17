@@ -78,6 +78,9 @@
      &                    FORCES(ng) % btflx,                           &
      &                    FORCES(ng) % bustr,                           &
      &                    FORCES(ng) % bvstr,                           &
+# ifdef OPTIC_MANIZZA
+     &                    OCEAN(ng) % decayW,                           &
+# endif
      &                    MIXING(ng) % alpha,                           &
 # ifdef SALINITY
      &                    MIXING(ng) % beta,                            &
@@ -102,6 +105,9 @@
      &                          f, h, Hz, z_r, z_w,                     &
      &                          u, v, pden,                             &
      &                          srflx, btflx,  bustr, bvstr,            &
+# ifdef OPTIC_MANIZZA
+     &                          decayW,                                 &
+# endif
      &                          alpha,                                  &
 # ifdef SALINITY
      &                          beta,                                   &
@@ -144,6 +150,9 @@
       real(r8), intent(in) :: btflx(LBi:,LBj:,:)
       real(r8), intent(in) :: bustr(LBi:,LBj:)
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
+#  endif
       real(r8), intent(in) :: alpha(LBi:,LBj:)
 #  ifdef SALINITY
       real(r8), intent(in) :: beta(LBi:,LBj:)
@@ -170,6 +179,9 @@
       real(r8), intent(in) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(in) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
       real(r8), intent(in) :: alpha(LBi:UBi,LBj:UBj)
 #  ifdef SALINITY
       real(r8), intent(in) :: beta(LBi:UBi,LBj:UBj)
@@ -277,6 +289,9 @@
           Bosol(i,j)=g*alpha(i,j)*srflx(i,j)
         END DO
       END DO
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
 !
 !-----------------------------------------------------------------------
 !  Compute total buoyancy flux (m2/s3) at W-points.
@@ -301,6 +316,7 @@
           END DO
         END DO
       END DO
+!# endif
 !
 !=======================================================================
 !  Compute bulk Richardson number "Rib" and then find depth of the
@@ -506,10 +522,14 @@
 # endif
         END DO
       END DO
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfbot(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))
@@ -610,10 +630,14 @@
 # endif
         END DO
       END DO
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfbot(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))

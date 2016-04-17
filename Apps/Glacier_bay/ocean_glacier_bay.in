@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -68,12 +68,12 @@
 
 ! C-preprocessing Flag.
 
-    MyAppCPP = NWGOA3
+    MyAppCPP = GLACIER_BAY
 
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = /center/w/kate/NWGOA/External/varinfo.dat
+     VARNAME = /center/w/kate/NEP/External/varinfo.dat
 
 ! Number of nested grids.
 
@@ -91,9 +91,9 @@ GridsInLayer =  1
 ! Grid dimension parameters. See notes below in the Glossary for how to set
 ! these parameters correctly.
 
-          Lm == 324           ! Number of I-direction INTERIOR RHO-points
-          Mm == 280           ! Number of J-direction INTERIOR RHO-points
-           N == 50            ! Number of vertical levels
+          Lm == 132           ! Number of I-direction INTERIOR RHO-points
+          Mm == 256           ! Number of J-direction INTERIOR RHO-points
+           N == 30            ! Number of vertical levels
 
         Nbed =  0             ! Number of sediment bed layers
 
@@ -107,10 +107,10 @@ GridsInLayer =  1
 ! indices (Istr,Iend) and (Jstr,Jend), [1:Ngrids].
 
 !      NtileI == 1                               ! I-direction partition
-       NtileI == 8                               ! I-direction partition
-!      NtileI == 4                               ! I-direction partition
+!      NtileI == 6                               ! I-direction partition
+       NtileI == 3                               ! I-direction partition
 ! ORDER MATTERS HERE!
-       NtileJ == 8                              ! J-direction partition
+       NtileJ == 16                              ! J-direction partition
 
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
@@ -202,10 +202,10 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-       NTIMES == 144000
-!       NTIMES == 259200
-          DT == 120.0d0
-!          DT == 100.0d0
+       NTIMES == 8640
+!       NTIMES == 28800
+!          DT == 40.0d0
+          DT == 20.0d0
      NDTFAST == 10
 
 ! Model iteration loops parameters.
@@ -227,24 +227,19 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
-!        NRST == 8640
-!        NSTA == 36
-!        NFLT == 36
-        NRST == 7200
-        NSTA == 30
-        NFLT == 30
+        NRST == 4320
+        NSTA == 180
+        NFLT == 180
        NINFO == 1
 
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 30
-     NDEFHIS == 30
+        NHIS == 180
+     NDEFHIS == 180
       NTSAVG == 1
-        NAVG == 720
-     NDEFAVG == 720
-!        NAVG == 864
-!     NDEFAVG == 864
+        NAVG == 4320
+     NDEFAVG == 4320
      NTSAVG2 == 1
        NAVG2 == 120
     NDEFAVG2 == 2880
@@ -400,8 +395,7 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! origin for tidal forcing, and model reference time for output
 ! NetCDF units attribute.
 
-      DSTART =  39446.0d0                  ! days (start of 2008)
-!      DSTART =  36159.0d0                  ! days (start of 1999)
+      DSTART =  39448.5d0                  ! days (start of 2008)
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -458,20 +452,20 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! See glossary below for details.
 
      LsshCLM == F                          ! sea-surface height
-      Lm2CLM == T                          ! 2D momentum
-      Lm3CLM == T                          ! 3D momentum
+      Lm2CLM == F                          ! 2D momentum
+      Lm3CLM == F                          ! 3D momentum
 
-  LtracerCLM == T T                        ! temperature, salinity, inert
+  LtracerCLM == F F                        ! temperature, salinity, inert
 
 ! Logical switches (TRUE/FALSE) to nudge the desired climatology field(s).
 ! If not analytical climatology fields, users need to turn ON the logical
 ! switches above to process the fields from the climatology NetCDF file
 ! that are needed for nudging. See glossary below for details.
 
- LnudgeM2CLM == T                          ! 2D momentum
- LnudgeM3CLM == T                          ! 3D momentum
+ LnudgeM2CLM == F                          ! 2D momentum
+ LnudgeM3CLM == F                          ! 3D momentum
 
-  LnudgeTCLM == T T                        ! temperature, salinity, inert
+  LnudgeTCLM == F F                        ! temperature, salinity, inert
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -550,8 +544,8 @@ Hout(idTvar) == T T     ! temp, salt         temperature and salinity
 
 Hout(idUair) == F       ! Uwind              surface U-wind
 Hout(idVair) == F       ! Vwind              surface V-wind
-Hout(idUairE) == T      ! Uwind_eastward     surface U-wind
-Hout(idVairN) == T      ! Vwind_northward    surface V-wind
+Hout(idUairE) == F      ! Uwind_eastward     surface U-wind
+Hout(idVairN) == F      ! Vwind_northward    surface V-wind
 Hout(idUsms) == F       ! sustr              surface U-stress
 Hout(idVsms) == F       ! svstr              surface V-stress
 Hout(idUbms) == F       ! bustr              bottom U-stress
@@ -791,7 +785,7 @@ Aout(idDano) == T       ! rho                density anomaly
 Aout(idVvis) == T       ! AKv                vertical viscosity
 Aout(idTdif) == F       ! AKt                vertical T-diffusion
 Aout(idSdif) == F       ! AKs                vertical Salinity diffusion
-Aout(idHsbl) == T       ! Hsbl               depth of surface boundary layer
+Aout(idHsbl) == F       ! Hsbl               depth of surface boundary layer
 Aout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 
 Aout(id2dRV) == F       ! pvorticity_bar     2D relative vorticity
@@ -888,9 +882,9 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input NetCDF file names, [1:Ngrids].
 
-     GRDNAME == /center/w/kate/NWGOA/Files/NWGOA_grid_3.nc
-     ININAME == /center/w/kate/NWGOA/Files/day_0_2008_NWGOA3.nc
-!     ININAME == nwgoa_rst.nc
+     GRDNAME == /center/w/kate/Glacier_bay/Files/Glacier_bay_grid_1.nc
+     ININAME == /center/w/kate/Glacier_bay/Files/Glacier_bay_ic_2008-01-03.nc
+!     ININAME == glacier_bay_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
      IADNAME == ocean_iad.nc
@@ -910,10 +904,10 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! except the last one.
 
    NCLMFILES == 1                         ! number of climate files
-     CLMNAME == /center/w/kate/NWGOA/Files/NWGOA3_clm_2008.nc
+     CLMNAME == ocean_clm.nc
 
     NBCFILES == 1                          ! number of boundary files
-     BRYNAME == /center/w/kate/NWGOA/Files/NWGOA3_bdry_2008.nc
+     BRYNAME == /center/w/kate/Glacier_bay/Files/nwgoa_sta_GLACIER_BAY_bdry_a.nc
 
 ! Input climatology nudging coefficients file name.
 
@@ -921,7 +915,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
-     SSFNAME == /center/w/kate/NWGOA/Files/NWGOA3_rivers.nc
+     SSFNAME == /center/w/kate/Glacier_bay/Files/GLACIER_BAY_rivers_2008_2009.nc
 
 ! Input forcing NetCDF file name(s).  The USER has the option to enter
 ! several files names per each nested grid.  For example, the USER may
@@ -936,47 +930,48 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
     NFFILES == 10                          ! number of forcing files
 
-    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2007.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2008.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2007.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2008.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2007.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2008.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2007.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2008.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2007.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2008.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2007.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2008.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2007.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2008.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2007.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2008.nc  \
-               /center/w/kate/CORE2/sss_fill_2004.nc \
-               /center/w/kate/NWGOA/Files/NWGOA3_tides_otps.nc
+    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2008.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_2009.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2008.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_2009.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2008.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_2009.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2008.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_2009.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2008.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_2009.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2008.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_2009.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2008.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_2009.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_2008.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_2009.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2008.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_2009.nc  \
+               /center/w/kate/CORE2/sss_fill_2004.nc
 
 ! Output NetCDF file names, [1:Ngrids].
 
      GSTNAME == ocean_gst.nc
-     RSTNAME == ngoa_rst.nc
-     HISNAME == nwgoa_his.nc
-    HIS2NAME == nwgoa_his2.nc
-     TLMNAME == nwgoa_tlm.nc
-     TLFNAME == nwgoa_tlf.nc
-     ADJNAME == nwgoa_tlm.nc
-     AVGNAME == nwgoa_avg.nc
-    AVG2NAME == nwgoa_avg2.nc
-     DIANAME == nwgoa_dia.nc
-     STANAME == nwgoa_sta.nc
-     FLTNAME == nwgoa_flt.nc
+     RSTNAME == glacier_bay_rst.nc
+     HISNAME == glacier_bay_his.nc
+    HIS2NAME == glacier_bay_his2.nc
+     TLMNAME == glacier_bay_tlm.nc
+     TLFNAME == glacier_bay_tlf.nc
+     ADJNAME == glacier_bay_tlm.nc
+     AVGNAME == glacier_bay_avg.nc
+    AVG2NAME == glacier_bay_avg2.nc
+     DIANAME == glacier_bay_dia.nc
+     STANAME == glacier_bay_sta.nc
+     FLTNAME == glacier_bay_flt.nc
 
 ! Input ASCII parameter filenames.
 
      APARNAM =  External/assimilation.in
-     SPOSNAM =  /center/w/kate/NWGOA/External/stations_ngoa.in
-     FPOSNAM =  /center/w/kate/NWGOA/External/floats_nwgoa.in
-     IPARNAM =  /center/w/kate/NWGOA/External/ice.in
-     BPARNAM =  /center/w/kate/NWGOA/External/bioUMaine.in
+     SPOSNAM =  /center/w/kate/Glacier_bay/External/stations_glacier_bay.in
+     FPOSNAM =  /center/w/kate/Glacier_bay/External/floats_glacier_bay.in
+     IPARNAM =  /center/w/kate/Glacier_bay/External/ice.in
+     BPARNAM =  /center/w/kate/Glacier_bay/External/nemuro_iron.in
      SPARNAM =  External/sediment.in
      USRNAME =  External/MyFile.dat
 
