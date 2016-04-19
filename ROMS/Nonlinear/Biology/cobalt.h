@@ -537,9 +537,9 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           phyto(1)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_sm) , 0.0d0 )
-           phyto(2)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_di) , 0.0d0 )
-           phyto(3)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_lg) , 0.0d0 )
+           phyto(SMALL)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_sm) , 0.0d0 )
+           phyto(DIAZO)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_di) , 0.0d0 )
+           phyto(LARGE)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_lg) , 0.0d0 )
         ENDDO
       ENDDO
     ENDDO
@@ -3714,9 +3714,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          obgc(i,j,k,nnew,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
          obgc(i,j,k,nnew,iohtotal)       = cobalt%f_htotal(i,j,k)
          obgc(i,j,k,nnew,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_sm)    = phyto(1)%f_mu_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_di)    = phyto(2)%f_mu_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_lg)    = phyto(3)%f_mu_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_sm)    = phyto(SMALL)%f_mu_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_di)    = phyto(DIAZO)%f_mu_mem(i,j,k)
+         obgc(i,j,k,nnew,iomu_mem_lg)    = phyto(LARGE)%f_mu_mem(i,j,k)
   ENDDO ; ENDDO ; ENDDO
 
   ! Set value for boundaries
@@ -3816,12 +3816,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,imu_mem_sm)    = DiaBio3d(i,j,k,imu_mem_sm)   + phyto(1)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,imu_mem_di)    = DiaBio3d(i,j,k,imu_mem_di)   + phyto(2)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,imu_mem_lg)    = DiaBio3d(i,j,k,imu_mem_lg)   + phyto(3)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_sm)   = DiaBio3d(i,j,k,iagg_lim_sm)  + phyto(1)%agg_lim(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_di)   = DiaBio3d(i,j,k,iagg_lim_di)  + phyto(2)%agg_lim(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_lg)   = DiaBio3d(i,j,k,iagg_lim_lg)  + phyto(3)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_sm)    = DiaBio3d(i,j,k,imu_mem_sm)   + phyto(SMALL)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_di)    = DiaBio3d(i,j,k,imu_mem_di)   + phyto(DIAZO)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_lg)    = DiaBio3d(i,j,k,imu_mem_lg)   + phyto(LARGE)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_sm)   = DiaBio3d(i,j,k,iagg_lim_sm)  + phyto(SMALL)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_di)   = DiaBio3d(i,j,k,iagg_lim_di)  + phyto(DIAZO)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_lg)   = DiaBio3d(i,j,k,iagg_lim_lg)  + phyto(LARGE)%agg_lim(i,j,k)
         ENDDO
       ENDDO
     ENDDO
