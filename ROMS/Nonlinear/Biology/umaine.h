@@ -1063,7 +1063,7 @@
 ! For S1
 ! Iron uptake proportional to growth
 !here exudation is accounted for in n_pps1 - needs separate treatment in final rate calc
-              cffFeS1_G = n_pps1/(1.0_r8-ES1(ng))*FNratioS1/            &
+              cffFeS1_G = dtdays*n_pps1/(1.0_r8-ES1(ng))*FNratioS1/     &
      &               MAX(Minval,Bio(i,k,iFeD_))
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS1_G)
               Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                          &
@@ -1094,10 +1094,10 @@
 !For S2
 ! Iron uptake proportional to growth
               FNratioS2=Bio(i,k,iS2_Fe)/MAX(Minval,Bio(i,k,iS2_N))
-              cffFeS2_G = n_pps2/(1.0_r8-ES2(ng))*FNratioS2/            &
+              cffFeS2_G = dtdays*n_pps2/(1.0_r8-ES2(ng))*FNratioS2/     &
      &               MAX(Minval,Bio(i,k,iFeD_))
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS2_G)
-              Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                           &
+              Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                          &
      &                       Bio(i,k,iFeD_)*cffFeS2_G
 
 ! Iron uptake to reach appropriate Fe:C ratio
@@ -1119,7 +1119,7 @@
 !For S3
 ! Iron uptake proportional to growth
               FNratioS3=Bio(i,k,iS3_Fe)/MAX(Minval,Bio(i,k,iS3_N))
-              cffFeS3_G = n_pps3/(1.0_r8-ES3(ng))*FNratioS3/            &
+              cffFeS3_G = dtdays*n_pps3/(1.0_r8-ES3(ng))*FNratioS3/     &
      &               MAX(Minval,Bio(i,k,iFeD_))
               Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS3_G)
               Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+                          &
