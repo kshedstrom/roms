@@ -436,8 +436,8 @@
       real(r8) :: Qsms36,Qsms37,Qsms38,Qsms39
       real(r8) :: NQsms36,NQsms37,NQsms38,NQsms39
       real(r8) :: sms36,sms37,sms38,sms39
-      real(r8) :: Fndgcf
-      real(r8) :: h_max, Fe_min, Fe_max, Fe_rel, SiN_min, SiN_max
+      real(r8) :: Fndgcf, Fe_clm
+      real(r8) :: h_min, h_max, Fe_min, Fe_max, Fe_rel, SiN_min, SiN_max
 #endif
 
 #include "set_bounds.h"
@@ -635,23 +635,28 @@
 
 #if defined IRON_LIMIT && defined IRON_RELAX
 !  Relaxation of dissolved iron to climatology
-        DO k=1,N(ng)
-          DO i=Istr,Iend
 !  Set concentration and depth parameters for FeD climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-            h_max = 200.0_r8
-            Fe_max = 2.0_r8
+        h_min = 200.0_r8
+        h_max = 1500.0_r8
+        Fe_max = 2.0_r8
+	Fe_min = 0.05_r8
 !  Set nudging time scales to 5 days
-            Fe_rel = 5.0_r8
-            Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
+        Fe_rel = 5.0_r8
+        Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
+        DO k=1,N(ng)
+          DO i=Istr,Iend
 !  Relaxation for depths < h_max to simulate Fe input at coast
-            IF (h(i,j).le.h_max) THEN
-              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
-     &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
-            ELSE IF (h(i,j).gt.h_max .and. Bio(i,k,iFeD_).lt.0.1_r8) THEN
-                    Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                      &
-     &                       dt(ng)*Fndgcf*(0.1_r8-Bio(i,k,iFeD_))
-            END IF
+            IF (h(i,j).le.h_min) THEN
+	      Fe_clm = Fe_max
+            ELSE IF (h(i,j).ge.h_max) THEN
+	      Fe_clm = Fe_min
+	    ELSE
+	      Fe_clm = Fe_min + (h_max - h(i,j)) * (Fe_max - Fe_min) /  &
+     &                     (h_max - h_min)
+	    ENDIF
+            Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                              &
+     &                       dt(ng)*Fndgcf*(Fe_clm-Bio(i,k,iFeD_))
           END DO
         END DO
 #endif
@@ -1559,19 +1564,10 @@
 
 #ifdef IRON_LIMIT
 !iS1_Fe: Losses due to grazing by Z1, mortality
-!        Qsms36= cffFeS1_G/(1.0_r8-ES1(ng)) + cffFeS1_R - gs1Fezz1 - morts1Fe
-!        Qsms37= cffFeS2_G/(1.0_r8-ES2(ng)) + cffFeS2_R - gs2Fezz2 - morts2Fe     !iS2_Fe
-!        Qsms38= cffFeS3_G/(1.0_r8-ES3(ng)) + cffFeS3_R - gs3Fezz2 - morts3Fe     !iS3_Fe  !S2 and S3 need sinking term????
         Qsms36= - gs1Fezz1 - morts1Fe
         Qsms37= - gs2Fezz2 - morts2Fe     !iS2_Fe
         Qsms38= - gs3Fezz2 - morts3Fe     !iS3_Fe  !S2 and S3 need sinking term????
 !iFe_
-!        Qsms39= - cffFeS1_G/(1.0_r8-ES1(ng))                            &
-!     &          - cffFeS2_G/(1.0_r8-ES2(ng))                            &
-!     &          - cffFeS3_G/(1.0_r8-ES3(ng))                            & !growth associated Fe uptake (exudation needs separate treatment)
-!     &          + (morts1Fe+morts2Fe+morts3Fe)*FeRR(ng)                 & !mortality
-!     &          + (gs1Fezz1+gs2Fezz2+gs3Fezz2)*FeRR(ng)                 & !Z grazing
-!     &          - cffFeS1_R - cffFeS2_R - cffFeS3_R                       !luxury iron uptake!
         Qsms39= (morts1Fe+morts2Fe+morts3Fe)*FeRR(ng)                   & !mortality
      &          + (gs1Fezz1+gs2Fezz2+gs3Fezz2)*FeRR(ng)                   !Z grazing
 #endif
