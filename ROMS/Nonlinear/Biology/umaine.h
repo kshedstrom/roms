@@ -655,8 +655,11 @@
 	      Fe_clm = Fe_min + (h_max - h(i,j)) * (Fe_max - Fe_min) /  &
      &                     (h_max - h_min)
 	    ENDIF
-            Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                              &
+!  Only nudge if we have too little iron
+	    IF (Bio(i,k,iFeD_) < Fe_clm) THEN
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                              &
      &                       dt(ng)*Fndgcf*(Fe_clm-Bio(i,k,iFeD_))
+	    ENDIF
           END DO
         END DO
 #endif
