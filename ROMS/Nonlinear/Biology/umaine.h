@@ -1087,7 +1087,7 @@
                 Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                        &
      &                         Bio(i,k,iFeD_)*cffFeS1_R
               ELSE
-!In that case, you decrease the iron already incororated in the cell and put it back
+!In that case, you decrease the iron already incorporated in the cell and put it back
 !into the dissolved pool.
                 cffFeS1_R=-cffFeS1_R/MAX(Minval,Bio(i,k,iS1_Fe))
                 Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)/(1.0_r8+cffFeS1_R)

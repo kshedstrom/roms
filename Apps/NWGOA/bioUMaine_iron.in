@@ -547,7 +547,7 @@ Aout(idTvar) == 35*T
                     RadNud  RadNud  Clo     Clo \
                     RadNud  RadNud  Clo     Clo \
                     RadNud  RadNud  Clo     Clo \
-                    RadNud  RadNud  Clo     Clo
+                    RadNud  RadNud  Clo     Clo \
                     Clo     Clo     Clo     Clo \
                     Clo     Clo     Clo     Clo \
                     Clo     Clo     Clo     Clo \
@@ -563,7 +563,7 @@ Aout(idTvar) == 35*T
 ! tracers climatology: [NBT,Ngrids] values are expected. See glossary below
 ! for details.
 
-  LtracerCLM == 35*T
+  LtracerCLM == 31*T, 4*F
 
 ! Logical switches (TRUE/FALSE) to nudge the desired biological tracer
 ! climatology field. If not analytical climatology fields, users need to
@@ -571,7 +571,7 @@ Aout(idTvar) == 35*T
 ! climatology NetCDF file that are needed for nudging; [NBT,Ngrids]
 ! values are expected. See glossary below for details.
 
-  LnudgeTCLM == 35*T
+  LnudgeTCLM == 31*T, 4*F
 
 !
 !  GLOSSARY:
