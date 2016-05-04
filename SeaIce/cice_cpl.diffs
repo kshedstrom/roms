@@ -1,98 +1,3 @@
-diff --git a/bld/Macros.Linux.ARSC.pacman b/bld/Macros.Linux.ARSC.pacman
-new file mode 100644
-index 0000000..7efb80f
---- /dev/null
-+++ b/bld/Macros.Linux.ARSC.pacman
-@@ -0,0 +1,89 @@
-+#==============================================================================
-+# Makefile macros for "pacman," a Linux cluster at ARSC
-+#==============================================================================
-+
-+INCLDIR    := -I. -I/usr/include
-+SLIBS      := -L/usr/lib
-+ULIBS      :=
-+CPP        := /usr/bin/cpp
-+CPPFLAGS   := -P -traditional
-+CPPDEFS    := -DLINUX
-+CFLAGS     := -c -O2 -fastsse -tp k8-64
-+ifeq ($(COMMDIR), mpi)
-+   FC         := mpif90
-+else
-+   FC         := pgi
-+endif
-+#
-+# IFORT
-+FFLAGS     := -heap-arrays -fp-model precise -ip -i4 -r8 -O2
-+#FFLAGS     := -heap-arrays -fp-model precise -g -check bounds -traceback -i4 -r8 -O0
-+FIXEDFLAGS := -extend-source -nofree
-+FREEFLAGS  := -free
-+#
-+# PGI
-+#FFLAGS     := -tp k8-64 -w -Kieee -Mbyteswapio -i4 -r8 -O2
-+#FFLAGS     := -tp k8-64 -w -Kieee -Mbyteswapio -i4 -r8 -g -O0 -C
-+#FIXEDFLAGS := -132
-+#FREEFLAGS  := -Mfree
-+#
-+# gfortran
-+#FFLAGS   := -fdefault-real-8 -g -O0 -fbounds-check -fdefault-double-8
-+#FREEFLAGS  := -ffree-form
-+#FIXEDFLAGS := -ffixed-line-length-132
-+#
-+#FFLAGS     := -r8 -i4 -O2 -align all -w -ftz -convert big_endian -assume byterecl -fp-model precise
-+#FFLAGS     := -r8 -i4  -align all -w -ftz -convert big_endian -assume byterecl -fp-model precise -g
-+#FFLAGS     := -r8 -i4 -align all -w -ftz -convert big_endian -assume byterecl -fpe0 -CB -traceback
-+#FFLAGS     := -r8 -i4 -align all -w -ftz -convert big_endian -assume byterecl -fpe0 -CB -g
-+
-+ifeq ($(THRD), yes)
-+   FFLAGS  :=  $(FFLAGS) -openmp
-+#cesm   CPPDEFS :=  $(CPPDEFS) -DTHREADED_OMP
-+endif
-+
-+MOD_SUFFIX := mod
-+LD         := $(FC)
-+LDFLAGS    := $(FFLAGS) -v
-+
-+    CPPDEFS :=  $(CPPDEFS) -DNXGLOB=$(NXGLOB) -DNYGLOB=$(NYGLOB) \
-+                -DBLCKX=$(BLCKX) -DBLCKY=$(BLCKY) -DMXBLCKS=$(MXBLCKS) \
-+                -DNICELYR=$(NICELYR) -DNSNWLYR=$(NSNWLYR) -DNICECAT=$(NICECAT) \
-+                -DTRAGE=$(TRAGE) -DTRFY=$(TRFY) -DTRLVL=$(TRLVL) -DTRPND=$(TRPND) \
-+                -DTRBRI=$(TRBRI) -DNTRAERO=$(NTRAERO) -DNBGCLYR=$(NBGCLYR) \
-+                -DTRBGCS=$(TRBGCS) -DNUMIN=$(NUMIN) -DNUMAX=$(NUMAX)
-+#   CPPDEFS :=  $(CPPDEFS) -DAOMIP
-+
-+ifeq ($(CICE_IN_ROMS), yes)
-+    CPPDEFS :=  $(CPPDEFS) -DCICE_IN_ROMS -Dcoupled
-+endif
-+
-+ifeq ($(DITTO), yes)
-+   CPPDEFS :=  $(CPPDEFS) -DREPRODUCIBLE
-+endif
-+ifeq ($(BARRIERS), yes)
-+   CPPDEFS :=  $(CPPDEFS) -Dgather_scatter_barrier
-+endif
-+
-+ifeq ($(IO_TYPE), netcdf)
-+   CPPDEFS :=  $(CPPDEFS) -Dncdf
-+#   INCLDIR := $(INCLDIR) $(NETCDF)/include
-+#   SLIBS   := $(SLIBS) $(NETCDF)/lib -lnetcdf
-+ NC_CONFIG ?= nc-config
-+   INCLDIR := $(INCLDIR) -I$(shell $(NC_CONFIG) --prefix)/include
-+   SLIBS   := $(SLIBS) $(shell $(NC_CONFIG) --flibs)
-+endif
-+
-+### if using parallel I/O, load all 3 libraries.  PIO must be first!
-+ifeq ($(IO_TYPE), pio)
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/pio-1.4.0
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/pio-1.4.0 -lpio
-+
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/parallel-netcdf-1.2.0/include
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/parallel-netcdf-1.2.0/lib -lpnetcdf
-+
-+   CPPDEFS :=  $(CPPDEFS) -Dncdf
-+   INCLDIR := $(INCLDIR) -I/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/netcdf-3.6.3/include
-+   SLIBS   := $(SLIBS) -L/usr/projects/climate/SHARED_CLIMATE/software/conejo/intel_openmpi/netcdf-3.6.3/lib -lnetcdf
-+
-+endif
 diff --git a/bld/Makefile b/bld/Makefile
 index c2d232f..38e2f3f 100644
 --- a/bld/Makefile
@@ -360,12 +265,43 @@ index 0000000..38e2f3f
 +endif
 +endif
 +endif
+diff --git a/drivers/cice/CICE_RunMod.F90 b/drivers/cice/CICE_RunMod.F90
+index e78db85..44f0aea 100644
+--- a/drivers/cice/CICE_RunMod.F90
++++ b/drivers/cice/CICE_RunMod.F90
+@@ -52,7 +52,7 @@
+ 
+       call ice_timer_start(timer_step)   ! start timing entire run
+ 
+-#ifndef CICE_IN_NEMO
++#if !defined CICE_IN_NEMO && !defined CICE_IN_ROMS
+    !--------------------------------------------------------------------
+    ! timestep loop
+    !--------------------------------------------------------------------
+@@ -68,7 +68,7 @@
+ 
+          call calendar(time)    ! at the end of the timestep
+ 
+-#ifndef CICE_IN_NEMO
++#if !defined CICE_IN_NEMO && !defined CICE_IN_ROMS
+          if (stop_now >= 1) exit timeLoop
+ #endif
+ 
+@@ -85,7 +85,7 @@
+          call init_flux_atm     ! initialize atmosphere fluxes sent to coupler
+          call init_flux_ocn     ! initialize ocean fluxes sent to coupler
+ 
+-#ifndef CICE_IN_NEMO
++#if !defined CICE_IN_NEMO && !defined CICE_IN_ROMS
+       enddo timeLoop
+ #endif
+ 
 diff --git a/input_templates/arctic/ice_in b/input_templates/arctic/ice_in
 new file mode 100644
-index 0000000..102124c
+index 0000000..3770a50
 --- /dev/null
 +++ b/input_templates/arctic/ice_in
-@@ -0,0 +1,382 @@
+@@ -0,0 +1,389 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -495,6 +431,16 @@ index 0000000..102124c
 +  , rfracmin        = 0.15
 +  , rfracmax        = 1.
 +  , pndaspect       = 0.8
++/
++
++&landfast_nml
++    l_basalstress   = .true.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
 +/
 +
 +&zbgc_nml
@@ -642,9 +588,6 @@ index 0000000..102124c
 +  , f_shear        = 'd'
 +  , f_sig1         = 'd'
 +  , f_sig2         = 'd'
-+  , f_sig11        = 'd'
-+  , f_sig22        = 'd'
-+  , f_sig12        = 'd'
 +  , f_dvidtt       = 'm'
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
@@ -750,10 +693,10 @@ index 0000000..102124c
 +
 diff --git a/input_templates/arctic/ice_in_restart b/input_templates/arctic/ice_in_restart
 new file mode 100644
-index 0000000..e1719f8
+index 0000000..000ff21
 --- /dev/null
 +++ b/input_templates/arctic/ice_in_restart
-@@ -0,0 +1,382 @@
+@@ -0,0 +1,389 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -885,6 +828,16 @@ index 0000000..e1719f8
 +  , pndaspect       = 0.8
 +/
 +
++&landfast_nml
++    l_basalstress   = .true.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
 +&zbgc_nml
 +    tr_brine        = .false.
 +  , restart_hbrine  = .false.
@@ -1030,9 +983,6 @@ index 0000000..e1719f8
 +  , f_shear        = 'd'
 +  , f_sig1         = 'd'
 +  , f_sig2         = 'd'
-+  , f_sig11        = 'd'
-+  , f_sig22        = 'd'
-+  , f_sig12        = 'd'
 +  , f_dvidtt       = 'm'
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
@@ -1138,10 +1088,10 @@ index 0000000..e1719f8
 +
 diff --git a/input_templates/bering/ice_in b/input_templates/bering/ice_in
 new file mode 100644
-index 0000000..bc2735a
+index 0000000..58306cf
 --- /dev/null
 +++ b/input_templates/bering/ice_in
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,388 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -1272,6 +1222,16 @@ index 0000000..bc2735a
 +  , pndaspect       = 0.8
 +/
 +
++&landfast_nml
++    l_basalstress   = .true.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
 +&zbgc_nml
 +    tr_brine        = .false.
 +  , restart_hbrine  = .false.
@@ -1417,9 +1377,6 @@ index 0000000..bc2735a
 +  , f_shear        = 'm'
 +  , f_sig1         = 'm'
 +  , f_sig2         = 'm'
-+  , f_sig11        = 'm'
-+  , f_sig22        = 'm'
-+  , f_sig12        = 'm'
 +  , f_dvidtt       = 'm'
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
@@ -1525,10 +1482,10 @@ index 0000000..bc2735a
 +
 diff --git a/input_templates/bering/ice_in_restart b/input_templates/bering/ice_in_restart
 new file mode 100644
-index 0000000..7fe0a56
+index 0000000..b9d5300
 --- /dev/null
 +++ b/input_templates/bering/ice_in_restart
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,388 @@
 +&setup_nml
 +    days_per_year  = 365
 +  , use_leap_years = .true.
@@ -1659,6 +1616,16 @@ index 0000000..7fe0a56
 +  , pndaspect       = 0.8
 +/
 +
++&landfast_nml
++    l_basalstress   = .true.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
 +&zbgc_nml
 +    tr_brine        = .false.
 +  , restart_hbrine  = .false.
@@ -1804,9 +1771,6 @@ index 0000000..7fe0a56
 +  , f_shear        = 'm'
 +  , f_sig1         = 'm'
 +  , f_sig2         = 'm'
-+  , f_sig11        = 'm'
-+  , f_sig22        = 'm'
-+  , f_sig12        = 'm'
 +  , f_dvidtt       = 'm'
 +  , f_dvidtd       = 'm'
 +  , f_daidtt       = 'm'
@@ -1910,6 +1874,69 @@ index 0000000..7fe0a56
 +  , f_Cdn_ocn      = 'd'
 +/
 +
+diff --git a/input_templates/col/ice_in b/input_templates/col/ice_in
+index 8c57b15..04aeade 100644
+--- a/input_templates/col/ice_in
++++ b/input_templates/col/ice_in
+@@ -129,6 +129,16 @@
+   , pndaspect       = 0.8
+ /
+ 
++&landfast_nml
++    l_basalstress   = .false.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
+ &zbgc_nml
+     tr_brine        = .false.
+   , restart_hbrine  = .false.
+diff --git a/input_templates/gx1/ice_in b/input_templates/gx1/ice_in
+index 208dbde..881f54f 100644
+--- a/input_templates/gx1/ice_in
++++ b/input_templates/gx1/ice_in
+@@ -129,6 +129,16 @@
+   , pndaspect       = 0.8
+ /
+ 
++&landfast_nml
++    l_basalstress   = .false.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
+ &zbgc_nml
+     tr_brine        = .false.
+   , restart_hbrine  = .false.
+diff --git a/input_templates/gx3/ice_in b/input_templates/gx3/ice_in
+index adea168..f19a1c4 100644
+--- a/input_templates/gx3/ice_in
++++ b/input_templates/gx3/ice_in
+@@ -129,6 +129,16 @@
+   , pndaspect       = 0.8
+ /
+ 
++&landfast_nml
++    l_basalstress   = .false.
++  , k1              = 8
++  , k2              = 15
++  , u0              = 5e-5
++  , CC              = 20
++  , Kt              = 0.05
++  , e_ratio         = 1.4
++/
++
+ &zbgc_nml
+     tr_brine        = .false.
+   , restart_hbrine  = .false.
 diff --git a/io_netcdf/ice_history_write.F90 b/io_netcdf/ice_history_write.F90
 index 1174afb..a6ba892 100644
 --- a/io_netcdf/ice_history_write.F90
@@ -1978,36 +2005,209 @@ index 0000000..b97647c
 +++ b/source/.gitignore
 @@ -0,0 +1 @@
 +bld
+diff --git a/source/ice_dyn_eap.F90 b/source/ice_dyn_eap.F90
+index 63eeaae..41f710c 100644
+--- a/source/ice_dyn_eap.F90
++++ b/source/ice_dyn_eap.F90
+@@ -82,7 +82,8 @@
+       use ice_domain, only: nblocks, blocks_ice, halo_info, maskhalo_dyn
+       use ice_dyn_shared, only: fcor_blk, ndte, dtei, a_min, m_min, &
+           cosw, sinw, denom1, uvel_init, vvel_init, arlx1i, &
+-          evp_prep1, evp_prep2, stepu, evp_finish
++          evp_prep1, evp_prep2, stepu, evp_finish, l_basalstress, &
++          tau_bu, tau_bv, calc_basal_stress
+       use ice_flux, only: rdg_conv, rdg_shear, prs_sig, strairxT, strairyT, &
+           strairx, strairy, uocn, vocn, ss_tltx, ss_tlty, iceumask, fm, &
+           strtltx, strtlty, strocnx, strocny, strintx, strinty, &
+@@ -91,7 +92,8 @@
+           stressm_1, stressm_2, stressm_3, stressm_4, &
+           stress12_1, stress12_2, stress12_3, stress12_4
+       use ice_grid, only: tmask, umask, dxt, dyt, dxhy, dyhx, cxp, cyp, cxm, cym, &
+-          tarear, uarear, tinyarea, to_ugrid, t2ugrid_vector, u2tgrid_vector
++          tarear, uarear, tinyarea, to_ugrid, t2ugrid_vector, u2tgrid_vector, &
++          bath
+       use ice_mechred, only: ice_strength
+       use ice_state, only: aice, vice, vsno, uvel, vvel, divu, shear, &
+           aice_init, aice0, aicen, vicen, strength
+@@ -131,6 +133,7 @@
+          watery   , & ! for ocean stress calculation, y (m/s)
+          forcex   , & ! work array: combined atm stress and ocn tilt, x
+          forcey   , & ! work array: combined atm stress and ocn tilt, y
++         Cbu      , & ! landfast basal stress factor !pblain
+          aiu      , & ! ice fraction on u-grid
+          umass    , & ! total mass of ice and snow (u grid)
+          umassdti     ! mass of U-cell/dte (kg/m^2 s)
+@@ -256,6 +259,7 @@
+                          ss_tltx   (:,:,iblk), ss_tlty   (:,:,iblk), &  
+                          icetmask  (:,:,iblk), iceumask  (:,:,iblk), & 
+                          fm        (:,:,iblk), dt,                   & 
++                         Cbu       (:,:,iblk),                       &
+                          strtltx   (:,:,iblk), strtlty   (:,:,iblk), & 
+                          strocnx   (:,:,iblk), strocny   (:,:,iblk), & 
+                          strintx   (:,:,iblk), strinty   (:,:,iblk), & 
+@@ -379,11 +383,26 @@
+ !      call ice_timer_stop(timer_tmp1) ! dynamics
+ 
+       !-----------------------------------------------------------------
++      ! basal stress calculation (landfast ice)
++      !-----------------------------------------------------------------
++
++            if (l_basalstress) then
++              call calc_basal_stress(nx_block,       ny_block,       &
++                                     icellu  (iblk),                 &
++                                     indxui(:,iblk), indxuj(:,iblk), &
++                                     vice(:,:,iblk), aice(:,:,iblk), &
++                                     bath(:,:,iblk),                 &
++                                     uvel(:,:,iblk), vvel(:,:,iblk), &
++                                     Cbu(:,:,iblk))
++            endif
++
++      !-----------------------------------------------------------------
+       ! momentum equation
+       !-----------------------------------------------------------------
+ 
+             call stepu (nx_block,            ny_block,           & 
+-                        icellu       (iblk), Cdn_ocn (:,:,iblk), & 
++                        icellu       (iblk), ksub,               &
++                        Cdn_ocn  (:,:,iblk),                     &
+                         indxui     (:,iblk), indxuj    (:,iblk), & 
+                         aiu      (:,:,iblk), strtmp  (:,:,:),    & 
+                         uocn     (:,:,iblk), vocn    (:,:,iblk), &     
+@@ -394,7 +413,9 @@
+                         strocnx  (:,:,iblk), strocny (:,:,iblk), & 
+                         strintx  (:,:,iblk), strinty (:,:,iblk), & 
+                         uvel_init(:,:,iblk), vvel_init(:,:,iblk),&
+-                        uvel     (:,:,iblk), vvel    (:,:,iblk))
++                        uvel     (:,:,iblk), vvel    (:,:,iblk), &
++                        Cbu      (:,:,iblk),                     & !  for basal stress
++                        tau_bu   (:,:,iblk), tau_bv  (:,:,iblk))
+ 
+             ! load velocity into array for boundary updates
+             fld2(:,:,1,iblk) = uvel(:,:,iblk)
 diff --git a/source/ice_dyn_evp.F90 b/source/ice_dyn_evp.F90
-index 6dfd0df..fa6f0d6 100644
+index 6dfd0df..7dfa769 100644
 --- a/source/ice_dyn_evp.F90
 +++ b/source/ice_dyn_evp.F90
-@@ -682,15 +682,15 @@
-          stressp_4(i,j) = (stressp_4(i,j) + c1se*(divuse - Deltase)) &
-                           * denom1
+@@ -79,7 +79,7 @@
+           stress12_1, stress12_2, stress12_3, stress12_4
+       use ice_grid, only: tmask, umask, dxt, dyt, dxhy, dyhx, cxp, cyp, cxm, cym, &
+           tarear, uarear, tinyarea, to_ugrid, t2ugrid_vector, u2tgrid_vector, &
+-          grid_type
++          grid_type, bath
+       use ice_mechred, only: ice_strength
+       use ice_state, only: aice, vice, vsno, uvel, vvel, divu, shear, &
+           aice_init, aice0, aicen, vicen, strength
+@@ -116,6 +116,7 @@
+          watery   , & ! for ocean stress calculation, y (m/s)
+          forcex   , & ! work array: combined atm stress and ocn tilt, x
+          forcey   , & ! work array: combined atm stress and ocn tilt, y
++         Cbu      , & ! landfast basal stress factor !pblain
+          aiu      , & ! ice fraction on u-grid
+          umass    , & ! total mass of ice and snow (u grid)
+          umassdti     ! mass of U-cell/dte (kg/m^2 s)
+@@ -249,6 +250,7 @@
+                          ss_tltx   (:,:,iblk), ss_tlty   (:,:,iblk), &  
+                          icetmask  (:,:,iblk), iceumask  (:,:,iblk), & 
+                          fm        (:,:,iblk), dt,                   & 
++                         Cbu       (:,:,iblk),                       &
+                          strtltx   (:,:,iblk), strtlty   (:,:,iblk), & 
+                          strocnx   (:,:,iblk), strocny   (:,:,iblk), & 
+                          strintx   (:,:,iblk), strinty   (:,:,iblk), & 
+@@ -338,11 +340,26 @@
+ !            endif               ! yield_curve
  
+       !-----------------------------------------------------------------
++      ! basal stress calculation (landfast ice)
++      !-----------------------------------------------------------------
++
++            if (l_basalstress) then
++              call calc_basal_stress(nx_block,       ny_block,       &
++                                     icellu  (iblk),                 &
++                                     indxui(:,iblk), indxuj(:,iblk), &
++                                     vice(:,:,iblk), aice(:,:,iblk), &
++                                     bath(:,:,iblk),                 &
++                                     uvel(:,:,iblk), vvel(:,:,iblk), &
++                                     Cbu(:,:,iblk))
++            endif
++
++      !-----------------------------------------------------------------
+       ! momentum equation
+       !-----------------------------------------------------------------
+ 
+             call stepu (nx_block,            ny_block,           &
+-                        icellu       (iblk), Cdn_ocn (:,:,iblk), & 
++                        icellu       (iblk), ksub,               &
++                        Cdn_ocn  (:,:,iblk),                     &
+                         indxui     (:,iblk), indxuj    (:,iblk), & 
+                         aiu      (:,:,iblk), strtmp  (:,:,:),    & 
+                         uocn     (:,:,iblk), vocn    (:,:,iblk), &     
+@@ -353,7 +370,9 @@
+                         strocnx  (:,:,iblk), strocny (:,:,iblk), & 
+                         strintx  (:,:,iblk), strinty (:,:,iblk), & 
+                         uvel_init(:,:,iblk), vvel_init(:,:,iblk),&
+-                        uvel     (:,:,iblk), vvel    (:,:,iblk))
++                        uvel     (:,:,iblk), vvel    (:,:,iblk), &
++                        Cbu      (:,:,iblk),                     & !  for basal stress
++                        tau_bu   (:,:,iblk), tau_bv  (:,:,iblk))
+ 
+             ! load velocity into array for boundary updates
+             fld2(:,:,1,iblk) = uvel(:,:,iblk)
+@@ -656,7 +675,9 @@
+          c0nw = strength(i,j)/max(Deltanw,tinyarea(i,j))
+          c0sw = strength(i,j)/max(Deltasw,tinyarea(i,j))
+          c0se = strength(i,j)/max(Deltase,tinyarea(i,j))
+-         prs_sig(i,j) = c0ne*Deltane ! northeast
++         prs_sig(i,j) = c0ne*Deltane ! prs_sig is multiplied by (1+ Kt) in
++                                     ! principal_stress for calc of normalized
++                                     ! stress jfl
+ 
+          c1ne = c0ne*arlx1i
+          c1nw = c0nw*arlx1i
+@@ -673,24 +694,24 @@
+       ! (1) northeast, (2) northwest, (3) southwest, (4) southeast
+       !-----------------------------------------------------------------
+ 
+-         stressp_1(i,j) = (stressp_1(i,j) + c1ne*(divune - Deltane)) &
+-                          * denom1
+-         stressp_2(i,j) = (stressp_2(i,j) + c1nw*(divunw - Deltanw)) &
+-                          * denom1
+-         stressp_3(i,j) = (stressp_3(i,j) + c1sw*(divusw - Deltasw)) &
+-                          * denom1
+-         stressp_4(i,j) = (stressp_4(i,j) + c1se*(divuse - Deltase)) &
+-                          * denom1
+-
 -         stressm_1(i,j) = (stressm_1(i,j) + c0ne*tensionne) * denom1
 -         stressm_2(i,j) = (stressm_2(i,j) + c0nw*tensionnw) * denom1
 -         stressm_3(i,j) = (stressm_3(i,j) + c0sw*tensionsw) * denom1
 -         stressm_4(i,j) = (stressm_4(i,j) + c0se*tensionse) * denom1
-+         stressm_1(i,j) = (stressm_1(i,j) + c1ne*tensionne) * denom2
-+         stressm_2(i,j) = (stressm_2(i,j) + c1nw*tensionnw) * denom2
-+         stressm_3(i,j) = (stressm_3(i,j) + c1sw*tensionsw) * denom2
-+         stressm_4(i,j) = (stressm_4(i,j) + c1se*tensionse) * denom2
-         
+-        
 -         stress12_1(i,j) = (stress12_1(i,j) + c0ne*shearne*p5) * denom1
 -         stress12_2(i,j) = (stress12_2(i,j) + c0nw*shearnw*p5) * denom1
 -         stress12_3(i,j) = (stress12_3(i,j) + c0sw*shearsw*p5) * denom1
 -         stress12_4(i,j) = (stress12_4(i,j) + c0se*shearse*p5) * denom1
-+         stress12_1(i,j) = (stress12_1(i,j) + c1ne*shearne*p5) * denom2
-+         stress12_2(i,j) = (stress12_2(i,j) + c1nw*shearnw*p5) * denom2
-+         stress12_3(i,j) = (stress12_3(i,j) + c1sw*shearsw*p5) * denom2
-+         stress12_4(i,j) = (stress12_4(i,j) + c1se*shearse*p5) * denom2
++         stressp_1(i,j) = (stressp_1(i,j) + c1ne*(divune*(1d0+Kt) - &
++                          Deltane*(1d0-Kt))) * denom1
++         stressp_2(i,j) = (stressp_2(i,j) + c1nw*(divunw*(1d0+Kt) - &
++                          Deltanw*(1d0-Kt))) * denom1
++         stressp_3(i,j) = (stressp_3(i,j) + c1sw*(divusw*(1d0+Kt) - &
++                          Deltasw*(1d0-Kt))) * denom1
++         stressp_4(i,j) = (stressp_4(i,j) + c1se*(divuse*(1d0+Kt) - &
++                          Deltase*(1d0-Kt))) * denom1
++
++         stressm_1(i,j) = (stressm_1(i,j) + c1ne*tensionne*(1d0+Kt)) * denom2
++         stressm_2(i,j) = (stressm_2(i,j) + c1nw*tensionnw*(1d0+Kt)) * denom2
++         stressm_3(i,j) = (stressm_3(i,j) + c1sw*tensionsw*(1d0+Kt)) * denom2
++         stressm_4(i,j) = (stressm_4(i,j) + c1se*tensionse*(1d0+Kt)) * denom2
++
++         stress12_1(i,j) = (stress12_1(i,j) + c1ne*shearne*p5*(1d0+Kt)) * denom2
++         stress12_2(i,j) = (stress12_2(i,j) + c1nw*shearnw*p5*(1d0+Kt)) * denom2
++         stress12_3(i,j) = (stress12_3(i,j) + c1sw*shearsw*p5*(1d0+Kt)) * denom2
++         stress12_4(i,j) = (stress12_4(i,j) + c1se*shearse*p5*(1d0+Kt)) * denom2
  
        !-----------------------------------------------------------------
        ! Eliminate underflows.
 diff --git a/source/ice_dyn_shared.F90 b/source/ice_dyn_shared.F90
-index c67a156..4bffc58 100644
+index c67a156..ac36408 100644
 --- a/source/ice_dyn_shared.F90
 +++ b/source/ice_dyn_shared.F90
 @@ -18,7 +18,7 @@
@@ -2015,11 +2215,37 @@ index c67a156..4bffc58 100644
        private
        public :: init_evp, set_evp_parameters, stepu, principal_stress, &
 -                evp_prep1, evp_prep2, evp_finish
-+                evp_prep1, evp_prep2, evp_finish, raw_stress
++                evp_prep1, evp_prep2, evp_finish, calc_basal_stress
        save
  
        ! namelist parameters
-@@ -48,7 +48,8 @@
+@@ -30,6 +30,25 @@
+       logical (kind=log_kind), public :: &
+          revised_evp  ! if true, use revised evp procedure
+ 
++      logical (kind=log_kind), public :: &
++         l_basalstress ! if true, use landfast ice parameterization
++
++       ! landfast ice parameters
++
++       real (kind=dbl_kind), public :: &
++         k1       , &  ! first free parameter
++         k2       , &  ! second free parameter (Nm^-3)
++         u0       , &  ! residual velocity     (m/s)
++         CC        ! basal stress ice concentration parameter
++                   ! note: CC=Cb in Lemieux et al JGR 2015 (badly chosen name)
++
++       real (kind=dbl_kind), public :: &
++         e_ratio       ! ellipticity of yield curve
++
++       ! ice isotropic tensile strength parameter
++       real (kind=dbl_kind), public :: &
++         Kt            ! T=Kt*P (tensile strength: see Konig and Holland, 2010)
++
+       ! other EVP parameters
+ 
+       character (len=char_len), public :: & 
+@@ -48,7 +67,8 @@
           ecci     , & ! 1/e^2
           dtei     , & ! 1/dte, where dte is subcycling timestep (1/s)
           dte2T    , & ! dte/2T
@@ -2029,7 +2255,58 @@ index c67a156..4bffc58 100644
  
        real (kind=dbl_kind), public :: & ! Bouillon et al relaxation constants
           arlx1i   , & ! alpha1 for stressp
-@@ -229,6 +230,7 @@
+@@ -61,6 +81,13 @@
+          uvel_init, & ! x-component of velocity (m/s), beginning of timestep
+          vvel_init    ! y-component of velocity (m/s), beginning of timestep
+ 
++      character (len=char_len) :: &
++         param_type    ! 'jfl' JF's parametrization
++
++       real (kind=dbl_kind), dimension (nx_block,ny_block,max_blocks), public :: &
++         tau_bu   , &  ! basal stress u-component
++         tau_bv        ! basal stress v-component
++
+ !=======================================================================
+ 
+       contains
+@@ -110,8 +137,9 @@
+       do i = 1, nx_block
+ 
+          ! velocity
+-         uvel(i,j,iblk) = c0    ! m/s
+-         vvel(i,j,iblk) = c0    ! m/s
++! jfl We now start with an initial velo field from a previous forecast
++!         uvel(i,j,iblk) = c0    ! m/s
++!         vvel(i,j,iblk) = c0    ! m/s
+ 
+          ! strain rates
+          divu (i,j,iblk) = c0
+@@ -138,7 +166,10 @@
+          stress12_4(i,j,iblk) = c0
+ 
+          ! ice extent mask on velocity points
+-         iceumask(i,j,iblk) = .false.
++! jfl Needs to be set to T as we now start with an ini velo field from a previous
++! forecast. When set to F, the ini velo field is the clim ocn current field.
++         iceumask(i,j,iblk) = .true.
++!        iceumask(i,j,iblk) = .false.
+ 
+       enddo                     ! i
+       enddo                     ! j
+@@ -184,8 +215,10 @@
+       dtei = c1/dte              ! 1/s
+ 
+       ! major/minor axis length ratio, squared
+-      ecc  = c4
+-      ecci = p25                  ! 1/ecc
++!      ecc  = c4
++!      ecci = p25                  ! 1/ecc
++      ecc  = e_ratio**2
++      ecci = c1/ecc                ! 1/ecc
+ 
+       ! constants for stress equation
+       tdamp2 = c2*eyc*dt                    ! s
+@@ -229,6 +262,7 @@
        endif            
  
        denom1 = c1/(c1+arlx1i)
@@ -2037,90 +2314,265 @@ index c67a156..4bffc58 100644
  
        end subroutine set_evp_parameters
  
-@@ -853,6 +855,54 @@
+@@ -361,6 +395,7 @@
+                             ss_tltx,    ss_tlty,    &  
+                             icetmask,   iceumask,   & 
+                             fm,         dt,         & 
++                            Cbu,                    &
+                             strtltx,    strtlty,    & 
+                             strocnx,    strocny,    &
+                             strintx,    strinty,    &
+@@ -426,7 +461,8 @@
+          waterx  , & ! for ocean stress calculation, x (m/s)
+          watery  , & ! for ocean stress calculation, y (m/s)
+          forcex  , & ! work array: combined atm stress and ocn tilt, x
+-         forcey      ! work array: combined atm stress and ocn tilt, y
++         forcey  , & ! work array: combined atm stress and ocn tilt, y
++         Cbu         ! landfast basal stress factor !pblain
+ 
+       real (kind=dbl_kind), dimension (nx_block,ny_block), & 
+          intent(inout) :: &
+@@ -462,6 +498,7 @@
+          forcex   (i,j) = c0
+          forcey   (i,j) = c0
+          umassdti (i,j) = c0
++         Cbu      (i,j) = c0
+ 
+          if (revp==1) then               ! revised evp
+             stressp_1 (i,j) = c0
+@@ -589,7 +626,8 @@
+ ! author: Elizabeth C. Hunke, LANL
+ 
+       subroutine stepu (nx_block,   ny_block, &
+-                        icellu,     Cw,       &
++                        icellu,     ksub,     &
++                        Cw,                   &
+                         indxui,     indxuj,   &
+                         aiu,        str,      &
+                         uocn,       vocn,     &
+@@ -600,11 +638,14 @@
+                         strocnx,    strocny,  &
+                         strintx,    strinty,  &
+                         uvel_init,  vvel_init,&
+-                        uvel,       vvel)
++                        uvel,       vvel,     &
++                        Cbu,                  &
++                        tau_bu,     tau_bv)
+ 
+       integer (kind=int_kind), intent(in) :: &
+          nx_block, ny_block, & ! block dimensions
+-         icellu                ! total count when iceumask is true
++         icellu,             & ! total count when iceumask is true
++         ksub                  ! subcycling iteration
+ 
+       integer (kind=int_kind), dimension (nx_block*ny_block), &
+          intent(in) :: &
+@@ -623,7 +664,8 @@
+          uocn    , & ! ocean current, x-direction (m/s)
+          vocn    , & ! ocean current, y-direction (m/s)
+          fm      , & ! Coriolis param. * mass in U-cell (kg/s)
+-         uarear      ! 1/uarea
++         uarear  , & ! 1/uarea
++         Cbu         ! landfast basal stress factor !pblain
+ 
+       real (kind=dbl_kind), dimension(nx_block,ny_block,8), &
+          intent(in) :: &
+@@ -643,6 +685,11 @@
+ 
+       real (kind=dbl_kind), dimension (nx_block,ny_block), &
+          intent(inout) :: &
++         tau_bu , & ! basal stress u-component
++         tau_bv     ! basal stress v-component
++
++      real (kind=dbl_kind), dimension (nx_block,ny_block), &
++         intent(inout) :: &
+          Cw                   ! ocean-ice neutral drag coefficient
+ 
+       ! local variables
+@@ -674,9 +721,13 @@
+          taux = vrel*waterx(i,j) ! NOTE this is not the entire
+          tauy = vrel*watery(i,j) ! ocn stress term
+ 
++         ! basal stress (landfast) !pblain
++         ! check ici pas besoin de tout aice, vice...a modifier jfl
++         ! on pourrait aussi calc Cbu(i,j) a la place???
++
+          ! revp = 0 for classic evp, 1 for revised evp
+-         cca = (brlx + revp)*umassdti(i,j) + vrel * cosw ! kg/m^2 s
+-         ccb = fm(i,j) + sign(c1,fm(i,j)) * vrel * sinw ! kg/m^2 s
++         cca = (brlx + revp)*umassdti(i,j) + vrel * cosw + Cbu(i,j) ! kg/m^2 s
++         ccb = fm(i,j) + sign(c1,fm(i,j)) * vrel * sinw + Cbu(i,j) ! kg/m^2 s
+ 
+          ab2 = cca**2 + ccb**2
+ 
+@@ -695,6 +746,13 @@
+          uvel(i,j) = (cca*cc1 + ccb*cc2) / ab2 ! m/s
+          vvel(i,j) = (cca*cc2 - ccb*cc1) / ab2
+ 
++         ! calculate basal stress component for outputs !pblain
++         if (ksub == ndte) then ! on last subcycling iteration
++           tau_bu(i,j) = Cbu(i,j)*uvel(i,j)
++           tau_bv(i,j) = Cbu(i,j)*vvel(i,j)
++         endif
++!jfl         ou on fait une routine du genre principal_stress????
++
+       !-----------------------------------------------------------------
+       ! ocean-ice stress for coupling
+       ! here, strocn includes the factor of aice
+@@ -829,22 +887,32 @@
+          sig1    , & ! principal stress component
+          sig2        ! principal stress component
+ 
++      real (kind=dbl_kind) :: ptit
++
+       ! local variables
+ 
+       integer (kind=int_kind) :: i, j
+ 
++      ptit = 0.001
++      ! Est-ce que replacement pressure doit etre utilise ou
++      ! ice strength pour la normalization des stress??? jfl
+       do j = 1, ny_block
+       do i = 1, nx_block
+-         if (prs_sig(i,j) > puny) then
++         if (prs_sig(i,j) > ptit) then
++            ! not normalized yet
+             sig1(i,j) = (p5*(stressp_1(i,j) &
+-                      + sqrt(stressm_1(i,j)**2+c4*stress12_1(i,j)**2))) &
+-                      / prs_sig(i,j)
++                      + sqrt(stressm_1(i,j)**2+c4*stress12_1(i,j)**2)))
+             sig2(i,j) = (p5*(stressp_1(i,j) &
+-                      - sqrt(stressm_1(i,j)**2+c4*stress12_1(i,j)**2))) &
+-                      / prs_sig(i,j)
++                      - sqrt(stressm_1(i,j)**2+c4*stress12_1(i,j)**2)))
++
++            ! normalization of principal stresses (long axis of ellipse = 1)
++            ! output pressure is not normalized
++            sig1(i,j) = sig1(i,j) / ( prs_sig(i,j) * (1 + Kt) )
++
++            sig2(i,j) = sig2(i,j) / ( prs_sig(i,j) * (1 + Kt) )
+          else
+-            sig1(i,j) = spval_dbl
+-            sig2(i,j) = spval_dbl
++            sig1(i,j) = c0 !spval_dbl
++            sig2(i,j) = c0 !spval_dbl
+          endif
+       enddo
+       enddo
+@@ -852,6 +920,98 @@
+       end subroutine principal_stress
  
  !=======================================================================
- 
-+! Computes original stresses for comparison with the theoretical
-+! yield curve; northeast values
++!BOP
 +!
-+! author: Elizabeth C. Hunke, LANL
-+
-+      subroutine raw_stress(nx_block,   ny_block,  &
-+                                  stressp_1,  stressm_1, &
-+                                  stress12_1, prs_sig,   &
-+                                  sig11, sig22, sig12)
-+
-+      use ice_constants, only: spval_dbl, puny, p5, c4
-+
++! !IROUTINE: calc_basal_stress - computes basal stress for landfast
++!
++! !INTERFACE:
++!
++      subroutine calc_basal_stress(nx_block, ny_block, icellu, &
++                                   indxui,   indxuj,           &
++                                   vice,     aice,             &
++                                   bath,                       &
++                                   uold,     vold,             &
++                                   Cbu)
++!
++! !DESCRIPTION:
++!
++! Computes basal stress due to landfast ice
++!
++! !REVISION HISTORY:
++!
++! author: Philippe Blain, RPN-E (coop E2015)
++!
++! !USES:
++!
++! !INPUT/OUTPUT PARAMETERS:
++!
 +      integer (kind=int_kind), intent(in) :: &
-+         nx_block, ny_block  ! block dimensions
++         nx_block, ny_block, &  ! block dimensions
++         icellu                 ! no. of cells where icetmask = 1
++
++      integer (kind=int_kind), dimension (nx_block*ny_block), &
++         intent(in) :: &
++         indxui   , & ! compressed index in i-direction
++         indxuj       ! compressed index in j-direction
 +
 +      real (kind=dbl_kind), dimension (nx_block,ny_block), intent(in) :: &
-+         stressp_1 , & ! sigma11 + sigma22
-+         stressm_1 , & ! sigma11 - sigma22
-+         stress12_1, & ! sigma12
-+         prs_sig       ! replacement pressure, for stress calc
++         aice    , & ! concentration of ice at tracer location
++         vice    , & ! volume per unit area of ice at tracer location
++         bath    , & ! bathymetry at tracer location
++         uold    , & ! u component of ice speed at previous iteration
++         vold        ! v component of ice speed at previous iteration
 +
-+      real (kind=dbl_kind), dimension (nx_block,ny_block), intent(out):: &
-+         sig11    , & ! raw stress component
-+         sig22    , & ! raw stress component
-+         sig12        ! raw stress component
++      real (kind=dbl_kind), dimension (nx_block,ny_block), intent(inout) :: &
++         Cbu         ! landfast basal stress factor at u location
 +
-+      ! local variables
++!
++!EOP
 +
-+      integer (kind=int_kind) :: i, j
++      real (kind=dbl_kind) &
++         au,  & ! concentration of ice at u location
++         hu,  & ! volume per unit area of ice at u location (mean thickness)
++         hwu, & ! bathymetry at u location
++         hcu    ! critical thickness at u location
 +
-+      do j = 1, ny_block
-+      do i = 1, nx_block
-+         if (prs_sig(i,j) > puny) then
-+            sig11(i,j) = p5*(stressp_1(i,j) + stressm_1(i,j))
-+            sig22(i,j) = p5*(stressp_1(i,j) - stressm_1(i,j))
-+            sig12(i,j) = stress12_1(i,j)
++      integer (kind=int_kind) :: &
++         i, j, ij
++
++!       k1 = 20
++!       k2 = 5
++!       u0 = 5e-5
++!       CC  = c20
++
++      do ij = 1, icellu
++         i = indxui(ij)
++         j = indxuj(ij)
++
++         ! convert quantities to u-location
++         au  = max(aice(i,j),aice(i+1,j),aice(i,j+1),aice(i+1,j+1))
++         hwu = min(bath(i,j),bath(i+1,j),bath(i,j+1),bath(i+1,j+1))
++         hu  = max(vice(i,j),vice(i+1,j),vice(i,j+1),vice(i+1,j+1))
++
++         ! calculate basal stress factor
++         ! 1- calculate critical thickness
++         hcu = au * hwu / k1
++
++         ! 2- calculate stress factor
++         if (au > p01 .and. hu > hcu ) then
++!           if (mod(ij,10)==1) then
++!              write(nu_diag,*) 'hcu(i,j)',hcu,i,j
++!              write(nu_diag,*) 'hu',hu
++!              write(nu_diag,*) 'hwu',hwu
++!           endif
++           Cbu(i,j) = ( k2 / (sqrt(uold(i,j)**2 + vold(i,j)**2) + u0) ) &
++                      * (hu - hcu) * exp(-CC * (1 - au))
 +         else
-+            sig11(i,j) = spval_dbl
-+            sig22(i,j) = spval_dbl
-+            sig12(i,j) = spval_dbl
++           Cbu(i,j) = c0
 +         endif
-+      enddo
-+      enddo
 +
-+      end subroutine raw_stress
++      enddo                     ! ij
++
++      end subroutine calc_basal_stress
 +
 +!=======================================================================
-+
+ 
        end module ice_dyn_shared
  
- !=======================================================================
-diff --git a/source/ice_flux.F90 b/source/ice_flux.F90
-index 99c61ce..3382d0e 100644
---- a/source/ice_flux.F90
-+++ b/source/ice_flux.F90
-@@ -57,6 +57,9 @@
-       real (kind=dbl_kind), dimension (nx_block,ny_block,max_blocks), public :: &
-          sig1    , & ! principal stress component
-          sig2    , & ! principal stress component
-+         sig11   , & ! principal stress component
-+         sig22   , & ! principal stress component
-+         sig12   , & ! principal stress component
-          strairx , & ! stress on ice by air, x-direction
-          strairy , & ! stress on ice by air, y-direction
-          strocnx , & ! ice-ocean stress, x-direction
-@@ -632,6 +635,9 @@
- 
-       sig1    (:,:,:) = c0
-       sig2    (:,:,:) = c0
-+      sig11   (:,:,:) = c0
-+      sig22   (:,:,:) = c0
-+      sig12   (:,:,:) = c0
-       strocnx (:,:,:) = c0
-       strocny (:,:,:) = c0
-       strairx (:,:,:) = c0
 diff --git a/source/ice_grid.F90 b/source/ice_grid.F90
-index fa7353e..32812ab 100644
+index fa7353e..80fc08e 100644
 --- a/source/ice_grid.F90
 +++ b/source/ice_grid.F90
-@@ -163,15 +163,17 @@
+@@ -121,6 +121,9 @@
+       real (kind=dbl_kind), dimension (nx_block,ny_block,max_blocks), public, save :: &
+          rndex_global       ! global index for local subdomain (dbl)
+ 
++      real (kind=dbl_kind), dimension (nx_block,ny_block,max_blocks), public, save :: &
++         bath       ! ocean bathymetry (T-cell)
++
+ !=======================================================================
+ 
+       contains
+@@ -163,15 +166,17 @@
           if (trim(grid_format) == 'nc') then
  
              call ice_open_nc(grid_file,fid_grid)
@@ -2141,7 +2593,7 @@ index fa7353e..32812ab 100644
                 call ice_close_nc(fid_kmt)
              endif
  
-@@ -276,6 +278,8 @@
+@@ -276,6 +281,8 @@
           return
        elseif (trim(grid_type) == 'cpom_grid') then
           call cpomgrid          ! cpom model orca1 type grid
@@ -2150,7 +2602,7 @@ index fa7353e..32812ab 100644
        else
           call rectgrid          ! regular rectangular grid
        endif
-@@ -1252,6 +1256,151 @@
+@@ -1252,6 +1259,151 @@
        end subroutine cpomgrid
  
  !=======================================================================
@@ -2302,131 +2754,8 @@ index fa7353e..32812ab 100644
  
  ! Calculate dxu and dxt from HTN on the global grid, to preserve
  ! ghost cell and/or land values that might otherwise be lost. Scatter
-diff --git a/source/ice_history.F90 b/source/ice_history.F90
-index 8c3c6ed..415c0ac 100644
---- a/source/ice_history.F90
-+++ b/source/ice_history.F90
-@@ -276,6 +276,9 @@
-       call broadcast_scalar (f_shear, master_task)
-       call broadcast_scalar (f_sig1, master_task)
-       call broadcast_scalar (f_sig2, master_task)
-+      call broadcast_scalar (f_sig11, master_task)
-+      call broadcast_scalar (f_sig22, master_task)
-+      call broadcast_scalar (f_sig12, master_task)
-       call broadcast_scalar (f_dvidtt, master_task)
-       call broadcast_scalar (f_dvidtd, master_task)
-       call broadcast_scalar (f_daidtt, master_task)
-@@ -713,6 +716,21 @@
-              "sig2 is instantaneous", c1, c0,                  &
-              ns1, f_sig2)
-       
-+         call define_hist_field(n_sig11,"sig11","1",ustr2D, ucstr, &
-+             "norm. principal stress 11",                       &
-+             "sig11 is instantaneous", c1, c0,                  &
-+             ns1, f_sig2)
-+      
-+         call define_hist_field(n_sig22,"sig22","1",ustr2D, ucstr, &
-+             "norm. principal stress 22",                       &
-+             "sig22 is instantaneous", c1, c0,                  &
-+             ns1, f_sig2)
-+      
-+         call define_hist_field(n_sig12,"sig12","1",ustr2D, ucstr, &
-+             "norm. principal stress 12",                       &
-+             "sig12 is instantaneous", c1, c0,                  &
-+             ns1, f_sig2)
-+      
-          call define_hist_field(n_dvidtt,"dvidtt","cm/day",tstr2D, tcstr, &
-              "volume tendency thermo",                                  &
-              "none", mps_to_cmpdy, c0,                                  &
-@@ -1125,7 +1143,7 @@
-                               new_month
-       use ice_dyn_eap, only: a11, a12, e11, e12, e22, s11, s12, s22, &
-           yieldstress11, yieldstress12, yieldstress22
--      use ice_dyn_shared, only: kdyn, principal_stress
-+      use ice_dyn_shared, only: kdyn, principal_stress, raw_stress
-       use ice_flux, only: fsw, flw, fsnow, frain, sst, sss, uocn, vocn, &
-           frzmlt_init, fswfac, fswabs, fswthru, alvdr, alvdf, alidr, alidf, &
-           albice, albsno, albpnd, coszen, flat, fsens, flwout, evap, &
-@@ -1139,6 +1157,7 @@
-           stressp_2, stressm_2, stress12_2, &
-           stressp_3, stressm_3, stress12_3, &
-           stressp_4, stressm_4, stress12_4, sig1, sig2, &
-+          sig11, sig22, sig12, &
-           mlt_onset, frz_onset, dagedtt, dagedtd, fswint_ai, keffn_top
-       use ice_atmo, only: formdrag
-       use ice_history_shared ! almost everything
-@@ -1825,6 +1844,15 @@
-                                   sig1      (:,:,iblk), &
-                                   sig2      (:,:,iblk))
-  
-+           call raw_stress (nx_block,  ny_block,  &
-+                            stressp_1 (:,:,iblk), &
-+                            stressm_1 (:,:,iblk), &
-+                            stress12_1(:,:,iblk), &
-+                            prs_sig   (:,:,iblk), &
-+                            sig11     (:,:,iblk), &
-+                            sig22     (:,:,iblk), &
-+                            sig12     (:,:,iblk))
-+ 
-            do j = jlo, jhi
-            do i = ilo, ihi
-               if (.not. tmask(i,j,iblk)) then ! mask out land points
-@@ -1832,6 +1860,9 @@
-                  if (n_shear    (ns) /= 0) a2D(i,j,n_shear(ns),    iblk) = spval
-                  if (n_sig1     (ns) /= 0) a2D(i,j,n_sig1(ns),     iblk) = spval
-                  if (n_sig2     (ns) /= 0) a2D(i,j,n_sig2(ns),     iblk) = spval
-+                 if (n_sig11    (ns) /= 0) a2D(i,j,n_sig11(ns),    iblk) = spval
-+                 if (n_sig22    (ns) /= 0) a2D(i,j,n_sig22(ns),    iblk) = spval
-+                 if (n_sig12    (ns) /= 0) a2D(i,j,n_sig12(ns),    iblk) = spval
-                  if (n_mlt_onset(ns) /= 0) a2D(i,j,n_mlt_onset(ns),iblk) = spval
-                  if (n_frz_onset(ns) /= 0) a2D(i,j,n_frz_onset(ns),iblk) = spval
-                  if (n_hisnap   (ns) /= 0) a2D(i,j,n_hisnap(ns),   iblk) = spval
-@@ -1860,6 +1891,12 @@
-                        sig1 (i,j,iblk)*avail_hist_fields(n_sig1(ns))%cona
-                  if (n_sig2     (ns) /= 0) a2D(i,j,n_sig2(ns),iblk)      = &
-                        sig2 (i,j,iblk)*avail_hist_fields(n_sig2(ns))%cona
-+                 if (n_sig11    (ns) /= 0) a2D(i,j,n_sig11(ns),iblk)      = &
-+                       sig11 (i,j,iblk)*avail_hist_fields(n_sig11(ns))%cona
-+                 if (n_sig22    (ns) /= 0) a2D(i,j,n_sig22(ns),iblk)      = &
-+                       sig22 (i,j,iblk)*avail_hist_fields(n_sig22(ns))%cona
-+                 if (n_sig12    (ns) /= 0) a2D(i,j,n_sig12(ns),iblk)      = &
-+                       sig12 (i,j,iblk)*avail_hist_fields(n_sig12(ns))%cona
-                  if (n_mlt_onset(ns) /= 0) a2D(i,j,n_mlt_onset(ns),iblk) = &
-                        mlt_onset(i,j,iblk)
-                  if (n_frz_onset(ns) /= 0) a2D(i,j,n_frz_onset(ns),iblk) = &
-diff --git a/source/ice_history_shared.F90 b/source/ice_history_shared.F90
-index 809f4ab..f7d6240 100644
---- a/source/ice_history_shared.F90
-+++ b/source/ice_history_shared.F90
-@@ -222,6 +222,8 @@
-            f_strength  = 'm', &
-            f_divu      = 'm', f_shear      = 'm', &
-            f_sig1      = 'm', f_sig2       = 'm', &
-+           f_sig11     = 'm', f_sig22      = 'm', &
-+           f_sig12     = 'm', &
-            f_dvidtt    = 'm', f_dvidtd     = 'm', &
-            f_daidtt    = 'm', f_daidtd     = 'm', &
-            f_dagedtt   = 'm', f_dagedtd    = 'm', &
-@@ -303,6 +305,8 @@
-            f_strength,  &
-            f_divu,      f_shear    , &
-            f_sig1,      f_sig2     , &
-+           f_sig11,     f_sig22    , &
-+           f_sig12,     &
-            f_dvidtt,    f_dvidtd   , &
-            f_daidtt,    f_daidtd   , &
-            f_dagedtt,   f_dagedtd  , &
-@@ -401,6 +405,8 @@
-            n_strength   , &
-            n_divu       , n_shear      , &
-            n_sig1       , n_sig2       , &
-+           n_sig11      , n_sig22      , &
-+           n_sig12      , &
-            n_dvidtt     , n_dvidtd     , &
-            n_daidtt     , n_daidtd     , &
-            n_dagedtt    , n_dagedtd    , &
 diff --git a/source/ice_init.F90 b/source/ice_init.F90
-index ad48473..3e41dad 100644
+index ad48473..21e456c 100644
 --- a/source/ice_init.F90
 +++ b/source/ice_init.F90
 @@ -22,6 +22,7 @@
@@ -2437,7 +2766,53 @@ index ad48473..3e41dad 100644
                       ! 'none'     => no ice
                       ! note:  restart = .true. overwrites
  
-@@ -399,7 +400,8 @@
+@@ -69,7 +70,8 @@
+       use ice_grid, only: grid_file, gridcpl_file, kmt_file, grid_type, grid_format
+       use ice_lvl, only: restart_lvl
+       use ice_mechred, only: kstrength, krdg_partic, krdg_redist, mu_rdg, Cf
+-      use ice_dyn_shared, only: ndte, kdyn, revised_evp, yield_curve
++      use ice_dyn_shared, only: ndte, kdyn, revised_evp, yield_curve, &
++                                l_basalstress, k1, k2, u0, CC, Kt, e_ratio
+       use ice_shortwave, only: albicev, albicei, albsnowv, albsnowi, ahmax, &
+                                shortwave, albedo_type, R_ice, R_pnd, &
+                                R_snw, dT_mlt, rsnw_mlt, kalg
+@@ -151,6 +153,10 @@
+         rfracmin,       rfracmax,        pndaspect,     hs1,            &
+         hp1
+ 
++      namelist /landfast_nml/ &
++        l_basalstress,  k1,             k2,              u0,            &
++        CC,             Kt,             e_ratio
++
+       namelist /forcing_nml/ &
+         atmbndy,        fyear_init,      ycycle,        atm_data_format,&
+         atm_data_type,  atm_data_dir,    calc_strair,   calc_Tsfc,      &
+@@ -265,6 +271,14 @@
+       ahmax     = 0.3_dbl_kind    ! thickness above which ice albedo is constant (m)
+       atmbndy   = 'default'       ! or 'constant'
+ 
++      l_basalstress = .false.     ! Landfast ice parameterization switch
++      k1 = 8                      ! See Lemieux et al. (2015) for explanation
++      k2 = 15                     ! of these values.
++      u0 = 5e-5                   !
++      CC = 20
++      Kt = 0.0                    ! Yield curve offset - use 0.05 for Lemieux 2016
++      e_ratio = 2.0               ! Ellipticity of yield curve = 1.4 for some tensile strength
++
+       fyear_init = 1900           ! first year of forcing cycle
+       ycycle = 1                  ! number of years in forcing cycle
+       atm_data_format = 'bin'     ! file format ('bin'=binary or 'nc'=netcdf)
+@@ -362,6 +376,9 @@
+             print*,'Reading ponds_nml'
+                read(nu_nml, nml=ponds_nml,iostat=nml_error)
+                if (nml_error /= 0) exit
++            print*,'Reading landfast_nml'
++               read(nu_nml, nml=landfast_nml,iostat=nml_error)
++               if (nml_error /= 0) exit
+             print*,'Reading forcing_nml'
+                read(nu_nml, nml=forcing_nml,iostat=nml_error)
+                if (nml_error /= 0) exit
+@@ -399,7 +416,8 @@
              open(nu_diag,file=str)
           endif
        end if
@@ -2447,7 +2822,7 @@ index ad48473..3e41dad 100644
           restart = .true.
        end if
  #else
-@@ -419,7 +421,8 @@
+@@ -419,7 +437,8 @@
  
        if (trim(runtype) == 'continue') restart = .true.
        if (trim(runtype) /= 'continue' .and. (restart)) then
@@ -2457,7 +2832,7 @@ index ad48473..3e41dad 100644
              if (my_task == master_task) then
              write(nu_diag,*) &
              'WARNING: runtype, restart, ice_ic are inconsistent:'
-@@ -433,7 +436,8 @@
+@@ -433,7 +452,8 @@
           endif
        endif
        if (trim(runtype) == 'initial' .and. .not.(restart)) then
@@ -2467,7 +2842,37 @@ index ad48473..3e41dad 100644
              if (my_task == master_task) then
              write(nu_diag,*) &
              'WARNING: runtype, restart, ice_ic are inconsistent:'
-@@ -1077,6 +1081,7 @@
+@@ -743,6 +763,14 @@
+       call broadcast_array (lonpnt(1:2),        master_task)
+       call broadcast_scalar(runid,              master_task)
+       call broadcast_scalar(runtype,            master_task)
++      call broadcast_scalar(l_basalstress,      master_task)
++      call broadcast_scalar(k1,                 master_task)
++      call broadcast_scalar(k2,                 master_task)
++      call broadcast_scalar(u0,                 master_task)
++      call broadcast_scalar(CC,                 master_task)
++      call broadcast_scalar(Kt,                 master_task)
++      call broadcast_scalar(e_ratio,            master_task)
++
+ 
+       if (dbug) & ! else only master_task writes to file
+       call broadcast_scalar(nu_diag,            master_task)
+@@ -884,6 +912,14 @@
+          write(nu_diag,1000) ' ahmax                     = ', ahmax
+          endif
+ 
++         write(nu_diag,1010) ' l_basalstress             = ', l_basalstress
++         write(nu_diag,1000) ' k1                        = ', k1
++         write(nu_diag,1000) ' k2                        = ', k2
++         write(nu_diag,1000) ' u0                        = ', u0
++         write(nu_diag,1000) ' CC                        = ', CC
++         write(nu_diag,1000) ' Kt                        = ', Kt
++         write(nu_diag,1000) ' e_ratio                   = ', e_ratio
++
+          write(nu_diag,1000) ' rfracmin                  = ', rfracmin
+          write(nu_diag,1000) ' rfracmax                  = ', rfracmax
+          if (tr_pond_lvl) then
+@@ -1077,6 +1113,7 @@
               grid_type  /=  'rectangular'    .and. &
               grid_type  /=  'cpom_grid'      .and. &
               grid_type  /=  'regional'       .and. &
@@ -2475,7 +2880,7 @@ index ad48473..3e41dad 100644
               grid_type  /=  'latlon' ) then 
              call abort_ice('ice_init: unknown grid_type')
           endif
-@@ -1324,11 +1329,12 @@
+@@ -1324,11 +1361,12 @@
                                  aicen,    trcrn, &
                                  vicen,    vsnon)
  
@@ -2489,7 +2894,7 @@ index ad48473..3e41dad 100644
        use ice_itd, only: hin_max
        use ice_therm_mushy, only: &
             enthalpy_mush, &
-@@ -1398,7 +1404,7 @@
+@@ -1398,7 +1436,7 @@
  
        real (kind=dbl_kind), parameter :: &
           hsno_init = 0.20_dbl_kind   , & ! initial snow thickness (m)
@@ -2498,7 +2903,7 @@ index ad48473..3e41dad 100644
           edge_init_sh = -60._dbl_kind    ! initial ice edge, S.Hem. (deg)
  
        indxi(:) = 0
-@@ -1501,7 +1507,7 @@
+@@ -1501,7 +1539,7 @@
           do i = ilo, ihi
              if (tmask(i,j)) then
                 ! place ice in high latitudes where ocean sfc is cold
@@ -2507,7 +2912,7 @@ index ad48473..3e41dad 100644
                      (ULAT(i,j) < edge_init_sh/rad_to_deg .or. &
                       ULAT(i,j) > edge_init_nh/rad_to_deg) ) then
                    icells = icells + 1
-@@ -1636,6 +1642,149 @@
+@@ -1636,6 +1674,149 @@
  
              endif               ! heat_capacity
           enddo                  ! ncat
@@ -2657,20 +3062,6 @@ index ad48473..3e41dad 100644
        endif                     ! ice_ic
  
        end subroutine set_state_var
-diff --git a/source/ice_restoring.F90 b/source/ice_restoring.F90
-index 83548cc..83b28aa 100644
---- a/source/ice_restoring.F90
-+++ b/source/ice_restoring.F90
-@@ -230,6 +230,9 @@
-                aicen_rest(i,j,n,iblk) = aicen(i,jhi,n,iblk)
-                vicen_rest(i,j,n,iblk) = vicen(i,jhi,n,iblk)
-                vsnon_rest(i,j,n,iblk) = vsnon(i,jhi,n,iblk)
-+!               aicen_rest(i,j,n,iblk) = 0.
-+!               vicen_rest(i,j,n,iblk) = 0.
-+!               vsnon_rest(i,j,n,iblk) = 0.
-                do nt = 1, ntrcr
-                   trcrn_rest(i,j,nt,n,iblk) = trcrn(ihi,j,nt,n,iblk)
-                enddo
 diff --git a/source/ice_state.F90 b/source/ice_state.F90
 index ee9693f..e6cd77b 100644
 --- a/source/ice_state.F90
