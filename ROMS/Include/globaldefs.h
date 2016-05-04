@@ -72,18 +72,6 @@
 #define RHO_SURF
 
 /*
-** Activate criteria for isopycnic diffusion of tracer as maximum
-** density slope or minimum density stratification.  Choose only
-** one option. If neither option is activated, the default criteria
-** is used in the algorithm.
-*/
-
-#if defined MIX_ISO_TS && (defined TS_DIF2 || defined TS_DIF4)
-# undef   MAX_SLOPE
-# undef   MIN_STRAT
-#endif
-
-/*
 ** Turn ON/OFF double precision for real type variables and
 ** associated intrinsic functions.
 */
