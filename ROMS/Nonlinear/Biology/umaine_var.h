@@ -454,7 +454,6 @@
                 idRtrc(iCSDC)=varid
               CASE ('idRtrc(iDDCA)')
                 idRtrc(iDDCA)=varid
-
 #ifdef OXYGEN
               CASE ('idRtrc(iOxyg)')
                 idRtrc(iOxyg)=varid
@@ -465,6 +464,17 @@
               CASE ('idRtrc(iTAlk)')
                 idRtrc(iTAlk)=varid
 #endif
+#ifdef IRON_LIMIT
+              CASE ('idRtrc(iS1_Fe)')
+                idRtrc(iS1_Fe)=varid
+              CASE ('idRtrc(iS2_Fe)')
+                idRtrc(iS2_Fe)=varid
+              CASE ('idRtrc(iS3_Fe)')
+                idRtrc(iS3_Fe)=varid
+              CASE ('idRtrc(iFeD_)')
+                idRtrc(iFeD_)=varid
+#endif
+
 #ifdef DIAGNOSTICS_BIO
 /*
 **  Biological tracers term diagnostics.

@@ -722,9 +722,15 @@
         Vinfo(16)=Vname(1,idtime)
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idbath,ng),r8)
+# ifdef PERFECT_RESTART
+        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath),     &
+     &                 NF_FRST, nvd4, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+# else
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath),     &
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname,      &
      &                 SetFillVal = .FALSE.)
+# endif
         IF (exit_flag.ne.NoError) RETURN
 #endif
 !

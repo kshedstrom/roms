@@ -436,8 +436,8 @@
       real(r8) :: Qsms36,Qsms37,Qsms38,Qsms39
       real(r8) :: NQsms36,NQsms37,NQsms38,NQsms39
       real(r8) :: sms36,sms37,sms38,sms39
-      real(r8) :: Fndgcf
-      real(r8) :: h_max, Fe_min, Fe_max, Fe_rel, SiN_min, SiN_max
+      real(r8) :: Fndgcf, Fe_clm
+      real(r8) :: h_min, h_max, Fe_min, Fe_max, Fe_rel, SiN_min, SiN_max
 #endif
 
 #include "set_bounds.h"
@@ -635,23 +635,31 @@
 
 #if defined IRON_LIMIT && defined IRON_RELAX
 !  Relaxation of dissolved iron to climatology
-        DO k=1,N(ng)
-          DO i=Istr,Iend
 !  Set concentration and depth parameters for FeD climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-            h_max = 200.0_r8
-            Fe_max = 2.0_r8
+        h_min = 200.0_r8
+        h_max = 1500.0_r8
+        Fe_max = 2.0_r8
+	Fe_min = 0.05_r8
 !  Set nudging time scales to 5 days
-            Fe_rel = 5.0_r8
-            Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
+        Fe_rel = 5.0_r8
+        Fndgcf = 1.0_r8/(Fe_rel*86400.0_r8)
+        DO k=1,N(ng)
+          DO i=Istr,Iend
 !  Relaxation for depths < h_max to simulate Fe input at coast
-            IF (h(i,j).le.h_max) THEN
-              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                            &
-     &                       dt(ng)*Fndgcf*(Fe_max-Bio(i,k,iFeD_))
-            ELSE IF (h(i,j).gt.h_max .and. Bio(i,k,iFeD_).lt.0.1_r8) THEN
-                    Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                      &
-     &                       dt(ng)*Fndgcf*(0.1_r8-Bio(i,k,iFeD_))
-            END IF
+            IF (h(i,j).le.h_min) THEN
+	      Fe_clm = Fe_max
+            ELSE IF (h(i,j).ge.h_max) THEN
+	      Fe_clm = Fe_min
+	    ELSE
+	      Fe_clm = Fe_min + (h_max - h(i,j)) * (Fe_max - Fe_min) /  &
+     &                     (h_max - h_min)
+	    ENDIF
+!  Only nudge if we have too little iron
+	    IF (Bio(i,k,iFeD_) < Fe_clm) THEN
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                              &
+     &                       dt(ng)*Fndgcf*(Fe_clm-Bio(i,k,iFeD_))
+	    ENDIF
           END DO
         END DO
 #endif
@@ -721,7 +729,7 @@
 #ifdef OPTIC_MANIZZA
         DO k=N(ng),1,-1
           DO i=Istr,Iend
-	  ! Visible light only
+          ! Visible light only
             PAR(i,k)=PARsur(i)*(decayW(i,j,k,3) + decayW(i,j,k,4))
           END DO
         END DO
@@ -1004,8 +1012,8 @@
                PCmaxS2 = gmaxs2(ng) * fnitS2 * Tfunc
                PCmaxS3 = gmaxs3(ng) * fnitS3 * 0.8_r8  !Tfunc
 
-         cff2=max(PAR(i,K),0.00001)                                         !WHAT IS THE DIFFERENCE BETWEEN CFF2 AND CFF3?
-         cff3=max(PAR(i,k),0.00001)
+         cff2=max(PAR(i,K),0.00001_r8)                            !WHAT IS THE DIFFERENCE BETWEEN CFF2 AND CFF3?
+         cff3=max(PAR(i,k),0.00001_r8)
 
 ! Nutrient uptake by S1
          n_nps1 =  gno3S1 * Bio(i,k,iS1_C)*(1.0_r8-ES1(ng))             &  !ES = Phytoplankton exudation parameter
@@ -1063,51 +1071,81 @@
 ! For S1
 ! Iron uptake proportional to growth
 !here exudation is accounted for in n_pps1 - needs separate treatment in final rate calc
-              cffFeS1_G = n_pps1*FNratioS1                                 &
-     &                    /MAX(Minval,Bio(i,k,iFeD_))                                    !!!DONT understand this equation yet
+              cffFeS1_G = dtdays*n_pps1/(1.0_r8-ES1(ng))*FNratioS1/     &
+     &               MAX(Minval,Bio(i,k,iFeD_))
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS1_G)
+              Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                          &
+     &                       Bio(i,k,iFeD_)*cffFeS1_G
 
 ! Iron uptake to reach appropriate Fe:C ratio
               cffFeS1_R=dtdays*(FCratioE-FCratioS1)/T_fe(ng)
               cffFeS1_R=Bio(i,k,iS1_C)*cffFeS1_R
-!used biomass in C - no need for redfield conversion. removed (106.0_r8/16.0_r8)*1.0e-3_r8
+! used biomass in C - no need for redfield conversion.
+! removed (106.0_r8/16.0_r8)*1.0e-3_r8
 
               IF (cffFeS1_R.ge.0.0_r8) THEN
 !The "else" statement is when the realized Fe:C ratio is greater than the theoretical one.
                 cffFeS1_R=cffFeS1_R/MAX(Minval,Bio(i,k,iFeD_))
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS1_R)
+                Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)+                        &
+     &                         Bio(i,k,iFeD_)*cffFeS1_R
               ELSE
-!In that case, you decrease the iron already incororated in the cell and put it back
+!In that case, you decrease the iron already incorporated in the cell and put it back
 !into the dissolved pool.
                 cffFeS1_R=-cffFeS1_R/MAX(Minval,Bio(i,k,iS1_Fe))
+                Bio(i,k,iS1_Fe)=Bio(i,k,iS1_Fe)/(1.0_r8+cffFeS1_R)
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+     &                         Bio(i,k,iS1_Fe)*cffFeS1_R
               END IF
 
 
 !For S2
 ! Iron uptake proportional to growth
               FNratioS2=Bio(i,k,iS2_Fe)/MAX(Minval,Bio(i,k,iS2_N))
-              cffFeS2_G=n_pps2*FNratioS2/MAX(Minval,Bio(i,k,iFeD_))
+              cffFeS2_G = dtdays*n_pps2/(1.0_r8-ES2(ng))*FNratioS2/     &
+     &               MAX(Minval,Bio(i,k,iFeD_))
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS2_G)
+              Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                          &
+     &                       Bio(i,k,iFeD_)*cffFeS2_G
 
 ! Iron uptake to reach appropriate Fe:C ratio
               cffFeS2_R=dtdays*(FCratioE-FCratioS2)/T_fe(ng)
               cffFeS2_R=Bio(i,k,iS2_C)*cffFeS2_R                        !used biomass in C - no need for redfield conversion (106.0_r8/16.0_r8)
               IF (cffFeS2_R.ge.0.0_r8) THEN
                 cffFeS2_R=cffFeS2_R/MAX(Minval,Bio(i,k,iFeD_))
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS2_R)
+                Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)+                        &
+     &                         Bio(i,k,iFeD_)*cffFeS2_R
               ELSE
                 cffFeS2_R=-cffFeS2_R/MAX(Minval,Bio(i,k,iS2_Fe))
+                Bio(i,k,iS2_Fe)=Bio(i,k,iS2_Fe)/(1.0_r8+cffFeS2_R)
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+     &                         Bio(i,k,iS2_Fe)*cffFeS2_R
               END IF
 
 
 !For S3
 ! Iron uptake proportional to growth
               FNratioS3=Bio(i,k,iS3_Fe)/MAX(Minval,Bio(i,k,iS3_N))
-              cffFeS3_G=n_pps3*FNratioS3/MAX(Minval,Bio(i,k,iFeD_))
+              cffFeS3_G = dtdays*n_pps3/(1.0_r8-ES3(ng))*FNratioS3/     &
+     &               MAX(Minval,Bio(i,k,iFeD_))
+              Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS3_G)
+              Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+                          &
+     &                       Bio(i,k,iFeD_)*cffFeS3_G
 
 ! Iron uptake to reach appropriate Fe:C ratio
               cffFeS3_R=dtdays*(FCratioE-FCratioS3)/T_fe(ng)
               cffFeS3_R=Bio(i,k,iS3_C)*cffFeS3_R                         !used biomass in C - no need for redfield conversion (106.0_r8/16.0_r8)
               IF (cffFeS3_R.ge.0.0_r8) THEN
                 cffFeS3_R=cffFeS3_R/MAX(Minval,Bio(i,k,iFeD_))
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)/(1.0_r8+cffFeS3_R)
+                Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)+                        &
+     &                         Bio(i,k,iFeD_)*cffFeS3_R
               ELSE
                 cffFeS3_R=-cffFeS3_R/MAX(Minval,Bio(i,k,iS3_Fe))
+                Bio(i,k,iS3_Fe)=Bio(i,k,iS3_Fe)/(1.0_r8+cffFeS3_R)
+                Bio(i,k,iFeD_)=Bio(i,k,iFeD_)+                          &
+     &                         Bio(i,k,iS3_Fe)*cffFeS3_R
               END IF
 
 #endif
@@ -1142,13 +1180,13 @@
 
 ! Cost of biosynthesis
 
-       cff4=max(n_pps1,0.000001)
+       cff4=max(n_pps1,0.000001_r8)
        lambdaS1 = lambdano3_s1(ng) * max(n_nps1/cff4,0.5_r8)
 
-       cff4=max(n_pps2,0.000001)
+       cff4=max(n_pps2,0.000001_r8)
        lambdaS2 = lambdano3_s2(ng) * max(n_nps2/cff4,0.5_r8)
 
-       cff4=max(n_pps3,0.000001)
+       cff4=max(n_pps3,0.000001_r8)
        lambdaS3 = lambdano3_s3(ng) * max(n_nps3/cff4,0.5_r8)
 
 !----------------------------------------------------------------------
@@ -1528,17 +1566,13 @@
         Qsms35=csdocpp                                                       !iCSDC
 
 #ifdef IRON_LIMIT
-!iS1_Fe: Growth associated Fe uptake, luxury iron uptake, grazing by Z1, mortality
-        Qsms36= cffFeS1_G/(1.0_r8-ES1(ng)) + cffFeS1_R - gs1Fezz1 - morts1Fe
-        Qsms37= cffFeS2_G/(1.0_r8-ES1(ng)) + cffFeS2_R - gs2Fezz2 - morts2Fe     !iS2_Fe
-        Qsms38= cffFeS3_G/(1.0_r8-ES1(ng)) + cffFeS3_R - gs3Fezz2 - morts3Fe     !iS3_Fe  !S2 and S3 need sinking term????
+!iS1_Fe: Losses due to grazing by Z1, mortality
+        Qsms36= - gs1Fezz1 - morts1Fe
+        Qsms37= - gs2Fezz2 - morts2Fe     !iS2_Fe
+        Qsms38= - gs3Fezz2 - morts3Fe     !iS3_Fe  !S2 and S3 need sinking term????
 !iFe_
-        Qsms39= - cffFeS1_G/(1.0_r8-ES1(ng))                            &
-     &          - cffFeS2_G/(1.0_r8-ES2(ng))                            &
-     &          - cffFeS3_G/(1.0_r8-ES1(ng))                            & !growth associated Fe uptake (exudation needs separate treatment)
-     &          + (morts1Fe+morts2Fe+morts3Fe)*FeRR(ng)                 & !mortality
-     &          + (gs1Fezz1+gs2Fezz2+gs3Fezz2)*FeRR(ng)                 & !Z grazing
-     &          - cffFeS1_R - cffFeS2_R - cffFeS3_R                       !luxury iron uptake!
+        Qsms39= (morts1Fe+morts2Fe+morts3Fe)*FeRR(ng)                   & !mortality
+     &          + (gs1Fezz1+gs2Fezz2+gs3Fezz2)*FeRR(ng)                   !Z grazing
 #endif
 
 #ifdef OXYGEN

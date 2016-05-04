@@ -228,7 +228,7 @@
 # define OPTIC_MANIZZA
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
-# undef IRON_RELAX
-# undef  IRON_RSIN
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
+# define IRON_RELAX
+# undef  IRON_RSIN         /* Not implemented yet in umaine.h */
 #endif
