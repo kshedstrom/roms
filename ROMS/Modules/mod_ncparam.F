@@ -1971,10 +1971,10 @@
                     END DO
                     WRITE (Vname(1,varid),'(a,i2.2,a)')                 &
      &                    TRIM(ADJUSTL(Vinfo(1))), ic, '_age'
-                    WRITE (Vname(2,varid),'(a,a,i2.2)')                 &
-     &                    TRIM(ADJUSTL(Vinfo(2))), ' mean age, type ',  &
-     &                    ic
-                    WRITE (Vname(3,varid),'(a)') 'second'
+                    WRITE (Vname(2,varid),'(a,i2.2)')                   &
+     &                    'age concentraction, type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'second kilogram meter-3'
                     WRITE (Vname(4,varid),'(a,a)')                      &
      &                    TRIM(Vname(1,varid)), ', scalar, series'
                     WRITE (Vname(5,varid),'(a)')                        &
