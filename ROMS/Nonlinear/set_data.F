@@ -44,6 +44,9 @@
 !***********************************************************************
 !
       USE mod_param
+#if defined RED_TIDE
+      USE mod_biology
+#endif
       USE mod_boundary
 # ifdef BEST_NPZ
       USE mod_biology
@@ -381,6 +384,21 @@
 !
       CALL ana_srflux (ng, tile, iNLM)
 #   endif
+#  endif
+
+#  if defined RED_TIDE && defined DAILY_SHORTWAVE
+!
+!-----------------------------------------------------------------------
+!  Set kinematic daily-averaged surface solar shortwave radiation flux
+!  (degC m/s).
+!-----------------------------------------------------------------------
+!
+      CALL set_2dfld_tile (ng, tile, iNLM, idAsrf,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%srflxG_avg,                       &
+     &                     FORCES(ng)%srflx_avg,                        &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 #  endif
 
 #  ifdef ANA_LRFLUX
@@ -1069,6 +1087,20 @@
         END DO
 #  endif
       END IF
+# endif
+
+# ifdef RED_TIDE
+!
+!-----------------------------------------------------------------------
+!  Red tide Observed Dissolved Inorganic Nutrient.
+!-----------------------------------------------------------------------
+!
+      CALL set_3dfld_tile (ng, tile, iNLM, idODIN,                      &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng),                &
+     &                     OCEAN(ng)%DIN_obsG,                          &
+     &                     OCEAN(ng)%DIN_obs,                           &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 !
 !-----------------------------------------------------------------------

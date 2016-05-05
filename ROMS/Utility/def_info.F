@@ -2700,6 +2700,8 @@
 #  include <npzd_iron_def.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_def.h>
+# elif defined RED_TIDE
+#  include <red_tide_def.h>
 # endif
 #endif
 
