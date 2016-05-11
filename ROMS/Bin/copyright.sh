@@ -36,7 +36,7 @@ set c_dirs = "Apps Compilers Master ROMS User"
 
 # Specific files not in the "c_dirs".
 
-set special_files = "makefile Waves/SWAN/Src/Module.mk Waves/SWAN/Src/waves_coupler.F"
+set special_files = "makefile Waves/SWAN/Src/Module.mk Waves/SWAN/Src/waves_coupler.F Waves/SWAN/Src/swancpp.h"
 
 set setsvn = 0
 
