@@ -109,7 +109,6 @@
         END DO
       END DO
 
-#if defined NEP6
 !
 !  Set nudging boundaries coefficients zone for NEP 
 !  nudging coefficients vary from a thirty
@@ -134,12 +133,12 @@
         END DO
       END DO
 ! cff3-point wide linearly tapered nudging zone
-      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
-        DO j=MAX(400,JstrT),JendT
-          wrk(i,j)=MAX(wrk(i,j),                                        &
-     &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
-        END DO
-      END DO
+!      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
+!        DO j=MAX(400,JstrT),JendT
+!          wrk(i,j)=MAX(wrk(i,j),                                        &
+!     &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
+!        END DO
+!      END DO
 !
 ! Set the relevant nudging coefficients using the entries in wrk
 !

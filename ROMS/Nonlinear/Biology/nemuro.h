@@ -353,7 +353,7 @@
 #endif
 !
 #if defined IRON_LIMIT && defined IRON_RSIN
-!  Variable Si:N ratio for dimatoms based on dissolved iron concentration
+!  Variable Si:N ratio for diatoms based on dissolved iron concentration
 !  Si:N varies between 1:1 (high iron) and 3:1 (low iron)
         DO k=1,N(ng)
           DO i=Istr,Iend

@@ -2584,6 +2584,15 @@
   'nulvar'
   1.0d0
 
+'river_S1_Fe'                             ! Input/Output
+  'river runoff S1_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S1_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS1_Fe)'
+  'nulvar'
+  1.0d0
+
 'river_S1_C'                                        ! Input
   'river runoff S1_C'
   'millimole_C meter-3'                     ! [millimole/m3]
@@ -2599,6 +2608,15 @@
   'river_S1CH, scalar, series'
   'river_time'
   'idRtrc(iS1CH)'
+  'nulvar'
+  1.0d0
+
+'river_S2_Fe'                             ! Input/Output
+  'river runoff S2_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S2_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS2_Fe)'
   'nulvar'
   1.0d0
 
@@ -2626,6 +2644,15 @@
   'river_S2CH, scalar, series'
   'river_time'
   'idRtrc(iS2CH)'
+  'nulvar'
+  1.0d0
+
+'river_S3_Fe'                             ! Input/Output
+  'river runoff S3_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S3_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS3_Fe)'
   'nulvar'
   1.0d0
 
@@ -2689,6 +2716,15 @@
   'river_Z2_N, scalar, series'
   'river_time'
   'idRtrc(iZ2_N)'
+  'nulvar'
+  1.0d0
+
+'river_FeD'                             ! Input/Output
+  'river runoff FeD'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S2_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iFeD_)'
   'nulvar'
   1.0d0
 
@@ -3886,7 +3922,7 @@
   1.0d0
 
 'FeD'                                             ! Input/Output
-  'disolved iron concentration'
+  'dissolved iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
   'iron, scalar, series'
   'ocean_time'

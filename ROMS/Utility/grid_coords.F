@@ -57,6 +57,11 @@
 # ifdef STATIONS
       real(r8), dimension(Nstation(ng)) :: Slon, Slat
       real(r8), dimension(Nstation(ng)) :: Ista, Jsta
+# ifdef DISTRIBUTE
+! CJ fix create new variables to count number of occurances of station
+! in tiles
+      real(r8), dimension(Nstation(ng)) :: STNcount
+# endif
 # endif
 !
 !-----------------------------------------------------------------------
@@ -297,6 +302,17 @@
           END IF
 #endif
 #  ifdef DISTRIBUTE
+! CJ fix check to see if a station is in the tile (assume station index
+! can not be 0.d0)
+          do l=1,Nstation(ng)
+            if ((Ista(l).gt.0.D0).OR.(Jsta(l).gt.0.D0)) then
+              STNcount(l)=1.D0
+            else
+              STNcount(l)=0.D0
+            end if
+          end do
+! CJ fix collect the counts across all processors
+          call mp_collect(ng,model,mc,spv,STNcount)
           CALL mp_collect (ng, model, mc, spv, Ista)
           CALL mp_collect (ng, model, mc, spv, Jsta)
 #  endif
@@ -304,6 +320,14 @@
           DO l=1,Nstation(ng)
             IF (SCALARS(ng)%Sflag(l).gt.0) THEN
               mc=mc+1
+#  ifdef DISTRIBUTE
+! CJ fix divide Ista by number of counts (1-4) to recover original value
+! if necessary
+              IF (STNcount(mc).gt.0) THEN
+                Ista(mc)=Ista(mc)/STNcount(mc)
+                Jsta(mc)=Jsta(mc)/STNcount(mc)
+              END IF
+#  endif
               SCALARS(ng)%SposX(l)=Ista(mc)
               SCALARS(ng)%SposY(l)=Jsta(mc)
             END IF

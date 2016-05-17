@@ -327,6 +327,16 @@
           END IF
         END IF
 
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'var_info',            &
+     &                        TRIM(varname))
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,20) 'var_info', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+
 #ifdef FOUR_DVAR
         IF (exit_flag.eq.NoError) THEN
           lstr=LEN_TRIM(state_vector)-1
@@ -2690,6 +2700,8 @@
 #  include <npzd_iron_def.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_def.h>
+# elif defined RED_TIDE
+#  include <red_tide_def.h>
 # endif
 #endif
 

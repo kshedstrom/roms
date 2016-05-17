@@ -360,6 +360,10 @@
           real(r8), pointer :: snow_n(:,:)
           real(r8), pointer :: p_e_n(:,:)
 # endif 
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+          real(r8), pointer :: srflx_avg(:,:)
+          real(r8), pointer :: srflxG_avg(:,:,:)
+# endif
 
 # ifdef CLOUDS
           real(r8), pointer :: cloud(:,:)
@@ -783,6 +787,11 @@
       allocate ( FORCES(ng) % qao_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % snow_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % p_e_n(LBi:UBi,LBj:UBj) )
+# endif
+
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+      allocate ( FORCES(ng) % srflx_avg(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % srflxG_avg(LBi:UBi,LBj:UBj,2) )
 # endif
 
 # ifdef CLOUDS
@@ -1294,6 +1303,11 @@
             FORCES(ng) % qao_n(i,j) = IniVal
             FORCES(ng) % snow_n(i,j) = IniVal
             FORCES(ng) % p_e_n(i,j) = IniVal
+# endif
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+            FORCES(ng) % srflx_avg(i,j) = IniVal
+            FORCES(ng) % srflxG_avg(i,j,1) = IniVal
+            FORCES(ng) % srflxG_avg(i,j,2) = IniVal
 # endif
 # ifdef CLOUDS
             FORCES(ng) % cloud(i,j) = IniVal

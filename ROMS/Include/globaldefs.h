@@ -72,18 +72,6 @@
 #define RHO_SURF
 
 /*
-** Activate criteria for isopycnic diffusion of tracer as maximum
-** density slope or minimum density stratification.  Choose only
-** one option. If neither option is activated, the default criteria
-** is used in the algorithm.
-*/
-
-#if defined MIX_ISO_TS && (defined TS_DIF2 || defined TS_DIF4)
-# undef   MAX_SLOPE
-# undef   MIN_STRAT
-#endif
-
-/*
 ** Turn ON/OFF double precision for real type variables and
 ** associated intrinsic functions.
 */
@@ -556,7 +544,7 @@
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined NEMURO      || defined NPZD_FRANKS || \
     defined NPZD_IRON   || defined NPZD_POWELL || \
-    defined BIO_GOANPZ  || \
+    defined RED_TIDE    || defined BIO_GOANPZ  || \
     defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY
 #endif
@@ -697,6 +685,7 @@
     ( defined BULK_FLUXES  && !defined ANA_WINDS)    || \
     ( defined BULK_FLUXES  && !defined ANA_SRFLUX)   || \
     ( defined LMD_SKPP     && !defined ANA_SRFLUX)   || \
+      defined RED_TIDE     || \
     ( defined SALINITY     && !defined ANA_SSFLUX    && \
      (defined BULK_FLUXES  && !defined EMINUSP))     || \
     ( defined SOLAR_SOURCE && !defined ANA_SRFLUX)   || \

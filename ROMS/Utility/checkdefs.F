@@ -685,13 +685,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CHECKPOINTING,'
 #endif
-#if defined CLIMA_TS_MIX && defined SOLVE3D && \
-   (defined TS_DIF2      || defined TS_DIF4)
-      IF (Master) WRITE (stdout,20) 'CLIMA_TS_MIX',                     &
-     &   'Horizontal diffusion of tracer perturbation (T-Tclm).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' CLIMA_TS_MIX,'
-#endif
 #if defined GLS_MIXING && defined CRAIG_BANNER
       IF (Master) WRITE (stdout,20) 'CRAIG_BANNER',                     &
      &   'Craig and Banner wave breaking surface flux.'
@@ -733,6 +726,12 @@
      &   'Orthogonal curvilinear grid.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' CURVGRID,'
+#endif
+#if defined DAILY_SHORTWAVE && defined RED_TIDE
+      IF (Master) WRITE (stdout,20) 'DAILY_SHORTWAVE',                  &
+     &   'Daily-averaged surface solar shortwave radiation flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' DAILY_SHORTWAVE,'
 #endif
 #ifdef DEBUGGING
       IF (Master) WRITE (stdout,20) 'DEBUGGING',                        &
@@ -1240,20 +1239,6 @@
      &   'Compute outgoing longwave radiation internally.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' LONGWAVE_OUT,'
-#endif
-#if defined MIX_ISO_TS && (defined TS_DIF2 || defined TS_DIF4)
-# ifdef MAX_SLOPE
-      IF (Master) WRITE (stdout,20) 'MAX_SLOPE',                        &
-     &   'Maximum density slope in isopycnic diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' MAX_SLOPE,'
-# endif
-# ifdef MIN_STRAT
-      IF (Master) WRITE (stdout,20) 'MIN_STRAT',                        &
-     &   'Minimum density stratification in isopycnic diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' MIN_STRAT,'
-# endif
 #endif
 #ifdef M2TIDE_DIFF
       IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
@@ -1806,6 +1791,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' RECOMPUTE_4DVAR,'
 #endif
+#ifdef RED_TIDE
+      IF (Master) WRITE (stdout,20) 'RED_TIDE',                         &
+     &   'Red tide biological model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' RED_TIDE,'
+      ibiology=ibiology+1
+#endif
 #ifdef R_SYMMETRY
       IF (Master) WRITE (stdout,20) 'REP_MATRIX',                       &
      &   'Representers Matrix Symmetry Test.'
@@ -2193,6 +2185,34 @@
      &   'Advecting and diffusing inert passive tracer.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' T_PASSIVE,'
+# endif
+# if defined TS_MIX_CLIMA && \
+    (defined TS_DIF2      || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_CLIMA',                     &
+     &   'Horizontal diffusion of tracer perturbation (T-Tclm).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' TS_MIX_CLIMA,'
+# endif
+# if defined TS_MIX_MAX_SLOPE && defined MIX_ISO_TS && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_MAX_SLOPE',                 &
+     &   'Maximum density slope in isopycnal diffusion.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_MAX_SLOPE,'
+# endif
+# if defined TS_MIX_MAX_SLOPE && defined MIX_ISO_TS && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_MAX_STRAT',                 &
+     &   'Minimum density stratification in isopycnal diffusion.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_MAX_STRAT,'
+# endif
+# if defined TS_MIX_STABILITY && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_STABILITY',                 &
+     &   'Weighting diffusion between two time levels.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_STABILITY,'
 # endif
 # ifdef TS_MPDATA
       IF (Master) WRITE (stdout,20) 'TS_MPDATA',                        &

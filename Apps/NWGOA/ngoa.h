@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
@@ -29,7 +29,7 @@
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
-#define FLOATS
+#undef FLOATS
 #define STATIONS
 #define WET_DRY
 
@@ -61,7 +61,6 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  define  ICE_I_O
 # endif
 #endif
 
@@ -113,7 +112,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# undef LMD_MIXING
+# define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -124,7 +123,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# define GLS_MIXING
+# undef GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -173,7 +172,7 @@
 
 /* Not using Runoff now */
 #ifdef SOLVE3D
-# define RUNOFF
+# undef RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
@@ -217,7 +216,7 @@
 /*
 **  Biological model options.
 */
-#undef BIO_UMAINE
+#define BIO_UMAINE
 
 #ifdef BIO_UMAINE
 # define CARBON
