@@ -61,6 +61,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define  ICE_I_O
 # endif
 #endif
 
