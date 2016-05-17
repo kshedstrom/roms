@@ -323,8 +323,10 @@
 #  ifdef DISTRIBUTE
 ! CJ fix divide Ista by number of counts (1-4) to recover original value
 ! if necessary
-              Ista(mc)=Ista(mc)/STNcount(mc)
-              Jsta(mc)=Jsta(mc)/STNcount(mc)
+              IF (STNcount(mc).gt.0) THEN
+                Ista(mc)=Ista(mc)/STNcount(mc)
+                Jsta(mc)=Jsta(mc)/STNcount(mc)
+              END IF
 #  endif
               SCALARS(ng)%SposX(l)=Ista(mc)
               SCALARS(ng)%SposY(l)=Jsta(mc)

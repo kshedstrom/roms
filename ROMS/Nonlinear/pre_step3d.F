@@ -845,10 +845,22 @@
      &            (j.eq.Jsrc)) THEN
                 DO k=1,N(ng)-1
                   FC(Isrc,k)=FC(Isrc,k)+0.5_r8*                         &
+#  ifdef ONE_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(itrc)+                   &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(itrc))
+#  elif defined TWO_D_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc)+                &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc))
+#  else
      &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
      &                        SOURCES(ng)%Tsrc(is,k  ,itrc)+            &
      &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
      &                        SOURCES(ng)%Tsrc(is,k+1,itrc))
+#  endif
                 END DO
               END IF
             END DO
