@@ -832,6 +832,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ESMF_LIB,'
 #endif
+#ifdef ENKF_RESTART
+      IF (Master) WRITE (stdout,20) 'ENKF_RESTART',                     &
+     &   'Writting fields for offline Ensemble Kalman Filter.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ENKF_RESTART,'
+#endif
 #ifdef ENSEMBLE
       IF (Master) WRITE (stdout,20) 'ENSEMBLE',                         &
      &   'Ensemble Forecasting Propagator.'
@@ -3012,7 +3018,6 @@
         exit_flag=5
       END IF
 #endif
-
 
       RETURN
       END SUBROUTINE checkdefs

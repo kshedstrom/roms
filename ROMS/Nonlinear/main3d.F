@@ -260,6 +260,7 @@
                 END DO
 !$OMP BARRIER
               END IF
+              CALL set_depth (ng, tile)
             END DO
 # endif
 !
