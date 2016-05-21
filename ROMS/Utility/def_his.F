@@ -2320,7 +2320,7 @@
             Vinfo( 3)=Vname(3,idBmas(i))
             Vinfo(14)=Vname(4,idBmas(i))
             Vinfo(16)=Vname(1,idtime)
-            WRITE (Vinfo(19),40) 1000.0_r8*Sd50(i,ng)
+            WRITE (Vinfo(19),50) 1000.0_r8*Sd50(i,ng)
 #  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
 #  endif
