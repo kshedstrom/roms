@@ -160,8 +160,8 @@
 ! variables into HISTORY output file.
 Hout(idUice) == T
 Hout(idVice) == T
-Hout(idUiceE) == F
-Hout(idViceN) == F
+Hout(idUiceE) == T
+Hout(idViceN) == T
 Hout(idAice) == T
 Hout(idHice) == T
 Hout(idTice) == T
@@ -189,8 +189,8 @@ Hout(idIomflx) == T
 ! variables into AVERAGES output file.
 Aout(idUice) == T
 Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
+Aout(idUiceE) == T
+Aout(idViceN) == T
 Aout(idAice) == T
 Aout(idHice) == T
 Aout(idTice) == T
@@ -218,8 +218,8 @@ Aout(idIomflx) == T
 ! variables into AVERAGES2 output file.
 Aout2(idUice) == T
 Aout2(idVice) == T
-Aout2(idUiceE) == F
-Aout2(idViceN) == F
+Aout2(idUiceE) == T
+Aout2(idViceN) == T
 Aout2(idAice) == T
 Aout2(idHice) == T
 Aout2(idTice) == T
@@ -230,11 +230,11 @@ Aout2(idHpond) == T
 Aout2(idTauiw) == F
 Aout2(idChuiw) == F
 Aout2(idAgeice) == T
-Aout2(idSig11) == F
-Aout2(idSig12) == F
-Aout2(idSig22) == F
-Aout2(idS0mk) == F
-Aout2(idT0mk) == F
+Aout2(idSig11) == T
+Aout2(idSig12) == T
+Aout2(idSig22) == T
+Aout2(idS0mk) == T
+Aout2(idT0mk) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.

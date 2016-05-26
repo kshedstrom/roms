@@ -449,6 +449,13 @@ ZOS_HSIG_ALPHA == 2*0.5d0                  ! roughness from wave amplitude
 
   LnudgeTCLM == F F                        ! temperature, salinity, inert
 
+! Logical switches for ice climatology and nudging
+
+      LmiCLM == F
+      LaiCLM == F
+ LnudgeMICLM == F
+ LnudgeAICLM == F
+
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
 ! values are reset internally to the full range of the adjoint integration.

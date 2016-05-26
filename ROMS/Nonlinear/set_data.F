@@ -2132,7 +2132,8 @@
 #   endif
 #  endif
 
-#  ifdef AICLIMATOLOGY
+#  ifdef ICE_MODEl
+      IF (LaiCLM(ng)) THEN
 #   ifdef ANA_AICLIMA
         CALL ana_aiclima (ng, tile, iNLM)
 #   else
@@ -2142,22 +2143,22 @@
      &                       CLIMA(ng)%aiclm,                           &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-#  ifdef HICLIMATOLOGY
-#   ifdef ANA_HICLIMA
-        CALL ana_hiclima (ng, tile, iNLM)
-#   else
         CALL set_2dfld_tile (ng, tile, iNLM, idHIclm,                   &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       CLIMA(ng)%hiclmG,                          &
      &                       CLIMA(ng)%hiclm,                           &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idHSNclm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%hsnclmG,                         &
+     &                       CLIMA(ng)%hsnclm,                          &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
 #   endif
-#  endif
+      END IF
 
-#  ifdef MICLIMATOLOGY
+      IF (LmiCLM(ng)) THEN
 #   ifdef ANA_MICLIMA
         CALL ana_miclima (ng, tile, iNLM)
 #   else
@@ -2174,6 +2175,7 @@
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
 #   endif
+      END IF
 #  endif
 # endif
 

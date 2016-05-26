@@ -234,6 +234,22 @@
           END DO
         END DO
       END IF
+
+      IF (LnudgeMICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%MInudgcof(i,j)=M2nudg(ng)
+          END DO
+        END DO
+      END IF
+
+      IF (LnudgeAICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%AInudgcof(i,j)=M2nudg(ng)
+          END DO
+        END DO
+      END IF
 # endif
 #endif
 #ifdef DISTRIBUTE
@@ -263,6 +279,20 @@
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 1, NTCLM(ng), &
      &                      NghostPoints, .FALSE., .FALSE.,             &
      &                      CLIMA(ng)%Tnudgcof)
+      END IF
+!
+      IF (LnudgeMICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%MInudgcof)
+      END IF
+!
+      IF (LnudgeAICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%AInudgcof)
       END IF
 # endif
 #endif

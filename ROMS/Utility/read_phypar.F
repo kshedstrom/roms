@@ -1018,6 +1018,16 @@
 # endif
               END DO
 #endif
+#ifdef ICE_MODEL
+            CASE ('LmiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LmiCLM)
+            CASE ('LaiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LaiCLM)
+            CASE ('LnudgeMICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeMICLM)
+            CASE ('LnudgeAICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeAICLM)
+#endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -3689,6 +3699,14 @@
         CLM_FILE(ng)=.TRUE.
 # endif
 #endif
+#ifdef ICE_MODEL
+# ifndef ANA_MICLIMA
+        IF (LmiCLM(ng)) CLM_FILE(ng)=.TRUE.
+# endif
+# ifndef ANA_AICLIMA
+        IF (LaiCLM(ng)) CLM_FILE(ng)=.TRUE.
+# endif
+#endif
 
 #if defined IS4DVAR || defined WEAK_CONSTRAINT
 !
@@ -4595,6 +4613,36 @@
             END IF
           END DO
 # endif
+#endif
+#ifdef ICE_MODEL
+          IF (LmiCLM(ng)) THEN
+            WRITE (out,170) LmiCLM(ng), 'LmiCLM',                        &
+     &          'Turning ON  processing of ice momentum climatology.'
+          ELSE
+            WRITE (out,170) LmiCLM(ng), 'LmiCLM',                        &
+     &          'Turning OFF processing of ice momentum climatology.'
+          END IF
+          IF (LaiCLM(ng)) THEN
+            WRITE (out,170) LaiCLM(ng), 'LaiCLM',                        &
+     &          'Turning ON  processing of ice tracer climatology.'
+          ELSE
+            WRITE (out,170) LaiCLM(ng), 'LaiCLM',                        &
+     &          'Turning OFF processing of ice tracer climatology.'
+          END IF
+          IF (LnudgeMICLM(ng)) THEN
+            WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
+     &          'Turning ON  nudging of ice momentum climatology.'
+          ELSE
+            WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
+     &          'Turning OFF nudging of ice momentum climatology.'
+          END IF
+         IF (LnudgeAICLM(ng)) THEN
+            WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
+     &          'Turning ON  nudging of ice tracer climatology.'
+          ELSE
+            WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
+     &          'Turning OFF nudging of ice tracer climatology.'
+          END IF
 #endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -6329,6 +6377,7 @@
           END DO
 #ifndef ANA_NUDGCOEF
           IF (LnudgeM2CLM(ng).or.LnudgeM3CLM(ng).or.                    &
+     &        LnudgeMICLM(ng).or.LnudgeAICLM(ng).or.                    &
      &        (ANY(LnudgeTCLM(:,ng)))) THEN
             fname=NUD(ng)%name
             IF (.not.find_file(ng, fname, 'NUDNAME')) GO TO 30

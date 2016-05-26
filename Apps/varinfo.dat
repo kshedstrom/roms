@@ -816,6 +816,15 @@
   'r2dvar'
   1.0d0
 
+'snow_thick'
+  'thickness of snow cover'
+  'meter'
+  'snow thickness, scalar, series'
+  'ocean_time'
+  'idHSNclm'
+  'r2dvar'
+  1.0d0
+
 'tisrf'
   'temperature of ice surface'
   'degrees Celcius'
