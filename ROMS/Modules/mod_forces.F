@@ -454,7 +454,7 @@
           real(r8), pointer :: SpecIr(:,:,:)
           real(r8), pointer :: avcos(:,:,:)
 # endif
-# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
           real(r8), pointer :: chl(:,:,:)
 # endif
 #endif
@@ -894,7 +894,7 @@
       allocate ( FORCES(ng) % SpecIr(LBi:UBi,LBj:UBj,NBands) )
       allocate ( FORCES(ng) % avcos(LBi:UBi,LBj:UBj,NBands) )
 # endif
-# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
       allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
@@ -1419,7 +1419,7 @@
               FORCES(ng) % avcos(i,j,itrc) = IniVal
             END DO
 # endif
-# ifdef OPTIC_MANIZZA && !defined BIO_COBALT
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
             DO k=1,N(ng)
               FORCES(ng) % chl(i,j,k) = IniVal
             END DO
