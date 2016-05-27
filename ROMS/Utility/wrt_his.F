@@ -1857,12 +1857,7 @@
           allocate (Vr2d(LBi:UBi,LBj:UBj))
             Vr2d(LBi:UBi,LBj:UBj)=0.0_r8
         END IF
-#ifdef DISTRIBUTE
-        tile=MyRank
-#else
-        tile=-1
-#endif
-        CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                    &
+        CALL uv_rotate2d (ng, tile, .FALSE., .TRUE.,                    &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &
@@ -2545,12 +2540,7 @@
           allocate (Vr2d(LBi:UBi,LBj:UBj))
             Vr2d(LBi:UBi,LBj:UBj)=0.0_r8
         END IF
-#ifdef DISTRIBUTE
-        tile=MyRank
-#else
-        tile=-1
-#endif
-        CALL uv_rotate2d (ng, TILE, .FALSE., .TRUE.,                    &
+        CALL uv_rotate2d (ng, tile, .FALSE., .TRUE.,                    &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    GRID(ng) % CosAngler,                         &
      &                    GRID(ng) % SinAngler,                         &

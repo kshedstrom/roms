@@ -2778,26 +2778,6 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
-        DO i=1,NST
-          IF (Hout(idBmas(i),ng)) THEN
-            Vinfo( 1)=Vname(1,idBmas(i))
-            Vinfo( 2)=Vname(2,idBmas(i))
-            Vinfo( 3)=Vname(3,idBmas(i))
-            Vinfo(14)=Vname(4,idBmas(i))
-            Vinfo(16)=Vname(1,idtime)
-            WRITE (Vinfo(19),50) 1000.0_r8*Sd50(i,ng)
-#  if defined WRITE_WATER && defined MASKING
-            Vinfo(20)='mask_rho'
-#  endif
-            Vinfo(22)='coordinates'
-            Aval(5)=REAL(Iinfo(1,idBmas(i),ng),r8)
-            status=def_var(ng, iNLM, HIS(ng)%ncid,                      &
-     &                     HIS(ng)%Vid(idBmas(i)), NF_FOUT,             &
-     &                     nvd4, b3dgrd, Aval, Vinfo, ncname)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-        END DO
-!
 !  Define ice freeze/melt wao
 !
         IF (Hout(idWao,ng)) THEN
