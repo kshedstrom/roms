@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -105,6 +105,9 @@
      &                      DIAGS(ng) % DiaRU,                          &
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                      OCEAN(ng) % decayW,                         &
+# endif
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v)
@@ -147,6 +150,9 @@
      &                            DiaU3wrk, DiaV3wrk,                   &
      &                            DiaRU, DiaRV,                         &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                            decayW,                               &
+# endif
      &                            t, u, v)
 !***********************************************************************
 !
@@ -155,7 +161,7 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
-# if defined OFFLINE_BIOLOGY || defined BEST_NPZ
+# if defined OFFLINE_BIOLOGY || defined BEST_NPZ || defined OPTIC_MANIZZA
       USE mod_biology
 # endif
       USE mod_sources
@@ -222,6 +228,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
+#  endif
 #  ifdef SUN
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  else
@@ -274,6 +283,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -281,6 +293,7 @@
 !
 !  Local variable declarations.
 !
+      integer :: Isrc, Jsrc
       integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
 # if defined AGE_MEAN && defined T_PASSIVE
       integer :: iage
@@ -318,6 +331,20 @@
 !=======================================================================
 
 #  ifdef SOLAR_SOURCE
+#   ifdef OPTIC_MANIZZA
+!
+! Use the fraction of solar shortwave radiation, as computed by optic_manizza,
+! (at vertical W-points) penetrating water column.
+!
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             swdk(i,j,k) = decayW(i,j,k,1)
+          END DO
+        END DO
+      ENDDO
+
+#   else
 !
 !  Compute fraction of the solar shortwave radiation, "swdk"
 !  (at vertical W-points) penetrating water column.
@@ -338,6 +365,7 @@
           END DO
         END DO
       END DO
+#   endif
 #  endif
 !
 !-----------------------------------------------------------------------
@@ -469,6 +497,9 @@
             DO i=Istr,Iend
               FE(i,j)=t(i,j  ,k,nstp,itrc)-                             &
      &                t(i,j-1,k,nstp,itrc)
+#   ifdef MASKING
+              FE(i,j)=FE(i,j)*vmask(i,j)
+#   endif
             END DO
           END DO
           IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
@@ -527,15 +558,15 @@
 !  Apply tracers point sources to the horizontal advection terms,
 !  if any.
 !
-          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+          IF (LuvSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
             DO is=1,Nsrc(ng)
-              i=SOURCES(ng)%Isrc(is)
-              j=SOURCES(ng)%Jsrc(is)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
               IF (LtracerSrc(itrc,ng).and.                              &
-     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            ((Jstr.le.Jsrc).and.(Jsrc.le.Jend+1))) THEN
                 IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
-                  FX(i,j)=Huon(i,j,k)*                                  &
+                  FX(Isrc,Jsrc)=Huon(Isrc,Jsrc,k)*                      &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
 #  elif defined TWO_D_TRACER_SOURCE
@@ -544,7 +575,7 @@
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
                 ELSE
-                  FE(i,j)=Hvom(i,j,k)*                                  &
+                  FE(Isrc,Jsrc)=Hvom(Isrc,Jsrc,k)*                      &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
 #  elif defined TWO_D_TRACER_SOURCE
@@ -801,6 +832,39 @@
             FC(i,N(ng))=0.0_r8
           END DO
 #  endif
+!
+!  Apply mass point sources (volume vertical influx), if any.
+!  (Notice the j-loop is pipelined above).
+!
+          IF (LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            (j.eq.Jsrc)) THEN
+                DO k=1,N(ng)-1
+                  FC(Isrc,k)=FC(Isrc,k)+0.5_r8*                         &
+#  ifdef ONE_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(itrc)+                   &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(itrc))
+#  elif defined TWO_D_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc)+                &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc))
+#  else
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(is,k  ,itrc)+            &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(is,k+1,itrc))
+#  endif
+                END DO
+              END IF
+            END DO
+          END IF
 !
 ! Time-step vertical advection of tracers (Tunits).
 !

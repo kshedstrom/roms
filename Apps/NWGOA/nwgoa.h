@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -13,8 +13,8 @@
 */
 
 #undef NO_HIS
-#undef HDF5
-#undef DEFLATE
+#define HDF5
+#define DEFLATE
 #define PERFECT_RESTART
 
 /* general */
@@ -29,8 +29,8 @@
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
-#undef FLOATS
-#undef STATIONS
+#define FLOATS
+#define STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -46,9 +46,9 @@
 /* ice */
 
 #ifdef SOLVE3D
-/* FOR TIDES TEST # define  ICE_MODEL */
+# define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE
+#  define ANA_ICE
 #  undef  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
@@ -61,6 +61,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define  ICE_I_O
 # endif
 #endif
 
@@ -71,7 +72,7 @@
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
 #endif
-#undef AVERAGES
+#define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
 # undef DIAGNOSTICS_TS
@@ -138,8 +139,7 @@
 
 /* surface forcing */
 
-/* #ifdef SOLVE3D */
-# ifdef FOOOO /* FOR TIDES TEST */
+#ifdef SOLVE3D
 # define CORE_FORCING
 # define BULK_FLUXES
 # define CCSM_FLUXES
@@ -171,9 +171,9 @@
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Not using Runoff now */
 #ifdef SOLVE3D
-# undef RUNOFF
+# define RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
@@ -181,7 +181,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -190,7 +192,6 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 
-# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
@@ -202,6 +203,7 @@
 /* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
+#define ANA_NUDGCOEF
 
 /* roms quirks */
 
@@ -215,21 +217,7 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
 #undef BIO_UMAINE
-
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
-# define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
-#endif
 
 #ifdef BIO_UMAINE
 # define CARBON
@@ -237,10 +225,11 @@
 # define PRIMARY_PROD
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef OPTIC_UMaine
+# undef OPTIC_UMAINE
+# define OPTIC_MANIZZA
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
 # define IRON_LIMIT        /* Add iron as passive Nth tracer */
 # define IRON_RELAX
-# undef  IRON_RSIN
+# undef  IRON_RSIN         /* Not implemented yet in umaine.h */
 #endif

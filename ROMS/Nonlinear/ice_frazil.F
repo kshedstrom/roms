@@ -4,7 +4,7 @@
       || defined CICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the frazil ice growth in the water when the
@@ -162,6 +162,7 @@
       real(r8) :: t_freeze
       real(r8) :: s1
       real(r8) :: z1
+      real(r8) :: sice
       real(r8) :: gamma_k
       real(r8) :: t_fr
       real(r8) :: ice_dens
@@ -305,8 +306,9 @@
      &                    (rho0 + rho(i,j,k) ) / ice_dens
                 t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + gamma_k *   &
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
+                sice = MIN(sice_ref,t(i,j,k,nnew,isalt))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
-     &                                  (1.0_r8 + gamma_k)
+     &                  (1.0_r8 + gamma_k) - sice*gamma_k
               ELSE IF (wfr(i,j) > 0 .and.                               &
      &                 t(i,j,k,nnew,itemp) .gt. t_fr) THEN
 ! Use heat at this level to melt some ice from below.

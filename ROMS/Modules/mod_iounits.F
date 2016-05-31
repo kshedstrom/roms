@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,8 @@
 !    BLK       Input bulk fluxes data in adjoint-based applications    !
 !    BRY       Input open boundary conditions data                     !
 !    CLM       Input climatology data                                  !
+!    DAI       Output data assimilation next cycle initial conditions  !
+!                (4D-Var analysis) or restart (Ensemble Kalman Filter) !
 !    DAV       Output 4D-Var data assimilation variables               !
 !    DIA       Output diagnostics fields                               !
 !    ERR       Output 4DVar posterior error estimate                   !
@@ -102,6 +104,7 @@
       TYPE(T_IO), allocatable :: AVG(:)     ! time-averaged fields
       TYPE(T_IO), allocatable :: AVG2(:)    ! secondary averaged fields
       TYPE(T_IO), allocatable :: BLK(:)     ! bulk fluxes fields
+      TYPE(T_IO), allocatable :: DAI(:)     ! Data assilation IC/restart
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
@@ -212,6 +215,7 @@
       allocate ( AVG(Ngrids) )
       allocate ( AVG2(Ngrids) )
       allocate ( BLK(Ngrids) )
+      allocate ( DAI(Ngrids) )
       allocate ( DAV(Ngrids) )
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )

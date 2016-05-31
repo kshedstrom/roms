@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -142,18 +142,6 @@
       Coptions(is:is+10)=' AGE_MEAN,'
       idriver=idriver+1
 #endif
-#ifdef AICLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'AICLIMATOLOGY',                    &
-     &   'Ice concentration climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' AICLIMATOLOGY,'
-#endif
-#ifdef AICLM_NUDGING
-      IF (Master) WRITE (stdout,20) 'AICLM_NUDGING',                    &
-     &   'Nudging to ice concentration climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' AICLM_NUDGING,'
-#endif
 #if defined ALBEDO && defined ANA_SRFLUX
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
      &   'Shortwave radiation with albedo correction.'
@@ -183,6 +171,12 @@
      &   'Albedo read from a forcing file.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_FILE,'
+#endif
+#ifdef ANA_AICLIMA
+      IF (Master) WRITE (stdout,20) 'ANA_AICLIMA',                      &
+     &   'Analytical ice tracer climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ANA_AICLIMA,'
 #endif
 #ifdef ANA_ALBEDO
       IF (Master) WRITE (stdout,20) 'ANA_ALBEDO',                       &
@@ -312,6 +306,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_MASK,'
 #endif
+#ifdef ANA_MICLIMA
+      IF (Master) WRITE (stdout,20) 'ANA_MICLIMA',                      &
+     &   'Analytical ice momentum climatology.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ANA_MICLIMA,'
+#endif
 #ifdef ANA_NUDGCOEF
       IF (ANY(Lnudging(:))) THEN
         IF (Master) WRITE (stdout,20) 'ANA_NUDGCOEF',                   &
@@ -343,12 +343,6 @@
      &   'Analytical point sources and sinks.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_PSOURCE,'
-#endif
-#if defined ANA_PTOBC && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'ANA_PTOBC',                        &
-     &   'Analytical passive tracers boundary conditions.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' ANA_PTOBC,'
 #endif
 #if defined ANA_RAIN && defined BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ANA_RAIN',                         &
@@ -617,7 +611,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' CANUTO_B,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && (defined BIO_FENNEL || defined BIO_UMAINE)
       IF (Master) WRITE (stdout,20) 'CARBON',                           &
      &   'Add Carbon constituents.'
       is=LEN_TRIM(Coptions)+1
@@ -691,13 +685,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CHECKPOINTING,'
 #endif
-#if defined CLIMA_TS_MIX && defined SOLVE3D && \
-   (defined TS_DIF2      || defined TS_DIF4)
-      IF (Master) WRITE (stdout,20) 'CLIMA_TS_MIX',                     &
-     &   'Horizontal diffusion of tracer perturbation (T-Tclm).'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' CLIMA_TS_MIX,'
-#endif
 #if defined GLS_MIXING && defined CRAIG_BANNER
       IF (Master) WRITE (stdout,20) 'CRAIG_BANNER',                     &
      &   'Craig and Banner wave breaking surface flux.'
@@ -739,6 +726,12 @@
      &   'Orthogonal curvilinear grid.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' CURVGRID,'
+#endif
+#if defined DAILY_SHORTWAVE && defined RED_TIDE
+      IF (Master) WRITE (stdout,20) 'DAILY_SHORTWAVE',                  &
+     &   'Daily-averaged surface solar shortwave radiation flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' DAILY_SHORTWAVE,'
 #endif
 #ifdef DEBUGGING
       IF (Master) WRITE (stdout,20) 'DEBUGGING',                        &
@@ -838,6 +831,12 @@
      &   'Using Earth System Modeling Framework library.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ESMF_LIB,'
+#endif
+#ifdef ENKF_RESTART
+      IF (Master) WRITE (stdout,20) 'ENKF_RESTART',                     &
+     &   'Writting fields for offline Ensemble Kalman Filter.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' ENKF_RESTART,'
 #endif
 #ifdef ENSEMBLE
       IF (Master) WRITE (stdout,20) 'ENSEMBLE',                         &
@@ -1247,20 +1246,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' LONGWAVE_OUT,'
 #endif
-#if defined MIX_ISO_TS && (defined TS_DIF2 || defined TS_DIF4)
-# ifdef MAX_SLOPE
-      IF (Master) WRITE (stdout,20) 'MAX_SLOPE',                        &
-     &   'Maximum density slope in isopycnic diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' MAX_SLOPE,'
-# endif
-# ifdef MIN_STRAT
-      IF (Master) WRITE (stdout,20) 'MIN_STRAT',                        &
-     &   'Minimum density stratification in isopycnic diffusion.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' MIN_STRAT,'
-# endif
-#endif
 #ifdef M2TIDE_DIFF
       IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
      &   'Add barotropic tidal mixing parameterization.'
@@ -1321,18 +1306,6 @@
      &   'Melt ponds on ice.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' MELT_PONDS,'
-#endif
-#ifdef MICLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'MICLIMATOLOGY',                    &
-     &   'Ice momentum climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' MICLIMATOLOGY,'
-#endif
-#ifdef MICLM_NUDGING
-      IF (Master) WRITE (stdout,20) 'MICLM_NUDGING',                    &
-     &   'Nudging to ice momentum climatology.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' MICLM_NUDGING,'
 #endif
 #if defined MINRES && defined FOUR_DVAR
       IF (Master) WRITE (stdout,20) 'MINRES',                           &
@@ -1613,13 +1586,19 @@
       Coptions(is:is+18)=' OPT_PERTURBATION,'
       idriver=idriver+1
 #endif
-#if defined OXYGEN && defined BIO_FENNEL
+#ifdef OPTIC_UMAINE
+      IF (Master) WRITE (stdout,20) 'OPTIC_UMAINE',                     &
+     &   'Optics subroutine from UMaine.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' OPTIC_UMAINE,'
+#endif
+#if defined OXYGEN && (defined BIO_FENNEL || defined BIO_UMAINE)
 # ifdef OCMIP_OXYGEN_SC
       IF (Master) WRITE (stdout,20) 'OCMIP_OXYGEN_SC',                  &
      &   'Schmidt number from Keeling et al. (1998).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OCMIP_OXYGEN_SC,'
-# else
+# elif defined BIO_FENNEL
       IF (Master) WRITE (stdout,20) '!OCMIP_OXYGEN_SC',                 &
      &   'Schmidt number from Wanninkhof (1992).'
       is=LEN_TRIM(Coptions)+1
@@ -1805,6 +1784,13 @@
      &   'Recomputing 4DVar during data assimilation analysis.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' RECOMPUTE_4DVAR,'
+#endif
+#ifdef RED_TIDE
+      IF (Master) WRITE (stdout,20) 'RED_TIDE',                         &
+     &   'Red tide biological model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' RED_TIDE,'
+      ibiology=ibiology+1
 #endif
 #ifdef R_SYMMETRY
       IF (Master) WRITE (stdout,20) 'REP_MATRIX',                       &
@@ -2125,7 +2111,7 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' SWAN_COUPLING,'
 #endif
-#if defined CARBON && defined BIO_FENNEL
+#if defined CARBON && (defined BIO_FENNEL || defined BIO_UMAINE)
 # ifdef TALK_NONCONSERV
       IF (Master) WRITE (stdout,20) 'TALK_NONCONSERV',                  &
      &   'Alkalinity is affected by changes in nitrate or ammonium.'
@@ -2193,6 +2179,34 @@
      &   'Advecting and diffusing inert passive tracer.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' T_PASSIVE,'
+# endif
+# if defined TS_MIX_CLIMA && \
+    (defined TS_DIF2      || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_CLIMA',                     &
+     &   'Horizontal diffusion of tracer perturbation (T-Tclm).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' TS_MIX_CLIMA,'
+# endif
+# if defined TS_MIX_MAX_SLOPE && defined MIX_ISO_TS && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_MAX_SLOPE',                 &
+     &   'Maximum density slope in isopycnal diffusion.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_MAX_SLOPE,'
+# endif
+# if defined TS_MIX_MAX_SLOPE && defined MIX_ISO_TS && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_MAX_STRAT',                 &
+     &   'Minimum density stratification in isopycnal diffusion.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_MAX_STRAT,'
+# endif
+# if defined TS_MIX_STABILITY && \
+    (defined TS_DIF2          || defined TS_DIF4)
+      IF (Master) WRITE (stdout,20) 'TS_MIX_STABILITY',                 &
+     &   'Weighting diffusion between two time levels.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' TS_MIX_STABILITY,'
 # endif
 # ifdef TS_MPDATA
       IF (Master) WRITE (stdout,20) 'TS_MPDATA',                        &
@@ -3004,7 +3018,6 @@
         exit_flag=5
       END IF
 #endif
-
 
       RETURN
       END SUBROUTINE checkdefs

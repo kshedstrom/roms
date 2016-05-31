@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -225,6 +225,9 @@
         integer  :: idOerr        ! observations error
         integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
+        integer  :: idOlat        ! observations latitude
+        integer  :: idOlon        ! observations longitude
+        integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
         integer  :: idOvar        ! observations global variance
@@ -236,6 +239,10 @@
         integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idPwet        ! wet/dry mask on PSI-points
+        integer  :: idpthR        ! depths of RHO-points
+        integer  :: idpthU        ! depths of U-points
+        integer  :: idpthV        ! depths of V-points
+        integer  :: idpthW        ! depths of W-points
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -418,6 +425,7 @@
         integer  :: idSig12        ! internal ice stress component 12
         integer  :: idAIclm        ! ice concentration climatology
         integer  :: idHIclm        ! ice thickness climatology
+        integer  :: idHSNclm       ! ice thickness climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
 
@@ -1037,6 +1045,14 @@
               idtime=varid
             CASE ('idbath')
               idbath=varid
+            CASE ('idpthR')
+              idpthR=varid
+            CASE ('idpthU')
+              idpthU=varid
+            CASE ('idpthV')
+              idpthV=varid
+            CASE ('idpthW')
+              idpthW=varid
             CASE ('idFsur')
               idFsur=varid
             CASE ('idRzet')
@@ -1776,6 +1792,12 @@
               idOday=varid
             CASE ('idOerr')
               idOerr=varid
+            CASE ('idOlat')
+              idOlat=varid
+            CASE ('idOlon')
+              idOlon=varid
+            CASE ('idOpro')
+              idOpro=varid
             CASE ('idOtyp')
               idOtyp=varid
             CASE ('idOval')
@@ -1878,6 +1900,8 @@
                 idAIclm=varid
               CASE ('idHIclm')
                 idHIclm=varid
+              CASE ('idHSNclm')
+                idHSNclm=varid
               CASE ('idUIclm')
                 idUIclm=varid
               CASE ('idVIclm')
@@ -1903,6 +1927,8 @@
 #  include <npzd_Powell_var.h>
 # elif defined NPZD_IRON
 #  include <npzd_iron_var.h>
+# elif defined RED_TIDE
+#  include <red_tide_var.h>
 # endif
 #endif
 
@@ -1971,10 +1997,10 @@
                     END DO
                     WRITE (Vname(1,varid),'(a,i2.2,a)')                 &
      &                    TRIM(ADJUSTL(Vinfo(1))), ic, '_age'
-                    WRITE (Vname(2,varid),'(a,a,i2.2)')                 &
-     &                    TRIM(ADJUSTL(Vinfo(2))), ' mean age, type ',  &
-     &                    ic
-                    WRITE (Vname(3,varid),'(a)') 'second'
+                    WRITE (Vname(2,varid),'(a,i2.2)')                   &
+     &                    'age concentraction, type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'second kilogram meter-3'
                     WRITE (Vname(4,varid),'(a,a)')                      &
      &                    TRIM(Vname(1,varid)), ', scalar, series'
                     WRITE (Vname(5,varid),'(a)')                        &

@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -259,7 +259,6 @@
 ** ANA_PASSIVE         use if analytical inert tracers initial conditions    **
 ** ANA_PERTURB         use if analytical perturbation of initial conditions  **
 ** ANA_PSOURCE         use if analytical point Sources/Sinks                 **
-** ANA_PTOBC           use if analytical passive tracers boundary conditions **
 ** ANA_RAIN            use if analytical rain fall rate                      **
 ** ANA_SEDIMENT        use if analytical sediment initial fields             **
 ** ANA_SMFLUX          use if analytical surface momentum stress             **
@@ -289,11 +288,14 @@
 **                                                                           **
 ** OPTIONS for horizontal mixing of tracers:                                 **
 **                                                                           **
-** CLIMA_TS_MIX        use if diffusion of tracer perturbation (t-tclm)      **
 ** DIFF_GRID           use to scale diffusion coefficients by grid size      **
 ** MIX_S_TS            use if mixing along constant S-surfaces               **
 ** MIX_GEO_TS          use if mixing on geopotential (constant Z) surfaces   **
 ** MIX_ISO_TS          use if mixing on epineutral (constant RHO) surfaces   **
+** TS_MIX_CLIMA        use if diffusion of tracer perturbation (t-tclm)      **
+** TS_MIX_MAX_SLOPE    use if maximum slope in epineutral diffusion          **
+** TS_MIX_MIN_STRAT    use if minimum stratification in epineutral diffusion **
+** TS_MIX_STABILITY    use if weighting diffusion between two time levels    **
 **                                                                           **
 ** OPTIONS for vertical turbulent mixing scheme of momentum and tracers      **
 ** (activate only one closure):                                              **
@@ -456,6 +458,7 @@
 ** CELERITY_WRITE      use if writing radiation celerity in forward file     **
 ** CLIPPING_SPLIT      use to separate analysis due to IC, forcing, and OBC  **
 ** DATALESS_LOOPS      use if testing convergence of Picard iterations       **
+** ENKF_RESTART        use if writting restart fields for EnKF               **
 ** FORWARD_MIXING      use if processing forward vertical mixing coefficient **
 ** FORWARD_WRITE       use if writing out forward solution, basic state      **
 ** FORWARD_READ        use if reading in  forward solution, basic state      **
@@ -530,6 +533,10 @@
 ** BIO_SEDIMENT        use to restore fallen material to the nutrient pool   **
 ** HOLLING_GRAZING     use Holling-type s-shaped curve grazing (implicit)    **
 ** IVLEV_EXPLICIT      use Ivlev explicit grazing algorithm                  **
+**                                                                           **
+** Red tide biological model OPTIONS:                                        **
+**                                                                           **
+** RED_TIDE            use if red tide biological model.                     **
 **                                                                           **
 ** Sediment transport model OPTIONS:                                         **
 **                                                                           **

@@ -2,7 +2,7 @@
 !  ROMS/TOMS IO NetCDF variables.
 !
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -228,6 +228,42 @@
   'ocean_time'
   'idTvar(isalt)'
   'r3dvar'
+  1.0d0
+
+'z_rho'                                            ! Output
+  'depth of RHO-points'
+  'meter'                                          ! [meter]
+  'z_rho, scalar, series'
+  'ocean_time'
+  'idpthR'
+  'r3dvar'
+  1.0d0
+
+'z_u'                                              ! Output
+  'depth of U-points'
+  'meter'                                          ! [meter]
+  'z_u, scalar, series'
+  'ocean_time'
+  'idpthU'
+  'u3dvar'
+  1.0d0
+
+'z_v'                                              ! Output
+  'depth of V-points'
+  'meter'                                          ! [meter]
+  'z_v, scalar, series'
+  'ocean_time'
+  'idpthV'
+  'v3dvar'
+  1.0d0
+
+'z_w'                                              ! Output
+  'depth of W-points'
+  'meter'                                          ! [meter]
+  'z_w, scalar, series'
+  'ocean_time'
+  'idpthW'
+  'w3dvar'
   1.0d0
 
 !
@@ -813,6 +849,15 @@
   'snow thickness, scalar, series'
   'ocean_time'
   'idHsno'
+  'r2dvar'
+  1.0d0
+
+'snow_thick'
+  'thickness of snow cover'
+  'meter'
+  'snow thickness, scalar, series'
+  'ocean_time'
+  'idHSNclm'
   'r2dvar'
   1.0d0
 
@@ -8176,6 +8221,24 @@
   'nulvar'
   'datum'
   'idObsT'
+  'nulvar'
+  1.0d0
+
+'obs_lon'                                         ! Input
+  'observation longitude'
+  'degrees_east'                                  ! [degrees_east]
+  'nulvar'
+  'datum'
+  'idOlon'
+  'nulvar'
+  1.0d0
+
+'obs_lat'                                         ! Input
+  'observation latitude'
+  'degrees_north'                                 ! [degrees_north]
+  'nulvar'
+  'datum'
+  'idOlat'
   'nulvar'
   1.0d0
 

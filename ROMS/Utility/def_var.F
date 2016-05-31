@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -381,7 +381,7 @@
               ioerror=status
             END IF
           END IF
-        END IF!
+        END IF
 !
 !  If applicable, define "positive_value" attribute.
 !
@@ -645,7 +645,8 @@
               END IF
             END IF
             latt=LEN_TRIM(text)
-            IF (nVdim.gt.2) THEN
+            IF (((ABS(INT(Aval(5))).le.4).and.(nVdim.gt.2)).or.         &
+     &          ((ABS(INT(Aval(5))).gt.4).and.(nVdim.gt.3))) THEN
               text=text(1:latt)//' ocean_time'
               latt=LEN_TRIM(text)
             END IF
@@ -695,7 +696,6 @@
             END IF
           END IF
         END IF
-      END IF
 
 #if defined MASKING && !defined WRITE_WATER
 !
@@ -758,6 +758,7 @@
           END IF
         END IF
 #endif
+      END IF
 !
 !  Clean information variables.
 !

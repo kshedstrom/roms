@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -111,7 +111,7 @@ GridsInLayer =  1
        NtileI == 8                               ! I-direction partition
 !       NtileI == 3                               ! I-direction partition
 ! ORDER MATTERS HERE!
-       NtileJ == 12                              ! J-direction partition
+       NtileJ == 6                              ! J-direction partition
 
 ! PIO number of I/O tasks
 
@@ -214,7 +214,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Time-Stepping parameters.
 
 !       NTIMES == 1555200
-       NTIMES == 50400
+       NTIMES == 129600
           DT == 20.0d0
      NDTFAST == 20
 
@@ -406,7 +406,7 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 ! NetCDF units attribute.
 
 !      DSTART =  28856.5d0                  ! days (1979)
-      DSTART =  33967.5d0                  ! days (1990)
+      DSTART =  35799.0d0                  ! days (1998)
   TIDE_START =  -1.0d0                     ! days
     TIME_REF =  19000101.0d0               ! yyyymmdd.dd
 
@@ -477,6 +477,13 @@ LtracerSponge == F F                            ! temperature, salinity, inert
  LnudgeM3CLM == F                          ! 3D momentum
 
   LnudgeTCLM == F F                        ! temperature, salinity, inert
+
+! Logical switches for ice climatology and nudging
+
+      LmiCLM == F
+      LaiCLM == T
+ LnudgeMICLM == F
+ LnudgeAICLM == T
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their
@@ -552,6 +559,11 @@ Hout(idFsur) == T       ! zeta               free-surface
 Hout(idBath) == T       ! bath               time-dependent bathymetry
 
 Hout(idTvar) == T T     ! temp, salt         temperature and salinity
+
+Hout(idpthR) == F       ! z_rho              time-varying depths of RHO-points
+Hout(idpthU) == F       ! z_u                time-varying depths of U-points
+Hout(idpthV) == F       ! z_v                time-varying depths of V-points
+Hout(idpthW) == F       ! z_w                time-varying depths of W-points
 
 Hout(idUair) == F       ! Uwind              surface U-wind
 Hout(idVair) == F       ! Vwind              surface V-wind
@@ -894,7 +906,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Input NetCDF file names, [1:Ngrids].
 
      GRDNAME == /center/w/kate/Beaufort/Files/grid_Beaufort_1.nc
-     ININAME == /center/w/kate/Beaufort/Files/arctic2_avg_1992-12-31T00:00:00_BEAUFORT.nc
+     ININAME == /center/w/kate/Beaufort/Files/arctic2_avg_1998-01-06T00:00:00_BEAUFORT.nc
 !     ININAME == beaufort_rst.nc
      ITLNAME == ocean_itl.nc
      IRPNAME == ocean_irp.nc
@@ -918,10 +930,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      CLMNAME == /center/w/kate/Beaufort/Files/Beaufort_clim_1990.nc
 
     NBCFILES == 2                          ! number of boundary files
-     BRYNAME == /center/w/kate/Beaufort/Files/Beaufort_sea_bdry_1992.nc |
-                /center/w/kate/Beaufort/Files/Beaufort_sea_bdry_1993.nc \
-                /center/w/kate/Beaufort/Files/Beaufort_ice_bdry_1992.nc |
-                /center/w/kate/Beaufort/Files/Beaufort_ice_bdry_1993.nc
+     BRYNAME == /center/w/kate/Beaufort/Files/Beaufort_sea_bdry_1998.nc \
+                /center/w/kate/Beaufort/Files/Beaufort_ice_bdry_1998.nc
 
 ! Input climatology nudging coefficients file name.
 
@@ -942,32 +952,33 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 11                          ! number of forcing files
+    NFFILES == 12                          ! number of forcing files
 
-    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1992.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1993.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1992.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1993.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1992.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1993.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1992.nc   |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1993.nc   \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1992.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1993.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1992.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1993.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1992.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1993.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1992.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1993.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1992.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1993.nc  \
+    FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1998.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1999.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1998.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Qair_3hours_1999.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1998.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Tair_3hours_1999.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1998.nc   |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_rain_3hours_1999.nc   \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1998.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_swrad_3hours_1999.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1998.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1999.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1998.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1999.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1998.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1999.nc  \
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1998.nc  |
+               /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1999.nc  \
                /center/w/kate/CORE2/sss_fill_2004.nc \
+               /center/w/kate/Beaufort/Files/fastice_Beaufort.nc \
                /center/w/kate/Beaufort/Files/Beaufort_tides_otps.nc
 
-!               /center/w/kate/Beaufort/Files/fastice_Beaufort.nc \
 ! Output NetCDF file names, [1:Ngrids].
 
+     DAINAME == ocean_dai.nc
      GSTNAME == ocean_gst.nc
      RSTNAME == beaufort_rst.nc
      HISNAME == beaufort_his.nc
@@ -2176,6 +2187,18 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !                 TCLM_NUDGING is now obsolete and replaced with these
 !                 switches to facilitate nesting applications.
 !
+!                 Only NAT active tracers (temperature, salinity) and NPT
+!                 inert tracers need to be specified here:
+!
+!                   LnudgeTCLM(itemp,ng)     for temperature (itemp=1)
+!                   LnudgeTCLM(isalt,ng)     for salinity    (isalt=2)
+!                   LnudgeTCLM(NAT+1,ng)     for inert tracer 1
+!                   ...                      ...
+!                   LnudgeTCLM(NAT+NPT,ng)   for inert tracer NPT
+!
+!                 Other biological and sediment tracers switches are specified
+!                 in their respective input scripts.
+!
 !                 User also needs to TURN ON the respective logical switches
 !                 "LtracerCLM", described above, to process the required 3D
 !                 tracer climatology data. This data can be set with analytical
@@ -2272,6 +2295,11 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! Hout(idBath)   Write out time-dependent bathymetry.
 !
 ! Hout(idTvar)   Write out active (NAT) tracers: temperature and salinity.
+!
+! Hout(idpthR)   Write out time-varying depths of RHO-points.
+! Hout(idpthU)   Write out time-varying depths of U-points.
+! Hout(idpthV)   Write out time-varying depths of V-points.
+! Hout(idpthW)   Write out time-varying depths of W-points.
 !
 ! Hout(idUsms)   Write out surface U-momentum stress.
 ! Hout(idVsms)   Write out surface V-momentum stress.
@@ -2659,6 +2687,8 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !
 ! Output file names:
 !
+! DAINAME      Output data assimilation next cycle initial conditions (4D-Var
+!                analysis) or restart (Ensemble Kalman Filter, EnKF) file name.
 ! GSTNAME      Output GST analysis re-start file name.
 ! RSTNAME      Output re-start file name.
 ! HISNAME      Output history file name.

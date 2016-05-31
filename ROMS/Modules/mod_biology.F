@@ -3,7 +3,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -26,6 +26,7 @@
 **         npzd_Franks.h      NPZD_FRANKS                             **
 **         npzd_iron.h        NPZD_IRON                               **
 **         npzd_Powell.h      NPZD_POWELL                             **
+**         red_tide.h         RED_TIDE                                **
 **         umaine.h           BIO_UMAINE                              **
 **                                                                    **
 **   (2) Internal model parameters declaration:                       **
@@ -38,6 +39,7 @@
 **         npzd_Franks_mod.h                                          **
 **         npzd_iron_mod.h                                            **
 **         npzd_Powell_mod.h                                          **
+**         red_tide_mod.h                                             **
 **         umaine_mod.h                                               **
 **                                                                    **
 **   (3) Model parameters standard input script:                      **
@@ -48,6 +50,7 @@
 **         npzd_Franks.in                                             **
 **         npzd_iron.in                                               **
 **         npzd_Powell.in                                             **
+**         red_tide.in                                                **
 **                                                                    **
 **   (4) Code to read input model parameters:                         **
 **                                                                    **
@@ -59,6 +62,7 @@
 **         npzd_Franks_inp.h                                          **
 **         npzd_iron_inp.h                                            **
 **         npzd_Powell_inp.h                                          **
+**         red_tide_inp.h                                             **
 **         umaine_inp.h                                               **
 **                                                                    **
 **   (5) Code to assign indices to model variables during the         **
@@ -72,6 +76,7 @@
 **         npzd_Franks_var.h                                          **
 **         npzd_iron_var.h                                            **
 **         npzd_Powell_var.h                                          **
+**         red_tide_var.h                                             **
 **         umaine_var.h                                               **
 **                                                                    **
 **   (6) Code to define input model parameters in all output          **
@@ -83,6 +88,7 @@
 **         npzd_Franks_def.h                                          **
 **         npzd_iron_def.h                                            **
 **         npzd_Powell_def.h                                          **
+**         red_tide_def.h                                             **
 **         umaine_def.h                                               **
 **                                                                    **
 **   (7) Code to write out input model parameters in all output       **
@@ -94,6 +100,7 @@
 **         npzd_Franks_wrt.h                                          **
 **         npzd_iron_wrt.h                                            **
 **         npzd_Powell_wrt.h                                          **
+**         red_tide_wrt.h                                             **
 **         umaine_wrt.h                                               **
 **                                                                    **
 **                                                                    **
@@ -118,6 +125,8 @@
 #  include <npzd_iron_mod.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_mod.h>
+# elif defined RED_TIDE
+#  include <red_tide_mod.h>
 # elif defined BIO_UMAINE
 #  include <umaine_mod.h>
 # elif defined BIO_GOANPZ

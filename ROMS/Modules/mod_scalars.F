@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -440,6 +440,8 @@
         logical, allocatable :: Lm2CLM(:)            ! 2D momentum
         logical, allocatable :: Lm3CLM(:)            ! 3D momentum
         logical, allocatable :: LtracerCLM(:,:)      ! tracers
+        logical, allocatable :: LmiCLM(:)            ! ice momentum
+        logical, allocatable :: LaiCLM(:)            ! ice tracers
 !
 !  Switched to nudge to climatology fields.
 !
@@ -447,6 +449,8 @@
         logical, allocatable :: LnudgeM2CLM(:)       ! 2D momentum
         logical, allocatable :: LnudgeM3CLM(:)       ! 3D momentum
         logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
+        logical, allocatable :: LnudgeMICLM(:)       ! ice momentum
+        logical, allocatable :: LnudgeAICLM(:)       ! ice tracers
 !
 !  Switches to activate point Source/Sinks in an application:
 !    * Horizontal momentum transport (u or v)
@@ -856,6 +860,7 @@
         logical, allocatable :: LdefADJ(:)       ! Adjoint file
         logical, allocatable :: LdefAVG(:)       ! Average file
         logical, allocatable :: LdefAVG2(:)      ! Average2 file
+        logical, allocatable :: LdefDAI(:)       ! DA initial/restart
         logical, allocatable :: LdefDIA(:)       ! Diagnostics file
         logical, allocatable :: LdefERR(:)       ! 4DVar error file
         logical, allocatable :: LdefFLT(:)       ! Floats file
@@ -1700,7 +1705,8 @@
         real(r8) :: spec_heat_air =  1004._r8
         real(r8) :: trans_coeff = 1.75E-3
         real(r8) :: sublim_latent_heat = 2.834E+6
-        real(r8) :: t0deg = 273.15_r8
+        real(r8) :: t0deg = 273.15_r8                     ! [Kelvin]
+        real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
 
         real(r8), allocatable :: dtice(:)
         real(r8), allocatable :: dte(:)
@@ -1905,11 +1911,15 @@
       allocate ( Lm2CLM(Ngrids) )
       allocate ( Lm3CLM(Ngrids) )
       allocate ( LtracerCLM(MT,Ngrids) )
+      allocate ( LmiCLM(Ngrids) )
+      allocate ( LaiCLM(Ngrids) )
 
       allocate ( Lnudging(Ngrids) )
       allocate ( LnudgeM2CLM(Ngrids) )
       allocate ( LnudgeM3CLM(Ngrids) )
       allocate ( LnudgeTCLM(MT,Ngrids) )
+      allocate ( LnudgeMICLM(Ngrids) )
+      allocate ( LnudgeAICLM(Ngrids) )
 
       allocate ( LuvSrc(Ngrids) )
       allocate ( LwSrc(Ngrids) )
@@ -2026,6 +2036,7 @@
       allocate ( LdefADJ(Ngrids) )
       allocate ( LdefAVG(Ngrids) )
       allocate ( LdefAVG2(Ngrids) )
+      allocate ( LdefDAI(Ngrids) )
       allocate ( LdefDIA(Ngrids) )
       allocate ( LdefERR(Ngrids) )
       allocate ( LdefFLT(Ngrids) )
@@ -2471,10 +2482,14 @@
         Lnudging(ng)=.FALSE.
         LnudgeM2CLM(ng)=.FALSE.
         LnudgeM3CLM(ng)=.FALSE.
+        LnudgeMICLM(ng)=.FALSE.
+        LnudgeAICLM(ng)=.FALSE.
         Lclimatology(ng)=.FALSE.
         Lm2CLM(ng)=.FALSE.
         Lm3CLM(ng)=.FALSE.
         LsshCLM(ng)=.FALSE.
+        LmiCLM(ng)=.FALSE.
+        LaiCLM(ng)=.FALSE.
         Lsponge(ng)=.FALSE.
         LuvSponge(ng)=.FALSE.
         LuvSrc(ng)=.FALSE.
@@ -2580,6 +2595,7 @@
         LdefADJ(ng)=.FALSE.
         LdefAVG(ng)=.TRUE.
         LdefAVG2(ng)=.TRUE.
+        LdefDAI(ng)=.FALSE.
         LdefDIA(ng)=.TRUE.
         LdefERR(ng)=.FALSE.
 #ifdef FLOATS

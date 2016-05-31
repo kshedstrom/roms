@@ -20,9 +20,7 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-#ifdef AICLM_NUDGING
       USE mod_clima
-#endif
 
       implicit none
 
@@ -51,11 +49,10 @@
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 #endif
-#ifdef AICLM_NUDGING
      &                      CLIMA(ng) % aiclm,                          &
      &                      CLIMA(ng) % hiclm,                          &
+     &                      CLIMA(ng) % hsnclm,                        &
      &                      CLIMA(ng) % AInudgcof,                      &
-#endif
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
      &                      OCEAN(ng) % t,                              &
@@ -119,9 +116,7 @@
 #ifdef ICE_SHOREFAST
      &                        h, Zt_avg1,                               &
 #endif
-#ifdef AICLM_NUDGING
-     &                        aiclm, hiclm, AInudgcof,                  &
-#endif
+     &                        aiclm, hiclm, hsnclm, AInudgcof,          &
      &                        z_r, z_w, t,                              &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, ageice,                      &
@@ -263,11 +258,10 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
-# ifdef AICLM_NUDGING
       real(r8), intent(in) :: aiclm(LBi:,LBj:)
       real(r8), intent(in) :: hiclm(LBi:,LBj:)
+      real(r8), intent(in) :: hsnclm(LBi:,LBj:)
       real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
-# endif
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
@@ -322,11 +316,10 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
-# ifdef AICLM_NUDGING
       real(r8), intent(in) :: aiclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hiclm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: hsnclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
-# endif
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
@@ -374,7 +367,7 @@
 
       integer :: i, j
       integer :: iday, month, year
-      real(r8) :: hour, yday
+      real(r8) :: hour, yday, cff
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: b2d
 
@@ -424,7 +417,6 @@
       real(r8), parameter :: kappa = 0.4_r8
       real(r8), parameter :: rhosw = 1026._r8           ! [kg m-3]
       real(r8), parameter :: frln = -0.0543_r8          ! [psu C-1]
-      real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
       real(r8), parameter :: alphic = 2.034_r8          ! [W m-1 K-1]
       real(r8), parameter :: alphsn = 0.31_r8           ! [W m-1 K-1]
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
@@ -806,7 +798,7 @@
           ELSE
 
 ! MK89 version
-#ifdef ICE_BOX
+#ifdef ICE_BOX0
 !  F_t set to 2 W/m^2
             wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &
@@ -947,16 +939,18 @@
           IF (hstar .gt. 0.0_r8) THEN
             hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
             hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
-          ENDIF
+          END IF
 # endif
 #endif
-#ifdef AICLM_NUDGING
-          cff = AInudgcof(i,j)
-          ai(i,j,linew)=ai(i,j,linew)+                                  &
-     &                  dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))
-          hi(i,j,linew)=hi(i,j,linew)+                                  &
-     &                  dtice(ng)*cff*(hiclm(i,j)-hi(i,j,linew))
-#endif
+          IF (LaiCLM(ng)) THEN
+            cff = AInudgcof(i,j)
+            ai(i,j,linew)=ai(i,j,linew)+                                &
+     &                    dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))
+            hi(i,j,linew)=hi(i,j,linew)+                                &
+     &                    dtice(ng)*cff*(hiclm(i,j)-hi(i,j,linew))
+            hsn(i,j,linew)=hsn(i,j,linew)+                              &
+     &                    dtice(ng)*cff*(hsnclm(i,j)-hsn(i,j,linew))
+          END IF
 #ifdef MASKING
           ai(i,j,linew) = ai(i,j,linew)*rmask(i,j)
           hi(i,j,linew) = hi(i,j,linew)*rmask(i,j)
