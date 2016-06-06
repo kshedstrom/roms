@@ -9709,3 +9709,20 @@
   'r2dvar'
   1.0d0
 
+'BgError_value'                                    ! Output
+  'Background error at observation locations'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idBgEr'
+  'nulvar'
+  1.0d0
+
+'BgThresh_value'                                   ! Output
+  'Threshold for background quality control check of observations'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idBgTh'
+  'nulvar'
+  1.0d0
