@@ -692,8 +692,6 @@ Aout2(idrain) == F                          ! precipitation rate
 
 Aout2(inert) == F                           ! inert passive tracers
 
-=======
->>>>>>> 204478c... src:ticket:700
 ! Logical switches (TRUE/FALSE) to activate writing of time-averaged
 ! fields into AVERAGE output file.
 

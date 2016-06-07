@@ -139,13 +139,15 @@
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
-!! cff3-point wide linearly tapered nudging zone
-!      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
-!        DO j=JstrT,JendT
-!          wrk(i,j)=MAX(wrk(i,j),                                        &
-!     &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
-!        END DO
-!      END DO
+! cff3-point wide linearly tapered nudging zone
+      IF (Lm(ng) == 936) THEN ! Beaufort3 grid only
+        DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
+          DO j=JstrT,JendT
+            wrk(i,j)=MAX(wrk(i,j),                                      &
+     &               cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
+          END DO
+        END DO
+      END IF
 !
 ! Set the relevant nudging coefficients using the entries in wrk
 !
@@ -185,12 +187,12 @@
       END IF
 ! cff3-point wide linearly tapered nudging zone
 !      cff3=60.0_r8                           ! width of layer in grid points
-      DO i=IstrT,MIN(INT(cff3),IendT)                ! WEST boundary
-        DO j=JstrT,JendT
-          wrk(i,j)=MAX(wrk(i,j),                                        &
-     &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
-        END DO
-      END DO
+!      DO i=IstrT,MIN(INT(cff3),IendT)                ! WEST boundary
+!        DO j=JstrT,JendT
+!          wrk(i,j)=MAX(wrk(i,j),                                        &
+!     &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
+!        END DO
+!      END DO
       IF (LnudgeAICLM(ng)) THEN
         DO j=JstrT,JendT
           DO i=IstrT,IendT

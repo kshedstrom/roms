@@ -2059,7 +2059,7 @@
   1.0
 
 'Pwave_top'                                        ! Input
-  'wind-induced surface wave Period'
+  'wind-induced peak surface wave Period'
   'second'                                         ! [s]
   'Pwave_top, scalar, series'
   'wave_time'
