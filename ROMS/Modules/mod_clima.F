@@ -524,7 +524,7 @@
       END IF
 #endif
 
-#ifdef SOLVE3D
+#ifdef ICE_MODEL
       IF (LnudgeMICLM(ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax

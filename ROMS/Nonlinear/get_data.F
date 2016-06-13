@@ -1670,54 +1670,56 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# ifndef ANA_AICLIMA
+# ifdef ICE_MODEL
+#  ifndef ANA_AICLIMA
       IF (LaiCLM(ng)) THEN
         CALL get_2dfld (ng, iNLM, idAIclm, ncCLMid(idAIclm,ng),         &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
-#  endif
+#   endif
      &                  CLIMA(ng) % aiclmG)
         IF (exit_flag.ne.NoError) RETURN
         CALL get_2dfld (ng, iNLM, idHIclm, ncCLMid(idHIclm,ng),         &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
-#  endif
+#   endif
      &                  CLIMA(ng) % hiclmG)
         IF (exit_flag.ne.NoError) RETURN
         CALL get_2dfld (ng, iNLM, idHSNclm, ncCLMid(idHSNclm,ng),       &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
-#  endif
+#   endif
      &                  CLIMA(ng) % hsnclmG)
         IF (exit_flag.ne.NoError) RETURN
       END IF
-# endif
+#  endif
 
-# ifndef ANA_MICLIMA
+#  ifndef ANA_MICLIMA
       IF (LmiCLM(ng)) THEN
         CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),         &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
-#  endif
+#   endif
      &                  CLIMA(ng) % uiclmG)
         IF (exit_flag.ne.NoError) RETURN
         CALL get_2dfld (ng, iNLM, idVIclm, ncCLMid(idVIclm,ng),         &
      &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % rmask,                               &
-#  endif
+#   endif
      &                  CLIMA(ng) % viclmG)
         IF (exit_flag.ne.NoError) RETURN
       END IF
+#  endif
 # endif
 #endif
 
