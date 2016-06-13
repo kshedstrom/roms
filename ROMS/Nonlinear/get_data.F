@@ -1699,6 +1699,35 @@
       END IF
 # endif
 
+# ifndef ANA_SICLIMA
+      IF (LsiCLM(ng)) THEN
+        CALL get_2dfld (ng, iNLM, idS11clm, ncCLMid(idS11clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#  endif
+     &                  CLIMA(ng) % sig11clmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idS12clm, ncCLMid(idS12clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#  endif
+     &                  CLIMA(ng) % sig12clmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idS22clm, ncCLMid(idS22clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#  endif
+     &                  CLIMA(ng) % sig22clmG)
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+# endif
+
 # ifndef ANA_MICLIMA
       IF (LmiCLM(ng)) THEN
         CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),         &

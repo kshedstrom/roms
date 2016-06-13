@@ -2158,6 +2158,31 @@
 #   endif
       END IF
 
+      IF (LsiCLM(ng)) THEN
+#   ifdef ANA_SICLIMA
+        CALL ana_siclima (ng, tile, iNLM)
+#   else
+        CALL set_2dfld_tile (ng, tile, iNLM, idS11clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig11clmG,                       &
+     &                       CLIMA(ng)%sig11clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idS12clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig12clmG,                       &
+     &                       CLIMA(ng)%sig12clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idS22clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig22clmG,                       &
+     &                       CLIMA(ng)%sig22clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+      END IF
+
       IF (LmiCLM(ng)) THEN
 #   ifdef ANA_MICLIMA
         CALL ana_miclima (ng, tile, iNLM)

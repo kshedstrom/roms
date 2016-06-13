@@ -120,6 +120,15 @@
           real(r8), pointer :: hiclmG(:,:,:)
           real(r8), pointer :: hsnclmG(:,:,:)
 # endif
+
+          real(r8), pointer :: sig11clm(:,:)
+          real(r8), pointer :: sig12clm(:,:)
+          real(r8), pointer :: sig22clm(:,:)
+# ifndef ANA_SICLIMA
+          real(r8), pointer :: sig11clmG(:,:,:)
+          real(r8), pointer :: sig12clmG(:,:,:)
+          real(r8), pointer :: sig22clmG(:,:,:)
+# endif
 #endif
 !
 !  Nudging coefficient arrays.
@@ -133,6 +142,7 @@
 #ifdef ICE_MODEL
           real(r8), pointer :: MInudgcof(:,:)
           real(r8), pointer :: AInudgcof(:,:)
+          real(r8), pointer :: SInudgcof(:,:)
 #endif
 
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
@@ -256,6 +266,17 @@
         allocate ( CLIMA(ng) % hsnclmG(LBi:UBi,LBj:UBj,2) )
 # endif
       END IF
+
+      IF (LsiCLM(ng)) THEN
+        allocate ( CLIMA(ng) % sig11clm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % sig12clm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % sig22clm(LBi:UBi,LBj:UBj) )
+# ifndef ANA_SICLIMA
+        allocate ( CLIMA(ng) % sig11clmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % sig12clmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % sig22clmG(LBi:UBi,LBj:UBj,2) )
+# endif
+      END IF
 #endif
 !
 !  Nudging coefficient arrays.
@@ -280,6 +301,10 @@
 
       IF (LnudgeAICLM(ng)) THEN
         allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (LnudgeSICLM(ng)) THEN
+        allocate ( CLIMA(ng) % SInudgcof(LBi:UBi,LBj:UBj) )
       END IF
 #endif
 
@@ -487,6 +512,24 @@
           END DO
         END DO
       END IF
+
+      IF (LsiCLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % sig11clm(i,j) = IniVal
+            CLIMA(ng) % sig12clm(i,j) = IniVal
+            CLIMA(ng) % sig22clm(i,j) = IniVal
+# ifndef ANA_AICLIMA
+            CLIMA(ng) % sig11clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig12clmG(i,j,2) = IniVal
+            CLIMA(ng) % sig22clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig11clmG(i,j,2) = IniVal
+            CLIMA(ng) % sig12clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig22clmG(i,j,2) = IniVal
+# endif
+          END DO
+        END DO
+      END IF
 #endif
 !
 !  Nudging coefficient arrays.
@@ -532,11 +575,19 @@
           END DO
         END DO
       END IF
-!
+
       IF (LnudgeAICLM(ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             CLIMA(ng) % AInudgcof(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (LnudgeSICLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % SInudgcof(i,j) = IniVal
           END DO
         END DO
       END IF

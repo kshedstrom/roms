@@ -442,6 +442,7 @@
         logical, allocatable :: LtracerCLM(:,:)      ! tracers
         logical, allocatable :: LmiCLM(:)            ! ice momentum
         logical, allocatable :: LaiCLM(:)            ! ice tracers
+        logical, allocatable :: LsiCLM(:)            ! ice tracers
 !
 !  Switched to nudge to climatology fields.
 !
@@ -451,6 +452,7 @@
         logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
         logical, allocatable :: LnudgeMICLM(:)       ! ice momentum
         logical, allocatable :: LnudgeAICLM(:)       ! ice tracers
+        logical, allocatable :: LnudgeSICLM(:)       ! ice tracers
 !
 !  Switches to activate point Source/Sinks in an application:
 !    * Horizontal momentum transport (u or v)
@@ -1913,6 +1915,7 @@
       allocate ( LtracerCLM(MT,Ngrids) )
       allocate ( LmiCLM(Ngrids) )
       allocate ( LaiCLM(Ngrids) )
+      allocate ( LsiCLM(Ngrids) )
 
       allocate ( Lnudging(Ngrids) )
       allocate ( LnudgeM2CLM(Ngrids) )
@@ -1920,6 +1923,7 @@
       allocate ( LnudgeTCLM(MT,Ngrids) )
       allocate ( LnudgeMICLM(Ngrids) )
       allocate ( LnudgeAICLM(Ngrids) )
+      allocate ( LnudgeSICLM(Ngrids) )
 
       allocate ( LuvSrc(Ngrids) )
       allocate ( LwSrc(Ngrids) )
@@ -2484,12 +2488,14 @@
         LnudgeM3CLM(ng)=.FALSE.
         LnudgeMICLM(ng)=.FALSE.
         LnudgeAICLM(ng)=.FALSE.
+        LnudgeSICLM(ng)=.FALSE.
         Lclimatology(ng)=.FALSE.
         Lm2CLM(ng)=.FALSE.
         Lm3CLM(ng)=.FALSE.
         LsshCLM(ng)=.FALSE.
         LmiCLM(ng)=.FALSE.
         LaiCLM(ng)=.FALSE.
+        LsiCLM(ng)=.FALSE.
         Lsponge(ng)=.FALSE.
         LuvSponge(ng)=.FALSE.
         LuvSrc(ng)=.FALSE.

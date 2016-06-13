@@ -250,6 +250,14 @@
           END DO
         END DO
       END IF
+
+      IF (LnudgeSICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%SInudgcof(i,j)=wrk(i,j)
+          END DO
+        END DO
+      END IF
 # endif
 #endif
 #ifdef DISTRIBUTE
@@ -293,6 +301,13 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints, .FALSE., .FALSE.,             &
      &                      CLIMA(ng)%AInudgcof)
+      END IF
+!
+      IF (LnudgeSICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%SInudgcof)
       END IF
 # endif
 #endif
