@@ -115,7 +115,7 @@
 !  days time scale at the boundary point to decrease linearly to 0 days
 !  (i.e no nudging) 15 grids points away from the boundary.
 !
-      cff1=1.0_r8/(30_r8*86400.0_r8)         ! 30-day outer limit
+      cff1=1.0_r8/(3_r8*86400.0_r8)          ! 3-day outer limit
       cff2=0.0_r8                            ! Inf days (no nudge) inner limit
       cff3=20.0_r8                           ! width of layer in grid points
 

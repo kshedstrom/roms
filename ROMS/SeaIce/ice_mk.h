@@ -395,9 +395,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ai_old
 !      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,2) :: enthal
 
-#ifdef AICLM_NUDGING
-      real(r8) :: cff
-#endif
       real(r8) :: tfrz
       real(r8) :: cot
       real(r8) :: ai_tmp

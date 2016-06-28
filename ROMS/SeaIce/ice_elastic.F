@@ -29,9 +29,7 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-#ifdef MICLM_NUDGING
       USE mod_clima
-#endif
 
       integer, intent(in) :: ng, tile
 !
@@ -75,11 +73,9 @@
 # ifdef FASTICE_CLIMATOLOGY
      &                      FORCES(ng) % fastice_clm,                   &
 # endif
-# ifdef MICLM_NUDGING
      &                      CLIMA(ng) % uiclm,                          &
      &                      CLIMA(ng) % viclm,                          &
      &                      CLIMA(ng) % MInudgcof,                      &
-# endif
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % uwater,                           &
@@ -128,9 +124,7 @@
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
 # endif
-# ifdef MICLM_NUDGING
      &                        uiclm, viclm, MInudgcof,                  &
-# endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
      &                        ai, hi,                                   &
@@ -189,11 +183,9 @@
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
 # endif
-# ifdef MICLM_NUDGING
       real(r8), intent(in) :: uiclm(LBi:,LBj:)
       real(r8), intent(in) :: viclm(LBi:,LBj:)
       real(r8), intent(in) :: MInudgcof(LBi:,LBj:)
-# endif
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
       real(r8), intent(in) :: uwater(LBi:,LBj:)
@@ -239,11 +231,9 @@
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
 # endif
-# ifdef MICLM_NUDGING
       real(r8), intent(in) :: uiclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: viclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: MInudgcof(LBi:UBi,LBj:UBj)
-# endif
       real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: uwater(LBi:UBi,LBj:UBj)
@@ -612,11 +602,11 @@
           uie(i,j,lienw) = (masu*uie(i,j,lieol) +                       &
      &                       dte(ng)*uforce)/alfa 
 !
-# ifdef MICLM_NUDGING
-          cff2 = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
-          uie(i,j,lienw)=uie(i,j,lienw)+                                &
-     &                  dte(ng)*cff2*(uiclm(i,j)-uie(i,j,lienw))
-# endif
+          IF (LnudgeMICLM(ng)) THEN
+            cff2 = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
+            uie(i,j,lienw)=uie(i,j,lienw)+                              &
+     &                    dte(ng)*cff2*(uiclm(i,j)-uie(i,j,lienw))
+          END IF
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
      &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
@@ -830,11 +820,11 @@
           vie(i,j,lienw) = (masv*vie(i,j,lieol) +                       &
      &                       dte(ng)*vforce)/alfa 
 !
-# ifdef MICLM_NUDGING
-          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i,j-1))
-          vie(i,j,lienw)=vie(i,j,lienw)+                                &
-     &                  dte(ng)*cff*(viclm(i,j)-vie(i,j,lienw))
-# endif
+          IF (LnudgeMICLM(ng)) THEN
+            cff = 0.5*(MInudgcof(i,j)+MInudgcof(i,j-1))
+            vie(i,j,lienw)=vie(i,j,lienw)+                              &
+     &                    dte(ng)*cff*(viclm(i,j)-vie(i,j,lienw))
+          END IF
 # ifdef ICE_SHOREFAST
           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +            &
      &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
