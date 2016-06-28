@@ -76,6 +76,7 @@
      &                      CLIMA(ng) % uiclm,                          &
      &                      CLIMA(ng) % viclm,                          &
      &                      CLIMA(ng) % MInudgcof,                      &
+     &                      CLIMA(ng) % AInudgcof,                      &
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % uwater,                           &
@@ -124,7 +125,7 @@
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
 # endif
-     &                        uiclm, viclm, MInudgcof,                  &
+     &                        uiclm, viclm, MInudgcof, AInudgcof,       &
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
      &                        ai, hi,                                   &
@@ -186,6 +187,7 @@
       real(r8), intent(in) :: uiclm(LBi:,LBj:)
       real(r8), intent(in) :: viclm(LBi:,LBj:)
       real(r8), intent(in) :: MInudgcof(LBi:,LBj:)
+      real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
       real(r8), intent(in) :: uwater(LBi:,LBj:)
@@ -234,6 +236,7 @@
       real(r8), intent(in) :: uiclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: viclm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: MInudgcof(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: uwater(LBi:UBi,LBj:UBj)
@@ -255,7 +258,7 @@
 !
       integer :: i, j
 
-      real(r8) :: cff, cff2, cff3, udrag, vdrag
+      real(r8) :: cff, cff2, cff3, cff4, udrag, vdrag
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
@@ -590,11 +593,19 @@
 #ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
-            v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),                 &
-     &                vie(i-1,j,lieol), vie(i-1,j-1,lieol))
-            speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
-            udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
-            alfa = alfa + udrag
+! Don't have landfast ice in nudging band
+            IF (LnudgeAICLM(ng)) THEN
+              cff4 = AInudgcof(i,j)
+            ELSE
+              cff4 = 0.0_r8
+            END IF
+            IF (cff4 == 0.0_r8) THEN
+              v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),               &
+     &                  vie(i-1,j,lieol), vie(i-1,j-1,lieol))
+              speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
+              udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
+              alfa = alfa + udrag
+            END IF
           END IF
 #endif
 !
