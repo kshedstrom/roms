@@ -467,8 +467,10 @@ ZOS_HSIG_ALPHA == 2*0.5d0                  ! roughness from wave amplitude
 
       LmiCLM == F
       LaiCLM == F
+      LsiCLM == F
  LnudgeMICLM == F
  LnudgeAICLM == F
+ LnudgeSICLM == F
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their

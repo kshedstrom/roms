@@ -1032,6 +1032,33 @@
   'r2dvar'
   1.0d0
 
+'sig11'
+  'internal ice stress 11 component'
+  'Newton meter-1'
+  'ice stress 11, scalar, series'
+  'ocean_time'
+  'idS11clm'
+  'r2dvar'
+  1.0d0
+
+'sig22'
+  'internal ice stress 22 component'
+  'Newton meter-1'
+  'ice stress 22, scalar, series'
+  'ocean_time'
+  'idS22clm'
+  'r2dvar'
+  1.0d0
+
+'sig12'
+  'internal ice stress 12 component'
+  'Newton meter-1'
+  'ice stress 12, scalar, series'
+  'ocean_time'
+  'idS12clm'
+  'r2dvar'
+  1.0d0
+
 'Runoff'
   'Fresh water runoff from land'
   'kg/s/m^2'

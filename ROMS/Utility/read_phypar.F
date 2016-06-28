@@ -1015,10 +1015,14 @@
               Npts=load_l(Nval, Cval, Ngrids, LmiCLM)
             CASE ('LaiCLM')
               Npts=load_l(Nval, Cval, Ngrids, LaiCLM)
+            CASE ('LsiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LsiCLM)
             CASE ('LnudgeMICLM')
               Npts=load_l(Nval, Cval, Ngrids, LnudgeMICLM)
             CASE ('LnudgeAICLM')
               Npts=load_l(Nval, Cval, Ngrids, LnudgeAICLM)
+            CASE ('LnudgeSICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeSICLM)
 #endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \

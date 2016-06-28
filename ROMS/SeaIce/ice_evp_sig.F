@@ -24,6 +24,7 @@
       USE mod_grid
       USE mod_ice
       USE mod_stepping
+      USE mod_clima
 
       integer, intent(in) :: ng, tile
 !
@@ -47,7 +48,11 @@
      &                      ICE(ng) % eta,                              &
      &                      ICE(ng) % sig11,                            &
      &                      ICE(ng) % sig22,                            &
-     &                      ICE(ng) % sig12                             &
+     &                      ICE(ng) % sig12,                            &
+     &                      CLIMA(ng) % sig11clm,                       &
+     &                      CLIMA(ng) % sig22clm,                       &
+     &                      CLIMA(ng) % sig12clm,                       &
+     &                      CLIMA(ng) % SInudgcof                       &
      &                      )
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 55)
@@ -63,8 +68,9 @@
      &                        pm, pn,                                   &
      &                        uie, vie,                                 &
      &                        hi, pice, zetai, eta,                     &
-     &                        sig11, sig22, sig12                       &
-     &                        )
+     &                        sig11, sig22, sig12,                      &
+     &                        sig11clm, sig22clm, sig12clm,             &
+     &                        SInudgcof)
 !***********************************************************************
 !
 
@@ -101,6 +107,10 @@
       real(r8), intent(inout) :: sig11(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig22(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig12(LBi:,LBj:,:)
+      real(r8), intent(in) :: sig11clm(LBi:,LBj:)
+      real(r8), intent(in) :: sig22clm(LBi:,LBj:)
+      real(r8), intent(in) :: sig12clm(LBi:,LBj:)
+      real(r8), intent(in) :: SInudgcof(LBi:,LBj:)
 # else
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -113,6 +123,10 @@
       real(r8), intent(inout) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig22(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig12(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(in) :: sig11clm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: sig22clm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: sig12clm(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: SInudgcof(LBi:UBi,LBj:UBj)
 # endif
 
 ! Local variable definitions
@@ -136,6 +150,7 @@
       real(r8) :: beta
       real(r8) :: epx
       real(r8) :: epy
+      real(r8) :: cff
 
 # include "set_bounds.h"
 
@@ -192,6 +207,15 @@
 !
             sig12(i,j,lienw) = 2.0_r8*eta(i,j)*eps12(i,j)
 !
+          END IF
+          IF (LnudgeSICLM(ng)) THEN
+            cff = SInudgcof(i,j)
+            sig11(i,j,lienw)=sig11(i,j,lienw)+                          &
+     &                    dtice(ng)*cff*(sig11clm(i,j)-sig11(i,j,lienw))
+            sig12(i,j,lienw)=sig12(i,j,lienw)+                          &
+     &                    dtice(ng)*cff*(sig12clm(i,j)-sig12(i,j,lienw))
+            sig22(i,j,lienw)=sig22(i,j,lienw)+                          &
+     &                    dtice(ng)*cff*(sig22clm(i,j)-sig22(i,j,lienw))
           END IF
         END DO
       END DO

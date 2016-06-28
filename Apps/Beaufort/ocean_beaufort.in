@@ -482,8 +482,10 @@ LtracerSponge == F F                            ! temperature, salinity, inert
 
       LmiCLM == F
       LaiCLM == T
+      LsiCLM == F
  LnudgeMICLM == F
  LnudgeAICLM == T
+ LnudgeSICLM == F
 
 ! Starting (DstrS) and ending (DendS) day for adjoint sensitivity forcing.
 ! DstrS must be less or equal to DendS. If both values are zero, their

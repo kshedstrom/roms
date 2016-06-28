@@ -939,7 +939,7 @@
           END IF
 # endif
 #endif
-          IF (LaiCLM(ng)) THEN
+          IF (LnudgeAICLM(ng)) THEN
             cff = AInudgcof(i,j)
             ai(i,j,linew)=ai(i,j,linew)+                                &
      &                    dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))

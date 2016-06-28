@@ -426,6 +426,9 @@
         integer  :: idAIclm        ! ice concentration climatology
         integer  :: idHIclm        ! ice thickness climatology
         integer  :: idHSNclm       ! ice thickness climatology
+        integer  :: idS11clm       ! ice sigma11 climatology
+        integer  :: idS12clm       ! ice sigma12 climatology
+        integer  :: idS22clm       ! ice sigma22 climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
 
@@ -1902,6 +1905,12 @@
                 idHIclm=varid
               CASE ('idHSNclm')
                 idHSNclm=varid
+              CASE ('idS11clm')
+                idS11clm=varid
+              CASE ('idS12clm')
+                idS12clm=varid
+              CASE ('idS22clm')
+                idS22clm=varid
               CASE ('idUIclm')
                 idUIclm=varid
               CASE ('idVIclm')

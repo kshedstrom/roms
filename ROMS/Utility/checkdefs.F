@@ -1586,6 +1586,12 @@
       Coptions(is:is+18)=' OPT_PERTURBATION,'
       idriver=idriver+1
 #endif
+#ifdef OPTIC_MANIZZA
+      IF (Master) WRITE (stdout,20) 'OPTIC_MANIZZA',                     &
+     &   'Optics subroutine from Manizza.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' OPTIC_MANIZZA,'
+#endif
 #ifdef OPTIC_UMAINE
       IF (Master) WRITE (stdout,20) 'OPTIC_UMAINE',                     &
      &   'Optics subroutine from UMaine.'
