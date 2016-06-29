@@ -73,6 +73,7 @@
      &                   FORCES(ng) % soluble_fe,                       &
      &                   FORCES(ng) % mineral_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
+     &                   FORCES(ng) % fecoast,                          &
 #endif
 #ifdef DIAGNOSTICS_BIO
      &                   DIAGS(ng) % DiaBio2d,                          &
@@ -129,6 +130,7 @@
 #endif
 #ifdef COBALT_IRON
      &                         soluble_fe, mineral_fe, ironsed,         &
+     &                         fecoast,                                 &
 #endif
 #ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
@@ -208,6 +210,7 @@
       real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
       real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
+      real(r8), intent(in) :: fecoast(LBi:,LBj:)
 #endif
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
@@ -261,6 +264,7 @@
       real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: fecoast(LBi:UBi,LBj:UBj)
 # endif
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
@@ -1169,6 +1173,30 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    &                                        phyto(3)%po4lim,        &
    &                                        phyto(3)%def_fe )
 
+
+#ifdef DIAGNOSTICS_BIO
+   DO k=1,UBk
+     DO j=Jstr,Jend
+       DO i=Istr,Iend
+          DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + phyto(3)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + phyto(1)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + phyto(2)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + phyto(2)%felim(i,j,k)
+          DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + phyto(1)%felim(i,j,k)
+          DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + phyto(3)%felim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + phyto(2)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_di) = DiaBio3d(i,j,k,ino3lim_di) 
+          DiaBio3d(i,j,k,ino3lim_lg) = DiaBio3d(i,j,k,ino3lim_lg) + phyto(3)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_sm) = DiaBio3d(i,j,k,inh4lim_sm) + phyto(2)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_di) = DiaBio3d(i,j,k,inh4lim_di) 
+          DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + phyto(3)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + phyto(2)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + phyto(1)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + phyto(3)%po4lim(i,j,k)
+       ENDDO
+     ENDDO
+   ENDDO
+#endif
 
 !   call system_clock(clock1stop)
 !   time_clock1 = elapsed_time(clock1start,clock1stop)
@@ -2904,7 +2932,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !       cobalt%jfe_coast(i,j,k) = cobalt%fe_coast * mask_coast(i,j) *     &
 !     &                           grid_tmask(i,j,k) / sqrt(grid_dat(i,j))
       ! RD dev notes : we are supposed to resolve the shelves in ROMS now
-      cobalt%jfe_coast(i,j,k) = 0.
+      ! RD : testing with same source as MOM
+      ! I think units are ok but not sure equation
+      cobalt%jfe_coast(i,j,k) = fecoast(i,j) / sqrt( omn(i,j) )
 
       ENDDO
     ENDDO

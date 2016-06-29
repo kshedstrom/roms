@@ -896,6 +896,36 @@
               CASE ('iDbio3(izloss_lg)')
                 iDbio3(izloss_lg)=varid
 
+              CASE ('iDbio3(idef_fe_sm)')
+                iDbio3(idef_fe_sm)=varid
+              CASE ('iDbio3(idef_fe_di)')
+                iDbio3(idef_fe_di)=varid
+              CASE ('iDbio3(idef_fe_lg)')
+                iDbio3(idef_fe_lg)=varid
+              CASE ('iDbio3(ifelim_sm)')
+                iDbio3(ifelim_sm)=varid
+              CASE ('iDbio3(ifelim_di)')
+                iDbio3(ifelim_di)=varid
+              CASE ('iDbio3(ifelim_lg)')
+                iDbio3(ifelim_lg)=varid
+              CASE ('iDbio3(ino3lim_sm)')
+                iDbio3(ino3lim_sm)=varid
+              CASE ('iDbio3(ino3lim_di)')
+                iDbio3(ino3lim_di)=varid
+              CASE ('iDbio3(ino3lim_lg)')
+                iDbio3(ino3lim_lg)=varid
+              CASE ('iDbio3(inh4lim_sm)')
+                iDbio3(inh4lim_sm)=varid
+              CASE ('iDbio3(inh4lim_di)')
+                iDbio3(inh4lim_di)=varid
+              CASE ('iDbio3(inh4lim_lg)')
+                iDbio3(inh4lim_lg)=varid
+              CASE ('iDbio3(ipo4lim_sm)')
+                iDbio3(ipo4lim_sm)=varid
+              CASE ('iDbio3(ipo4lim_di)')
+                iDbio3(ipo4lim_di)=varid
+              CASE ('iDbio3(ipo4lim_lg)')
+                iDbio3(ipo4lim_lg)=varid
 
 
 #endif

@@ -427,6 +427,13 @@
      &                     FORCES(ng)%ironsed,                          &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idFeCoast,                   &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%fecoastG,                         &
+     &                     FORCES(ng)%fecoast,                          &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 #  endif
 
 #   ifdef CLOUDS

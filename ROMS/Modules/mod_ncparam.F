@@ -202,6 +202,7 @@
         integer  :: idHsbl        ! depth of surface boundary layer
         integer  :: idHsno        ! depth of snow cover
         integer  :: idIronSed     ! iron from sediments
+        integer  :: idFeCoast     ! iron coastal source
         integer  :: idKhor        ! convolution horizontal diffusion
         integer  :: idKver        ! convolution vertical diffusion
         integer  :: idLdwn        ! downwelling longwave radiation flux
@@ -1299,6 +1300,8 @@
               idMineralFe=varid
             CASE ('idIronSed')
               idIronSed=varid
+            CASE ('idFeCoast')
+              idFeCoast=varid
             CASE ('idPwet')
               idPwet=varid
             CASE ('idRwet')

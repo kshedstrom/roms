@@ -691,6 +691,20 @@
      &                FORCES(ng) % ironsedG)
       IF (exit_flag.ne.NoError) RETURN
 
+!
+!-----------------------------------------------------------------------
+! iron coastal source 
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idFeCoast, ncFRCid(idFeCoast,ng),       &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % fecoastG)
+      IF (exit_flag.ne.NoError) RETURN
+
 # endif
 # if !defined ANA_CLOUD && defined CLOUDS
 !
