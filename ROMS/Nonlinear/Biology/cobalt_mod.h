@@ -1761,6 +1761,8 @@
 #ifdef COBALT_PHOSPHORUS
       ! Phosporus Dynamics
       NBT=NBT+5
+#else
+      NBT=NBT+1
 #endif
 #ifdef COBALT_IRON
       ! Iron Dynamics
@@ -1782,7 +1784,10 @@
       NBEN=6
 #endif
       ! Sinking material
-      Nsink=7
+      Nsink=6
+#ifdef COBALT_PHOSPHORUS
+      Nsink=Nsink+1
+#endif
 
 !-----------------------------------------------------------------------
 !  Allocate various module variables.
@@ -2603,6 +2608,9 @@
       ipo4=ic+4
       ipdet=ic+5
       ic=ic+5
+#else
+      ipo4=ic+1
+      ic=ic+1
 #endif
 #ifdef COBALT_IRON
       ! Iron Dynamics
@@ -2730,6 +2738,7 @@
       iagg_lim_sm=16
       iagg_lim_di=17
       iagg_lim_lg=18
+
       iaggloss_sm=19
       iaggloss_di=20
       iaggloss_lg=21
@@ -2762,13 +2771,23 @@
       
 #endif
 
+!      idsink(1) = indet
+!      idsink(2) = isidet
+!      idsink(3) = icadet_calc
+!      idsink(4) = icadet_arag
+!      idsink(5) = ipdet
+!      idsink(6) = ifedet
+!      idsink(7) = ilithdet
+
       idsink(1) = indet
       idsink(2) = isidet
       idsink(3) = icadet_calc
       idsink(4) = icadet_arag
-      idsink(5) = ipdet
-      idsink(6) = ifedet
-      idsink(7) = ilithdet
+      idsink(5) = ifedet
+      idsink(6) = ilithdet
+#ifdef COBALT_PHOSPHORUS
+      idsink(7) = ipdet
+#endif
 
       RETURN
 

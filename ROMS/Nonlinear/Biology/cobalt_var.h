@@ -77,6 +77,9 @@
                  idTvar(ipo4)=varid
                CASE ('idTvar(ipdet)')
                  idTvar(ipdet)=varid
+#else
+               CASE ('idTvar(ipo4)')
+                 idTvar(ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -454,6 +457,15 @@
                  idTbry(isouth,ipdet)=varid
                CASE ('idTbry(inorth,ipdet)')
                  idTbry(inorth,ipdet)=varid
+#else
+               CASE ('idTbry(iwest,ipo4)')
+                 idTbry(iwest,ipo4)=varid
+               CASE ('idTbry(ieast,ipo4)')
+                 idTbry(ieast,ipo4)=varid
+               CASE ('idTbry(isouth,ipo4)')
+                 idTbry(isouth,ipo4)=varid
+               CASE ('idTbry(inorth,ipo4)')
+                 idTbry(inorth,ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -668,6 +680,9 @@
                  idRtrc(ipo4)=varid
                CASE ('idRtrc(ipdet)')
                  idRtrc(ipdet)=varid
+# else
+               CASE ('idRtrc(ipo4)')
+                 idRtrc(ipo4)=varid
 # endif
 # ifdef COBALT_IRON
                ! Iron Dynamics
@@ -880,6 +895,9 @@
                 iDbio3(izloss_sm)=varid
               CASE ('iDbio3(izloss_lg)')
                 iDbio3(izloss_lg)=varid
+
+
+
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')
