@@ -3826,6 +3826,25 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
     ENDDO
 
+    DO k=1,UBk
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+
+           DiaBio3d(i,j,k,iaggloss_lg)   = DiaBio3d(i,j,k,iaggloss_lg)  + phyto(LARGE)%jaggloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,iaggloss_sm)   = DiaBio3d(i,j,k,iaggloss_sm)  + phyto(SMALL)%jaggloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,iaggloss_di)   = DiaBio3d(i,j,k,iaggloss_di)  + phyto(DIAZO)%jaggloss_n(i,j,k) * r_dt
+
+           DiaBio3d(i,j,k,ivirloss_lg)   = DiaBio3d(i,j,k,ivirloss_lg)  + phyto(LARGE)%jvirloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,ivirloss_sm)   = DiaBio3d(i,j,k,ivirloss_sm)  + phyto(SMALL)%jvirloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,ivirloss_di)   = DiaBio3d(i,j,k,ivirloss_di)  + phyto(DIAZO)%jvirloss_n(i,j,k) * r_dt
+
+           DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)  + phyto(LARGE)%jzloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)  + phyto(SMALL)%jzloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)  + phyto(DIAZO)%jzloss_n(i,j,k) * r_dt
+
+        ENDDO
+      ENDDO
+    ENDDO
 #endif
 !   call system_clock(clock1stop)
 !   time_clock1 = elapsed_time(clock1start,clock1stop)

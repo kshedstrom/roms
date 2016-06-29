@@ -861,6 +861,25 @@
                 iDbio3(iagg_lim_di)=varid
               CASE ('iDbio3(iagg_lim_lg)')
                 iDbio3(iagg_lim_lg)=varid
+
+              CASE ('iDbio3(iaggloss_di)')
+                iDbio3(iaggloss_di)=varid
+              CASE ('iDbio3(iaggloss_sm)')
+                iDbio3(iaggloss_sm)=varid
+              CASE ('iDbio3(iaggloss_lg)')
+                iDbio3(iaggloss_lg)=varid
+              CASE ('iDbio3(ivirloss_di)')
+                iDbio3(ivirloss_di)=varid
+              CASE ('iDbio3(ivirloss_sm)')
+                iDbio3(ivirloss_sm)=varid
+              CASE ('iDbio3(ivirloss_lg)')
+                iDbio3(ivirloss_lg)=varid
+              CASE ('iDbio3(izloss_di)')
+                iDbio3(izloss_di)=varid
+              CASE ('iDbio3(izloss_sm)')
+                iDbio3(izloss_sm)=varid
+              CASE ('iDbio3(izloss_lg)')
+                iDbio3(izloss_lg)=varid
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')

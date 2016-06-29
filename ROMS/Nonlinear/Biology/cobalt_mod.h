@@ -577,6 +577,9 @@
       integer :: iirr_mem ! Irradiance memory
       integer :: iirr_mix ! Irradiance in MXL
       integer :: iirr_inst ! Irradiance instantaneous
+      integer :: iaggloss_sm, iaggloss_di, iaggloss_lg
+      integer :: ivirloss_sm, ivirloss_di, ivirloss_lg
+      integer :: izloss_sm, izloss_di, izloss_lg
       integer :: ijprod_cadet_arag, ijprod_cadet_calc, ijprod_fedet
       integer :: ijprod_lithdet, ijprod_ndet, ijprod_pdet, ijprod_sidet
       integer :: indet_b4sink, ipdet_b4sink, ifedet_b4sink
@@ -1772,7 +1775,7 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
-      NDbio3d = 18
+      NDbio3d = 27 ! 18
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
@@ -2727,6 +2730,17 @@
       iagg_lim_sm=16
       iagg_lim_di=17
       iagg_lim_lg=18
+      iaggloss_sm=19
+      iaggloss_di=20
+      iaggloss_lg=21
+
+      ivirloss_sm=22
+      ivirloss_di=23
+      ivirloss_lg=24
+
+      izloss_sm=25
+      izloss_di=26
+      izloss_lg=27
 #endif
       
       ! Sediment variables
