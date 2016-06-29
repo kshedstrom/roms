@@ -1136,12 +1136,12 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   phyto(3)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
 & (phyto(3)%k_fed + cobalt%f_fed(:,:,:))
 
-  phyto(1)%def_fe(:,:,:)=phyto(1)%q_fe_2_n(:,:,:)**2.0d0 / &
-& (phyto(1)%k_fe_2_n**2.0d0+phyto(1)%q_fe_2_n(:,:,:)**2.0d0)
-  phyto(2)%def_fe(:,:,:)=phyto(2)%q_fe_2_n(:,:,:)**2.0d0 / &
-& (phyto(2)%k_fe_2_n**2.0d0+phyto(2)%q_fe_2_n(:,:,:)**2.0d0)
-  phyto(3)%def_fe(:,:,:)=phyto(3)%q_fe_2_n(:,:,:)**2.0d0 / &
-& (phyto(3)%k_fe_2_n**2.0d0+phyto(3)%q_fe_2_n(:,:,:)**2.0d0)
+  phyto(1)%def_fe(:,:,:)=phyto(1)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(1)%k_fe_2_n**2+phyto(1)%q_fe_2_n(:,:,:)**2)
+  phyto(2)%def_fe(:,:,:)=phyto(2)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(2)%k_fe_2_n**2+phyto(2)%q_fe_2_n(:,:,:)**2)
+  phyto(3)%def_fe(:,:,:)=phyto(3)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(3)%k_fe_2_n**2+phyto(3)%q_fe_2_n(:,:,:)**2)
 
 !
 ! Calculate nutrient limitation based on the most limiting nutrient (liebig_lim)
@@ -1852,19 +1852,29 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ztemp_lim_zoo1 = exp(zoo(m)%ktemp*ztemp)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo1 
 
-       sw_fac_denom = (ipa_matrix(m,3)*prey_vec(3))**zoo(m)%nswitch +    &
-     &                (ipa_matrix(m,4)*prey_vec(4))**zoo(m)%nswitch
-
-       pa_matrix(m,3) = ipa_matrix(m,3)*                                 &
-     &                  ((ipa_matrix(m,3)*prey_vec(3))**zoo(m)%nswitch / &
-     &                    (sw_fac_denom+epsln))**(1.0/zoo(m)%mswitch)
-
-       pa_matrix(m,4) = ipa_matrix(m,4)*                                 &
-     &                  ((ipa_matrix(m,4)*prey_vec(4))**zoo(m)%nswitch / &
-     &                    (sw_fac_denom+epsln))**(1.0/zoo(m)%mswitch)
+       !sw_fac_denom = (ipa_matrix(m,3)*prey_vec(3))**zoo(m)%nswitch +    &
+       !&                (ipa_matrix(m,4)*prey_vec(4))**zoo(m)%nswitch
+       !
+       !pa_matrix(m,3) = ipa_matrix(m,3)*                                 &
+       !&                  ((ipa_matrix(m,3)*prey_vec(3))**zoo(m)%nswitch / &
+       !&                    (sw_fac_denom+epsln))**(1.0/zoo(m)%mswitch)
+       !
+       !pa_matrix(m,4) = ipa_matrix(m,4)*                                 &
+       !&                  ((ipa_matrix(m,4)*prey_vec(4))**zoo(m)%nswitch / &
+       !&                    (sw_fac_denom+epsln))**(1.0/zoo(m)%mswitch)
+       
+       sw_fac_denom =  (ipa_matrix(m,3)*prey_vec(3))**2 +    &
+       &               (ipa_matrix(m,4)*prey_vec(4))**2 + epsln
+       
+       pa_matrix(m,3) = ipa_matrix(m,3)* &
+                        sqrt((ipa_matrix(m,3)*prey_vec(3))**2/sw_fac_denom)
+       
+       pa_matrix(m,4) = ipa_matrix(m,4)* &
+                        sqrt((ipa_matrix(m,4)*prey_vec(4))**2/sw_fac_denom)
+       
 
        tot_prey(m) = pa_matrix(m,3) * prey_vec(3) + pa_matrix(m,4) *     &
-     &                prey_vec(4)
+     &               prey_vec(4)
 
      !  ingest_matrix(m,3) = zoo(m)%temp_lim(i,j,k) * zoo(m)%imax *       &
      !&                pa_matrix(m,3)* prey_vec(3)*zoo(m)%f_n(i,j,k) /    &
@@ -1899,18 +1909,29 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ztemp_lim_zoo2 = exp(zoo(m)%ktemp*ztemp)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo2 
 
-       sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch +    &
-     &                (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch +    &
-     &                (ipa_matrix(m,5)*prey_vec(5))**zoo(m)%nswitch
+       !sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch +    &
+       !&                (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch +    &
+       !&                (ipa_matrix(m,5)*prey_vec(5))**zoo(m)%nswitch
+       !pa_matrix(m,1) = ipa_matrix(m,1)*                                 &
+       !&                 ( (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+       !pa_matrix(m,2) = ipa_matrix(m,2)*                                 & 
+       !&                 ( (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+       !pa_matrix(m,5) = ipa_matrix(m,5)*                                 & 
+       !&                 ( (ipa_matrix(m,5)*prey_vec(5))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     
+       sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**2 +    &
+     &                (ipa_matrix(m,2)*prey_vec(2))**2 +    &
+     &                (ipa_matrix(m,5)*prey_vec(5))**2 + epsln
        pa_matrix(m,1) = ipa_matrix(m,1)*                                 &
-     &                 ( (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,1)*prey_vec(1))**2/sw_fac_denom)
        pa_matrix(m,2) = ipa_matrix(m,2)*                                 & 
-     &                 ( (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,2)*prey_vec(2))**2/sw_fac_denom)
        pa_matrix(m,5) = ipa_matrix(m,5)*                                 & 
-     &                 ( (ipa_matrix(m,5)*prey_vec(5))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,5)*prey_vec(5))**2/sw_fac_denom)
+     
        tot_prey(m) =  pa_matrix(m,1)*prey_vec(1) +                       &
      &                pa_matrix(m,2)*prey_vec(2) +                       &
      &                pa_matrix(m,5)*prey_vec(5)
@@ -1958,18 +1979,28 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo3 
 
 
-       sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch +    &
-     &                (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch +    &
-     &                (ipa_matrix(m,6)*prey_vec(6))**zoo(m)%nswitch
+       !sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch +    &
+       !&                (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch +    &
+       !&                (ipa_matrix(m,6)*prey_vec(6))**zoo(m)%nswitch
+       !pa_matrix(m,1) = ipa_matrix(m,1)*                                 &
+       !&                 ( (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+       !pa_matrix(m,2) = ipa_matrix(m,2)*                                 &
+       !&                 ( (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+       !pa_matrix(m,6) = ipa_matrix(m,6)*                                 &
+       !&                 ( (ipa_matrix(m,6)*prey_vec(6))**zoo(m)%nswitch / &
+       !&                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     
+      sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**2 +    &
+     &              (ipa_matrix(m,2)*prey_vec(2))**2 +    &
+     &              (ipa_matrix(m,6)*prey_vec(6))**2 + epsln
        pa_matrix(m,1) = ipa_matrix(m,1)*                                 &
-     &                 ( (ipa_matrix(m,1)*prey_vec(1))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,1)*prey_vec(1))**2/sw_fac_denom)
        pa_matrix(m,2) = ipa_matrix(m,2)*                                 &
-     &                 ( (ipa_matrix(m,2)*prey_vec(2))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,2)*prey_vec(2))**2/sw_fac_denom)
        pa_matrix(m,6) = ipa_matrix(m,6)*                                 &
-     &                 ( (ipa_matrix(m,6)*prey_vec(6))**zoo(m)%nswitch / &
-     &                   (sw_fac_denom+epsln) )**(1.0/zoo(m)%mswitch)
+     &                  sqrt((ipa_matrix(m,6)*prey_vec(6))**2/sw_fac_denom)
        tot_prey(m) =  pa_matrix(m,1)*prey_vec(1) + pa_matrix(m,2)*       &
      &                prey_vec(2) +                                      &
      &                pa_matrix(m,6)*prey_vec(6)
@@ -2138,15 +2169,24 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ztemp_lim_hp = exp(cobalt%ktemp_hp*ztemp)
        cobalt%hp_temp_lim(i,j,k) = ztemp_lim_hp
 
-       sw_fac_denom = (hp_ipa_vec(6)*prey_vec(6))**cobalt%nswitch_hp +   &
-     &                (hp_ipa_vec(7)*prey_vec(7))**cobalt%nswitch_hp
+      ! sw_fac_denom = (hp_ipa_vec(6)*prey_vec(6))**cobalt%nswitch_hp +   &
+     !&                (hp_ipa_vec(7)*prey_vec(7))**cobalt%nswitch_hp
+       !hp_pa_vec(6) = hp_ipa_vec(6)*                                     &
+     !&                ( (hp_ipa_vec(6)*prey_vec(6))**cobalt%nswitch_hp / &
+     !&                  (sw_fac_denom+epsln) )**(1.0/cobalt%mswitch_hp)
+      ! hp_pa_vec(7) = hp_ipa_vec(7)*                                     &
+     !&                ( (hp_ipa_vec(7)*prey_vec(7))**cobalt%nswitch_hp / &
+     !&                  (sw_fac_denom+epsln) )**(1.0/cobalt%mswitch_hp)
+     !  tot_prey_hp = hp_pa_vec(6)*prey_vec(6) + hp_pa_vec(7)*prey_vec(7)
+     
+       sw_fac_denom = (hp_ipa_vec(6)*prey_vec(6))**2 +   &
+     &                (hp_ipa_vec(7)*prey_vec(7))**2 + epsln
        hp_pa_vec(6) = hp_ipa_vec(6)*                                     &
-     &                ( (hp_ipa_vec(6)*prey_vec(6))**cobalt%nswitch_hp / &
-     &                  (sw_fac_denom+epsln) )**(1.0/cobalt%mswitch_hp)
+     &                sqrt((hp_ipa_vec(6)*prey_vec(6))**2/sw_fac_denom)
        hp_pa_vec(7) = hp_ipa_vec(7)*                                     &
-     &                ( (hp_ipa_vec(7)*prey_vec(7))**cobalt%nswitch_hp / &
-     &                  (sw_fac_denom+epsln) )**(1.0/cobalt%mswitch_hp)
+     &                sqrt((hp_ipa_vec(7)*prey_vec(7))**2/sw_fac_denom)
        tot_prey_hp = hp_pa_vec(6)*prey_vec(6) + hp_pa_vec(7)*prey_vec(7)
+     
 !       hp_ingest_vec(6) = cobalt%hp_temp_lim(i,j,k)*cobalt%imax_hp*      &
 !     &                    hp_pa_vec(6)*                                  &
 !     &                    prey_vec(6)*tot_prey_hp**(cobalt%coef_hp-1)/   &
@@ -2156,14 +2196,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !     &                    prey_vec(7)*tot_prey_hp**(cobalt%coef_hp-1)/   &
 !     &                    (cobalt%ki_hp+tot_prey_hp)
 
-       hp_ingest_vec(6) = ztemp_lim_hp*cobalt%imax_hp*                   &
-     &                    hp_pa_vec(6)*                                  &
-     &                    prey_vec(6)*tot_prey_hp**(cobalt%coef_hp-1)/   &
-     &                    (cobalt%ki_hp+tot_prey_hp)
-       hp_ingest_vec(7) = ztemp_lim_hp*cobalt%imax_hp*                   &
-     &                    hp_pa_vec(7)*                                  &
-     &                    prey_vec(7)*tot_prey_hp**(cobalt%coef_hp-1)/   &
-     &                    (cobalt%ki_hp+tot_prey_hp)
+       hp_ingest_vec(6) = ztemp_lim_hp*cobalt%imax_hp*hp_pa_vec(6)*       &
+     &                    prey_vec(6)*tot_prey_hp/(cobalt%ki_hp+tot_prey_hp)
+       hp_ingest_vec(7) = ztemp_lim_hp*cobalt%imax_hp*hp_pa_vec(7)*      &
+     &                    prey_vec(7)*tot_prey_hp/(cobalt%ki_hp+tot_prey_hp)
 
        cobalt%hp_jingest_n(i,j,k) = hp_ingest_vec(6) + hp_ingest_vec(7)
 ! RD question for CAS, is this right or do we want to remove it completely ?
@@ -2227,9 +2263,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   phyto(1)%agg_lim(:,:,:) = max(1.0 - phyto(1)%f_mu_mem(:,:,:)/(0.25*phyto(1)%P_C_max*cobalt%expkT(:,:,:)),0.0)
   phyto(2)%agg_lim(:,:,:) = max(1.0 - phyto(2)%f_mu_mem(:,:,:)/(0.25*phyto(2)%P_C_max*cobalt%expkT(:,:,:)),0.0)
   phyto(3)%agg_lim(:,:,:) = max(1.0 - phyto(3)%f_mu_mem(:,:,:)/(0.25*phyto(3)%P_C_max*cobalt%expkT(:,:,:)),0.0)
-  phyto(1)%jaggloss_n(:,:,:) = (phyto(1)%agg_lim(:,:,:)**2)*phyto(1)%agg*phyto(1)%f_n(:,:,:)**2.0 
-  phyto(2)%jaggloss_n(:,:,:) = (phyto(2)%agg_lim(:,:,:)**2)*phyto(2)%agg*phyto(2)%f_n(:,:,:)**2.0 
-  phyto(3)%jaggloss_n(:,:,:) = (phyto(3)%agg_lim(:,:,:)**2)*phyto(3)%agg*phyto(3)%f_n(:,:,:)**2.0 
+  phyto(1)%jaggloss_n(:,:,:) = (phyto(1)%agg_lim(:,:,:)**2)*phyto(1)%agg*phyto(1)%f_n(:,:,:)**2
+  phyto(2)%jaggloss_n(:,:,:) = (phyto(2)%agg_lim(:,:,:)**2)*phyto(2)%agg*phyto(2)%f_n(:,:,:)**2
+  phyto(3)%jaggloss_n(:,:,:) = (phyto(3)%agg_lim(:,:,:)**2)*phyto(3)%agg*phyto(3)%f_n(:,:,:)**2
 
 #ifdef COBALT_PHOSPHORUS
   phyto(1)%jaggloss_p(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_p_2_n(:,:,:)
@@ -2259,9 +2295,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !  ENDDO 
 
   ! RD rewritten code
-   phyto(1)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(1)%vir*phyto(1)%f_n(:,:,:)**2.0 
-   phyto(2)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(2)%vir*phyto(2)%f_n(:,:,:)**2.0 
-   phyto(3)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(3)%vir*phyto(3)%f_n(:,:,:)**2.0 
+   phyto(1)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(1)%vir*phyto(1)%f_n(:,:,:)**2
+   phyto(2)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(2)%vir*phyto(2)%f_n(:,:,:)**2
+   phyto(3)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(3)%vir*phyto(3)%f_n(:,:,:)**2
 
 #ifdef COBALT_PHOSPHORUS
    phyto(1)%jvirloss_p(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_p_2_n(:,:,:)
@@ -3169,7 +3205,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
       ! fpoc_bottom in mmoles C m-2 day-1 for burial relationship
       fpoc_btm = (cobalt%f_ndet_btf(i,j,1)*cobalt%c_2_n*sperd*1000.0)
-      cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2.0)/((7.0+fpoc_btm)**2.0)
+      cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2)/((7.0+fpoc_btm)**2)
 
 
 #ifdef COBALT_CONSERVATION_TEST
@@ -3190,7 +3226,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     & r_dt,                                                              &
     & min((cobalt%f_ndet_btf(i,j,1)-cobalt%fndet_burial(i,j))*           &
     &     cobalt%n_2_n_denit,                                            &
-    &     10.0**(-0.9543+0.7662*log_fpoc_btm - 0.235*log_fpoc_btm**2.0)/ &
+    &     10.0**(-0.9543+0.7662*log_fpoc_btm - 0.235*log_fpoc_btm**2)/ &
     &     (cobalt%c_2_n*sperd*100.0)*                                    &
     &     cobalt%n_2_n_denit*cobalt%f_no3(i,j,k)/                        &
     &     (cobalt%k_no3_denit + cobalt%f_no3(i,j,k))))
