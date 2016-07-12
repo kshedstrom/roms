@@ -3300,8 +3300,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
     ! iron from sediment 
     ! read from file :
-    cobalt%ffe_sed(i,j)  = ironsed(i,j) / rho0 / Hz(i,j,1)
-    ! units : mol.kg-1.s-1 = mol.m-2.s-1 / ( kg.m-3 * m )
+    cobalt%ffe_sed(i,j)  = ironsed(i,j) !/ rho0 / Hz(i,j,1)
+    ! units : mol.kg-1.s-1 = mol.m-2.s-1 / ( kg.m-3 * m ) -> BUG
+    ! units changed to mol.m-2.s-1 RD, bug fix from CAS
 
     ! THE original code from cobalt uses ndet bottom flux as a proxy to diagnose
     ! iron sources from sediments
