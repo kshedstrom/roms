@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -141,11 +141,13 @@
 # ifdef LMD_SHAPIRO
       USE shapiro_mod
 # endif
-# ifdef OPTIC_MANIZZA 
+# ifdef OPTIC_MANIZZA
 #  ifdef BIO_COBALT
       USE mod_biology, ONLY: iochl
+#  elif defined BIO_UMAINE
+      USE mod_biology, ONLY: iS1CH, iS2CH, iS3CH
 #  else
-??? need to define index for cholorphyll in other bio model
+!??? need to define index for cholorphyll in other bio model
 #  endif
 # endif
 !
@@ -717,7 +719,7 @@
 !
 !  SOGLOBEC mod: If neutral and stable, let depth of surface boundary
 !   layer be set to Niiler-Krauss wind mixing min depth (and then
-!   limited to Ekman depth or Monin-Obukov if that turns out to be 
+!   limited to Ekman depth or Monin-Obukov if that turns out to be
 !   shallower), but only if solar forcing is really weak (1 W/m^2
 !   ~ 1.43e-10).
 !

@@ -1,7 +1,7 @@
        SUBROUTINE ice_advect (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                        **
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                        **
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine performs advection of ice scalars using the         !

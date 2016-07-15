@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -499,7 +499,7 @@
 #endif
 !
 #if defined IRON_LIMIT && defined IRON_RSIN
-!  Variable Si:N ratio for dimatoms based on dissolved iron concentration
+!  Variable Si:N ratio for diatoms based on dissolved iron concentration
 !  Si:N varies between 1:1 (high iron) and 3:1 (low iron)
         DO k=1,N(ng)
           DO i=Istr,Iend

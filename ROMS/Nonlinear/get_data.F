@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -19,7 +19,7 @@
 !=======================================================================
 !
       USE mod_param
-#if defined BEST_NPZ || defined BIO_GOANPZ
+#if defined RED_TIDE || defined BEST_NPZ || defined BIO_GOANPZ
       USE mod_biology
 #endif
       USE mod_boundary
@@ -28,7 +28,8 @@
       USE mod_grid
       USE mod_iounits
       USE mod_ncparam
-#if defined NLM_OUTER || defined TLM_CHECK || defined TL_W4DPSAS || \
+#if defined NLM_OUTER || defined RED_TIDE            || \
+    defined TLM_CHECK || defined TL_W4DPSAS          || \
     defined W4DPSAS   || defined W4DPSAS_SENSITIVITY
       USE mod_ocean
 #endif
@@ -738,6 +739,22 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+!
+!-----------------------------------------------------------------------
+!  Daily-averaged Surface solar shortwave radiation.
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idAsrf, ncFRCid(idAsrf,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % srflxG_avg)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+
 # if defined BULK_FLUXES && !defined LONGWAVE && \
     !defined ANA_LRFLUX  && !defined LONGWAVE_OUT
 !
@@ -1023,6 +1040,22 @@
       END DO
 #  endif
 # endif
+#endif
+
+#ifdef RED_TIDE
+!
+!-----------------------------------------------------------------------
+!  Red tide Observed Dissolved Inorganic Nutrient.
+!-----------------------------------------------------------------------
+!
+      CALL get_3dfld (ng, iNLM, idODIN, ncFRCid(idODIN,ng),             &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 1, N(ng), 2, 1,               &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                OCEAN(ng) % DIN_obsG)
+      IF (exit_flag.ne.NoError) RETURN
 #endif
 !
 !=======================================================================
@@ -1799,42 +1832,85 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# if !defined ANA_AICLIMA && defined AICLIMATOLOGY
-      CALL get_2dfld (ng, iNLM, idAIclm, ncCLMid(idAIclm,ng),           &
-     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
+# ifdef ICE_MODEL
+#  ifndef ANA_AICLIMA
+      IF (LaiCLM(ng)) THEN
+        CALL get_2dfld (ng, iNLM, idAIclm, ncCLMid(idAIclm,ng),         &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  CLIMA(ng) % aiclmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idHIclm, ncCLMid(idHIclm,ng),         &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  CLIMA(ng) % hiclmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idHSNclm, ncCLMid(idHSNclm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  CLIMA(ng) % hsnclmG)
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 #  endif
-     &                CLIMA(ng) % aiclmG)
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_2dfld (ng, iNLM, idHIclm, ncCLMid(idHIclm,ng),           &
-     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+
+# ifndef ANA_SICLIMA
+      IF (LsiCLM(ng)) THEN
+        CALL get_2dfld (ng, iNLM, idS11clm, ncCLMid(idS11clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
 #  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
+     &                  GRID(ng) % rmask,                               &
 #  endif
-     &                CLIMA(ng) % hiclmG)
-      IF (exit_flag.ne.NoError) RETURN
+     &                  CLIMA(ng) % sig11clmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idS12clm, ncCLMid(idS12clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#  endif
+     &                  CLIMA(ng) % sig12clmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idS22clm, ncCLMid(idS22clm,ng),       &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#  ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#  endif
+     &                  CLIMA(ng) % sig22clmG)
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 # endif
 
-# if !defined ANA_MICLIMA && defined MICLIMATOLOGY
-      CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),           &
-     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
+# ifndef ANA_MICLIMA
+      IF (LmiCLM(ng)) THEN
+        CALL get_2dfld (ng, iNLM, idUIclm, ncCLMid(idUIclm,ng),         &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  CLIMA(ng) % uiclmG)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL get_2dfld (ng, iNLM, idVIclm, ncCLMid(idVIclm,ng),         &
+     &                  nCLMfiles(ng), CLM(1,ng), update(1),            &
+     &                  LBi, UBi, LBj, UBj, 2, 1,                       &
+#   ifdef MASKING
+     &                  GRID(ng) % rmask,                               &
+#   endif
+     &                  CLIMA(ng) % viclmG)
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
 #  endif
-     &                CLIMA(ng) % uiclmG)
-      IF (exit_flag.ne.NoError) RETURN
-      CALL get_2dfld (ng, iNLM, idVIclm, ncCLMid(idVIclm,ng),           &
-     &                nCLMfiles(ng), CLM(1,ng), update(1),              &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#  endif
-     &                CLIMA(ng) % viclmG)
-      IF (exit_flag.ne.NoError) RETURN
 # endif
 #endif
 
@@ -1937,28 +2013,27 @@
 # endif
      &                  OCEAN(ng) % zetaG)
         IF (exit_flag.ne.NoError) RETURN
-# ifndef SOLVE3D
 !
 !  Read 2D momentum.
 !
         CALL get_2dfld (ng, iNLM, idUbar, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+# ifdef MASKING
      &                  GRID(ng) % umask,                               &
-#  endif
+# endif
      &                  OCEAN(ng) % ubarG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iNLM, idVbar, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+# ifdef MASKING
      &                  GRID(ng) % vmask,                               &
-#  endif
+# endif
      &                  OCEAN(ng) % vbarG)
         IF (exit_flag.ne.NoError) RETURN
-# endif
+
 # ifdef SOLVE3D
 !
 !  Read in 3D momentum.

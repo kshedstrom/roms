@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2015 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2016 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -59,19 +59,14 @@
 # Library locations, can be overridden by environment variables.
 #
 
-ifdef USE_CICE
-    LIBS  :=    $(SCRATCH_DIR)/libCICE.a
-else
-    LIBS  :=
-endif
 ifdef USE_NETCDF4
         NC_CONFIG ?= nc-config
     NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
-             LIBS += $(shell $(NC_CONFIG) --flibs)
+             LIBS := $(shell $(NC_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
-             LIBS += -L$(NETCDF_LIBDIR) -lnetcdf
+             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
 endif
 
 ifdef USE_ARPACK

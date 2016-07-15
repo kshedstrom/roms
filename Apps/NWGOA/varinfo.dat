@@ -2412,15 +2412,6 @@
   'nulvar'
   1.0d0
 
-'river_NO3'                                        ! Input
-  'river runoff NO3'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_NO3, scalar, series'
-  'river_time'
-  'idRtrc(iNO3_)'
-  'nulvar'
-  1.0d0
-
 'river_nanophytoplankton'                          ! Input
   'river runoff nanophytoplankton'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
@@ -2457,15 +2448,6 @@
   'nulvar'
   1.0d0
 
-'river_SiOH4'                                      ! Input
-  'river runoff SiOH4'
-  'millimole_silica meter-3'                       ! [millimole/m3]
-  'river_SiOH4, scalar, series'
-  'river_time'
-  'idRtrc(iSiOH)'
-  'nulvar'
-  1.0d0
-
 'river_opal'                                       ! Input
   'river runoff opal'
   'millimole_silica meter-3'                       ! [millimole/m3]
@@ -2481,15 +2463,6 @@
   'river_PO4, scalar, series'
   'river_time'
   'idRtrc(iPO4_)'
-  'nulvar'
-  1.0d0
-
-'river_NH4'                                        ! Input
-  'river runoff NH4'
-  'millimole_nitrogen meter-3'                     ! [millimole/m3]
-  'river_NH4, scalar, series'
-  'river_time'
-  'idRtrc(iNH4_)'
   'nulvar'
   1.0d0
 
@@ -2566,7 +2539,7 @@
   1.0d0
 
 !--------------------------UMAINE variables
-'river_NO3_'                                        ! Input
+'river_NO3'                                        ! Input
   'river runoff NO3'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'river_NO3, scalar, series'
@@ -2575,7 +2548,7 @@
   'nulvar'
   1.0d0
 
-'river_Nh4_'                                        ! Input
+'river_NH4'                                        ! Input
   'river runoff NH4'
   'millimole_nitrogen meter-3'                     ! [millimole/m3]
   'river_NH4, scalar, series'
@@ -2593,7 +2566,7 @@
   'nulvar'
   1.0d0
 
-'river_PO4_'                                        ! Input
+'river_PO4'                                        ! Input
   'river runoff PO4'
   'millimole_phosphorus meter-3'                     ! [millimole/m3]
   'river_PO4, scalar, series'
@@ -2608,6 +2581,15 @@
   'river_S1_N, scalar, series'
   'river_time'
   'idRtrc(iS1_N)'
+  'nulvar'
+  1.0d0
+
+'river_S1_Fe'                             ! Input/Output
+  'river runoff S1_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S1_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS1_Fe)'
   'nulvar'
   1.0d0
 
@@ -2626,6 +2608,15 @@
   'river_S1CH, scalar, series'
   'river_time'
   'idRtrc(iS1CH)'
+  'nulvar'
+  1.0d0
+
+'river_S2_Fe'                             ! Input/Output
+  'river runoff S2_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S2_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS2_Fe)'
   'nulvar'
   1.0d0
 
@@ -2653,6 +2644,15 @@
   'river_S2CH, scalar, series'
   'river_time'
   'idRtrc(iS2CH)'
+  'nulvar'
+  1.0d0
+
+'river_S3_Fe'                             ! Input/Output
+  'river runoff S3_Fe'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S3_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iS3_Fe)'
   'nulvar'
   1.0d0
 
@@ -2719,7 +2719,16 @@
   'nulvar'
   1.0d0
 
-'river_BAC_'                                        ! Input
+'river_FeD'                             ! Input/Output
+  'river runoff FeD'
+  'milligram meter-3'                     ! [millimole/m3]
+  'river_S2_Fe, scalar, series'
+  'river_time'
+  'idRtrc(iFeD_)'
+  'nulvar'
+  1.0d0
+
+'river_BAC'                                        ! Input
   'river runoff BAC'
   'millimole_N meter-3'                     ! [millimole/m3]
   'river_BAC, scalar, series'
@@ -3913,7 +3922,7 @@
   1.0d0
 
 'FeD'                                             ! Input/Output
-  'disolved iron concentration'
+  'dissolved iron concentration'
   'millimole_iron  meter-3'                       ! [millimole/m3]
   'iron, scalar, series'
   'ocean_time'

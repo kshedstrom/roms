@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -74,7 +74,11 @@
 
       real(r8) :: my_time, scale
 
+# ifdef RPCG
+      character (len=35) :: string
+# else
       character (len=15) :: string
+# endif
 !
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
@@ -522,6 +526,19 @@
 # endif
 !
       IF (Master) THEN
+# ifdef RPCG
+        IF (OutRec.eq.1) THEN
+          string='inner-loop initial fields          '
+        ELSE IF (OutRec.eq.2) THEN
+          string='final outer-loop increments        '
+        ELSE IF (OutRec.eq.3) THEN
+          string='sum of final outer-loop increments '
+        ELSE IF (OutRec.eq.4) THEN
+          string='sum of adjoint solutions           '
+        ELSE IF (OutRec.eq.5) THEN
+          string='augmented correction term          '
+        END IF
+# else
         IF (OutRec.eq.1) THEN
           string='initial  fields'
         ELSE IF (OutRec.eq.2) THEN
@@ -531,6 +548,7 @@
         ELSE IF (OutRec.eq.4) THEN
           string='v-summations   '
         END IF
+# endif
 # ifdef SOLVE3D
         WRITE (stdout,20) string, Nrun, Tindex, Tindex, OutRec
 # else

@@ -1,0 +1,460 @@
+!  Station Extraction Parameters.
+!
+!==============================================================================
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                              ===
+!========================================================= Hernan G. Arango ===
+!                                                                             !
+! Input parameters can be entered in ANY order, provided that the parameter   !
+! KEYWORD (usually, upper case) is typed correctly followed by "="  or "=="   !
+! symbols. Any comment lines are allowed and must begin with an exclamation   !
+! mark (!) in column one.  Comments may  appear to the right of a parameter   !
+! specification to improve documentation.  All comments will ignored during   !
+! reading.  Blank lines are also allowed and ignored. Continuation lines in   !
+! a parameter specification are allowed and must be preceded by a backslash   !
+! (\).  In some instances, more than one value is required for a parameter.   !
+! If fewer values are provided, the  last value  is assigned for the entire   !
+! parameter array.  The multiplication symbol (*),  without blank spaces in   !
+! between, is allowed for a parameter specification.  For example, in a two   !
+! grids nested application:                                                   !
+!                                                                             !
+!    AKT_BAK == 2*1.0d-6  2*5.0d-6              ! m2/s                        !
+!                                                                             !
+! indicates that the first two entries of array AKT_BAK,  in fortran column-  !
+! major order, will have the same value of "1.0d-6" for grid 1,  whereas the  !
+! next two entries will have the same value of "5.0d-6" for grid 2.           !
+!                                                                             !
+! In multiple levels of nesting and/or multiple connected domains  step-ups,  !
+! "Ngrids" entries are expected for some of these parameters.  In such case,  !
+! the order of the entries for a parameter is extremely important.  It  must  !
+! follow the same order (1:Ngrids) as in the state variable declaration. The  !
+! USER may follow the above guidelines for specifying his/her values.  These  !
+! parameters are marked by "==" plural symbol after the KEYWORD.              !
+!                                                                             !
+!==============================================================================
+!
+! Switch to control the writing of stations data within nested and/or multiple
+! connected grids, [1:Ngrids].
+
+   Lstations == T
+
+! Logical switches (TRUE/FALSE) to activate writing of fields in STATION
+! output file, [Sout(:,ng), ng=1, Ngrids].
+
+Sout(idFsur) == T                          ! free-surface
+Sout(idUbar) == T                          ! 2D U-velocity
+Sout(idVbar) == T                          ! 2D V-velocity
+Sout(idUvel) == T                          ! 3D U-velocity
+Sout(idVvel) == T                          ! 3D V-velocity
+Sout(idWvel) == T                          ! 3D W-velocity
+Sout(idOvel) == T                          ! 3D omega vertical velocity
+
+Sout(idTvar) == T T T T T T T T T T T T T T T T     ! all (NT) tracers
+
+Sout(idUsms) == T                          ! surface U-stress
+Sout(idVsms) == T                          ! surface V-stress
+Sout(idUbms) == T                          ! bottom U-stress
+Sout(idVbms) == T                          ! bottom V-stress
+Sout(idUbws) == F                          ! bottom U-wave stress
+Sout(idVbws) == F                          ! bottom V-wave stress
+
+Sout(idUbed) == F                          ! bed wave orbital U-velocity
+Sout(idVbed) == F                          ! bed wave orbital V-velocity
+Sout(idUbot) == F                          ! bottom U-momentum above bed
+Sout(idVbot) == F                          ! bottom V-momentum above bed
+
+Sout(idTsur) == T T                        ! surface net heat and salt flux
+Sout(idLhea) == T                          ! latent heat flux
+Sout(idShea) == T                          ! sensible heat flux
+Sout(idLrad) == T                          ! longwave radiation flux
+Sout(idSrad) == T                          ! shortwave radiation flux
+Sout(idevap) == F                          ! evaporation rate
+Sout(idrain) == F                          ! precipitation rate
+
+Sout(idDano) == T                          ! density anomaly
+Sout(idVvis) == T                          ! vertical viscosity
+Sout(idTdif) == T                          ! vertical T-diffusion
+Sout(idSdif) == T                          ! vertical Salinity diffusion
+Sout(idHsbl) == T                          ! depth of surface boundary layer
+Sout(idHbbl) == T                          ! depth of bottom boundary layer
+Sout(idMtke) == F                          ! turbulent kinetic energy
+Sout(idMtls) == F                          ! turbulent length scale
+
+! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
+! variables into HISTORY output file.
+Sout(idUice) == T
+Sout(idVice) == T
+Sout(idAice) == T
+Sout(idHice) == T
+Sout(idTice) == T
+Sout(idHsno) == T
+Sout(idTimid) == T
+Sout(idApond) == T
+Sout(idHpond) == T
+Sout(idTauiw) == F
+Sout(idChuiw) == F
+Sout(idAgeice) == T
+Sout(idSig11) == T
+Sout(idSig12) == T
+Sout(idSig22) == T
+Sout(idS0mk) == T
+Sout(idT0mk) == T
+Sout(idWfr) == T
+Sout(idWai) == T
+Sout(idWao) == T
+Sout(idWio) == T
+Sout(idWro) == T
+
+! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
+! layer properties into STATIONS output file.  Currently, MBOTP properties
+! are expected for the bottom boundary layer and/or sediment models:
+!
+!   Sout(idBott(isd50)),  isd50 = 1        ! mean grain diameter
+!   Sout(idBott(idens)),  idens = 2        ! mean grain density
+!   Sout(idBott(iwsed)),  iwsed = 3        ! mean settling velocity
+!   Sout(idBott(itauc)),  itauc = 4        ! critical erosion stress
+!   Sout(idBott(irlen)),  irlen = 5        ! ripple length
+!   Sout(idBott(irhgt)),  irhgt = 6        ! ripple height
+!   Sout(idBott(ibwav)),  ibwav = 7        ! wave excursion amplitude
+!   Sout(idBott(izdef)),  izdef = 8        ! default bottom roughness
+!   Sout(idBott(izapp)),  izapp = 9        ! apparent bottom roughness
+!   Sout(idBott(izNik)),  izNik = 10       ! Nikuradse bottom roughness
+!   Sout(idBott(izbio)),  izbio = 11       ! biological bottom roughness
+!   Sout(idBott(izbfm)),  izbfm = 12       ! bed form bottom roughness
+!   Sout(idBott(izbld)),  izbld = 13       ! bed load bottom roughness
+!   Sout(idBott(izwbl)),  izwbl = 14       ! wave bottom roughness
+!   Sout(idBott(iactv)),  iactv = 15       ! active layer thickness
+!   Sout(idBott(ishgt)),  ishgt = 16       ! saltation height
+!
+!                                 1 1 1 1 1 1 1
+!               1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6
+
+Sout(idBott) == F F F F F F F F F F F F F F F F
+
+! Number of stations to process in each nested grid.  These values are
+! essential because the station arrays are dynamically allocated using
+! these values, [1:Ngrids].
+
+    NSTATION ==  199
+
+! Station locations for all grids in any desired order.  The horizontal
+! location for a particular station may be specified in terms of fractional
+! (I,J) grid pairs (FLAG=0) or (longitude,latitude) grid pairs (FLAG=1).
+! Here, FLAG is a special switch and may be used for multiple purposes.
+! The GRID column indicates nested grid number to process. This value must
+! be one in non-nested applications.  The COMMENT section is ignored during
+! reading and may be used to help documentation.
+
+POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
+
+        1    1  183.3683333     51.86333333     ! Adak Island 9461380
+        1    1  174.0666667     52.73333333     ! Alcan H. Shemya
+        1    1  205.7533333     56.89833333     ! Alitak 9457804
+        1    1  177.8333333     64.66666667     ! Anadyr
+        1    1  209.8333333     61.23333333     ! Anchorage
+        1    0  196.            374.            ! Anchorage 9455920
+        1    1  185.8266667     52.23166667     ! Atka 9461710
+        1    1  173.195         52.84           ! Attu 9460150
+        1    1  190.45          57.28333333     ! BC10
+        1    1  192.75          59.7            ! BC11
+        1    1  194.1833333     55.5            ! BC13B
+        1    1  194.6166667     55.78333333     ! BC13D
+        1    1  198.1666667     56.05           ! BC14
+        1    1  197.3           57.65           ! BC15
+        1    1  194.7333333     57.98333333     ! BC16
+        1    1  192.4333333     56.56666667     ! BC17
+        1    1  192.8833333     59.66666667     ! BC18
+        1    1  196.6333333     57.06666667     ! BC2
+        1    1  188.9166667     60.43333333     ! BC20
+        1    1  190.8166667     60.38333333     ! BC21
+        1    1  183.9666667     60.56666667     ! BC26
+        1    1  194.8333333     55.01666667     ! BC3
+        1    1  191.7666667     58.61666667     ! BC4
+        1    1  196.9833333     55.7            ! BC7
+        1    1  192.3           59.21666667     ! BC9
+        1    1  165.9333333     55.2            ! Bering Isl.
+        1    1  190.2           56.26666667     ! BP1
+        1    1  190.3           56.23333333     ! BP2
+        1    1  191.1166667     56.16666667     ! BP2A
+        1    1  190.7333333     56.11666667     ! BP3
+        1    1  184.8833333     58.63333333     ! BS2
+        1    1  186.75          56.68333333     ! BS2
+        1    1  186.7166667     56.66666667     ! BS3
+        1    1  184.8833333     58.63333333     ! BZ2
+        1    1  184.95          58.55           ! BZ3
+        1    1  206.8           58.5            ! C10B
+        1    1  207.7666667     59.53333333     ! C12A
+        1    1  207.3166667     59.46666667     ! C13A
+        1    1  206.6833333     59.18333333     ! C18
+        1    1  192.662383      60.68265        ! C25
+        1    1  190.9789        60.33673333     ! C40
+        1    1  189.9110165     60.17210833     ! C55
+        1    1  207.0833333     59.28333333     ! C4A
+        1    1  207.0666667     59.16666667     ! C5A
+        1    1  207.3666667     59.31666667     ! C6B
+        1    1  207.8333333     59.3            ! C7B
+        1    1  207.95          59.03333333     ! C8B
+        1    1  207.7333333     58.78333333     ! C9B
+        1    1   187           61               ! CBS1
+        1    1   187           60               ! CBS2
+        1    1   187           59               ! CBS3
+        1    1   187           58               ! CBS4
+        1    1   189           58               ! CBS5
+        1    1   189           59               ! CBS6
+        1    1   191           59               ! CBS7
+        1    1   193           57               ! CBS8
+        1    1   193           58               ! CBS9
+        1    1   193           59               ! CBS10
+        1    1   195           57               ! CBS11
+        1    1   197         58.5               ! CBS12
+        1    1   199           58               ! CBS13
+        1    1   199           57               ! CBS14
+        1    1   201         57.5               ! CBS15
+        1    1   195           59               ! CBS16
+        1    1   195           60               ! CBS17
+        1    1  201.4483333     58.84833333     ! Clarks Point 9465261
+        1    1  179.2833333     51.41666667     ! Constantine H. Amchitka
+        1    1  214.2466667     60.55833333     ! Cordova 9454050
+        1    1  203.06          52.65           ! DART-II 230 NM Southeast of Shumagin Island 46403
+        1    1  195.99          51.06833333     ! DART-II 240 NM South of Dutch Harbor 46402
+        1    1  211.5           55.3            ! DART-II 240 NM Southeast of Kodiak 46409
+        1    1  230.6416667     48.47833333     ! DART-II 300 NM West-Northwest of Seattle 46419
+        1    1  215.9983333     57.49833333     ! DART-II 330 NM Southeast of Anchorage 46410
+        1    1  184.3983333     48.86166667     ! DART-II East of ADAK 46413
+        1    1  178.27          48.94166667     ! DART-II NW Pacific 21414
+        1    1  190.1283333     49.62666667     ! DART-II NW Pacific S 46408
+        1    1  198.2083333     55.12166667     ! Dolgoi Harbor 9459758
+        1    0  221.           305.             ! Elfin Cove 9452634
+        1    1  197.75          64.66666667     ! Elim
+        1    1  222.           286.             ! Entrance Island 9451438
+        1    1  198.9           58.80833333     ! Estus Point 9465249
+        1    1  189.6666667     62.93333333     ! F3
+        1    1  189.45          62.91666667     ! F4
+        1    1  189.6166667     62.86666667     ! F5
+        1    1  188.9333333     63.15           ! F6
+        1    1  188.7333333     63.01666667     ! F8
+        1    1  192.0666667     58.53333333     ! FX2
+        1    1  187.8333333     63.16666667     ! H1
+        1    1  188.4166667     62.58333333     ! H3
+        1    1  189.1666667     62.43333333     ! H4
+        1    1  190             62.66666667     ! H5
+        1    1  225.5883333     58.29833333     ! Juneau 9452210
+        1    1  207.6           56.83333333     ! K10B
+        1    1  203.1833333     56.4            ! K13B
+        1    1  205.2666667     57.75           ! K1A
+        1    1  206.9166667     58.61666667     ! K2A
+        1    1  207.35          56.55           ! K5A
+        1    1  207.6166667     57.23333333     ! K6B
+        1    1  207.7833333     57.1            ! K7B
+        1    1  207.2833333     57.11666667     ! K88
+        1    1  207.3833333     57.01666667     ! K9A
+        1    0  223.           266.             ! Ketchikan 9450460
+        1    1  197.6733333     55.06166667     ! King Cove 9459881
+        1    1  178.55          51.98333333     ! Kiska H.
+        1    1  195.4083333     67.72666667     ! Kivalina 9491253
+        1    1  204.9           56.03333333     ! KllB
+        1    0  161.           362.             ! Kodiak
+        1    0  161.           362.             ! Kodiak Island 9457292
+        1    1  194             61.7            ! Kokechik
+        1    1  197.4183333     66.90166667     ! Kotzebue 9490424
+        1    1  189.85          57.01666667     ! KS1
+        1    1  189.6666667     57.13333333     ! KS2
+        1    1  189.7166667     57.08333333     ! KS3
+        1    1  189.5666667     57.15           ! KS4
+        1    1  189.7           57.25           ! KS5
+        1    1  189.8833333     57.15           ! KS7
+        1    1  195.0833333     62.63333333     ! Kwikluak Pass (Yukon Delta)
+        1    1  193.8833333     62.5            ! LD1
+        1    1  191.3666667     65.58333333     ! LD10A
+        1    1  184.8666667     59.06666667     ! LD13A
+        1    1  189.4           60.56666667     ! LD14A
+        1    1  181.1333333     60.73333333     ! LD15A
+        1    1  185             61.88333333     ! LD16A
+        1    1  191.4166667     63.21666667     ! LD2
+        1    1  192             64              ! LD3
+        1    1  193.1666667     64.78333333     ! LD4
+        1    1  197             64.13333333     ! LD5
+        1    1  195.943         56.877          ! M2
+        1    1  202.0166667     55.41666667     ! Gulf M2
+        1    1  191.13          57.853          ! M4
+        1    1  202.4833333     55.76666667     ! Gulf M4
+        1    1  188.289         59.898          ! M6
+        1    1  185.332         62.194          ! M8
+        1    1  190.6           65.8            ! MA1
+        1    1  191.4           65.8            ! MA2
+        1    1  191.1           66.6            ! MA3
+        1    1  173.1833333     52.83333333     ! Massacre B. Attu
+        1    1  201.18          55.89           ! Mitrofania Island 9459016
+        1    1  192.548133      61.7001         ! N25
+        1    1  190.7213        61.80546667     ! N40
+        1    1  188.0252        61.96195        ! N55
+        1    1  191.55          65.75           ! NC10
+        1    1  194.6333333     64.36666667     ! NC14
+        1    1  192.9166667     62.88333333     ! NC17
+        1    1  192.9333333     62.88333333     ! NC17C
+        1    1  191.6166667     63.15           ! NC18
+        1    1  187.9833333     63.96666667     ! NC19B
+        1    1  187.6666667     64              ! NC19C
+        1    1  194.5166667     64              ! NC20
+        1    1  189.5666667     61.8            ! NC24
+        1    1  189.0333333     63              ! NC25A
+        1    1  186.8666667     63.18333333     ! NC26A
+        1    1  208.6016667     60.68333333     ! Nikiski 9455760
+        1    1  191.1283333     52.94166667     ! Nikolski 9462450
+        1    1  194.57          64.5            ! Nome 9468756
+        1    1  199.2233333     58.77666667     ! North End 9465234
+        1    1  189.0833333     63.21666667     ! P1
+        1    1  189.8166667     63.1            ! P2
+        1    1  196.75          63.03333333     ! PastoliakRiver
+        1    1  158.6333333     53.01666667     ! Petropavlovsk
+        1    1  193             65.2            ! Port Clarence (Defant)
+        1    1  199.4166667     55.98333333     ! Port Moller
+        1    1  166.2333333     60.45           ! Port Siber.
+        1    1  186.5           64.33333333     ! Providenie
+        1    1  195.935         67.57666667     ! Red Dog Dock 9491094
+        1    1  192.2186        59.85146667     ! S25
+        1    1  192.017667      59.13625        ! S40
+        1    1  191.6059        58.58963333     ! S55
+        1    1  199.4983333     55.33666667     ! Sand Point 9459450
+        1    1  194.3           54.8            ! SB1
+        1    1  191.8           56.2            ! SB2
+        1    1  186.25          58.7            ! SB3
+        1    1  181.3           61.3            ! SB4
+        1    1  208.28          59.44           ! Seldovia 9455500
+        1    1  210.5666667     60.08333333     ! Seward
+        1    1  210.5733333     60.12           ! Seward 9455090
+        1    1  193.98          66.26333333     ! Shishmaref Inlet 2 9469854
+        1    1  224.6583333     57.05166667     ! Sitka 9451600
+        1    1  224.6733333     59.45           ! Skagway 9452400
+        1    1  197.9733333     63.475          ! St. Michael 9468132
+        1    1  189.7           57.13333333     ! St. Paul Island
+        1    1  197.6666667     63.5            ! Stebbins (Summer)
+        1    1  191.8           67              ! SU8
+        1    1  182             51.71666667     ! Tanaga B.
+        1    1  199.3833333     58.98333333     ! Togiak Bay
+        1    1  227.02          56.8            ! Turn Point 9451434
+        1    1  199.2166667     63.88333333     ! Unalakleet
+        1    1  193.4666667     53.86666667     ! Unalaska
+        1    1  193.4633333     53.88           ! Unalaska 9462620
+        1    1  195.256         54.301          ! UP3
+        1    1  213.6383333     61.125          ! Valdez 9454240
+        1    1  202.6733333     56.54           ! West End 9458665
+        1    1  209.5           57.45           ! WGC2C
+        1    1  209.1833333     57.56666667     ! WGC2D
+        1    1  203.05          55.2            ! WGC3D
+        1    1  212.5966667     59.875          ! Wooded Island 9454562
+        1    1  220.265         59.54833333     ! Yakutat 9453220
+        1    1  197.6           59.5            ! YK1
+        1    1  193.5           61.3            ! YK2
+
+! #7   1    1  210.11          61.23833333     ! Anchorage 9455920
+! #63  1    1  223.6566667     58.19333333     ! Elfin Cove 9452634
+! #65  1    1  226.2133333     56.81166667     ! Entrance Island 9451438
+! #88  1    1  228.375         55.33333333     ! Ketchikan 9450460
+! #93  1    1  207.4833333     57.73333333     ! Kodiak
+! #94  1    1  207.4883333     57.73166667     ! Kodiak Island 9457292
+!
+!  GLOSSARY:
+!  =========
+!
+!  This input file provides the positions of stations data to be extracted
+!  and written into STATIONS output file.  This file is use to monitor model
+!  fields at frequent time intervals.  It is also used to sample model at
+!  observation locations in order to build the penalty function used in
+!  variational data assimilation.
+!
+!------------------------------------------------------------------------------
+! Control Switch.
+!------------------------------------------------------------------------------
+!
+! Lstations      Switch to control the writing of station data within nested
+!                  and/or multiple connected grids. Ngrid values are expected.
+!                  By default this switch is set to TRUE in "mod_scalars" for
+!                  all grids when the CPP option STATIONS is activated.  The
+!                  USER can control which grid to process by turning on/off
+!                  this switch.
+!
+!------------------------------------------------------------------------------
+! Logical switches (TRUE/FALSE) to activate writing of fields in STATIONS
+! output file.  Except for tracer type variables, Ngrids values are expected
+! for all switches.
+!------------------------------------------------------------------------------
+!
+!  Sout(idUvel)  Write out 3D U-velocity component.
+!  Sout(idVvel)  Write out 3D V-velocity component.
+!  Sout(idWvel)  Write out 3D W-velocity component.
+!  Sout(idOvel)  Write out 3D omega vertical velocity.
+!  Sout(idUbar)  Write out 2D U-velocity component.
+!  Sout(idVbar)  Write out 2D V-velocity component.
+!  Sout(idFsur)  Write out free-surface.
+!
+!  Sout(idTvar)  Write out tracer type variables,  (NT,Ngrids) values are
+!                  Expected.
+!
+!  Sout(idUsms)  Write out surface U-momentum stress.
+!  Sout(idVsms)  Write out surface V-momentum stress.
+!  Sout(idUbms)  Write out bottom  U-momentum stress.
+!  Sout(idVbms)  Write out bottom  V-momentum stress.
+!  Sout(idUbws)  Write out wind-induced, bottom U-wave stress.
+!  Sout(idVbws)  Write out wind-induced, bottom V-wave stress.
+!
+!  Sout(idUbed)  Write out wind-induced, bed wave orbital U-velocity.
+!  Sout(idVbed)  Write out wind-induced, bed wave orbital V-velocity.
+!  Sout(idUbot)  Write out bottom U-momentum above bed.
+!  Sout(idVbot)  Write out bottom V-momentum above bed.
+!
+!  Sout(idTsur)  Write out surface net heat and salt flux.
+!  Sout(idLhea)  Write out latent heat flux.
+!  Sout(idShea)  Write out sensible heat flux.
+!  Sout(idLrad)  Write out long-wave radiation flux.
+!  Sout(idSrad)  Write out short-wave radiation flux.
+!  Sout(idevap)  Write out evaporation rate.
+!  Sout(idrain)  Write out precipitation rate.
+!
+!  Sout(idDano)  Write out density anomaly.
+!  Sout(idVvis)  Write out vertical viscosity coefficient.
+!  Sout(idTdif)  Write out vertical diffusion coefficient of temperature.
+!  Sout(idSdif)  Write out vertical diffusion coefficient of salinity.
+!  Sout(idHsbl)  Write out depth of oceanic surface boundary layer.
+!  Sout(idHbbl)  Write out depth of oceanic bottom boundary layer.
+!  Sout(idMtke)  Write out turbulent kinetic energy.
+!  Sout(idMtls)  Write out turbulent kinetic energy times length scale.
+!
+!  Sout(idBott)  Write out exposed sediment layer properties, 1:MBOTP.
+!
+!------------------------------------------------------------------------------
+! Station positions KEYWORDS.
+!------------------------------------------------------------------------------
+!
+!  NSTATION      Number of stations to process in each nested grid. Ngrids
+!                  values are expected.  These values are essential because
+!                  the station arrays are dynamically allocated using these
+!                  values.
+!
+!  POS           Station locations for all grids in any desired order.  The
+!                  horizontal location for a particular station can be
+!                  specified in terms of fractional (I,J) grid pairs (FLAG=0)
+!                  or (longitude,latitude) grid pairs (FLAG=1). Here, FLAG is
+!                  a special switch and may be used for multiple purposes.
+!                  The GRID column indicates nested grid number to process.
+!                  This value must be one in non-nested applications.  The
+!                  COMMENT section is ignored during reading and may be used
+!                  to help documentation.  This locations are used to
+!                  interpolate model data before writting to output STATIONS
+!                  file.  The stations locations are read using the following
+!                  statement:
+!
+!                  is(1:Ngrids)=0
+!                  DO WHILE (.true.)
+!                    read (unit,*,ERR=10) igrid, flag, Xpos, Ypos
+!                    ng=MAX(1,ABS(ng))
+!                    is(ng)=ic(ng)+1
+!                    SCALARS(ng)%Sflag(is(ng))=flag
+!                    SCALARS(ng)%SposX(is(ng))=Xpos
+!                    SCALARS(ng)%SposY(is(ng))=Ypos
+!                  END DO
+!
+!                Since there is no decoding during the reading the stations
+!                locations, the POS keyword must be the last one to process.
+!                That is, it should be at the end of the input specification.
+!
+!

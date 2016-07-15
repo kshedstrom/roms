@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
@@ -29,8 +29,8 @@
 # define SPLINES_VVISC
 # define RI_SPLINES
 #endif
-#undef FLOATS
-#undef STATIONS
+#define FLOATS
+#define STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
@@ -61,6 +61,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
+#  define  ICE_I_O
 # endif
 #endif
 
@@ -112,7 +113,7 @@
 #ifdef SOLVE3D
 # define WTYPE_GRID
 
-# define LMD_MIXING
+# undef LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -123,7 +124,7 @@
 #  undef LMD_DDMIX
 # endif
 
-# undef GLS_MIXING
+# define GLS_MIXING
 # undef MY25_MIXING
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -172,7 +173,7 @@
 
 /* Not using Runoff now */
 #ifdef SOLVE3D
-# undef RUNOFF
+# define RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
@@ -180,7 +181,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -200,6 +203,7 @@
 /* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
+#define ANA_NUDGCOEF
 
 /* roms quirks */
 
@@ -213,7 +217,7 @@
 /*
 **  Biological model options.
 */
-#define BIO_UMAINE
+#undef BIO_UMAINE
 
 #ifdef BIO_UMAINE
 # define CARBON
@@ -221,10 +225,11 @@
 # define PRIMARY_PROD
 # define SINK_OP2
 # define TALK_NONCONSERV
-# undef OPTIC_UMaine
+# undef OPTIC_UMAINE
+# define OPTIC_MANIZZA
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
-# undef IRON_LIMIT        /* Add iron as passive Nth tracer */
-# undef IRON_RELAX
-# undef  IRON_RSIN
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
+# define IRON_RELAX
+# undef  IRON_RSIN         /* Not implemented yet in umaine.h */
 #endif

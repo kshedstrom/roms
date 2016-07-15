@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -499,6 +499,9 @@
         logical, allocatable :: Lm2CLM(:)            ! 2D momentum
         logical, allocatable :: Lm3CLM(:)            ! 3D momentum
         logical, allocatable :: LtracerCLM(:,:)      ! tracers
+        logical, allocatable :: LmiCLM(:)            ! ice momentum
+        logical, allocatable :: LaiCLM(:)            ! ice tracers
+        logical, allocatable :: LsiCLM(:)            ! ice tracers
 !
 !  Switched to nudge to climatology fields.
 !
@@ -506,6 +509,9 @@
         logical, allocatable :: LnudgeM2CLM(:)       ! 2D momentum
         logical, allocatable :: LnudgeM3CLM(:)       ! 3D momentum
         logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
+        logical, allocatable :: LnudgeMICLM(:)       ! ice momentum
+        logical, allocatable :: LnudgeAICLM(:)       ! ice tracers
+        logical, allocatable :: LnudgeSICLM(:)       ! ice tracers
 !
 !  Switches to activate point Source/Sinks in an application:
 !    * Horizontal momentum transport (u or v)
@@ -915,6 +921,7 @@
         logical, allocatable :: LdefADJ(:)       ! Adjoint file
         logical, allocatable :: LdefAVG(:)       ! Average file
         logical, allocatable :: LdefAVG2(:)      ! Average2 file
+        logical, allocatable :: LdefDAI(:)       ! DA initial/restart
         logical, allocatable :: LdefDIA(:)       ! Diagnostics file
         logical, allocatable :: LdefERR(:)       ! 4DVar error file
         logical, allocatable :: LdefFISH(:)      ! Fish file
@@ -926,7 +933,8 @@
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
         logical, allocatable :: LdefITL(:)       ! Initial TLM file
-        logical, allocatable :: LdefLCZ(:)       ! Lanczos file
+        logical, allocatable :: LdefLCZ(:)       ! Lanczos Vectors file
+        logical, allocatable :: LdefLZE(:)       ! Evolved Lanczos file
         logical, allocatable :: LdefMOD(:)       ! 4DVAR file
         logical, allocatable :: LdefPRED(:)      ! Predatory fish file
         logical, allocatable :: LdefRST(:)       ! Restart file
@@ -1234,6 +1242,11 @@
         real(r8), allocatable :: Hdecay(:,:,:)
 !
 !  Initial conditions, model and surface forcing error covariance
+!  temporal decorrelation scales (second).
+!
+        real(r8), allocatable :: Tdecay(:,:)
+!
+!  Initial conditions, model and surface forcing error covariance
 !  vertical decorrelation scales (m).
 !
         real(r8), allocatable :: Vdecay(:,:,:)
@@ -1247,6 +1260,38 @@
 !  scales (m).
 !
         real(r8), allocatable :: VdecayB(:,:,:)
+!
+!  Method for background quality control of observations, [Ngrids].
+!
+!      [1] Quality control in terms of state variable indices
+!      [2] Quality control in terms of observation provenance
+!
+        integer, allocatable :: bgqc_type(:)
+!
+!  Background quality control standard deviation value for not
+!  rejection of observations.
+!
+        real(r8) :: bgqc_large = 1.0E+5_r8
+!
+!  Number of observation provenances used in background quality control,
+!  [Ngrids]. Only used when bgqc_type(ng)=2.
+!
+        integer, allocatable :: Nprovenance(:)
+!
+!  Observation provenance indices to process during background quality
+!  control of observations, [MAXVAL(Nprovenance),Ngrids].
+!
+        integer, allocatable :: Iprovenance(:,:)
+!
+!  Background quality control threshold standard deviations in terms
+!  of observation provenance indices, [MAXVAL(Nprovenance),Ngrids].
+!
+        real(r8), allocatable :: P_bgqc(:,:)
+!
+!  Background quality control threshold standard deviations in terms
+!  of state variable indices, [MstateVar,Ngrids]
+!
+        real(r8), allocatable :: S_bgqc(:,:)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1995,11 +2040,17 @@
       allocate ( Lm2CLM(Ngrids) )
       allocate ( Lm3CLM(Ngrids) )
       allocate ( LtracerCLM(MT,Ngrids) )
+      allocate ( LmiCLM(Ngrids) )
+      allocate ( LaiCLM(Ngrids) )
+      allocate ( LsiCLM(Ngrids) )
 
       allocate ( Lnudging(Ngrids) )
       allocate ( LnudgeM2CLM(Ngrids) )
       allocate ( LnudgeM3CLM(Ngrids) )
       allocate ( LnudgeTCLM(MT,Ngrids) )
+      allocate ( LnudgeMICLM(Ngrids) )
+      allocate ( LnudgeAICLM(Ngrids) )
+      allocate ( LnudgeSICLM(Ngrids) )
 
       allocate ( LuvSrc(Ngrids) )
       allocate ( LwSrc(Ngrids) )
@@ -2116,6 +2167,7 @@
       allocate ( LdefADJ(Ngrids) )
       allocate ( LdefAVG(Ngrids) )
       allocate ( LdefAVG2(Ngrids) )
+      allocate ( LdefDAI(Ngrids) )
       allocate ( LdefDIA(Ngrids) )
       allocate ( LdefERR(Ngrids) )
 #ifdef NEMURO_SAN
@@ -2135,6 +2187,7 @@
       allocate ( LdefIRP(Ngrids) )
       allocate ( LdefITL(Ngrids) )
       allocate ( LdefLCZ(Ngrids) )
+      allocate ( LdefLZE(Ngrids) )
       allocate ( LdefMOD(Ngrids) )
       allocate ( LdefRST(Ngrids) )
       allocate ( LdefSTA(Ngrids) )
@@ -2287,8 +2340,14 @@
       allocate ( Hdecay(2,MstateVar,Ngrids) )
       allocate ( Vdecay(2,MstateVar,Ngrids) )
 
+      allocate ( Tdecay(MstateVar,Ngrids) )
+
       allocate ( HdecayB(MstateVar,4,Ngrids) )
       allocate ( VdecayB(MstateVar,4,Ngrids) )
+
+      allocate ( bgqc_type(Ngrids) )
+      allocate ( Nprovenance(Ngrids) )
+      allocate ( S_bgqc(MstateVar,Ngrids) )
 #endif
 
       allocate ( obcfac(Ngrids) )
@@ -2612,10 +2671,16 @@
         Lnudging(ng)=.FALSE.
         LnudgeM2CLM(ng)=.FALSE.
         LnudgeM3CLM(ng)=.FALSE.
+        LnudgeMICLM(ng)=.FALSE.
+        LnudgeAICLM(ng)=.FALSE.
+        LnudgeSICLM(ng)=.FALSE.
         Lclimatology(ng)=.FALSE.
         Lm2CLM(ng)=.FALSE.
         Lm3CLM(ng)=.FALSE.
         LsshCLM(ng)=.FALSE.
+        LmiCLM(ng)=.FALSE.
+        LaiCLM(ng)=.FALSE.
+        LsiCLM(ng)=.FALSE.
         Lsponge(ng)=.FALSE.
         LuvSponge(ng)=.FALSE.
         LuvSrc(ng)=.FALSE.
@@ -2700,6 +2765,7 @@
 
       Cnorm=.FALSE.
       Hdecay=IniVal
+      Tdecay=IniVal
       Vdecay=IniVal
 
       CnormB=.FALSE.
@@ -2721,6 +2787,7 @@
         LdefADJ(ng)=.FALSE.
         LdefAVG(ng)=.TRUE.
         LdefAVG2(ng)=.TRUE.
+        LdefDAI(ng)=.FALSE.
         LdefDIA(ng)=.TRUE.
         LdefERR(ng)=.FALSE.
 #ifdef FLOATS

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1289,6 +1289,8 @@
 #  include <npzd_Powell_wrt.h>
 # elif defined BIO_COBALT
 #  include <cobalt_wrt.h>
+# elif defined RED_TIDE
+#  include <red_tide_wrt.h>
 # endif
 #endif
 
@@ -1358,6 +1360,15 @@
 
       CALL netcdf_put_fvar (ng, model, ncname, 'hc',                    &
      &                      hc(ng), (/0/), (/0/),                       &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  SGRID conventions for staggered data on structured grids. The value
+!  is arbitrary but is set to unity so it can be used as logical during
+!  post-processing.
+!
+      CALL netcdf_put_ivar (ng, model, ncname, 'grid',                  &
+     &                      (/1/), (/0/), (/0/),                        &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 !

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1449,8 +1449,6 @@
      &                       OCEAN(ng)%f_zeta,                          &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-
-#   ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -1467,7 +1465,6 @@
      &                       OCEAN(ng)%f_vbar,                          &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-#   endif
 
 #   ifdef SOLVE3D
 !

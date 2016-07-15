@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -57,9 +57,6 @@
 #endif
 #if defined SOLVE3D && defined T_PASSIVE
       logical, allocatable :: Linert(:,:)
-#endif
-#if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
-      logical, allocatable :: Lbottom(:,:)
 #endif
       logical, allocatable :: Ltracer(:,:)
 #if defined AD_SENSITIVITY    || defined IS4DVAR_SENSITIVITY || \
@@ -162,11 +159,6 @@
               CALL allocate_stepping
 #if defined FOUR_DVAR || defined VERIFICATION
               CALL allocate_fourdvar
-#endif
-#if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
-              IF (.not.allocated(Lbottom)) THEN
-                allocate ( Lbottom(MBOTP,Ngrids) )
-              END IF
 #endif
 #if defined DIAGNOSTICS_UV
               IF (.not.allocated(Ldiag)) THEN
@@ -913,10 +905,10 @@
               Npts=load_i(Nval, Rval, Ngrids, Vstretching)
               DO ng=1,Ngrids
                 IF ((Vstretching(ng).lt.0).or.                          &
-     &              (Vstretching(ng).gt.4)) THEN
+     &              (Vstretching(ng).gt.5)) THEN
                   IF (Master) WRITE (out,260) 'Vstretching = ',         &
      &                                        Vstretching(ng),          &
-     &                                        'Must between 1 and 4'
+     &                                        'Must between 1 and 5'
                   exit_flag=5
                   RETURN
                 END IF
@@ -1050,6 +1042,20 @@
                 END DO
 # endif
               END DO
+#endif
+#ifdef ICE_MODEL
+            CASE ('LmiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LmiCLM)
+            CASE ('LaiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LaiCLM)
+            CASE ('LsiCLM')
+              Npts=load_l(Nval, Cval, Ngrids, LsiCLM)
+            CASE ('LnudgeMICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeMICLM)
+            CASE ('LnudgeAICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeAICLM)
+            CASE ('LnudgeSICLM')
+              Npts=load_l(Nval, Cval, Ngrids, LnudgeSICLM)
 #endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -1379,6 +1385,34 @@
                   Hout(i,ng)=Ltracer(itrc,ng)
                 END DO
               END DO
+            CASE ('Hout(idpthR)')
+              IF (idpthR.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idpthR'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idpthR,:))
+            CASE ('Hout(idpthU)')
+              IF (idpthU.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idpthU'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idpthU,:))
+            CASE ('Hout(idpthV)')
+              IF (idpthV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idpthV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idpthV,:))
+            CASE ('Hout(idpthW)')
+              IF (idpthW.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idpthW'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idpthW,:))
             CASE ('Hout(idUsms)')
               IF (idUsms.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUsms'
@@ -1407,6 +1441,7 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idVbms,:))
+#ifdef BBL_MODEL
             CASE ('Hout(idUbrs)')
               IF (idUbrs.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUbrs'
@@ -1477,6 +1512,7 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idVbvr,:))
+#endif
             CASE ('Hout(idW2xx)')
               IF (idW2xx.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idW2xx'
@@ -1821,21 +1857,6 @@
                 DO i=1,NPT
                   itrc=idTvar(inert(i))
                   Hout(itrc,ng)=Linert(i,ng)
-                END DO
-              END DO
-#endif
-#if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
-            CASE ('Hout(idBott)')
-              IF (MAXVAL(idBott).eq.0) THEN
-                WRITE (out,280) 'idBott'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, MBOTP*Ngrids, Lbottom)
-              DO ng=1,Ngrids
-                DO itrc=1,MBOTP
-                  i=idBott(itrc)
-                  Hout(i,ng)=Lbottom(itrc,ng)
                 END DO
               END DO
 #endif
@@ -3335,6 +3356,10 @@
             CASE ('NC_DLEVEL')
               Npts=load_i(Nval, Rval, 1, Ivalue)
               deflate_level=Ivalue(1)
+            CASE ('DAINAME')
+              label='DAI - Data Assimilation Initial/Restart fields'
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, DAI)
             CASE ('GSTNAME')
               label='GST - generalized stability theory analysis'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
@@ -3604,6 +3629,23 @@
         END IF
       END IF
 #endif
+!
+!  Check if both point sources methodologies are activated.  Only one
+!  method is allowed for a particular grid.  Otherwise, the point
+!  source will be applies twice.
+!
+      DO ng=1,Ngrids
+        IF (LuvSrc(ng).and.LwSrc(ng)) THEN
+          IF (Master) THEN
+            WRITE (out,260) 'LuvSrc', LuvSrc(ng),                       &
+     &            'Because LwSrc  is also ON; only one method is legal.'
+            WRITE (out,260) 'LwSrc', LwSrc(ng),                         &
+     &            'Because LuvSrc is also ON; only one method is legal.'
+            exit_flag=4
+            RETURN
+          END IF
+        END IF
+      END DO
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
@@ -3710,9 +3752,12 @@
 #endif
       END DO
 !
-!  Set switch to create NetCDF file.
+!  Set various parameters.
 !
       DO ng=1,Ngrids
+!
+!  Set switch to craeate NetCDF file.
+!
 #ifdef SOLVE3D
         DO i=1,NV
           IF (Hout(i,ng)) LdefHIS(ng)=.TRUE.
@@ -3738,8 +3783,16 @@
 # ifndef ANA_TCLIMA
         IF (ANY(LtracerCLM(:,ng))) CLM_FILE(ng)=.TRUE.
 # endif
-# if defined CLIMA_TS_MIX && (defined TS_DIF2 || defined TS_DIF4)
+# if defined TS_MIX_CLIMA && (defined TS_DIF2 || defined TS_DIF4)
         CLM_FILE(ng)=.TRUE.
+# endif
+#endif
+#ifdef ICE_MODEL
+# ifndef ANA_MICLIMA
+        IF (LmiCLM(ng)) CLM_FILE(ng)=.TRUE.
+# endif
+# ifndef ANA_AICLIMA
+        IF (LaiCLM(ng)) CLM_FILE(ng)=.TRUE.
 # endif
 #endif
 
@@ -3784,6 +3837,8 @@
 !  we are estimating initial conditions.
 !
         nADJ(ng)=ntimes(ng)
+#endif
+#if defined IS4DVAR || defined W4DPSAS || defined W4DVAR
 !
 !  Insure that restart file is written only at the end.  In sequential
 !  data assimilation the restart file is used as the first guess for
@@ -3821,6 +3876,12 @@
 !
         nTLM(ng)=nHIS(ng)
         LcycleTLM(ng)=.FALSE.
+#endif
+#if defined TIME_CONV && defined WEAK_CONSTRAINT
+!
+!  Set number of full state records needed for time convolutions.
+!
+        NrecTC(ng)=(ntimes(ng)/nADJ(ng))+1
 #endif
 #if defined FOUR_DVAR
 !
@@ -4687,6 +4748,36 @@
           END DO
 # endif
 #endif
+#ifdef ICE_MODEL
+          IF (LmiCLM(ng)) THEN
+            WRITE (out,170) LmiCLM(ng), 'LmiCLM',                        &
+     &          'Turning ON  processing of ice momentum climatology.'
+          ELSE
+            WRITE (out,170) LmiCLM(ng), 'LmiCLM',                        &
+     &          'Turning OFF processing of ice momentum climatology.'
+          END IF
+          IF (LaiCLM(ng)) THEN
+            WRITE (out,170) LaiCLM(ng), 'LaiCLM',                        &
+     &          'Turning ON  processing of ice tracer climatology.'
+          ELSE
+            WRITE (out,170) LaiCLM(ng), 'LaiCLM',                        &
+     &          'Turning OFF processing of ice tracer climatology.'
+          END IF
+          IF (LnudgeMICLM(ng)) THEN
+            WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
+     &          'Turning ON  nudging of ice momentum climatology.'
+          ELSE
+            WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
+     &          'Turning OFF nudging of ice momentum climatology.'
+          END IF
+         IF (LnudgeAICLM(ng)) THEN
+            WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
+     &          'Turning ON  nudging of ice tracer climatology.'
+          ELSE
+            WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
+     &          'Turning OFF nudging of ice tracer climatology.'
+          END IF
+#endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -4917,6 +5008,18 @@
      &          Hout(idTvar(itrc),ng), 'Hout(idTvar)',                  &
      &          'Write out tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
+          IF (Hout(idpthR,ng)) WRITE (out,170) Hout(idpthR,ng),         &
+     &       'Hout(idpthR)',                                            &
+     &       'Write out time-varying dephts of RHO-points.'
+          IF (Hout(idpthU,ng)) WRITE (out,170) Hout(idpthU,ng),         &
+     &       'Hout(idpthU)',                                            &
+     &       'Write out time-varying dephts of U-points.'
+          IF (Hout(idpthV,ng)) WRITE (out,170) Hout(idpthV,ng),         &
+     &       'Hout(idpthV)',                                            &
+     &       'Write out time-varying dephts of V-points.'
+          IF (Hout(idpthW,ng)) WRITE (out,170) Hout(idpthW,ng),         &
+     &       'Hout(idpthW)',                                            &
+     &       'Write out time-varying dephts of W-points.'
 #endif
           IF (Hout(idUsms,ng)) WRITE (out,170) Hout(idUsms,ng),         &
      &       'Hout(idUsms)',                                            &
@@ -5057,14 +5160,6 @@
      &          Hout(idTvar(inert(itrc)),ng), 'Hout(inert)',            &
      &          'Write out inert passive tracer ', itrc,                &
      &          TRIM(Vname(1,idTvar(inert(itrc))))
-          END DO
-#endif
-#if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
-          DO itrc=1,MBOTP
-            IF (Hout(idBott(itrc),ng)) WRITE (out,180)                  &
-     &          Hout(idBott(itrc),ng), 'Hout(idBott)',                  &
-     &          'Write out bottom property ', itrc,                     &
-     &          TRIM(Vname(1,idBott(itrc)))
           END DO
 #endif
 #ifdef SOLVE3D
@@ -6241,6 +6336,10 @@
 !-----------------------------------------------------------------------
 !
           WRITE (out,220)
+#if defined FOUR_DVAR || defined ENKF_RESTART
+          WRITE (out,230) 'Output DA Initial/Restart File:  ',          &
+     &                    TRIM(DAI(ng)%name)
+#endif
 #ifdef PROPAGATOR
           WRITE (out,230) '       Output GST Restart File:  ',          &
      &                    TRIM(GST(ng)%name)
@@ -6447,6 +6546,7 @@
           END DO
 #ifndef ANA_NUDGCOEF
           IF (LnudgeM2CLM(ng).or.LnudgeM3CLM(ng).or.                    &
+     &        LnudgeMICLM(ng).or.LnudgeAICLM(ng).or.                    &
      &        (ANY(LnudgeTCLM(:,ng)))) THEN
             fname=NUD(ng)%name
             IF (.not.find_file(ng, fname, 'NUDNAME')) GO TO 30

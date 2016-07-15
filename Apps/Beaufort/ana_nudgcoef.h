@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -115,7 +115,7 @@
 !  days time scale at the boundary point to decrease linearly to 0 days
 !  (i.e no nudging) 15 grids points away from the boundary.
 !
-      cff1=1.0_r8/(30_r8*86400.0_r8)         ! 30-day outer limit
+      cff1=1.0_r8/(3_r8*86400.0_r8)          ! 3-day outer limit
       cff2=0.0_r8                            ! Inf days (no nudge) inner limit
       cff3=20.0_r8                           ! width of layer in grid points
 
@@ -139,13 +139,15 @@
      &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
         END DO
       END DO
-!! cff3-point wide linearly tapered nudging zone
-!      DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
-!        DO j=JstrT,JendT
-!          wrk(i,j)=MAX(wrk(i,j),                                        &
-!     &             cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
-!        END DO
-!      END DO
+! cff3-point wide linearly tapered nudging zone
+      IF (Lm(ng) == 936) THEN ! Beaufort3 grid only
+        DO i=MAX(IstrT,Lm(ng)+1-INT(cff3)),IendT       ! EAST boundary
+          DO j=JstrT,JendT
+            wrk(i,j)=MAX(wrk(i,j),                                      &
+     &               cff1+REAL(Lm(ng)+1-i,r8)*(cff2-cff1)/cff3)
+          END DO
+        END DO
+      END IF
 !
 ! Set the relevant nudging coefficients using the entries in wrk
 !
@@ -167,12 +169,41 @@
           END DO
         END DO
       END IF
+      IF (LnudgeMICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%MInudgcof(i,j)=wrk(i,j)
+          END DO
+        END DO
+      END IF
       IF (LnudgeM3CLM(ng)) THEN
         DO k=1,N(ng)
           DO j=JstrT,JendT
             DO i=IstrT,IendT
               CLIMA(ng)%M3nudgcof(i,j,k)=wrk(i,j)
             END DO
+          END DO
+        END DO
+      END IF
+! cff3-point wide linearly tapered nudging zone
+!      cff3=60.0_r8                           ! width of layer in grid points
+!      DO i=IstrT,MIN(INT(cff3),IendT)                ! WEST boundary
+!        DO j=JstrT,JendT
+!          wrk(i,j)=MAX(wrk(i,j),                                        &
+!     &             cff2+(cff3-REAL(i,r8))*(cff1-cff2)/cff3)
+!        END DO
+!      END DO
+      IF (LnudgeAICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%AInudgcof(i,j)=wrk(i,j)
+          END DO
+        END DO
+      END IF
+      IF (LnudgeSICLM(ng)) THEN
+        DO j=JstrT,JendT
+          DO i=IstrT,IendT
+            CLIMA(ng)%SInudgcof(i,j)=wrk(i,j)
           END DO
         END DO
       END IF
@@ -204,6 +235,27 @@
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 1, NTCLM(ng), &
      &                      NghostPoints, .FALSE., .FALSE.,             &
      &                      CLIMA(ng)%Tnudgcof)
+      END IF
+!
+      IF (LnudgeMICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%MInudgcof)
+      END IF
+!
+      IF (LnudgeAICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%AInudgcof)
+      END IF
+!
+      IF (LnudgeSICLM(ng)) THEN
+        CALL mp_exchange2d (ng, tile, model, 1,                         &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      NghostPoints, .FALSE., .FALSE.,             &
+     &                      CLIMA(ng)%SInudgcof)
       END IF
 # endif
 #endif

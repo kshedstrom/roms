@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -240,9 +240,9 @@
 # endif
 !$OMP CRITICAL (RP_DIAGNOSTICS)
         IF (tile_count.eq.0) THEN
-          volume=my_volume
-          avgke=my_avgke
-          avgpe=my_avgpe
+          volume=0.0_r8
+          avgke=0.0_r8
+          avgpe=0.0_r8
         END IF
         volume=volume+my_volume
         avgke=avgke+my_avgke

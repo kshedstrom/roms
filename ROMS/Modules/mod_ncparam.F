@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -179,6 +179,8 @@
         integer  :: idAlbe        ! shortwave albedo
         integer  :: idAtmCO2      ! atmospheric CO2
         integer  :: idbath        ! bathymetry
+        integer  :: idBgEr        ! Background error at observations
+        integer  :: idBgTh        ! Threshold for BQC check
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
         integer  :: idCos2        ! COS(omega(k)*t)*COS(omega(l)*t)
@@ -230,6 +232,9 @@
         integer  :: idOerr        ! observations error
         integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
+        integer  :: idOlat        ! observations latitude
+        integer  :: idOlon        ! observations longitude
+        integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
         integer  :: idOvar        ! observations global variance
@@ -241,6 +246,10 @@
         integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idPwet        ! wet/dry mask on PSI-points
+        integer  :: idpthR        ! depths of RHO-points
+        integer  :: idpthU        ! depths of U-points
+        integer  :: idpthV        ! depths of V-points
+        integer  :: idpthW        ! depths of W-points
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -434,6 +443,10 @@
         integer  :: idSig12        ! internal ice stress component 12
         integer  :: idAIclm        ! ice concentration climatology
         integer  :: idHIclm        ! ice thickness climatology
+        integer  :: idHSNclm       ! ice thickness climatology
+        integer  :: idS11clm       ! ice sigma11 climatology
+        integer  :: idS12clm       ! ice sigma12 climatology
+        integer  :: idS22clm       ! ice sigma22 climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
 
@@ -1146,6 +1159,14 @@
               idtime=varid
             CASE ('idbath')
               idbath=varid
+            CASE ('idpthR')
+              idpthR=varid
+            CASE ('idpthU')
+              idpthU=varid
+            CASE ('idpthV')
+              idpthV=varid
+            CASE ('idpthW')
+              idpthW=varid
             CASE ('idFsur')
               idFsur=varid
             CASE ('idRzet')
@@ -1873,6 +1894,10 @@
               idVfx2=varid
 #endif
 #if defined FOUR_DVAR || defined VERIFICATION
+            CASE ('idBgEr')
+              idBgEr=varid
+            CASE ('idBgTh')
+              idBgTh=varid
             CASE ('idNLmi')
               idNLmi=varid
             CASE ('idNLmo')
@@ -1895,6 +1920,12 @@
               idOday=varid
             CASE ('idOerr')
               idOerr=varid
+            CASE ('idOlat')
+              idOlat=varid
+            CASE ('idOlon')
+              idOlon=varid
+            CASE ('idOpro')
+              idOpro=varid
             CASE ('idOtyp')
               idOtyp=varid
             CASE ('idOval')
@@ -1997,6 +2028,14 @@
                 idAIclm=varid
               CASE ('idHIclm')
                 idHIclm=varid
+              CASE ('idHSNclm')
+                idHSNclm=varid
+              CASE ('idS11clm')
+                idS11clm=varid
+              CASE ('idS12clm')
+                idS12clm=varid
+              CASE ('idS22clm')
+                idS22clm=varid
               CASE ('idUIclm')
                 idUIclm=varid
               CASE ('idVIclm')
@@ -2024,6 +2063,8 @@
 #  include <npzd_iron_var.h>
 # elif defined BIO_COBALT
 #  include <cobalt_var.h>
+# elif defined RED_TIDE
+#  include <red_tide_var.h>
 # endif
 # if defined NEMURO_SAN
 #  include <fish_var.h>
@@ -2095,10 +2136,10 @@
                     END DO
                     WRITE (Vname(1,varid),'(a,i2.2,a)')                 &
      &                    TRIM(ADJUSTL(Vinfo(1))), ic, '_age'
-                    WRITE (Vname(2,varid),'(a,a,i2.2)')                 &
-     &                    TRIM(ADJUSTL(Vinfo(2))), ' mean age, type ',  &
-     &                    ic
-                    WRITE (Vname(3,varid),'(a)') 'second'
+                    WRITE (Vname(2,varid),'(a,i2.2)')                   &
+     &                    'age concentraction, type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'second kilogram meter-3'
                     WRITE (Vname(4,varid),'(a,a)')                      &
      &                    TRIM(Vname(1,varid)), ', scalar, series'
                     WRITE (Vname(5,varid),'(a)')                        &

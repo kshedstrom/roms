@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -39,7 +39,7 @@
       real(r8) :: Xpos, Ypos
 
 # if defined SOLVE3D && (defined BBL_MODEL || defined SEDIMENT)
-      logical, dimension(MBOTP,Ngrids) :: Lbottom
+      logical, dimension(Ngrids) :: Lbottom
 # endif
       logical, dimension(MT,Ngrids) :: Lsta
 
@@ -308,13 +308,101 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,:))
 #  endif
 #  if defined BBL_MODEL || defined SEDIMENT
-            CASE ('Sout(idBott)')
-              Npts=load_l(Nval, Cval, MBOTP*Ngrids, Lbottom)
+            CASE ('Sout(isd50)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(isd50)
               DO ng=1,Ngrids
-                DO itrc=1,MBOTP
-                  i=idBott(itrc)
-                  Sout(i,ng)=Lbottom(itrc,ng)
-                END DO
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(idens)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(idens)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+             END DO
+            CASE ('Sout(iwsed)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(iwsed)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(itauc)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(itauc)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(irlen)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(irlen)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(irhgt)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(irhgt)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(ibwav)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(ibwav)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izdef)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izdef)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izapp)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izapp)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izNik)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izNik)
+             DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izbio)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izbio)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izbfm)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izbfm)
+              DO ng=1,Ngrids
+               Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izbld)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izbld)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(izwbl)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(izwbl)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(iactv)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(iactv)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
+              END DO
+            CASE ('Sout(ishgt)')
+              Npts=load_l(Nval, Cval, Ngrids, Lbottom)
+              i=idBott(ishgt)
+              DO ng=1,Ngrids
+                Sout(i,ng)=Lbottom(ng)
               END DO
 #  endif
 # endif

@@ -7,7 +7,7 @@
 
 !
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -260,7 +260,11 @@
 !
 !  Always use Gaussian distribution between -1 and +1, by Zscheme=1.
 !
+# ifdef BEOFS_ONLY
+      Zscheme=0
+# else
       Zscheme=1
+# endif
 !
 !  2D random initialization at RHO-points.
 !

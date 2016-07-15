@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -203,14 +203,25 @@
 
 #ifdef VERIFICATION
 !
-!  Create out NetCDF file containing model solution at observation
-!  locations.
+!  Create NetCDF file for model solution at observation locations.
 !
       IF (Nrun.eq.1) THEN
         DO ng=1,Ngrids
           LdefMOD(ng)=.TRUE.
           wrtNLmod(ng)=.TRUE.
           CALL def_mod (ng)
+          IF (exit_flag.ne.NoError) RETURN
+        END DO
+      END IF
+#endif
+#ifdef ENKF_RESTART
+!
+!  Create Ensenble Kalman Filter (EnKF) reastart NetCDF file.
+!
+      IF (Nrun.eq.1) THEN
+        DO ng=1,Ngrids
+          LdefDAI(ng)=.TRUE.
+          CALL def_dai (ng)
           IF (exit_flag.ne.NoError) RETURN
         END DO
       END IF
@@ -296,7 +307,29 @@
 !  Local variable declarations.
 !
       integer :: Fcount, ng, thread
+#ifdef ENKF_RESTART
+      integer :: tile
+#endif
 
+#ifdef ENKF_RESTART
+!
+!-----------------------------------------------------------------------
+!  Write out initial conditions for the next time window of the Ensemble
+!  Kalman (EnKF) filter.
+!-----------------------------------------------------------------------
+!
+# ifdef DISTRIBUTE
+      tile=MyRank
+# else
+      tile=-1
+# endif
+!
+      IF (exit_flag.eq.NoError) THEN
+        DO ng=1,Ngrids
+          CALL wrt_dai (ng, tile)
+        END DO
+      END IF
+#endif
 #ifdef VERIFICATION
 !
 !-----------------------------------------------------------------------

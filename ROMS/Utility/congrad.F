@@ -1,12 +1,12 @@
 #include "cppdefs.h"
 
-#ifdef WEAK_CONSTRAINT
+#if defined WEAK_CONSTRAINT && !defined RPCG
       SUBROUTINE congrad (ng, model, outLoop, innLoop, NinnLoop,        &
      &                    Lcgini)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1570,7 +1570,7 @@
 !
       IF (innLoop.gt.0) THEN
         CALL netcdf_put_fvar (ng, model, DAV(ng)%name, 'cg_QG',         &
-     &                        cg_QG, (/1,1/), (/Ninner,Nouter/),        &
+     &                        cg_QG, (/1,1/), (/Ninner+1,Nouter/),      &
      &                        ncid = DAV(ng)%ncid)
         IF (exit_flag.ne.NoError) RETURN
       END IF

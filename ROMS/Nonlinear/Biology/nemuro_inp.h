@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -839,7 +839,7 @@
      &            'PON to DON decomposition rate (1/day).'
             WRITE (out,70) VD2N0(ng), 'VD2N0',                          &
      &            'DON to NH4 decomposition rate (1/day).'
-            WRITE (out,70) VP2S0(ng), 'VO2S0',                          &
+            WRITE (out,70) VO2S0(ng), 'VO2S0',                          &
      &            'Opal to SiOH4 decomposition rate (1/day).'
             WRITE (out,80) KNit(ng), 'KNit',                            &
      &            'Temperature coefficient for NH4 to NO3',             &

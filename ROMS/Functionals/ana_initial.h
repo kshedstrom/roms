@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -297,7 +297,7 @@
 # else
       DO j=JstrT,JendT
         DO i=IstrT,IendT
-          val1=(yr(i,j)-y0))/guscale
+          val1=(yr(i,j)-y0)/guscale
           val2=-0.5_r8*u0*guscale*GRID(ng)%f(i,j)*sqrt(pi)/g
           zeta(i,j,1)=val2*ERF(val1)
         END DO

@@ -1,13 +1,13 @@
 #include "cppdefs.h"
-#if defined IS4DVAR              || \
-    (defined WEAK_CONSTRAINT     && \
-     (defined POSTERIOR_EOFS     || defined POSTERIOR_ERROR_I ||\
-      defined POSTERIOR_ERROR_F))
+#if defined IS4DVAR               || \
+    (defined WEAK_CONSTRAINT      && \
+     (defined POSTERIOR_EOFS      || defined POSTERIOR_ERROR_I ||\
+      defined POSTERIOR_ERROR_F)) || defined LCZ_FINAL
       SUBROUTINE wrt_hessian (ng, kout, nout)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
