@@ -377,6 +377,8 @@
           real(r8), pointer :: mineral_feG(:,:,:)
           real(r8), pointer :: ironsed(:,:)
           real(r8), pointer :: ironsedG(:,:,:)
+          real(r8), pointer :: fecoast(:,:)
+          real(r8), pointer :: fecoastG(:,:,:)
 #  endif
 # endif
 
@@ -830,6 +832,8 @@
       allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -1384,6 +1388,9 @@
             FORCES(ng) % ironsed(i,j) = IniVal
             FORCES(ng) % ironsedG(i,j,1) = IniVal
             FORCES(ng) % ironsedG(i,j,2) = IniVal
+            FORCES(ng) % fecoast(i,j) = IniVal
+            FORCES(ng) % fecoastG(i,j,1) = IniVal
+            FORCES(ng) % fecoastG(i,j,2) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES

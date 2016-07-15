@@ -29,6 +29,7 @@
 
       logical, dimension(NBT,Ngrids) :: Ltrc
 #ifdef DIAGNOSTICS_BIO
+      logical, dimension(Ngrids)         :: Lbio
       logical, dimension(NDbio2d,Ngrids) :: Lbio2d
       logical, dimension(NDbio3d,Ngrids) :: Lbio3d
 #endif
@@ -664,6 +665,7 @@
                   Dout(i,ng)=Lbio2d(itrc,ng)
                 END DO
               END DO
+! obsolete but kept for backward compatibility with old namelist (for now)
             CASE ('Dout(iDbio3)')
               Npts=load_l(Nval, Cval, NDbio3d*Ngrids, Lbio3d)
               DO ng=1,Ngrids
@@ -678,6 +680,480 @@
                   Dout(i,ng)=Lbio3d(itrc,ng)
                 END DO
               END DO
+! starts here
+            CASE ('Dout(ichl)')
+              IF (iDbio3(ichl).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ichl)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ichl)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iirr_mem)')
+              IF (iDbio3(iirr_mem).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iirr_mem)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iirr_mem)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ico3_ion)')
+              IF (iDbio3(ico3_ion).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ico3_ion)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ico3_ion)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ihtotal)')
+              IF (iDbio3(ihtotal).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ihtotal)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ihtotal)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ico3_sol_arag)')
+              IF (iDbio3(ico3_sol_arag).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ico3_sol_arag)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ico3_sol_arag)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ico3_sol_calc)')
+              IF (iDbio3(ico3_sol_calc).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ico3_sol_calc)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ico3_sol_calc)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iomega_cadet_arag)')
+              IF (iDbio3(iomega_cadet_arag).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iomega_cadet_arag)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iomega_cadet_arag)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iomega_cadet_calc)')
+              IF (iDbio3(iomega_cadet_calc).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iomega_cadet_calc)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iomega_cadet_calc)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iswdk)')
+              IF (iDbio3(iswdk).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iswdk)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iswdk)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iirr_mix)')
+              IF (iDbio3(iirr_mix).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iirr_mix)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iirr_mix)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iirr_inst)')
+              IF (iDbio3(iirr_inst).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iirr_inst)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iirr_inst)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ife_bulk_flx)')
+              IF (iDbio3(ife_bulk_flx).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ife_bulk_flx)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ife_bulk_flx)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(imu_mem_sm)')
+              IF (iDbio3(imu_mem_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(imu_mem_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(imu_mem_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(imu_mem_di)')
+              IF (iDbio3(imu_mem_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(imu_mem_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(imu_mem_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(imu_mem_lg)')
+              IF (iDbio3(imu_mem_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(imu_mem_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(imu_mem_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iagg_lim_sm)')
+              IF (iDbio3(iagg_lim_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iagg_lim_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iagg_lim_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iagg_lim_di)')
+              IF (iDbio3(iagg_lim_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iagg_lim_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iagg_lim_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iagg_lim_lg)')
+              IF (iDbio3(iagg_lim_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iagg_lim_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iagg_lim_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iaggloss_sm)')
+              IF (iDbio3(iaggloss_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iaggloss_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iaggloss_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iaggloss_di)')
+              IF (iDbio3(iaggloss_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iaggloss_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iaggloss_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iaggloss_lg)')
+              IF (iDbio3(iaggloss_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iaggloss_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iaggloss_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ivirloss_sm)')
+              IF (iDbio3(ivirloss_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ivirloss_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ivirloss_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ivirloss_di)')
+              IF (iDbio3(ivirloss_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ivirloss_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ivirloss_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ivirloss_lg)')
+              IF (iDbio3(ivirloss_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ivirloss_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ivirloss_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(izloss_sm)')
+              IF (iDbio3(izloss_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(izloss_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(izloss_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(izloss_di)')
+              IF (iDbio3(izloss_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(izloss_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(izloss_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(izloss_lg)')
+              IF (iDbio3(izloss_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(izloss_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(izloss_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(idef_fe_sm)')
+              IF (iDbio3(idef_fe_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(idef_fe_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(idef_fe_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(idef_fe_di)')
+              IF (iDbio3(idef_fe_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(idef_fe_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(idef_fe_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(idef_fe_lg)')
+              IF (iDbio3(idef_fe_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(idef_fe_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(idef_fe_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ifelim_sm)')
+              IF (iDbio3(ifelim_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ifelim_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ifelim_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ifelim_di)')
+              IF (iDbio3(ifelim_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ifelim_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ifelim_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ifelim_lg)')
+              IF (iDbio3(ifelim_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ifelim_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ifelim_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ino3lim_sm)')
+              IF (iDbio3(ino3lim_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ino3lim_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ino3lim_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ino3lim_di)')
+              IF (iDbio3(ino3lim_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ino3lim_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ino3lim_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ino3lim_lg)')
+              IF (iDbio3(ino3lim_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ino3lim_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ino3lim_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(inh4lim_sm)')
+              IF (iDbio3(inh4lim_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(inh4lim_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(inh4lim_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(inh4lim_di)')
+              IF (iDbio3(inh4lim_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(inh4lim_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(inh4lim_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(inh4lim_lg)')
+              IF (iDbio3(inh4lim_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(inh4lim_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(inh4lim_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ipo4lim_sm)')
+              IF (iDbio3(ipo4lim_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ipo4lim_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ipo4lim_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ipo4lim_di)')
+              IF (iDbio3(ipo4lim_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ipo4lim_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ipo4lim_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ipo4lim_lg)')
+              IF (iDbio3(ipo4lim_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ipo4lim_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ipo4lim_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+!            CASE ('Dout(inewdiag)')
+!              IF (iDbio3(inewdiag).eq.0) THEN
+!                IF (Master) WRITE (out,120) 'iDbio3(inewdiag)'
+!                exit_flag=5
+!                RETURN
+!              END IF
+!              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+!              i=iDbio3(inewdiag)
+!              DO ng=1,Ngrids
+!                Dout(i,ng)=Lbio(ng)
+!              END DO
 #endif
 #ifdef PRIMARY_PROD
             CASE ('Hout(idNPP)')

@@ -77,6 +77,9 @@
                  idTvar(ipo4)=varid
                CASE ('idTvar(ipdet)')
                  idTvar(ipdet)=varid
+#else
+               CASE ('idTvar(ipo4)')
+                 idTvar(ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -454,6 +457,15 @@
                  idTbry(isouth,ipdet)=varid
                CASE ('idTbry(inorth,ipdet)')
                  idTbry(inorth,ipdet)=varid
+#else
+               CASE ('idTbry(iwest,ipo4)')
+                 idTbry(iwest,ipo4)=varid
+               CASE ('idTbry(ieast,ipo4)')
+                 idTbry(ieast,ipo4)=varid
+               CASE ('idTbry(isouth,ipo4)')
+                 idTbry(isouth,ipo4)=varid
+               CASE ('idTbry(inorth,ipo4)')
+                 idTbry(inorth,ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -668,6 +680,9 @@
                  idRtrc(ipo4)=varid
                CASE ('idRtrc(ipdet)')
                  idRtrc(ipdet)=varid
+# else
+               CASE ('idRtrc(ipo4)')
+                 idRtrc(ipo4)=varid
 # endif
 # ifdef COBALT_IRON
                ! Iron Dynamics
@@ -861,6 +876,58 @@
                 iDbio3(iagg_lim_di)=varid
               CASE ('iDbio3(iagg_lim_lg)')
                 iDbio3(iagg_lim_lg)=varid
+
+              CASE ('iDbio3(iaggloss_di)')
+                iDbio3(iaggloss_di)=varid
+              CASE ('iDbio3(iaggloss_sm)')
+                iDbio3(iaggloss_sm)=varid
+              CASE ('iDbio3(iaggloss_lg)')
+                iDbio3(iaggloss_lg)=varid
+              CASE ('iDbio3(ivirloss_di)')
+                iDbio3(ivirloss_di)=varid
+              CASE ('iDbio3(ivirloss_sm)')
+                iDbio3(ivirloss_sm)=varid
+              CASE ('iDbio3(ivirloss_lg)')
+                iDbio3(ivirloss_lg)=varid
+              CASE ('iDbio3(izloss_di)')
+                iDbio3(izloss_di)=varid
+              CASE ('iDbio3(izloss_sm)')
+                iDbio3(izloss_sm)=varid
+              CASE ('iDbio3(izloss_lg)')
+                iDbio3(izloss_lg)=varid
+
+              CASE ('iDbio3(idef_fe_sm)')
+                iDbio3(idef_fe_sm)=varid
+              CASE ('iDbio3(idef_fe_di)')
+                iDbio3(idef_fe_di)=varid
+              CASE ('iDbio3(idef_fe_lg)')
+                iDbio3(idef_fe_lg)=varid
+              CASE ('iDbio3(ifelim_sm)')
+                iDbio3(ifelim_sm)=varid
+              CASE ('iDbio3(ifelim_di)')
+                iDbio3(ifelim_di)=varid
+              CASE ('iDbio3(ifelim_lg)')
+                iDbio3(ifelim_lg)=varid
+              CASE ('iDbio3(ino3lim_sm)')
+                iDbio3(ino3lim_sm)=varid
+              CASE ('iDbio3(ino3lim_di)')
+                iDbio3(ino3lim_di)=varid
+              CASE ('iDbio3(ino3lim_lg)')
+                iDbio3(ino3lim_lg)=varid
+              CASE ('iDbio3(inh4lim_sm)')
+                iDbio3(inh4lim_sm)=varid
+              CASE ('iDbio3(inh4lim_di)')
+                iDbio3(inh4lim_di)=varid
+              CASE ('iDbio3(inh4lim_lg)')
+                iDbio3(inh4lim_lg)=varid
+              CASE ('iDbio3(ipo4lim_sm)')
+                iDbio3(ipo4lim_sm)=varid
+              CASE ('iDbio3(ipo4lim_di)')
+                iDbio3(ipo4lim_di)=varid
+              CASE ('iDbio3(ipo4lim_lg)')
+                iDbio3(ipo4lim_lg)=varid
+
+
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')

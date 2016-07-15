@@ -577,6 +577,9 @@
       integer :: iirr_mem ! Irradiance memory
       integer :: iirr_mix ! Irradiance in MXL
       integer :: iirr_inst ! Irradiance instantaneous
+      integer :: iaggloss_sm, iaggloss_di, iaggloss_lg
+      integer :: ivirloss_sm, ivirloss_di, ivirloss_lg
+      integer :: izloss_sm, izloss_di, izloss_lg
       integer :: ijprod_cadet_arag, ijprod_cadet_calc, ijprod_fedet
       integer :: ijprod_lithdet, ijprod_ndet, ijprod_pdet, ijprod_sidet
       integer :: indet_b4sink, ipdet_b4sink, ifedet_b4sink
@@ -608,6 +611,11 @@
       integer :: iswdk
       integer :: imu_mem_sm, imu_mem_di, imu_mem_lg
       integer :: iagg_lim_sm, iagg_lim_di, iagg_lim_lg
+      integer :: idef_fe_sm, idef_fe_di, idef_fe_lg
+      integer :: ifelim_sm, ifelim_di, ifelim_lg
+      integer :: ino3lim_sm, ino3lim_di, ino3lim_lg
+      integer :: inh4lim_sm, inh4lim_di, inh4lim_lg
+      integer :: ipo4lim_sm, ipo4lim_di, ipo4lim_lg
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
 
@@ -1758,6 +1766,8 @@
 #ifdef COBALT_PHOSPHORUS
       ! Phosporus Dynamics
       NBT=NBT+5
+#else
+      NBT=NBT+1
 #endif
 #ifdef COBALT_IRON
       ! Iron Dynamics
@@ -1772,14 +1782,17 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
-      NDbio3d = 18
+      NDbio3d = 42 
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
       NBEN=6
 #endif
       ! Sinking material
-      Nsink=7
+      Nsink=6
+#ifdef COBALT_PHOSPHORUS
+      Nsink=Nsink+1
+#endif
 
 !-----------------------------------------------------------------------
 !  Allocate various module variables.
@@ -2600,6 +2613,9 @@
       ipo4=ic+4
       ipdet=ic+5
       ic=ic+5
+#else
+      ipo4=ic+1
+      ic=ic+1
 #endif
 #ifdef COBALT_IRON
       ! Iron Dynamics
@@ -2727,6 +2743,34 @@
       iagg_lim_sm=16
       iagg_lim_di=17
       iagg_lim_lg=18
+
+      iaggloss_sm=19
+      iaggloss_di=20
+      iaggloss_lg=21
+
+      ivirloss_sm=22
+      ivirloss_di=23
+      ivirloss_lg=24
+
+      izloss_sm=25
+      izloss_di=26
+      izloss_lg=27
+
+      idef_fe_sm=28
+      idef_fe_di=29
+      idef_fe_lg=30
+      ifelim_sm=31
+      ifelim_di=32
+      ifelim_lg=33
+      ino3lim_sm=34
+      ino3lim_di=35
+      ino3lim_lg=36
+      inh4lim_sm=37
+      inh4lim_di=38
+      inh4lim_lg=39
+      ipo4lim_sm=40
+      ipo4lim_di=41
+      ipo4lim_lg=42
 #endif
       
       ! Sediment variables
@@ -2752,9 +2796,11 @@
       idsink(2) = isidet
       idsink(3) = icadet_calc
       idsink(4) = icadet_arag
-      idsink(5) = ipdet
-      idsink(6) = ifedet
-      idsink(7) = ilithdet
+      idsink(5) = ifedet
+      idsink(6) = ilithdet
+#ifdef COBALT_PHOSPHORUS
+      idsink(7) = ipdet
+#endif
 
       RETURN
 
