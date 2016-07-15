@@ -2928,14 +2928,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ENDIF !}
        !
        ! Coastal iron inputs (proxy for sediment inputs for areas with poorly resolved shelves)
+       ! Reworked with charlie (july 2016) to create new input file at 1e-16 mol Fe kg-1 s-1
        !
-!       cobalt%jfe_coast(i,j,k) = cobalt%fe_coast * mask_coast(i,j) *     &
-!     &                           grid_tmask(i,j,k) / sqrt(grid_dat(i,j))
-      ! RD dev notes : we are supposed to resolve the shelves in ROMS now
-      ! RD : testing with same source as MOM
-      ! I think units are ok but not sure equation
-      cobalt%jfe_coast(i,j,k) = fecoast(i,j) / sqrt( omn(i,j) )
+       cobalt%jfe_coast(i,j,k) = fecoast(i,j)
 
+#ifdef DIAGNOSTICS_BIO
+       ! add coastal iron source to fe_bulk_flx
+       DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt
+#endif
       ENDDO
     ENDDO
   ENDDO
@@ -3299,14 +3299,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      ENDIF
 
     ! iron from sediment 
-    ! read from file :
-    cobalt%ffe_sed(i,j)  = ironsed(i,j) !/ rho0 / Hz(i,j,1)
+    ! read from file (no more)
+    ! cobalt%ffe_sed(i,j)  = ironsed(i,j) 
     ! units : mol.kg-1.s-1 = mol.m-2.s-1 / ( kg.m-3 * m ) -> BUG
     ! units changed to mol.m-2.s-1 RD, bug fix from CAS
 
     ! THE original code from cobalt uses ndet bottom flux as a proxy to diagnose
     ! iron sources from sediments
-    ! cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1)
+     cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1)
 
 !#ASKCHARLIE if we need this
 #ifdef COBALT_CONSERVATION_TEST
