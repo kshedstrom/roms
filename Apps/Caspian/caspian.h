@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -56,7 +56,9 @@
 #define SALINITY
 #define SOLVE3D
 #undef  BODYFORCE
-#define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #define MASKING
 #define AVERAGES
 !#define AVERAGES_DETIDE

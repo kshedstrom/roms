@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -50,10 +50,6 @@
             CASE ('Lice')
               Npts=load_l(Nval, Cval, Ngrids, Lfloats)
               Npts=load_l(Nval, Cval, Ngrids, Lice)
-            CASE ('DTICE')
-              Npts=load_r(Nval, Rval, Ngrids, dtice)
-            CASE ('DTICE_EQ')
-              Npts=load_r(Nval, Rval, Ngrids, dtice_eq)
             CASE ('nstrs')
               Npts=load_i(Nval, Rval, Ngrids, nstrs)
             CASE ('nevp')
@@ -110,6 +106,14 @@
               Npts=load_r(Nval, Rval, 1, sublim_latent_heat)
             CASE ('t0deg')
               Npts=load_r(Nval, Rval, 1, t0deg)
+#ifdef ICE_LANDFAST
+            CASE ('lf_k1')
+              Npts=load_r(Nval, Rval, 1, lf_k1)
+            CASE ('lf_k2')
+              Npts=load_r(Nval, Rval, 1, lf_k2)
+            CASE ('lf_u0')
+              Npts=load_r(Nval, Rval, 1, lf_u0)
+#endif
             CASE ('Hout(idUice)')
               IF (idUice.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idUice'
@@ -593,8 +597,6 @@
           WRITE(out,*) 'Ice time step = ocean time step'
           WRITE (out,60) dtice(ng), 'DTICE',                            &
      &          'Ice model time step (s).'
-          WRITE (out,60) dtice_eq(ng), 'DTICE_EQ',                      &
-     &          'Ice drift update (equilibrium) time step (s).'
           WRITE (out,50) nstrs(ng), 'nstrs',                            &
      &          'Number of iterations for nonlinear ice dynamics.'
           WRITE (out,50) nevp(ng), 'nevp',                              &
@@ -633,6 +635,14 @@
      &          'Latent_heat of sublimation.'
           WRITE (out,60) t0deg, 't0deg',                                &
      &          'Zero degrees Celsius in degrees Kelvin.'
+#ifdef ICE_LANDFAST
+          WRITE (out,60) lf_k1, 'lf_k1',                                &
+     &          'Landfast ice tunable k1.'
+          WRITE (out,60) lf_k2, 'lf_k2',                                &
+     &          'Landfast ice tunable k2.'
+          WRITE (out,60) lf_u0, 'lf_u0',                                &
+     &          'Landfast ice minimal velocity.'
+#endif
           IF (Hout(idUice,ng)) WRITE (out,70) Hout(idUice,ng),          &
      &       'Hout(idUice)',                                            &
      &       'Write out U-component ice velocity.'

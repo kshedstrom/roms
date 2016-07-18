@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1248,7 +1248,7 @@
         allocate ( BOUNDARY(ng) % tl_ubar_south(LBi:UBi) )
       END IF
 
-      IF (tl_LBC(isouth,isUbar,ng)%acquire) THEN
+      IF (tl_LBC(inorth,isUbar,ng)%acquire) THEN
         allocate ( BOUNDARY(ng) % tl_ubar_north(LBi:UBi) )
       END IF
 !

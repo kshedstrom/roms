@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -26,7 +26,6 @@
 #define DJ_GRADPS
 #undef  SALINITY
 #define SOLVE3D
-#define SPLINES
 
 #define SSH_TIDES
 #define UV_TIDES
@@ -65,6 +64,8 @@
 #endif
 
 #ifdef SOLVE3D
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
 # define SEDIMENT
 # ifdef SEDIMENT
 #  define SED_MORPH
@@ -90,6 +91,7 @@
 # if defined GLS_MIXING || defined MY25_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
+#  define RI_SPLINES
 #  undef  CRAIG_BANNER
 #  undef  CHARNOK
 #  undef  ZOS_HSIG

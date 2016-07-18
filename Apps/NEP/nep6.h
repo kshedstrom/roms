@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -25,7 +25,9 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #endif
 #undef FLOATS
 #undef STATIONS
@@ -38,7 +40,7 @@
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
-# define AGE_PASSIVE
+# define AGE_MEAN
 #endif
 
 /* ice */

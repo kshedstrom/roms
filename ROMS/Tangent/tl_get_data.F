@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1275,29 +1275,26 @@
 #   endif
      &                  OCEAN(ng) % f_zetaG)
         IF (exit_flag.ne.NoError) RETURN
-
-#   ifndef SOLVE3D
 !
 !  Read 2D momentum forcing.
 !
         CALL get_2dfld (ng, iTLM, idUbtf, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#    ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % umask,                               &
-#    endif
+#   endif
      &                  OCEAN(ng) % f_ubarG)
         IF (exit_flag.ne.NoError) RETURN
 
         CALL get_2dfld (ng, iTLM, idVbtf, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#    ifdef MASKING
+#   ifdef MASKING
      &                  GRID(ng) % vmask,                               &
-#    endif
+#   endif
      &                  OCEAN(ng) % f_vbarG)
         IF (exit_flag.ne.NoError) RETURN
-#   endif
 
 #   ifdef SOLVE3D
 !

@@ -87,8 +87,10 @@
 !-----------------------------------------------------------------------
 !
 !      dtdays=dt(ng)*sec2day
-      dtsecs=4.0_r8*dt(ng)
-      dtdays=4.0_r8*dt(ng)*sec2day
+!      dtsecs=4.0_r8*dt(ng)
+!      dtdays=4.0_r8*dt(ng)*sec2day
+      dtsecs=3600.0_r8
+      dtdays=3600.0_r8*sec2day
 ! dy_time: time in days, modulo days_year
 ! Note: only works if time origin is at the start of a year
       dy_time=REAL(INT(time(ng)/86400.0_r8/days_year))

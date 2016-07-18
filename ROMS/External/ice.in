@@ -1,7 +1,7 @@
 !  Ice model parameters
 !
 !==============================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -36,16 +36,6 @@
 ! connected grids.
 
     Lice == T
-
-!
-!   Time step for sea ice model [s]
-
-     DTICE == 600.d0
-
-!
-!   Time step for updating (equilibrium) ice drift in sea ice model [s]
-
-     DTICE_EQ == 10800.d0
 
 ! Maximum number of iterations to achieve convergence of the nonlinear
 ! ice dynamics solution
@@ -127,7 +117,7 @@
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a = 0.00d0
+     min_a == 1.00d-30
 
 ! Maximum ice concentration
 ! (nondimensional)
@@ -160,6 +150,12 @@
 ! Zero degree Celsius in Kelvin
 
      t0deg = 273.15d0
+
+! tunable parameters for Lemieux landfast ice
+
+     lf_k1 = 8.0d0
+     lf_k2 = 15.0d0
+     lf_u0 = 5.0e-5
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.

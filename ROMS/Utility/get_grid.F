@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1643,6 +1643,7 @@
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
             CALL exchange_r2d_tile (ng, tile,                           &
      &                          LBi, UBi, LBj, UBj,                     &
+     &                          GRID(ng) % rdrag)
           END IF
 #   ifdef DISTRIBUTE
           CALL mp_exchange2d (ng, tile, model, 1,                       &

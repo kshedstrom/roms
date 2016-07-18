@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -20,11 +20,12 @@
 #define MASKING
 #define UV_ADV
 #undef  UV_COR
+#define SPLINES_VDIFF
+#define SPLINES_VVISC
 #define TS_MPDATA
 #define DJ_GRADPS
 #define FSOBC_REDUCED
 #define SOLVE3D
-#define SPLINES
 #define SWAN_COUPLING
 #define NEARSHORE_MELLOR08
 #define ANA_INITIAL
@@ -51,6 +52,7 @@
 # ifdef GLS_MIXING
 #  define KANTHA_CLAYSON
 #  define N2S2_HORAVG
+#  define RI_SPLINES
 # endif
 # define SEDIMENT
 # ifdef SEDIMENT

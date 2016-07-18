@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -179,6 +179,8 @@
         integer  :: idAlbe        ! shortwave albedo
         integer  :: idAtmCO2      ! atmospheric CO2
         integer  :: idbath        ! bathymetry
+        integer  :: idBgEr        ! Background error at observations
+        integer  :: idBgTh        ! Threshold for BQC check
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
         integer  :: idCos2        ! COS(omega(k)*t)*COS(omega(l)*t)
@@ -202,6 +204,7 @@
         integer  :: idHsbl        ! depth of surface boundary layer
         integer  :: idHsno        ! depth of snow cover
         integer  :: idIronSed     ! iron from sediments
+        integer  :: idFeCoast     ! iron coastal source
         integer  :: idKhor        ! convolution horizontal diffusion
         integer  :: idKver        ! convolution vertical diffusion
         integer  :: idLdwn        ! downwelling longwave radiation flux
@@ -214,7 +217,7 @@
         integer  :: idMtke        ! turbulent kinetic energy
         integer  :: idMtls        ! turbulent length scale
         integer  :: idM2nc        ! 2D momentum nudging coefficients
-        integer  :: idM3nc        ! 2D momentum nudging coefficients
+        integer  :: idM3nc        ! 3D momentum nudging coefficients
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
@@ -229,6 +232,9 @@
         integer  :: idOerr        ! observations error
         integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
+        integer  :: idOlat        ! observations latitude
+        integer  :: idOlon        ! observations longitude
+        integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
         integer  :: idOvar        ! observations global variance
@@ -240,6 +246,10 @@
         integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idPwet        ! wet/dry mask on PSI-points
+        integer  :: idpthR        ! depths of RHO-points
+        integer  :: idpthU        ! depths of U-points
+        integer  :: idpthV        ! depths of V-points
+        integer  :: idpthW        ! depths of W-points
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -255,6 +265,17 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
+#ifdef BIO_COBALT
+        integer  :: idriver_no3
+        integer  :: idriver_ldon
+        integer  :: idriver_sldon
+        integer  :: idriver_srdon
+        integer  :: idriver_ndet
+        integer  :: idriver_po4
+        integer  :: idriver_ldop
+        integer  :: idriver_sldop
+        integer  :: idriver_srdop
+#endif
         integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
@@ -422,6 +443,10 @@
         integer  :: idSig12        ! internal ice stress component 12
         integer  :: idAIclm        ! ice concentration climatology
         integer  :: idHIclm        ! ice thickness climatology
+        integer  :: idHSNclm       ! ice thickness climatology
+        integer  :: idS11clm       ! ice sigma11 climatology
+        integer  :: idS12clm       ! ice sigma12 climatology
+        integer  :: idS22clm       ! ice sigma22 climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
 
@@ -573,7 +598,7 @@
         integer, allocatable :: idBvar(:)     ! LBC variables indices
         integer, allocatable :: idSvar(:)     ! state vector indices
         integer, allocatable :: idSbry(:)     ! state boundaries indices
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
         integer  :: isUice                    ! ice U-velocity
         integer  :: isVice                    ! ice V-velocity
         integer  :: isAice                    ! ice concentration
@@ -956,10 +981,10 @@
         isTsur(i)=ic
       END DO
 #endif
-#ifdef ICE_MODEL
-#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+#if defined ICE_MODEL || defined CICE_MODEL
+# if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
       ic=ic+1
-#endif
+# endif
       isUice=ic+1
       isVice=ic+2
       isAice=ic+3
@@ -1134,6 +1159,14 @@
               idtime=varid
             CASE ('idbath')
               idbath=varid
+            CASE ('idpthR')
+              idpthR=varid
+            CASE ('idpthU')
+              idpthU=varid
+            CASE ('idpthV')
+              idpthV=varid
+            CASE ('idpthW')
+              idpthW=varid
             CASE ('idFsur')
               idFsur=varid
             CASE ('idRzet')
@@ -1288,6 +1321,8 @@
               idMineralFe=varid
             CASE ('idIronSed')
               idIronSed=varid
+            CASE ('idFeCoast')
+              idFeCoast=varid
             CASE ('idPwet')
               idPwet=varid
             CASE ('idRwet')
@@ -1530,10 +1565,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
-# ifdef UV_WAVEDRAG
+#ifdef UV_WAVEDRAG
             CASE ('idragW')
               idragW=varid
-# endif
+#endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')
@@ -1859,6 +1894,10 @@
               idVfx2=varid
 #endif
 #if defined FOUR_DVAR || defined VERIFICATION
+            CASE ('idBgEr')
+              idBgEr=varid
+            CASE ('idBgTh')
+              idBgTh=varid
             CASE ('idNLmi')
               idNLmi=varid
             CASE ('idNLmo')
@@ -1881,6 +1920,12 @@
               idOday=varid
             CASE ('idOerr')
               idOerr=varid
+            CASE ('idOlat')
+              idOlat=varid
+            CASE ('idOlon')
+              idOlon=varid
+            CASE ('idOpro')
+              idOpro=varid
             CASE ('idOtyp')
               idOtyp=varid
             CASE ('idOval')
@@ -1926,7 +1971,7 @@
               CASE ('idVnms')
                 idVnms=varid
 #endif
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
               CASE ('idUice')
                 idUice=varid
               CASE ('idVice')
@@ -1983,6 +2028,14 @@
                 idAIclm=varid
               CASE ('idHIclm')
                 idHIclm=varid
+              CASE ('idHSNclm')
+                idHSNclm=varid
+              CASE ('idS11clm')
+                idS11clm=varid
+              CASE ('idS12clm')
+                idS12clm=varid
+              CASE ('idS22clm')
+                idS22clm=varid
               CASE ('idUIclm')
                 idUIclm=varid
               CASE ('idVIclm')
@@ -2010,6 +2063,8 @@
 #  include <npzd_iron_var.h>
 # elif defined BIO_COBALT
 #  include <cobalt_var.h>
+# elif defined RED_TIDE
+#  include <red_tide_var.h>
 # endif
 # if defined NEMURO_SAN
 #  include <fish_var.h>
@@ -2048,6 +2103,49 @@
               CASE ('idTvar(inert(i))')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
+# ifdef AGE_MEAN
+                  ic=0
+                  DO i=1,NPT,2
+                    varid=varid+1
+                    ic=ic+1
+                    idTvar(inert(i))=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,i2.2)')                   &
+     &                    TRIM(ADJUSTL(Vinfo(1))), ic
+                    WRITE (Vname(2,varid),'(a,a,i2.2)')                 &
+     &                    TRIM(ADJUSTL(Vinfo(2))), ', type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+!
+                  ic=0
+                  DO i=2,NPT,2
+                    varid=varid+1
+                    ic=ic+1
+                    idTvar(inert(i))=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,i2.2,a)')                 &
+     &                    TRIM(ADJUSTL(Vinfo(1))), ic, '_age'
+                    WRITE (Vname(2,varid),'(a,i2.2)')                   &
+     &                    'age concentraction, type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'second kilogram meter-3'
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+# else
                   DO i=1,NPT
                     varid=varid+1
                     idTvar(inert(i))=varid
@@ -2066,6 +2164,7 @@
                     WRITE (Vname(5,varid),'(a)')                        &
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
+# endif
                 END IF
               CASE ('idTbry(iwest,inert(i))')
                 IF (NPT.gt.0) THEN
@@ -2209,40 +2308,6 @@
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
                 END IF
-            END SELECT
-# if defined AGE_PASSIVE || defined RESIDENCE_TIME
-            SELECT CASE (Vinfo(1))
-#  if defined RESIDENCE_TIME
-              CASE ('river_age_')
-                IF (NPT.gt.0) THEN
-                  varid=varid-1
-                  DO i=1,NPT
-                    varid=varid+1
-                    idRtrc(inert(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    IF (i.lt.100) THEN
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                     TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                     TRIM(ADJUSTL(Vinfo(2))), ', type ', i
-                    ELSE
-                      WRITE (Vname(1,varid),'(a,i3.3)')                 &
-     &                     TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i3.3)')               &
-     &                     TRIM(ADJUSTL(Vinfo(2))), ', type ', i
-                    END IF
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                END IF
-#  endif
               CASE ('age_west_')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
@@ -2360,7 +2425,6 @@
                   END DO
                 END IF
             END SELECT
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
 !
@@ -2847,7 +2911,7 @@
       ic=ic+1
       idBvar(ic)=idMtke
 # endif
-# ifdef ICE_MODEL
+# if defined ICE_MODEL
       ic=ic+11
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice

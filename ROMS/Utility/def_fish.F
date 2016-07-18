@@ -1615,6 +1615,253 @@
           FISHES(ng)%bioenergy(ifiniwth,l)=Tinp(l)
         END DO
 
+     !-----------------------------------------------------------------
+     ! RD : this whole section was missing :
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFdegg)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%egg_dur(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnegg)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%egg_num(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnysac)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%ysac_num(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFcsmPL)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifcsmPL,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFcsmPS)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifcsmPS,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFcsmZL)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifcsmZL,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFcsmZP)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifcsmZP,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFcsmZS)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifcsmZS,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFmortF)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%fmortF(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFmortN)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%fmortS(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFmortP)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%fmortP(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFmortS)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%fmortS(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFmrtPs)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%fmortPsum(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFpval)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifpval,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFresp)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%bioenergy(ifresp,l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFdjuv)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%juv_dur(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnjuv)),                   &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%juv_num(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFdlarv)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%larv_dur(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnlarv)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%larv_num(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnsuba)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%suba_num(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFdysac)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%ysac_dur(l)=Tinp(l)
+        END DO
+
+        CALL netcdf_get_fvar (ng, iNLM, ncname,                         &
+     &                        TRIM(Vname(1,idFnysac)),                  &
+     &                        Tinp,                                     &
+     &                        ncid = FISH(ng)%ncid,                     &
+     &                        start = (/1,FISH(ng)%Rindex/),            &
+     &                        total = (/Nfish(ng),1/))
+
+        DO l=1,Nfish(ng)
+          FISHES(ng)%ysac_num(l)=Tinp(l)
+        END DO
+
+
+     !-----------------------------------------------------------------
+
         CALL netcdf_get_ivar (ng, iNLM, ncname,                         &
      &                        'Fish_age_base',                          &
      &                        FISHES(ng)%age_base,                      &

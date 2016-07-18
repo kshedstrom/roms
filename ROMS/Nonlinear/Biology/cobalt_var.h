@@ -77,6 +77,9 @@
                  idTvar(ipo4)=varid
                CASE ('idTvar(ipdet)')
                  idTvar(ipdet)=varid
+#else
+               CASE ('idTvar(ipo4)')
+                 idTvar(ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -110,6 +113,12 @@
                  iDobgc(iohtotal)=varid
                CASE ('iDobgc(ioco3_ion)')
                  iDobgc(ioco3_ion)=varid
+               CASE ('iDobgc(iomu_mem_sm)')
+                 iDobgc(iomu_mem_sm)=varid
+               CASE ('iDobgc(iomu_mem_di)')
+                 iDobgc(iomu_mem_di)=varid
+               CASE ('iDobgc(iomu_mem_lg)')
+                 iDobgc(iomu_mem_lg)=varid
 
 !RD : diag variables
 !               CASE ('idTvar(icased)')
@@ -448,6 +457,15 @@
                  idTbry(isouth,ipdet)=varid
                CASE ('idTbry(inorth,ipdet)')
                  idTbry(inorth,ipdet)=varid
+#else
+               CASE ('idTbry(iwest,ipo4)')
+                 idTbry(iwest,ipo4)=varid
+               CASE ('idTbry(ieast,ipo4)')
+                 idTbry(ieast,ipo4)=varid
+               CASE ('idTbry(isouth,ipo4)')
+                 idTbry(isouth,ipo4)=varid
+               CASE ('idTbry(inorth,ipo4)')
+                 idTbry(inorth,ipo4)=varid
 #endif
 #ifdef COBALT_IRON
                ! Iron Dynamics
@@ -662,6 +680,9 @@
                  idRtrc(ipo4)=varid
                CASE ('idRtrc(ipdet)')
                  idRtrc(ipdet)=varid
+# else
+               CASE ('idRtrc(ipo4)')
+                 idRtrc(ipo4)=varid
 # endif
 # ifdef COBALT_IRON
                ! Iron Dynamics
@@ -686,30 +707,25 @@
                  idRtrc(ialk)=varid
 # endif
 
-
-
-
-!              CASE ('idRtrc(icased)')
-!                idRtrc(icased)=varid
-!              CASE ('idRtrc(ichl)')
-!                idRtrc(ichl)=varid
-!              CASE ('idRtrc(ico3_ion)')
-!                idRtrc(ico3_ion)=varid
-!              CASE ('idRtrc(icadet_arag_btf)')
-!                idRtrc(icadet_arag_btf)=varid
-!              CASE ('idRtrc(icadet_calc_btf)')
-!                idRtrc(icadet_calc_btf)=varid
-!              CASE ('idRtrc(indet_btf)')
-!                idRtrc(indet_btf)=varid
-!              CASE ('idRtrc(ipdet_btf)')
-!                idRtrc(ipdet_btf)=varid
-!              CASE ('idRtrc(isidet_btf)')
-!                idRtrc(isidet_btf)=varid
-!              CASE ('idRtrc(ihtotal)')
-!                idRtrc(ihtotal)=varid
-!              CASE ('idRtrc(iirr_mem)')
-!                idRtrc(iirr_mem)=varid
-
+! river as external forcing
+               CASE ('idriver_no3')
+                 idriver_no3=varid
+               CASE ('idriver_ldon')
+                 idriver_ldon=varid
+               CASE ('idriver_sldon')
+                 idriver_sldon=varid
+               CASE ('idriver_srdon')
+                 idriver_srdon=varid
+               CASE ('idriver_ndet')
+                 idriver_ndet=varid
+               CASE ('idriver_po4')
+                 idriver_po4=varid
+               CASE ('idriver_ldop')
+                 idriver_ldop=varid
+               CASE ('idriver_sldop')
+                 idriver_sldop=varid
+               CASE ('idriver_srdop')
+                 idriver_srdop=varid
 #ifdef DIAGNOSTICS_BIO
 !------------------------------------------------------
 !---  Biological tracers term diagnostics.
@@ -747,10 +763,10 @@
               CASE ('iDbio2(imxl_level)')
                 iDbio2(imxl_level)=varid
 
-              CASE ('iDbio2(ijprod_ndet_100)')
-                iDbio2(ijprod_ndet_100)=varid
-              CASE ('iDbio2(ijremin_ndet_100)')
-                iDbio2(ijremin_ndet_100)=varid
+!              CASE ('iDbio2(ijprod_ndet_100)')
+!                iDbio2(ijprod_ndet_100)=varid
+!              CASE ('iDbio2(ijremin_ndet_100)')
+!                iDbio2(ijremin_ndet_100)=varid
 
               CASE ('iDbio2(ialpha)')
                 iDbio2(ialpha)=varid
@@ -764,8 +780,10 @@
                 iDbio2(io2_flx)=varid
               CASE ('iDbio2(iironsed_flx)')
                 iDbio2(iironsed_flx)=varid
-              CASE ('iDbio2(indet_btm)')
-                iDbio2(indet_btm)=varid
+              CASE ('iDbio2(inpp_100)')
+                iDbio2(inpp_100)=varid
+              CASE ('iDbio2(imesozoo_200)')
+                iDbio2(imesozoo_200)=varid
 
 
               CASE ('iDbio3(ichl)')
@@ -781,42 +799,42 @@
               CASE ('iDbio3(iirr_inst)')
                 iDbio3(iirr_inst)=varid
 
-              CASE ('iDbio3(ijprod_cadet_arag)')
-                iDbio3(ijprod_cadet_arag)=varid
-              CASE ('iDbio3(ijprod_cadet_calc)')
-                iDbio3(ijprod_cadet_calc)=varid
-              CASE ('iDbio3(ijprod_fedet)')
-                iDbio3(ijprod_fedet)=varid
-              CASE ('iDbio3(ijprod_lithdet)')
-                iDbio3(ijprod_lithdet)=varid
-              CASE ('iDbio3(ijprod_ndet)')
-                iDbio3(ijprod_ndet)=varid
-              CASE ('iDbio3(ijprod_pdet)')
-                iDbio3(ijprod_pdet)=varid
-              CASE ('iDbio3(ijprod_sidet)')
-                iDbio3(ijprod_sidet)=varid
-              CASE ('iDbio3(ijdiss_cadet_arag)')
-                iDbio3(ijdiss_cadet_arag)=varid
-              CASE ('iDbio3(ijdiss_cadet_calc)')
-                iDbio3(ijdiss_cadet_calc)=varid
-              CASE ('iDbio3(ijremin_ndet)')
-                iDbio3(ijremin_ndet)=varid
-              CASE ('iDbio3(ijremin_pdet)')
-                iDbio3(ijremin_pdet)=varid
-              CASE ('iDbio3(ijremin_fedet)')
-                iDbio3(ijremin_fedet)=varid
-              CASE ('iDbio3(idet_jzloss_n)')
-                iDbio3(idet_jzloss_n)=varid
-              CASE ('iDbio3(idet_jzloss_p)')
-                iDbio3(idet_jzloss_p)=varid
-              CASE ('iDbio3(idet_jzloss_fe)')
-                iDbio3(idet_jzloss_fe)=varid
-              CASE ('iDbio3(idet_jhploss_n)')
-                iDbio3(idet_jhploss_n)=varid
-              CASE ('iDbio3(idet_jhploss_p)')
-                iDbio3(idet_jhploss_p)=varid
-              CASE ('iDbio3(idet_jhploss_fe)')
-                iDbio3(idet_jhploss_fe)=varid
+!              CASE ('iDbio3(ijprod_cadet_arag)')
+!                iDbio3(ijprod_cadet_arag)=varid
+!              CASE ('iDbio3(ijprod_cadet_calc)')
+!                iDbio3(ijprod_cadet_calc)=varid
+!              CASE ('iDbio3(ijprod_fedet)')
+!                iDbio3(ijprod_fedet)=varid
+!              CASE ('iDbio3(ijprod_lithdet)')
+!                iDbio3(ijprod_lithdet)=varid
+!              CASE ('iDbio3(ijprod_ndet)')
+!                iDbio3(ijprod_ndet)=varid
+!              CASE ('iDbio3(ijprod_pdet)')
+!                iDbio3(ijprod_pdet)=varid
+!              CASE ('iDbio3(ijprod_sidet)')
+!                iDbio3(ijprod_sidet)=varid
+!              CASE ('iDbio3(ijdiss_cadet_arag)')
+!                iDbio3(ijdiss_cadet_arag)=varid
+!              CASE ('iDbio3(ijdiss_cadet_calc)')
+!                iDbio3(ijdiss_cadet_calc)=varid
+!              CASE ('iDbio3(ijremin_ndet)')
+!                iDbio3(ijremin_ndet)=varid
+!              CASE ('iDbio3(ijremin_pdet)')
+!                iDbio3(ijremin_pdet)=varid
+!              CASE ('iDbio3(ijremin_fedet)')
+!                iDbio3(ijremin_fedet)=varid
+!              CASE ('iDbio3(idet_jzloss_n)')
+!                iDbio3(idet_jzloss_n)=varid
+!              CASE ('iDbio3(idet_jzloss_p)')
+!                iDbio3(idet_jzloss_p)=varid
+!              CASE ('iDbio3(idet_jzloss_fe)')
+!                iDbio3(idet_jzloss_fe)=varid
+!              CASE ('iDbio3(idet_jhploss_n)')
+!                iDbio3(idet_jhploss_n)=varid
+!              CASE ('iDbio3(idet_jhploss_p)')
+!                iDbio3(idet_jhploss_p)=varid
+!              CASE ('iDbio3(idet_jhploss_fe)')
+!                iDbio3(idet_jhploss_fe)=varid
               CASE ('iDbio3(ico3_sol_calc)')
                 iDbio3(ico3_sol_calc)=varid
               CASE ('iDbio3(ico3_sol_arag)')
@@ -825,20 +843,20 @@
                 iDbio3(ife_bulk_flx)=varid
 
 
-              CASE ('iDbio3(indet_b4sink)')
-                iDbio3(indet_b4sink)=varid
-              CASE ('iDbio3(ipdet_b4sink)')
-                iDbio3(ipdet_b4sink)=varid
-              CASE ('iDbio3(ifedet_b4sink)')
-                iDbio3(ifedet_b4sink)=varid
-              CASE ('iDbio3(indet_afsink)')
-                iDbio3(indet_afsink)=varid
-              CASE ('iDbio3(ipdet_afsink)')
-                iDbio3(ipdet_afsink)=varid
-              CASE ('iDbio3(ifedet_afsink)')
-                iDbio3(ifedet_afsink)=varid
-              CASE ('iDbio3(indet_flx)')
-                iDbio3(indet_flx)=varid
+!              CASE ('iDbio3(indet_b4sink)')
+!                iDbio3(indet_b4sink)=varid
+!              CASE ('iDbio3(ipdet_b4sink)')
+!                iDbio3(ipdet_b4sink)=varid
+!              CASE ('iDbio3(ifedet_b4sink)')
+!                iDbio3(ifedet_b4sink)=varid
+!              CASE ('iDbio3(indet_afsink)')
+!                iDbio3(indet_afsink)=varid
+!              CASE ('iDbio3(ipdet_afsink)')
+!                iDbio3(ipdet_afsink)=varid
+!              CASE ('iDbio3(ifedet_afsink)')
+!                iDbio3(ifedet_afsink)=varid
+!              CASE ('iDbio3(indet_flx)')
+!                iDbio3(indet_flx)=varid
 
               CASE ('iDbio3(iomega_cadet_calc)')
                 iDbio3(iomega_cadet_calc)=varid
@@ -846,6 +864,70 @@
                 iDbio3(iomega_cadet_arag)=varid
               CASE ('iDbio3(iswdk)')
                 iDbio3(iswdk)=varid
+              CASE ('iDbio3(imu_mem_sm)')
+                iDbio3(imu_mem_sm)=varid
+              CASE ('iDbio3(imu_mem_di)')
+                iDbio3(imu_mem_di)=varid
+              CASE ('iDbio3(imu_mem_lg)')
+                iDbio3(imu_mem_lg)=varid
+              CASE ('iDbio3(iagg_lim_sm)')
+                iDbio3(iagg_lim_sm)=varid
+              CASE ('iDbio3(iagg_lim_di)')
+                iDbio3(iagg_lim_di)=varid
+              CASE ('iDbio3(iagg_lim_lg)')
+                iDbio3(iagg_lim_lg)=varid
+
+              CASE ('iDbio3(iaggloss_di)')
+                iDbio3(iaggloss_di)=varid
+              CASE ('iDbio3(iaggloss_sm)')
+                iDbio3(iaggloss_sm)=varid
+              CASE ('iDbio3(iaggloss_lg)')
+                iDbio3(iaggloss_lg)=varid
+              CASE ('iDbio3(ivirloss_di)')
+                iDbio3(ivirloss_di)=varid
+              CASE ('iDbio3(ivirloss_sm)')
+                iDbio3(ivirloss_sm)=varid
+              CASE ('iDbio3(ivirloss_lg)')
+                iDbio3(ivirloss_lg)=varid
+              CASE ('iDbio3(izloss_di)')
+                iDbio3(izloss_di)=varid
+              CASE ('iDbio3(izloss_sm)')
+                iDbio3(izloss_sm)=varid
+              CASE ('iDbio3(izloss_lg)')
+                iDbio3(izloss_lg)=varid
+
+              CASE ('iDbio3(idef_fe_sm)')
+                iDbio3(idef_fe_sm)=varid
+              CASE ('iDbio3(idef_fe_di)')
+                iDbio3(idef_fe_di)=varid
+              CASE ('iDbio3(idef_fe_lg)')
+                iDbio3(idef_fe_lg)=varid
+              CASE ('iDbio3(ifelim_sm)')
+                iDbio3(ifelim_sm)=varid
+              CASE ('iDbio3(ifelim_di)')
+                iDbio3(ifelim_di)=varid
+              CASE ('iDbio3(ifelim_lg)')
+                iDbio3(ifelim_lg)=varid
+              CASE ('iDbio3(ino3lim_sm)')
+                iDbio3(ino3lim_sm)=varid
+              CASE ('iDbio3(ino3lim_di)')
+                iDbio3(ino3lim_di)=varid
+              CASE ('iDbio3(ino3lim_lg)')
+                iDbio3(ino3lim_lg)=varid
+              CASE ('iDbio3(inh4lim_sm)')
+                iDbio3(inh4lim_sm)=varid
+              CASE ('iDbio3(inh4lim_di)')
+                iDbio3(inh4lim_di)=varid
+              CASE ('iDbio3(inh4lim_lg)')
+                iDbio3(inh4lim_lg)=varid
+              CASE ('iDbio3(ipo4lim_sm)')
+                iDbio3(ipo4lim_sm)=varid
+              CASE ('iDbio3(ipo4lim_di)')
+                iDbio3(ipo4lim_di)=varid
+              CASE ('iDbio3(ipo4lim_lg)')
+                iDbio3(ipo4lim_lg)=varid
+
+
 #endif
 #ifdef BENTHIC
               CASE ('idBeTvar(icased)')

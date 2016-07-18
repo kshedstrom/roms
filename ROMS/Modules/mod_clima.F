@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -103,6 +103,33 @@
           real(r8), pointer :: tclmG(:,:,:,:,:)
 # endif
 #endif
+
+#ifdef ICE_MODEL
+          real(r8), pointer :: uiclm(:,:)
+          real(r8), pointer :: viclm(:,:)
+# ifndef ANA_MICLIMA
+          real(r8), pointer :: uiclmG(:,:,:)
+          real(r8), pointer :: viclmG(:,:,:)
+# endif
+
+          real(r8), pointer :: aiclm(:,:)
+          real(r8), pointer :: hiclm(:,:)
+          real(r8), pointer :: hsnclm(:,:)
+# ifndef ANA_AICLIMA
+          real(r8), pointer :: aiclmG(:,:,:)
+          real(r8), pointer :: hiclmG(:,:,:)
+          real(r8), pointer :: hsnclmG(:,:,:)
+# endif
+
+          real(r8), pointer :: sig11clm(:,:)
+          real(r8), pointer :: sig12clm(:,:)
+          real(r8), pointer :: sig22clm(:,:)
+# ifndef ANA_SICLIMA
+          real(r8), pointer :: sig11clmG(:,:,:)
+          real(r8), pointer :: sig12clmG(:,:,:)
+          real(r8), pointer :: sig22clmG(:,:,:)
+# endif
+#endif
 !
 !  Nudging coefficient arrays.
 !
@@ -111,6 +138,11 @@
           real(r8), pointer :: M3nudgcof(:,:,:)
 
           real(r8), pointer :: Tnudgcof(:,:,:,:)
+#endif
+#ifdef ICE_MODEL
+          real(r8), pointer :: MInudgcof(:,:)
+          real(r8), pointer :: AInudgcof(:,:)
+          real(r8), pointer :: SInudgcof(:,:)
 #endif
 
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
@@ -148,29 +180,6 @@
           real(r8), pointer :: oclmG(:,:,:,:)
 # endif
 #endif
-#ifdef AICLIMATOLOGY
-        real(r8), pointer :: aiclm(:,:)
-        real(r8), pointer :: hiclm(:,:)
-# ifndef ANA_AICLIMA
-        real(r8), pointer :: aiclmG(:,:,:)
-        real(r8), pointer :: hiclmG(:,:,:)
-# endif
-#endif
-#ifdef AICLM_NUDGING
-          real(r8), pointer :: AInudgcof(:,:)
-#endif
-#ifdef MICLIMATOLOGY
-          real(r8), pointer :: uiclm(:,:)
-          real(r8), pointer :: viclm(:,:)
-# ifndef ANA_MICLIMA
-          real(r8), pointer :: uiclmG(:,:,:)
-          real(r8), pointer :: viclmG(:,:,:)
-# endif
-#endif
-#ifdef MICLM_NUDGING
-          real(r8), pointer :: MInudgcof(:,:)
-#endif
-
         END TYPE T_CLIMA
 
         TYPE (T_CLIMA), allocatable :: CLIMA(:)
@@ -236,6 +245,39 @@
 # endif
       END IF
 #endif
+
+#ifdef ICE_MODEL
+      IF (LmiCLM(ng)) THEN
+        allocate ( CLIMA(ng) % uiclm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % viclm(LBi:UBi,LBj:UBj) )
+# ifndef ANA_MICLIMA
+        allocate ( CLIMA(ng) % uiclmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % viclmG(LBi:UBi,LBj:UBj,2) )
+# endif
+      END IF
+
+      IF (LaiCLM(ng)) THEN
+        allocate ( CLIMA(ng) % aiclm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % hiclm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % hsnclm(LBi:UBi,LBj:UBj) )
+# ifndef ANA_AICLIMA
+        allocate ( CLIMA(ng) % aiclmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % hiclmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % hsnclmG(LBi:UBi,LBj:UBj,2) )
+# endif
+      END IF
+
+      IF (LsiCLM(ng)) THEN
+        allocate ( CLIMA(ng) % sig11clm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % sig12clm(LBi:UBi,LBj:UBj) )
+        allocate ( CLIMA(ng) % sig22clm(LBi:UBi,LBj:UBj) )
+# ifndef ANA_SICLIMA
+        allocate ( CLIMA(ng) % sig11clmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % sig12clmG(LBi:UBi,LBj:UBj,2) )
+        allocate ( CLIMA(ng) % sig22clmG(LBi:UBi,LBj:UBj,2) )
+# endif
+      END IF
+#endif
 !
 !  Nudging coefficient arrays.
 !
@@ -252,6 +294,20 @@
         allocate ( CLIMA(ng) % Tnudgcof(LBi:UBi,LBj:UBj,N(ng),NTCLM(ng)) )
       END IF
 #endif
+#ifdef ICE_MODEL
+      IF (LnudgeMICLM(ng)) THEN
+        allocate ( CLIMA(ng) % MInudgcof(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (LnudgeAICLM(ng)) THEN
+        allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj) )
+      END IF
+
+      IF (LnudgeSICLM(ng)) THEN
+        allocate ( CLIMA(ng) % SInudgcof(LBi:UBi,LBj:UBj) )
+      END IF
+#endif
+
 
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -290,29 +346,6 @@
       allocate ( CLIMA(ng) % oclmG(LBi:UBi,LBj:UBj,0:N(ng),2) )
 # endif
 #endif
-#ifdef AICLIMATOLOGY
-      allocate ( CLIMA(ng) % aiclm(LBi:UBi,LBj:UBj) )
-      allocate ( CLIMA(ng) % hiclm(LBi:UBi,LBj:UBj) )
-# ifndef ANA_AICLIMA
-      allocate ( CLIMA(ng) % aiclmG(LBi:UBi,LBj:UBj,2) )
-      allocate ( CLIMA(ng) % hiclmG(LBi:UBi,LBj:UBj,2) )
-# endif
-#endif
-#ifdef AICLM_NUDGING
-      allocate ( CLIMA(ng) % AInudgcof(LBi:UBi,LBj:UBj) )
-#endif
-#ifdef MICLIMATOLOGY
-      allocate ( CLIMA(ng) % uiclm(LBi:UBi,LBj:UBj) )
-      allocate ( CLIMA(ng) % viclm(LBi:UBi,LBj:UBj) )
-# ifndef ANA_MICLIMA
-      allocate ( CLIMA(ng) % uiclmG(LBi:UBi,LBj:UBj,2) )
-      allocate ( CLIMA(ng) % viclmG(LBi:UBi,LBj:UBj,2) )
-# endif
-#endif
-#ifdef MICLM_NUDGING
-      allocate ( CLIMA(ng) % MInudgcof(LBi:UBi,LBj:UBj) )
-#endif
-
       RETURN
       END SUBROUTINE allocate_clima
 
@@ -445,6 +478,59 @@
         END DO
       END IF
 #endif
+
+#ifdef ICE_MODEL
+      IF (LmiCLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % uiclm(i,j) = IniVal
+            CLIMA(ng) % viclm(i,j) = IniVal
+# ifndef ANA_MICLIMA
+            CLIMA(ng) % uiclmG(i,j,1) = IniVal
+            CLIMA(ng) % uiclmG(i,j,2) = IniVal
+            CLIMA(ng) % viclmG(i,j,1) = IniVal
+            CLIMA(ng) % viclmG(i,j,2) = IniVal
+# endif
+          END DO
+        END DO
+      END IF
+
+      IF (LaiCLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % aiclm(i,j) = IniVal
+            CLIMA(ng) % hiclm(i,j) = IniVal
+            CLIMA(ng) % hsnclm(i,j) = IniVal
+# ifndef ANA_AICLIMA
+            CLIMA(ng) % aiclmG(i,j,1) = IniVal
+            CLIMA(ng) % aiclmG(i,j,2) = IniVal
+            CLIMA(ng) % hiclmG(i,j,1) = IniVal
+            CLIMA(ng) % hiclmG(i,j,2) = IniVal
+            CLIMA(ng) % hsnclmG(i,j,1) = IniVal
+            CLIMA(ng) % hsnclmG(i,j,2) = IniVal
+# endif
+          END DO
+        END DO
+      END IF
+
+      IF (LsiCLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % sig11clm(i,j) = IniVal
+            CLIMA(ng) % sig12clm(i,j) = IniVal
+            CLIMA(ng) % sig22clm(i,j) = IniVal
+# ifndef ANA_AICLIMA
+            CLIMA(ng) % sig11clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig12clmG(i,j,2) = IniVal
+            CLIMA(ng) % sig22clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig11clmG(i,j,2) = IniVal
+            CLIMA(ng) % sig12clmG(i,j,1) = IniVal
+            CLIMA(ng) % sig22clmG(i,j,2) = IniVal
+# endif
+          END DO
+        END DO
+      END IF
+#endif
 !
 !  Nudging coefficient arrays.
 !
@@ -476,6 +562,32 @@
                 CLIMA(ng) % Tnudgcof(i,j,k,itrc) = IniVal
               END DO
             END DO
+          END DO
+        END DO
+      END IF
+#endif
+
+#ifdef ICE_MODEL
+      IF (LnudgeMICLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % MInudgcof(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (LnudgeAICLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % AInudgcof(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+
+      IF (LnudgeSICLM(ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            CLIMA(ng) % SInudgcof(i,j) = IniVal
           END DO
         END DO
       END IF
@@ -550,48 +662,6 @@
             CLIMA(ng) % oclmG(i,j,k,2) = IniVal
 # endif
           END DO
-        END DO
-      END DO
-#endif
-#ifdef AICLIMATOLOGY
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          CLIMA(ng) % aiclm(i,j) = IniVal
-          CLIMA(ng) % hiclm(i,j) = IniVal
-# ifndef ANA_AICLIMA
-          CLIMA(ng) % aiclmG(i,j,1) = IniVal
-          CLIMA(ng) % aiclmG(i,j,2) = IniVal
-          CLIMA(ng) % hiclmG(i,j,1) = IniVal
-          CLIMA(ng) % hiclmG(i,j,2) = IniVal
-# endif
-        END DO
-      END DO
-#endif
-#ifdef AICLM_NUDGING
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          CLIMA(ng) % AInudgcof(i,j) = IniVal
-        END DO
-      END DO
-#endif
-#ifdef MICLIMATOLOGY
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          CLIMA(ng) % uiclm(i,j) = IniVal
-          CLIMA(ng) % viclm(i,j) = IniVal
-# ifndef ANA_MICLIMA
-          CLIMA(ng) % uiclmG(i,j,1) = IniVal
-          CLIMA(ng) % uiclmG(i,j,2) = IniVal
-          CLIMA(ng) % viclmG(i,j,1) = IniVal
-          CLIMA(ng) % viclmG(i,j,2) = IniVal
-# endif
-        END DO
-      END DO
-#endif
-#ifdef MICLM_NUDGING
-      DO j=Jmin,Jmax
-        DO i=Imin,Imax
-          CLIMA(ng) % MInudgcof(i,j) = IniVal
         END DO
       END DO
 #endif

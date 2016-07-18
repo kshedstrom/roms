@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                        **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                        **
 **   Licensed under a MIT/X style license                             **
 **   See License_ROMS.txt                                             **
 ************************************************************************
@@ -87,10 +87,20 @@
               CASE ('idTvar(iTAlk)')
                 idTvar(iTAlk)=varid
 #endif
-# ifdef PRIMARY_PROD
+#ifdef IRON_LIMIT
+              CASE ('idTvar(iS1_Fe)')
+                idTvar(iS1_Fe)=varid
+              CASE ('idTvar(iS2_Fe)')
+                idTvar(iS2_Fe)=varid
+              CASE ('idTvar(iS3_Fe)')
+                idTvar(iS3_Fe)=varid
+              CASE ('idTvar(iFeD_)')
+                idTvar(iFeD_)=varid
+#endif
+#ifdef PRIMARY_PROD
               CASE ('idNPP')
                 idNPP=varid
-# endif
+#endif
 
 !
 !  Biological tracers open boundary conditions.
@@ -349,6 +359,41 @@
               CASE ('idTbry(inorth,iTAlk)')
                 idTbry(inorth,iTAlk)=varid
 #endif
+# ifdef IRON_LIMIT
+              CASE ('idTbry(iwest,iS1_Fe)')
+                idTbry(iwest,iS1_Fe)=varid
+              CASE ('idTbry(ieast,iS1_Fe)')
+                idTbry(ieast,iS1_Fe)=varid
+              CASE ('idTbry(isouth,iS1_Fe)')
+                idTbry(isouth,iS1_Fe)=varid
+              CASE ('idTbry(inorth,iS1_Fe)')
+                idTbry(inorth,iS1_Fe)=varid
+              CASE ('idTbry(iwest,iS2_Fe)')
+                idTbry(iwest,iS2_Fe)=varid
+              CASE ('idTbry(ieast,iS2_Fe)')
+                idTbry(ieast,iS2_Fe)=varid
+              CASE ('idTbry(isouth,iS2_Fe)')
+                idTbry(isouth,iS2_Fe)=varid
+              CASE ('idTbry(inorth,iS2_Fe)')
+                idTbry(inorth,iS2_Fe)=varid
+              CASE ('idTbry(iwest,iS3_Fe)')
+                idTbry(iwest,iS3_Fe)=varid
+              CASE ('idTbry(ieast,iS3_Fe)')
+                idTbry(ieast,iS3_Fe)=varid
+              CASE ('idTbry(isouth,iS3_Fe)')
+                idTbry(isouth,iS3_Fe)=varid
+              CASE ('idTbry(inorth,iS3_Fe)')
+                idTbry(inorth,iS3_Fe)=varid
+              CASE ('idTbry(iwest,iFeD_)')
+                idTbry(iwest,iFeD_)=varid
+              CASE ('idTbry(ieast,iFeD_)')
+                idTbry(ieast,iFeD_)=varid
+              CASE ('idTbry(isouth,iFeD_)')
+                idTbry(isouth,iFeD_)=varid
+              CASE ('idTbry(inorth,iFeD_)')
+                idTbry(inorth,iFeD_)=varid
+# endif
+
 !
 !  Biological tracers point Source/Sinks (river runoff).
 !
@@ -409,7 +454,6 @@
                 idRtrc(iCSDC)=varid
               CASE ('idRtrc(iDDCA)')
                 idRtrc(iDDCA)=varid
-
 #ifdef OXYGEN
               CASE ('idRtrc(iOxyg)')
                 idRtrc(iOxyg)=varid
@@ -420,6 +464,17 @@
               CASE ('idRtrc(iTAlk)')
                 idRtrc(iTAlk)=varid
 #endif
+#ifdef IRON_LIMIT
+              CASE ('idRtrc(iS1_Fe)')
+                idRtrc(iS1_Fe)=varid
+              CASE ('idRtrc(iS2_Fe)')
+                idRtrc(iS2_Fe)=varid
+              CASE ('idRtrc(iS3_Fe)')
+                idRtrc(iS3_Fe)=varid
+              CASE ('idRtrc(iFeD_)')
+                idRtrc(iFeD_)=varid
+#endif
+
 #ifdef DIAGNOSTICS_BIO
 /*
 **  Biological tracers term diagnostics.

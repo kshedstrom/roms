@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -473,7 +473,7 @@
 !
       zbeta=cg_delta(1,outLoop)
       bvector(1)=DotProd(1)/zbeta
-      DO i=2,Ninner-1
+      DO i=2,Ninner
         zgamma(i)=cg_beta(i,outLoop)/zbeta
         zbeta=cg_delta(i,outLoop)-cg_beta(i,outLoop)*zgamma(i)
         bvector(i)=(DotProd(i)-cg_beta(i,outLoop)*bvector(i-1))/zbeta
@@ -481,7 +481,7 @@
 !
 !  Back substitution.
 !
-      DO i=Ninner-2,1,-1
+      DO i=Ninner-1,1,-1
         bvector(i)=bvector(i)-zgamma(i+1)*bvector(i+1)
       END DO
 !
@@ -528,7 +528,7 @@
       ELSE
         Lwrk=3-Ladj
       END IF
-      DO inner=1,Ninner-1                 ! last 2 records ignored
+      DO inner=1,Ninner                 ! last record ignored
         IF (ndefLCZ.gt.0) THEN
           lstr=LEN_TRIM(LCZ(ng)%name)
           WRITE (ncname,10) LCZ(ng)%name(1:lstr-8), inner

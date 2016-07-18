@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,8 @@
 !    BLK       Input bulk fluxes data in adjoint-based applications    !
 !    BRY       Input open boundary conditions data                     !
 !    CLM       Input climatology data                                  !
+!    DAI       Output data assimilation next cycle initial conditions  !
+!                (4D-Var analysis) or restart (Ensemble Kalman Filter) !
 !    DAV       Output 4D-Var data assimilation variables               !
 !    DIA       Output diagnostics fields                               !
 !    ERR       Output 4DVar posterior error estimate                   !
@@ -36,6 +38,7 @@
 !    IPR       Input representer model initial conditions              !
 !    ITL       Input tangent linear model initial conditions           !
 !    LCZ       Input/output Lanczos vectors                            !
+!    LZE       Input/output time-evolved Lanczos vectors               !
 !    NRM       Input/output error covariance normalization data        !
 !                NRM(1,ng)  initial conditions                         !
 !                NRM(2,ng)  model error                                !
@@ -109,6 +112,7 @@
       TYPE(T_IO), allocatable :: AVG(:)     ! time-averaged fields
       TYPE(T_IO), allocatable :: AVG2(:)    ! secondary averaged fields
       TYPE(T_IO), allocatable :: BLK(:)     ! bulk fluxes fields
+      TYPE(T_IO), allocatable :: DAI(:)     ! Data assilation IC/restart
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
@@ -127,6 +131,7 @@
       TYPE(T_IO), allocatable :: IRP(:)     ! RPM initial conditions
       TYPE(T_IO), allocatable :: ITL(:)     ! TLM initial conditions
       TYPE(T_IO), allocatable :: LCZ(:)     ! Lanczos vectors
+      TYPE(T_IO), allocatable :: LZE(:)     ! evolved Lanczos vectors
       TYPE(T_IO), allocatable :: NRM(:,:)   ! normalization
       TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
@@ -226,6 +231,7 @@
       allocate ( AVG(Ngrids) )
       allocate ( AVG2(Ngrids) )
       allocate ( BLK(Ngrids) )
+      allocate ( DAI(Ngrids) )
       allocate ( DAV(Ngrids) )
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
@@ -249,6 +255,7 @@
       allocate ( IRP(Ngrids) )
       allocate ( ITL(Ngrids) )
       allocate ( LCZ(Ngrids) )
+      allocate ( LZE(Ngrids) )
       allocate ( NUD(Ngrids) )
       allocate ( OBS(Ngrids) )
       allocate ( RST(Ngrids) )

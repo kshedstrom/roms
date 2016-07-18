@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -223,15 +223,15 @@
 
           real(r8), pointer :: sustr(:,:)
           real(r8), pointer :: svstr(:,:)
-#if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
+# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
       BULK_FLUXES2D || defined NL_BULK_FLUXES
           real(r8), pointer :: sustrG(:,:,:)
           real(r8), pointer :: svstrG(:,:,:)
 # endif
-#ifdef ADJUST_WSTRESS
+# ifdef ADJUST_WSTRESS
           real(r8), pointer :: ustr(:,:,:,:)
           real(r8), pointer :: vstr(:,:,:,:)
-#endif
+# endif
           real(r8), pointer :: bustr(:,:)
           real(r8), pointer :: bvstr(:,:)
 #endif
@@ -315,6 +315,8 @@
 #endif
 #ifdef CICE_MODEL
           real(r8), pointer :: PotT(:,:)
+          real(r8), pointer :: LW_down(:,:)
+          real(r8), pointer :: SW_down(:,:)
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -344,6 +346,26 @@
 #  if defined ALBEDO_CLOUD
           real(r8), pointer :: cawdir(:,:)
 #  endif
+#  ifdef BIO_COBALT
+          real(r8), pointer :: river_no3(:,:)
+          real(r8), pointer :: river_no3G(:,:,:)
+          real(r8), pointer :: river_ldon(:,:)
+          real(r8), pointer :: river_ldonG(:,:,:)
+          real(r8), pointer :: river_sldon(:,:)
+          real(r8), pointer :: river_sldonG(:,:,:)
+          real(r8), pointer :: river_srdon(:,:)
+          real(r8), pointer :: river_srdonG(:,:,:)
+          real(r8), pointer :: river_ndet(:,:)
+          real(r8), pointer :: river_ndetG(:,:,:)
+          real(r8), pointer :: river_po4(:,:)
+          real(r8), pointer :: river_po4G(:,:,:)
+          real(r8), pointer :: river_ldop(:,:)
+          real(r8), pointer :: river_ldopG(:,:,:)
+          real(r8), pointer :: river_sldop(:,:)
+          real(r8), pointer :: river_sldopG(:,:,:)
+          real(r8), pointer :: river_srdop(:,:)
+          real(r8), pointer :: river_srdopG(:,:,:)
+#  endif
 #  ifdef COBALT_CARBON
           real(r8), pointer :: atmCO2(:,:)
           real(r8), pointer :: atmCO2G(:,:,:)
@@ -355,6 +377,8 @@
           real(r8), pointer :: mineral_feG(:,:,:)
           real(r8), pointer :: ironsed(:,:)
           real(r8), pointer :: ironsedG(:,:,:)
+          real(r8), pointer :: fecoast(:,:)
+          real(r8), pointer :: fecoastG(:,:,:)
 #  endif
 # endif
 
@@ -364,11 +388,16 @@
           real(r8), pointer :: tau_aix_n(:,:)
           real(r8), pointer :: tau_aiy_n(:,:)
           real(r8), pointer :: qai_n(:,:)
+          real(r8), pointer :: qi_o_n(:,:)
           real(r8), pointer :: qswi_n(:,:)
           real(r8), pointer :: qao_n(:,:)
           real(r8), pointer :: snow_n(:,:)
           real(r8), pointer :: p_e_n(:,:)
 # endif 
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+          real(r8), pointer :: srflx_avg(:,:)
+          real(r8), pointer :: srflxG_avg(:,:,:)
+# endif
 
 # ifdef CLOUDS
           real(r8), pointer :: cloud(:,:)
@@ -458,6 +487,9 @@
 # ifdef ECOSIM
           real(r8), pointer :: SpecIr(:,:,:)
           real(r8), pointer :: avcos(:,:,:)
+# endif
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
+          real(r8), pointer :: chl(:,:,:)
 # endif
 #endif
 
@@ -743,6 +775,8 @@
 #endif
 #ifdef CICE_MODEL
       allocate ( FORCES(ng) % PotT(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % LW_down(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % SW_down(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -774,6 +808,26 @@
 #  if defined ALBEDO_CLOUD
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
 #  endif
+#  ifdef BIO_COBALT
+      allocate ( FORCES(ng) % river_no3(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_no3G(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ldon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ldonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_sldon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_sldonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_srdon(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_srdonG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ndet(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ndetG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_po4(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_po4G(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_ldop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_ldopG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_sldop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_sldopG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_srdop(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_srdopG(LBi:UBi,LBj:UBj,2) )
+#  endif
 #  ifdef COBALT_CARBON
       allocate ( FORCES(ng) % atmCO2(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % atmCO2G(LBi:UBi,LBj:UBj,2) )
@@ -785,6 +839,8 @@
       allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
 
@@ -794,10 +850,16 @@
       allocate ( FORCES(ng) % tau_aix_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % tau_aiy_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qai_n(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % qi_o_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qswi_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qao_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % snow_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % p_e_n(LBi:UBi,LBj:UBj) )
+# endif
+
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+      allocate ( FORCES(ng) % srflx_avg(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % srflxG_avg(LBi:UBi,LBj:UBj,2) )
 # endif
 
 # ifdef CLOUDS
@@ -899,6 +961,9 @@
 # ifdef ECOSIM
       allocate ( FORCES(ng) % SpecIr(LBi:UBi,LBj:UBj,NBands) )
       allocate ( FORCES(ng) % avcos(LBi:UBi,LBj:UBj,NBands) )
+# endif
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
 # endif
 
 #endif
@@ -1262,6 +1327,8 @@
 #endif
 #ifdef CICE_MODEL
             FORCES(ng) % PotT(i,j) = IniVal
+            FORCES(ng) % LW_down(i,j) = IniVal
+            FORCES(ng) % SW_down(i,j) = IniVal
 #endif
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
      defined CCSM_FLUXES2D
@@ -1292,6 +1359,35 @@
 #  if defined ALBEDO_CLOUD
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
+#  ifdef BIO_COBALT
+            FORCES(ng) % river_no3(i,j) = IniVal
+            FORCES(ng) % river_no3G(i,j,1) = IniVal
+            FORCES(ng) % river_no3G(i,j,2) = IniVal
+            FORCES(ng) % river_ldon(i,j) = IniVal
+            FORCES(ng) % river_ldonG(i,j,1) = IniVal
+            FORCES(ng) % river_ldonG(i,j,2) = IniVal
+            FORCES(ng) % river_sldon(i,j) = IniVal
+            FORCES(ng) % river_sldonG(i,j,1) = IniVal
+            FORCES(ng) % river_sldonG(i,j,2) = IniVal
+            FORCES(ng) % river_srdon(i,j) = IniVal
+            FORCES(ng) % river_srdonG(i,j,1) = IniVal
+            FORCES(ng) % river_srdonG(i,j,2) = IniVal
+            FORCES(ng) % river_ndet(i,j) = IniVal
+            FORCES(ng) % river_ndetG(i,j,1) = IniVal
+            FORCES(ng) % river_ndetG(i,j,2) = IniVal
+            FORCES(ng) % river_po4(i,j) = IniVal
+            FORCES(ng) % river_po4G(i,j,1) = IniVal
+            FORCES(ng) % river_po4G(i,j,2) = IniVal
+            FORCES(ng) % river_ldop(i,j) = IniVal
+            FORCES(ng) % river_ldopG(i,j,1) = IniVal
+            FORCES(ng) % river_ldopG(i,j,2) = IniVal
+            FORCES(ng) % river_sldop(i,j) = IniVal
+            FORCES(ng) % river_sldopG(i,j,1) = IniVal
+            FORCES(ng) % river_sldopG(i,j,2) = IniVal
+            FORCES(ng) % river_srdop(i,j) = IniVal
+            FORCES(ng) % river_srdopG(i,j,1) = IniVal
+            FORCES(ng) % river_srdopG(i,j,2) = IniVal
+#  endif
 #  ifdef COBALT_CARBON
             FORCES(ng) % atmCO2(i,j) = IniVal
             FORCES(ng) % atmCO2G(i,j,1) = IniVal
@@ -1307,6 +1403,9 @@
             FORCES(ng) % ironsed(i,j) = IniVal
             FORCES(ng) % ironsedG(i,j,1) = IniVal
             FORCES(ng) % ironsedG(i,j,2) = IniVal
+            FORCES(ng) % fecoast(i,j) = IniVal
+            FORCES(ng) % fecoastG(i,j,1) = IniVal
+            FORCES(ng) % fecoastG(i,j,2) = IniVal
 #  endif
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -1315,10 +1414,16 @@
             FORCES(ng) % tau_aix_n(i,j) = IniVal
             FORCES(ng) % tau_aiy_n(i,j) = IniVal
             FORCES(ng) % qai_n(i,j) = IniVal
+            FORCES(ng) % qi_o_n(i,j) = IniVal
             FORCES(ng) % qswi_n(i,j) = IniVal
             FORCES(ng) % qao_n(i,j) = IniVal
             FORCES(ng) % snow_n(i,j) = IniVal
             FORCES(ng) % p_e_n(i,j) = IniVal
+# endif
+# if defined RED_TIDE && defined DAILY_SHORTWAVE
+            FORCES(ng) % srflx_avg(i,j) = IniVal
+            FORCES(ng) % srflxG_avg(i,j,1) = IniVal
+            FORCES(ng) % srflxG_avg(i,j,2) = IniVal
 # endif
 # ifdef CLOUDS
             FORCES(ng) % cloud(i,j) = IniVal
@@ -1428,6 +1533,11 @@
             DO itrc=1,NBands
               FORCES(ng) % SpecIr(i,j,itrc) = IniVal
               FORCES(ng) % avcos(i,j,itrc) = IniVal
+            END DO
+# endif
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
+            DO k=1,N(ng)
+              FORCES(ng) % chl(i,j,k) = IniVal
             END DO
 # endif
 #endif

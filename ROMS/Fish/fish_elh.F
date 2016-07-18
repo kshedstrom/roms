@@ -188,9 +188,14 @@
 !  Compute growth and/or mortality terms for early life stages
 !-----------------------------------------------------------------------
 !
-!      dtdays=dt(ng)*sec2day
-      dtsecs=4.0_r8*dt(ng)
-      dtdays=4.0_r8*dt(ng)*sec2day
+!!      dtdays=dt(ng)*sec2day
+!      dtsecs=4.0_r8*dt(ng)
+!      dtdays=4.0_r8*dt(ng)*sec2day
+! RD BUG above, we call fish every hour dtsecs = 3600, dtdays = 3600 * sec2day
+! if we decide to change the frequency we call fish, we'll have to change this :
+      dtsecs=3600.0_r8
+      dtdays=3600.0_r8*sec2day
+
 ! dy_time: time in days, modulo days_year
 ! Note: only works if time origin is at the start of a year
       dy_time=REAL(INT(time(ng)/86400.0_r8/days_year))

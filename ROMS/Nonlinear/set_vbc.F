@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -31,7 +31,7 @@
       USE mod_grid
       USE mod_forces
       USE mod_ocean
-# ifdef ICE_MODEL
+# if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice
 # endif
       USE mod_stepping
@@ -112,9 +112,14 @@
 #  endif
 #  ifdef ICE_MODEL
      &                   FORCES(ng) % qao_n,                            &
-#    ifdef NO_SCORRECTION_ICE
+#  endif
+#  if defined ICE_MODEL || defined CICE_MODEL
+#   ifdef NO_SCORRECTION_ICE
      &                   ICE(ng) % ai,                                  &
-#    endif
+#   endif
+#  endif
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+     &                   FORCES(ng) % chl,                              &
 #  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
@@ -186,9 +191,14 @@
 #  endif
 #  ifdef ICE_MODEL
      &                         qao_n,                                   &
-#    ifdef NO_SCORRECTION_ICE
+#  endif
+#  if defined ICE_MODEL || defined CICE_MODEL
+#   ifdef NO_SCORRECTION_ICE
      &                         ai,                                      &
-#    endif
+#   endif
+#  endif
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+     &                         chl,                                     &
 #  endif
      &                         stflx, btflx)
 !***********************************************************************
@@ -199,6 +209,9 @@
       USE bc_2d_mod
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
+# endif
+# if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      USE mod_biology, ONLY : iS1CH, iS2CH, iS3CH
 # endif
 !
 !  Imported variable declarations.
@@ -270,9 +283,16 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:,LBj:)
-#    ifdef NO_SCORRECTION_ICE
+#   endif
+#   ifdef NO_SCORRECTION_ICE
+#    ifdef ICE_MODEL
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
+#    elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:,LBj:)
 #    endif
+#   endif
+#   if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      real(r8), intent(out) :: chl(LBi:,LBj:,:)
 #   endif
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
       real(r8), intent(inout) :: btflx(LBi:,LBj:,:)
@@ -335,9 +355,16 @@
 #   endif
 #   ifdef ICE_MODEL
       real(r8), intent(inout) :: qao_n(LBi:UBi,LBj:UBj)
-#    ifdef NO_SCORRECTION_ICE
+#   endif
+#   ifdef NO_SCORRECTION_ICE
+#    if defined ICE_MODEL
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+#    elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj)
 #    endif
+#   endif
+#   if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      real(r8), intent(out) :: chl(LBi:UBi,LBj:UBj,N(ng))
 #   endif
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(inout) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
@@ -345,7 +372,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, j
+      integer :: i, j, k
 
 # ifdef ICESHELF
 
@@ -365,7 +392,8 @@
 #  endif
 # endif
 
-#  if !defined BBL_MODEL || defined ICESHELF
+#  if !defined BBL_MODEL || defined ICESHELF || \
+       defined LIMIT_STFLX_COOLING
       real(r8) :: cff, cff1, cff2, cff3
 #  endif
 
@@ -373,7 +401,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: wrk
 #  endif
 
-#  if defined ICE_MODEL && defined NO_SCORRECTION_ICE
+#  ifdef NO_SCORRECTION_ICE
       real(r8) :: fac_ice
 #  endif
       real(r8), parameter :: eps = 1.e-20_r8
@@ -398,6 +426,35 @@
         END DO
       END DO
 #  endif
+
+#  ifdef LIMIT_STFLX_COOLING
+!
+!-----------------------------------------------------------------------
+!  If net heat flux is cooling and SST is at freezing point or below
+!  then suppress further cooling. Note: stflx sign convention is that
+!  positive means heating the ocean (J Wilkin).
+!-----------------------------------------------------------------------
+!
+!  Below the surface heat flux stflx(:,:,itemp) is ZERO if cooling AND
+!  the SST is cooler that the threshold.  The value is retained if
+!  warming.
+!
+!    cff3 = 0      if SST warmer than threshold (cff1) - change nothing
+!    cff3 = 1      if SST colder than threshold (cff1)
+!
+!    0.5*(cff2-ABS(cff2)) = 0                        if flux is warming
+!                         = stflx(:,:,itemp)         if flux is cooling
+!
+      cff1=-2.0_r8              ! nominal SST threshold to cease cooling
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          cff2=stflx(i,j,itemp)
+          cff3=0.5_r8*(1.0_r8+SIGN(1.0_r8,cff1-t(i,j,N(ng),nrhs,itemp)))
+          stflx(i,j,itemp)=cff2-cff3*0.5_r8*(cff2-ABS(cff2))
+        END DO
+      END DO
+#  endif
+
 #  ifdef SALINITY
 !
 !-----------------------------------------------------------------------
@@ -408,10 +465,14 @@
       DO j=JstrR,JendR
         DO i=IstrR,IendR
 #   if defined SCORRECTION
-#     ifdef ICE_THERMO
+#     if defined ICE_MODEL || defined CICE_MODEL
 #      ifdef NO_SCORRECTION_ICE
           fac_ice = 1.0_r8
+#ifdef ICE_MODEL
           IF(ai(i,j,liold).GE.0.1_r8) fac_ice = 0.0_r8
+#else
+          IF(ai(i,j).GE.0.1_r8) fac_ice = 0.0_r8
+#endif
 #      endif
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
 #      ifdef NO_SCORRECTION_ICE
@@ -961,6 +1022,17 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    bustr, bvstr)
 #   endif
+#  endif
+
+#  if defined OPTIC_MANIZZA && !defined BIO_COBALT
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=IstrU,Iend
+            chl(i,j,k) = t(i,j,N(ng),nrhs,iS1CH) +                      &
+     &              t(i,j,N(ng),nrhs,iS2CH) + t(i,j,N(ng),nrhs,iS3CH)
+          END DO
+        END DO
+      END DO
 #  endif
 
       RETURN

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -186,15 +186,27 @@
 !
       IF (Hout(idbath,ng)) THEN
         scale=1.0_r8
+# ifdef PERFECT_RESTART
+        gtype=gfactor*r3dvar
+        status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath), &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, 3, scale,             &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     GRID(ng) % h,                                &
+     &                     SetFillVal = .FALSE.)
+# else
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath), &
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
-# ifdef MASKING
+#  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
-# endif
+#  endif
      &                     GRID(ng) % h,                                &
      &                     SetFillVal = .FALSE.)
+# endif
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idbath)), RST(ng)%Rindex

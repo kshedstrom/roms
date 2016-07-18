@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -13,11 +13,9 @@
 */
 
 #undef NO_HIS
-#undef GLOBAL_PERIODIC
-#undef NETCDF4
-#undef PARALLEL_IO
+#define HDF5
+#define DEFLATE
 #define PERFECT_RESTART
-#undef NO_LBC_ATT
 
 /* general */
 
@@ -27,7 +25,9 @@
 #define SOLVE3D
 #define SALINITY
 #ifdef SOLVE3D
-# define SPLINES
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
+# define RI_SPLINES
 #endif
 #define FLOATS
 #define STATIONS
@@ -40,7 +40,7 @@
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
-# define AGE_PASSIVE
+# define AGE_MEAN
 #endif
 
 /* ice */
@@ -48,7 +48,7 @@
 #ifdef SOLVE3D
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE
+#  define ANA_ICE
 #  undef  OUTFLOW_MASK
 #  undef  FASTICE_CLIMATOLOGY
 #  define  ICE_THERMO
@@ -61,9 +61,7 @@
 #  define  ICE_SMOLAR
 #  define  ICE_UPWIND
 #  define  ICE_BULK_FLUXES
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
+#  define  ICE_I_O
 # endif
 #endif
 
@@ -77,7 +75,6 @@
 #define AVERAGES
 #undef AVERAGES2
 #ifdef SOLVE3D
-# undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
 #endif
 #undef DIAGNOSTICS_UV
@@ -90,7 +87,6 @@
 
 #define UV_ADV
 #define UV_COR
-#undef UV_SADVECTION
 
 #ifdef SOLVE3D
 # undef TS_A4HADVECTION
@@ -160,21 +156,24 @@
 #  undef ALBEDO_FILE  /* for both */
 #  undef LONGWAVE
 # endif
+# define SCORRECTION
+#else
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
 #endif
 
 /* surface and side corrections */
 
 #ifdef SOLVE3D
-# define SCORRECTION
 # define NO_SCORRECTION_ICE
-# undef QCORRECTION
 #endif
 
 /* point sources (rivers, line sources) */
 
-/* Using Runoff now */
+/* Not using Runoff now */
 #ifdef SOLVE3D
-# undef RUNOFF
+# define RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
@@ -182,7 +181,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
@@ -191,7 +192,6 @@
 # define TIDES_ASTRO
 # undef POT_TIDES
 
-# undef UV_LDRAG
 # define UV_DRAG_GRID
 # define ANA_DRAG
 # define LIMIT_BSTRESS
@@ -203,6 +203,7 @@
 /* Boundary conditions...careful with grid orientation */
 
 #define RADIATION_2D
+#define ANA_NUDGCOEF
 
 /* roms quirks */
 
@@ -216,17 +217,19 @@
 /*
 **  Biological model options.
 */
-#undef NEMURO
+#undef BIO_UMAINE
 
-#if defined NEMURO
-# define BIO_SEDIMENT
-# define NEMURO_SED1
-# undef ANA_BIOLOGY       /* analytical biology initial conditions */
-# define IRON_LIMIT        /* Add iron as passive 11th tracer */
+#ifdef BIO_UMAINE
+# define CARBON
+# define OXYGEN
+# define PRIMARY_PROD
+# define SINK_OP2
+# define TALK_NONCONSERV
+# undef OPTIC_UMAINE
+# define OPTIC_MANIZZA
+# define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
+# define ANA_SPFLUX        /* analytical surface passive tracers fluxes */
+# define IRON_LIMIT        /* Add iron as passive Nth tracer */
 # define IRON_RELAX
-# undef  IRON_RSIN
-# define HOLLING_GRAZING
-# undef  IVLEV_EXPLICIT
-# undef  ANA_BIOSWRAD
-# undef  DIAGNOSTICS_BIO
+# undef  IRON_RSIN         /* Not implemented yet in umaine.h */
 #endif

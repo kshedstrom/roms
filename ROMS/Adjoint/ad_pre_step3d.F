@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -352,7 +352,11 @@
 !
 !  Local variable declarations.
 !
+      integer :: Isrc, Jsrc
       integer :: i, ic, indx, is, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -1244,6 +1248,24 @@
             END DO
           END DO
 !
+!  Apply mass point sources (volume vertical influx), if any.
+!  (Notice the j-loop is pipelined above).
+!
+          IF (LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            (j.eq.Jsrc)) THEN
+                DO k=1,N(ng)-1
+!>                tl_FC(Isrc,k)=tl_FC(Isrc,k)+0.0_r8
+!>
+                END DO
+              END IF
+            END DO
+          END IF
+!
 !-----------------------------------------------------------------------
 !  Compute adjoint time rate of change of intermediate tracer due to
 !  vertical advection.
@@ -1746,6 +1768,42 @@
           END DO
         END DO
       END DO J_LOOP1
+
+#  if (defined AGE_MEAN && defined T_PASSIVE) && !defined TS_MPDATA
+!
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index).
+!  Implemented and tested by W.G. Zhang and J. Wilkin. (m Tunits)
+!
+      IF (iic(ng).eq.ntfirst(ng)) THEN
+        cff=0.5_r8*dt(ng)
+      ELSE
+        cff=(1.0_r8-Gamma)*dt(ng)
+      END IF
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+!>            tl_t(i,j,k,3,iage)=tl_t(i,j,k,3,iage)+                    &
+!>   &                           cff*                                   &
+!>   &                           (Hz(i,j,k)*                            &
+!>   &                            tl_t(i,j,k,nnew,inert(itrc))+         &
+!>   &                            tl_Hz(i,j,k)*                         &
+!>   &                            t(i,j,k,nnew,inert(itrc)))
+!>
+              adfac=cff*ad_t(i,j,k,3,iage)
+              ad_t(i,j,k,nnew,inert(itrc))=ad_t(i,j,k,nnew,inert(itrc))+&
+     &                                     Hz(i,j,k)*adfac
+              ad_Hz(i,j,k)=ad_Hz(i,j,k)+                                &
+     &                     t(i,j,k,nnew,inert(itrc))*adfac
+            END DO
+          END DO
+        END DO
+      END DO
+#  endif
 !
 !  Compute adjoint time rate of change of intermediate tracer due to
 !  horizontal advection.
@@ -1794,29 +1852,29 @@
 !  Apply tracers point sources to the horizontal advection terms,
 !  if any.
 !
-          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+          IF (LuvSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
             DO is=1,Nsrc(ng)
-              i=SOURCES(ng)%Isrc(is)
-              j=SOURCES(ng)%Jsrc(is)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
               IF (LtracerSrc(itrc,ng).and.                              &
-     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            ((Jstr.le.Jsrc).and.(Jsrc.le.Jend+1))) THEN
                 IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
-!>                tl_FX(i,j)=tl_Huon(i,j,k)*                            &
-!>   &                       SOURCES(ng)%Tsrc(is,k,itrc)
+!>                tl_FX(Isrc,Jsrc)=tl_Huon(Isrc,Jsrc,k)*                &
+!>   &                             SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                  ad_Huon(i,j,k)=ad_Huon(i,j,k)+                        &
-     &                           SOURCES(ng)%Tsrc(is,k,itrc)*           &
-     &                           ad_FX(i,j)
-                  ad_FX(i,j)=0.0_r8
+                  ad_Huon(Isrc,Jsrc,k)=ad_Huon(Isrc,Jsrc,k)+            &
+     &                                 SOURCES(ng)%Tsrc(is,k,itrc)*     &
+     &                                 ad_FX(Isrc,Jsrc)
+                  ad_FX(Isrc,Jsrc)=0.0_r8
                 ELSE
-!>                tl_FE(i,j)=tl_Hvom(i,j,k)*                            &
-!>   &                       SOURCES(ng)%Tsrc(is,k,itrc)
+!>                tl_FE(Isrc,Jsrc)=tl_Hvom(Isrc,Jsrc,k)*                &
+!>   &                             SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                  ad_Hvom(i,j,k)=ad_Hvom(i,j,k)+                        &
-     &                           SOURCES(ng)%Tsrc(is,k,itrc)*           &
-     &                           ad_FE(i,j)
-                  ad_FE(i,j)=0.0_r8
+                  ad_Hvom(Isrc,Jsrc,k)=ad_Hvom(Isrc,Jsrc,k)+            &
+     &                                 SOURCES(ng)%Tsrc(is,k,itrc)*     &
+     &                                 ad_FE(Isrc,Jsrc)
+                  ad_FE(Isrc,Jsrc)=0.0_r8
                 END IF
               END IF
             END DO
