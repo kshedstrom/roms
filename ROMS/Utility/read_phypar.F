@@ -3402,26 +3402,32 @@
      &                      Nfiles, DIA)
             CASE ('STANAME')
               label='STA - stations time-series'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, STA)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, STA)
             CASE ('TMSNAME')
               label='TMS - 3D time-series'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, TMS)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, TMS)
             CASE ('FLTNAME')
               label='FLT - Lagragian particles trajectories'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLT)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, FLT)
 #ifdef NEMURO_SAN
             CASE ('FISHNAME')
               label='FISH - particles trajectories'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FISH)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, FISH)
 # ifdef PREDATOR
             CASE ('PREDNAME')
               label='PRED - particles trajectories'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, PRED)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, PRED)
 # endif
 # ifdef FISHING_FLEET
             CASE ('FLEETNAME')
               label='FLEET - ship trajectories'
-              Npts=load_s1d(Nval, Cval, line, label, igrid, Nfiles, FLEET)
+              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
+     &                      Nfiles, FLEET)
 # endif
 #endif
             CASE ('GRDNAME')

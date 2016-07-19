@@ -72,7 +72,7 @@
 ! Input variable information file name.  This file needs to be processed
 ! first so all information arrays can be initialized properly.
 
-     VARNAME = External/varinfo.dat
+     VARNAME = Apps/varinfo.dat
 
 ! Number of nested grids.
 
@@ -198,8 +198,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
 ! Time-Stepping parameters.
 
-      NTIMES == 4320
-          DT == 100.0d0
+      NTIMES == 6480
+          DT == 40.0d0
      NDTFAST == 1
 
 ! Model iteration loops parameters.
@@ -221,7 +221,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC =  0
    LcycleRST == T
-        NRST == 864
+        NRST == 2160
         NSTA == 1
         NFLT == 8
        NINFO == 1
@@ -229,7 +229,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Output history, average, diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 36
+        NHIS == 90
      NDEFHIS == 0
       NTSAVG == 1
         NAVG == 864000
