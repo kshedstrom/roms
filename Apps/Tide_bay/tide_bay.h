@@ -13,7 +13,7 @@
 */
 
 #undef STATIONS
-#define FLOATS
+#undef FLOATS
 #undef  DIAGNOSTICS_UV
 
 #define UV_ADV
