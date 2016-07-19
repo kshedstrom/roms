@@ -621,6 +621,7 @@
             END DO
             IF (uv_max.gt.max_speed) THEN
               print *, 'DIAG speed ij ', uv_max, ii_max, jj_max, ng
+            END IF
 #endif
           END IF
 #ifdef SOLVE3D
