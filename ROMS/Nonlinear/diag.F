@@ -641,6 +641,14 @@
               IF (Master) print *, 'BIO trouble in DIAG ', maxbio(:,ng)
               exit_flag=1
             END IF
+            WRITE (pechar,'(1pe8.1)') maxbio(ibt,ng)
+            DO i=1,8
+              IF ((pechar(i:i).eq.'N').or.(pechar(i:i).eq.'n').or.      &
+     &            (pechar(i:i).eq.'*')) THEN
+                IF (Master) print *, 'BIO trouble in DIAG ', pechar, ibt
+                exit_flag=1
+              END IF
+            END DO
           END DO
 # endif
 #endif

@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#define NO_HIS
+#undef NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
