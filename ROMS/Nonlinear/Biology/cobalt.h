@@ -1307,7 +1307,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO j=Jstr,Jend
      DO i=Istr,Iend
 
-      IF ( mxl_blev(i,j) > 1) THEN
+!      IF ( mxl_blev(i,j) > 1) THEN
           ! this would be the depth if we consider all the level
           mxl_depth(i,j) =  FM(i,j,mxl_blev(i,j))
 
@@ -1321,10 +1321,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
           ! mixed layer depth is then shallower than depth of the bottom level
 !          mxl_depth(i,j) = FM(i,j,mxl_blev(i,j)) - mxl_subgrid(i,j)
-
-      ELSE
-          mxl_depth(i,j) = h(i,j)
-      ENDIF
+!
+!      ELSE
+!          mxl_depth(i,j) = h(i,j)
+!      ENDIF
 
      ENDDO
    ENDDO
@@ -1422,6 +1422,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! irradiance (f_irr_mem) to which the Chl:C ratio responds (~24 hours)
   !
 
+  cobalt%expkT(:,:,:) = 1.0_r8
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
