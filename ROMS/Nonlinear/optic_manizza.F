@@ -269,15 +269,16 @@ MODULE optic_manizza_mod
       END DO
 
 #ifdef MASKING
-      DO nb=1,4
-       DO k=0,N(ng)
-        DO j=Jstr,Jend
-         DO i=Istr,Iend
-           decayW(i,j,k,nb) = decayW(i,j,k,nb) * rmask(i,j)
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+! This could be a bad idea...
+!      DO nb=1,4
+!       DO k=0,N(ng)
+!        DO j=Jstr,Jend
+!         DO i=Istr,Iend
+!           decayW(i,j,k,nb) = decayW(i,j,k,nb) * rmask(i,j)
+!         ENDDO
+!        ENDDO
+!       ENDDO
+!      ENDDO
 #endif
 
       RETURN
