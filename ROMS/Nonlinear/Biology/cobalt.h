@@ -2910,7 +2910,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        cobalt%kfe_eq_lig(i,j,k) = min(cobalt%kfe_eq_lig_ll,              &
      &                                10**( log10(cobalt%kfe_eq_lig_hl)+ &
-     &      max(0.0,cobalt%gamma_fescav*log10(cobalt%io_fescav/cobalt%irr_inst(i,j,k))) ) ) 
+     & max(0.0,cobalt%gamma_fescav*log10(cobalt%io_fescav/max(cobalt%irr_inst(i,j,k),1.0e-30))) ) )
 
        feprime = 1.0 + cobalt%kfe_eq_lig(i,j,k) * (cobalt%felig_bkg +    &
      &                                             cobalt%felig_2_don *  &
