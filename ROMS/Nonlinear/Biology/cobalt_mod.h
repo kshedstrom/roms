@@ -1750,7 +1750,7 @@
 !
 !  Local variable declarations
 !
-      integer :: i, ic
+      integer :: i, ic, ics
 !
 !-----------------------------------------------------------------------
 !  Determine number of biological tracers.
@@ -1789,8 +1789,11 @@
       NBEN=6
 #endif
       ! Sinking material
-      Nsink=6
+      Nsink=5
 #ifdef COBALT_PHOSPHORUS
+      Nsink=Nsink+1
+#endif
+#ifdef COBALT_IRON
       Nsink=Nsink+1
 #endif
 
@@ -2796,10 +2799,15 @@
       idsink(2) = isidet
       idsink(3) = icadet_calc
       idsink(4) = icadet_arag
-      idsink(5) = ifedet
-      idsink(6) = ilithdet
+      idsink(5) = ilithdet
+      ics=5
 #ifdef COBALT_PHOSPHORUS
-      idsink(7) = ipdet
+      idsink(ics+1) = ipdet
+      ics=ics+1
+#endif
+#ifdef COBALT_IRON
+      idsink(ics+1) = ifedet
+      ics=ics+1
 #endif
 
       RETURN

@@ -421,13 +421,6 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
-      CALL set_2dfld_tile (ng, tile, iNLM, idMineralFe,                 &
-     &                     LBi, UBi, LBj, UBj,                          &
-     &                     FORCES(ng)%mineral_feG,                      &
-     &                     FORCES(ng)%mineral_fe,                       &
-     &                     update)
-      IF (exit_flag.ne.NoError) RETURN
-
       CALL set_2dfld_tile (ng, tile, iNLM, idIronSed,                   &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%ironsedG,                         &
@@ -442,6 +435,13 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+
+      CALL set_2dfld_tile (ng, tile, iNLM, idMineralFe,                 &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%mineral_feG,                      &
+     &                     FORCES(ng)%mineral_fe,                       &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 
 #   ifdef CLOUDS
 !
