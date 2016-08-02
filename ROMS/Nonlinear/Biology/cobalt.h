@@ -71,10 +71,10 @@
 #endif
 #ifdef COBALT_IRON
      &                   FORCES(ng) % soluble_fe,                       &
-     &                   FORCES(ng) % mineral_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
      &                   FORCES(ng) % fecoast,                          &
 #endif
+     &                   FORCES(ng) % mineral_fe,                       &
 #ifdef DIAGNOSTICS_BIO
      &                   DIAGS(ng) % DiaBio2d,                          &
      &                   DIAGS(ng) % DiaBio3d,                          &
@@ -129,9 +129,10 @@
      &                         atmCO2,                                  &
 #endif
 #ifdef COBALT_IRON
-     &                         soluble_fe, mineral_fe, ironsed,         &
+     &                         soluble_fe, ironsed,                     &
      &                         fecoast,                                 &
 #endif
+     &                         mineral_fe,                              &   
 #ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
 #endif
@@ -208,10 +209,10 @@
 #endif
 #ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
-      real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
       real(r8), intent(in) :: fecoast(LBi:,LBj:)
 #endif
+      real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaBio3d(LBi:,LBj:,:,:)
@@ -262,10 +263,10 @@
 # endif
 # ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: fecoast(LBi:UBi,LBj:UBj)
 # endif
+      real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
 #ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
       real(r8), intent(inout) :: DiaBio3d(LBi:UBi,LBj:UBj,UBk,NDbio3d)
@@ -356,7 +357,9 @@
 #ifdef COBALT_PHOSPHORUS
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: pdet_sinking
 #endif
+#ifdef COBALT_IRON
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: fedet_sinking
+#endif
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,N(ng)) :: lithdet_sinking
     real(r8), dimension(IminS:ImaxS,0:N(ng)) :: FC
 
@@ -402,6 +405,7 @@
     !real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: o2_sc_no, o2_piston_vel, o2_csurf
     real(r8)                                     :: o2_sc_no, o2_piston_vel, o2_csurf
 
+#ifdef COBALT_IRON
     ! dust deposition
     real(r8)                                         :: frac_iron=0.035d0
     real(r8)                                         :: extra_frac_iron=0.03d0
@@ -410,6 +414,7 @@
     real(r8)                                         :: molar_fe=55.8450d0      ! g/mol
     real(r8)                                         :: dust_pen_depth=600.0d0  ! m
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,UBk) :: iron_dust_src
+#endif
     real(r8), dimension(IminS:ImaxS,JminS:JmaxS,UBk) :: lith_dust_src
     
     integer  :: clock1start, clock1stop
@@ -984,18 +989,24 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   DO j=Jstr,Jend
     DO i=Istr,Iend
 
+#ifdef COBALT_IRON
        iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) )
        ! units mol/kg/s       =  [mol.m-2.s-1]  / [kg.m-3] * [m]
+#endif
 
        lith_dust_src(i,j,UBk) = mineral_fe(i,j) / (rho0 * Hz(i,j,UBk) )
        ! units g/kg/s         = [g.m-2.s-1]     / [kg.m-3] * [m]
 
 #ifdef COBALT_CONSERVATION_TEST
+#ifdef COBALT_IRON
         iron_dust_src(i,j,UBk) = 0.0d0
+#endif
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
+#ifdef COBALT_IRON
         DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt
+#endif
 #endif
 
     ENDDO
@@ -1009,14 +1020,20 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
      DO j=Jstr,Jend
        DO i=Istr,Iend
 
+#ifdef COBALT_IRON
           iron_dust_src(i,j,k) = 0.0d0
+#endif
           lith_dust_src(i,j,k) = 0.0d0
 #ifdef COBALT_CONSERVATION_TEST
+#ifdef COBALT_IRON
           iron_dust_src(i,j,k) = 0.0d0
+#endif
           lith_dust_src(i,j,k) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
+#ifdef COBALT_IRON
           DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * rmask(i,j) * n_dt
+#endif
 #endif
 
        ENDDO
@@ -1047,12 +1064,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !  ENDDO
 !  nphyto=overflow
 
+#ifdef COBALT_IRON
   phyto(1)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(1)%f_fe(:,:,:) / &
 & max(epsln,phyto(1)%f_n(:,:,:)))
   phyto(2)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(2)%f_fe(:,:,:) / &
 & max(epsln,phyto(2)%f_n(:,:,:)))
   phyto(3)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(3)%f_fe(:,:,:) / &
 & max(epsln,phyto(3)%f_n(:,:,:)))
+#endif
  
   phyto(1)%q_p_2_n(:,:,:) = phyto(1)%p_2_n_static
   phyto(2)%q_p_2_n(:,:,:) = phyto(2)%p_2_n_static
@@ -1120,6 +1139,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !  ENDDO
 !  nphyto=overflow
 
+! CAS: per Raf's advice, limitation terms for iron and phosphorus are
+! set to 1 when the model is not using them.
+
 #ifdef COBALT_PHOSPHORUS
   phyto(1)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
 & (phyto(1)%k_po4 + cobalt%f_po4(:,:,:))
@@ -1133,6 +1155,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   phyto(3)%po4lim(:,:,:) = 1.
 #endif
 
+#ifdef COBALT_IRON
   phyto(1)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
 & (phyto(1)%k_fed + cobalt%f_fed(:,:,:))
   phyto(2)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
@@ -1146,6 +1169,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 & (phyto(2)%k_fe_2_n**2+phyto(2)%q_fe_2_n(:,:,:)**2)
   phyto(3)%def_fe(:,:,:)=phyto(3)%q_fe_2_n(:,:,:)**2 / &
 & (phyto(3)%k_fe_2_n**2+phyto(3)%q_fe_2_n(:,:,:)**2)
+#else
+  phyto(1)%def_fe(:,:,:)=1.
+  phyto(2)%def_fe(:,:,:)=1.
+  phyto(3)%def_fe(:,:,:)=1.
+  phyto(1)%felim(:,:,:)=1.
+  phyto(2)%felim(:,:,:)=1.
+  phyto(3)%felim(:,:,:)=1.
+#endif
 
 !
 ! Calculate nutrient limitation based on the most limiting nutrient (liebig_lim)
@@ -1597,7 +1628,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !
 ! Iron uptake
 ! 
-
+#ifdef COBALT_IRON
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
@@ -1617,6 +1648,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ENDDO
   ENDDO 
   i=overflow ; j=overflow ; k=overflow
+#endif
 
 !
 ! Silicate uptake
@@ -1805,10 +1837,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     prey_p2n_vec(7) = zoo(3)%q_p_2_n
 #endif
 
+#ifdef COBALT_IRON
     prey_fe2n_vec(4) = 0.0
     prey_fe2n_vec(5) = 0.0
     prey_fe2n_vec(6) = 0.0
     prey_fe2n_vec(7) = 0.0
+#endif
 
     prey_si2n_vec(1) = 0.0
     prey_si2n_vec(3) = 0.0
@@ -1859,10 +1893,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #ifdef COBALT_PHOSPHORUS
        prey_p2n_vec(8)  = cobalt%f_pdet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
 #endif
+
+#ifdef COBALT_IRON
        prey_fe2n_vec(1) = phyto(DIAZO)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(2) = phyto(LARGE)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(3) = phyto(SMALL)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(8) = cobalt%f_fedet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
+#endif
        prey_si2n_vec(2) = phyto(LARGE)%q_si_2_n(i,j,k)
        prey_si2n_vec(8) = cobalt%f_sidet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
 
@@ -1925,7 +1962,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,3)*prey_p2n_vec(3) +    &
      &                           ingest_matrix(m,4)*prey_p2n_vec(4)
 #endif
+#ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k)= ingest_matrix(m,3)*prey_fe2n_vec(3)
+#endif
 
        !
        ! Medium zooplankton (m = 2) consuming diazotrophs (1), large
@@ -1992,8 +2031,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
      &                           ingest_matrix(m,5)*prey_p2n_vec(5)
 #endif
+#ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
+#endif
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
 
        !
@@ -2060,8 +2101,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
      &                           ingest_matrix(m,6)*prey_p2n_vec(6)
 #endif
+#ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
+#endif
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
 
        cobalt%total_filter_feeding(i,j,k) = ingest_matrix(2,1) +         &
@@ -2110,9 +2153,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        phyto(3)%jzloss_p(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_p2n_vec(3)
 #endif
 
+#ifdef COBALT_IRON
        phyto(1)%jzloss_fe(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
        phyto(2)%jzloss_fe(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
        phyto(3)%jzloss_fe(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
+#endif
 
        phyto(1)%jzloss_sio2(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_si2n_vec(1)  
        phyto(2)%jzloss_sio2(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_si2n_vec(2)  
@@ -2301,9 +2346,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   phyto(3)%jaggloss_p(:,:,:) = phyto(3)%jaggloss_n(:,:,:)*phyto(3)%q_p_2_n(:,:,:)
 #endif
 
+#ifdef COBALT_IRON
   phyto(1)%jaggloss_fe(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_fe_2_n(:,:,:)
   phyto(2)%jaggloss_fe(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_fe_2_n(:,:,:)
   phyto(3)%jaggloss_fe(:,:,:) = phyto(3)%jaggloss_n(:,:,:)*phyto(3)%q_fe_2_n(:,:,:)
+#endif
 
   phyto(1)%jaggloss_sio2(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_si_2_n(:,:,:)
   phyto(2)%jaggloss_sio2(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_si_2_n(:,:,:)
@@ -2333,9 +2380,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    phyto(3)%jvirloss_p(:,:,:) = phyto(3)%jvirloss_n(:,:,:)*phyto(3)%q_p_2_n(:,:,:)
 #endif
 
+#ifdef COBALT_IRON
    phyto(1)%jvirloss_fe(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_fe_2_n(:,:,:)
    phyto(2)%jvirloss_fe(:,:,:) = phyto(2)%jvirloss_n(:,:,:)*phyto(2)%q_fe_2_n(:,:,:)
    phyto(3)%jvirloss_fe(:,:,:) = phyto(3)%jvirloss_n(:,:,:)*phyto(3)%q_fe_2_n(:,:,:)
+#endif
 
    phyto(1)%jvirloss_sio2(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_si_2_n(:,:,:)
    phyto(2)%jvirloss_sio2(:,:,:) = phyto(2)%jvirloss_n(:,:,:)*phyto(2)%q_si_2_n(:,:,:)
@@ -2367,10 +2416,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   phyto(3)%jexuloss_p(:,:,:) = phyto(3)%exu*max(phyto(3)%juptake_po4(:,:,:),0.0)
 #endif    
   
-  
+#ifdef COBALT_IRON
   phyto(1)%jexuloss_fe(:,:,:) = phyto(1)%exu*max(phyto(1)%juptake_fe(:,:,:),0.0)
   phyto(2)%jexuloss_fe(:,:,:) = phyto(2)%exu*max(phyto(2)%juptake_fe(:,:,:),0.0)
   phyto(3)%jexuloss_fe(:,:,:) = phyto(3)%exu*max(phyto(3)%juptake_fe(:,:,:),0.0)
+#endif
 
 
 
@@ -2405,8 +2455,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        cobalt%jprod_srdop(:,:,:) = 0.0
 #endif
  
+#ifdef COBALT_IRON
        cobalt%jprod_fedet(:,:,:) = 0.0
        cobalt%jprod_fed(:,:,:)   = 0.0
+#endif
        cobalt%jprod_sidet(:,:,:) = 0.0
        cobalt%jprod_sio4(:,:,:)  = 0.0
        
@@ -2428,8 +2480,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            zoo(m)%jprod_sldop(:,:,:) = zoo(m)%phi_sldop*zoo(m)%jingest_p(:,:,:)
            zoo(m)%jprod_ldop(:,:,:)  = zoo(m)%phi_ldop*zoo(m)%jingest_p(:,:,:)
            zoo(m)%jprod_srdop(:,:,:) = zoo(m)%phi_srdop*zoo(m)%jingest_p(:,:,:)
-#endif 
+#endif
+#ifdef COBALT_IRON
            zoo(m)%jprod_fedet(:,:,:) = zoo(m)%phi_det*zoo(m)%jingest_fe(:,:,:)
+#endif
            zoo(m)%jprod_sidet(:,:,:) = zoo(m)%phi_det*zoo(m)%jingest_sio2(:,:,:)
 
 
@@ -2444,7 +2498,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            cobalt%jprod_ldop(:,:,:)  = cobalt%jprod_ldop(:,:,:)  + zoo(m)%jprod_ldop(:,:,:)
            cobalt%jprod_srdop(:,:,:) = cobalt%jprod_srdop(:,:,:) + zoo(m)%jprod_srdop(:,:,:)
 #endif
+#ifdef COBALT_IRON
            cobalt%jprod_fedet(:,:,:) = cobalt%jprod_fedet(:,:,:) + zoo(m)%jprod_fedet(:,:,:)
+#endif
            cobalt%jprod_sidet(:,:,:) = cobalt%jprod_sidet(:,:,:) + zoo(m)%jprod_sidet(:,:,:)
        ENDDO !} m
 
@@ -2463,7 +2519,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        cobalt%jprod_ldop(:,:,:)  = cobalt%jprod_ldop(:,:,:)  + cobalt%hp_phi_ldop*cobalt%hp_jingest_p(:,:,:)
        cobalt%jprod_srdop(:,:,:) = cobalt%jprod_srdop(:,:,:) + cobalt%hp_phi_srdop*cobalt%hp_jingest_p(:,:,:)
 #endif
+#ifdef COBALT_IRON
        cobalt%jprod_fedet(:,:,:) = cobalt%jprod_fedet(:,:,:) + cobalt%hp_phi_det*cobalt%hp_jingest_fe(:,:,:)
+#endif
        cobalt%jprod_sidet(:,:,:) = cobalt%jprod_sidet(:,:,:) + cobalt%hp_phi_det*cobalt%hp_jingest_sio2(:,:,:)
        
        !
@@ -2475,7 +2533,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #ifdef COBALT_PHOSPHORUS
            cobalt%jprod_pdet(:,:,:)  = cobalt%jprod_pdet(:,:,:)  + phyto(m)%jaggloss_p(:,:,:)
 #endif
+#ifdef COBALT_IRON
            cobalt%jprod_fedet(:,:,:) = cobalt%jprod_fedet(:,:,:) + phyto(m)%jaggloss_fe(:,:,:)
+#endif
            cobalt%jprod_sidet(:,:,:) = cobalt%jprod_sidet(:,:,:) + phyto(m)%jaggloss_sio2(:,:,:)
        ENDDO !} m
 
@@ -2500,9 +2560,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            cobalt%jprod_srdop(:,:,:) = cobalt%jprod_srdop(:,:,:) +       &
         &                              cobalt%lysis_phi_srdop*phyto(m)%jvirloss_p(:,:,:)
 #endif
+#ifdef COBALT_IRON
            cobalt%jprod_fed(:,:,:)   = cobalt%jprod_fed(:,:,:)   +       &
         &                              phyto(m)%jvirloss_fe(:,:,:) +     &
-        &                              phyto(m)%jexuloss_fe(:,:,:) 
+        &                              phyto(m)%jexuloss_fe(:,:,:)
+#endif
            cobalt%jprod_sio4(:,:,:) = cobalt%jprod_sio4(:,:,:) + phyto(m)%jvirloss_sio2(:,:,:)
        ENDDO !} m
        m=overflow
@@ -2643,8 +2705,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
           ! Any ingested iron that is not allocated to detritus is routed back to the
           ! dissolved pool.       
           !
+#ifdef COBALT_IRON
           zoo(m)%jprod_fed(i,j,k) = (1.0 - zoo(m)%phi_det)*zoo(m)%jingest_fe(i,j,k)
           cobalt%jprod_fed(i,j,k) = cobalt%jprod_fed(i,j,k) + zoo(m)%jprod_fed(i,j,k)
+#endif
           !
           ! Any ingested opal that is not allocated to detritus is assumed to undergo
           ! rapid dissolution to dissolved silica
@@ -2657,8 +2721,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !
        ! Excretion by higher predators
        !
+#ifdef COBALT_IRON
        cobalt%jprod_fed(i,j,k)  = cobalt%jprod_fed(i,j,k) +              &
      &                            (1.0-cobalt%hp_phi_det)*cobalt%hp_jingest_fe(i,j,k)
+#endif
        cobalt%jprod_sio4(i,j,k) = cobalt%jprod_sio4(i,j,k) +             &
      &                            (1.0-cobalt%hp_phi_det)*cobalt%hp_jingest_sio2(i,j,k)
        cobalt%jprod_nh4(i,j,k) = cobalt%jprod_nh4(i,j,k) +               &
@@ -2870,9 +2936,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                            (cobalt%f_ndet(i,j,k) + epsln)*        &
      &                             cobalt%f_pdet(i,j,k)
 #endif
+#ifdef COBALT_IRON
        cobalt%jremin_fedet(i,j,k) = cobalt%jremin_ndet(i,j,k) /          &
      &                             (cobalt%f_ndet(i,j,k) + epsln) *      &
      &                              cobalt%remin_eff_fedet*cobalt%f_fedet(i,j,k)
+#endif
 
       ENDDO
     ENDDO
@@ -2907,6 +2975,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ! Solve for free iron
        !
 
+#ifdef COBALT_IRON
        cobalt%kfe_eq_lig(i,j,k) = min(cobalt%kfe_eq_lig_ll,              &
      &                                10**( log10(cobalt%kfe_eq_lig_hl)+ &
      & max(0.0,cobalt%gamma_fescav*log10(cobalt%io_fescav/max(cobalt%irr_inst(i,j,k),1.0e-30))) ) )
@@ -2932,9 +3001,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !
        cobalt%jfe_coast(i,j,k) = fecoast(i,j)
 
-#ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
        ! add coastal iron source to fe_bulk_flx
        DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt
+# endif
+
 #endif
       ENDDO
     ENDDO
@@ -3167,10 +3238,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
             !DiaBio3d(i,j,k,ipdet_b4sink) = t(i,j,k,nstp,ipdet) 
             !DiaBio3d(i,j,k,ipdet_afsink) = t(i,j,k,nstp,ipdet) + pdet_sinking(i,j,k) * dt(ng)
 #endif
+#ifdef COBALT_IRON
          ELSEIF ( ibio == ifedet ) THEN
             fedet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
             !DiaBio3d(i,j,k,ifedet_b4sink) = t(i,j,k,nstp,ifedet) 
             !DiaBio3d(i,j,k,ifedet_afsink) = t(i,j,k,nstp,ifedet) + fedet_sinking(i,j,k) * dt(ng)
+#endif
          ELSEIF ( ibio == ilithdet ) THEN
             lithdet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
          ENDIF
@@ -3195,8 +3268,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
              cobalt%f_cadet_arag_btf(i,j,1) = FC(i,0) * rho0 * r_dt
          ELSEIF ( ibio == icadet_calc ) THEN
              cobalt%f_cadet_calc_btf(i,j,1) = FC(i,0) * rho0 * r_dt
+#ifdef COBALT_IRON
          ELSEIF ( ibio == ifedet ) THEN
              cobalt%f_fedet_btf(i,j,1) = FC(i,0) * rho0 * r_dt
+#endif
          ELSEIF ( ibio == ilithdet ) THEN
              cobalt%f_lithdet_btf(i,j,1) = FC(i,0) * rho0 * r_dt
          ELSE
@@ -3297,7 +3372,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%fnoxic_sed(i,j)     = 0.0d0
 
      ENDIF
-
+#ifdef COBALT_IRON
     ! iron from sediment 
     ! read from file (no more)
     ! cobalt%ffe_sed(i,j)  = ironsed(i,j) 
@@ -3309,12 +3384,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1)
 
 !#ASKCHARLIE if we need this
-#ifdef COBALT_CONSERVATION_TEST
+# ifdef COBALT_CONSERVATION_TEST
     cobalt%ffe_sed(i,j) = 0.0d0
-#endif
-#ifdef DIAGNOSTICS_BIO
+# endif
+# ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
     DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt
+# endif
 #endif
 
 
@@ -3368,10 +3444,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 ! RD :this simehow has to be passed to bt
 
+#ifdef COBALT_IRON
 #ifdef COBALT_CONSERVATION_TEST
     cobalt%b_fed(i,j) = - cobalt%f_fedet_btf(i,j,1)
 #else
     cobalt%b_fed(i,j) = - cobalt%ffe_sed(i,j)
+#endif
 #endif
     cobalt%b_nh4(i,j) = - cobalt%f_ndet_btf(i,j,1) + cobalt%fndet_burial(i,j)
     cobalt%b_no3(i,j) = cobalt%fno3denit_sed(i,j)
@@ -3551,6 +3629,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                       phyto(LARGE)%jhploss_sio2(:,:,:)  -              &
 &                       phyto(LARGE)%jaggloss_sio2(:,:,:) -              &
 &                       phyto(LARGE)%jvirloss_sio2(:,:,:)
+#ifdef COBALT_IRON
 !
 !   *** Diazotrophic Phytoplankton Iron
 !
@@ -3578,6 +3657,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                       phyto(SMALL)%jaggloss_fe(:,:,:) -                &
 &                       phyto(SMALL)%jvirloss_fe(:,:,:) -                &
 &                       phyto(SMALL)%jexuloss_fe(:,:,:)
+#endif
 !
 !   *** Bacteria
 !
@@ -3643,6 +3723,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !   *** SiO4
 !
   cobalt%jsio4(:,:,:) = cobalt%jprod_sio4(:,:,:) - phyto(LARGE)%juptake_sio4(:,:,:)
+#ifdef COBALT_IRON
 !
 !   *** Fed
 !
@@ -3658,6 +3739,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
   ! RD dev notes : add dust source from atmosphere
   cobalt%jfed(:,:,:) = cobalt%jfed(:,:,:) + iron_dust_src(:,:,:)
+#endif
 !
 !-----------------------------------------------------------------------
 !     Detrital Components
@@ -3689,6 +3771,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! diag on dissolution term
 !  DiaBio3d(:,:,:,ijdiss_cadet_calc) = DiaBio3d(:,:,:,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(:,:,:)
 #endif
+#ifdef COBALT_IRON
 !
 !   *** Fedet
 !
@@ -3699,6 +3782,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                        cobalt%det_jzloss_fe(:,:,:) -                   & 
 &                        cobalt%det_jhploss_fe(:,:,:) +                  &
 &                        fedet_sinking(:,:,:)
+#endif
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
@@ -3896,7 +3980,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       !
       cobalt%jalk(i,j,1)  = cobalt%jalk(i,j,1)  - cobalt%b_alk(i,j)  * cff_btf
       cobalt%jdic(i,j,1)  = cobalt%jdic(i,j,1)  - cobalt%b_dic(i,j)  * cff_btf
+#ifdef COBALT_IRON
       cobalt%jfed(i,j,1)  = cobalt%jfed(i,j,1)  - cobalt%b_fed(i,j)  * cff_btf
+#endif
       cobalt%jnh4(i,j,1)  = cobalt%jnh4(i,j,1)  - cobalt%b_nh4(i,j)  * cff_btf
       cobalt%jno3(i,j,1)  = cobalt%jno3(i,j,1)  - cobalt%b_no3(i,j)  * cff_btf
       cobalt%jo2(i,j,1)   = cobalt%jo2(i,j,1)   - cobalt%b_o2(i,j)   * cff_btf
@@ -3966,6 +4052,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #endif
 
     ! RD TODO maybe this can be changed to bt(...nstp ) = cobalt%...
+    ! CAS, do we need an fedet here?
 
     bt(:,:,1,nnew,icased)          = cobalt%f_cased(:,:,1)
     bt(:,:,1,nnew,icadet_arag_btf) = cobalt%f_cadet_arag_btf(:,:,1)
@@ -4008,7 +4095,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
          DiaBio2d(i,j,ialk_btf)  = DiaBio2d(i,j,ialk_btf) + cobalt%b_alk(i,j)
          DiaBio2d(i,j,idic_btf)  = DiaBio2d(i,j,idic_btf) + cobalt%b_dic(i,j)
+#ifdef COBALT_IRON
          DiaBio2d(i,j,ifed_btf)  = DiaBio2d(i,j,ifed_btf) + cobalt%b_fed(i,j)
+#endif
          DiaBio2d(i,j,inh4_btf)  = DiaBio2d(i,j,inh4_btf) + cobalt%b_nh4(i,j)
          DiaBio2d(i,j,ino3_btf)  = DiaBio2d(i,j,ino3_btf) + cobalt%b_no3(i,j)
          DiaBio2d(i,j,io2_btf)   = DiaBio2d(i,j,io2_btf)  + cobalt%b_o2(i,j)

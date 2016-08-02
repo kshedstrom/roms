@@ -371,13 +371,13 @@
 #  ifdef COBALT_IRON
           real(r8), pointer :: soluble_fe(:,:)
           real(r8), pointer :: soluble_feG(:,:,:)
-          real(r8), pointer :: mineral_fe(:,:)
-          real(r8), pointer :: mineral_feG(:,:,:)
           real(r8), pointer :: ironsed(:,:)
           real(r8), pointer :: ironsedG(:,:,:)
           real(r8), pointer :: fecoast(:,:)
           real(r8), pointer :: fecoastG(:,:,:)
 #  endif
+          real(r8), pointer :: mineral_fe(:,:)
+          real(r8), pointer :: mineral_feG(:,:,:)
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -823,13 +823,13 @@
 #  ifdef COBALT_IRON
       allocate ( FORCES(ng) % soluble_fe(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % soluble_feG(LBi:UBi,LBj:UBj,2) )
-      allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
-      allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
 #  endif
+      allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
@@ -1374,9 +1374,6 @@
             FORCES(ng) % soluble_fe(i,j) = IniVal
             FORCES(ng) % soluble_feG(i,j,1) = IniVal
             FORCES(ng) % soluble_feG(i,j,2) = IniVal
-            FORCES(ng) % mineral_fe(i,j) = IniVal
-            FORCES(ng) % mineral_feG(i,j,1) = IniVal
-            FORCES(ng) % mineral_feG(i,j,2) = IniVal
             FORCES(ng) % ironsed(i,j) = IniVal
             FORCES(ng) % ironsedG(i,j,1) = IniVal
             FORCES(ng) % ironsedG(i,j,2) = IniVal
@@ -1384,6 +1381,9 @@
             FORCES(ng) % fecoastG(i,j,1) = IniVal
             FORCES(ng) % fecoastG(i,j,2) = IniVal
 #  endif
+            FORCES(ng) % mineral_fe(i,j) = IniVal
+            FORCES(ng) % mineral_feG(i,j,1) = IniVal
+            FORCES(ng) % mineral_feG(i,j,2) = IniVal
 # endif
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES
             FORCES(ng) % sustr_aw(i,j) = IniVal
