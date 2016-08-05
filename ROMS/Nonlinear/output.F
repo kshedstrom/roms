@@ -540,7 +540,7 @@
 !
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
-           || defined CORAL || defined NWA || defined ARC_NATL \
+           || defined CORAL || defined NWA || defined NGOA \
            || defined ARCTIC || defined NWGOA
           CALL def_station (ng, .true.)
 #else
