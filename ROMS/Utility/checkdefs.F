@@ -691,6 +691,30 @@
       Coptions(is:is+16)=' CLIPPING_SPLIT,'
 # endif
 #endif
+#ifdef COBALT_CARBON
+      IF (Master) WRITE (stdout,20) 'COBALT_CARBON',                    &
+     &   'Turn on carbon chemistry in COBALT.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' COBALT_CARBON,'
+#endif
+#ifdef COBALT_IRON
+      IF (Master) WRITE (stdout,20) 'COBALT_IRON',                      &
+     &   'Turn on iron limitation in COBALT.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' COBALT_IRON,'
+#endif
+#ifdef COBALT_MINERALS
+      IF (Master) WRITE (stdout,20) 'COBALT_MINERALS',                  &
+     &   'Turn on mineral chemistry in COBALT.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' COBALT_MINERALS,'
+#endif
+#ifdef COBALT_PHOSPHORUS
+      IF (Master) WRITE (stdout,20) 'COBALT_PHOSPHORUS',                &
+     &   'Turn on phosphorus chemistry in COBALT.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' COBALT_PHOSPHORUS,'
+#endif
 #ifdef CORRELATION
       IF (Master) WRITE (stdout,20) 'CORRELATION',                      &
      &   'Background-error Correlation Model.'

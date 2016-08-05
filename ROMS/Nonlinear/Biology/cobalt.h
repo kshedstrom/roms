@@ -40,6 +40,9 @@
      &                   nstp(ng), nnew(ng),                            &
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
+# if defined WET_DRY && defined DIAGNOSTICS_BIO
+     &                   GRID(ng) % rmask_full,                         &
+# endif
 #endif
      &                   GRID(ng) % Hz,                                 &
      &                   GRID(ng) % z_r,                                &
@@ -105,6 +108,9 @@
      &                         nstp, nnew,                              &
 #ifdef MASKING
      &                         rmask,                                   &
+# if defined WET_DRY && defined DIAGNOSTICS_BIO
+     &                         rmask_full,                              &
+# endif
 #endif
      &                         Hz, z_r, z_w, h, omn, srflx,             &
 #ifdef OPTIC_MANIZZA
@@ -177,6 +183,9 @@
 #ifdef ASSUMED_SHAPE
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
+#  if defined WET_DRY && defined DIAGNOSTICS_BIO
+      real(r8), intent(in) :: rmask_full(LBi:,LBj:)
+#  endif
 # endif
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
@@ -231,6 +240,9 @@
 #else
 # ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
+#  if defined WET_DRY && defined DIAGNOSTICS_BIO
+      real(r8), intent(in) :: rmask_full(LBi:UBi,LBj:UBj)
+#  endif
 # endif
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,UBk)
@@ -650,9 +662,21 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 ! save diagnostics on carbon chemistry
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + cobalt%co2_alpha(i,j)
-        DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + cobalt%co2_csurf(i,j)
-        DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j)
+        DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + &
+# ifdef WET_DRY
+ &                                rmask_full(i,j)*          &
+# endif
+ &                                cobalt%co2_alpha(i,j)
+        DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + &
+# ifdef WET_DRY
+ &                                rmask_full(i,j)*          &
+# endif
+ &                                cobalt%co2_csurf(i,j)
+        DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + &
+# ifdef WET_DRY
+ &                                rmask_full(i,j)*          &
+# endif
+ &                                cobalt%pco2_csurf(i,j)
      ENDDO
    ENDDO
 #endif
@@ -721,7 +745,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
 
 #ifdef DIAGNOSTICS_BIO
-       DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) + airsea_co2_flx(i,j) * n_dt
+       DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) +    &
+# ifdef WET_DRY
+  &                             rmask_full(i,j)*            &
+# endif
+  &                             airsea_co2_flx(i,j) * n_dt
 #endif
      ENDDO
    ENDDO
@@ -807,7 +835,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         airsea_o2_flx(i,j) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-        DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) + airsea_o2_flx(i,j) * n_dt
+        DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) +       &
+# ifdef WET_DRY
+  &                             rmask_full(i,j)*              &
+# endif
+  &                             airsea_o2_flx(i,j) * n_dt
 #endif
      ENDDO
    ENDDO
@@ -996,7 +1028,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt
+        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*                 &
+# endif
+  &                             iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt
 #endif
 
     ENDDO
@@ -1017,7 +1053,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
           lith_dust_src(i,j,k) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * rmask(i,j) * n_dt
+          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                             iron_dust_src(i,j,k) * rmask(i,j) * n_dt
 #endif
 
        ENDDO
@@ -1179,21 +1219,81 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + phyto(SMALL)%def_fe(i,j,k)
-          DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + phyto(DIAZO)%def_fe(i,j,k)
-          DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + phyto(LARGE)%def_fe(i,j,k)
-          DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + phyto(SMALL)%felim(i,j,k)
-          DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + phyto(DIAZO)%felim(i,j,k)
-          DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + phyto(LARGE)%felim(i,j,k)
-          DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + phyto(SMALL)%no3lim(i,j,k)
-          DiaBio3d(i,j,k,ino3lim_di) = DiaBio3d(i,j,k,ino3lim_di) 
-          DiaBio3d(i,j,k,ino3lim_lg) = DiaBio3d(i,j,k,ino3lim_lg) + phyto(LARGE)%no3lim(i,j,k)
-          DiaBio3d(i,j,k,inh4lim_sm) = DiaBio3d(i,j,k,inh4lim_sm) + phyto(SMALL)%nh4lim(i,j,k)
-          DiaBio3d(i,j,k,inh4lim_di) = DiaBio3d(i,j,k,inh4lim_di) 
-          DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + phyto(LARGE)%nh4lim(i,j,k)
-          DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + phyto(SMALL)%po4lim(i,j,k)
-          DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + phyto(DIAZO)%po4lim(i,j,k)
-          DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + phyto(LARGE)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(SMALL)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(DIAZO)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(LARGE)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(SMALL)%felim(i,j,k)
+          DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(DIAZO)%felim(i,j,k)
+          DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(LARGE)%felim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(SMALL)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_di) = DiaBio3d(i,j,k,ino3lim_di)   !&
+# ifdef WET_DRY
+!  &                                  + rmask_full(i,j)*             &
+# endif
+!  &                                    phyto(DIAZO)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_lg) = DiaBio3d(i,j,k,ino3lim_lg) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(LARGE)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_sm) = DiaBio3d(i,j,k,inh4lim_sm) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(SMALL)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_di) = DiaBio3d(i,j,k,inh4lim_di)   !&
+# ifdef WET_DRY
+!  &                                  + rmask_full(i,j)*             &
+# endif
+!  &                                    phyto(DIAZO)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(LARGE)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(SMALL)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(DIAZO)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + &
+# ifdef WET_DRY
+  &                                    rmask_full(i,j)*             &
+# endif
+  &                                    phyto(LARGE)%po4lim(i,j,k)
        ENDDO
      ENDDO
    ENDDO
@@ -1230,7 +1330,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
+          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + &
+# ifdef WET_DRY
+  &                               rmask_full(i,j)*        &
+# endif
+  &                               swdk3(i,j,k)
        END DO
      END DO
    ENDDO
@@ -1248,7 +1352,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO j=Jstr,Jend
      DO i=Istr,Iend
         mxl_blev(i,j)  = 1
-        mxl_depth(i,j) = -h(i,j)
+        mxl_depth(i,j) = z_w(i,j,UBk) - h(i,j)
         rho_ref(i,j)   = rho(i,j,UBk)
      ENDDO
    ENDDO
@@ -2745,10 +2849,26 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 
 #ifdef DIAGNOSTICS_BIO
-      DiaBio3d(i,j,k,ico3_sol_arag)     = DiaBio3d(i,j,k,ico3_sol_arag)     + cobalt%co3_sol_arag(i,j,k)
-      DiaBio3d(i,j,k,ico3_sol_calc)     = DiaBio3d(i,j,k,ico3_sol_calc)     + cobalt%co3_sol_calc(i,j,k)
-      DiaBio3d(i,j,k,iomega_cadet_arag) = DiaBio3d(i,j,k,iomega_cadet_arag) + cobalt%omega_arag(i,j,k)
-      DiaBio3d(i,j,k,iomega_cadet_calc) = DiaBio3d(i,j,k,iomega_cadet_calc) + cobalt%omega_calc(i,j,k)
+      DiaBio3d(i,j,k,ico3_sol_arag)     = DiaBio3d(i,j,k,ico3_sol_arag)     + &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*                  &
+# endif
+  &                                       cobalt%co3_sol_arag(i,j,k)
+      DiaBio3d(i,j,k,ico3_sol_calc)     = DiaBio3d(i,j,k,ico3_sol_calc)     + &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*                  &
+# endif
+  &                                       cobalt%co3_sol_calc(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_arag) = DiaBio3d(i,j,k,iomega_cadet_arag) + &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*                  &
+# endif
+  &                                       cobalt%omega_arag(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_calc) = DiaBio3d(i,j,k,iomega_cadet_calc) + &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*                  &
+# endif
+  &                                       cobalt%omega_calc(i,j,k)
 #endif
 
       ENDDO
@@ -2936,7 +3056,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
        ! add coastal iron source to fe_bulk_flx
-       DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt
+       DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + &
+# ifdef WET_DRY
+  &                                   rmask_full(i,j)*               &
+# endif
+  &                                   cobalt%jfe_coast(i,j,k) * n_dt
 #endif
       ENDDO
     ENDDO
@@ -3148,6 +3272,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          IF ( ibio == indet ) THEN
             ndet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
 #ifdef DIAGNOSTICS_BIO
+! WILL NEED TO ADD rmask_full factor for WET_DRY
             !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * t(i,j,k,nstp,indet) 
             !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * qc(i,k)
             !DiaBio3d(i,j,k,indet_b4sink) = 0.0d0
@@ -3316,7 +3441,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #endif
 #ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
-    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt
+    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + &
+# ifdef WET_DRY
+  &                              rmask_full(i,j)*             &
+# endif
+  &                               cobalt%ffe_sed(i,j) *  n_dt
 #endif
 
 
@@ -3466,7 +3595,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
 
       DiaBio2d(i,j,inpp_100) = Diabio2d(i,j,inpp_100) + &
- &                             cobalt%f_npp_100(i,j) * depth_integration / z_w(i,j,kdi)
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &                             cobalt%f_npp_100(i,j) * depth_integration &
+ &       /(z_w(i,j,UBk) - z_w(i,j,kdi))
       ! new diag here
 
     ENDDO
@@ -3490,12 +3623,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! new diag here
 
       DO k=kdi+1,UBk
-         cobalt%f_mesozoo_200(i,j) = cobalt%f_mesozoo_200(i,j) + cobalt%f_mesozoo(i,j,k) * Hz(i,j,k)
+         cobalt%f_mesozoo_200(i,j) = cobalt%f_mesozoo_200(i,j) + &
+  &                cobalt%f_mesozoo(i,j,k) * Hz(i,j,k)
          ! new diag here
       ENDDO
 
       DiaBio2d(i,j,imesozoo_200) = DiaBio2d(i,j,imesozoo_200) + &
- &                                 cobalt%f_mesozoo_200(i,j) * depth_integration / z_w(i,j,kdi)
+# ifdef WET_DRY
+ &                                 rmask_full(i,j)*             &
+# endif
+ &                cobalt%f_mesozoo_200(i,j) * depth_integration &
+ &       /(z_w(i,j,UBk) - z_w(i,j,kdi))
       ! new diag here
 
     ENDDO
@@ -3674,6 +3812,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_cadet_arag) = DiaBio3d(:,:,:,ijprod_cadet_arag) + cobalt%jprod_cadet_arag(:,:,:)
   ! diag on dissolution term
 !  DiaBio3d(:,:,:,ijdiss_cadet_arag) = DiaBio3d(:,:,:,ijdiss_cadet_arag) + cobalt%jdiss_cadet_arag(:,:,:)
@@ -3687,6 +3826,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_cadet_calc) = DiaBio3d(:,:,:,ijprod_cadet_calc) + cobalt%jprod_cadet_calc(:,:,:)
   ! diag on dissolution term
 !  DiaBio3d(:,:,:,ijdiss_cadet_calc) = DiaBio3d(:,:,:,ijdiss_cadet_calc) + cobalt%jdiss_cadet_calc(:,:,:)
@@ -3704,6 +3844,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_fedet) = DiaBio3d(:,:,:,ijprod_fedet) + cobalt%jprod_fedet(:,:,:)
   ! diag on remineralization
 !  DiaBio3d(:,:,:,ijremin_fedet) = DiaBio3d(:,:,:,ijremin_fedet) + cobalt%jremin_fedet(:,:,:)
@@ -3725,6 +3866,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_lithdet) = DiaBio3d(:,:,:,ijprod_lithdet) + cobalt%jprod_lithdet(:,:,:)
 #endif
 !
@@ -3738,6 +3880,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_ndet) = DiaBio3d(:,:,:,ijprod_ndet) + cobalt%jprod_ndet(:,:,:)
   ! diag on remineralization
 !  DiaBio3d(:,:,:,ijremin_ndet) = DiaBio3d(:,:,:,ijremin_ndet) + cobalt%jremin_ndet(:,:,:)
@@ -3761,6 +3904,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_pdet) = DiaBio3d(:,:,:,ijprod_pdet) + cobalt%jprod_pdet(:,:,:)
   ! diag on remineralization
 !  DiaBio3d(:,:,:,ijremin_pdet) = DiaBio3d(:,:,:,ijremin_pdet) + cobalt%jremin_pdet(:,:,:)
@@ -3780,6 +3924,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
+! WILL NEED TO ADD rmask_full factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_sidet) = DiaBio3d(:,:,:,ijprod_sidet) + cobalt%jprod_sidet(:,:,:)
 #endif
 !
@@ -4000,25 +4145,89 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ! update 2d diagnostics variables in ROMS
     DO j=Jstr,Jend
       DO i=Istr,Iend
-         DiaBio2d(i,j,icased)          = DiaBio2d(i,j,icased) + cobalt%f_cased(i,j,1)
-         DiaBio2d(i,j,icadet_arag_btf) = DiaBio2d(i,j,icadet_arag_btf) + cobalt%f_cadet_arag_btf(i,j,1)
-         DiaBio2d(i,j,icadet_calc_btf) = DiaBio2d(i,j,icadet_calc_btf) + cobalt%f_cadet_calc_btf(i,j,1)
-         DiaBio2d(i,j,indet_btf)       = DiaBio2d(i,j,indet_btf) + cobalt%f_ndet_btf(i,j,1)
-         DiaBio2d(i,j,isidet_btf)      = DiaBio2d(i,j,isidet_btf) + cobalt%f_sidet_btf(i,j,1)
-         DiaBio2d(i,j,imxl_depth)      = DiaBio2d(i,j,imxl_depth) + mxl_depth(i,j)
-         DiaBio2d(i,j,imxl_level)      = DiaBio2d(i,j,imxl_level) + mxl_blev(i,j)
+         DiaBio2d(i,j,icased)          = DiaBio2d(i,j,icased) +         &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      cobalt%f_cased(i,j,1)
+         DiaBio2d(i,j,icadet_arag_btf) = DiaBio2d(i,j,icadet_arag_btf) +&
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      cobalt%f_cadet_arag_btf(i,j,1)
+         DiaBio2d(i,j,icadet_calc_btf) = DiaBio2d(i,j,icadet_calc_btf) +&
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      cobalt%f_cadet_calc_btf(i,j,1)
+         DiaBio2d(i,j,indet_btf)       = DiaBio2d(i,j,indet_btf) +      &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      cobalt%f_ndet_btf(i,j,1)
+         DiaBio2d(i,j,isidet_btf)      = DiaBio2d(i,j,isidet_btf) +     &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      cobalt%f_sidet_btf(i,j,1)
+         DiaBio2d(i,j,imxl_depth)      = DiaBio2d(i,j,imxl_depth) +     &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      mxl_depth(i,j)
+         DiaBio2d(i,j,imxl_level)      = DiaBio2d(i,j,imxl_level) +     &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*               &
+# endif
+  &                                      mxl_blev(i,j)
 
-         DiaBio2d(i,j,ialk_btf)  = DiaBio2d(i,j,ialk_btf) + cobalt%b_alk(i,j)
-         DiaBio2d(i,j,idic_btf)  = DiaBio2d(i,j,idic_btf) + cobalt%b_dic(i,j)
-         DiaBio2d(i,j,ifed_btf)  = DiaBio2d(i,j,ifed_btf) + cobalt%b_fed(i,j)
-         DiaBio2d(i,j,inh4_btf)  = DiaBio2d(i,j,inh4_btf) + cobalt%b_nh4(i,j)
-         DiaBio2d(i,j,ino3_btf)  = DiaBio2d(i,j,ino3_btf) + cobalt%b_no3(i,j)
-         DiaBio2d(i,j,io2_btf)   = DiaBio2d(i,j,io2_btf)  + cobalt%b_o2(i,j)
-         DiaBio2d(i,j,isio4_btf) = DiaBio2d(i,j,isio4_btf)+ cobalt%b_sio4(i,j)
+         DiaBio2d(i,j,ialk_btf)  = DiaBio2d(i,j,ialk_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_alk(i,j)
+         DiaBio2d(i,j,idic_btf)  = DiaBio2d(i,j,idic_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_dic(i,j)
+         DiaBio2d(i,j,ifed_btf)  = DiaBio2d(i,j,ifed_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_fed(i,j)
+         DiaBio2d(i,j,inh4_btf)  = DiaBio2d(i,j,inh4_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_nh4(i,j)
+         DiaBio2d(i,j,ino3_btf)  = DiaBio2d(i,j,ino3_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_no3(i,j)
+         DiaBio2d(i,j,io2_btf)   = DiaBio2d(i,j,io2_btf)  + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_o2(i,j)
+         DiaBio2d(i,j,isio4_btf) = DiaBio2d(i,j,isio4_btf)+ &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_sio4(i,j)
          
 #ifdef COBALT_PHOSPHORUS
-         DiaBio2d(i,j,ipo4_btf)  = DiaBio2d(i,j,ipo4_btf) + cobalt%b_po4(i,j)
-         DiaBio2d(i,j,ipdet_btf) = DiaBio2d(i,j,ipdet_btf) + cobalt%f_pdet_btf(i,j,1)
+         DiaBio2d(i,j,ipo4_btf)  = DiaBio2d(i,j,ipo4_btf) + &
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%b_po4(i,j)
+         DiaBio2d(i,j,ipdet_btf) = DiaBio2d(i,j,ipdet_btf) +&
+# ifdef WET_DRY
+  &                                rmask_full(i,j)*         &
+# endif
+  &                                cobalt%f_pdet_btf(i,j,1)
 #endif
          
       ENDDO
@@ -4030,12 +4239,36 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)     + cobalt%f_chl(i,j,k)
-           DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) + cobalt%f_co3_ion(i,j,k)
-           DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  + cobalt%f_htotal(i,j,k)
-           DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) + cobalt%f_irr_mem(i,j,k)
-          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) + cobalt%irr_mix(i,j,k)
-          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
+          DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)     +  &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%f_chl(i,j,k)
+          DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion) +  &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%f_co3_ion(i,j,k)
+          DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)  +  &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%f_htotal(i,j,k)
+          DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem) +  &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%f_irr_mem(i,j,k)
+          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix) +  &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%irr_mix(i,j,k)
+          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + &
+# ifdef WET_DRY
+  &                                       rmask_full(i,j)*            &
+# endif
+  &                                       cobalt%irr_inst(i,j,k)
            ! RD : debuuging variables (remove or replace later)
            !DiaBio3d(i,j,k,itheta_small)  = DK(i,j,k,2)
            !DiaBio3d(i,j,k,itheta_large)  = DK(i,j,k,3)
@@ -4050,12 +4283,36 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,imu_mem_sm)    = DiaBio3d(i,j,k,imu_mem_sm)   + phyto(SMALL)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,imu_mem_di)    = DiaBio3d(i,j,k,imu_mem_di)   + phyto(DIAZO)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,imu_mem_lg)    = DiaBio3d(i,j,k,imu_mem_lg)   + phyto(LARGE)%f_mu_mem(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_sm)   = DiaBio3d(i,j,k,iagg_lim_sm)  + phyto(SMALL)%agg_lim(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_di)   = DiaBio3d(i,j,k,iagg_lim_di)  + phyto(DIAZO)%agg_lim(i,j,k)
-           DiaBio3d(i,j,k,iagg_lim_lg)   = DiaBio3d(i,j,k,iagg_lim_lg)  + phyto(LARGE)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_sm)    = DiaBio3d(i,j,k,imu_mem_sm)   + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(SMALL)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_di)    = DiaBio3d(i,j,k,imu_mem_di)   + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(DIAZO)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_lg)    = DiaBio3d(i,j,k,imu_mem_lg)   + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(LARGE)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_sm)   = DiaBio3d(i,j,k,iagg_lim_sm)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(SMALL)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_di)   = DiaBio3d(i,j,k,iagg_lim_di)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(DIAZO)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_lg)   = DiaBio3d(i,j,k,iagg_lim_lg)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(LARGE)%agg_lim(i,j,k)
         ENDDO
       ENDDO
     ENDDO
@@ -4064,17 +4321,53 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       DO j=Jstr,Jend
         DO i=Istr,Iend
 
-           DiaBio3d(i,j,k,iaggloss_lg)   = DiaBio3d(i,j,k,iaggloss_lg)  + phyto(LARGE)%jaggloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,iaggloss_sm)   = DiaBio3d(i,j,k,iaggloss_sm)  + phyto(SMALL)%jaggloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,iaggloss_di)   = DiaBio3d(i,j,k,iaggloss_di)  + phyto(DIAZO)%jaggloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,iaggloss_lg)   = DiaBio3d(i,j,k,iaggloss_lg)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(LARGE)%jaggloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,iaggloss_sm)   = DiaBio3d(i,j,k,iaggloss_sm)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(SMALL)%jaggloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,iaggloss_di)   = DiaBio3d(i,j,k,iaggloss_di)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(DIAZO)%jaggloss_n(i,j,k) * r_dt
 
-           DiaBio3d(i,j,k,ivirloss_lg)   = DiaBio3d(i,j,k,ivirloss_lg)  + phyto(LARGE)%jvirloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,ivirloss_sm)   = DiaBio3d(i,j,k,ivirloss_sm)  + phyto(SMALL)%jvirloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,ivirloss_di)   = DiaBio3d(i,j,k,ivirloss_di)  + phyto(DIAZO)%jvirloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,ivirloss_lg)   = DiaBio3d(i,j,k,ivirloss_lg)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(LARGE)%jvirloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,ivirloss_sm)   = DiaBio3d(i,j,k,ivirloss_sm)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(SMALL)%jvirloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,ivirloss_di)   = DiaBio3d(i,j,k,ivirloss_di)  + &
+# ifdef WET_DRY
+  &                                        rmask_full(i,j)*               &
+# endif
+  &                                        phyto(DIAZO)%jvirloss_n(i,j,k) * r_dt
 
-           DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)  + phyto(LARGE)%jzloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)  + phyto(SMALL)%jzloss_n(i,j,k) * r_dt
-           DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)  + phyto(DIAZO)%jzloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)  + &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*             &
+# endif
+  &                                      phyto(LARGE)%jzloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)  + &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*             &
+# endif
+  &                                      phyto(SMALL)%jzloss_n(i,j,k) * r_dt
+           DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)  + &
+# ifdef WET_DRY
+  &                                      rmask_full(i,j)*             &
+# endif
+  &                                      phyto(DIAZO)%jzloss_n(i,j,k) * r_dt
 
         ENDDO
       ENDDO

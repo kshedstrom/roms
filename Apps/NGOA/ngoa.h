@@ -231,7 +231,6 @@
 # define COBALT_PHOSPHORUS
 # define COBALT_IRON
 # define COBALT_CARBON
-# define DIAGNOSTICS
 # define DIAGNOSTICS_BIO
 /*# define BENTHIC  */
 /*# define TIMESERIES */
