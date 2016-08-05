@@ -4767,10 +4767,10 @@
         HIS(ng)%Rindex=MIN(HIS(ng)%Rindex,rec_size)
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_HIS   - creating history file, Grid ',i2.2,': ',  &
-     &        a)
-  20  FORMAT (6x,'DEF_HIS   - inquiring history file, Grid ',i2.2,': ', &
-     &        a)
+  10  FORMAT (6x,'DEF_HIS     - creating  history', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
+  20  FORMAT (6x,'DEF_HIS     - inquiring history', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_HIS - unable to create history NetCDF file: ',a)
   40  FORMAT ('time dependent',1x,a)
   50  FORMAT (1pe11.4,1x,'millimeter')
