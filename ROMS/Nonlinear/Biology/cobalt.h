@@ -1,3 +1,4 @@
+#define DEBUG_COBALT
       SUBROUTINE biology (ng,tile)
 !
 !svn $Id$

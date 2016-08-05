@@ -12,7 +12,7 @@
 **  Options for NWGOA simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #define HDF5
 #define DEFLATE
 #define PERFECT_RESTART
@@ -173,7 +173,7 @@
 
 /* Not using Runoff now */
 #ifdef SOLVE3D
-# define RUNOFF
+# undef RUNOFF
 # define ONE_TRACER_SOURCE
 #endif
 
@@ -181,7 +181,7 @@
 
 #define LTIDES
 #ifdef LTIDES
-# if defined AVERAGES && !defined USE_DEBUG
+# if defined AVERAGES /* && !defined USE_DEBUG */
 #  define FILTERED
 # endif
 # define SSH_TIDES
@@ -231,8 +231,8 @@
 # define COBALT_PHOSPHORUS
 # define COBALT_IRON
 # define COBALT_CARBON
-# undef DIAGNOSTICS
-# undef DIAGNOSTICS_BIO 
+# define DIAGNOSTICS
+# define DIAGNOSTICS_BIO
 /*# define BENTHIC  */
 /*# define TIMESERIES */
 # undef ANA_BIOLOGY        /* analytical biology initial conditions */
