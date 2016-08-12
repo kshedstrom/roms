@@ -266,6 +266,7 @@
         integer  :: idriver_ldop
         integer  :: idriver_sldop
         integer  :: idriver_srdop
+        integer  :: idriver_fed
 #endif
         integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient

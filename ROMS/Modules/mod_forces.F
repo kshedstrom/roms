@@ -375,6 +375,8 @@
           real(r8), pointer :: ironsedG(:,:,:)
           real(r8), pointer :: fecoast(:,:)
           real(r8), pointer :: fecoastG(:,:,:)
+          real(r8), pointer :: river_fed(:,:)
+          real(r8), pointer :: river_fedG(:,:,:)
 #  endif
           real(r8), pointer :: mineral_fe(:,:)
           real(r8), pointer :: mineral_feG(:,:,:)
@@ -827,6 +829,8 @@
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
       allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
+      allocate ( FORCES(ng) % river_fed(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % river_fedG(LBi:UBi,LBj:UBj,2) )
 #  endif
       allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
@@ -1380,6 +1384,9 @@
             FORCES(ng) % fecoast(i,j) = IniVal
             FORCES(ng) % fecoastG(i,j,1) = IniVal
             FORCES(ng) % fecoastG(i,j,2) = IniVal
+            FORCES(ng) % river_fed(i,j) = IniVal
+            FORCES(ng) % river_fedG(i,j,1) = IniVal
+            FORCES(ng) % river_fedG(i,j,2) = IniVal
 #  endif
             FORCES(ng) % mineral_fe(i,j) = IniVal
             FORCES(ng) % mineral_feG(i,j,1) = IniVal

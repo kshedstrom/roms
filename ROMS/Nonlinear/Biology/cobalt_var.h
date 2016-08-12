@@ -726,6 +726,10 @@
                  idriver_sldop=varid
                CASE ('idriver_srdop')
                  idriver_srdop=varid
+#ifdef COBALT_IRON
+               CASE ('idriver_fed')
+                 idriver_fed=varid
+#endif
 #ifdef DIAGNOSTICS_BIO
 !------------------------------------------------------
 !---  Biological tracers term diagnostics.

@@ -396,6 +396,16 @@
      &                     FORCES(ng)%river_srdop,                      &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+
+#   ifdef COBALT_IRON
+      CALL set_2dfld_tile (ng, tile, iNLM, idriver_fed,                 &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%river_fedG,                       &
+     &                     FORCES(ng)%river_fed,                        &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#   endif
+
 #  endif
 #  if defined COBALT_CARBON 
       CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
