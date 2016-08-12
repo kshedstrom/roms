@@ -77,6 +77,7 @@
      &                   FORCES(ng) % soluble_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
      &                   FORCES(ng) % fecoast,                          &
+     &                   FORCES(ng) % river_fed,                        &
 #endif
      &                   FORCES(ng) % mineral_fe,                       &
 #ifdef DIAGNOSTICS_BIO
@@ -137,7 +138,7 @@
 #endif
 #ifdef COBALT_IRON
      &                         soluble_fe, ironsed,                     &
-     &                         fecoast,                                 &
+     &                         fecoast, river_fed,                      &
 #endif
      &                         mineral_fe,                              &   
 #ifdef DIAGNOSTICS_BIO
@@ -221,6 +222,7 @@
       real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
       real(r8), intent(in) :: fecoast(LBi:,LBj:)
+      real(r8), intent(in) :: river_fed(LBi:,LBj:)
 #endif
       real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
 #ifdef DIAGNOSTICS_BIO
@@ -278,6 +280,7 @@
       real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: fecoast(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: river_fed(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
 #ifdef DIAGNOSTICS_BIO
@@ -4171,6 +4174,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%jldop(i,j,UBk)  = 0.0
       cobalt%jsldop(i,j,UBk) = 0.0
       cobalt%jsrdop(i,j,UBk) = 0.0
+#endif
+#ifdef COBALT_IRON
+      cobalt%jfed(i,j,UBk)  = cobalt%jfed(i,j,UBk)  + river_fed(i,j)  * cff_rivr
 #endif
     ENDDO
   ENDDO
