@@ -3180,8 +3180,9 @@
 !     allocate(cobalt%f_ndet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_ndet_100 = 0.0
 !     allocate(cobalt%f_don_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_don_100  = 0.0
 !     allocate(cobalt%f_silg_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_silg_100 = 0.0
-!     allocate(cobalt%f_npp_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_npp_100 = 0.0
-!     allocate(cobalt%f_mesozoo_200(IminS:ImaxS,JminS:JmaxS))         ; cobalt%f_mesozoo_200 = 0.0
+
+      allocate(cobalt%f_npp_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_npp_100 = 0.0
+      allocate(cobalt%f_mesozoo_200(IminS:ImaxS,JminS:JmaxS))         ; cobalt%f_mesozoo_200 = 0.0
 !
 !     allocate(cobalt%fndet_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%fndet_100 = 0.0
 !     allocate(cobalt%fpdet_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%fpdet_100 = 0.0
