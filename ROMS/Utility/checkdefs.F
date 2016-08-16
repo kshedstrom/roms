@@ -1018,12 +1018,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' HESSIAN_SV,'
 #endif
-# ifdef HISTORY2
-      IF (Master) WRITE (stdout,20) 'HISTORY2',                        &
-     &   'Writing out secondary surface fields.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+10)=' HISTORY2,'
-# endif
 #if defined HOLLING_GRAZING && defined NEMURO
       IF (Master) WRITE (stdout,20) 'HOLLING_GRAZING',                  &
      &   'Holling-type s-shaped grazing algorithm, Implicit.'

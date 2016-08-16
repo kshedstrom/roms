@@ -721,7 +721,6 @@
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
       allocate ( idefHIS(Ngrids) )
-      allocate ( idefHIS2(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -831,7 +830,6 @@
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
         idefHIS(ng)=-1
-        idefHIS2(ng)=-1
         idefTLM(ng)=-1
       END DO
 !

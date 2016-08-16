@@ -200,17 +200,6 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 #endif
-#ifdef HISTORY2
-      CALL netcdf_put_ivar (ng, model, ncname, 'nHIS2',                 &
-     &                      nHIS2(ng), (/0/), (/0/),                    &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL netcdf_put_ivar (ng, model, ncname, 'ndefHIS2',              &
-     &                      ndefHIS2(ng), (/0/), (/0/),                 &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
 
 #ifdef ADJOINT
       CALL netcdf_put_ivar (ng, model, ncname, 'nADJ',                  &

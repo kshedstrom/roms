@@ -3940,16 +3940,6 @@
      &            'secondary time-averaged file.'
           END IF
 #endif
-#if defined HISTORY2
-          WRITE (out,130) nHIS2(ng), 'nHIS2',                           &
-     &          'Number of timesteps between the writing of',           &
-     &          'surface file.'
-          IF (ndefHIS2(ng).gt.0) THEN
-            WRITE (out,130) ndefHIS2(ng), 'ndefHIS2',                   &
-     &            'Number of timesteps between creation of new',        &
-     &            'surface file.'
-          END IF
-#endif
 #ifdef DIAGNOSTICS
           WRITE (out,130) ntsDIA(ng), 'ntsDIA',                         &
      &          'Starting timestep for the accumulation of output',     &
@@ -6262,15 +6252,6 @@
           ELSE
             WRITE (out,230) '     Prefix for Averages Files:  ',        &
      &                      TRIM(AVG2(ng)%base)
-          END IF
-#endif
-#if defined HISTORY2
-          IF (ndefHIS2(ng).eq.0) THEN
-            WRITE (out,230) '          Output Surface File:  ',        &
-     &                      TRIM(HIS2(ng)%name)
-          ELSE
-            WRITE (out,230) '     Prefix for Surface Files:  ',        &
-     &                      TRIM(HIS2(ng)%base)
           END IF
 #endif
 #ifdef DIAGNOSTICS

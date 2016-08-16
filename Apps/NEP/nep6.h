@@ -46,12 +46,12 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
+# undef CICE_MODEL
 # ifdef CICE_MODEL
 #  undef SNOWFALL /* not yet */
 # endif
 
-# undef  ICE_MODEL
+# define ICE_MODEL
 # ifdef ICE_MODEL
 #  define  ICE_THERMO
 #  define  ICE_MK

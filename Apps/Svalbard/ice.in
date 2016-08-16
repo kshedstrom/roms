@@ -239,22 +239,22 @@ Aout2(idT0mk) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
-Hout2(idUice) == T
-Hout2(idVice) == T
-Hout2(idUiceE) == T
-Hout2(idViceN) == T
-Hout2(idAice) == T
-Hout2(idHice) == T
-Hout2(idTice) == T
-Hout2(idHsno) == T
-Hout2(idTimid) == T
-Hout2(idApond) == T
-Hout2(idHpond) == T
-Hout2(idTauiw) == F
-Hout2(idChuiw) == F
-Hout2(idAgeice) == T
-Hout2(idSig11) == F
-Hout2(idSig12) == F
-Hout2(idSig22) == F
-Hout2(idS0mk) == F
-Hout2(idT0mk) == F
+Qout(idUice) == T
+Qout(idVice) == T
+Qout(idUiceE) == T
+Qout(idViceN) == T
+Qout(idAice) == T
+Qout(idHice) == T
+Qout(idTice) == T
+Qout(idHsno) == T
+Qout(idTimid) == T
+Qout(idApond) == T
+Qout(idHpond) == T
+Qout(idTauiw) == F
+Qout(idChuiw) == F
+Qout(idAgeice) == T
+Qout(idSig11) == F
+Qout(idSig12) == F
+Qout(idSig22) == F
+Qout(idS0mk) == F
+Qout(idT0mk) == F

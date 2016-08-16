@@ -269,8 +269,6 @@
         ADS(ng)%ncid=-1
         AVG(ng)%ncid=-1
         BLK(ng)%ncid=-1
-        BRY(ng)%ncid=-1
-        CLM(ng)%ncid=-1
         DAI(ng)%ncid=-1
         DAV(ng)%ncid=-1
         DIA(ng)%ncid=-1
