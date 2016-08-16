@@ -874,7 +874,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == /work/budgell/Global_20km/Output/K_rst.nc
      HISNAME == /work/budgell/Global_20km/Output/K_his.nc
-    HIS2NAME == /work/budgell/Global_20km/Output/K_his2.nc
+     QCKNAME == /work/budgell/Global_20km/Output/K_his2.nc
      TLMNAME == ocean_tlm.nc
      TLFNAME == ocean_tlf.nc
      ADJNAME == ocean_tlm.nc

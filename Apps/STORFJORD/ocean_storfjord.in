@@ -942,7 +942,7 @@ Aout2(idrain) == T                          ! precipitation rate
      GSTNAME == ocean_gst.nc
      RSTNAME == /work/budgell/Storfjord/Output/STFJ2_rst.nc
      HISNAME == /work/budgell/Storfjord/Output/STFJ2_his.nc
-    HIS2NAME == /work/budgell/Storfjord/Output/STFJ2_his2.nc
+     QCKNAME == /work/budgell/Storfjord/Output/STFJ2_his2.nc
      TLMNAME == ocean_tlm.nc
      TLFNAME == ocean_tlf.nc
      ADJNAME == ocean_tlm.nc

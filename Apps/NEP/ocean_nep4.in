@@ -874,7 +874,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == nep4_rst.nc
      HISNAME == nep4_his.nc
-    HIS2NAME == nep4_his2.nc
+     QCKNAME == nep4_his2.nc
      TLMNAME == nep4_tlm.nc
      TLFNAME == ocean_tlf.nc
      ADJNAME == nep4_tlm.nc

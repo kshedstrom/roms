@@ -204,8 +204,8 @@ GridsInLayer =  1
      LDEFOUT == T
         NHIS == 360
      NDEFHIS == 3600
-       NHIS2 == 4320
-    NDEFHIS2 == 43200
+        NQCK == 4320
+     NDEFQCK == 43200
       NTSAVG == 1
         NAVG == 360
      NDEFAVG == 3600
@@ -901,7 +901,7 @@ lccsm_fields(idRunoff) == F
      GSTNAME == ocean_gst.nc
      RSTNAME == ben1_rst.nc
      HISNAME == ben1_his.nc
-    HIS2NAME == ben1_his2.nc
+     QCKNAME == ben1_his2.nc
      TLMNAME == ben1_tlm.nc
      TLFNAME == ben1_tlf.nc
      ADJNAME == ben1_tlm.nc

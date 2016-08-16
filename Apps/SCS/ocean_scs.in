@@ -233,8 +233,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LDEFOUT == T
         NHIS == 2880
      NDEFHIS == 2880
-       NHIS2 == 120
-    NDEFHIS2 == 2880
+        NQCK == 120
+     NDEFQCK == 2880
       NTSAVG == 1
        NAVG == 2880
     NDEFAVG == 2880
@@ -969,7 +969,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == scs_rst.nc
      HISNAME == scs_his.nc
-    HIS2NAME == scs_his2.nc
+     QCKNAME == scs_his2.nc
      TLMNAME == scs_tlm.nc
      TLFNAME == scs_tlf.nc
      ADJNAME == scs_tlm.nc

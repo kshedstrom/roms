@@ -867,7 +867,6 @@
         logical, allocatable :: LdefERR(:)       ! 4DVar error file
         logical, allocatable :: LdefFLT(:)       ! Floats file
         logical, allocatable :: LdefHIS(:)       ! History file
-        logical, allocatable :: LdefHIS2(:)      ! History2 file
         logical, allocatable :: LdefHSS(:)       ! Hessian file
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
@@ -887,7 +886,6 @@
         logical, allocatable :: LwrtAVG2(:)      ! Write average2 file
         logical, allocatable :: LwrtDIA(:)       ! Write diagnostic file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
-        logical, allocatable :: LwrtHIS2(:)      ! Write history2 file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
         logical, allocatable :: LwrtQCK(:)       ! write quicksave file
         logical, allocatable :: LwrtRST(:)       ! Write restart file
@@ -2085,7 +2083,6 @@
       allocate ( LdefERR(Ngrids) )
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
-      allocate ( LdefHIS2(Ngrids) )
       allocate ( LdefHSS(Ngrids) )
       allocate ( LdefINI(Ngrids) )
       allocate ( LdefIRP(Ngrids) )
@@ -2105,7 +2102,6 @@
       allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
       allocate ( LwrtHIS(Ngrids) )
-      allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
       allocate ( LwrtQCK(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
@@ -2658,7 +2654,6 @@
         LdefFLT(ng)=.TRUE.
 #endif
         LdefHIS(ng)=.TRUE.
-        LdefHIS2(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
@@ -2674,7 +2669,6 @@
         LwrtAVG2(ng)=.FALSE.
         LwrtDIA(ng)=.FALSE.
         LwrtHIS(ng)=.FALSE.
-        LwrtHIS2(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.

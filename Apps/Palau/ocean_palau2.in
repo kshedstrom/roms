@@ -237,8 +237,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LDEFOUT == F
         NHIS == 1080
      NDEFHIS == 1080
-       NHIS2 == 360
-    NDEFHIS2 == 8640
+        NQCK == 360
+     NDEFQCK == 8640
       NTSAVG == 1
        NAVG == 8640
     NDEFAVG == 8640
@@ -961,7 +961,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == palau2_rst.nc
      HISNAME == palau2_his.nc
-    HIS2NAME == palau2_his2.nc
+     QCKNAME == palau2_his2.nc
      TLMNAME == palau2_tlm.nc
      TLFNAME == palau2_tlf.nc
      ADJNAME == palau2_tlm.nc

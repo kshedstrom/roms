@@ -244,8 +244,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
 !    NDEFHIS == 86400
 !       NHIS == 4320
 !    NDEFHIS == 43200
-       NHIS2 == 4320
-    NDEFHIS2 == 43200
+        NQCK == 4320
+     NDEFQCK == 43200
       NTSAVG == 1
 !       NAVG == 864
 !    NDEFAVG == 864
@@ -963,7 +963,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == chukchi_rst.nc
      HISNAME == chukchi_his.nc
-    HIS2NAME == chukchi_his2.nc
+     QCKNAME == chukchi_his2.nc
      TLMNAME == chukchi_tlm.nc
      TLFNAME == chukchi_tlf.nc
      ADJNAME == chukchi_tlm.nc

@@ -944,7 +944,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == glacier_bay_rst.nc
      HISNAME == glacier_bay_his.nc
-    HIS2NAME == glacier_bay_his2.nc
+     QCKNAME == glacier_bay_his2.nc
      TLMNAME == glacier_bay_tlm.nc
      TLFNAME == glacier_bay_tlf.nc
      ADJNAME == glacier_bay_tlm.nc

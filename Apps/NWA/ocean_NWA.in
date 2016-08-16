@@ -232,8 +232,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LDEFOUT == T
         NHIS == 40
      NDEFHIS == 960
-       NHIS2 == 4320
-    NDEFHIS2 == 43200
+        NQCK == 4320
+     NDEFQCK == 43200
       NTSAVG == 1
         NAVG == 960
      NDEFAVG == 960
@@ -930,7 +930,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == /home/dujuan/NWA/Output/nwa_gst.nc
      RSTNAME == /home/dujuan/NWA/Output/nwa_rst.nc
      HISNAME == /home/dujuan/NWA/Output/nwa_his.nc
-    HIS2NAME == nwa_his2.nc
+     QCKNAME == nwa_his2.nc
      TLMNAME == /home/dujuan/NWA/Output/nwa_tlm.nc
      TLFNAME == /home/dujuan/NWA/Output/nwa_tlf.nc
      ADJNAME == /home/dujuan/NWA/Output/nwa_tlm.nc

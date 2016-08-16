@@ -232,8 +232,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LDEFOUT == T
         NHIS == 720
      NDEFHIS == 7200
-       NHIS2 == 4320
-    NDEFHIS2 == 43200
+        NQCK == 4320
+     NDEFQCK == 43200
       NTSAVG == 1
         NAVG == 30
      NDEFAVG == 720
@@ -929,7 +929,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_gst.nc
      RSTNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_rst.nc
      HISNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_his.nc
-    HIS2NAME == coral_his2.nc
+     QCKNAME == coral_his2.nc
      TLMNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_tlm.nc
      TLFNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_tlf.nc
      ADJNAME == /ptmp/fredc/CORAL/RUN01/Output/coral_tlm.nc

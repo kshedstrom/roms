@@ -239,8 +239,8 @@ ad_VolCons(north) ==  F                            ! northern boundary
      LDEFOUT == T
         NHIS == 432
      NDEFHIS == 4320
-       NHIS2 == 4320
-    NDEFHIS2 == 43200
+        NQCK == 4320
+     NDEFQCK == 43200
       NTSAVG == 1
         NAVG == 540
      NDEFAVG == 5400
@@ -925,7 +925,7 @@ lccsm_fields(idRunoff) == F
      GSTNAME == ocean_gst.nc
      RSTNAME == ccs1_rst.nc
      HISNAME == ccs1_his.nc
-    HIS2NAME == ccs1_his2.nc
+     QCKNAME == ccs1_his2.nc
      TLMNAME == ccs1_tlm.nc
      TLFNAME == ccs1_tlf.nc
      ADJNAME == ccs1_tlm.nc

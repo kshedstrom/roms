@@ -949,7 +949,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == ngoa_rst.nc
      HISNAME == nwgoa_his.nc
-    HIS2NAME == nwgoa_his2.nc
+     QCKNAME == nwgoa_his2.nc
      TLMNAME == nwgoa_tlm.nc
      TLFNAME == nwgoa_tlf.nc
      ADJNAME == nwgoa_tlm.nc

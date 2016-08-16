@@ -877,7 +877,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == bering_rst.nc
      HISNAME == bering_his.nc
-    HIS2NAME == bering_his2.nc
+     QCKNAME == bering_his2.nc
      TLMNAME == bering_tlm.nc
      TLFNAME == ocean_tlf.nc
      ADJNAME == bering_tlm.nc

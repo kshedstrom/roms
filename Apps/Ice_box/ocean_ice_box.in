@@ -935,7 +935,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == icebox_rst.nc
      HISNAME == icebox_his.nc
-    HIS2NAME == icebox_his2.nc
+     QCKNAME == icebox_his2.nc
      TLMNAME == icebox_tlm.nc
      TLFNAME == icebox_tlf.nc
      ADJNAME == icebox_tlm.nc

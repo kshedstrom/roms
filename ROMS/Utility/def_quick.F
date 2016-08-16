@@ -1107,7 +1107,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idUairE,ng),r8)
-          status=def_var(ng, iNLM, HIS2(ng)%ncid, HIS2(ng)%Vid(idUairE),&
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idUairE),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -1125,7 +1125,7 @@
 # endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idVairN,ng),r8)
-          status=def_var(ng, iNLM, HIS2(ng)%ncid, HIS2(ng)%Vid(idVairN),&
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idVairN),  &
      &                   NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF

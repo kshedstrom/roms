@@ -948,7 +948,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == svalbard_rst.nc
      HISNAME == svalbard_his.nc
-    HIS2NAME == svalbard_his2.nc
+     QCKNAME == svalbard_his2.nc
      TLMNAME == svalbard_tlm.nc
      TLFNAME == svalbard_tlf.nc
      ADJNAME == svalbard_tlm.nc

@@ -999,7 +999,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
      GSTNAME == ocean_gst.nc
      RSTNAME == arctic2_rst.nc
      HISNAME == arctic2_his.nc
-    HIS2NAME == arctic2_his2.nc
      TLMNAME == arctic2_tlm.nc
      TLFNAME == arctic2_tlf.nc
      ADJNAME == arctic2_tlm.nc
