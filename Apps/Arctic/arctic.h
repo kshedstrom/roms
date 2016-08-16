@@ -36,7 +36,7 @@
 #define STATIONS
 #undef WET_DRY
 
-#undef T_PASSIVE
+#define T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
 # define ANA_SPFLUX 
@@ -87,7 +87,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS

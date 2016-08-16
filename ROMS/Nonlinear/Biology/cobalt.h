@@ -1,4 +1,4 @@
-#define DEBUG_COBALT
+#undef DEBUG_COBALT
       SUBROUTINE biology (ng,tile)
 !
 !svn $Id$
@@ -3599,7 +3599,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
  &                             rmask_full(i,j)*         &
 # endif
  &                             cobalt%f_npp_100(i,j) * depth_integration &
- &       /(z_w(i,j,UBk) - z_w(i,j,kdi))
+ &       /(z_w(i,j,kdi) - z_w(i,j,UBk))
       ! new diag here
 
     ENDDO
@@ -3633,7 +3633,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
  &                                 rmask_full(i,j)*             &
 # endif
  &                cobalt%f_mesozoo_200(i,j) * depth_integration &
- &       /(z_w(i,j,UBk) - z_w(i,j,kdi))
+ &       /(z_w(i,j,kdi) - z_w(i,j,UBk))
       ! new diag here
 
     ENDDO

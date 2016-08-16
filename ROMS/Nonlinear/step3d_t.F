@@ -335,7 +335,7 @@
       integer :: dg, cr, rg
 # endif
       integer :: Isrc, Jsrc
-      integer :: i, ibt, ic, is, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, it, itrc, j, k, ltrc
 # if defined AGE_MEAN && defined T_PASSIVE
       integer :: iage
 # endif
