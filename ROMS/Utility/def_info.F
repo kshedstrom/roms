@@ -284,6 +284,8 @@
          type='ROMS/TOMS boundary conditions error covariance norm file'
         ELSE IF (ncid.eq.NRM(4,ng)%ncid) THEN
           type='ROMS/TOMS surface forcing error covariance norm file'
+        ELSE IF (ncid.eq.QCK(ng)%ncid) THEN
+          type='ROMS/TOMS quicksave file'
         ELSE IF (ncid.eq.RST(ng)%ncid) THEN
           type='ROMS/TOMS restart file'
         ELSE IF (ncid.eq.STA(ng)%ncid) THEN
@@ -423,22 +425,6 @@
           END IF
           IF (status.ne.nf90_noerr) THEN
             IF (Master) WRITE (stdout,20) 'avg2_file', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
-          END IF
-        END IF
-#endif
-#ifdef HISTORY2
-        IF (exit_flag.eq.NoError) THEN
-          IF (ndefHIS2(ng).gt.0) THEN
-            status=nf90_put_att(ncid, nf90_global, 'his2_base',         &
-     &                          TRIM(HIS2(ng)%base))
-          ELSE
-            status=nf90_put_att(ncid, nf90_global, 'his2_file',         &
-     &                          TRIM(HIS2(ng)%name))
-          END IF
-          IF (status.ne.nf90_noerr) THEN
-            IF (Master) WRITE (stdout,20) 'his2_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF
@@ -1170,20 +1156,6 @@
       Vinfo( 1)='ndefAVG2'
       Vinfo( 2)=                                                        &
      &    'number of time-steps between the creation of average files'
-      status=def_var(ng, model, ncid, varid, nf90_int,                  &
-     &               1, (/0/), Aval, Vinfo, ncname)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
-#ifdef HISTORY2
-      Vinfo( 1)='nHIS2'
-      Vinfo( 2)='number of time-steps between surface records'
-      status=def_var(ng, model, ncid, varid, nf90_int,                  &
-     &               1, (/0/), Aval, Vinfo, ncname)
-      IF (exit_flag.ne.NoError) RETURN
-
-      Vinfo( 1)='ndefHIS2'
-      Vinfo( 2)=                                                        &
-     &    'number of time-steps between the creation of surface files'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &
      &               1, (/0/), Aval, Vinfo, ncname)
       IF (exit_flag.ne.NoError) RETURN

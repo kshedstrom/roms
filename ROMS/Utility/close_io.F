@@ -231,6 +231,9 @@
         IF (HIS(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iNLM, HIS(ng)%ncid)
         END IF
+        IF (QCK(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, QCK(ng)%ncid)
+        END IF
 #ifdef ADJOINT
         IF (ADM(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iADM, ADM(ng)%ncid)
@@ -252,11 +255,6 @@
 #ifdef AVERAGES2
         IF (AVG2(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid)
-        END IF
-#endif
-#ifdef HISTORY2
-        IF (HIS2(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, HIS2(ng)%ncid)
         END IF
 #endif
 #ifdef FILTERED_RST
@@ -372,14 +370,6 @@
             Fcount=AVG2(ng)%Fcount
             IF (AVG2(ng)%Nrec(Fcount).gt.0) THEN
               WRITE (stdout,20) 'AVERAGE2', AVG2(ng)%Nrec(Fcount)
-            END IF
-          END IF
-#endif
-#ifdef HISTORY2
-          IF (associated(HIS2(ng)%Nrec)) THEN
-            Fcount=HIS2(ng)%Fcount
-            IF (HIS2(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'HISTORY2', HIS2(ng)%Nrec(Fcount)
             END IF
           END IF
 #endif

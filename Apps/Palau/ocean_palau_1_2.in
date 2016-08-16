@@ -259,8 +259,8 @@ ad_VolCons(north) == F F                            ! northern boundary
 !        NHIS == 5 20
         NHIS == 3600 10800
      NDEFHIS == 3600 10800
-       NHIS2 == 150 450
-    NDEFHIS2 == 3600 10800
+        NQCK == 150 450
+     NDEFQCK == 3600 10800
       NTSAVG == 1 1
        NAVG == 3600 10800
     NDEFAVG == 3600 10800
@@ -660,33 +660,33 @@ Hout(idMtls) == F F       ! gls                turbulent length scale
 ! Logical switches (TRUE/FALSE) to activate writing of fields into
 ! surface output file.
 
-Hout2(idUvel) == T T       ! u                  3D U-velocity
-Hout2(idVvel) == T T       ! v                  3D V-velocity
-Hout2(idu3dE) == F F       ! u_eastward         3D U-eastward  at RHO-points
-Hout2(idv3dN) == F F       ! v_northward        3D V-northward at RHO-points
-Hout2(idUbar) == T T       ! ubar               2D U-velocity
-Hout2(idVbar) == T T       ! vbar               2D V-velocity
-Hout2(idu2dE) == F F       ! ubar_eastward      2D U-eastward  at RHO-points
-Hout2(idv2dN) == F F       ! vbar_northward     2D V-northward at RHO-points
-Hout2(idFsur) == T T       ! zeta               free-surface
+Qout(idUvel) == T T       ! u                  3D U-velocity
+Qout(idVvel) == T T       ! v                  3D V-velocity
+Qout(idu3dE) == F F       ! u_eastward         3D U-eastward  at RHO-points
+Qout(idv3dN) == F F       ! v_northward        3D V-northward at RHO-points
+Qout(idUbar) == T T       ! ubar               2D U-velocity
+Qout(idVbar) == T T       ! vbar               2D V-velocity
+Qout(idu2dE) == F F       ! ubar_eastward      2D U-eastward  at RHO-points
+Qout(idv2dN) == F F       ! vbar_northward     2D V-northward at RHO-points
+Qout(idFsur) == T T       ! zeta               free-surface
 
-Hout2(idTvar) == T T T T                        ! temperature and salinity
+Qout(idTvar) == T T T T                        ! temperature and salinity
 
-Hout2(idUair) == T T                          ! surface U-wind
-Hout2(idVair) == T T                          ! surface V-wind
-Hout2(idUairE) == T T                          ! surface U-wind
-Hout2(idVairN) == T T                          ! surface V-wind
-Hout2(idUsms) == T T                          ! surface U-stress
-Hout2(idVsms) == T T                          ! surface V-stress
+Qout(idUair) == T T                          ! surface U-wind
+Qout(idVair) == T T                          ! surface V-wind
+Qout(idUairE) == T T                          ! surface U-wind
+Qout(idVairN) == T T                          ! surface V-wind
+Qout(idUsms) == T T                          ! surface U-stress
+Qout(idVsms) == T T                          ! surface V-stress
 
-Hout2(idTsur) == T T T T                        ! surface net heat and salt flux
-Hout2(idLhea) == T T                          ! latent heat flux
-Hout2(idShea) == T T                          ! sensible heat flux
-Hout2(idLrad) == T T                          ! longwave radiation flux
-Hout2(idSrad) == T T                          ! shortwave radiation flux
-Hout2(idEmPf) == F F                          ! E-P flux
-Hout2(idevap) == F F                          ! evaporation rate
-Hout2(idrain) == F F                          ! precipitation rate
+Qout(idTsur) == T T T T                        ! surface net heat and salt flux
+Qout(idLhea) == T T                          ! latent heat flux
+Qout(idShea) == T T                          ! sensible heat flux
+Qout(idLrad) == T T                          ! longwave radiation flux
+Qout(idSrad) == T T                          ! shortwave radiation flux
+Qout(idEmPf) == F F                          ! E-P flux
+Qout(idevap) == F F                          ! evaporation rate
+Qout(idrain) == F F                          ! precipitation rate
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers. An inert passive tracer
@@ -695,7 +695,7 @@ Hout2(idrain) == F F                          ! precipitation rate
 ! NPT values are expected. However, these switches can be activated using
 ! compact parameter specification.
 
- Hout2(inert) == F F                          ! inert passive tracers
+ Qout(inert) == F F                          ! inert passive tracers
 
 ! Logical switches (TRUE/FALSE) to activate writing of fields into
 ! secondary Averages output file.
@@ -1011,8 +1011,8 @@ Dout(iTvdif) == T T T T     ! temp_vdiff, ...    vertical diffusion
                 palau_rst_2.nc
      HISNAME == palau_his_1.nc \
                 palau_his_2.nc
-    HIS2NAME == palau_his2_1.nc \
-               palau_his2_2.nc
+     QCKNAME == palau_his2_1.nc \
+                palau_his2_2.nc
      TLMNAME == palau_tlm_1.nc \
                 palau_tlm_2.nc
      TLFNAME == palau_tlf_1.nc \
@@ -1022,7 +1022,7 @@ Dout(iTvdif) == T T T T     ! temp_vdiff, ...    vertical diffusion
      AVGNAME == palau_avg_1.nc \
                 palau_avg_2.nc
     AVG2NAME == palau_avg2_1.nc \
-               palau_avg2_2.nc
+                palau_avg2_2.nc
      DIANAME == palau_dia_1.nc \
                 palau_dia_2.nc
      STANAME == palau_sta_1.nc \

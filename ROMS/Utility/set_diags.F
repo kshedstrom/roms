@@ -108,7 +108,6 @@
 !-----------------------------------------------------------------------
 !
       IF (nDIA(ng).eq.0) RETURN
-
 !
 !-----------------------------------------------------------------------
 ! Initialize time-averaged diagnostic arrays when appropriate.  Notice

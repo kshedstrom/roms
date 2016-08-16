@@ -179,55 +179,47 @@
         END IF
       END IF
 # endif
-# if defined HISTORY2
 !
 !-----------------------------------------------------------------------
-!  If appropriate, process secondary surface NetCDF file.
+!  If appropriate, process nonlinear quicksave NetCDF file.
 !-----------------------------------------------------------------------
 !
-!  Create output time-averaged NetCDF file or prepare existing file
-!  to append new data to it. Also, notice that it is possible to
+!  Create output quicksave NetCDF file or prepare existing file to
+!  append new data to it.  Also,  notice that it is possible to
 !  create several files during a single model run.
 !
-      IF (LdefHIS2(ng)) THEN
-        IF (ndefHIS2(ng).gt.0) THEN
-          IF (idefHIS2(ng).lt.0) THEN
-            idefHIS2(ng)=((ntstart(ng)-1)/ndefHIS2(ng))*ndefHIS2(ng)
-            IF ((ndefHIS2(ng).eq.nHIS2(ng)).and.(idefHIS2(ng).le.0)) THEN
-              idefHIS2(ng)=ndefHIS2(ng)         ! one file per record
-            ELSE IF (idefHIS2(ng).lt.iic(ng)-1) THEN
-              idefHIS2(ng)=idefHIS2(ng)+ndefHIS2(ng)
+      IF (LdefQCK(ng)) THEN
+        IF (ndefQCK(ng).gt.0) THEN
+          IF (idefQCK(ng).lt.0) THEN
+            idefQCK(ng)=((ntstart(ng)-1)/ndefQCK(ng))*ndefQCK(ng)
+            IF (idefQCK(ng).lt.iic(ng)-1) THEN
+              idefQCK(ng)=idefQCK(ng)+ndefQCK(ng)
             END IF
           END IF
           IF ((nrrec(ng).ne.0).and.(iic(ng).eq.ntstart(ng))) THEN
-            IF ((iic(ng)-1).eq.idefHIS2(ng)) THEN
-              Ldefine=.FALSE.                    ! finished file, delay
-            ELSE                                 ! creation of next file
-              NewFile=.FALSE.
-              Ldefine=.TRUE.                     ! unfinished file, inquire
-            END IF                               ! content for appending
-            idefHIS2(ng)=idefHIS2(ng)+nHIS2(ng)  ! restart offset
-          ELSE IF ((iic(ng)-1).eq.idefHIS2(ng)) THEN
-            idefHIS2(ng)=idefHIS2(ng)+ndefHIS2(ng)
-            IF (nHIS2(ng).ne.ndefHIS2(ng).and.iic(ng).eq.ntstart(ng))   &
-     &              THEN
-              idefHIS2(ng)=idefHIS2(ng)+nHIS2(ng)
+            IF ((iic(ng)-1).eq.idefQCK(ng)) THEN
+              Ldefine=.FALSE.                 ! finished file, delay
+            ELSE                              ! creation of next file
+              Ldefine=.TRUE.
+              NewFile=.FALSE.                 ! unfinished file, inquire
+            END IF                            ! content for appending
+            idefQCK(ng)=idefQCK(ng)+nQCK(ng)  ! restart offset
+          ELSE IF ((iic(ng)-1).eq.idefQCK(ng)) THEN
+            idefQCK(ng)=idefQCK(ng)+ndefQCK(ng)
+            IF (nQCK(ng).ne.ndefQCK(ng).and.iic(ng).eq.ntstart(ng)) THEN
+              idefQCK(ng)=idefQCK(ng)+nQCK(ng)  ! multiple record offset
             END IF
             Ldefine=.TRUE.
             NewFile=.TRUE.
           ELSE
             Ldefine=.FALSE.
           END IF
-          IF (Ldefine) THEN
-            Fcount=HIS2(ng)%Fcount
-            HIS2(ng)%Nrec(Fcount)=0
-            IF (nHIS2(ng).eq.ndefHIS2(ng)) THEN
-              ifile=(iic(ng)-1)/ndefHIS2(ng)
-            ELSE
-              ifile=(iic(ng)-1)/ndefHIS2(ng)+1
-            END IF
+          IF (Ldefine) THEN                     ! create new file or
+            Fcount=QCK(ng)%Fcount               ! inquire existing file
+            QCK(ng)%Nrec(Fcount)=0
+            ifile=(iic(ng)-1)/ndefQCK(ng)+1
             IF (Master) THEN
-              WRITE (HIS2(ng)%name,12) TRIM(HIS2(ng)%base), ifile
+              WRITE (QCK(ng)%name,12) TRIM(QCK(ng)%base), ifile
             END IF
 #ifdef LONG_NUMS
   12          FORMAT (a,'_',i5.5,'.nc')
@@ -235,35 +227,48 @@
   12          FORMAT (a,'_',i4.4,'.nc')
 #endif
 # ifdef DISTRIBUTE
-            CALL mp_bcasts (ng, iNLM, HIS2(ng)%name)
+            CALL mp_bcasts (ng, iNLM, QCK(ng)%name)
 # endif
-            IF (HIS2(ng)%ncid.ne.-1) THEN
-              CALL netcdf_close(ng, iNLM, HIS2(ng)%ncid)
+            IF (QCK(ng)%ncid.ne.-1) THEN
+              CALL netcdf_close (ng, iNLM, QCK(ng)%ncid)
             END IF
-            CALL def_his2 (ng, Newfile)
+            CALL def_quick (ng, NewFile)
             IF (exit_flag.ne.NoError) RETURN
-            LwrtHIS2(ng)=.TRUE.
+          END IF
+          IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
+            LwrtQCK(ng)=.FALSE.                 ! avoid writing initial
+          ELSE                                  ! fields during restart
+            LwrtQCK(ng)=.TRUE.
           END IF
         ELSE
           IF (iic(ng).eq.ntstart(ng)) THEN
-            CALL def_his2 (ng, ldefout(ng))
+            CALL def_quick (ng, ldefout(ng))
             IF (exit_flag.ne.NoError) RETURN
-            LwrtHIS2(ng)=.TRUE.
-            LdefHIS2(ng)=.FALSE.
+            LwrtQCK(ng)=.TRUE.
+            LdefQCK(ng)=.FALSE.
           END IF
         END IF
       END IF
 !
-!  Write out data into time-averaged NetCDF file.
+!  Write out data into quicksave NetCDF file.  Avoid writing initial
+!  conditions in perturbation mode computations.
 !
-      IF (LwrtHIS2(ng)) THEN
-        IF ((iic(ng).gt.ntstart(ng)).and.                               &
-     &      (MOD(iic(ng)-1,nHIS2(ng)).eq.0)) THEN
-          CALL wrt_his2 (ng)
-          IF (exit_flag.ne.NoError) RETURN
+      IF (LwrtQCK(ng)) THEN
+        IF (LwrtPER(ng)) THEN
+          IF ((iic(ng).gt.ntstart(ng)).and.                             &
+     &        (MOD(iic(ng)-1,nQCK(ng)).eq.0)) THEN
+            IF (nrrec(ng).eq.0.or.iic(ng).ne.ntstart(ng)) THEN
+              CALL wrt_quick (ng, tile)
+            END IF
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
+        ELSE
+          IF (MOD(iic(ng)-1,nQCK(ng)).eq.0) THEN
+            CALL wrt_quick (ng, tile)
+            IF (exit_flag.ne.NoError) RETURN
+          END IF
         END IF
       END IF
-# endif
 
 # ifdef AVERAGES
 !

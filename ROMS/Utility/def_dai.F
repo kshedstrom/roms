@@ -348,7 +348,6 @@
         Vinfo( 3)=Vname(3,idFsur)
         Vinfo(14)=Vname(4,idFsur)
         Vinfo(16)=Vname(1,idtime)
-        Vinfo(20)='mask_rho'
         Vinfo(22)='coordinates'
         Aval(5)=REAL(Iinfo(1,idFsur,ng),r8)
         status=def_var(ng, iNLM, DAI(ng)%ncid, DAI(ng)%Vid(idFsur),     &
@@ -576,10 +575,10 @@
         DAI(ng)%Rindex=rec_size
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_DAI   - creating DA initial or restart  file',    &
-     &        ', Grid ',i2.2 ': ',a)
-  20  FORMAT (6x,'DEF_DAI   - inquiring DA initial/restart file',       &
-     &        ', Grid ',i2.2,': ',a)
+  10  FORMAT (6x,'DEF_AVG     - creating  DA INI/RST', t43,             &
+     &        ' file, Grid ',i2.2,': ', a)
+  20  FORMAT (6x,'DEF_AVG     - inquiring DA INI/RST', t43,             &
+     &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_DAI - unable to create DA initial/restart',       &
      &        ' NetCDF file: ',a)
   40  FORMAT ('time independent',1x,a)

@@ -32,7 +32,6 @@
 #define SALINITY
 #define SOLVE3D
 #define AVERAGES
-#undef HISTORY2
 #define DIAGNOSTICS_TS
 #define DIAGNOSTICS_UV
 

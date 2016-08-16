@@ -47,6 +47,7 @@
 !    NUD       Input climatology nudging coefficients                  !
 !    OBS       Input/output 4D-Var observations                        !
 !    PRED      Predatory fish trajectory data                          !
+!    QCK       Output nonlinear model brief snpashots data             !
 !    RST       Output restart data                                     !
 !    TIDE      Input tide forcing                                      !
 !    TLF       Input/output tangent linear model impulse forcing       !
@@ -124,7 +125,6 @@
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
       TYPE(T_IO), allocatable :: HIS(:)     ! NLM history fields
-      TYPE(T_IO), allocatable :: HIS2(:)    ! surface history fields
       TYPE(T_IO), allocatable :: HSS(:)     ! Hessian eigenvectors
       TYPE(T_IO), allocatable :: IAD(:)     ! ADM initial conditions
       TYPE(T_IO), allocatable :: INI(:)     ! NLM initial conditions
@@ -136,6 +136,7 @@
       TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
+      TYPE(T_IO), allocatable :: QCK(:)     ! quicksave fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
       TYPE(T_IO), allocatable :: SSF(:)     ! Sources/Sinks forcing
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
@@ -218,7 +219,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i
+      integer :: i, ng
 
       character (len=1), parameter :: blank = ' '
 !
@@ -248,7 +249,6 @@
       allocate ( GRD(Ngrids) )
       allocate ( GST(Ngrids) )
       allocate ( HIS(Ngrids) )
-      allocate ( HIS2(Ngrids) )
       allocate ( HSS(Ngrids) )
       allocate ( IAD(Ngrids) )
       allocate ( INI(Ngrids) )
@@ -258,6 +258,7 @@
       allocate ( LZE(Ngrids) )
       allocate ( NUD(Ngrids) )
       allocate ( OBS(Ngrids) )
+      allocate ( QCK(Ngrids) )
       allocate ( RST(Ngrids) )
       allocate ( SSF(Ngrids) )
       allocate ( STA(Ngrids) )
@@ -268,7 +269,6 @@
 
       allocate ( NRM(4,Ngrids) )
       allocate ( STD(4,Ngrids) )
-
 !
 !-----------------------------------------------------------------------
 !  Allocate variables.
@@ -277,6 +277,46 @@
       allocate ( nBCfiles(Ngrids) )
       allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
+!
+!-----------------------------------------------------------------------
+!  Initialize I/O NetCDF files ID to close state.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        ADM(ng)%ncid=-1
+        ADS(ng)%ncid=-1
+        AVG(ng)%ncid=-1
+        BLK(ng)%ncid=-1
+        DAI(ng)%ncid=-1
+        DAV(ng)%ncid=-1
+        DIA(ng)%ncid=-1
+        ERR(ng)%ncid=-1
+        FLT(ng)%ncid=-1
+        FWD(ng)%ncid=-1
+        GRD(ng)%ncid=-1
+        GST(ng)%ncid=-1
+        HIS(ng)%ncid=-1
+        HSS(ng)%ncid=-1
+        IAD(ng)%ncid=-1
+        INI(ng)%ncid=-1
+        IRP(ng)%ncid=-1
+        ITL(ng)%ncid=-1
+        LCZ(ng)%ncid=-1
+        LZE(ng)%ncid=-1
+        NUD(ng)%ncid=-1
+        OBS(ng)%ncid=-1
+        QCK(ng)%ncid=-1
+        RST(ng)%ncid=-1
+        SSF(ng)%ncid=-1
+        STA(ng)%ncid=-1
+        TLF(ng)%ncid=-1
+        TLM(ng)%ncid=-1
+
+        TIDE(ng)%ncid=-1
+
+        NRM(1:4,ng)%ncid=-1
+        STD(1:4,ng)%ncid=-1
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Initialize file names to blanks.

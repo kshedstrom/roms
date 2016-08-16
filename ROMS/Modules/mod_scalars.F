@@ -928,7 +928,6 @@
         logical, allocatable :: LdefFLEET(:)     ! Fishing fleet file
         logical, allocatable :: LdefFLT(:)       ! Floats file
         logical, allocatable :: LdefHIS(:)       ! History file
-        logical, allocatable :: LdefHIS2(:)      ! History2 file
         logical, allocatable :: LdefHSS(:)       ! Hessian file
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
@@ -937,6 +936,7 @@
         logical, allocatable :: LdefLZE(:)       ! Evolved Lanczos file
         logical, allocatable :: LdefMOD(:)       ! 4DVAR file
         logical, allocatable :: LdefPRED(:)      ! Predatory fish file
+        logical, allocatable :: LdefQCK(:)       ! Quicksave file
         logical, allocatable :: LdefRST(:)       ! Restart file
         logical, allocatable :: LdefSTA(:)       ! Stations file
         logical, allocatable :: LdefTIDE(:)      ! tide forcing file
@@ -951,8 +951,8 @@
         logical, allocatable :: LwrtPRED(:)      ! Write predator file
         logical, allocatable :: LwrtFLEET(:)     ! Write fishing fleet file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
-        logical, allocatable :: LwrtHIS2(:)      ! Write history2 file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
+        logical, allocatable :: LwrtQCK(:)       ! write quicksave file
         logical, allocatable :: LwrtRST(:)       ! Write restart file
         logical, allocatable :: LwrtTLM(:)       ! Write tangent file
         logical, allocatable :: LwrtTLF(:)       ! Write impulse file
@@ -996,7 +996,7 @@
         integer, allocatable :: ndefPRED(:)      ! Predator file
         integer, allocatable :: ndefFLEET(:)     ! Fishing fleet file
         integer, allocatable :: ndefHIS(:)       ! History file
-        integer, allocatable :: ndefHIS2(:)      ! History2 file
+        integer, allocatable :: ndefQCK(:)       ! Quicksave file
         integer, allocatable :: ndefTLM(:)       ! Tangent linear file
 !
 !  Starting timestep for accumulation of output.
@@ -1016,7 +1016,7 @@
         integer, allocatable :: nFSH(:)          ! Fish file
         integer, allocatable :: nHIS(:)          ! History file
         integer, allocatable :: nPRE(:)          ! Predator file
-        integer, allocatable :: nHIS2(:)         ! History2 file
+        integer, allocatable :: nQCK(:)          ! Quicksave file
         integer, allocatable :: nRST(:)          ! Restart file
         integer, allocatable :: nSTA(:)          ! Stations file
         integer, allocatable :: nTLM(:)          ! Tangent linear file
@@ -2181,7 +2181,6 @@
 #endif
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
-      allocate ( LdefHIS2(Ngrids) )
       allocate ( LdefHSS(Ngrids) )
       allocate ( LdefINI(Ngrids) )
       allocate ( LdefIRP(Ngrids) )
@@ -2189,6 +2188,7 @@
       allocate ( LdefLCZ(Ngrids) )
       allocate ( LdefLZE(Ngrids) )
       allocate ( LdefMOD(Ngrids) )
+      allocate ( LdefQCK(Ngrids) )
       allocate ( LdefRST(Ngrids) )
       allocate ( LdefSTA(Ngrids) )
       allocate ( LdefTIDE(Ngrids) )
@@ -2209,8 +2209,8 @@
 # endif
 #endif
       allocate ( LwrtHIS(Ngrids) )
-      allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
+      allocate ( LwrtQCK(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
       allocate ( LwrtTLM(Ngrids) )
       allocate ( LwrtTLF(Ngrids) )
@@ -2246,7 +2246,7 @@
 # endif
 #endif
       allocate ( ndefHIS(Ngrids) )
-      allocate ( ndefHIS2(Ngrids) )
+      allocate ( ndefQCK(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
       allocate ( ntsAVG(Ngrids) )
@@ -2268,7 +2268,7 @@
 # endif
 #endif
       allocate ( nHIS(Ngrids) )
-      allocate ( nHIS2(Ngrids) )
+      allocate ( nQCK(Ngrids) )
       allocate ( nRST(Ngrids) )
       allocate ( nSTA(Ngrids) )
       allocate ( nTLM(Ngrids) )
@@ -2803,7 +2803,6 @@
 # endif
 #endif
         LdefHIS(ng)=.TRUE.
-        LdefHIS2(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
@@ -2828,7 +2827,6 @@
         LwrtFLEET(ng)=.FALSE.
 # endif
         LwrtHIS(ng)=.FALSE.
-        LwrtHIS2(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.

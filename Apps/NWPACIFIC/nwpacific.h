@@ -11,7 +11,11 @@
 **
 **  Options for Northeast Pacific (NEP4) simulation
 */
- 
+
+#undef NO_HIS
+#undef NETCDF4
+#undef PARALLEL_IO
+
 /* general */
 
 #define CURVGRID
