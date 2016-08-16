@@ -13,7 +13,6 @@
 */
 
 #undef NO_HIS
-#define HISTORY2
 #undef NETCDF4
 #undef PARALLEL_IO
 #undef OFFLINE_FLOATS

@@ -204,7 +204,6 @@
 ** PROFILE             use if time profiling                                 **
 ** AVERAGES            use if writing out NLM time-averaged data             **
 ** AVERAGES2           use if writing out secondary time-averaged data       **
-** HISTORY2            use if writing out secondary history data             **
 ** AVERAGES_DETIDE     use if writing out NLM time-averaged detided fields   **
 ** AD_AVERAGES         use if writing out ADM time-averaged data             **
 ** RP_AVERAGES         use if writing out TLM time-averaged data             **
