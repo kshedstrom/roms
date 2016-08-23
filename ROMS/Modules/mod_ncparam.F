@@ -831,6 +831,7 @@
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
         idefHIS(ng)=-1
+        idefQCK(ng)=-1
         idefTLM(ng)=-1
       END DO
 !
