@@ -821,6 +821,7 @@
 #endif
 
       allocate ( idefHIS(Ngrids) )
+      allocate ( idefQCK(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -939,6 +940,7 @@
 # endif
 #endif
         idefHIS(ng)=-1
+        idefQCK(ng)=-1
         idefTLM(ng)=-1
       END DO
 !

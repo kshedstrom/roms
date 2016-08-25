@@ -1,11 +1,12 @@
 Regional Ocean Modeling System
 
 This is a branch of the ROMS code kept at myroms.org
-(https://www.myroms.org/svn/omlab/branches/kate/trunk), containing sea
-ice and several other changes people have contributed, notably the CoSiNE
-ecosystem model and some ice shelf fixes.
+(https://www.myroms.org/), containing sea ice and several other
+changes people have contributed, notably the CoSiNE ecosystem model
+and some ice shelf fixes. You are strongly encouraged to register with
+myroms.org for access to the forum where this code is discussed.
 
-This same branch can also be obtained at:
+This ice branch can be obtained at:
 https://github.com/kshedstrom/roms
 
 Kate Hedstrom
