@@ -3583,7 +3583,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! while below depth of integration, keep incrementing kdi
       ! this only has to be done once for all diags
       ! Can't let this get all the way up to UBk
-      DO k=0,UBk-1
+!      DO k=0,UBk-1
+      DO k=0,UBk
          IF (z_w(i,j,k) < depth_integration )  kdi = k
       ENDDO
 
@@ -3599,8 +3600,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 # ifdef WET_DRY
  &                             rmask_full(i,j)*         &
 # endif
- &                             cobalt%f_npp_100(i,j) * depth_integration &
- &       /(z_w(i,j,kdi) - z_w(i,j,UBk))
+ &                             cobalt%f_npp_100(i,j)
+ !&                             cobalt%f_npp_100(i,j) * depth_integration &
+ !&       /(z_w(i,j,kdi) - z_w(i,j,UBk))
       ! new diag here
 
     ENDDO
@@ -3617,7 +3619,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! while below depth of integration, keep incrementing kdi
       ! this only has to be done once for all diags
       ! Can't let this get all the way up to UBk
-      DO k=0,UBk-1
+!      DO k=0,UBk-1
+      DO k=0,UBk
          IF (z_w(i,j,k) < depth_integration )  kdi = k
       ENDDO
 
@@ -3634,8 +3637,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 # ifdef WET_DRY
  &                                 rmask_full(i,j)*             &
 # endif
- &                cobalt%f_mesozoo_200(i,j) * depth_integration &
- &       /(z_w(i,j,kdi) - z_w(i,j,UBk))
+ &                cobalt%f_mesozoo_200(i,j)
+! &                cobalt%f_mesozoo_200(i,j) * depth_integration &
+! &       /(z_w(i,j,kdi) - z_w(i,j,UBk))
       ! new diag here
 
     ENDDO
