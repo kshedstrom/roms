@@ -498,7 +498,15 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
   DO k=1,UBk
    DO j=Jstr,Jend
     DO i=Istr,Iend
+#ifdef MASKING
+# ifdef WET_DRY
+     rmask3d(i,j,k) = rmask_full(i,j)
+# else
      rmask3d(i,j,k) = rmask(i,j)
+# endif
+#else
+     rmask3d(i,j,k) = 1.0_r8
+#endif
     ENDDO
    ENDDO
   ENDDO
@@ -3575,7 +3583,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   !!------------------ 100 meters integrals ---------------------
 
   depth_integration = -100.0d0
-  kdi=0
 
   DO j=Jstr,Jend
     DO i=Istr,Iend
@@ -3584,6 +3591,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! this only has to be done once for all diags
       ! Can't let this get all the way up to UBk
 !      DO k=0,UBk-1
+      kdi=0
       DO k=0,UBk
          IF (z_w(i,j,k) < depth_integration )  kdi = k
       ENDDO
@@ -3611,7 +3619,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   !!------------------ 200 meters integrals ---------------------
 
   depth_integration = -200.0d0
-  kdi=0
 
   DO j=Jstr,Jend
     DO i=Istr,Iend
@@ -3620,6 +3627,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! this only has to be done once for all diags
       ! Can't let this get all the way up to UBk
 !      DO k=0,UBk-1
+      kdi=0
       DO k=0,UBk
          IF (z_w(i,j,k) < depth_integration )  kdi = k
       ENDDO

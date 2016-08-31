@@ -631,7 +631,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), 1, 2, scale,   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % obgc(:,:,:,:,itrc))
 # else
@@ -640,7 +640,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % obgc(:,:,:,NOUT,itrc))
 # endif
@@ -665,18 +665,18 @@
         status=nf_fwrite4d(ng, iNLM, RST(ng)%ncid,                      &
      &                     RST(ng)%Vid(idBetvar(itrc)),                 &
      &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), 1, 2, scale,   &
+     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), 1, 2, scale, &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % bt(:,:,:,:,itrc))
 # else
         status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid,                      &
                            RST(ng)%Vid(idBetvar(itrc)),                 &
      &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), scale,         &
+     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), scale,       &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % bt(:,:,:,NOUT,itrc))
 # endif
