@@ -1675,24 +1675,146 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-!      Vinfo( 1)='ice_restart_file' 
-!     Vinfo( 2)='ice_restart_file: ice restart file' 
-!     status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
-!    &               1, (/0/), Aval, Vinfo, ncname,                     &   
-!    &               SetParAccess = .FALSE.)
-!     IF (exit_flag.ne.NoError) RETURN
+#ifdef COASTDIAT
 
-!     Vinfo( 1)='ocean_restart_file' 
-!     Vinfo( 2)='ocean_restart_file: ocean restart file' 
-!     status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
-!    &               1, (/0/), Aval, Vinfo, ncname,                     &   
-!    &               SetParAccess = .FALSE.)
-!     IF (exit_flag.ne.NoError) RETURN
+      Vinfo( 1)='k_fed_Md' 
+      Vinfo( 2)='k_fed_Md: Nutrient Limitation Parameters (phytoplankton)' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
 
-!     Vinfo( 1)='IC_file' 
-!     Vinfo( 2)='IC_file: Initial conditions' 
-!     status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
-!    &               1, (/0/), Aval, Vinfo, ncname,                     &   
-!    &               SetParAccess = .FALSE.)
-!     IF (exit_flag.ne.NoError) RETURN
+      Vinfo( 1)='k_nh4_Md' 
+      Vinfo( 2)='k_nh4_Md: Nutrient Limitation Parameters (phytoplankton)' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='k_no3_Md' 
+      Vinfo( 2)='k_no3_Md: Nutrient Limitation Parameters (phytoplankton) ' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='k_po4_Md' 
+      Vinfo( 2)='k_po4_Md: Nutrient Limitation Parameters (phytoplankton) ' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='k_sio4_Md' 
+      Vinfo( 2)='k_sio4_Md: Nutrient Limitation Parameters (phytoplankton) ' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='k_fe_2_n_Md' 
+      Vinfo( 2)='k_fe_2_n_Md: Nutrient Limitation Parameters (phytoplankton) ' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='fe_2_n_max_Md' 
+      Vinfo( 2)='fe_2_n_max_Md: Nutrient Limitation Parameters (phytoplankton)' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='alpha_Md' 
+      Vinfo( 2)='alpha_Md: Phytoplankton light limitation/growth rate' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='P_C_max_Md' 
+      Vinfo( 2)='P_C_max_Md: Phytoplankton light limitation/growth rate' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='thetamax_Md' 
+      Vinfo( 2)='thetamax_Md: Phytoplankton light limitation/growth rate' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='bresp_Md' 
+      Vinfo( 2)='bresp_Md: Phytoplankton light limitation/growth rate' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='p_2_n_static_Md' 
+      Vinfo( 2)='p_2_n_static_Md: Other stoichiometry' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='si_2_n_static_Md' 
+      Vinfo( 2)='si_2_n_static_Md: Other stoichiometry' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='si_2_n_max_Md' 
+      Vinfo( 2)='si_2_n_max_Md: Other stoichiometry' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='agg_Md' 
+      Vinfo( 2)='agg_Md: Phytoplankton aggregation' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='vir_Md' 
+      Vinfo( 2)='vir_Md: Phytoplankton and bacterial losses to viruses' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='exu_Md' 
+      Vinfo( 2)='exu_Md: Phytoplankton losses to exudation' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='smz_ipa_mdp' 
+      Vinfo( 2)='smz_ipa_mdp: Zooplankton switching and prey preference parameters' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='mdz_ipa_mdp' 
+      Vinfo( 2)='mdz_ipa_mdp: Zooplankton switching and prey preference parameters' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='lgz_ipa_mdp' 
+      Vinfo( 2)='lgz_ipa_mdp: Zooplankton switching and prey preference parameters' 
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &   
+     &               1, (/0/), Aval, Vinfo, ncname,                     &   
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+#endif
