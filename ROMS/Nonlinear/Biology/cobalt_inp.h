@@ -532,19 +532,52 @@
                Npts=load_r(Nval, Rval, Ngrids, gamma_nitrif) 
              CASE ('irr_inhibit')
                Npts=load_r(Nval, Rval, Ngrids, irr_inhibit) 
-             !CASE ('tracer_debug')
-             !  Npts=load_l(Nval, Rval, Ngrids, tracer_debug) 
              CASE ('htotal_in')
                Npts=load_r(Nval, Rval, Ngrids, htotal_in) 
              CASE ('wsink')
                Npts=load_r(Nval, Rval, Ngrids, wsink) 
-!             CASE ('ice_restart_file')
-!               Npts=load_r(Nval, Rval, Ngrids, ice_restart_file) 
-!             CASE ('ocean_restart_file')
-!               Npts=load_r(Nval, Rval, Ngrids, ocean_restart_file) 
-!             CASE ('IC_file')
-!               Npts=load_r(Nval, Rval, Ngrids, IC_file) 
-
+#ifdef COASTDIAT
+             CASE ('k_fed_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_fed_Md)
+             CASE ('k_nh4_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_nh4_Md)
+             CASE ('k_no3_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_no3_Md)
+             CASE ('k_po4_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_po4_Md)
+             CASE ('k_sio4_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_sio4_Md)
+             CASE ('k_fe_2_n_Md')
+               Npts=load_r(Nval, Rval, Ngrids, k_fe_2_n_Md)
+             CASE ('fe_2_n_max_Md')
+               Npts=load_r(Nval, Rval, Ngrids, fe_2_n_max_Md)
+             CASE ('alpha_Md')
+               Npts=load_r(Nval, Rval, Ngrids, alpha_Md)
+             CASE ('P_C_max_Md')
+               Npts=load_r(Nval, Rval, Ngrids, P_C_max_Md)
+             CASE ('thetamax_Md')
+               Npts=load_r(Nval, Rval, Ngrids, thetamax_Md)
+             CASE ('bresp_Md')
+               Npts=load_r(Nval, Rval, Ngrids, bresp_Md)
+             CASE ('p_2_n_static_Md')
+               Npts=load_r(Nval, Rval, Ngrids, p_2_n_static_Md)
+             CASE ('si_2_n_static_Md')
+               Npts=load_r(Nval, Rval, Ngrids, si_2_n_static_Md)
+             CASE ('si_2_n_max_Md')
+               Npts=load_r(Nval, Rval, Ngrids, si_2_n_max_Md)
+             CASE ('agg_Md')
+               Npts=load_r(Nval, Rval, Ngrids, agg_Md)
+             CASE ('vir_Md')
+               Npts=load_r(Nval, Rval, Ngrids, vir_Md)
+             CASE ('exu_Md')
+               Npts=load_r(Nval, Rval, Ngrids, exu_Md)
+             CASE ('smz_ipa_mdp')
+               Npts=load_r(Nval, Rval, Ngrids, smz_ipa_mdp)
+             CASE ('mdz_ipa_mdp')
+               Npts=load_r(Nval, Rval, Ngrids, mdz_ipa_mdp)
+             CASE ('lgz_ipa_mdp')
+               Npts=load_r(Nval, Rval, Ngrids, lgz_ipa_mdp)
+#endif
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
               DO ng=1,Ngrids
@@ -1143,6 +1176,118 @@
               DO ng=1,Ngrids
                 Dout(i,ng)=Lbio(ng)
               END DO
+# ifdef COASTDIAT
+            CASE ('Dout(imu_mem_md)')
+              IF (iDbio3(imu_mem_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(imu_mem_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(imu_mem_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iaggloss_md)')
+              IF (iDbio3(iaggloss_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iaggloss_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iaggloss_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ivirloss_md)')
+              IF (iDbio3(ivirloss_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ivirloss_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ivirloss_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(izloss_md)')
+              IF (iDbio3(izloss_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(izloss_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(izloss_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iagg_lim_md)')
+              IF (iDbio3(iagg_lim_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iagg_lim_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iagg_lim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(idef_fe_md)')
+              IF (iDbio3(idef_fe_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(idef_fe_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(idef_fe_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ifelim_md)')
+              IF (iDbio3(ifelim_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ifelim_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ifelim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ino3lim_md)')
+              IF (iDbio3(ino3lim_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ino3lim_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ino3lim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(inh4lim_md)')
+              IF (iDbio3(inh4lim_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(inh4lim_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(inh4lim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ipo4lim_md)')
+              IF (iDbio3(ipo4lim_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ipo4lim_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ipo4lim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+# endif
 !            CASE ('Dout(inewdiag)')
 !              IF (iDbio3(inewdiag).eq.0) THEN
 !                IF (Master) WRITE (out,120) 'iDbio3(inewdiag)'
@@ -1707,6 +1852,26 @@
      &            'htotal_in: ?[N/A].'
              WRITE (out,100) wsink(ng), 'wsink',                           &
      &            'wsink: Sinking velocity of detritus[m s-1].'
+#ifdef COASTDIAT
+             WRITE (out,100) k_fed_Md(ng), 'k_fed_Md',                  &
+     &            'k_fed_Md: Nutrient Limitation Parameters             &
+     &            (phytoplankton)[mol Fed kg-1].'
+             WRITE (out,100) k_nh4_Md(ng), 'k_nh4_Md',                  &
+     &            'k_nh4_Md: Nutrient Limitation Parameters             &
+     &            (phytoplankton)[mol NH4 kg-1].'
+             WRITE (out,100) k_no3_Md(ng), 'k_no3_Md',                  &
+     &            'k_no3_Md: Nutrient Limitation Parameters             &
+     &            (phytoplankton) [mol NO3 kg-1].'
+             WRITE (out,100) k_po4_Md(ng), 'k_po4_Md',                  &
+     &            'k_po4_Md: Nutrient Limitation Parameters             &
+     &            (phytoplankton) [mol PO4 kg-1].'
+             WRITE (out,100) k_sio4_Md(ng), 'k_sio4_Md',                &
+     &            'k_sio4_Md: Nutrient Limitation Parameters            &
+     &            (phytoplankton) [mol SiO4 kg-1].'
+             WRITE (out,100) k_fe_2_n_Md(ng), 'k_fe_2_n_Md',            &
+     &            'k_fe_2_n_Md: Nutrient Limitation Parameters          &
+     &            (phytoplankton) [mol Fe mol N-1].'
+#endif
           END IF
         END DO
       END IF

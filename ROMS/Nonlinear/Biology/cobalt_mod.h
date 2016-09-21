@@ -542,6 +542,11 @@
       integer              :: insmz       ! Small Zooplankton Nitrogen
       integer              :: inmdz       ! Medium-sized zooplankton Nitrogen
       integer              :: inlgz       ! large Zooplankton Nitrogen
+#ifdef COASTDIAT
+      integer              :: inmd        ! Medium Phytoplankton Nitrogen
+      integer              :: isimd       ! Medium Phytoplankton Silicon
+      integer              :: ifemd       ! Medium Phytoplankton Iron
+#endif
 !RD: in the future NOBGC should be NOBGC(ngrids)
       integer              :: NOBGC       ! Number of Other BGC variables
       integer              :: iochl       ! chlorophyll in other BGC
@@ -551,6 +556,9 @@
       integer              :: iomu_mem_sm ! mum_mem_sm in other BGC
       integer              :: iomu_mem_di ! mum_mem_di in other BGC
       integer              :: iomu_mem_lg ! mum_mem_lg in other BGC
+#ifdef COASTDIAT
+      integer              :: iomu_mem_md 
+#endif
 
       integer              :: Nsink
 
@@ -616,6 +624,10 @@
       integer :: ino3lim_sm, ino3lim_di, ino3lim_lg
       integer :: inh4lim_sm, inh4lim_di, inh4lim_lg
       integer :: ipo4lim_sm, ipo4lim_di, ipo4lim_lg
+#ifdef COASTDIAT
+      integer :: imu_mem_md, iaggloss_md, ivirloss_md, izloss_md
+      integer :: iagg_lim_md, idef_fe_md, ifelim_md, ino3lim_md, inh4lim_md, ipo4lim_md
+#endif
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
 
@@ -859,6 +871,28 @@
       real(r8), allocatable :: irr_inhibit(:)                ! m2 W-1
       real(r8), allocatable :: htotal_in(:)                  ! N/A
       real(r8), allocatable :: wsink(:)                      ! m s-1
+#ifdef COASTDIAT
+      real(r8), allocatable :: k_fed_Md(:)
+      real(r8), allocatable :: k_nh4_Md(:)
+      real(r8), allocatable :: k_no3_Md(:)
+      real(r8), allocatable :: k_po4_Md(:)
+      real(r8), allocatable :: k_sio4_Md(:)
+      real(r8), allocatable :: k_fe_2_n_Md(:)
+      real(r8), allocatable :: fe_2_n_max_Md(:)
+      real(r8), allocatable :: alpha_Md(:)
+      real(r8), allocatable :: P_C_max_Md(:)
+      real(r8), allocatable :: thetamax_Md(:)
+      real(r8), allocatable :: bresp_Md(:)
+      real(r8), allocatable :: p_2_n_static_Md(:)
+      real(r8), allocatable :: si_2_n_static_Md(:)
+      real(r8), allocatable :: si_2_n_max_Md(:)
+      real(r8), allocatable :: agg_Md(:)
+      real(r8), allocatable :: vir_Md(:)
+      real(r8), allocatable :: exu_Md(:)
+      real(r8), allocatable :: smz_ipa_mdp(:)
+      real(r8), allocatable :: mdz_ipa_mdp(:)
+      real(r8), allocatable :: lgz_ipa_mdp(:)
+#endif
 
 ! Cobalt parameters
 
@@ -1042,6 +1076,9 @@
           ipa_mdz,          & ! innate prey availability of large zooplankton
           ipa_lgz,          & ! innate prey availability of x-large zooplankton
           ipa_det,          & ! innate prey availability of detritus
+#ifdef COASTDIAT
+          ipa_mdp,          &
+#endif
           ipa_bact            ! innate prey availability for bacteria
      real(8), ALLOCATABLE, dimension(:,:)  :: &
           jprod_n_100,      &
@@ -1253,6 +1290,9 @@
           hp_ipa_smz,       & ! "  "  "  "  "  "  "  "  "   small zooplankton to hp's
           hp_ipa_mdz,       & ! "  "  "  "  "  "  "  "  "   medium zooplankton to hp's
           hp_ipa_lgz,       & ! "  "  "  "  "  "  "  "  "   large zooplankton to hp's
+#ifdef COASTDIAT
+          hp_ipa_mdp,       &
+#endif
           hp_ipa_det,       & ! "  "  "  "  "  "  "  "  "   detritus to hp's
           hp_phi_det,       & ! fraction of ingested N to detritus
           hp_phi_ldon,      & ! fraction of ingested N to labile don
@@ -1346,6 +1386,14 @@
           jsidet,&
           jsilg,&
           jsio4,&
+#ifdef COASTDIAT
+          jnmd,&
+          jsimd,&
+          jfemd,&
+          nmd_diatoms,&
+          q_si_2_n_md_diatoms,&
+          f_simd,&
+#endif
           jprod_ndet,&
           jprod_pdet,&
           jprod_ldon,&
@@ -1715,6 +1763,14 @@
 ! ---------------------------------------------------------------------
 ! End declaration types ------------------------------------------
 
+#ifdef COASTDIAT
+      integer, parameter :: NUM_PHYTO  = 4
+      integer, parameter :: DIAZO      = 1
+      integer, parameter :: LARGE      = 2
+      integer, parameter :: MEDIUM     = 3
+      integer, parameter :: SMALL      = 4
+      integer, parameter :: NUM_PREY   = 9
+#else
       integer, parameter :: NUM_PHYTO  = 3
 !
 ! Array allocations and flux calculations assume that phyto(1) is the
@@ -1724,6 +1780,9 @@
       integer, parameter :: DIAZO      = 1
       integer, parameter :: LARGE      = 2
       integer, parameter :: SMALL      = 3
+      integer, parameter :: NUM_PREY   = 8
+#endif
+
       type(phytoplankton), save, dimension(NUM_PHYTO) :: phyto
 
 ! define three zooplankton types
@@ -1732,7 +1791,6 @@
 
       type(bacteria), save, dimension(1) :: bact
 
-      integer, parameter :: NUM_PREY = 8
       type(generic_COBALT_type), save :: cobalt
 
 
@@ -1777,12 +1835,25 @@
       ! Oxygen, Carbon and Alkalinity
       NBT=NBT+3
 #endif
+#ifdef COASTDIAT
+      ! Coastal diatoms adds medium zoo
+      ! needs 3 prog var n,si,fe
+      NBT=NBT+3
+#endif
       ! Other BGC
+#ifdef COASTDIAT
+      NOBGC = 8
+#else
       NOBGC = 7
+#endif
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
       NDbio2d = 24
+# ifdef COASTDIAT
+      NDbio3d = 52 
+# else
       NDbio3d = 42 
+# endif
 #endif
 #ifdef BENTHIC
       ! Benthic reservoirs
@@ -2515,6 +2586,68 @@
       IF (.not.allocated(wsink)) THEN
         allocate ( wsink(Ngrids) )
       END IF
+#ifdef COASTDIAT
+      IF (.not.allocated(k_fed_Md)) THEN
+        allocate ( k_fed_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(k_nh4_Md)) THEN
+        allocate ( k_nh4_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(k_no3_Md)) THEN
+        allocate ( k_no3_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(k_po4_Md)) THEN
+        allocate ( k_po4_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(k_sio4_Md)) THEN
+        allocate ( k_sio4_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(k_fe_2_n_Md)) THEN
+        allocate ( k_fe_2_n_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(fe_2_n_max_Md)) THEN
+        allocate ( fe_2_n_max_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(alpha_Md)) THEN
+        allocate ( alpha_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(P_C_max_Md)) THEN
+        allocate ( P_C_max_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(thetamax_Md)) THEN
+        allocate ( thetamax_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(bresp_Md)) THEN
+        allocate ( bresp_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(p_2_n_static_Md)) THEN
+        allocate ( p_2_n_static_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(si_2_n_static_Md)) THEN
+        allocate ( si_2_n_static_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(si_2_n_max_Md)) THEN
+        allocate ( si_2_n_max_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(agg_Md)) THEN
+        allocate ( agg_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(vir_Md)) THEN
+        allocate ( vir_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(exu_Md)) THEN
+        allocate ( exu_Md(Ngrids) )
+      END IF
+      IF (.not.allocated(smz_ipa_mdp)) THEN
+        allocate ( smz_ipa_mdp(Ngrids) )
+      END IF
+      IF (.not.allocated(mdz_ipa_mdp)) THEN
+        allocate ( mdz_ipa_mdp(Ngrids) )
+      END IF
+      IF (.not.allocated(lgz_ipa_mdp)) THEN
+        allocate ( lgz_ipa_mdp(Ngrids) )
+      END IF
+#endif
 ! RD TODO in the future
 !      IF (.not.allocated(NOBGC)) THEN
 !        allocate ( NOBGC(Ngrids) )
@@ -2636,6 +2769,12 @@
       ialk=ic+3
       ic=ic+3
 #endif
+#ifdef COASTDIAT
+      inmd=ic+1
+      isimd=ic+2
+      ifemd=ic+3
+      ic=ic+3
+#endif
 
       ! Other BGC variables (not in tracer array but necessary for
       ! dynamics)
@@ -2646,6 +2785,9 @@
       iomu_mem_sm=5
       iomu_mem_di=6
       iomu_mem_lg=7
+#ifdef COASTDIAT
+      iomu_mem_md=8
+#endif
 
 #ifdef DIAGNOSTICS_BIO
       ! 2D Diagnostic variables
@@ -2774,6 +2916,20 @@
       ipo4lim_sm=40
       ipo4lim_di=41
       ipo4lim_lg=42
+
+# ifdef COASTDIAT
+      imu_mem_md=43
+      iagg_lim_md=44
+      iaggloss_md=45
+      ivirloss_md=46
+      izloss_md=47
+      idef_fe_md=48
+      ifelim_md=49
+      ino3lim_md=50
+      inh4lim_md=51
+      ipo4lim_md=52
+# endif
+
 #endif
       
       ! Sediment variables
@@ -2895,6 +3051,10 @@
      allocate(phyto(DIAZO)%o2lim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(DIAZO)%o2lim        = 0.0
      allocate(phyto(LARGE)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(LARGE)%juptake_sio4 = 0.0
      allocate(phyto(LARGE)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(LARGE)%silim        = 0.0
+#ifdef COASTDIAT
+     allocate(phyto(MEDIUM)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(MEDIUM)%silim        = 0.0
+     allocate(phyto(MEDIUM)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(MEDIUM)%juptake_sio4 = 0.0
+#endif
 !
 ! allocate and initialize arrays for bacteria
 !
@@ -2999,6 +3159,15 @@
      allocate(cobalt%f_lithdet_btf(IminS:ImaxS,JminS:JmaxS,UBk))    ; cobalt%f_lithdet_btf=0.0
      allocate(cobalt%f_ndet_btf(IminS:ImaxS,JminS:JmaxS,UBk))       ; cobalt%f_ndet_btf=0.0
      allocate(cobalt%f_sidet_btf(IminS:ImaxS,JminS:JmaxS,UBk))      ; cobalt%f_sidet_btf=0.0
+
+#ifdef COASTDIAT
+     allocate(cobalt%jnmd(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jnmd=0.0
+     allocate(cobalt%jsimd(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jsimd=0.0
+     allocate(cobalt%f_simd(IminS:ImaxS,JminS:JmaxS,UBk))        ; cobalt%f_simd=0.0
+     allocate(cobalt%jfemd(IminS:ImaxS,JminS:JmaxS,UBk))         ; cobalt%jfemd=0.0
+     allocate(cobalt%nmd_diatoms(IminS:ImaxS,JminS:JmaxS,UBk))   ; cobalt%nmd_diatoms=0.0
+     allocate(cobalt%q_si_2_n_md_diatoms(IminS:ImaxS,JminS:JmaxS,UBk)) ; cobalt%q_si_2_n_md_diatoms=0.0
+#endif
 
 #ifdef COBALT_IRON
      allocate(cobalt%jfed(IminS:ImaxS,JminS:JmaxS,UBk))          ; cobalt%jfed=0.0
@@ -3451,6 +3620,29 @@
       cobalt%irr_inhibit   = irr_inhibit(ng)
       cobalt%htotal_in     = htotal_in(ng)
       cobalt%wsink         = wsink(ng)
+
+#ifdef COASTDIAT
+     phyto(MEDIUM)%k_fed         = k_fed_Md(ng)
+     phyto(MEDIUM)%k_nh4         = k_nh4_Md(ng)
+     phyto(MEDIUM)%k_no3         = k_no3_Md(ng)
+     phyto(MEDIUM)%k_po4         = k_po4_Md(ng)
+     phyto(MEDIUM)%k_sio4        = k_sio4_Md(ng)
+     phyto(MEDIUM)%k_fe_2_n      = k_fe_2_n_Md(ng)
+     phyto(MEDIUM)%fe_2_n_max    = fe_2_n_max_Md(ng)
+     phyto(MEDIUM)%alpha         = alpha_Md(ng)
+     phyto(MEDIUM)%P_C_max       = P_C_max_Md(ng)
+     phyto(MEDIUM)%thetamax      = thetamax_Md(ng)
+     phyto(MEDIUM)%bresp         = bresp_Md(ng)
+     phyto(MEDIUM)%p_2_n_static  = p_2_n_static_Md(ng)
+     phyto(MEDIUM)%si_2_n_static = si_2_n_static_Md(ng)
+     phyto(MEDIUM)%si_2_n_max    = si_2_n_max_Md(ng)
+     phyto(MEDIUM)%agg           = agg_Md(ng)
+     phyto(MEDIUM)%vir           = vir_Md(ng)
+     phyto(MEDIUM)%exu           = exu_Md(ng)
+     zoo(1)%ipa_mdp              = smz_ipa_mdp(ng)
+     zoo(2)%ipa_mdp              = mdz_ipa_mdp(ng)
+     zoo(3)%ipa_mdp              = lgz_ipa_mdp(ng)
+#endif
 
       RETURN
 
