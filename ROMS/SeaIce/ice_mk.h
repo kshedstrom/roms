@@ -854,7 +854,7 @@
      &                   -xtot*hfus1(i,j)
 #endif
 #if defined WET_DRY && defined CASPIAN
-          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+              stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 #endif
             END IF
 

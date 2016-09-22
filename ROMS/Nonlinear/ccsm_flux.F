@@ -1072,8 +1072,6 @@ contains
           srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
      &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
 #  endif
-          stflx(i,j,itemp) = (srflx(i,j)+lrflx(i,j)+                    &
-     &                      lhflx(i,j)+shflx(i,j))
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
 ! Net precipitation - evaporation in m/s
