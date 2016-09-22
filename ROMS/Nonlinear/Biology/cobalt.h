@@ -1092,6 +1092,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   phyto(4)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(4)%f_fe(:,:,:) / &
 & max(epsln,phyto(4)%f_n(:,:,:)))
 #endif
+#endif
  
   phyto(1)%q_p_2_n(:,:,:) = phyto(1)%p_2_n_static
   phyto(2)%q_p_2_n(:,:,:) = phyto(2)%p_2_n_static
@@ -1200,10 +1201,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 & (phyto(2)%k_fed + cobalt%f_fed(:,:,:))
   phyto(3)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
 & (phyto(3)%k_fed + cobalt%f_fed(:,:,:))
-#ifdef COASTDIAT
+# ifdef COASTDIAT
   phyto(4)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
 & (phyto(4)%k_fed + cobalt%f_fed(:,:,:))
-#endif
+# endif
 
   phyto(1)%def_fe(:,:,:)=phyto(1)%q_fe_2_n(:,:,:)**2 / &
 & (phyto(1)%k_fe_2_n**2+phyto(1)%q_fe_2_n(:,:,:)**2)
@@ -2081,11 +2082,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,3) + &
      &                           ingest_matrix(m,6)
      
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
      &                           ingest_matrix(m,3)*prey_p2n_vec(3) +    &
      &                           ingest_matrix(m,6)*prey_p2n_vec(6)
-#endif
+# endif
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,3)*prey_fe2n_vec(3)
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,3)*prey_si2n_vec(3)
@@ -2125,11 +2126,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,2) + &
      &                           ingest_matrix(m,7)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
      &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
      &                           ingest_matrix(m,7)*prey_p2n_vec(7)
-#endif
+# endif
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
@@ -2153,12 +2154,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    &                                  ingest_matrix(2,SMALL)       +     &
    &                                  ingest_matrix(3,SMALL)
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        phyto(1)%jzloss_p(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_p2n_vec(1)
        phyto(2)%jzloss_p(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_p2n_vec(2)
        phyto(3)%jzloss_p(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_p2n_vec(3)
        phyto(4)%jzloss_p(i,j,k) = phyto(4)%jzloss_n(i,j,k)*prey_p2n_vec(4)
-#endif
+# endif
 
        phyto(1)%jzloss_fe(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
        phyto(2)%jzloss_fe(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
@@ -2175,9 +2176,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                           ingest_matrix(3,5) 
 
        ! RD end rewritten code
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        bact(1)%jzloss_p(i,j,k) = bact(1)%jzloss_n(i,j,k)*prey_p2n_vec(5)
-#endif
+# endif
 
 
        zoo(1)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+1) +   &
@@ -2192,14 +2193,18 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                          ingest_matrix(2,NUM_PHYTO+1+3) +   &
      &                          ingest_matrix(3,NUM_PHYTO+1+3) 
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(1)%jzloss_p(i,j,k) = zoo(1)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+1)
        zoo(2)%jzloss_p(i,j,k) = zoo(2)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+2)
        zoo(3)%jzloss_p(i,j,k) = zoo(3)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+3)
-#endif
+# endif
 ! CAS: End zooplankton feeding calculation with coastal diatom type, begin calculation
 ! with original formulation    
+      ENDDO
+    ENDDO
+  ENDDO
 #else
+! Using original cobalt formulation
     DO m=1,NUM_ZOO 
        ipa_matrix(m,1) = zoo(m)%ipa_diaz
        ipa_matrix(m,2) = zoo(m)%ipa_lgp
@@ -2241,7 +2246,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 ! Set all static stoichiometric ratios outside k,j,i loop
 !
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
     prey_p2n_vec(1) = phyto(DIAZO)%p_2_n_static
     prey_p2n_vec(2) = phyto(LARGE)%p_2_n_static
     prey_p2n_vec(3) = phyto(SMALL)%p_2_n_static
@@ -2249,14 +2254,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     prey_p2n_vec(5) = zoo(1)%q_p_2_n
     prey_p2n_vec(6) = zoo(2)%q_p_2_n
     prey_p2n_vec(7) = zoo(3)%q_p_2_n
-#endif
+# endif
 
-#ifdef COBALT_IRON
+# ifdef COBALT_IRON
     prey_fe2n_vec(4) = 0.0
     prey_fe2n_vec(5) = 0.0
     prey_fe2n_vec(6) = 0.0
     prey_fe2n_vec(7) = 0.0
-#endif
+# endif
 
     prey_si2n_vec(1) = 0.0
     prey_si2n_vec(3) = 0.0
@@ -2296,15 +2301,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !       prey_vec(8) = max(cobalt%f_ndet(i,j,k)    - refuge_conc,0.0d0)
 
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        prey_p2n_vec(8)  = cobalt%f_pdet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
-#endif
-#ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
        prey_fe2n_vec(1) = phyto(DIAZO)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(2) = phyto(LARGE)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(3) = phyto(SMALL)%q_fe_2_n(i,j,k)
        prey_fe2n_vec(8) = cobalt%f_fedet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
-#endif
+# endif
        prey_si2n_vec(2) = phyto(LARGE)%q_si_2_n(i,j,k)
        prey_si2n_vec(8) = cobalt%f_sidet(i,j,k)/(cobalt%f_ndet(i,j,k)+epsln)
 
@@ -2363,13 +2368,13 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                (zoo(m)%ki+tot_prey(m))
 
        zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,3) + ingest_matrix(m,4)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,3)*prey_p2n_vec(3) +    &
      &                           ingest_matrix(m,4)*prey_p2n_vec(4)
-#endif
-#ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k)= ingest_matrix(m,3)*prey_fe2n_vec(3)
-#endif
+# endif
 
        !
        ! Medium zooplankton (m = 2) consuming diazotrophs (1), large
@@ -2431,15 +2436,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,2) + &
      &                           ingest_matrix(m,5)
      
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
      &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
      &                           ingest_matrix(m,5)*prey_p2n_vec(5)
-#endif
-#ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
-#endif
+# endif
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
 
        !
@@ -2501,15 +2506,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,2) + &
      &                           ingest_matrix(m,6)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
      &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
      &                           ingest_matrix(m,6)*prey_p2n_vec(6)
-#endif
-#ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
        zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
      &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
-#endif
+# endif
        zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
 
        cobalt%total_filter_feeding(i,j,k) = ingest_matrix(2,1) +         &
@@ -2531,17 +2536,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    &                                  ingest_matrix(2,SMALL)       +     &
    &                                  ingest_matrix(3,SMALL)
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        phyto(1)%jzloss_p(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_p2n_vec(1)
        phyto(2)%jzloss_p(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_p2n_vec(2)
        phyto(3)%jzloss_p(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_p2n_vec(3)
-#endif
+# endif
 
-#ifdef COBALT_IRON
+# ifdef COBALT_IRON
        phyto(1)%jzloss_fe(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
        phyto(2)%jzloss_fe(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
        phyto(3)%jzloss_fe(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
-#endif
+# endif
 
        phyto(1)%jzloss_sio2(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_si2n_vec(1)  
        phyto(2)%jzloss_sio2(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_si2n_vec(2)  
@@ -2553,9 +2558,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                           ingest_matrix(3,4) 
 
        ! RD end rewritten code
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        bact(1)%jzloss_p(i,j,k) = bact(1)%jzloss_n(i,j,k)*prey_p2n_vec(4)
-#endif
+# endif
 
        !
        ! losses of zooplankton to zooplankton
@@ -2573,19 +2578,19 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                          ingest_matrix(2,NUM_PHYTO+1+3) +   &
      &                          ingest_matrix(3,NUM_PHYTO+1+3) 
 
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        zoo(1)%jzloss_p(i,j,k) = zoo(1)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+1)
        zoo(2)%jzloss_p(i,j,k) = zoo(2)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+2)
        zoo(3)%jzloss_p(i,j,k) = zoo(3)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+3)
-#endif
+# endif
 ! CAS: end c-preprocessing if statement for alternative zooplankton feeding with
 ! and without coastal diatom (COASTDIAT) 
-#endif
        
       ENDDO
     ENDDO
   ENDDO
 
+#endif 
 
   DO k=1,UBk
     DO j=Jstr,Jend
@@ -2641,11 +2646,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        cobalt%hp_jingest_n(i,j,k) = hp_ingest_vec(6) + hp_ingest_vec(7)
 ! RD question for CAS, is this right or do we want to remove it completely ?
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
        cobalt%hp_jingest_p(i,j,k) = hp_ingest_vec(6)*prey_p2n_vec(6) +   &
      &                              hp_ingest_vec(7)*prey_p2n_vec(7)
+# endif
 #endif
-
 
        !
        ! losses of zooplankton to higher predators
@@ -4093,10 +4098,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                       phyto(LARGE)%jaggloss_fe(:,:,:) -                &
 &                       phyto(LARGE)%jvirloss_fe(:,:,:) -                &
 &                       phyto(LARGE)%jexuloss_fe(:,:,:)
+# ifdef COASTDIAT
 !
 !   *** Medium Phytoplankton Iron
 !
-# ifdef COASTDIAT
   cobalt%jfemd(:,:,:) = phyto(MEDIUM)%juptake_fe(:,:,:)  -               & 
 &                       phyto(MEDIUM)%jzloss_fe(:,:,:)   -               &
 &                       phyto(MEDIUM)%jhploss_fe(:,:,:)  -               &
