@@ -3983,7 +3983,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
 
       DiaBio2d(i,j,inpp_100) = Diabio2d(i,j,inpp_100) + &
- &                             cobalt%f_npp_100(i,j) * depth_integration / z_w(i,j,kdi)
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &                             cobalt%f_npp_100(i,j)
       ! new diag here
 
     ENDDO
@@ -4012,7 +4015,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
 
       DiaBio2d(i,j,imesozoo_200) = DiaBio2d(i,j,imesozoo_200) + &
- &                                 cobalt%f_mesozoo_200(i,j) * depth_integration / z_w(i,j,kdi)
+# ifdef WET_DRY
+ &                                 rmask_full(i,j)*             &
+# endif
+ &                                 cobalt%f_mesozoo_200(i,j)
       ! new diag here
 
     ENDDO
