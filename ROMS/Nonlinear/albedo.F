@@ -66,6 +66,9 @@ contains
 #   endif
 #  endif
 # endif
+# ifdef ALBEDO_HACK
+     &                  GRID(ng) % mask_albedo,                         &
+# endif
      &                  FORCES(ng) % albedo                             &
      &                  )
 # ifdef PROFILE
@@ -92,6 +95,9 @@ contains
      &                        apond, hpond,                             &
 #   endif
 #  endif
+# endif
+# ifdef ALBEDO_HACK
+     &                        mask_albedo,                              &
 # endif
      &                        albedo                                    &
      &                        )
@@ -139,6 +145,9 @@ contains
 #    endif
 #   endif
 #  endif
+#  ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: albedo(LBi:,LBj:)
 
 # else
@@ -158,6 +167,9 @@ contains
 #    endif
 #   endif
 #  endif
+#ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:UBi,LBj:UBj)
+#endif
       real(r8), intent(out) :: albedo(LBi:UBi,LBj:UBj)
 # endif
 !
@@ -315,6 +327,9 @@ contains
             albedo_ice(i,j)=alb_w
           ENDIF
 #  endif
+#  ifdef ALBEDO_HACK
+          albedo_ice(i,j) = max(albedo_ice(i,j), 0.95*mask_albedo(i,j))
+#  endif
 # endif
 ! Compute ocean albedo
 # ifdef ALBEDO_CURVE
@@ -328,6 +343,9 @@ contains
 #  endif
 # else
           albedo(i,j)=alb_w
+# endif
+# ifdef ALBEDO_HACK
+          albedo(i,j) = max(albedo(i,j), 0.95*mask_albedo(i,j))
 # endif
         END DO
       END DO

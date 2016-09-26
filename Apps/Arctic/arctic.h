@@ -12,6 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
+#undef ALBEDO_HACK
 #undef NO_HIS
 #define GLOBAL_PERIODIC
 #define HDF5
@@ -34,7 +35,7 @@
 #endif
 #define FLOATS
 #define STATIONS
-#undef WET_DRY
+#define WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
@@ -87,7 +88,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
