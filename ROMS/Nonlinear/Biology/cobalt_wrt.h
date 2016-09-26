@@ -1196,18 +1196,104 @@
       &                      ncid = ncid) 
        IF (exit_flag.ne.NoError) RETURN 
 
-!       CALL netcdf_put_fvar (ng, model, ncname, 'ice_restart_file',     &
-!                             ice_restart_file(ng), (/0/), (/0/),        &
-!      &                      ncid = ncid) 
-!       IF (exit_flag.ne.NoError) RETURN 
-!
-!       CALL netcdf_put_fvar (ng, model, ncname, 'ocean_restart_file',   &
-!                             ocean_restart_file(ng), (/0/), (/0/),      &
-!      &                      ncid = ncid) 
-!       IF (exit_flag.ne.NoError) RETURN 
-!
-!       CALL netcdf_put_fvar (ng, model, ncname, 'IC_file',              &
-!                             IC_file(ng), (/0/), (/0/),                 &
-!      &                      ncid = ncid) 
-!       IF (exit_flag.ne.NoError) RETURN 
+#ifdef COASTDIAT
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_fed_Md',             &
+      &                      k_fed_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
 
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_nh4_Md',             &
+      &                      k_nh4_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_no3_Md',             &
+      &                      k_no3_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_po4_Md',             &
+      &                      k_po4_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_sio4_Md',            &
+      &                      k_sio4_Md(ng), (/0/), (/0/),               &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'k_fe_2_n_Md',          &
+      &                      k_fe_2_n_Md(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'fe_2_n_max_Md',        &
+      &                      fe_2_n_max_Md(ng), (/0/), (/0/),           &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'alpha_Md',             &
+      &                      alpha_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'P_C_max_Md',           &
+      &                      P_C_max_Md(ng), (/0/), (/0/),              &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'thetamax_Md',          &
+      &                      thetamax_Md(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'bresp_Md',             &
+      &                      bresp_Md(ng), (/0/), (/0/),                &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'p_2_n_static_Md',      &
+      &                      p_2_n_static_Md(ng), (/0/), (/0/),         &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'si_2_n_static_Md',     &
+      &                      si_2_n_static_Md(ng), (/0/), (/0/),        &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'si_2_n_max_Md',        &
+      &                      si_2_n_max_Md(ng), (/0/), (/0/),           &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'agg_Md',               &
+      &                      agg_Md(ng), (/0/), (/0/),                  &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'vir_Md',               &
+      &                      vir_Md(ng), (/0/), (/0/),                  &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'exu_Md',               &
+      &                      exu_Md(ng), (/0/), (/0/),                  &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'smz_ipa_mdp',          &
+      &                      smz_ipa_mdp(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'mdz_ipa_mdp',          &
+      &                      mdz_ipa_mdp(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
+       CALL netcdf_put_fvar (ng, model, ncname, 'lgz_ipa_mdp',          &
+      &                      lgz_ipa_mdp(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+#endif

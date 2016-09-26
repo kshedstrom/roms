@@ -103,6 +103,14 @@
                CASE ('idTvar(ialk)')
                  idTvar(ialk)=varid
 #endif
+#ifdef COASTDIAT
+               CASE ('idTvar(inmd)')
+                 idTvar(inmd)=varid
+               CASE ('idTvar(isimd)')
+                 idTvar(isimd)=varid
+               CASE ('idTvar(ifemd)')
+                 idTvar(ifemd)=varid
+#endif
 
 ! ----- Other BGC variables
                CASE ('iDobgc(iochl)')
@@ -119,6 +127,10 @@
                  iDobgc(iomu_mem_di)=varid
                CASE ('iDobgc(iomu_mem_lg)')
                  iDobgc(iomu_mem_lg)=varid
+#ifdef COASTDIAT
+               CASE ('iDobgc(iomu_mem_md)')
+                 iDobgc(iomu_mem_md)=varid
+#endif
 
 !RD : diag variables
 !               CASE ('idTvar(icased)')
@@ -223,6 +235,16 @@
                CASE ('idTclm(ialk)')
                  idTclm(ialk)=varid
 #endif
+#ifdef COASTDIAT
+               CASE ('idTclm(inmd)')
+                 idTclm(inmd)=varid
+               CASE ('idTclm(isimd)')
+                 idTclm(isimd)=varid
+               CASE ('idTclm(ifemd)')
+                 idTclm(ifemd)=varid
+#endif
+
+! ----- Other BGC variables
 
 
 !RD : diag variables
@@ -537,6 +559,34 @@
                CASE ('idTbry(inorth,ialk)')
                  idTbry(inorth,ialk)=varid
 #endif
+#ifdef COASTDIAT
+               CASE ('idTbry(iwest,inmd)')
+                 idTbry(iwest,inmd)=varid
+               CASE ('idTbry(ieast,inmd)')
+                 idTbry(ieast,inmd)=varid
+               CASE ('idTbry(isouth,inmd)')
+                 idTbry(isouth,inmd)=varid
+               CASE ('idTbry(inorth,inmd)')
+                 idTbry(inorth,inmd)=varid
+               CASE ('idTbry(iwest,isimd)')
+                 idTbry(iwest,isimd)=varid
+               CASE ('idTbry(ieast,isimd)')
+                 idTbry(ieast,isimd)=varid
+               CASE ('idTbry(isouth,isimd)')
+                 idTbry(isouth,isimd)=varid
+               CASE ('idTbry(inorth,isimd)')
+                 idTbry(inorth,isimd)=varid
+               CASE ('idTbry(iwest,ifemd)')
+                 idTbry(iwest,ifemd)=varid
+               CASE ('idTbry(ieast,ifemd)')
+                 idTbry(ieast,ifemd)=varid
+               CASE ('idTbry(isouth,ifemd)')
+                 idTbry(isouth,ifemd)=varid
+               CASE ('idTbry(inorth,ifemd)')
+                 idTbry(inorth,ifemd)=varid
+#endif
+
+! ----- Other BGC variables
 
 
 !               CASE ('idTbry(iwest,icased)')
@@ -706,6 +756,14 @@
                CASE ('idRtrc(ialk)')
                  idRtrc(ialk)=varid
 # endif
+# ifdef COASTDIAT
+               CASE ('idRtrc(inmd)')
+                 idRtrc(inmd)=varid
+               CASE ('idRtrc(isimd)')
+                 idRtrc(isimd)=varid
+               CASE ('idRtrc(ifemd)')
+                 idRtrc(ifemd)=varid
+# endif
 
 ! river as external forcing
                CASE ('idriver_no3')
@@ -726,6 +784,10 @@
                  idriver_sldop=varid
                CASE ('idriver_srdop')
                  idriver_srdop=varid
+#ifdef COBALT_IRON
+               CASE ('idriver_fed')
+                 idriver_fed=varid
+#endif
 #ifdef DIAGNOSTICS_BIO
 !------------------------------------------------------
 !---  Biological tracers term diagnostics.
@@ -926,6 +988,28 @@
                 iDbio3(ipo4lim_di)=varid
               CASE ('iDbio3(ipo4lim_lg)')
                 iDbio3(ipo4lim_lg)=varid
+#ifdef COASTDIAT
+              CASE ('iDbio3(imu_mem_md)')
+                iDbio3(imu_mem_md)=varid
+              CASE ('iDbio3(iagg_lim_md)')
+                iDbio3(iagg_lim_md)=varid
+              CASE ('iDbio3(iaggloss_md)')
+                iDbio3(iaggloss_md)=varid
+              CASE ('iDbio3(ivirloss_md)')
+                iDbio3(ivirloss_md)=varid
+              CASE ('iDbio3(izloss_md)')
+                iDbio3(izloss_md)=varid
+              CASE ('iDbio3(idef_fe_md)')
+                iDbio3(idef_fe_md)=varid
+              CASE ('iDbio3(ifelim_md)')
+                iDbio3(ifelim_md)=varid
+              CASE ('iDbio3(ino3lim_md)')
+                iDbio3(ino3lim_md)=varid
+              CASE ('iDbio3(inh4lim_md)')
+                iDbio3(inh4lim_md)=varid
+              CASE ('iDbio3(ipo4lim_md)')
+                iDbio3(ipo4lim_md)=varid
+#endif
 
 
 #endif

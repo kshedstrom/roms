@@ -632,6 +632,17 @@
      &                FORCES(ng) % river_srdopG)
       IF (exit_flag.ne.NoError) RETURN
 
+#  ifdef COBALT_IRON
+     CALL get_2dfld (ng, iNLM, idriver_fed, ncFRCid(idriver_fed,ng),    &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % river_fedG)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
 # endif
 # if defined COBALT_CARBON
 !
@@ -666,20 +677,6 @@
 
 !
 !-----------------------------------------------------------------------
-! Dust deposition to lith
-!-----------------------------------------------------------------------
-!
-      CALL get_2dfld (ng, iNLM, idMineralFe, ncFRCid(idMineralFe,ng),   &
-     &                nFfiles(ng), FRC(1,ng), update(1),                &
-     &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
-     &                GRID(ng) % rmask,                                 &
-#  endif
-     &                FORCES(ng) % mineral_feG)
-      IF (exit_flag.ne.NoError) RETURN
-
-!
-!-----------------------------------------------------------------------
 ! iron from sediment
 !-----------------------------------------------------------------------
 !
@@ -707,6 +704,21 @@
       IF (exit_flag.ne.NoError) RETURN
 
 # endif
+
+!
+!-----------------------------------------------------------------------
+! Dust deposition to lith
+!-----------------------------------------------------------------------
+!
+      CALL get_2dfld (ng, iNLM, idMineralFe, ncFRCid(idMineralFe,ng),   &
+     &                nFfiles(ng), FRC(1,ng), update(1),                &
+     &                LBi, UBi, LBj, UBj, 2, 1,                         &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FORCES(ng) % mineral_feG)
+      IF (exit_flag.ne.NoError) RETURN
+
 # if !defined ANA_CLOUD && defined CLOUDS
 !
 !-----------------------------------------------------------------------
