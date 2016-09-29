@@ -99,6 +99,23 @@
           real(r8), pointer :: filio_mflux(:,:,:)
           real(r8), pointer :: filutau_iw(:,:,:)
           real(r8), pointer :: filchu_iw(:,:,:)
+#   ifdef ICE_DIAGS
+          real(r8), pointer :: filAlbe(:,:,:)
+          real(r8), pointer :: filAlbI(:,:,:)
+          real(r8), pointer :: filLWdn(:,:,:)
+          real(r8), pointer :: filSWdn(:,:,:)
+          real(r8), pointer :: filLatI(:,:,:)
+          real(r8), pointer :: filSenI(:,:,:)
+          real(r8), pointer :: filLWupI(:,:,:)
+          real(r8), pointer :: filSWupI(:,:,:)
+          real(r8), pointer :: filSWinI(:,:,:)
+          real(r8), pointer :: filSWthruI(:,:,:)
+          real(r8), pointer :: filSaltI(:,:,:)
+          real(r8), pointer :: filSaltL(:,:,:)
+          real(r8), pointer :: filQao(:,:,:)
+          real(r8), pointer :: filQai(:,:,:)
+          real(r8), pointer :: filQio(:,:,:)
+#   endif
 #  endif
 # endif
           real(r8), pointer :: filsus(:,:,:)
@@ -371,6 +388,53 @@
       IF (Aout(idChuiw,ng)) THEN
         allocate ( FILTER(NG) % filchu_iw(LBi:UBi,LBj:UBj,FILN) )
       END IF
+#   ifdef ICE_DIAGS
+      IF (Aout(idAlbe,ng)) THEN
+        allocate ( FILTER(NG) % filAlbe(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idAlbI,ng)) THEN
+        allocate ( FILTER(NG) % filAlbI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idLWdn,ng)) THEN
+        allocate ( FILTER(NG) % filLWdn(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSWdn,ng)) THEN
+        allocate ( FILTER(NG) % filSWdn(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idLatI,ng)) THEN
+        allocate ( FILTER(NG) % filLatI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSenI,ng)) THEN
+        allocate ( FILTER(NG) % filSenI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idLWupI,ng)) THEN
+        allocate ( FILTER(NG) % filLWupI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSWupI,ng)) THEN
+        allocate ( FILTER(NG) % filSWupI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSWinI,ng)) THEN
+        allocate ( FILTER(NG) % filSWinI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSWthruI,ng)) THEN
+        allocate ( FILTER(NG) % filSWthruI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSaltI,ng)) THEN
+        allocate ( FILTER(NG) % filSaltI(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSaltL,ng)) THEN
+        allocate ( FILTER(NG) % filSaltL(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idQao,ng)) THEN
+        allocate ( FILTER(NG) % filQao(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idQai,ng)) THEN
+        allocate ( FILTER(NG) % filQai(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idQio,ng)) THEN
+        allocate ( FILTER(NG) % filQio(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+#   endif
 #  endif
 # endif
 
@@ -915,6 +979,143 @@
           END DO
         END DO
       END IF
+#   ifdef ICE_DIAGS
+      IF (Aout(idAlbe,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filAlbe(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idAlbI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filAlbI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idLWdn,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filLWdn(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSWdn,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSWdn(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idLatI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filLatI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSenI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSenI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idLWupI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filLWupI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSWupI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSWupI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSWinI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSWinI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSWthruI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSWthruI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSaltI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSaltI(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSaltL,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSaltL(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idQao,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filQao(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idQai,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filQai(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idQio,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filQio(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+#   endif
 #  endif
 # endif
       RETURN

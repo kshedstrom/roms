@@ -13,7 +13,7 @@
 */
 
 #undef ALBEDO_HACK
-#undef NO_HIS
+#define NO_HIS
 #define GLOBAL_PERIODIC
 #define HDF5
 #define DEFLATE
@@ -63,7 +63,6 @@
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
 #  define  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
 #  define ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
@@ -77,6 +76,7 @@
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
 #  define ICE_I_O
+#  define ICE_DIAGS
 # endif
 #endif
 
@@ -193,7 +193,7 @@
 #define LTIDES
 #ifdef LTIDES
 # if defined AVERAGES && !defined USE_DEBUG
-#  undef FILTERED
+#  define FILTERED
 # endif
 # define SSH_TIDES
 # define UV_TIDES

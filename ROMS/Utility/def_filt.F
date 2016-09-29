@@ -1259,6 +1259,312 @@
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define ice divergence rate.
+!
+        IF (Aout(idWdiv,ng)) THEN
+          Vinfo( 1)=Vname(1,idWdiv)
+          Vinfo( 2)=Vname(2,idWdiv)
+          Vinfo( 3)=Vname(3,idWdiv)
+          Vinfo(14)=Vname(4,idWdiv)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idWdiv,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idWdiv),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#   ifdef ICE_DIAGS
+!
+!  Define ocean albedo.
+!
+        IF (Aout(idAlbe,ng)) THEN
+          Vinfo( 1)=Vname(1,idAlbe)
+          Vinfo( 2)=Vname(2,idAlbe)
+          Vinfo( 3)=Vname(3,idAlbe)
+          Vinfo(14)=Vname(4,idAlbe)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idAlbe,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idAlbe),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define ice albedo.
+!
+        IF (Aout(idAlbI,ng)) THEN
+          Vinfo( 1)=Vname(1,idAlbI)
+          Vinfo( 2)=Vname(2,idAlbI)
+          Vinfo( 3)=Vname(3,idAlbI)
+          Vinfo(14)=Vname(4,idAlbI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idAlbI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idAlbI),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define downward longwave radiation.
+!
+        IF (Aout(idLWdn,ng)) THEN
+          Vinfo( 1)=Vname(1,idLWdn)
+          Vinfo( 2)=Vname(2,idLWdn)
+          Vinfo( 3)=Vname(3,idLWdn)
+          Vinfo(14)=Vname(4,idLWdn)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idLWdn,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idLWdn),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define downward shortwave radiation.
+!
+        IF (Aout(idSWdn,ng)) THEN
+          Vinfo( 1)=Vname(1,idSWdn)
+          Vinfo( 2)=Vname(2,idSWdn)
+          Vinfo( 3)=Vname(3,idSWdn)
+          Vinfo(14)=Vname(4,idSWdn)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSWdn,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSWdn),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define ice latent heat.
+!
+        IF (Aout(idLatI,ng)) THEN
+          Vinfo( 1)=Vname(1,idLatI)
+          Vinfo( 2)=Vname(2,idLatI)
+          Vinfo( 3)=Vname(3,idLatI)
+          Vinfo(14)=Vname(4,idLatI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idLatI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idLatI),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define ice sensible heat.
+!
+        IF (Aout(idSenI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSenI)
+          Vinfo( 2)=Vname(2,idSenI)
+          Vinfo( 3)=Vname(3,idSenI)
+          Vinfo(14)=Vname(4,idSenI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSenI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSenI),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define upward longwave over ice.
+!
+        IF (Aout(idLWupI,ng)) THEN
+          Vinfo( 1)=Vname(1,idLWupI)
+          Vinfo( 2)=Vname(2,idLWupI)
+          Vinfo( 3)=Vname(3,idLWupI)
+          Vinfo(14)=Vname(4,idLWupI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idLWupI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idLWupI),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define upward shortwave over ice.
+!
+        IF (Aout(idSWupI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSWupI)
+          Vinfo( 2)=Vname(2,idSWupI)
+          Vinfo( 3)=Vname(3,idSWupI)
+          Vinfo(14)=Vname(4,idSWupI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSWupI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSWupI),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define shortwave into ice.
+!
+        IF (Aout(idSWinI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSWinI)
+          Vinfo( 2)=Vname(2,idSWinI)
+          Vinfo( 3)=Vname(3,idSWinI)
+          Vinfo(14)=Vname(4,idSWinI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSWinI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSWinI),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define shortwave through ice.
+!
+        IF (Aout(idSWthruI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSWthruI)
+          Vinfo( 2)=Vname(2,idSWthruI)
+          Vinfo( 3)=Vname(3,idSWthruI)
+          Vinfo(14)=Vname(4,idSWthruI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSWthruI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSWthruI),                       &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define salt flux from ice.
+!
+        IF (Aout(idSaltI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSaltI)
+          Vinfo( 2)=Vname(2,idSaltI)
+          Vinfo( 3)=Vname(3,idSaltI)
+          Vinfo(14)=Vname(4,idSaltI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSaltI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSaltI),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define salt flux in leads.
+!
+        IF (Aout(idSaltL,ng)) THEN
+          Vinfo( 1)=Vname(1,idSaltL)
+          Vinfo( 2)=Vname(2,idSaltL)
+          Vinfo( 3)=Vname(3,idSaltL)
+          Vinfo(14)=Vname(4,idSaltL)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSaltL,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSaltL),                         &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define heat flux in leads
+!
+        IF (Aout(idQao,ng)) THEN
+          Vinfo( 1)=Vname(1,idQao)
+          Vinfo( 2)=Vname(2,idQao)
+          Vinfo( 3)=Vname(3,idQao)
+          Vinfo(14)=Vname(4,idQao)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idQao,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idQao),                           &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define heat flux over ice.
+!
+        IF (Aout(idQai,ng)) THEN
+          Vinfo( 1)=Vname(1,idQai)
+          Vinfo( 2)=Vname(2,idQai)
+          Vinfo( 3)=Vname(3,idQai)
+          Vinfo(14)=Vname(4,idQai)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idQai,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idQai),                           &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define heat flux under ice.
+!
+        IF (Aout(idQio,ng)) THEN
+          Vinfo( 1)=Vname(1,idQio)
+          Vinfo( 2)=Vname(2,idQio)
+          Vinfo( 3)=Vname(3,idQio)
+          Vinfo(14)=Vname(4,idQio)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idQio,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idQio),                           &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#   endif
 # endif
 !
 !-----------------------------------------------------------------------

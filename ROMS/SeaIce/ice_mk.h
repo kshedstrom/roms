@@ -20,7 +20,6 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-      USE mod_clima
 
       implicit none
 
@@ -49,10 +48,6 @@
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 #endif
-     &                      CLIMA(ng) % aiclm,                          &
-     &                      CLIMA(ng) % hiclm,                          &
-     &                      CLIMA(ng) % hsnclm,                        &
-     &                      CLIMA(ng) % AInudgcof,                      &
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
      &                      OCEAN(ng) % t,                              &
@@ -85,6 +80,10 @@
      &                      ICE(ng) % IceNO3,                           &
      &                      ICE(ng) % IceNH4,                           &
 #endif
+#ifdef ICE_DIAGS
+     &                      FORCES(ng) % saltflux_ice,                  &
+     &                      FORCES(ng) % qio_n,                         &
+#endif
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
      &                      FORCES(ng) % qai_n,                         &
@@ -116,7 +115,6 @@
 #ifdef ICE_SHOREFAST
      &                        h, Zt_avg1,                               &
 #endif
-     &                        aiclm, hiclm, hsnclm, AInudgcof,          &
      &                        z_r, z_w, t,                              &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, ageice,                      &
@@ -128,6 +126,9 @@
      &                        s0mk, t0mk, io_mflux,                     &
 #if defined ICE_BIO && defined BERING_10K
      &                        IcePhL, IceNO3, IceNH4,                   &
+#endif
+#ifdef ICE_DIAGS
+     &                        saltflux_ice, qio_n,                      &
 #endif
      &                        sustr, svstr,                             &
      &                        qai_n, qi_o_n, qao_n,                     &
@@ -231,6 +232,7 @@
 !
       USE i2d_bc_mod
       USE tibc_mod, ONLY : tibc_tile
+      USE mod_clima
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
@@ -258,10 +260,6 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
-      real(r8), intent(in) :: aiclm(LBi:,LBj:)
-      real(r8), intent(in) :: hiclm(LBi:,LBj:)
-      real(r8), intent(in) :: hsnclm(LBi:,LBj:)
-      real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
@@ -294,6 +292,10 @@
       real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
 #endif
+#ifdef ICE_DIAGS
+      real(r8), intent(out) :: saltflux_ice(LBi:,LBj:)
+      real(r8), intent(out) :: qio_n(LBi:,LBj:)
+#endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: qai_n(LBi:,LBj:)
@@ -316,10 +318,6 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(in) :: aiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: hiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: hsnclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
@@ -352,6 +350,10 @@
       real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
 # endif
+#ifdef ICE_DIAGS
+      real(r8), intent(out) :: saltflux_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qio_n(LBi:UBi,LBj:UBj)
+#endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qai_n(LBi:UBi,LBj:UBj)
@@ -853,6 +855,9 @@
      &                   +ai(i,j,linew)*qio(i,j)                        &
      &                   -xtot*hfus1(i,j)
 #endif
+#ifdef ICE_DIAGS
+              qio_n(i,j) = qio(i,j)
+#endif
 #if defined WET_DRY && defined CASPIAN
               stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 #endif
@@ -880,7 +885,7 @@
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
             IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
-              stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
+              stflx(i,j,isalt) = stflx(i,j,isalt) -                     &
      &                           ai(i,j,linew)*rain(i,j)*0.001_r8
             END IF
 #endif
@@ -893,6 +898,10 @@
 #ifdef WET_DRY
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
+#endif
+#ifdef ICE_DIAGS
+            saltflux_ice(i,j) = - (xtot-ai(i,j,linew)*wro(i,j))*        &
+     &                   (sice(i,j)-s0mk(i,j))
 #endif
 #ifdef ICESHELF
           ELSE
@@ -940,13 +949,13 @@
 # endif
 #endif
           IF (LnudgeAICLM(ng)) THEN
-            cff = AInudgcof(i,j)
+            cff = CLIMA(ng)%AInudgcof(i,j)
             ai(i,j,linew)=ai(i,j,linew)+                                &
-     &                    dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%aiclm(i,j)-ai(i,j,linew))
             hi(i,j,linew)=hi(i,j,linew)+                                &
-     &                    dtice(ng)*cff*(hiclm(i,j)-hi(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%hiclm(i,j)-hi(i,j,linew))
             hsn(i,j,linew)=hsn(i,j,linew)+                              &
-     &                    dtice(ng)*cff*(hsnclm(i,j)-hsn(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%hsnclm(i,j)-hsn(i,j,linew))
           END IF
 #ifdef MASKING
           ai(i,j,linew) = ai(i,j,linew)*rmask(i,j)

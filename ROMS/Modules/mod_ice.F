@@ -56,12 +56,12 @@
           real(r8), pointer :: sig22(:,:,:)
           real(r8), pointer :: sig12(:,:,:)
 
-# if defined ICE_BIO  
+#if defined ICE_BIO  
           real(r8), pointer ::IcePhL(:,:,:)
           real(r8), pointer ::IceNO3(:,:,:)
           real(r8), pointer ::IceNH4(:,:,:)
           integer, pointer ::IceLog(:,:,:)
-# endif
+#endif
 
         END TYPE T_ICE
 

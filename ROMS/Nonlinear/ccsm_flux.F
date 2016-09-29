@@ -163,6 +163,16 @@ contains
      &                     FORCES(ng) % EminusP,                        &
      &                     FORCES(ng) % evap,                           &
 # endif
+# ifdef ICE_DIAGS
+     &                     FORCES(ng) % LW_down,                        &
+     &                     FORCES(ng) % SW_down,                        &
+     &                     FORCES(ng) % lat_ice,                        &
+     &                     FORCES(ng) % sens_ice,                       &
+     &                     FORCES(ng) % LW_up_ice,                      &
+     &                     FORCES(ng) % SW_up_ice,                      &
+     &                     FORCES(ng) % SW_thru_ice,                    &
+     &                     FORCES(ng) % saltflux_ocean,                 &
+# endif
      &                     FORCES(ng) % sustr,                          &
      &                     FORCES(ng) % svstr)
 # ifdef PROFILE
@@ -245,6 +255,12 @@ contains
 # endif
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
+# endif
+# ifdef ICE_DIAGS
+     &                           LW_down, SW_down,                      &
+     &                           lat_ice, sens_ice,                     &
+     &                           LW_up_ice, SW_up_ice,                  &
+     &                           SW_thru_ice, saltflux_ocean,           &
 # endif
      &                           sustr, svstr)
 !***********************************************************************
@@ -380,6 +396,16 @@ contains
       real(r8), intent(out) :: EminusP(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
+#  ifdef ICE_DIAGS
+      real(r8), intent(out) :: LW_down(LBi:,LBj:)
+      real(r8), intent(out) :: SW_down(LBi:,LBj:)
+      real(r8), intent(out) :: lat_ice(LBi:,LBj:)
+      real(r8), intent(out) :: sens_ice(LBi:,LBj:)
+      real(r8), intent(out) :: LW_up_ice(LBi:,LBj:)
+      real(r8), intent(out) :: SW_up_ice(LBi:,LBj:)
+      real(r8), intent(out) :: SW_thru_ice(LBi:,LBj:)
+      real(r8), intent(out) :: saltflux_ocean(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
@@ -479,6 +505,16 @@ contains
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef ICE_DIAGS
+      real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: lat_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: sens_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: LW_up_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_up_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_thru_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: saltflux_ocean(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
@@ -622,7 +658,6 @@ contains
       real(r8), dimension(IminS:ImaxS) :: TairK
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: LHeat
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SHeat
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
 #ifdef ICE_THERMO
@@ -823,9 +858,8 @@ contains
           !------------------------------------------------------------
 
           tau = rhoAir(i) * ustar * ustar
-          SRad(i,j) = srflx(i,j) * Hscale
 # if defined ICE_MODEL && defined ICE_THERMO
-          qswi_n(i,j) = SRad(i,j)
+          qswi_n(i,j) = srflx(i,j) * Hscale
 # endif
 
           !--- momentum flux ---
@@ -860,6 +894,9 @@ contains
           RHS_Ice(i,j) = RHS_Ice(i,j) +                                 &
      &        rhoAir(i)*blk_Cpa*Ch*vmag*(TairK(i)+0.0098*blk_ZT(ng))
 #   endif
+#   ifdef ICE_DIAGS
+          sens_ice(i,j) = qsh_i
+#   endif
 !          IF ((i==133 .or. i==134) .and. j==610) THEN
 !            print *, 'In CCSM_FLUX 0', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
 !          END IF
@@ -880,6 +917,9 @@ contains
           fqlat1=rhoAir(i)*Ce*vmag
           qlh_i = fqlat1*le_i*dq_i
 #   endif
+#   ifdef ICE_DIAGS
+          lat_ice(i,j) = qlh_i
+#   endif
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
 !          IF ((i==133 .or. i==134) .and. j==610) THEN
 !            print *, 'In CCSM_FLUX 1', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
@@ -888,6 +928,9 @@ contains
 ! Short-wave radiation to ice
 #   if defined ALBEDO && defined SHORTWAVE
           qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
+#    ifdef ICE_DIAGS
+          SW_up_ice(i,j) = albedo_ice(i,j)*qswi_n(i,j)
+#    endif
 #   else
           qswi = qswi_n(i,j)
 #   endif
@@ -929,6 +972,9 @@ contains
      &            4._r8*StefBo*emmiss*sfc_temp**3
           RHS_Ice(i,j) = RHS_Ice(i,j) + lrflx(i,j)*Hscale +             &
      &            3._r8*StefBo*emmiss*sfc_temp**4
+#   endif
+#   ifdef ICE_DIAGS
+          LW_up_ice(i,j) = emmiss*StefBo*sfc_temp**4
 #   endif
 !          IF ((i==133 .or. i==134) .and. j==610) THEN
 !            print *, 'In CCSM_FLUX 3', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
@@ -975,7 +1021,7 @@ contains
           tsk = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           lwup = -shr_const_stebol * tsk**4
 
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined ICE_DIAGS
           LW_down(i,j) = lrflx(i,j)*Hscale
           SW_down(i,j) = srflx(i,j)*Hscale
 # endif
@@ -1000,6 +1046,9 @@ contains
           Hlv = (2.501_r8-0.00237_r8*t(i,j,N(ng),nrhs,itemp))*1.0e+6_r8
           evap(i,j) = -LHeat(i,j)/Hlv
           stflx(i,j,isalt) = cff*(evap(i,j)-rain(i,j))
+# ifdef ICE_DIAGS
+          saltflux_ocean(i,j) = stflx(i,j,isalt)
+# endif
 #  ifdef ICE_MODEL
           evap(i,j) = (1.0_r8-ai(i,j,listp))*evap(i,j)
           stflx(i,j,isalt) = (1.0_r8-ai(i,j,listp))*stflx(i,j,isalt)
@@ -1071,6 +1120,8 @@ contains
 #  elif !defined ICE_BOX
           srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
      &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
+          SW_thru_ice(i,j) = qi_o_n(i,j)*exp(-cff1)
+          qi_o_n(i,j) = qi_o_n(i,j)*(1.0_r8 - exp(-cff1))
 #  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 

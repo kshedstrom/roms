@@ -185,6 +185,22 @@ Hout(idWro) == T
 Hout(idWdiv) == T
 Hout(idIomflx) == T
 
+Hout(idAlbe) == T
+Hout(idAlbI) == T
+Hout(idLWdn) == T
+Hout(idSWdn) == T
+Hout(idLatI) == T
+Hout(idSenI) == T
+Hout(idLWupI) == T
+Hout(idSWupI) == T
+Hout(idSWinI) == T
+Hout(idSWthruI) == T
+Hout(idSaltI) == T
+Hout(idSaltL) == T
+Hout(idQao) == T
+Hout(idQai) == T
+Hout(idQio) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
 Aout(idUice) == T
@@ -213,6 +229,22 @@ Aout(idWio) == T
 Aout(idWro) == T
 Aout(idWdiv) == T
 Aout(idIomflx) == T
+
+Aout(idAlbe) == T
+Aout(idAlbI) == T
+Aout(idLWdn) == T
+Aout(idSWdn) == T
+Aout(idLatI) == T
+Aout(idSenI) == T
+Aout(idLWupI) == T
+Aout(idSWupI) == T
+Aout(idSWinI) == T
+Aout(idSWthruI) == T
+Aout(idSaltI) == T
+Aout(idSaltL) == T
+Aout(idQao) == T
+Aout(idQai) == T
+Aout(idQio) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES2 output file.
