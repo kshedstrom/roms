@@ -862,7 +862,7 @@
      &                   -xtot*hfus1(i,j)
 #endif
               srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)              &
-     &            +ai(i,j,linew)*SW_thru_ice(i,j)
+     &            +ai(i,j,linew)*SW_thru_ice(i,j)*rhocpr
 #ifdef ICE_DIAGS
               qio_n(i,j) = qio(i,j)
 #endif
