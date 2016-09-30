@@ -237,9 +237,9 @@ contains
 !
 #  ifdef ICE_ALB_EC92
 ! Ice and snow albedo is calculated from Ebert and Curry,1992b
-          albi=0._r8
-          albsn=0._r8
-          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+          albi=0.06_r8
+          albsn=0.06_r8
+          IF (ai(i,j,listp) .ge. min_a(ng)) THEN
             thki_n = ice_thick(i,j)
             thki_n = MAX(thki_n,0.00001_r8)
             thksn_n = snow_thick(i,j)
