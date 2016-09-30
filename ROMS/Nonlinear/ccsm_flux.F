@@ -133,6 +133,7 @@ contains
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
      &                     FORCES(ng) % qi_o_n,                         &
+     &                     FORCES(ng) % SW_thru_ice,                    &
      &                     FORCES(ng) % qswi_n,                         &
      &                     ICE(ng) % hsn,                               &
      &                     ICE(ng) % tis,                               &
@@ -170,7 +171,6 @@ contains
      &                     FORCES(ng) % sens_ice,                       &
      &                     FORCES(ng) % LW_up_ice,                      &
      &                     FORCES(ng) % SW_up_ice,                      &
-     &                     FORCES(ng) % SW_thru_ice,                    &
      &                     FORCES(ng) % saltflux_ocean,                 &
 # endif
      &                     FORCES(ng) % sustr,                          &
@@ -236,7 +236,7 @@ contains
 # ifdef ICE_MODEL
      &                           ai, hi,                                &
 #  ifdef ICE_THERMO
-     &                           qai_n, qi_o_n, qswi_n,                 &
+     &                           qai_n, qi_o_n, SW_thru_ice, qswi_n,    &
      &                           hsn, tis, coef_ice_heat,               &
      &                           rhs_ice_heat, snow_n,                  &
 #   ifdef SNOWFALL
@@ -260,7 +260,7 @@ contains
      &                           LW_down, SW_down,                      &
      &                           lat_ice, sens_ice,                     &
      &                           LW_up_ice, SW_up_ice,                  &
-     &                           SW_thru_ice, saltflux_ocean,           &
+     &                           saltflux_ocean,                        &
 # endif
      &                           sustr, svstr)
 !***********************************************************************
@@ -368,6 +368,7 @@ contains
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
       real(r8), intent(out) :: qi_o_n(LBi:,LBj:)
+      real(r8), intent(out) :: SW_thru_ice(LBi:,LBj:)
       real(r8), intent(out) :: qswi_n(LBi:,LBj:)
       real(r8), intent(in) :: hsn(LBi:,LBj:,:)
       real(r8), intent(in) :: tis(LBi:,LBj:)
@@ -403,7 +404,6 @@ contains
       real(r8), intent(out) :: sens_ice(LBi:,LBj:)
       real(r8), intent(out) :: LW_up_ice(LBi:,LBj:)
       real(r8), intent(out) :: SW_up_ice(LBi:,LBj:)
-      real(r8), intent(out) :: SW_thru_ice(LBi:,LBj:)
       real(r8), intent(out) :: saltflux_ocean(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
@@ -478,6 +478,7 @@ contains
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qi_o_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_thru_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qswi_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: hsn(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: tis(LBi:UBi,LBj:UBj)
@@ -513,7 +514,6 @@ contains
       real(r8), intent(out) :: sens_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: LW_up_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: SW_up_ice(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: SW_thru_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: saltflux_ocean(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
@@ -1117,11 +1117,13 @@ contains
           cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
           srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
      &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1-cff2)
+          SW_thru_ice(i,j) = qi_o_n(i,j)*exp(-cff1-cff2)
+          qi_o_n(i,j) = qi_o_n(i,j)*(1.0_r8 - exp(-cff1-cff2))
 #  elif !defined ICE_BOX
-          srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
-     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1)
           SW_thru_ice(i,j) = qi_o_n(i,j)*exp(-cff1)
           qi_o_n(i,j) = qi_o_n(i,j)*(1.0_r8 - exp(-cff1))
+#  else
+          SW_thru_ice(i,j) = 0.0_r8
 #  endif
           qao_n(i,j) = -stflx(i,j,itemp)*Hscale
 
@@ -1264,6 +1266,9 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          snow_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          SW_thru_ice)
 #   endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1325,11 +1330,11 @@ contains
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    qai_n, coef_ice_heat, rhs_ice_heat, snow_n )
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    qi_o_n)
+     &                    qi_o_n, SW_thru_ice)
 #   endif
 #  endif
 #  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)

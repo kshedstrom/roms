@@ -326,7 +326,6 @@
           real(r8), pointer :: sens_ice(:,:)
           real(r8), pointer :: LW_up_ice(:,:)
           real(r8), pointer :: SW_up_ice(:,:)
-          real(r8), pointer :: SW_thru_ice(:,:)
           real(r8), pointer :: saltflux_ice(:,:)
           real(r8), pointer :: saltflux_ocean(:,:)
 #endif
@@ -367,6 +366,7 @@
           real(r8), pointer :: tau_aiy_n(:,:)
           real(r8), pointer :: qai_n(:,:)
           real(r8), pointer :: qi_o_n(:,:)
+          real(r8), pointer :: SW_thru_ice(:,:)
           real(r8), pointer :: qswi_n(:,:)
           real(r8), pointer :: qao_n(:,:)
           real(r8), pointer :: qio_n(:,:)
@@ -765,7 +765,6 @@
       allocate ( FORCES(ng) % sens_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % LW_up_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % SW_up_ice(LBi:UBi,LBj:UBj) )
-      allocate ( FORCES(ng) % SW_thru_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % saltflux_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % saltflux_ocean(LBi:UBi,LBj:UBj) )
 #endif
@@ -808,6 +807,7 @@
       allocate ( FORCES(ng) % tau_aiy_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qai_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qi_o_n(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % SW_thru_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qswi_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qao_n(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % qio_n(LBi:UBi,LBj:UBj) )
@@ -1296,7 +1296,6 @@
             FORCES(ng) % sens_ice(i,j) = IniVal
             FORCES(ng) % LW_up_ice(i,j) = IniVal
             FORCES(ng) % SW_up_ice(i,j) = IniVal
-            FORCES(ng) % SW_thru_ice(i,j) = IniVal
             FORCES(ng) % saltflux_ice(i,j) = IniVal
             FORCES(ng) % saltflux_ocean(i,j) = IniVal
 #endif
@@ -1337,6 +1336,7 @@
             FORCES(ng) % tau_aiy_n(i,j) = IniVal
             FORCES(ng) % qai_n(i,j) = IniVal
             FORCES(ng) % qi_o_n(i,j) = IniVal
+            FORCES(ng) % SW_thru_ice(i,j) = IniVal
             FORCES(ng) % qswi_n(i,j) = IniVal
             FORCES(ng) % qao_n(i,j) = IniVal
             FORCES(ng) % qio_n(i,j) = IniVal
