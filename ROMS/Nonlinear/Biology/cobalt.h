@@ -2532,7 +2532,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        cobalt%total_filter_feeding(i,j,k) = ingest_matrix(2,1) +         &
      &                                      ingest_matrix(2,2) +         &
      &    ingest_matrix(2,3) + ingest_matrix(3,1) + ingest_matrix(3,2) + & 
-     &    ingest_matrix(3,3) !+ hp_ingest_vec(1) + hp_ingest_vec(2) + hp_ingest_vec(3)  ! charlie's notes
+     &    ingest_matrix(3,3) ! higher predator don't eat (quote from CAS)
 
  
 
@@ -2657,11 +2657,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                    prey_vec(7)*tot_prey_hp/(cobalt%ki_hp+tot_prey_hp)
 
        cobalt%hp_jingest_n(i,j,k) = hp_ingest_vec(6) + hp_ingest_vec(7)
-! RD question for CAS, is this right or do we want to remove it completely ?
-# ifdef COBALT_PHOSPHORUS
-       cobalt%hp_jingest_p(i,j,k) = hp_ingest_vec(6)*prey_p2n_vec(6) +   &
-     &                              hp_ingest_vec(7)*prey_p2n_vec(7)
-# endif
 #endif
 
        !
@@ -3422,10 +3417,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !
 
        cobalt%jfe_ads(i,j,k) = min(r_dt,cobalt%alpha_fescav*feprime)
-! RD this is commented out in NVO version (what do we do with it ?)
-       IF (cobalt%f_fed(i,j,k).gt.1.0e-9) THEN !{
-          cobalt%jfe_ads(i,j,k) = min(r_dt,5.0*cobalt%alpha_fescav*cobalt%f_fed(i,j,k))
-       ENDIF !}
+!       ! Option for elevated iron scavenging for high iron concentration 
+!       ! RD TODO set parameter for threshold of f_fed.
+!       IF (cobalt%f_fed(i,j,k).gt.1.0e-9) THEN !{
+!          cobalt%jfe_ads(i,j,k) = min(r_dt,5.0*cobalt%alpha_fescav*cobalt%f_fed(i,j,k))
+!       ENDIF !}
        !
        ! Coastal iron inputs (proxy for sediment inputs for areas with poorly resolved shelves)
        ! Reworked with charlie (july 2016) to create new input file at 1e-16 mol Fe kg-1 s-1
