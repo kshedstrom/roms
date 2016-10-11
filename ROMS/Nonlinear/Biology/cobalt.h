@@ -1124,6 +1124,12 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 & ( (phyto(3)%k_no3 + cobalt%f_no3(:,:,:))     *   &
 & (1.0d0 + cobalt%f_nh4(:,:,:) / phyto(3)%k_nh4) )
 
+#ifdef COASTDIAT
+  phyto(4)%no3lim(:,:,:) = cobalt%f_no3(:,:,:) /   &
+& ( (phyto(4)%k_no3 + cobalt%f_no3(:,:,:))     *   &
+& (1.0d0 + cobalt%f_nh4(:,:,:) / phyto(4)%k_nh4) )
+#endif
+
   phyto(2)%nh4lim(:,:,:) = cobalt%f_nh4(:,:,:) /   &
 & (phyto(2)%k_nh4 + cobalt%f_nh4(:,:,:))
 
