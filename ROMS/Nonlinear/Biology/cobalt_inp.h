@@ -1176,6 +1176,72 @@
               DO ng=1,Ngrids
                 Dout(i,ng)=Lbio(ng)
               END DO
+            CASE ('Dout(ichl_di)')
+              IF (iDbio3(ichl_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ichl_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ichl_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iC_2_chl_di)')
+              IF (iDbio3(iC_2_chl_di).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iC_2_chl_di)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iC_2_chl_di)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ichl_sm)')
+              IF (iDbio3(ichl_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ichl_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ichl_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iC_2_chl_sm)')
+              IF (iDbio3(iC_2_chl_sm).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iC_2_chl_sm)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iC_2_chl_sm)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ichl_lg)')
+              IF (iDbio3(ichl_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ichl_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ichl_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iC_2_chl_lg)')
+              IF (iDbio3(iC_2_chl_lg).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iC_2_chl_lg)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iC_2_chl_lg)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
 # ifdef COASTDIAT
             CASE ('Dout(imu_mem_md)')
               IF (iDbio3(imu_mem_md).eq.0) THEN
@@ -1284,6 +1350,28 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Lbio)
               i=iDbio3(ipo4lim_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(ichl_md)')
+              IF (iDbio3(ichl_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ichl_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ichl_md)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
+            CASE ('Dout(iC_2_chl_md)')
+              IF (iDbio3(iC_2_chl_md).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(iC_2_chl_md)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(iC_2_chl_md)
               DO ng=1,Ngrids
                 Dout(i,ng)=Lbio(ng)
               END DO

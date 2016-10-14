@@ -624,9 +624,13 @@
       integer :: ino3lim_sm, ino3lim_di, ino3lim_lg
       integer :: inh4lim_sm, inh4lim_di, inh4lim_lg
       integer :: ipo4lim_sm, ipo4lim_di, ipo4lim_lg
+      integer :: ichl_di, iC_2_chl_di
+      integer :: ichl_sm, iC_2_chl_sm
+      integer :: ichl_lg, iC_2_chl_lg
 #ifdef COASTDIAT
       integer :: imu_mem_md, iaggloss_md, ivirloss_md, izloss_md
       integer :: iagg_lim_md, idef_fe_md, ifelim_md, ino3lim_md, inh4lim_md, ipo4lim_md
+      integer :: ichl_md, iC_2_chl_md
 #endif
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
@@ -983,7 +987,9 @@
           q_p_2_n     , &
           silim       , &
           q_si_2_n    , &
-          theta
+          theta       , &
+          chl         , &
+          C_2_chl
 !      integer ::            &
 !          id_def_fe       = -1, &
 !          id_def_p        = -1, &
@@ -1850,9 +1856,9 @@
       ! Diagnostic tracers
       NDbio2d = 24
 # ifdef COASTDIAT
-      NDbio3d = 52 
+      NDbio3d = 60 
 # else
-      NDbio3d = 42 
+      NDbio3d = 48 
 # endif
 #endif
 #ifdef BENTHIC
@@ -2917,18 +2923,28 @@
       ipo4lim_di=41
       ipo4lim_lg=42
 
+      ichl_di=43
+      iC_2_chl_di=44
+      ichl_sm=45
+      iC_2_chl_sm=46
+      ichl_lg=47
+      iC_2_chl_lg=48
+
 # ifdef COASTDIAT
-      imu_mem_md=43
-      iagg_lim_md=44
-      iaggloss_md=45
-      ivirloss_md=46
-      izloss_md=47
-      idef_fe_md=48
-      ifelim_md=49
-      ino3lim_md=50
-      inh4lim_md=51
-      ipo4lim_md=52
+      imu_mem_md=49
+      iagg_lim_md=50
+      iaggloss_md=51
+      ivirloss_md=52
+      izloss_md=53
+      idef_fe_md=54
+      ifelim_md=55
+      ino3lim_md=56
+      inh4lim_md=57
+      ipo4lim_md=58
+      ichl_md=59
+      iC_2_chl_md=60
 # endif
+
 
 #endif
       
@@ -3036,6 +3052,8 @@
        allocate(phyto(nphyto)%q_p_2_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%q_p_2_n        = 0.0
        allocate(phyto(nphyto)%q_si_2_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%q_si_2_n       = 0.0
        allocate(phyto(nphyto)%theta(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(nphyto)%theta          = 0.0
+       allocate(phyto(nphyto)%chl(IminS:ImaxS,JminS:JmaxS,UBk))          ; phyto(nphyto)%chl            = 0.0
+       allocate(phyto(nphyto)%C_2_chl(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%C_2_chl        = 0.0
       enddo
 !
 ! allocate and initialize array elements of only some phytoplankton groups

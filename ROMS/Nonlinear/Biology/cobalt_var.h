@@ -988,6 +988,18 @@
                 iDbio3(ipo4lim_di)=varid
               CASE ('iDbio3(ipo4lim_lg)')
                 iDbio3(ipo4lim_lg)=varid
+              CASE ('iDbio3(ichl_di)')
+                iDbio3(ichl_di)=varid
+              CASE ('iDbio3(iC_2_chl_di)')
+                iDbio3(iC_2_chl_di)=varid
+              CASE ('iDbio3(ichl_sm)')
+                iDbio3(ichl_sm)=varid
+              CASE ('iDbio3(iC_2_chl_sm)')
+                iDbio3(iC_2_chl_sm)=varid
+              CASE ('iDbio3(ichl_lg)')
+                iDbio3(ichl_lg)=varid
+              CASE ('iDbio3(iC_2_chl_lg)')
+                iDbio3(iC_2_chl_lg)=varid
 #ifdef COASTDIAT
               CASE ('iDbio3(imu_mem_md)')
                 iDbio3(imu_mem_md)=varid
@@ -1009,6 +1021,10 @@
                 iDbio3(inh4lim_md)=varid
               CASE ('iDbio3(ipo4lim_md)')
                 iDbio3(ipo4lim_md)=varid
+              CASE ('iDbio3(ichl_md)')
+                iDbio3(ichl_md)=varid
+              CASE ('iDbio3(iC_2_chl_md)')
+                iDbio3(iC_2_chl_md)=varid
 #endif
 
 

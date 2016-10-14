@@ -1574,6 +1574,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
             cobalt%f_chl(i,j,k) = cobalt%f_chl(i,j,k) + cobalt%c_2_n *   &
           & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k)
 
+          ! chl and C/chl per class
+
+            phyto(nphyto)%chl(i,j,k) = cobalt%c_2_n *                    &
+          & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k)
+
+            phyto(nphyto)%C_2_chl(i,j,k) = phyto(nphyto)%f_n(i,j,k) *    &
+          & 6.625 * 12e+6 / phyto(nphyto)%chl(i,j,k)
+
+          ! irradiance
             phyto(nphyto)%irrlim(i,j,k) = (1.0-exp(-phyto(nphyto)%alpha* &
           & cobalt%irr_inst(i,j,k) * phyto(nphyto)%theta(i,j,k) / P_C_m))
 
@@ -4648,6 +4657,25 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
     ENDDO
     i=overflow ; j=overflow ; k=overflow
+
+    ! Chl and C/chl per class
+    DO k=1,UBk
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+           DiaBio3d(i,j,k,ichl_di)     = DiaBio3d(i,j,k,ichl_di)     + phyto(DIAZO)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_di) = DiaBio3d(i,j,k,iC_2_chl_di) + phyto(DIAZO)%C_2_chl(i,j,k)
+           DiaBio3d(i,j,k,ichl_sm)     = DiaBio3d(i,j,k,ichl_sm)     + phyto(SMALL)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_sm) = DiaBio3d(i,j,k,iC_2_chl_sm) + phyto(SMALL)%C_2_chl(i,j,k)
+           DiaBio3d(i,j,k,ichl_lg)     = DiaBio3d(i,j,k,ichl_lg)     + phyto(LARGE)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_lg) = DiaBio3d(i,j,k,iC_2_chl_lg) + phyto(LARGE)%C_2_chl(i,j,k)
+#ifdef COASTDIAT
+           DiaBio3d(i,j,k,ichl_md)     = DiaBio3d(i,j,k,ichl_md)     + phyto(MEDIUM)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_md) = DiaBio3d(i,j,k,iC_2_chl_md) + phyto(MEDIUM)%C_2_chl(i,j,k)
+#endif
+        ENDDO
+      ENDDO
+    ENDDO
+
 
     DO k=1,UBk
       DO j=Jstr,Jend
