@@ -2034,7 +2034,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo1
        
        sw_fac_denom =  (ipa_matrix(m,4)*prey_vec(4))**2 +    &
-       &               (ipa_matrix(m,4)*prey_vec(4))**2 + epsln
+       &               (ipa_matrix(m,5)*prey_vec(5))**2 + epsln
        
        pa_matrix(m,4) = ipa_matrix(m,4)* &
                         sqrt((ipa_matrix(m,4)*prey_vec(4))**2/sw_fac_denom)
