@@ -18,7 +18,7 @@
 #undef ATM2OCN_FLUXES  /* not sure about this with ice */
 #undef NO_LBC_ATT
 
-#undef NO_HIS
+#define NO_HIS
 #undef HDF5
 #undef DEFLATE
 #undef PARALLEL_IN
@@ -54,13 +54,13 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
+# undef CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# undef  ICE_MODEL
+# define  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  undef  OUTFLOW_MASK

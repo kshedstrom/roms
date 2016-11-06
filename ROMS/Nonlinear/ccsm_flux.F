@@ -897,9 +897,6 @@ contains
 #   ifdef ICE_DIAGS
           sens_ice(i,j) = qsh_i
 #   endif
-!          IF ((i==133 .or. i==134) .and. j==610) THEN
-!            print *, 'In CCSM_FLUX 0', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
-!          END IF
 
 ! Latent heat of sublimation
           le_i=2.834E+6_r8
@@ -921,9 +918,6 @@ contains
           lat_ice(i,j) = qlh_i
 #   endif
           RHS_Ice(i,j) = RHS_Ice(i,j) + qlh_i
-!          IF ((i==133 .or. i==134) .and. j==610) THEN
-!            print *, 'In CCSM_FLUX 1', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
-!          END IF
 !
 ! Short-wave radiation to ice
 #   if defined ALBEDO && defined SHORTWAVE
@@ -947,9 +941,6 @@ contains
 #   endif
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
-!          IF ((i==133 .or. i==134) .and. j==610) THEN
-!            print *, 'In CCSM_FLUX 2', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
-!          END IF
 
 ! Net long-wave radiation from ice
           cff = Hair(i,j)/(1.0_r8+Hair(i,j))
@@ -976,15 +967,9 @@ contains
 #   ifdef ICE_DIAGS
           LW_up_ice(i,j) = emmiss*StefBo*sfc_temp**4
 #   endif
-!          IF ((i==133 .or. i==134) .and. j==610) THEN
-!            print *, 'In CCSM_FLUX 3', i, j, Coef_Ice(i,j), RHS_Ice(i,j)
-!          END IF
 ! Correct for Kelvin to Celsius in RHS
           RHS_Ice(i,j) = RHS_Ice(i,j) -                                 &
      &            Coef_Ice(i,j)*273.16_r8
-!          IF ((i==133 .or. i==134) .and. j==610) THEN
-!            print *, 'In CCSM_FLUX 4', i, j, RHS_Ice(i,j)/Coef_Ice(i,j)
-!          END IF
 
 ! Net heat flux from ice to atmosphere
           Qai(i,j) = -qsh_i - qlh_i - qswi - qlwi
