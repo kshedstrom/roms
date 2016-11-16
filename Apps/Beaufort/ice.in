@@ -200,6 +200,7 @@ Hout(idSaltL) == T
 Hout(idQao) == T
 Hout(idQai) == T
 Hout(idQio) == T
+Hout(idSnoI) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
@@ -245,6 +246,7 @@ Aout(idSaltL) == T
 Aout(idQao) == T
 Aout(idQai) == T
 Aout(idQio) == T
+Aout(idSnoI) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES2 output file.

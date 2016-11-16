@@ -68,6 +68,10 @@
           real(r8), pointer :: fillhf(:,:,:)
           real(r8), pointer :: filshf(:,:,:)
           real(r8), pointer :: fillrf(:,:,:)
+#   ifdef EMINUSP
+          real(r8), pointer :: filevap(:,:,:)
+          real(r8), pointer :: filrain(:,:,:)
+#   endif
 #  endif
 #  ifdef SHORTWAVE
           real(r8), pointer :: filsrf(:,:,:)
@@ -115,6 +119,7 @@
           real(r8), pointer :: filQao(:,:,:)
           real(r8), pointer :: filQai(:,:,:)
           real(r8), pointer :: filQio(:,:,:)
+          real(r8), pointer :: filSnoI(:,:,:)
 #   endif
 #  endif
 # endif
@@ -312,6 +317,14 @@
       IF (Aout(idShea,ng)) THEN
         allocate ( FILTER(ng) % fillrf(LBi:UBi,LBj:UBj,FILN) )
       END IF
+#   ifdef EMINUSP
+      IF (Aout(idevap,ng)) THEN
+        allocate ( FILTER(ng) % filevap(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idrain,ng)) THEN
+        allocate ( FILTER(ng) % filrain(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+#   endif
 #  endif
 #  ifdef ICE_MODEL
       IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
@@ -433,6 +446,9 @@
       END IF
       IF (Aout(idQio,ng)) THEN
         allocate ( FILTER(NG) % filQio(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idSnoI,ng)) THEN
+        allocate ( FILTER(NG) % filSnoI(LBi:UBi,LBj:UBj,FILN) )
       END IF
 #   endif
 #  endif
@@ -759,6 +775,26 @@
           END DO
         END DO
       END IF
+#   ifdef EMINUSP
+      IF (Aout(idevap,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filevap(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idrain,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filrain(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+#   endif
 #  endif
 #  ifdef ICE_MODEL
       IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
@@ -1111,6 +1147,15 @@
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filQio(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSnoI,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filSnoI(i,j,if) = IniVal
             END DO
           END DO
         END DO

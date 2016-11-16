@@ -453,6 +453,7 @@
         integer  :: idQao          ! heat flux in leads
         integer  :: idQai          ! heat flux ice to atmosphere
         integer  :: idQio          ! heat flux ocean to ice
+        integer  :: idSnoI         ! snow-ice conversion
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idsurT(:)    ! model surface tracers
@@ -1984,6 +1985,8 @@
                 idQai=varid
               CASE ('idQio')
                 idQio=varid
+              CASE ('idSnoI')
+                idSnoI=varid
 #endif
 
 #ifdef BIOLOGY

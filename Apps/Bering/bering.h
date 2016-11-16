@@ -54,13 +54,13 @@
 /* ice */
 
 #ifdef SOLVE3D
-# undef CICE_MODEL
+# define CICE_MODEL
 # ifdef CICE_MODEL
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif
 
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  undef  OUTFLOW_MASK

@@ -558,6 +558,56 @@
           RETURN
         END IF
       END IF
+#   ifdef EMINUSP
+!
+!  Write out evaporation.
+!
+      IF (Aout(idevap,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idevap),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
+     &                 FILTER(ng) % filevap(:,:,FIL(1,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idevap)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out precipitation.
+!
+      IF (Aout(idrain,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idrain),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#   ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#   endif
+     &                 FILTER(ng) % filrain(:,:,FIL(1,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idrain)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+#   endif
 #  endif
 #  ifdef SHORTWAVE
 !
@@ -1614,6 +1664,30 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idQio)), FIL(10,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out snow-ice conversion
+!
+      IF (Aout(idSnoI,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
+     &                 FIL(10,ng)%Vid(idSnoI),                          &
+     &                 FIL(10,ng)%Rindex, gtype,                        &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+#  ifdef MASKING
+     &                 GRID(ng) % rmask,                                &
+#  endif
+     &                 FILTER(ng) % filSnoI(:,:,FIL(10,ng)%Rindex))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idSnoI)), FIL(10,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3

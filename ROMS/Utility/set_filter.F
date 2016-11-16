@@ -657,6 +657,22 @@
                 END DO
               END DO
             END IF
+#   ifdef EMINUSP
+            IF (Aout(idevap,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filevap(i,j,f)= FORCES(ng)%evap(i,j)*fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idrain,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filrain(i,j,f)= FORCES(ng)%rain(i,j)*fw(iw)
+                END DO
+              END DO
+            END IF
+#   endif
 #  endif
 # endif
             IF (Aout(idUsms,ng)) THEN
@@ -993,6 +1009,14 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idSnoI,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filSnoI(i,j,f) =            &
+     &                        FORCES(ng)%snoice(i,j)*fw(iw)
+                END DO
+              END DO
+            END IF
 #  endif
 # endif
             fcount(f)=iw
@@ -1196,6 +1220,24 @@
                   END DO
                 END DO
               END IF
+#   ifdef EMINUSP
+              IF (Aout(idevap,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filevap(i,j,f)=FILTER(ng)%filevap(i,j,f)+&
+     &                                      FORCES(ng)%evap(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idrain,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filrain(i,j,f)=FILTER(ng)%filrain(i,j,f)+&
+     &                                      FORCES(ng)%rain(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+#   endif
 #  endif
 #  ifdef SHORTWAVE
               IF (Aout(idSrad,ng)) THEN
@@ -1571,6 +1613,14 @@
                   END DO
                 END DO
               END IF
+              IF (Aout(idSnoI,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filSnoI(i,j,f)=FILTER(ng)%filSnoI(i,j,f)+&
+     &                                    FORCES(ng)%snoice(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
 #   endif
 # endif
             END IF
@@ -1782,6 +1832,22 @@
                 END DO
               END DO
             END IF
+#   ifdef EMINUSP
+            IF (Aout(idShea,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgevap(i,j)=FILTER(ng)%filevap(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idShea,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgrain(i,j)=FILTER(ng)%filrain(i,j,f)
+                END DO
+              END DO
+            END IF
+#   endif
 #  endif
 #  ifdef SHORTWAVE
             IF (Aout(idSrad,ng)) THEN
@@ -2111,6 +2177,13 @@
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgQio(i,j)=FILTER(ng)%filQio(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idSnoI,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgSnoI(i,j)=FILTER(ng)%filSnoI(i,j,f)
                 END DO
               END DO
             END IF

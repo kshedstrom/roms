@@ -1240,6 +1240,15 @@
   'r2dvar'
   1.0d0
 
+'snoice'
+  'snow-ice conversion'
+  'm s-1'
+  'snoice, scalar, series'
+  'ocean_time'
+  'idSnoI'
+  'r2dvar'
+  1.0d0
+
 'Runoff'
   'Fresh water runoff from land'
   'kg/s/m^2'

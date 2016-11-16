@@ -371,6 +371,7 @@
           real(r8), pointer :: avgQao(:,:)
           real(r8), pointer :: avgQai(:,:)
           real(r8), pointer :: avgQio(:,:)
+          real(r8), pointer :: avgSnoI(:,:)
 #endif
 #  endif
 # endif
@@ -842,6 +843,9 @@
       END IF
       IF (Aout(idQio,ng)) THEN
         allocate ( AVERAGE(ng) % avgQio(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idSnoI,ng)) THEN
+        allocate ( AVERAGE(ng) % avgSnoI(LBi:UBi,LBj:UBj) )
       END IF
 #endif
 # endif
@@ -2092,6 +2096,13 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgQio(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idSnoI,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgSnoI(i,j) = IniVal
           END DO
         END DO
       END IF

@@ -328,6 +328,7 @@
           real(r8), pointer :: SW_up_ice(:,:)
           real(r8), pointer :: saltflux_ice(:,:)
           real(r8), pointer :: saltflux_ocean(:,:)
+          real(r8), pointer :: snoice(:,:)
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -767,6 +768,7 @@
       allocate ( FORCES(ng) % SW_up_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % saltflux_ice(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % saltflux_ocean(LBi:UBi,LBj:UBj) )
+      allocate ( FORCES(ng) % snoice(LBi:UBi,LBj:UBj) )
 #endif
 
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS \
@@ -1298,6 +1300,7 @@
             FORCES(ng) % SW_up_ice(i,j) = IniVal
             FORCES(ng) % saltflux_ice(i,j) = IniVal
             FORCES(ng) % saltflux_ocean(i,j) = IniVal
+            FORCES(ng) % snoice(i,j) = IniVal
 #endif
 #if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS || \
      defined CCSM_FLUXES2D

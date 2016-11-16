@@ -717,6 +717,46 @@
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+#   ifdef EMINUSP
+!
+!  Define evaporation.
+!
+        IF (Aout(idevap,ng)) THEN
+          Vinfo( 1)=Vname(1,idevap)
+          Vinfo( 2)=Vname(2,idevap)
+          Vinfo( 3)=Vname(3,idevap)
+          Vinfo(14)=Vname(4,idevap)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idevap,ng),r8)
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idevap),                           &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define precipitation.
+!
+        IF (Aout(idrain,ng)) THEN
+          Vinfo( 1)=Vname(1,idrain)
+          Vinfo( 2)=Vname(2,idrain)
+          Vinfo( 3)=Vname(3,idrain)
+          Vinfo(14)=Vname(4,idrain)
+          Vinfo(16)=Vname(1,idtime)
+#   if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#   endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idrain,ng),r8)
+          status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
+     &                 FIL(1,ng)%Vid(idrain),                           &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#   endif
 #  endif
 #  ifdef SHORTWAVE
 !
@@ -1564,6 +1604,25 @@
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
+!
+!  Define snow-ice conversion
+!
+        IF (Aout(idSnoI,ng)) THEN
+          Vinfo( 1)=Vname(1,idSnoI)
+          Vinfo( 2)=Vname(2,idSnoI)
+          Vinfo( 3)=Vname(3,idSnoI)
+          Vinfo(14)=Vname(4,idSnoI)
+          Vinfo(16)='filter level'
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idSnoI,ng),r8)
+          status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
+     &                 FIL(10,ng)%Vid(idSnoI),                          &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
 #   endif
 # endif
 !
@@ -1763,12 +1822,12 @@
 !             got_var(idVair)=.TRUE.
 !             FIL(1,ng)%Vid(idVair)=var_id(i)
 #   ifdef EMINUSP
-!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
-!             got_var(idevap)=.TRUE.
-!             FIL(1,ng)%Vid(idevap)=var_id(i)
-!           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
-!             got_var(idrain)=.TRUE.
-!             FIL(1,ng)%Vid(idrain)=var_id(i)
+           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idevap))) THEN
+             got_var(idevap)=.TRUE.
+             FIL(1,ng)%Vid(idevap)=var_id(i)
+           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrain))) THEN
+             got_var(idrain)=.TRUE.
+             FIL(1,ng)%Vid(idrain)=var_id(i)
 #   endif
 #  endif
 #  ifdef SHORTWAVE
@@ -2047,18 +2106,18 @@
 !         RETURN
 !       END IF
 #   ifdef EMINUSP
-!       IF (.not.got_var(idevap).and.Aout(idevap,ng)) THEN
-!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idevap)),          &
-!    &                                  TRIM(ncname)
-!         exit_flag=3
-!         RETURN
-!       END IF
-!       IF (.not.got_var(idrain).and.Aout(idrain,ng)) THEN
-!         IF (Master) WRITE (stdout,40) TRIM(Vname(1,idrain)),          &
-!    &                                  TRIM(ncname)
-!         exit_flag=3
-!         RETURN
-!       END IF
+        IF (.not.got_var(idevap).and.Aout(idevap,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idevap)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idrain).and.Aout(idrain,ng)) THEN
+          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idrain)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
 #   endif
 #  endif
 #  ifdef SHORTWAVE

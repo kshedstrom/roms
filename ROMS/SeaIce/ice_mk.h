@@ -83,6 +83,7 @@
 #ifdef ICE_DIAGS
      &                      FORCES(ng) % saltflux_ice,                  &
      &                      FORCES(ng) % qio_n,                         &
+     &                      FORCES(ng) % snoice,                        &
 #endif
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
@@ -130,7 +131,7 @@
      &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
 #ifdef ICE_DIAGS
-     &                        saltflux_ice, qio_n,                      &
+     &                        saltflux_ice, qio_n, snoice,              &
 #endif
      &                        sustr, svstr,                             &
      &                        qai_n, qi_o_n, qao_n,                     &
@@ -297,6 +298,7 @@
 #ifdef ICE_DIAGS
       real(r8), intent(out) :: saltflux_ice(LBi:,LBj:)
       real(r8), intent(out) :: qio_n(LBi:,LBj:)
+      real(r8), intent(out) :: snoice(LBi:,LBj:)
 #endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
@@ -357,6 +359,7 @@
 #ifdef ICE_DIAGS
       real(r8), intent(out) :: saltflux_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qio_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: snoice(LBi:UBi,LBj:UBj)
 #endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
@@ -866,9 +869,6 @@
 #ifdef ICE_DIAGS
               qio_n(i,j) = qio(i,j)
 #endif
-#if defined WET_DRY && defined CASPIAN
-              stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
-#endif
             END IF
 
 ! Change stflx(i,j,itemp) back to ROMS convention
@@ -887,7 +887,7 @@
      &                     *fac_sf
 #else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
-     &          - (xtot-ai(i,j,linew)*wro(i,j))*(sice(i,j)-s0mk(i,j))
+     &         + (xtot-ai(i,j,linew)*wro(i,j))*(salt_top(i,j)-sice(i,j))
 #endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
@@ -908,8 +908,8 @@
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
 #endif
 #ifdef ICE_DIAGS
-            saltflux_ice(i,j) = - (xtot-ai(i,j,linew)*wro(i,j))*        &
-     &                   (sice(i,j)-s0mk(i,j))
+            saltflux_ice(i,j) = (xtot-ai(i,j,linew)*wro(i,j))*        &
+     &                   (salt_top(i,j)-sice(i,j))
 #endif
 #ifdef ICESHELF
           ELSE
@@ -951,8 +951,14 @@
           hstar = hsn(i,j,linew) - (rhosw - rhoice(ng)) *               &
      &             hi(i,j,linew) / rhosnow_dry(ng)
           IF (hstar .gt. 0.0_r8) THEN
-            hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
-            hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
+#ifdef ICE_DIAGS
+            snoice(i,j) = hstar*sice_ref/dtice(ng)
+#endif
+            hsn(i,j,linew) = hsn(i,j,linew) - hstar*rhoice(ng)/rhosw
+            hi(i,j,linew) = hi(i,j,linew) + hstar*rhosnow_dry(ng)/rhosw
+! Add salt to ice (negative salt flux) ??
+            stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
+     &                   hstar*sice_ref/dtice(ng)
           END IF
 # endif
 #endif

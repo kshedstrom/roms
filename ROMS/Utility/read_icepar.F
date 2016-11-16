@@ -404,6 +404,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idQio,:))
+            CASE ('Hout(idSnoI)')
+              IF (idSnoI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSnoI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSnoI,:))
 #endif
 #ifdef AVERAGES
             CASE ('Aout(idUice)')
@@ -696,6 +703,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idQio,:))
+            CASE ('Aout(idSnoI)')
+              IF (idSnoI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSnoI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSnoI,:))
 # endif
 #endif
 #ifdef AVERAGES2
@@ -981,6 +995,9 @@
           IF (Hout(idQio,ng)) WRITE (out,70) Hout(idQio,ng),            &
      &       'Hout(idQio)',                                             &
      &       'Write out heat flux into ice.'
+          IF (Hout(idSnoI,ng)) WRITE (out,70) Hout(idSnoI,ng),          &
+     &       'Hout(idSnoI)',                                            &
+     &       'Write out heat flux into ice.'
 #endif
 #ifdef AVERAGES
           IF (Aout(idUice,ng)) WRITE (out,70) Aout(idUice,ng),          &
@@ -1108,6 +1125,9 @@
      &       'Write out heat flux on top of ice.'
           IF (Aout(idQio,ng)) WRITE (out,70) Aout(idQio,ng),            &
      &       'Aout(idQio)',                                             &
+     &       'Write out heat flux into ice.'
+          IF (Aout(idSnoI,ng)) WRITE (out,70) Aout(idSnoI,ng),          &
+     &       'Aout(idSnoI)',                                            &
      &       'Write out heat flux into ice.'
 # endif
 #endif
