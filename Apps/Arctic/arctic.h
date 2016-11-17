@@ -12,7 +12,6 @@
 **  Options for ARCTIC simulation
 */
 
-#undef ALBEDO_HACK
 #define NO_HIS
 #define GLOBAL_PERIODIC
 #define HDF5
@@ -40,7 +39,7 @@
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
+# define ANA_SPFLUX
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE

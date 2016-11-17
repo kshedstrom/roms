@@ -51,9 +51,13 @@
 #
 
 ifdef USE_NETCDF4
-        NC_CONFIG ?= nc-config
-    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
-             LIBS := $(shell $(NC_CONFIG) --flibs)
+# HACK! setting NC_CONFIG in my shell for something else.
+        NC_CONFIG := /usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016//bin/nc-config
+    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016/include
+             LIBS := -L/usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016/lib -lnetcdff -lnetcdf
+#       NC_CONFIG ?= nc-config
+#   NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
+#            LIBS := $(shell $(NC_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
