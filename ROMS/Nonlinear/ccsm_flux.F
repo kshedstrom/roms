@@ -114,7 +114,7 @@ contains
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
      &                     FORCES(ng) % stflx,                          &
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
      &                     FORCES(ng) % LW_down,                        &
      &                     FORCES(ng) % SW_down,                        &
 # endif
@@ -165,8 +165,6 @@ contains
      &                     FORCES(ng) % evap,                           &
 # endif
 # ifdef ICE_DIAGS
-     &                     FORCES(ng) % LW_down,                        &
-     &                     FORCES(ng) % SW_down,                        &
      &                     FORCES(ng) % lat_ice,                        &
      &                     FORCES(ng) % sens_ice,                       &
      &                     FORCES(ng) % LW_up_ice,                      &
@@ -221,7 +219,7 @@ contains
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING
      &                           LW_down, SW_down,                      &
 # endif
 # if defined ALBEDO && defined SHORTWAVE
@@ -345,7 +343,7 @@ contains
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING
       real(r8), intent(out) :: LW_down(LBi:,LBj:)
       real(r8), intent(out) :: SW_down(LBi:,LBj:)
 # endif
@@ -455,7 +453,7 @@ contains
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
       real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
 # endif
@@ -508,8 +506,6 @@ contains
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef ICE_DIAGS
-      real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: lat_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: sens_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: LW_up_ice(LBi:UBi,LBj:UBj)
@@ -1006,7 +1002,7 @@ contains
           tsk = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           lwup = -shr_const_stebol * tsk**4
 
-# if defined CICE_MODEL || defined ICE_DIAGS
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
           LW_down(i,j) = lrflx(i,j)*Hscale
           SW_down(i,j) = srflx(i,j)*Hscale
 # endif
@@ -1220,7 +1216,7 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,itemp))
-# ifdef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          LW_down)
@@ -1296,7 +1292,7 @@ contains
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    lrflx, lhflx, shflx,                          &
      &                    stflx(:,:,itemp))
-#  ifdef CICE_MODEL
+#  if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &

@@ -659,11 +659,23 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' CELERITY_WRITE,'
 #endif
+#ifdef CICE_COUPLING
+      IF (Master) WRITE (stdout,20) 'CICE_COUPLING',                    &
+     &   'Include CICE Ice Model, Metroms Style.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' CICE_COUPLING,'
+#endif
 #ifdef CICE_MODEL
       IF (Master) WRITE (stdout,20) 'CICE_MODEL',                       &
      &   'Include CICE Ice Model.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' CICE_MODEL,'
+#endif
+#ifdef CICE_OCEAN
+      IF (Master) WRITE (stdout,20) 'CICE_OCEAN',                       &
+     &   'Include CICE Ice Model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+12)=' CICE_OCEAN,'
 #endif
 #ifdef CLIPPING
       IF (Master) WRITE (stdout,20) 'CLIPPING',                         &

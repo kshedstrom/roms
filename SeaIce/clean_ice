@@ -8,7 +8,8 @@ setenv SRCDIR $HOME/cice5.1
 setenv CBLD   $SRCDIR/bld
 setenv EXEDIR $SYSTEM_USERDIR/Bering
 #setenv EXEDIR $SYSTEM_USERDIR/Arctic
-setenv OBJDIR $EXEDIR/compile
+#setenv OBJDIR $EXEDIR/compile
+setenv OBJDIR /center/w/kate/CICE_chinook/Bering/compile
 
 cd $OBJDIR
 pwd

@@ -52,6 +52,9 @@
 # ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : initialize_ocn2wav_coupling
 # endif
+# ifdef CICE_OCEAN
+      USE ocean_coupler_mod, ONLY : initialize_ocn2cice_coupling
+# endif
 #endif
 !
 !  Imported variable declarations.
@@ -159,7 +162,7 @@
 #endif
       END IF
 
-#if defined MCT_LIB && (defined AIR_OCEAN || defined WAVES_OCEAN)
+#if defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Initialize coupling streams between model(s).
@@ -171,6 +174,11 @@
 # endif
 # ifdef WAVES_OCEAN
         CALL initialize_ocn2wav_coupling (ng, MyRank)
+# endif
+# ifdef CICE_OCEAN
+!jd	    WRITE (stdout,*) ' Initialize coupling streams for cice'
+        CALL initialize_ocn2cice_coupling (ng, MyRank)
+!jd		WRITE (stdout,*) ' Done: Initialize coupling streams for cice'
 # endif
       END DO
 #endif

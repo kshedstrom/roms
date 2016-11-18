@@ -260,7 +260,6 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
-        integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
         integer  :: idragW        ! bottom drag coefficient for internal tide
@@ -275,6 +274,7 @@
         integer  :: idShea        ! net sensible heat flux
         integer  :: idSWCW        ! SIN(omega(k)*t)*COS(omega(l)*t)
         integer  :: idsfwf        ! surface freswater flux
+        integer  :: idsnow        ! snowfall rate
         integer  :: idTLmo        ! TLM at observation locations
         integer  :: idTair        ! surface air temperature
         integer  :: idTdif        ! vertical T-diffusion coefficient

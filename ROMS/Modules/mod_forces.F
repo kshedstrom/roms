@@ -314,7 +314,7 @@
           real(r8), pointer :: TairG(:,:,:)
 # endif
 #endif
-#ifdef CICE_MODEL
+#if defined CICE_MODEL || defined CICE_COUPLING
           real(r8), pointer :: PotT(:,:)
           real(r8), pointer :: LW_down(:,:)
           real(r8), pointer :: SW_down(:,:)
@@ -754,7 +754,7 @@
       allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
 # endif
 #endif
-#ifdef CICE_MODEL
+#if defined CICE_MODEL || defined CICE_COUPLING
       allocate ( FORCES(ng) % PotT(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % LW_down(LBi:UBi,LBj:UBj) )
       allocate ( FORCES(ng) % SW_down(LBi:UBi,LBj:UBj) )
@@ -1286,7 +1286,7 @@
             FORCES(ng) % TairG(i,j,2) = IniVal
 # endif
 #endif
-#ifdef CICE_MODEL
+#if defined CICE_MODEL || defined CICE_COUPLING
             FORCES(ng) % PotT(i,j) = IniVal
             FORCES(ng) % LW_down(i,j) = IniVal
             FORCES(ng) % SW_down(i,j) = IniVal

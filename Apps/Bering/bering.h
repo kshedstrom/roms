@@ -12,9 +12,10 @@
 **  Options for BERING simulation
 */
 
+#define CICE_COUPLING
 #undef ROMS_MODEL
 #undef WRF_MODEL
-#undef MCT_LIB
+#define MCT_LIB
 #undef ATM2OCN_FLUXES  /* not sure about this with ice */
 #undef NO_LBC_ATT
 
@@ -54,8 +55,8 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define CICE_MODEL
-# ifdef CICE_MODEL
+# undef CICE_MODEL
+# if defined CICE_MODEL || defined CICE_COUPLING
 #  define SNOWFALL
 #  define SNOW_FROM_RAIN
 # endif

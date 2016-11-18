@@ -141,6 +141,8 @@
                     Iwaves=i
                   ELSE IF (INDEX(TRIM(OrderLabel(i)),'atmos').ne.0) THEN
                     Iatmos=i
+                  ELSE IF (INDEX(TRIM(OrderLabel(i)),'cice').ne.0) THEN
+                    Icice=i
                   END IF
                 END IF
               END DO
@@ -155,6 +157,10 @@
             CASE ('Nthreads(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
                 Npts=load_i(Nval, Rval, 1, Nthreads(Iatmos))
+              END IF
+            CASE ('Nthreads(cice)')
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                Npts=load_i(Nval, Rval, 1, Nthreads(Icice))
               END IF
             CASE ('TimeInterval')
               Npts=load_r(Nval, Rval, Nmodels, MyRval)
@@ -181,6 +187,10 @@
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
                 INPname(Iatmos)=TRIM(ADJUSTL(Cval(Nval)))
               END IF
+            CASE ('INPname(cice)')
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                INPname(Icice)=TRIM(ADJUSTL(Cval(Nval)))
+              END IF
             CASE ('CPLname')
               CPLname=TRIM(ADJUSTL(Cval(Nval)))
             CASE ('Nexport(ocean)')
@@ -194,6 +204,10 @@
             CASE ('Nexport(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
                 Npts=load_i(Nval, Rval, 1, Nexport(Iatmos))
+              END IF
+            CASE ('Nexport(cice)')
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                Npts=load_i(Nval, Rval, 1, Nexport(Icice))
               END IF
             CASE ('Export(ocean)')
               IF (.not.allocated(Export)) THEN
@@ -234,6 +248,19 @@
                   Export(Iatmos)%code(Nval)=TRIM(ADJUSTL(Cval(Nval)))
                 END IF
               END IF
+            CASE ('Export(cice)')
+              IF (.not.allocated(Export)) THEN
+                allocate ( Export(Nmodels) )
+                DO i=1,Nmodels
+                  allocate ( Export(i)%code(MAX(1,Nexport(i))) )
+                  Export(i)%code=' '
+                END DO
+              END IF
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                IF (Nval.le.Nexport(Icice)) THEN
+                  Export(Icice)%code(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+                END IF
+              END IF
             CASE ('Nimport(ocean)')
               IF ((0.lt.Iocean).and.(Iocean.le.Nmodels)) THEN
                 Npts=load_i(Nval, Rval, 1, Nimport(Iocean))
@@ -245,6 +272,10 @@
             CASE ('Nimport(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
                 Npts=load_i(Nval, Rval, 1, Nimport(Iatmos))
+              END IF
+            CASE ('Nimport(cice)')
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                Npts=load_i(Nval, Rval, 1, Nimport(Icice))
               END IF
             CASE ('Import(ocean)')
               IF (.not.allocated(Import)) THEN
@@ -283,6 +314,19 @@
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
                 IF (Nval.le.Nimport(Iatmos)) THEN
                   Import(Iatmos)%code(Nval)=TRIM(ADJUSTL(Cval(Nval)))
+                END IF
+              END IF
+            CASE ('Import(cice)')
+              IF (.not.allocated(Import)) THEN
+                allocate ( Import(Nmodels) )
+                DO i=1,Nmodels
+                  allocate ( Import(i)%code(MAX(1,Nimport(i))) )
+                  Import(i)%code=' '
+                END DO
+              END IF
+              IF ((0.lt.Icice).and.(Icice.le.Nmodels)) THEN
+                IF (Nval.le.Nimport(Icice)) THEN
+                  Import(Icice)%code(Nval)=TRIM(ADJUSTL(Cval(Nval)))
                 END IF
               END IF
           END SELECT

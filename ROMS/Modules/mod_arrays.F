@@ -61,8 +61,9 @@
       USE mod_bbl, ONLY : allocate_bbl, initialize_bbl
 #endif
 #if defined ICE_MODEL || defined CICE_MODEL
-      USE mod_ice, ONLY : allocate_ice, initialize_ice
+      USE mod_ice, ONLY : initialize_ice
 #endif
+      USE mod_ice, ONLY : allocate_ice
 !
       implicit none
 !
@@ -136,9 +137,7 @@
 #ifdef BBL_MODEL
           CALL allocate_bbl (ng, LBi, UBi, LBj, UBj)
 #endif
-#if defined ICE_MODEL || defined CICE_MODEL
           CALL allocate_ice (ng, LBi, UBi, LBj, UBj)
-#endif
           IF (LallocateClima.or.Lclimatology(ng)) THEN
             CALL allocate_clima (ng, LBi, UBi, LBj, UBj)
           END IF

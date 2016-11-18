@@ -577,11 +577,15 @@
 # define AIR_OCEAN
 #endif
 
+#if defined CICE_COUPLING
+# define CICE_OCEAN
+#endif
+
 #if defined REFDIF_COUPLING || defined SWAN_COUPLING
 # define WAVES_OCEAN
 #endif
 
-#if defined AIR_OCEAN || defined WAVES_OCEAN
+#if defined AIR_OCEAN || defined WAVES_OCEAN || defined CICE_OCEAN
 # define MODEL_COUPLING
 #endif
 

@@ -31,9 +31,9 @@
       USE mod_grid
       USE mod_forces
       USE mod_ocean
-# if defined ICE_MODEL || defined CICE_MODEL
+#  if defined ICE_MODEL || defined CICE_MODEL || defined CICE_COUPLING
       USE mod_ice
-# endif
+#  endif
       USE mod_stepping
 !
 !  Imported variable declarations.
@@ -96,7 +96,7 @@
 #  if defined SSSFLX
      &                   FORCES(ng) % sssflx,                           &
 #  endif
-#  if defined ICESHELF
+#  if defined ICESHELF || defined CICE_COUPLING
 #   ifdef SHORTWAVE
      &                   FORCES(ng) % srflx,                            &
 #   endif
@@ -105,6 +105,17 @@
 #   endif
      &                   FORCES(ng) % sustr,                            &
      &                   FORCES(ng) % svstr,                            &
+#  endif
+#  ifdef CICE_COUPLING
+     &                   ICE(ng) % aice,                                &
+     &                   ICE(ng) % aice_u,                              &
+     &                   ICE(ng) % aice_v,                              &
+     &                   ICE(ng) % fhocnAI,                             &
+     &                   ICE(ng) % fswthruAI,                           &
+     &                   ICE(ng) % freshAI,                             &
+     &                   ICE(ng) % fsaltAI,                             &
+     &                   ICE(ng) % stru,                                &
+     &                   ICE(ng) % strv,                                &
 #  endif
 #  ifndef BBL_MODEL
      &                   FORCES(ng) % bustr,                            &
@@ -177,7 +188,7 @@
 #  if defined SSSFLX
      &                         sssflx,                                  &
 #  endif
-#  if defined ICESHELF
+#  if defined ICESHELF || defined CICE_COUPLING
 #   ifdef SHORTWAVE
      &                         srflx,                                   &
 #   endif
@@ -185,6 +196,12 @@
      &                         Tair,                                    &
 #   endif
      &                         sustr, svstr,                            &
+#  endif
+#  ifdef CICE_COUPLING
+     &                         aice, aice_u, aice_v,                    &
+     &                         fhocnAI, fswthruAI,                      &
+     &                         freshAI, fsaltAI,                        &
+     &                         stru, strv,                              &
 #  endif
 #  ifndef BBL_MODEL
      &                         bustr, bvstr,                            &
@@ -207,6 +224,9 @@
       USE mod_scalars
 !
       USE bc_2d_mod
+#ifdef CICE_COUPLING
+      USE exchange_2d_mod
+#endif
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
@@ -267,7 +287,7 @@
 #   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:,LBj:)
 #   endif
-#   if defined ICESHELF
+#   if defined ICESHELF || defined CICE_COUPLING
 #    ifdef SHORTWAVE
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
 #    endif
@@ -276,6 +296,17 @@
 #    endif
       real(r8), intent(inout) :: sustr(LBi:,LBj:)
       real(r8), intent(inout) :: svstr(LBi:,LBj:)
+#   endif
+#   ifdef CICE_COUPLING
+      real(r8), intent(in) :: aice(LBi:,LBj:)
+      real(r8), intent(in) :: aice_u(LBi:,LBj:)
+      real(r8), intent(in) :: aice_v(LBi:,LBj:)
+      real(r8), intent(in) :: fhocnAI(LBi:,LBj:)
+      real(r8), intent(in) :: fswthruAI(LBi:,LBj:)
+      real(r8), intent(in) :: freshAI(LBi:,LBj:)
+      real(r8), intent(in) :: fsaltAI(LBi:,LBj:)
+      real(r8), intent(in) :: stru(LBi:,LBj:)
+      real(r8), intent(in) :: strv(LBi:,LBj:)
 #   endif
 #   ifndef BBL_MODEL
       real(r8), intent(inout) :: bustr(LBi:,LBj:)
@@ -339,7 +370,7 @@
 #   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:UBi,LBj:UBj)
 #   endif
-#   if defined ICESHELF
+#   if defined ICESHELF || defined CICE_COUPLING
 #    ifdef SHORTWAVE
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
 #    endif
@@ -348,6 +379,17 @@
 #    endif
       real(r8), intent(inout) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: svstr(LBi:UBi,LBj:UBj)
+#   endif
+#   ifdef CICE_COUPLING
+      real(r8), intent(in) :: aice(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: aice_u(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: aice_v(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: fhocnAI(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: fswthruAI(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: freshAI(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: fsaltAI(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: stru(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: strv(LBi:UBi,LBj:UBj)
 #   endif
 #   ifndef BBL_MODEL
       real(r8), intent(inout) :: bustr(LBi:UBi,LBj:UBj)
@@ -392,7 +434,7 @@
 #  endif
 # endif
 
-#  if !defined BBL_MODEL || defined ICESHELF || \
+#  if !defined BBL_MODEL || defined ICESHELF || defined CICE_COUPLING || \
        defined LIMIT_STFLX_COOLING
       real(r8) :: cff, cff1, cff2, cff3
 #  endif
@@ -553,6 +595,55 @@
         END DO
       END DO
 #  endif
+
+#  ifdef CICE_COUPLING
+!-----------------------------------------------------------------------
+!  Modify heat and salt fluxes fluxes due to sea ice
+!-----------------------------------------------------------------------
+      cff1=1.0_r8/(rho0*Cp)
+      cff=1.0_r8/rhow
+
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+! merge with fluxes from ice model
+          srflx(i,j)=srflx(i,j)*(1.0_r8-aice(i,j))+fswthruAI(i,j)*cff1
+          stflx(i,j,itemp)=stflx(i,j,itemp)*(1.0_r8-aice(i,j))+         &
+     &         (fswthruAI(i,j)+fhocnAI(i,j))*cff1
+
+! Calculation of virtual salt flux
+          stflx(i,j,isalt) = stflx(i,j,isalt)*(1.0_r8-aice(i,j))        &
+     &         -cff*( freshAI(i,j)*t(i,j,N(ng),nrhs,isalt)              &
+! Fsalt is given as kg/s/m^2. Should be converted to salinity (factor 1000).
+     &         -fsaltAI(i,j)*1000.0_r8)
+
+          ! merge with stress from ice model
+          sustr(i,j)=sustr(i,j)*(1.0_r8-aice_u(i,j))+stru(i,j)*cff
+          svstr(i,j)=svstr(i,j)*(1.0_r8-aice_v(i,j))+strv(i,j)*cff
+
+        END DO
+      END DO
+
+        CALL exchange_u2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          sustr)
+        CALL exchange_v2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          svstr)
+#   ifdef DISTRIBUTE
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    sustr, svstr)
+
+      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    srflx, stflx(:,:,itemp),stflx(:,:,isalt))
+#   endif
+#  endif
+
 #  ifdef ICESHELF
 !
 !-----------------------------------------------------------------------
@@ -1049,6 +1140,7 @@
       USE mod_grid
       USE mod_forces
       USE mod_ocean
+      USE mod_ice
       USE mod_stepping
 !
 !  Imported variable declarations.

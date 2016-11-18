@@ -97,9 +97,10 @@
 !
 !  Coupled model components IDs.
 !
-      integer :: ATMid = 3
-      integer :: WAVid = 2
       integer :: OCNid = 1
+      integer :: CICEid = 2
+      integer :: ATMid = 3
+      integer :: WAVid = 4
 !
 !  Logical switch to report verbose import/export field ranges.
 !
@@ -113,6 +114,7 @@
 !  Coupled model indices. Values are initilized here to zero and
 !  assigned in "inp_par" using order labels codes.
 !
+      integer :: Icice = 0             ! cice sea ice model
       integer :: Iatmos = 0            ! atmospheric model
       integer :: Iocean = 0            ! ocean model
       integer :: Iwaves = 0            ! wave model
@@ -255,6 +257,7 @@
 !
 !  Open input coupling variable information file.
 !
+!jd      WRITE (stdout,*) ' Opening coupeling variable information file: ', CPLname
       OPEN (inp, FILE=TRIM(CPLname), FORM='formatted', STATUS='old',    &
      &      ERR=10)
       GO TO 20
@@ -265,6 +268,7 @@
 !  Read in variable information.  Ignore blank and comment [char(33)=!]
 !  input lines.
 !
+!jd      WRITE (stdout,*) ' Reading coupling variable information file'
       varid=0
       DO WHILE (.TRUE.)
         READ (inp,*,ERR=30,END=40) Vinfo(1)
@@ -336,6 +340,7 @@
 !
 !  Allocate IDs structures.
 !
+!jd      WRITE (stdout,*) ' Allocate IDs structures'
       IF (.not.allocated(ExportID)) THEN
         allocate ( ExportID(Nmodels) )
         DO model=1,Nmodels
@@ -400,6 +405,7 @@
 !
 !  Allocate structure.
 !
+!jd      WRITE (stdout,*) ' Assign processors to coupled models.'
       IF (.not.allocated(pets)) THEN
         allocate ( pets(Nmodels) )
         DO model=1,Nmodels
@@ -435,6 +441,8 @@
               string='Waves Model MPI nodes:'
             ELSE IF (model.eq.Iatmos) THEN
               string='Atmos Model MPI nodes:'
+            ELSE IF (model.eq.Icice) THEN
+              string='CICE Model  MPI nodes:'
             END IF
             WRITE (stdout,100) TRIM(string),                            &
      &                         pets(model)%val(1),                      &
@@ -451,6 +459,8 @@
             string='Waves Export:'
           ELSE IF (model.eq.Iatmos) THEN
             string='Atmos Export:'
+          ELSE IF (model.eq.Icice) THEN
+            string='CICE Export:'
           END IF
           WRITE (stdout,110) TRIM(string), TRIM(ExportList(model))
         END DO

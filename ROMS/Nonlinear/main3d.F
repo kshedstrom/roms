@@ -101,6 +101,10 @@
 # ifdef WAVES_OCEAN
       USE ocean_coupler_mod, ONLY : ocn2wav_coupling
 # endif
+# ifdef CICE_OCEAN
+      USE ocean_coupler_mod, ONLY : ocn2cice_coupling
+      USE frazil_ice_prod_mod, only: frazil_ice_prod
+# endif
       USE omega_mod, ONLY : omega
 # ifdef NEARSHORE_MELLOR
       USE radiation_stress_mod, ONLY : radiation_stress
@@ -355,8 +359,26 @@
                   CALL ocn2wav_coupling (ng, tile)
                 END DO
 !$OMP BARRIER
-              END IF
+          END IF
+        END DO
+# endif
+
+# ifdef CICE_OCEAN
+!
+!-----------------------------------------------------------------------
+!  Couple to ocean to CICE model every "CoupleSteps(Icice)"
+!  timesteps: get cice/ocean fluxes.
+!-----------------------------------------------------------------------
+!
+        DO ng=1,Ngrids
+          IF ((iic(ng).ne.ntstart(ng)).and.                             &
+     &        MOD(iic(ng)-1,CoupleSteps(Icice,ng)).eq.0) THEN
+            DO tile=first_tile(ng),last_tile(ng),+1
+              CALL ocn2cice_coupling (ng, TILE,CoupleSteps(Icice,ng))
             END DO
+!$OMP BARRIER
+          END IF
+        END DO
 # endif
 
 # ifdef NEARSHORE_MELLOR
@@ -868,6 +890,9 @@
               ng=GridNumber(ig,nl)
               DO tile=last_tile(ng),first_tile(ng),-1
                 CALL step3d_t (ng, tile)
+# if defined CICE_OCEAN
+                CALL frazil_ice_prod (ng,tile)
+# endif
               END DO
 !$OMP BARRIER
               IF (exit_flag.ne.NoError) RETURN

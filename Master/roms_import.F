@@ -110,6 +110,7 @@
           range(2)=MAX(range(2),OutField(i,j))
         END DO
       END DO
+
 # elif defined ESMF_LIB
 # endif
 # ifdef DISTRIBUTE
@@ -142,6 +143,58 @@
      &                            OutField)
         END IF
       END IF
+
+!  Fill non-periodic boundaries with the nearest row or column
+!  (note there is probably no sea ice at non-periodic boundaries anyway)
+
+      IF (.not.EWperiodic(ng)) THEN
+        IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+          DO j=Jmin,Jmax
+            OutField(Imin-1,j) = OutField(Imin,j)
+          END DO
+        END IF
+        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+          DO j=Jmin,Jmax
+            OutField(Imax+1,j) = OutField(Imax,j)
+          END DO
+        END IF
+      END IF
+
+      IF (.not.NSperiodic(ng)) THEN
+        IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+          DO i=Imin,Imax
+            OutField(i,Jmin-1) = OutField(i,Jmin)
+          END DO
+        END IF
+        IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+          DO i=Imin,Imax
+            OutField(i,Jmax+1) = OutField(i,Jmax)
+          END DO
+        END IF
+      END IF
+
+      IF ((.not.EWperiodic(ng)).and.(.not.NSperiodic(ng))) THEN
+        ! Deal with corners
+        IF ((DOMAIN(ng)%Western_Edge(tile)).and.                        &
+     &      (DOMAIN(ng)%Southern_Edge(tile))) THEN
+          ! This same value should have also mapped to the points
+          ! (Imin-1,Jmin) and (Imin,Jmin-1)
+          OutField(Imin-1,Jmin-1) = OutField(Imin,Jmin)
+        END IF
+        IF ((DOMAIN(ng)%Western_Edge(tile)).and.                        &
+     &      (DOMAIN(ng)%Northern_Edge(tile))) THEN
+          OutField(Imin-1,Jmax+1) = OutField(Imin,Jmax)
+        END IF
+        IF ((DOMAIN(ng)%Eastern_Edge(tile)).and.                        &
+     &      (DOMAIN(ng)%Southern_Edge(tile))) THEN
+          OutField(Imax+1,Jmin-1) = OutField(Imax,Jmin)
+        END IF
+        IF ((DOMAIN(ng)%Eastern_Edge(tile)).and.                        &
+     &      (DOMAIN(ng)%Northern_Edge(tile))) THEN
+          OutField(Imax+1,Jmax+1) = OutField(Imax,Jmax)
+        END IF
+      END IF
+
 # ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &

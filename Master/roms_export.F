@@ -86,7 +86,19 @@
 # endif
 
 
-# include "set_bounds.h"
+# ifdef CICE_COUPLING
+
+      integer :: Istr, Iend, Jstr, Jend
+
+      Istr=BOUNDS(ng)%Istr(tile)
+      Iend=BOUNDS(ng)%Iend(tile)
+      Jstr=BOUNDS(ng)%Jstr(tile)
+      Jend=BOUNDS(ng)%Jend(tile)
+
+# else
+#  include "set_bounds.h"
+# endif
+
 !
 !-----------------------------------------------------------------------
 !  Compute export fields to RHO-points.
@@ -103,8 +115,8 @@
 !
       IF (gtype.eq.r2dvar) THEN
         ij=0
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
             ij=ij+1
             OutField(ij)=InpField(i,j)
             range(1)=MIN(range(1),OutField(ij))
@@ -115,7 +127,7 @@
 !  U-type variables.
 !
       ELSE IF (gtype.eq.u2dvar) THEN
-        DO j=JstrR,JendR
+        DO j=Jstr,Jend
           DO i=Istr,Iend
             Awork(i,j)=0.5_r8*(InpField(i  ,j)+                         &
      &                         InpField(i+1,j))
@@ -151,8 +163,8 @@
 !  Pack into export vector.
 !
         ij=0
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
             ij=ij+1
             OutField(ij)=Awork(i,j)
             range(1)=MIN(range(1),OutField(ij))
@@ -164,7 +176,7 @@
 !
       ELSE IF (gtype.eq.v2dvar) THEN
         DO j=Jstr,Jend
-          DO i=IstrR,IendR
+          DO i=Istr,Iend
             Awork(i,j)=0.5_r8*(InpField(i,j  )+                         &
      &                         InpField(i,j+1))
           END DO
@@ -199,8 +211,8 @@
 !  Pack into export vector.
 !
         ij=0
-        DO j=JstrR,JendR
-          DO i=IstrR,IendR
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
             ij=ij+1
             OutField(ij)=Awork(i,j)
             range(1)=MIN(range(1),OutField(ij))

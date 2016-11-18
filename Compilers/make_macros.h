@@ -55,7 +55,7 @@
   USE_SEAICE :=
 #endif
 
-#ifdef CICE_MODEL
+#if defined CICE_MODEL || defined CICE_OCEAN
   USE_CICE := on
 #else
   USE_CICE :=

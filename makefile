@@ -560,25 +560,31 @@ $(MY_CICE_DIR)/libCICE.a:
 	SeaIce/comp_ice
 ifdef USE_CICE
 $(SCRATCH_DIR)/initial.o: $(MY_CICE_DIR)/CICE_InitMod.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/CICE_RunMod.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_blocks.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_broadcast.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_calendar.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_communicate.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_constants.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain_size.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_fileunits.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_flux.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_gather_scatter.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_grid.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_history.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_init.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_kinds_mod.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart_shared.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_state.o
-$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_timers.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/ice_communicate.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_MCT.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_initmod.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_runmod.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_finalmod.o
+
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/CICE_RunMod.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_blocks.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_broadcast.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_calendar.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_communicate.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_constants.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_domain_size.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_fileunits.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_flux.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_gather_scatter.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_grid.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_history.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_init.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_kinds_mod.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_restart_shared.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_state.o
+#$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_timers.o
 endif
 
 $(SCRATCH_DIR)/MakeDepend: makefile \
