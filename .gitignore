@@ -6,3 +6,5 @@ makefile.*
 Makefile.*
 clean_ice_*
 comp_ice_*
+*.o
+*.mod

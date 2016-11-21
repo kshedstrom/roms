@@ -447,7 +447,7 @@ ifdef USE_SEAICE
  modules  +=	ROMS/SeaIce
 endif
 ifdef USE_CICE
- modules  +=	SeaIce/Extra
+# modules  +=	SeaIce/Extra
     LIBS  +=    $(SCRATCH_DIR)/libCICE.a
 endif
  modules  +=	ROMS/Utility \
@@ -562,9 +562,9 @@ ifdef USE_CICE
 $(SCRATCH_DIR)/initial.o: $(MY_CICE_DIR)/CICE_InitMod.o
 $(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/ice_communicate.o
 $(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_MCT.o
-$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_initmod.o
-$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_runmod.o
-$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/cice_finalmod.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_InitMod.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_RunMod.o
+$(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_FinalMod.o
 
 #$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/CICE_RunMod.o
 #$(SCRATCH_DIR)/ice_fakecpl.o: $(MY_CICE_DIR)/ice_blocks.o

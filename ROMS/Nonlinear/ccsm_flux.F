@@ -219,7 +219,7 @@ contains
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
      &                           srflx, stflx,                          &
-# if defined CICE_MODEL || defined CICE_COUPLING
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
      &                           LW_down, SW_down,                      &
 # endif
 # if defined ALBEDO && defined SHORTWAVE
@@ -255,7 +255,6 @@ contains
      &                           EminusP, evap,                         &
 # endif
 # ifdef ICE_DIAGS
-     &                           LW_down, SW_down,                      &
      &                           lat_ice, sens_ice,                     &
      &                           LW_up_ice, SW_up_ice,                  &
      &                           saltflux_ocean,                        &
@@ -343,7 +342,7 @@ contains
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
       real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
-# if defined CICE_MODEL || defined CICE_COUPLING
+# if defined CICE_MODEL || defined CICE_COUPLING || defined ICE_DIAGS
       real(r8), intent(out) :: LW_down(LBi:,LBj:)
       real(r8), intent(out) :: SW_down(LBi:,LBj:)
 # endif
@@ -396,8 +395,6 @@ contains
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
 #  ifdef ICE_DIAGS
-      real(r8), intent(out) :: LW_down(LBi:,LBj:)
-      real(r8), intent(out) :: SW_down(LBi:,LBj:)
       real(r8), intent(out) :: lat_ice(LBi:,LBj:)
       real(r8), intent(out) :: sens_ice(LBi:,LBj:)
       real(r8), intent(out) :: LW_up_ice(LBi:,LBj:)
@@ -1224,14 +1221,14 @@ contains
      &                          LBi, UBi, LBj, UBj,                     &
      &                          SW_down)
 # endif
-#  ifdef ICE_MODEL
+# ifdef ICE_MODEL
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          srflx)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qao_n)
-#   ifdef ICE_THERMO
+#  ifdef ICE_THERMO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qai_n)
@@ -1250,15 +1247,15 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          SW_thru_ice)
-#   endif
+#  endif
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_aix_n)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          tau_aiy_n)
-#  endif
-#  ifdef EMINUSP
+# endif
+# ifdef EMINUSP
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          evap)
@@ -1268,14 +1265,14 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          stflx(:,:,isalt))
-#  endif
+# endif
         CALL exchange_u2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          sustr)
         CALL exchange_v2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          svstr)
-#  ifdef ICE_MODEL
+# ifdef ICE_MODEL
         CALL exchange_u2d_tile (ng, tile,                               &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        sustr_aw)
