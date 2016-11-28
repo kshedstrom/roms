@@ -559,7 +559,6 @@ $(SCRATCH_DIR)/libCICE.a: $(MY_CICE_DIR)/libCICE.a
 $(MY_CICE_DIR)/libCICE.a:
 	SeaIce/comp_ice
 ifdef USE_CICE
-$(SCRATCH_DIR)/initial.o: $(MY_CICE_DIR)/CICE_InitMod.o
 $(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/ice_communicate.o
 $(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_MCT.o
 $(SCRATCH_DIR)/master.o: $(MY_CICE_DIR)/CICE_InitMod.o
