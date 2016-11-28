@@ -39,7 +39,7 @@
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
+# define ANA_SPFLUX
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -57,9 +57,7 @@
 
 # define  ICE_MODEL
 # ifdef ICE_MODEL
-#  undef ANA_ICE
 #  undef  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
 #  define ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
@@ -73,6 +71,7 @@
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
 #  define ICE_I_O
+#  define ICE_DIAGS
 # endif
 #endif
 
@@ -152,10 +151,8 @@
 # define CCSM_FLUXES
 # if defined BULK_FLUXES || defined CCSM_FLUXES
 #  define LONGWAVE_OUT
-#  undef DIURNAL_SRFLUX
 #  define SOLAR_SOURCE
 #  define EMINUSP
-#  undef ANA_SRFLUX
 #  undef ALBEDO_CLOUD
 #  define ALBEDO_CURVE  /* for water */
 #  undef ICE_ALB_EC92   /* for ice */
@@ -189,7 +186,9 @@
 
 #define LTIDES
 #ifdef LTIDES
-# define FILTERED
+# if defined AVERAGES && !defined USE_DEBUG
+#  define FILTERED
+# endif
 # define SSH_TIDES
 # define UV_TIDES
 # define ADD_FSOBC
