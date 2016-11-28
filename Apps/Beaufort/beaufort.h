@@ -33,7 +33,7 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#undef STATIONS
+#define STATIONS
 #undef WET_DRY
 
 #undef T_PASSIVE
