@@ -34,7 +34,7 @@
 # define SPLINES_VDIFF
 # define SPLINES_VVISC
 # define RI_SPLINES
-# undef TS_FIXED
+# define TS_FIXED
 #endif
 #define STATIONS
 #define ANA_INITIAL
@@ -81,6 +81,7 @@
 #  define ICE_CONVSNOW
 #  undef  MELT_PONDS
 #  define ICE_I_O
+#  define ICE_DIAGS
 # endif
 #endif
 
@@ -127,7 +128,7 @@
 #  define EMINUSP
 #  define ANA_LRFLUX
 #  define ANA_SRFLUX
-#  undef ANA_ALBEDO
+#  define ANA_ALBEDO
 #  define ALBEDO
 #  define ANA_SNOW
 #  undef ALBEDO_CLOUD

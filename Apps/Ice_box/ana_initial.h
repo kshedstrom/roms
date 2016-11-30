@@ -218,7 +218,7 @@
       DO k=1,N(ng)
         DO j=JstrT,JendT
           DO i=IstrT,IendT
-            t(i,j,k,1,itemp)=-1.0_r8
+            t(i,j,k,1,itemp)=-1.8_r8
             t(i,j,k,1,isalt)=33.0_r8
           END DO
         END DO

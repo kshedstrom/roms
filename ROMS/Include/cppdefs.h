@@ -609,6 +609,7 @@
 ** ICE_ALB_EC92        use for albedo computation from Ebert and Curry
 ** ICE_MOMENTUM        use for momentum component
 ** ICE_MOM_BULK        hmmm, some option for ice-water stress computation
+** ICE_DIAGS           use for ice thermodynamic diagnostics
 ** ICE_EVP             use for elastic-viscous-plastic rheology
 ** ICE_I_O             use for shortwave going to heat ice
 ** ICE_SHOREFAST       use for a simple shorefast-ice algorithm (Budgell)

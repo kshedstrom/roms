@@ -306,6 +306,42 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idWio,:))
             CASE ('Sout(idWro)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idWro,:))
+            CASE ('Sout(idWdiv)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idWdiv,:))
+#   ifdef ICE_DIAGS
+            CASE ('Sout(idAlbe)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idAlbe,:))
+            CASE ('Sout(idAlbI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idAlbI,:))
+            CASE ('Sout(idLWdn)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idLWdn,:))
+            CASE ('Sout(idSWdn)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSWdn,:))
+            CASE ('Sout(idLatI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idLatI,:))
+            CASE ('Sout(idSenI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSenI,:))
+            CASE ('Sout(idLWupI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idLWupI,:))
+            CASE ('Sout(idSWupI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSWupI,:))
+            CASE ('Sout(idSWinI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSWinI,:))
+            CASE ('Sout(idSWthruI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSWthruI,:))
+            CASE ('Sout(idSaltI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSaltI,:))
+            CASE ('Sout(idSaltL)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSaltL,:))
+            CASE ('Sout(idQao)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idQao,:))
+            CASE ('Sout(idQai)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idQai,:))
+            CASE ('Sout(idQio)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idQio,:))
+            CASE ('Sout(idSnoI)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idSnoI,:))
+#   endif
 #  endif
 #  if defined BBL_MODEL || defined SEDIMENT
             CASE ('Sout(isd50)')
@@ -860,6 +896,59 @@
           IF (Sout(idWro,ng)) WRITE (out,90) Sout(idWro,ng),            &
      &       'Sout(idWro)',                                             &
      &       'Write out ice melt runoff rate.'
+          IF (Sout(idWdiv,ng)) WRITE (out,90) Sout(idWdiv,ng),          &
+     &       'Sout(idWdiv)',                                            &
+     &       'Write out ice divergence rate.'
+#   ifdef ICE_DIAGS
+          IF (Sout(idAlbe,ng)) WRITE (out,90) Sout(idAlbe,ng),          &
+     &       'Sout(idAlbe)',                                            &
+     &       'Write out ocean albedo.'
+          IF (Sout(idAlbI,ng)) WRITE (out,90) Sout(idAlbI,ng),          &
+     &       'Sout(idAlbI)',                                            &
+     &       'Write out ice albedo.'
+          IF (Sout(idLWdn,ng)) WRITE (out,90) Sout(idLWdn,ng),          &
+     &       'Sout(idLWdn)',                                            &
+     &       'Write out downward longwave.'
+          IF (Sout(idSWdn,ng)) WRITE (out,90) Sout(idSWdn,ng),          &
+     &       'Sout(idSWdn)',                                            &
+     &       'Write out downward shortwave.'
+          IF (Sout(idLatI,ng)) WRITE (out,90) Sout(idLatI,ng),          &
+     &       'Sout(idLatI)',                                            &
+     &       'Write out latent heat over ice.'
+          IF (Sout(idSenI,ng)) WRITE (out,90) Sout(idSenI,ng),          &
+     &       'Sout(idSenI)',                                            &
+     &       'Write out sensible heat over ice.'
+          IF (Sout(idLWupI,ng)) WRITE (out,90) Sout(idLWupI,ng),        &
+     &       'Sout(idLWupI)',                                           &
+     &       'Write out ice upward longwave.'
+          IF (Sout(idSWupI,ng)) WRITE (out,90) Sout(idSWupI,ng),        &
+     &       'Sout(idSWupI)',                                           &
+     &       'Write out ice upward shortwave.'
+          IF (Sout(idSWinI,ng)) WRITE (out,90) Sout(idSWinI,ng),        &
+     &       'Sout(idSWinI)',                                           &
+     &       'Write out shortwave into ice.'
+          IF (Sout(idSWthruI,ng)) WRITE (out,90) Sout(idSWthruI,ng),    &
+     &       'Sout(idSWthruI)',                                         &
+     &       'Write out shortwave through ice.'
+          IF (Sout(idSaltI,ng)) WRITE (out,90) Sout(idSaltI,ng),        &
+     &       'Sout(idSaltI)',                                           &
+     &       'Write out salt flux under ice.'
+          IF (Sout(idSaltL,ng)) WRITE (out,90) Sout(idSaltL,ng),        &
+     &       'Sout(idSaltL)',                                           &
+     &       'Write out salt flux in leads.'
+          IF (Sout(idQao,ng)) WRITE (out,90) Sout(idQao,ng),            &
+     &       'Sout(idQao)',                                             &
+     &       'Write out air-ocean heat flux.'
+          IF (Sout(idQai,ng)) WRITE (out,90) Sout(idQai,ng),            &
+     &       'Sout(idQai)',                                             &
+     &       'Write out air-ice heat flux.'
+          IF (Sout(idQio,ng)) WRITE (out,90) Sout(idQio,ng),            &
+     &       'Sout(idQio)',                                             &
+     &       'Write out ice-ocean heat flux.'
+          IF (Sout(idSnoI,ng)) WRITE (out,90) Sout(idSnoI,ng),          &
+     &       'Sout(idSnoI)',                                            &
+     &       'Write out snow-ice conversion rate.'
+#   endif
 #  endif
 # endif
             WRITE (out,*)

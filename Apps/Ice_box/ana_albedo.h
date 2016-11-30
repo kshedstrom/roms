@@ -27,7 +27,7 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-     &                     GRID(ng) % latr,                             &   
+     &                     GRID(ng) % latr,                             &
 # endif
 # ifdef ICE_MODEL
      &                     FORCES(ng) % albedo_ice,                     &

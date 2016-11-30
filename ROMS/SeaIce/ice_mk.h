@@ -806,7 +806,7 @@
           ELSE
 
 ! MK89 version
-#ifdef ICE_BOX0
+#ifdef ICE_BOX
 !  F_t set to 2 W/m^2
             wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &
