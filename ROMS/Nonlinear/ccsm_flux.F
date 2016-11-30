@@ -982,12 +982,6 @@ contains
 # else
           SHeat(i,j) = cpair * tau * tstar / ustar
           LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
-#  ifdef ICE_MODEL
-          SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qsh_i
-          LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qlh_i
-#  endif
 # endif
 !          IF ((i==133 .or. i==134) .and. j==610) THEN
 !            snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
