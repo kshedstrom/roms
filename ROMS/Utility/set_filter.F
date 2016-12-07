@@ -776,6 +776,13 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idT2ice,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filt2(i,j,f) = ICE(ng)%t2(i,j,Iout)*fw(iw)
+                END DO
+              END DO
+            END IF
             IF (Aout(idAgeice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
@@ -1006,6 +1013,14 @@
                 DO i=IstrR,IendR
                   FILTER(ng)%filQio(i,j,f) =            &
      &                        FORCES(ng)%qio_n(i,j)*fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idQi2,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  FILTER(ng)%filQi2(i,j,f) =            &
+     &                        FORCES(ng)%qi2_n(i,j)*fw(iw)
                 END DO
               END DO
             END IF
@@ -1368,6 +1383,14 @@
                   END DO
                 END DO
               END IF
+              IF (Aout(idT2ice,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filt2(i,j,f)=FILTER(ng)%filt2(i,j,f)+    &
+     &                                    ICE(ng)%t2(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
               IF (Aout(idS0mk,ng)) THEN
                 DO j=JstrR,JendR
                   DO i=IstrR,IendR
@@ -1610,6 +1633,14 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filQio(i,j,f)=FILTER(ng)%filQio(i,j,f)+  &
      &                                    FORCES(ng)%qio_n(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(idQi2,ng)) THEN
+                DO j=JstrR,JendR
+                  DO i=IstrR,IendR
+                    FILTER(ng)%filQi2(i,j,f)=FILTER(ng)%filQi2(i,j,f)+  &
+     &                                    FORCES(ng)%qi2_n(i,j)*fw(iw)
                   END DO
                 END DO
               END IF
@@ -1966,6 +1997,13 @@
                 END DO
               END DO
             END IF
+            IF (Aout(idT2ice,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgt2ice(i,j)=FILTER(ng)%filt2(i,j,f)
+                END DO
+              END DO
+            END IF
             IF (Aout(idAgeice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
@@ -2177,6 +2215,13 @@
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgQio(i,j)=FILTER(ng)%filQio(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(idQi2,ng)) THEN
+              DO j=JstrR,JendR
+                DO i=IstrR,IendR
+                  AVERAGE(ng)%avgQi2(i,j)=FILTER(ng)%filQi2(i,j,f)
                 END DO
               END DO
             END IF

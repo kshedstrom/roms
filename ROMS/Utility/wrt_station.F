@@ -1915,6 +1915,22 @@
         IF (exit_flag.ne.NoError) RETURN
       END IF
 !
+!  Write out ice top temperature
+!
+      IF (Sout(idT2ice,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idT2ice, r2dvar,           &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, ICE(ng)%t2,                          &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idT2ice)), psta,             &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idT2ice))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
 !  Write out ice-water friction velocity
 !
       IF (Sout(idTauiw,ng)) THEN
@@ -2377,6 +2393,22 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idQio))
+        IF (exit_flag.ne.NoError) RETURN
+      END IF
+!
+!  Write out ice heat flux
+!
+      IF (Sout(idQi2,ng)) THEN
+        scale=1.0_r8
+        CALL extract_sta2d (ng, iNLM, Cgrid, idQi2, r2dvar,             &
+     &                      LBi, UBi, LBj, UBj,                         &
+     &                      scale, FORCES(ng)%qi2_n,                    &
+     &                      Nstation(ng), Xpos, Ypos, psta)
+        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
+     &                        TRIM(Vname(1,idQi2)), psta,               &
+     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
+     &                        ncid = STA(ng)%ncid,                      &
+     &                        varid = STA(ng)%Vid(idQi2))
         IF (exit_flag.ne.NoError) RETURN
       END IF
 !

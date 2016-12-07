@@ -404,6 +404,7 @@
 
 ! Ice variables
         integer  :: idTimid        ! interior ice temperature
+        integer  :: idT2ice        ! top of ice temperature
         integer  :: idTauiw        ! ice-water friction velocity
         integer  :: idChuiw        ! ice-water momentum transfer coefficient
         integer  :: idS0mk         ! salinity of molecular sub-layer under ice
@@ -453,6 +454,7 @@
         integer  :: idQao          ! heat flux in leads
         integer  :: idQai          ! heat flux ice to atmosphere
         integer  :: idQio          ! heat flux ocean to ice
+        integer  :: idQi2          ! heat flux ocean to ice
         integer  :: idSnoI         ! snow-ice conversion
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
@@ -1906,6 +1908,8 @@
                 idTice=varid
               CASE ('idTimid')
                 idTimid=varid
+              CASE ('idT2ice')
+                idT2ice=varid
               CASE ('idTauiw')
                 idTauiw=varid
               CASE ('idChuiw')
@@ -1985,6 +1989,8 @@
                 idQai=varid
               CASE ('idQio')
                 idQio=varid
+              CASE ('idQi2')
+                idQi2=varid
               CASE ('idSnoI')
                 idSnoI=varid
 #endif

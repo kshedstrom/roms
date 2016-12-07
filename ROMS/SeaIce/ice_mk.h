@@ -66,6 +66,7 @@
 #endif
      &                      ICE(ng) % tis,                              &
      &                      ICE(ng) % ti,                               &
+     &                      ICE(ng) % t2,                               &
      &                      ICE(ng) % enthalpi,                         &
      &                      ICE(ng) % hage,                             &
      &                      ICE(ng) % ui,                               &
@@ -83,6 +84,7 @@
 #ifdef ICE_DIAGS
      &                      FORCES(ng) % saltflux_ice,                  &
      &                      FORCES(ng) % qio_n,                         &
+     &                      FORCES(ng) % qi2_n,                         &
      &                      FORCES(ng) % snoice,                        &
 #endif
      &                      FORCES(ng) % sustr,                         &
@@ -124,14 +126,14 @@
 #ifdef MELT_PONDS
      &                        apond, hpond,                             &
 #endif
-     &                        tis, ti, enthalpi, hage,                  &
+     &                        tis, ti, t2, enthalpi, hage,              &
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
      &                        s0mk, t0mk, io_mflux,                     &
 #if defined ICE_BIO && defined BERING_10K
      &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
 #ifdef ICE_DIAGS
-     &                        saltflux_ice, qio_n, snoice,              &
+     &                        saltflux_ice, qio_n, qi2_n, snoice,       &
 #endif
      &                        sustr, svstr,                             &
      &                        qai_n, qi_o_n, qao_n,                     &
@@ -281,6 +283,7 @@
 #endif
       real(r8), intent(inout) :: tis(LBi:,LBj:)
       real(r8), intent(inout) :: ti(LBi:,LBj:,:)
+      real(r8), intent(inout) :: t2(LBi:,LBj:)
       real(r8), intent(inout) :: enthalpi(LBi:,LBj:,:)
       real(r8), intent(inout) :: hage(LBi:,LBj:,:)
       real(r8), intent(in)    :: ui(LBi:,LBj:,:)
@@ -298,6 +301,7 @@
 #ifdef ICE_DIAGS
       real(r8), intent(out) :: saltflux_ice(LBi:,LBj:)
       real(r8), intent(out) :: qio_n(LBi:,LBj:)
+      real(r8), intent(out) :: qi2_n(LBi:,LBj:)
       real(r8), intent(out) :: snoice(LBi:,LBj:)
 #endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
@@ -342,6 +346,7 @@
 #endif
       real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: t2(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: enthalpi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: hage(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in)    :: ui(LBi:UBi,LBj:UBj,2)
@@ -359,6 +364,7 @@
 #ifdef ICE_DIAGS
       real(r8), intent(out) :: saltflux_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qio_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qi2_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: snoice(LBi:UBi,LBj:UBj)
 #endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
@@ -400,7 +406,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: coa
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t2
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ai_old
@@ -868,6 +873,7 @@
      &            +ai(i,j,linew)*SW_thru_ice(i,j)*rhocpr
 #ifdef ICE_DIAGS
               qio_n(i,j) = qio(i,j)
+              qi2_n(i,j) = qi2(i,j)
 #endif
             END IF
 

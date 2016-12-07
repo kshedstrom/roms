@@ -2621,6 +2621,24 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
+!  Define ice top temperature.
+!
+        IF (Hout(idT2ice,ng)) THEN
+          Vinfo( 1)=Vname(1,idT2ice)
+          Vinfo( 2)=Vname(2,idT2ice)
+          Vinfo( 3)=Vname(3,idT2ice)
+          Vinfo(14)=Vname(4,idT2ice)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idT2ice,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idT2ice),  &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define internal ice stress component 11.
 !
         IF (Hout(idSig11,ng)) THEN
@@ -3123,6 +3141,24 @@
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idQio,ng),r8)
           status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idQio),    &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define ice heat flux
+!
+        IF (Hout(idQi2,ng)) THEN
+          Vinfo( 1)=Vname(1,idQi2)
+          Vinfo( 2)=Vname(2,idQi2)
+          Vinfo( 3)=Vname(3,idQi2)
+          Vinfo(14)=Vname(4,idQi2)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idQi2,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idQi2),    &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (exit_flag.ne.NoError) RETURN
         END IF
@@ -3984,6 +4020,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
             got_var(idTimid)=.true.
             HIS(ng)%Vid(idTimid)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT2ice))) THEN
+            got_var(idT2ice)=.true.
+            HIS(ng)%Vid(idT2ice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
             got_var(idSig11)=.true.
             HIS(ng)%Vid(idSig11)=var_id(i)
@@ -4069,6 +4108,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idQio))) THEN
             got_var(idQio)=.true.
             HIS(ng)%Vid(idQio)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idQi2))) THEN
+            got_var(idQi2)=.true.
+            HIS(ng)%Vid(idQi2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSnoI))) THEN
             got_var(idSnoI)=.true.
             HIS(ng)%Vid(idSnoI)=var_id(i)
@@ -4774,6 +4816,12 @@
           exit_flag=3
           RETURN
         END IF
+        IF (.not.got_var(idT2ice).and.Hout(idT2ice,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idT2ice)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
         IF (.not.got_var(idSig11).and.Hout(idSig11,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idSig11)),         &
      &                                  TRIM(ncname)
@@ -4939,6 +4987,12 @@
         END IF
         IF (.not.got_var(idQio).and.Hout(idQio,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idQio)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idQi2).and.Hout(idQi2,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idQi2)),           &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

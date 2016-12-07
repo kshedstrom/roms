@@ -1827,6 +1827,21 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
+!  Define ice top temperature.
+!
+        IF (Sout(idT2ice,ng)) THEN
+          Vinfo( 1)=Vname(1,idT2ice)
+          Vinfo( 2)=Vname(2,idT2ice)
+          Vinfo( 3)=Vname(3,idT2ice)
+          Vinfo(14)=Vname(4,idT2ice)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idT2ice),  &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .TRUE.,                           &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define ice-water friction velocity.
 !
         IF (Sout(idTauiw,ng)) THEN
@@ -2249,6 +2264,21 @@
           IF (exit_flag.ne.NoError) RETURN
         END IF
 !
+!  Define ice heat flux
+!
+        IF (Sout(idQi2,ng)) THEN
+          Vinfo( 1)=Vname(1,idQi2)
+          Vinfo( 2)=Vname(2,idQi2)
+          Vinfo( 3)=Vname(3,idQi2)
+          Vinfo(14)=Vname(4,idQi2)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idQi2),    &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .TRUE.,                           &
+     &                   SetParAccess = .FALSE.)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
 !  Define snow-ice conversion rate
 !
         IF (Sout(idSnoI,ng)) THEN
@@ -2560,6 +2590,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
             got_var(idTimid)=.TRUE.
             STA(ng)%Vid(idTimid)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT2ice))) THEN
+            got_var(idT2ice)=.TRUE.
+            STA(ng)%Vid(idT2ice)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
             got_var(idTauiw)=.TRUE.
             STA(ng)%Vid(idTauiw)=var_id(i)
@@ -2645,6 +2678,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idQio))) THEN
             got_var(idQio)=.TRUE.
             STA(ng)%Vid(idQio)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idQi2))) THEN
+            got_var(idQi2)=.TRUE.
+            STA(ng)%Vid(idQi2)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSnoI))) THEN
             got_var(idSnoI)=.TRUE.
             STA(ng)%Vid(idSnoI)=var_id(i)
@@ -3517,6 +3553,12 @@
         END IF
         IF (.not.got_var(idTimid).and.Sout(idTimid,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idTimid)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idT2ice).and.Sout(idT2ice,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idT2ice)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

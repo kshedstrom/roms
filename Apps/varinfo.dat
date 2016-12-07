@@ -934,6 +934,15 @@
   'r2dvar'
   1.0d0
 
+'t2'
+  'top of ice temperature'
+  'degrees Celcius'
+  'top of ice temperature, scalar, series'
+  'ocean_time'
+  'idT2ice'
+  'r2dvar'
+  1.0d0
+
 'tau_iw'
   'ice-water friction velocity'
   'meter second-1'
@@ -1237,6 +1246,15 @@
   'qio, scalar, series'
   'ocean_time'
   'idQio'
+  'r2dvar'
+  1.0d0
+
+'qi2'
+  'ice heat flux'
+  'W m-2'
+  'qi2, scalar, series'
+  'ocean_time'
+  'idQi2'
   'r2dvar'
   1.0d0
 

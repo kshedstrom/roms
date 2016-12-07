@@ -163,6 +163,7 @@ Sout(idHice) == T
 Sout(idTice) == T
 Sout(idHsno) == T
 Sout(idTimid) == T
+Sout(idT2ice) == T
 Sout(idApond) == T
 Sout(idHpond) == T
 Sout(idTauiw) == F
@@ -195,6 +196,7 @@ Sout(idSaltL) == T
 Sout(idQao) == T
 Sout(idQai) == T
 Sout(idQio) == T
+Sout(idQi2) == T
 Sout(idSnoI) == T
 
 ! Number of stations to process in each nested grid.  These values are

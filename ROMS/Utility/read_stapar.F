@@ -272,6 +272,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTice,:))
             CASE ('Sout(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idTimid,:))
+            CASE ('Sout(idT2ice)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idT2ice,:))
 #ifdef MELT_PONDS
             CASE ('Sout(idApond)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idApond,:))
@@ -339,6 +341,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idQai,:))
             CASE ('Sout(idQio)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idQio,:))
+            CASE ('Sout(idQi2)')
+              Npts=load_l(Nval, Cval, Ngrids, Sout(idQi2,:))
             CASE ('Sout(idSnoI)')
               Npts=load_l(Nval, Cval, Ngrids, Sout(idSnoI,:))
 #   endif
@@ -846,6 +850,9 @@
           IF (Sout(idTimid,ng)) WRITE (out,90) Sout(idTimid,ng),        &
      &       'Sout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
+          IF (Sout(idT2ice,ng)) WRITE (out,90) Sout(idT2ice,ng),        &
+     &       'Sout(idT2ice)',                                           &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Sout(idApond,ng)) WRITE (out,90) Sout(idApond,ng),        &
      &       'Sout(idApond)',                                           &
@@ -945,6 +952,9 @@
           IF (Sout(idQio,ng)) WRITE (out,90) Sout(idQio,ng),            &
      &       'Sout(idQio)',                                             &
      &       'Write out ice-ocean heat flux.'
+          IF (Sout(idQi2,ng)) WRITE (out,90) Sout(idQi2,ng),            &
+     &       'Sout(idQi2)',                                             &
+     &       'Write out ice heat flux.'
           IF (Sout(idSnoI,ng)) WRITE (out,90) Sout(idSnoI,ng),          &
      &       'Sout(idSnoI)',                                            &
      &       'Write out snow-ice conversion rate.'

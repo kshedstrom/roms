@@ -167,6 +167,7 @@ Hout(idHice) == T
 Hout(idTice) == T
 Hout(idHsno) == T
 Hout(idTimid) == T
+Hout(idT2ice) == T
 Hout(idApond) == T
 Hout(idHpond) == T
 Hout(idTauiw) == F
@@ -200,6 +201,7 @@ Hout(idSaltL) == T
 Hout(idQao) == T
 Hout(idQai) == T
 Hout(idQio) == T
+Hout(idQi2) == T
 Hout(idSnoI) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
@@ -213,6 +215,7 @@ Aout(idHice) == T
 Aout(idTice) == T
 Aout(idHsno) == T
 Aout(idTimid) == T
+Aout(idT2ice) == T
 Aout(idApond) == T
 Aout(idHpond) == T
 Aout(idTauiw) == F
@@ -246,6 +249,7 @@ Aout(idSaltL) == T
 Aout(idQao) == T
 Aout(idQai) == T
 Aout(idQio) == T
+Aout(idQi2) == T
 Aout(idSnoI) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic

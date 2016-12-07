@@ -34,7 +34,7 @@
 # define SPLINES_VDIFF
 # define SPLINES_VVISC
 # define RI_SPLINES
-# define TS_FIXED
+# undef TS_FIXED
 #endif
 #define STATIONS
 #define ANA_INITIAL
@@ -87,7 +87,7 @@
 
 /* output stuff */
 
-#define NO_WRITE_GRID
+#undef NO_WRITE_GRID
 #undef OUT_DOUBLE
 #ifndef PERFECT_RESTART
 # define RST_SINGLE

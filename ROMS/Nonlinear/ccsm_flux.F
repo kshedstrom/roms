@@ -909,7 +909,7 @@ contains
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
           cff = 611._r8*                                                &
      &      10._r8**(9.5_r8*(sfc_temp-273.16_r8)/(sfc_temp-7.66_r8))
-          Qsati=epsilon*cff/(slp-(1._r8-.62197_r8)*cff)
+          Qsati=epsilon*cff/(slp-(1._r8-epsilon)*cff)
           dq_i=Hair(i,j)-Qsati
           fqlat1=rhoAir(i)*Ce*vmag
           qlh_i = fqlat1*le_i*dq_i
