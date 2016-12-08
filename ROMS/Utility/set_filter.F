@@ -779,7 +779,7 @@
             IF (Aout(idT2ice,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
-                  FILTER(ng)%filt2(i,j,f) = ICE(ng)%t2(i,j,Iout)*fw(iw)
+                  FILTER(ng)%filt2(i,j,f) = ICE(ng)%t2(i,j)*fw(iw)
                 END DO
               END DO
             END IF
