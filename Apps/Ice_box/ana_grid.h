@@ -229,11 +229,11 @@
 !-----------------------------------------------------------------------
 !
 #if defined ICE_BOX
-      Xsize=4000.0E+03_r8
-      Esize=4000.0E+03_r8
-      depth=50.0_r8
-      f0=1.0E-04_r8
-      beta=0.0_r8
+      Xsize = 4000.0E+03_r8
+      Esize = 4000.0E+03_r8
+      depth = 30.0_r8
+      f0 = 1.0E-04_r8
+      beta = 0.0_r8
 #else
       ana_grid.h: no values provided for Xsize, Esize, depth, f0, beta.
 #endif
@@ -241,8 +241,8 @@
 !  Load grid parameters to global storage.
 !
       IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-        xl(ng)=Xsize
-        el(ng)=Esize
+        xl(ng) = Xsize
+        el(ng) = Esize
       END IF
 !
 !-----------------------------------------------------------------------
@@ -284,32 +284,32 @@
       spherical=.TRUE.
       DO j=Jmin,Jmax
         DO i=Imin,Imax
-          lonr(i,j)=190.0_r8
-          latr(i,j)=72.0_r8
-          lonu(i,j)=190.0_r8
-          lonp(i,j)=lonu(i,j)
-          latu(i,j)=latr(i,j)
-          lonv(i,j)=lonr(i,j)
-          latv(i,j)=72.0_r8
-          latp(i,j)=latv(i,j)
+          lonr(i,j) = 190.0_r8
+          latr(i,j) = 72.0_r8
+          lonu(i,j) = 190.0_r8
+          lonp(i,j) = lonu(i,j)
+          latu(i,j) = latr(i,j)
+          lonv(i,j) = lonr(i,j)
+          latv(i,j) = 72.0_r8
+          latp(i,j) = latv(i,j)
         END DO
       END DO
 #else
-      dx=Xsize/REAL(Lm(ng),r8)
-      dy=Esize/REAL(Mm(ng),r8)
+      dx = Xsize/REAL(Lm(ng),r8)
+      dy = Esize/REAL(Mm(ng),r8)
       DO j=Jmin,Jmax
         DO i=Imin,Imax
 # ifdef BL_TEST
           dx=0.5_r8*(4000.0_r8/REAL(Lm(ng)+1,r8))*REAL(i,r8)+675.0_r8
 # endif
-          xp(i,j)=dx*REAL(i-1,r8)
-          xr(i,j)=dx*(REAL(i-1,r8)+0.5_r8)
-          xu(i,j)=xp(i,j)
-          xv(i,j)=xr(i,j)
-          yp(i,j)=dy*REAL(j-1,r8)
-          yr(i,j)=dy*(REAL(j-1,r8)+0.5_r8)
-          yu(i,j)=yr(i,j)
-          yv(i,j)=yp(i,j)
+          xp(i,j) = dx*REAL(i-1,r8)
+          xr(i,j) = dx*(REAL(i-1,r8)+0.5_r8)
+          xu(i,j) = xp(i,j)
+          xv(i,j) = xr(i,j)
+          yp(i,j) = dy*REAL(j-1,r8)
+          yr(i,j) = dy*(REAL(j-1,r8)+0.5_r8)
+          yu(i,j) = yr(i,j)
+          yv(i,j) = yp(i,j)
         END DO
       END DO
 #endif
@@ -346,16 +346,16 @@
 
       DO j=J_RANGE
         DO i=I_RANGE
-          wrkX(i,j)=1.0_r8/dx
-          wrkY(i,j)=1.0_r8/dy
+          wrkX(i,j) = 1.0_r8/dx
+          wrkY(i,j) = 1.0_r8/dy
         END DO
       END DO
 #undef J_RANGE
 #undef I_RANGE
       DO j=JstrT,JendT
         DO i=IstrT,IendT
-          pm(i,j)=wrkX(i,j)
-          pn(i,j)=wrkY(i,j)
+          pm(i,j) = wrkX(i,j)
+          pn(i,j) = wrkY(i,j)
         END DO
       END DO
 !

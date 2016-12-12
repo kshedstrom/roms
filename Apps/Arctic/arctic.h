@@ -12,7 +12,7 @@
 **  Options for ARCTIC simulation
 */
 
-#undef NO_HIS
+#define NO_HIS
 #define GLOBAL_PERIODIC
 #define HDF5
 #define DEFLATE
@@ -34,12 +34,12 @@
 #endif
 #define FLOATS
 #define STATIONS
-#undef WET_DRY
+#define WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
+# define ANA_SPFLUX
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -62,7 +62,6 @@
 #  define ANA_ICE
 #  define INI_GLORYS_ICE
 #  define  OUTFLOW_MASK
-#  undef  FASTICE_CLIMATOLOGY
 #  define ICE_LANDFAST
 #  define ICE_THERMO
 #  define ICE_MK
@@ -76,6 +75,7 @@
 #  define ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
 #  define ICE_I_O
+#  define ICE_DIAGS
 # endif
 #endif
 
@@ -87,7 +87,7 @@
 # define RST_SINGLE
 #endif
 #define AVERAGES
-#define AVERAGES2
+#undef AVERAGES2
 #ifdef SOLVE3D
 # undef AVERAGES_DETIDE
 # undef DIAGNOSTICS_TS
@@ -192,7 +192,7 @@
 #define LTIDES
 #ifdef LTIDES
 # if defined AVERAGES && !defined USE_DEBUG
-#  undef FILTERED
+#  define FILTERED
 # endif
 # define SSH_TIDES
 # define UV_TIDES

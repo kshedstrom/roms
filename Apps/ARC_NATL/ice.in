@@ -168,6 +168,7 @@ Hout(idHice) == T
 Hout(idTice) == T
 Hout(idHsno) == T
 Hout(idTimid) == T
+Hout(idT2ice) == T
 Hout(idApond) == T
 Hout(idHpond) == T
 Hout(idTauiw) == F
@@ -197,6 +198,7 @@ Aout(idHice) == T
 Aout(idTice) == T
 Aout(idHsno) == T
 Aout(idTimid) == T
+Aout(idT2ice) == T
 Aout(idApond) == T
 Aout(idHpond) == T
 Aout(idTauiw) == F

@@ -237,7 +237,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
-        NRST == 4320
+        NRST == 43200
         NSTA == 180
         NFLT == 180
        NINFO == 1
@@ -928,7 +928,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 ! at the each entry, except the last one.
 
 
-    NFFILES == 12                          ! number of forcing files
+    NFFILES == 10                          ! number of forcing files
 
     FRCNAME == /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1998.nc   |
                /center/d/kate/MERRA_drowned/drowned_MERRA_Pair_3hours_1999.nc   \
@@ -944,12 +944,9 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
                /center/d/kate/MERRA_drowned/drowned_MERRA_Uwind_3hours_1999.nc  \
                /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1998.nc  |
                /center/d/kate/MERRA_drowned/drowned_MERRA_Vwind_3hours_1999.nc  \
-               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1998.nc  |
-               /center/d/kate/MERRA_drowned/drowned_MERRA_albedo_daily_1999.nc  \
                /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1998.nc  |
                /center/d/kate/MERRA_drowned/drowned_MERRA_lwrad_down_3hours_1999.nc  \
                /center/w/kate/CORE2/sss_fill_2004.nc \
-               /center/w/kate/Beaufort/Files/fastice_Beaufort.nc \
                /center/w/kate/Beaufort/Files/Beaufort_tides_otps.nc
 
 ! Output NetCDF file names, [1:Ngrids].

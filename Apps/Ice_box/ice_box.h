@@ -81,12 +81,13 @@
 #  define ICE_CONVSNOW
 #  undef  MELT_PONDS
 #  define ICE_I_O
+#  define ICE_DIAGS
 # endif
 #endif
 
 /* output stuff */
 
-#define NO_WRITE_GRID
+#undef NO_WRITE_GRID
 #undef OUT_DOUBLE
 #ifndef PERFECT_RESTART
 # define RST_SINGLE
@@ -127,7 +128,7 @@
 #  define EMINUSP
 #  define ANA_LRFLUX
 #  define ANA_SRFLUX
-#  undef ANA_ALBEDO
+#  define ANA_ALBEDO
 #  define ALBEDO
 #  define ANA_SNOW
 #  undef ALBEDO_CLOUD

@@ -38,13 +38,13 @@
 # define RI_SPLINES
 #endif
 #undef FLOATS
-#define STATIONS
+#undef STATIONS
 #define WET_DRY
 
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
+# define ANA_SPFLUX
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -77,10 +77,8 @@
 #  define  ICE_BULK_FLUXES
 #  define ICE_CONVSNOW
 #  define ICE_I_O
+#  define ICE_DIAGS
 #  undef  MELT_PONDS
-#  undef  ANA_AIOBC
-#  undef  ANA_HIOBC
-#  undef  ANA_HSNOBC
 # endif
 #endif
 
@@ -172,7 +170,6 @@
 #  undef ICE_ALB_EC92  /* for ice */
 #  define ALBEDO_CSIM   /* for ice */
 #  undef ALBEDO_FILE  /* for both */
-#  undef LONGWAVE
 # endif
 #endif
 

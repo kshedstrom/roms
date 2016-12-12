@@ -402,7 +402,9 @@
         integer  :: idUnms         ! surface U-momentum stress (NCEP)
         integer  :: idVnms         ! surface V-momentum stress (NCEP)
 
+! Ice variables
         integer  :: idTimid        ! interior ice temperature
+        integer  :: idT2ice        ! top of ice temperature
         integer  :: idTauiw        ! ice-water friction velocity
         integer  :: idChuiw        ! ice-water momentum transfer coefficient
         integer  :: idS0mk         ! salinity of molecular sub-layer under ice
@@ -437,6 +439,23 @@
         integer  :: idS22clm       ! ice sigma22 climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
+! Ice diagnostics
+        integer  :: idAlbI         ! shortwave albedo of ice
+        integer  :: idLWdn         ! downward longwave
+        integer  :: idSWdn         ! downward shortwave
+        integer  :: idLatI         ! latent heat flux over ice
+        integer  :: idSenI         ! sensible heat flux over ice
+        integer  :: idLWupI        ! upward longwave from ice
+        integer  :: idSWupI        ! upward shortwave from ice
+        integer  :: idSWinI        ! upward shortwave from ice
+        integer  :: idSWthruI      ! shortwave through ice
+        integer  :: idSaltI        ! salt flux from ice
+        integer  :: idSaltL        ! salt flux from leads
+        integer  :: idQao          ! heat flux in leads
+        integer  :: idQai          ! heat flux ice to atmosphere
+        integer  :: idQio          ! heat flux ocean to ice
+        integer  :: idQi2          ! heat flux ocean to ice
+        integer  :: idSnoI         ! snow-ice conversion
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
         integer, allocatable :: idsurT(:)    ! model surface tracers
@@ -1889,6 +1908,8 @@
                 idTice=varid
               CASE ('idTimid')
                 idTimid=varid
+              CASE ('idT2ice')
+                idT2ice=varid
               CASE ('idTauiw')
                 idTauiw=varid
               CASE ('idChuiw')
@@ -1939,6 +1960,39 @@
                 idUIclm=varid
               CASE ('idVIclm')
                 idVIclm=varid
+! Ice diagnostics
+              CASE ('idAlbI')
+                idAlbI=varid
+              CASE ('idLWdn')
+                idLWdn=varid
+              CASE ('idSWdn')
+                idSWdn=varid
+              CASE ('idLatI')
+                idLatI=varid
+              CASE ('idSenI')
+                idSenI=varid
+              CASE ('idLWupI')
+                idLWupI=varid
+              CASE ('idSWupI')
+                idSWupI=varid
+              CASE ('idSWinI')
+                idSWinI=varid
+              CASE ('idSWthruI')
+                idSWthruI=varid
+              CASE ('idSaltI')
+                idSaltI=varid
+              CASE ('idSaltL')
+                idSaltL=varid
+              CASE ('idQao')
+                idQao=varid
+              CASE ('idQai')
+                idQai=varid
+              CASE ('idQio')
+                idQio=varid
+              CASE ('idQi2')
+                idQi2=varid
+              CASE ('idSnoI')
+                idSnoI=varid
 #endif
 
 #ifdef BIOLOGY

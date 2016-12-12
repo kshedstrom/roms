@@ -167,6 +167,7 @@ Hout(idHice) == T
 Hout(idTice) == T
 Hout(idHsno) == T
 Hout(idTimid) == T
+Hout(idT2ice) == T
 Hout(idApond) == T
 Hout(idHpond) == T
 Hout(idTauiw) == F
@@ -185,17 +186,36 @@ Hout(idWro) == T
 Hout(idWdiv) == T
 Hout(idIomflx) == T
 
+Hout(idAlbe) == T
+Hout(idAlbI) == T
+Hout(idLWdn) == T
+Hout(idSWdn) == T
+Hout(idLatI) == T
+Hout(idSenI) == T
+Hout(idLWupI) == T
+Hout(idSWupI) == T
+Hout(idSWinI) == T
+Hout(idSWthruI) == T
+Hout(idSaltI) == T
+Hout(idSaltL) == T
+Hout(idQao) == T
+Hout(idQai) == T
+Hout(idQio) == T
+Hout(idQi2) == T
+Hout(idSnoI) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES output file.
 Aout(idUice) == T
 Aout(idVice) == T
-Aout(idUiceE) == F
-Aout(idViceN) == F
+Aout(idUiceE) == T
+Aout(idViceN) == T
 Aout(idAice) == T
 Aout(idHice) == T
 Aout(idTice) == T
 Aout(idHsno) == T
 Aout(idTimid) == T
+Aout(idT2ice) == T
 Aout(idApond) == T
 Aout(idHpond) == T
 Aout(idTauiw) == F
@@ -214,12 +234,30 @@ Aout(idWro) == T
 Aout(idWdiv) == T
 Aout(idIomflx) == T
 
+Aout(idAlbe) == T
+Aout(idAlbI) == T
+Aout(idLWdn) == T
+Aout(idSWdn) == T
+Aout(idLatI) == T
+Aout(idSenI) == T
+Aout(idLWupI) == T
+Aout(idSWupI) == T
+Aout(idSWinI) == T
+Aout(idSWthruI) == T
+Aout(idSaltI) == T
+Aout(idSaltL) == T
+Aout(idQao) == T
+Aout(idQai) == T
+Aout(idQio) == T
+Aout(idQi2) == T
+Aout(idSnoI) == T
+
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into AVERAGES2 output file.
 Aout2(idUice) == T
 Aout2(idVice) == T
-Aout2(idUiceE) == F
-Aout2(idViceN) == F
+Aout2(idUiceE) == T
+Aout2(idViceN) == T
 Aout2(idAice) == T
 Aout2(idHice) == T
 Aout2(idTice) == T
@@ -229,10 +267,10 @@ Aout2(idApond) == T
 Aout2(idHpond) == T
 Aout2(idTauiw) == F
 Aout2(idChuiw) == F
-Aout2(idAgeice) == T
-Aout2(idSig11) == F
-Aout2(idSig12) == F
-Aout2(idSig22) == F
+Aout2(idAgeice) == F
+Aout2(idSig11) == T
+Aout2(idSig12) == T
+Aout2(idSig22) == T
 Aout2(idS0mk) == F
 Aout2(idT0mk) == F
 

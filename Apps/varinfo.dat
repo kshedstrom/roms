@@ -176,6 +176,42 @@
   'r3dvar'
   1.0d0
 
+'u_sur'                                            ! Output
+  'model surface u-momentum component'
+  'meter second-1'                                 ! [m/s]
+  'u_sur, scalar, series'
+  'ocean_time'
+  'idUsur'
+  'u2dvar'
+  1.0d0
+
+'v_sur'                                            ! Output
+  'model surface v-momentum component'
+  'meter second-1'                                 ! [m/s]
+  'v_sur, scalar, series'
+  'ocean_time'
+  'idVsur'
+  'v2dvar'
+  1.0d0
+
+'u_sur_eastward'                                   ! Output
+  'model surface eastward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'u_sur_eastward, scalar, series'
+  'ocean_time'
+  'idUsuE'
+  'r2dvar'
+  1.0d0
+
+'v_sur_northward'                                  ! Output
+  'model surface northward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'v_sur_northward, scalar, series'
+  'ocean_time'
+  'idVsuN'
+  'r2dvar'
+  1.0d0
+
 'w'                                                ! Output
   'vertical momentum component'
   'meter second-1'                                 ! [m/s]
@@ -230,6 +266,24 @@
   'r3dvar'
   1.0d0
 
+'temp_sur'                                         ! Output
+  'model surface potential temperature'
+  'Celsius'                                        ! [Celsius]
+  'temp_sur, scalar, series'
+  'ocean_time'
+  'idsurT(itemp)'
+  'r2dvar'
+  1.0d0
+
+'salt_sur'                                         ! Output
+  'model surface salinity'
+  'nondimensional'                                 ! [PSU]
+  'salinity, scalar, series'
+  'ocean_time'
+  'idsurT(isalt)'
+  'r2dvar'
+  1.0d0
+
 'z_rho'                                            ! Output
   'depth of RHO-points'
   'meter'                                          ! [meter]
@@ -271,6 +325,7 @@
 !  Wet/dry masks.
 !------------------------------------------------------------------------------
 !
+
 'wetdry_mask_psi'                                  ! Input/Output
   'wet/dry mask on PSI-points'
   'nondimensional'
@@ -718,7 +773,7 @@
   'bwf_time'
   'idTbot(isalt)'
   'r2dvar'
-  1.157407d-7                                     ! 0.01/86400
+  1.157407d-7                                      ! 0.01/86400
 
 !
 !------------------------------------------------------------------------------
@@ -876,6 +931,15 @@
   'interior temperature, scalar, series'
   'ocean_time'
   'idTimid'
+  'r2dvar'
+  1.0d0
+
+'t2'
+  'top of ice temperature'
+  'degrees Celcius'
+  'top of ice temperature, scalar, series'
+  'ocean_time'
+  'idT2ice'
   'r2dvar'
   1.0d0
 
@@ -1056,6 +1120,150 @@
   'ice stress 12, scalar, series'
   'ocean_time'
   'idS12clm'
+  'r2dvar'
+  1.0d0
+
+'albedo_ice'
+  'ice albedo'
+  'fraction'
+  'ice albedo, scalar, series'
+  'ocean_time'
+  'idAlbI'
+  'r2dvar'
+  1.0d0
+
+'LW_down'
+  'downward longwave radiation'
+  'W m-2'
+  'LW_down, scalar, series'
+  'ocean_time'
+  'idLWdn'
+  'r2dvar'
+  1.0d0
+
+'SW_down'
+  'downward shortwave radiation'
+  'W m-2'
+  'SW_down, scalar, series'
+  'ocean_time'
+  'idSWdn'
+  'r2dvar'
+  1.0d0
+
+'lat_ice'
+  'latent heat flux over ice'
+  'W m-2'
+  'lat_ice, scalar, series'
+  'ocean_time'
+  'idLatI'
+  'r2dvar'
+  1.0d0
+
+'sens_ice'
+  'sensible heat flux over ice'
+  'W m-2'
+  'sens_ice, scalar, series'
+  'ocean_time'
+  'idSenI'
+  'r2dvar'
+  1.0d0
+
+'LW_up_ice'
+  'upward longwave radiation over ice'
+  'W m-2'
+  'LW_up_ice, scalar, series'
+  'ocean_time'
+  'idLWupI'
+  'r2dvar'
+  1.0d0
+
+'SW_up_ice'
+  'upward shortwave radiation over ice'
+  'W m-2'
+  'SW_up_ice, scalar, series'
+  'ocean_time'
+  'idSWupI'
+  'r2dvar'
+  1.0d0
+
+'SW_in_ice'
+  'shortwave radiation into ice'
+  'W m-2'
+  'SW_in_ice, scalar, series'
+  'ocean_time'
+  'idSWinI'
+  'r2dvar'
+  1.0d0
+
+'SW_thru_ice'
+  'shortwave radiation through ice'
+  'W m-2'
+  'SW_thru_ice, scalar, series'
+  'ocean_time'
+  'idSWthruI'
+  'r2dvar'
+  1.0d0
+
+'saltflux_ice'
+  'salt flux under ice'
+  'meter second-1'                                 ! [PSU m/s]
+  'saltflux_ice, scalar, series'
+  'ocean_time'
+  'idSaltI'
+  'r2dvar'
+  1.0d0
+
+'saltflux_leads'
+  'salt flux in leads'
+  'meter second-1'                                 ! [PSU m/s]
+  'saltflux_leads, scalar, series'
+  'ocean_time'
+  'idSaltL'
+  'r2dvar'
+  1.0d0
+
+'qao'
+  'air-ocean heat flux'
+  'W m-2'
+  'qao, scalar, series'
+  'ocean_time'
+  'idQao'
+  'r2dvar'
+  1.0d0
+
+'qai'
+  'ice-air heat flux'
+  'W m-2'
+  'qai, scalar, series'
+  'ocean_time'
+  'idQai'
+  'r2dvar'
+  1.0d0
+
+'qio'
+  'ice-ocean heat flux'
+  'W m-2'
+  'qio, scalar, series'
+  'ocean_time'
+  'idQio'
+  'r2dvar'
+  1.0d0
+
+'qi2'
+  'ice heat flux'
+  'W m-2'
+  'qi2, scalar, series'
+  'ocean_time'
+  'idQi2'
+  'r2dvar'
+  1.0d0
+
+'snoice'
+  'snow-ice conversion'
+  'm s-1'
+  'snoice, scalar, series'
+  'ocean_time'
+  'idSnoI'
   'r2dvar'
   1.0d0
 

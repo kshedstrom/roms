@@ -1,7 +1,7 @@
 !  Station Extraction Parameters.
 !
 !==============================================================================
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                              ===
+!  Copyright (c) 2002-2014 The ROMS/TOMS Group                              ===
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -95,8 +95,8 @@ Sout(idHice) == T
 Sout(idTice) == T
 Sout(idHsno) == T
 Sout(idTimid) == T
-Sout(idApond) == T
-Sout(idHpond) == T
+Sout(idT2ice) == T
+Sout(idSfwat) == T
 Sout(idTauiw) == F
 Sout(idChuiw) == F
 Sout(idAgeice) == T
@@ -110,6 +110,25 @@ Sout(idWai) == T
 Sout(idWao) == T
 Sout(idWio) == T
 Sout(idWro) == T
+Sout(idWdiv) == T
+
+Sout(idAlbe) == T
+Sout(idAlbI) == T
+Sout(idLWdn) == T
+Sout(idSWdn) == T
+Sout(idLatI) == T
+Sout(idSenI) == T
+Sout(idLWupI) == T
+Sout(idSWupI) == T
+Sout(idSWinI) == T
+Sout(idSWthruI) == T
+Sout(idSaltI) == T
+Sout(idSaltL) == T
+Sout(idQao) == T
+Sout(idQai) == T
+Sout(idQio) == T
+Sout(idQi2) == T
+Sout(idSnoI) == T
 
 ! Logical switches (TRUE/FALSE) to activate writing of exposed sediment
 ! layer properties into STATIONS output file.  Currently, MBOTP properties
@@ -141,7 +160,7 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! essential because the station arrays are dynamically allocated using
 ! these values, [1:Ngrids].
 
-    NSTATION ==  70
+    NSTATION ==  36
 
 ! Station locations for all grids in any desired order.  The horizontal
 ! location for a particular station may be specified in terms of fractional
@@ -152,79 +171,45 @@ Sout(idBott) == F F F F F F F F F F F F F F F F
 ! reading and may be used to help documentation.
 
 POS =  GRID  FLAG      X-POS       Y-POS     COMMENT
+            1            1       210.41       71.046
+            1            1       210.54       71.134
+            1            1       210.67       71.218
+            1            1       210.67       71.282
+            1            1       210.68       71.376
+            1            1       210.39        71.37
+            1            1       209.77       70.632
+            1            1          210       70.769
+            1            1       210.16       70.881
+            1            1       207.87        71.31
+            1            1        207.9        71.35
+            1            1       207.95        71.39
+            1            1          208        71.44
+            1            1       208.03        71.48
+            1            1       208.07        71.53
+            1            1       208.09        71.57
+            1            1       208.16        71.67
+            1            1       211.79       70.453
+            1            1       212.11       70.406
+            1            1       212.45       70.337
+            1            1       211.68       70.509
+            1            1       215.06       70.028
+            1            1       205.97       70.988
+            1            1        212.2         70.5
+            1            1        226.5       70.083
+            1            1        222.5        69.75
+            1            1        221.2        69.62
+            1            1       215.06       70.028
+            1            1       209.77       70.632
+            1            1       205.97       70.988
+            1            1       204.75        71.13
+            1            1       205.62       71.548
+            1            1       227.01       69.438
+            1            1       211.47       70.412
+            1            1       209.01       70.676
+            1            1       220.92       69.878
 
-    1    1    201.83   71.33000
-    1    1    191.4   65.78000
-    1    1    191.02   66.30000
-    1    1    192.97   70.67000
-    1    1    200.45   71.05000
-    1    1    193.03   69.02000
-    1    1    195.54   71.34000
-    1    1    192.81   71.69000
-    1    1    190.58   65.95000
-    1    1    185.45   67.94000
-    1    1    188.93   68.60000
-    1    1    190.41   68.85000
-    1    1    193.05   69.02000
-    1    1    181.56   70.49000
-    1    1    184.28   71.10000
-    1    1    185.82   70.95000
-    1    1    187.51   68.33000
-    1    1    196.15   66.85000
-    1    1    197.02   66.63000
-    1    1    194   67.70000
-    1    1    191.8   67.00000
-    1    1    210.40917   71.04650
-    1    1    210.53933   71.13383
-    1    1    210.66733   71.21833
-    1    1    210.66583   71.28183
-    1    1    210.6815   71.37550
-    1    1    210.386   71.36967
-    1    1    209.76917   70.63233
-    1    1    210.00133   70.76867
-    1    1    210.1585   70.88117
-    1    1    192.94167   70.67717
-    1    1    200.45772   71.05193
-    1    1    194.75133   70.87227
-    1    1    195.91885   71.50390
-    1    1    196.72042   71.23972
-    1    1    193.248   71.17080
-    1    1    195.003   70.99810
-    1    1    200.0019   71.66620
-    1    1    198.47717   72.16270
-    1    1    199.97435   71.00248
-    1    1    199.50677   71.05687
-    1    1    199.21188   71.13400
-    1    1    198.92995   71.17452
-    1    1    200.06038   70.92140
-    1    1    200.33243   70.85328
-    1    1    207.87   71.31000
-    1    1    207.9   71.35000
-    1    1    207.95   71.39000
-    1    1    208   71.44000
-    1    1    208.03   71.48000
-    1    1    208.07   71.53000
-    1    1    208.09   71.57000
-    1    1    208.16   71.67000
-    1    1    211.79   70.45300
-    1    1    212.11   70.406
-    1    1    212.45   70.337
-    1    1    211.68   70.509
-    1    1    215.06   70.028
-    1    1    205.97   70.988
-    1    1    212.2   70.5
-    1    1    190.56692   65.90002
-    1    1    190.3835    65.93345
-    1    1    190.71688   65.86667
-    1    1    191.20162   65.80118
-    1    1    191.43253   65.7812
-    1    1    191.63377   65.75705
-    1    1    191.73742   65.74605
-    1    1    191.03458   66.32683
-    1    1    193.77      69.99
-    1    1    196.71      70.75
 
-!
+
 !  GLOSSARY:
 !  =========
 !

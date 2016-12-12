@@ -5,6 +5,7 @@
 !! Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
+!!                                                                     !
 !=======================================================================
 !                                                                      !
 !  This subroutine sets initial conditions for momentum and tracer     !
@@ -24,60 +25,26 @@
 
 #include "tile.h"
 !
-      IF (model.eq.iNLM) THEN
-        CALL ana_NLMinitial_tile (ng, tile, model,                      &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            IminS, ImaxS, JminS, JmaxS,           &
-     &                            GRID(ng) % h,                         &
+      CALL ana_initial_tile (ng, tile, model,                           &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       IminS, ImaxS, JminS, JmaxS,                &
+     &                       GRID(ng) % h,                              &
 #ifdef SPHERICAL
-     &                            GRID(ng) % lonr,                      &
-     &                            GRID(ng) % latr,                      &
+     &                       GRID(ng) % lonr,                           &
+     &                       GRID(ng) % latr,                           &
 #else
-     &                            GRID(ng) % xr,                        &
-     &                            GRID(ng) % yr,                        &
+     &                       GRID(ng) % xr,                             &
+     &                       GRID(ng) % yr,                             &
 #endif
 #ifdef SOLVE3D
-     &                            GRID(ng) % z_r,                       &
-     &                            OCEAN(ng) % u,                        &
-     &                            OCEAN(ng) % v,                        &
-     &                            OCEAN(ng) % t,                        &
+     &                       GRID(ng) % z_r,                            &
+     &                       OCEAN(ng) % u,                             &
+     &                       OCEAN(ng) % v,                             &
+     &                       OCEAN(ng) % t,                             &
 #endif
-     &                            OCEAN(ng) % ubar,                     &
-     &                            OCEAN(ng) % vbar,                     &
-     &                            OCEAN(ng) % zeta)
-#ifdef TANGENT
-      ELSE IF ((model.eq.iTLM).or.(model.eq.iRPM)) THEN
-        CALL ana_TLMinitial_tile (ng, tile, model,                      &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            IminS, ImaxS, JminS, JmaxS,           &
-     &                            kstp(ng),                             &
-# ifdef SOLVE3D
-     &                            nstp(ng),                             &
-     &                            OCEAN(ng) % tl_u,                     &
-     &                            OCEAN(ng) % tl_v,                     &
-     &                            OCEAN(ng) % tl_t,                     &
-# endif
-     &                            OCEAN(ng) % tl_ubar,                  &
-     &                            OCEAN(ng) % tl_vbar,                  &
-     &                            OCEAN(ng) % tl_zeta)
-#endif
-#ifdef ADJOINT
-      ELSE IF (model.eq.iADM) THEN
-        CALL ana_ADMinitial_tile (ng, tile, model,                      &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            IminS, ImaxS, JminS, JmaxS,           &
-     &                            knew(ng),                             &
-# ifdef SOLVE3D
-     &                            nstp(ng),                             &
-     &                            OCEAN(ng) % ad_u,                     &
-     &                            OCEAN(ng) % ad_v,                     &
-     &                            OCEAN(ng) % ad_t,                     &
-# endif
-     &                            OCEAN(ng) % ad_ubar,                  &
-     &                            OCEAN(ng) % ad_vbar,                  &
-     &                            OCEAN(ng) % ad_zeta)
-#endif
-      END IF
+     &                       OCEAN(ng) % ubar,                          &
+     &                       OCEAN(ng) % vbar,                          &
+     &                       OCEAN(ng) % zeta)
 !
 ! Set analytical header file name used.
 !
@@ -93,20 +60,20 @@
       END SUBROUTINE ana_initial
 !
 !***********************************************************************
-      SUBROUTINE ana_NLMinitial_tile (ng, tile, model,                  &
-     &                                LBi, UBi, LBj, UBj,               &
-     &                                IminS, ImaxS, JminS, JmaxS,       &
-     &                                h,                                &
+      SUBROUTINE ana_initial_tile (ng, tile, model,                     &
+     &                             LBi, UBi, LBj, UBj,                  &
+     &                             IminS, ImaxS, JminS, JmaxS,          &
+     &                             h,                                   &
 #ifdef SPHERICAL
-     &                                lonr, latr,                       &
+     &                             lonr, latr,                          &
 #else
-     &                                xr, yr,                           &
+     &                             xr, yr,                              &
 #endif
 #ifdef SOLVE3D
-     &                                z_r,                              &
-     &                                u, v, t,                          &
+     &                             z_r,                                 &
+     &                             u, v, t,                             &
 #endif
-     &                                ubar, vbar, zeta)
+     &                             ubar, vbar, zeta)
 !***********************************************************************
 !
       USE mod_param
@@ -171,10 +138,10 @@
 !
       DO j=JstrT,JendT
         DO i=IstrP,IendT
-          ubar(i,j,1)=0.0_r8
+          ubar(i,j,1)=8.57_r8
         END DO
       END DO
-      DO j=JstrP,JendT
+      DO j=Jstr,JendT
         DO i=IstrT,IendT
           vbar(i,j,1)=0.0_r8
         END DO
@@ -189,6 +156,7 @@
           zeta(i,j,1)=0.0_r8
         END DO
       END DO
+
 #ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -201,7 +169,7 @@
             u(i,j,k,1)=0.0_r8
           END DO
         END DO
-        DO j=JstrP,JendT
+        DO j=Jstr,JendT
           DO i=IstrT,IendT
             v(i,j,k,1)=0.0_r8
           END DO
@@ -215,14 +183,19 @@
 !  Set initial conditions for potential temperature (Celsius) and
 !  salinity (PSU).
 !
+# ifdef MY_APPLICATION
       DO k=1,N(ng)
         DO j=JstrT,JendT
           DO i=IstrT,IendT
-            t(i,j,k,1,itemp)=-1.79_r8
-            t(i,j,k,1,isalt)=33.0_r8
+            t(i,j,k,1,itemp)=T0(ng)
+#  ifdef SALINITY
+            t(i,j,k,1,isalt)=S0(ng)
+#  endif
           END DO
         END DO
       END DO
+# endif
 #endif
+
       RETURN
-      END SUBROUTINE ana_NLMinitial_tile
+      END SUBROUTINE ana_initial_tile

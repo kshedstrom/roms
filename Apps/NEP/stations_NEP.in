@@ -163,6 +163,7 @@ Sout(idHice) == T
 Sout(idTice) == T
 Sout(idHsno) == T
 Sout(idTimid) == T
+Sout(idT2ice) == T
 Sout(idApond) == T
 Sout(idHpond) == T
 Sout(idTauiw) == F
@@ -178,6 +179,25 @@ Sout(idWai) == T
 Sout(idWao) == T
 Sout(idWio) == T
 Sout(idWro) == T
+Sout(idWdiv) == T
+
+Sout(idAlbe) == T
+Sout(idAlbI) == T
+Sout(idLWdn) == T
+Sout(idSWdn) == T
+Sout(idLatI) == T
+Sout(idSenI) == T
+Sout(idLWupI) == T
+Sout(idSWupI) == T
+Sout(idSWinI) == T
+Sout(idSWthruI) == T
+Sout(idSaltI) == T
+Sout(idSaltL) == T
+Sout(idQao) == T
+Sout(idQai) == T
+Sout(idQio) == T
+Sout(idQi2) == T
+Sout(idSnoI) == T
 
 ! Number of stations to process in each nested grid.  These values are
 ! essential because the station arrays are dynamically allocated using

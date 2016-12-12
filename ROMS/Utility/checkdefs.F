@@ -1048,6 +1048,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_CONVSNOW,'
 #endif
+#ifdef ICE_DIAGS
+      IF (Master) WRITE (stdout,20) 'ICE_DIAGS',                        &
+     &   'Include extra diagnostic output from sea ice.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' ICE_DIAGS,'
+#endif
 #ifdef ICE_EVP
       IF (Master) WRITE (stdout,20) 'ICE_EVP',                          &
      &   'Elastic-viscous-plastic ice rheology.'

@@ -245,6 +245,9 @@
 #ifdef BERING_STRAIT
           real(r8), pointer :: mask2(:,:)
 #endif
+#ifdef ALBEDO_HACK
+          real(r8), pointer :: mask_albedo(:,:)
+#endif
 
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
@@ -449,6 +452,9 @@
       allocate ( GRID(ng) % vmask(LBi:UBi,LBj:UBj) )
 #ifdef BERING_STRAIT
       allocate ( GRID(ng) % mask2(LBi:UBi,LBj:UBj) )
+#endif
+#ifdef ALBEDO_HACK
+      allocate ( GRID(ng) % mask_albedo(LBi:UBi,LBj:UBj) )
 #endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
@@ -703,6 +709,9 @@
             GRID(ng) % vmask(i,j) = IniMetricVal
 #ifdef BERING_STRAIT
             GRID(ng) % mask2(i,j) = IniVal
+#endif
+#ifdef ALBEDO_HACK
+            GRID(ng) % mask_albedo(i,j) = IniVal
 #endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
