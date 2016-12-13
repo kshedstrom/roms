@@ -3986,10 +3986,77 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ENDDO
 
       cobalt%f_npp_100(i,j) = 0.0d0 
+      phyto(SMALL)%jprod_n_100(i,j) = 0.0d0
+      phyto(LARGE)%jprod_n_100(i,j) = 0.0d0
+      phyto(DIAZO)%jprod_n_100(i,j) = 0.0d0
+      phyto(SMALL)%jaggloss_n_100(i,j) = 0.0d0
+      phyto(LARGE)%jaggloss_n_100(i,j) = 0.0d0
+      phyto(DIAZO)%jaggloss_n_100(i,j) = 0.0d0
+      phyto(SMALL)%jzloss_n_100(i,j) = 0.0d0
+      phyto(LARGE)%jzloss_n_100(i,j) = 0.0d0
+      phyto(DIAZO)%jzloss_n_100(i,j) = 0.0d0
+#ifdef COASTDIAT
+      phyto(MEDIUM)%jprod_n_100(i,j) = 0.0d0
+      phyto(MEDIUM)%jaggloss_n_100(i,j) = 0.0d0
+      phyto(MEDIUM)%jzloss_n_100(i,j) = 0.0d0
+#endif
+      zoo(1)%jprod_n_100(i,j)    = 0.0d0
+      zoo(2)%jprod_n_100(i,j)    = 0.0d0
+      zoo(3)%jprod_n_100(i,j)    = 0.0d0
+      zoo(1)%jingest_n_100(i,j)  = 0.0d0
+      zoo(2)%jingest_n_100(i,j)  = 0.0d0
+      zoo(3)%jingest_n_100(i,j)  = 0.0d0
+      zoo(1)%jzloss_n_100(i,j)   = 0.0d0
+      zoo(2)%jzloss_n_100(i,j)   = 0.0d0
+      zoo(3)%jzloss_n_100(i,j)   = 0.0d0
+      zoo(1)%jhploss_n_100(i,j)  = 0.0d0
+      zoo(2)%jhploss_n_100(i,j)  = 0.0d0
+      zoo(3)%jhploss_n_100(i,j)  = 0.0d0
+      zoo(1)%jprod_ndet_100(i,j) = 0.0d0
+      zoo(2)%jprod_ndet_100(i,j) = 0.0d0
+      zoo(3)%jprod_ndet_100(i,j) = 0.0d0
+
+      bact(1)%jprod_n_100(i,j)   = 0.0d0
+      bact(1)%jzloss_n_100(i,j)  = 0.0d0
       ! new diag here
 
       DO k=kdi+1,UBk
          cobalt%f_npp_100(i,j) = cobalt%f_npp_100(i,j) + cobalt%f_npp(i,j,k) * Hz(i,j,k)
+
+         ! note : prod, loss,.. in mol.kg-1.s-1, we integrate in depth ( x m ) and multiply by density 1035 kg.m-3
+         ! which leads to mol.m-2.s-1 for diagnostics
+         phyto(SMALL)%jprod_n_100(i,j)    = phyto(SMALL)%jprod_n_100(i,j)    + 1035 * phyto(SMALL)%jprod_n(i,j,k)    * Hz(i,j,k)
+         phyto(LARGE)%jprod_n_100(i,j)    = phyto(LARGE)%jprod_n_100(i,j)    + 1035 * phyto(LARGE)%jprod_n(i,j,k)    * Hz(i,j,k)
+         phyto(DIAZO)%jprod_n_100(i,j)    = phyto(DIAZO)%jprod_n_100(i,j)    + 1035 * phyto(DIAZO)%jprod_n(i,j,k)    * Hz(i,j,k)
+         phyto(SMALL)%jaggloss_n_100(i,j) = phyto(SMALL)%jaggloss_n_100(i,j) + 1035 * phyto(SMALL)%jaggloss_n(i,j,k) * Hz(i,j,k)
+         phyto(LARGE)%jaggloss_n_100(i,j) = phyto(LARGE)%jaggloss_n_100(i,j) + 1035 * phyto(LARGE)%jaggloss_n(i,j,k) * Hz(i,j,k)
+         phyto(DIAZO)%jaggloss_n_100(i,j) = phyto(DIAZO)%jaggloss_n_100(i,j) + 1035 * phyto(DIAZO)%jaggloss_n(i,j,k) * Hz(i,j,k)
+         phyto(SMALL)%jzloss_n_100(i,j)   = phyto(SMALL)%jzloss_n_100(i,j)   + 1035 * phyto(SMALL)%jzloss_n(i,j,k)   * Hz(i,j,k)
+         phyto(LARGE)%jzloss_n_100(i,j)   = phyto(LARGE)%jzloss_n_100(i,j)   + 1035 * phyto(LARGE)%jzloss_n(i,j,k)   * Hz(i,j,k)
+         phyto(DIAZO)%jzloss_n_100(i,j)   = phyto(DIAZO)%jzloss_n_100(i,j)   + 1035 * phyto(DIAZO)%jzloss_n(i,j,k)   * Hz(i,j,k)
+#ifdef COASTDIAT
+         phyto(MEDIUM)%jprod_n_100(i,j)    = phyto(MEDIUM)%jprod_n_100(i,j)    + 1035 * phyto(MEDIUM)%jprod_n(i,j,k)    * Hz(i,j,k)
+         phyto(MEDIUM)%jaggloss_n_100(i,j) = phyto(MEDIUM)%jaggloss_n_100(i,j) + 1035 * phyto(MEDIUM)%jaggloss_n(i,j,k) * Hz(i,j,k)
+         phyto(MEDIUM)%jzloss_n_100(i,j)   = phyto(MEDIUM)%jzloss_n_100(i,j)   + 1035 * phyto(MEDIUM)%jzloss_n(i,j,k)   * Hz(i,j,k)
+#endif
+         zoo(1)%jprod_n_100(i,j)    = zoo(1)%jprod_n_100(i,j)    + 1035 * zoo(1)%jprod_n(i,j,k)    * Hz(i,j,k)
+         zoo(2)%jprod_n_100(i,j)    = zoo(2)%jprod_n_100(i,j)    + 1035 * zoo(2)%jprod_n(i,j,k)    * Hz(i,j,k)
+         zoo(3)%jprod_n_100(i,j)    = zoo(3)%jprod_n_100(i,j)    + 1035 * zoo(3)%jprod_n(i,j,k)    * Hz(i,j,k)
+         zoo(1)%jingest_n_100(i,j)  = zoo(1)%jingest_n_100(i,j)  + 1035 * zoo(1)%jingest_n(i,j,k)  * Hz(i,j,k)
+         zoo(2)%jingest_n_100(i,j)  = zoo(2)%jingest_n_100(i,j)  + 1035 * zoo(2)%jingest_n(i,j,k)  * Hz(i,j,k)
+         zoo(3)%jingest_n_100(i,j)  = zoo(3)%jingest_n_100(i,j)  + 1035 * zoo(3)%jingest_n(i,j,k)  * Hz(i,j,k)
+         zoo(1)%jzloss_n_100(i,j)   = zoo(1)%jzloss_n_100(i,j)   + 1035 * zoo(1)%jzloss_n(i,j,k)   * Hz(i,j,k)
+         zoo(2)%jzloss_n_100(i,j)   = zoo(2)%jzloss_n_100(i,j)   + 1035 * zoo(2)%jzloss_n(i,j,k)   * Hz(i,j,k)
+         zoo(3)%jzloss_n_100(i,j)   = zoo(3)%jzloss_n_100(i,j)   + 1035 * zoo(3)%jzloss_n(i,j,k)   * Hz(i,j,k)
+         zoo(1)%jhploss_n_100(i,j)  = zoo(1)%jhploss_n_100(i,j)  + 1035 * zoo(1)%jhploss_n(i,j,k)  * Hz(i,j,k)
+         zoo(2)%jhploss_n_100(i,j)  = zoo(2)%jhploss_n_100(i,j)  + 1035 * zoo(2)%jhploss_n(i,j,k)  * Hz(i,j,k)
+         zoo(3)%jhploss_n_100(i,j)  = zoo(3)%jhploss_n_100(i,j)  + 1035 * zoo(3)%jhploss_n(i,j,k)  * Hz(i,j,k)
+         zoo(1)%jprod_ndet_100(i,j) = zoo(1)%jprod_ndet_100(i,j) + 1035 * zoo(1)%jprod_ndet(i,j,k) * Hz(i,j,k)
+         zoo(2)%jprod_ndet_100(i,j) = zoo(2)%jprod_ndet_100(i,j) + 1035 * zoo(2)%jprod_ndet(i,j,k) * Hz(i,j,k)
+         zoo(3)%jprod_ndet_100(i,j) = zoo(3)%jprod_ndet_100(i,j) + 1035 * zoo(3)%jprod_ndet(i,j,k) * Hz(i,j,k)
+
+         bact(1)%jprod_n_100(i,j)   = bact(1)%jprod_n_100(i,j)   + 1035 * bact(1)%jprod_n(i,j,k)   * Hz(i,j,k)
+         bact(1)%jzloss_n_100(i,j)  = bact(1)%jzloss_n_100(i,j)  + 1035 * bact(1)%jzloss_n(i,j,k)  * Hz(i,j,k)
          ! new diag here
       ENDDO
 
@@ -3998,6 +4065,163 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
  &                             rmask_full(i,j)*         &
 # endif
  &                             cobalt%f_npp_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_sm) = DiaBio2d(i,j,iprod_n_100_sm) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(SMALL)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iaggloss_n_100_sm) = DiaBio2d(i,j,iaggloss_n_100_sm) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(SMALL)%jaggloss_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_sm) = DiaBio2d(i,j,izloss_n_100_sm) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(SMALL)%jzloss_n_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_lg) = DiaBio2d(i,j,iprod_n_100_lg) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(LARGE)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iaggloss_n_100_lg) = DiaBio2d(i,j,iaggloss_n_100_lg) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(LARGE)%jaggloss_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_lg) = DiaBio2d(i,j,izloss_n_100_lg) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(LARGE)%jzloss_n_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_di) = DiaBio2d(i,j,iprod_n_100_di) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(DIAZO)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iaggloss_n_100_di) = DiaBio2d(i,j,iaggloss_n_100_di) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(DIAZO)%jaggloss_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_di) = DiaBio2d(i,j,izloss_n_100_di) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(DIAZO)%jzloss_n_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_smz) = DiaBio2d(i,j,iprod_n_100_smz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(1)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iingest_n_100_smz) = DiaBio2d(i,j,iingest_n_100_smz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(1)%jingest_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_smz) = DiaBio2d(i,j,izloss_n_100_smz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(1)%jzloss_n_100(i,j)
+ DiaBio2d(i,j,ihploss_n_100_smz) = DiaBio2d(i,j,ihploss_n_100_smz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(1)%jhploss_n_100(i,j)
+ DiaBio2d(i,j,iprod_ndet_100_smz) = DiaBio2d(i,j,iprod_ndet_100_smz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(1)%jprod_ndet_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_mdz) = DiaBio2d(i,j,iprod_n_100_mdz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(2)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iingest_n_100_mdz) = DiaBio2d(i,j,iingest_n_100_mdz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(2)%jingest_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_mdz) = DiaBio2d(i,j,izloss_n_100_mdz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(2)%jzloss_n_100(i,j)
+ DiaBio2d(i,j,ihploss_n_100_mdz) = DiaBio2d(i,j,ihploss_n_100_mdz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(2)%jhploss_n_100(i,j)
+ DiaBio2d(i,j,iprod_ndet_100_mdz) = DiaBio2d(i,j,iprod_ndet_100_mdz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(2)%jprod_ndet_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_lgz) = DiaBio2d(i,j,iprod_n_100_lgz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(3)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iingest_n_100_lgz) = DiaBio2d(i,j,iingest_n_100_lgz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(3)%jingest_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_lgz) = DiaBio2d(i,j,izloss_n_100_lgz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(3)%jzloss_n_100(i,j)
+ DiaBio2d(i,j,ihploss_n_100_lgz) = DiaBio2d(i,j,ihploss_n_100_lgz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(3)%jhploss_n_100(i,j)
+ DiaBio2d(i,j,iprod_ndet_100_lgz) = DiaBio2d(i,j,iprod_ndet_100_lgz) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    zoo(3)%jprod_ndet_100(i,j)
+
+ DiaBio2d(i,j,iprod_n_100_bact) = DiaBio2d(i,j,iprod_n_100_bact) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    bact(1)%jprod_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_bact) = DiaBio2d(i,j,izloss_n_100_bact) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    bact(1)%jzloss_n_100(i,j)
+
+#ifdef COASTDIAT
+ DiaBio2d(i,j,iprod_n_100_md) = DiaBio2d(i,j,iprod_n_100_md) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(MEDIUM)%jprod_n_100(i,j)
+ DiaBio2d(i,j,iaggloss_n_100_md) = DiaBio2d(i,j,iaggloss_n_100_md) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(MEDIUM)%jaggloss_n_100(i,j)
+ DiaBio2d(i,j,izloss_n_100_md) = DiaBio2d(i,j,izloss_n_100_md) + &
+# ifdef WET_DRY
+ &                             rmask_full(i,j)*         &
+# endif
+ &    phyto(MEDIUM)%jzloss_n_100(i,j)
+#endif
+
+
       ! new diag here
 
     ENDDO

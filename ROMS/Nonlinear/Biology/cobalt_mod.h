@@ -627,10 +627,18 @@
       integer :: ichl_di, iC_2_chl_di
       integer :: ichl_sm, iC_2_chl_sm
       integer :: ichl_lg, iC_2_chl_lg
+      integer :: iprod_n_100_sm, iaggloss_n_100_sm, izloss_n_100_sm
+      integer :: iprod_n_100_lg, iaggloss_n_100_lg, izloss_n_100_lg
+      integer :: iprod_n_100_di, iaggloss_n_100_di, izloss_n_100_di
+      integer :: iprod_n_100_smz, iingest_n_100_smz, izloss_n_100_smz, ihploss_n_100_smz, iprod_ndet_100_smz
+      integer :: iprod_n_100_mdz, iingest_n_100_mdz, izloss_n_100_mdz, ihploss_n_100_mdz, iprod_ndet_100_mdz
+      integer :: iprod_n_100_lgz, iingest_n_100_lgz, izloss_n_100_lgz, ihploss_n_100_lgz, iprod_ndet_100_lgz
+      integer :: iprod_n_100_bact, izloss_n_100_bact
 #ifdef COASTDIAT
       integer :: imu_mem_md, iaggloss_md, ivirloss_md, izloss_md
       integer :: iagg_lim_md, idef_fe_md, ifelim_md, ino3lim_md, inh4lim_md, ipo4lim_md
       integer :: ichl_md, iC_2_chl_md
+      integer :: iprod_n_100_md, iaggloss_n_100_md, izloss_n_100_md
 #endif
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
@@ -1854,10 +1862,11 @@
 #endif
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
-      NDbio2d = 24
 # ifdef COASTDIAT
+      NDbio2d = 53
       NDbio3d = 60 
 # else
+      NDbio2d = 50
       NDbio3d = 48 
 # endif
 #endif
@@ -2834,6 +2843,45 @@
       inpp_100=23
       imesozoo_200=24
 
+      iprod_n_100_sm=25
+      iaggloss_n_100_sm=26
+      izloss_n_100_sm=27
+
+      iprod_n_100_lg=28
+      iaggloss_n_100_lg=29
+      izloss_n_100_lg=30
+
+      iprod_n_100_di=31
+      iaggloss_n_100_di=32
+      izloss_n_100_di=33
+
+      iprod_n_100_smz=34
+      iingest_n_100_smz=35
+      izloss_n_100_smz=36
+      ihploss_n_100_smz=37
+      iprod_ndet_100_smz=38
+
+      iprod_n_100_mdz=39
+      iingest_n_100_mdz=40
+      izloss_n_100_mdz=41
+      ihploss_n_100_mdz=42
+      iprod_ndet_100_mdz=43
+
+      iprod_n_100_lgz=44
+      iingest_n_100_lgz=45
+      izloss_n_100_lgz=46
+      ihploss_n_100_lgz=47
+      iprod_ndet_100_lgz=48
+
+      iprod_n_100_bact=49
+      izloss_n_100_bact=50
+
+#ifdef COASTDIAT
+      iprod_n_100_md=51
+      iaggloss_n_100_md=52
+      izloss_n_100_md=53
+#endif
+
       ! 3D Diagnostic variables
       DO i=1,NDbio3d
         iDbio3(i)=i
@@ -3325,33 +3373,50 @@
 !      enddo
 !     allocate(phyto(DIAZO)%jprod_n_n2_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_n2_100 = 0.0
 !     allocate(phyto(SMALL)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jvirloss_n_100 = 0.0
-!     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jaggloss_n_100 = 0.0
-!     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jaggloss_n_100 = 0.0
+
+     allocate(phyto(SMALL)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jprod_n_100    = 0.0
+     allocate(phyto(LARGE)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jprod_n_100    = 0.0
+     allocate(phyto(DIAZO)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_100    = 0.0
+
+     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(SMALL)%jaggloss_n_100 = 0.0
+     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(LARGE)%jaggloss_n_100 = 0.0
+     allocate(phyto(DIAZO)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(DIAZO)%jaggloss_n_100 = 0.0
+
+     allocate(phyto(SMALL)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(SMALL)%jzloss_n_100   = 0.0
+     allocate(phyto(LARGE)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(LARGE)%jzloss_n_100   = 0.0
+     allocate(phyto(DIAZO)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(DIAZO)%jzloss_n_100   = 0.0
+
+#ifdef COASTDIAT
+     allocate(phyto(MEDIUM)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(MEDIUM)%jprod_n_100   = 0.0
+     allocate(phyto(MEDIUM)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))  ; phyto(MEDIUM)%jaggloss_n_100= 0.0
+     allocate(phyto(MEDIUM)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))    ; phyto(MEDIUM)%jzloss_n_100  = 0.0
+#endif
+
 !     allocate(cobalt%jprod_allphytos_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jprod_allphytos_100  = 0.0
 !
-!      do nzoo = 1, NUM_ZOO
-!       allocate(zoo(nzoo)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; zoo(nzoo)%jprod_n_100   = 0.0
-!       allocate(zoo(nzoo)%jingest_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jingest_n_100 = 0.0
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; zoo(nzoo)%jprod_n_100   = 0.0
+       allocate(zoo(nzoo)%jingest_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jingest_n_100 = 0.0
 !       allocate(zoo(nzoo)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jremin_n_100  = 0.0
 !       allocate(zoo(nzoo)%f_n_100(IminS:ImaxS,JminS:JmaxS))              ; zoo(nzoo)%f_n_100       = 0.0
-!      enddo
+      enddo
 !
-!      do nzoo = 1,2
-!       allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
 !       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
-!      enddo
+      enddo
 !
-!      do nzoo = 2,3
-!       allocate(zoo(nzoo)%jhploss_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jhploss_n_100  = 0.0
-!       allocate(zoo(nzoo)%jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; zoo(nzoo)%jprod_ndet_100 = 0.0
-!      enddo
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jhploss_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jhploss_n_100  = 0.0
+       allocate(zoo(nzoo)%jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; zoo(nzoo)%jprod_ndet_100 = 0.0
+      enddo
 !
 !     allocate(cobalt%hp_jingest_n_100(IminS:ImaxS,JminS:JmaxS))      ; cobalt%hp_jingest_n_100    = 0.0
 !     allocate(cobalt%hp_jremin_n_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%hp_jremin_n_100     = 0.0
 !     allocate(cobalt%hp_jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%hp_jprod_ndet_100   = 0.0
 !
-!     allocate(bact(1)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; bact(1)%jprod_n_100 = 0.0
-!     allocate(bact(1)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jzloss_n_100 = 0.0
+     allocate(bact(1)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; bact(1)%jprod_n_100 = 0.0
+     allocate(bact(1)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jzloss_n_100 = 0.0
 !     allocate(bact(1)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))       ; bact(1)%jvirloss_n_100 = 0.0
 !     allocate(bact(1)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jremin_n_100 = 0.0
 !     allocate(bact(1)%juptake_ldon_100(IminS:ImaxS,JminS:JmaxS))     ; bact(1)%juptake_ldon_100 = 0.0
