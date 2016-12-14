@@ -492,7 +492,7 @@
 !
 
       integer, allocatable :: idbio(:)    ! Biological tracers
-      integer, allocatable :: iDobgc(:)   ! Other BGC 
+      integer, allocatable :: iDobgc(:)   ! Other BGC
 #ifdef DIAGNOSTICS_BIO
       integer, allocatable :: iDbio2(:)   ! 2D Biological diagnostics
       integer, allocatable :: iDbio3(:)   ! 3D Biological diagnostics
@@ -557,7 +557,7 @@
       integer              :: iomu_mem_di ! mum_mem_di in other BGC
       integer              :: iomu_mem_lg ! mum_mem_lg in other BGC
 #ifdef COASTDIAT
-      integer              :: iomu_mem_md 
+      integer              :: iomu_mem_md
 #endif
 
       integer              :: Nsink
@@ -1864,10 +1864,10 @@
       ! Diagnostic tracers
 # ifdef COASTDIAT
       NDbio2d = 53
-      NDbio3d = 60 
+      NDbio3d = 60
 # else
       NDbio2d = 50
-      NDbio3d = 48 
+      NDbio3d = 48
 # endif
 #endif
 #ifdef BENTHIC
@@ -2832,7 +2832,7 @@
 
       !ijprod_ndet_100=17
       !ijremin_ndet_100=18
-      
+
       ialpha=17
       ico2star=18
       ipco2surf=19
@@ -2914,7 +2914,7 @@
       !idet_jhploss_n=22
       !idet_jhploss_p=23
       !idet_jhploss_fe=24
-      
+
 
       !indet_b4sink=25
       !ipdet_b4sink=26
@@ -2932,7 +2932,7 @@
 
       iomega_cadet_calc=10
       iomega_cadet_arag=11
-     
+
       iswdk=12
 
       imu_mem_sm=13
@@ -2995,7 +2995,7 @@
 
 
 #endif
-      
+
       ! Sediment variables
       ! RD: convert to bottom reservoirs
 #ifdef BENTHIC
@@ -3012,7 +3012,7 @@
       indet_btf=4
       ipdet_btf=5
       isidet_btf=6
-      
+
 #endif
 
       idsink(1) = indet
