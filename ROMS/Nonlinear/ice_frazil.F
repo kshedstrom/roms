@@ -1,9 +1,10 @@
 #include "cppdefs.h"
       MODULE ice_frazil_mod
-#if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
+#if (defined ICE_MODEL && defined ICE_THERMO && !defined TS_FIXED) \
+      || defined CICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the frazil ice growth in the water when the
@@ -161,6 +162,7 @@
       real(r8) :: t_freeze
       real(r8) :: s1
       real(r8) :: z1
+      real(r8) :: sice
       real(r8) :: gamma_k
       real(r8) :: t_fr
       real(r8) :: ice_dens
@@ -185,9 +187,8 @@
       real(r8), parameter :: hfus = 3.347E+5_r8         ! [J kg-1]
       real(r8), parameter :: ykf = 3.14
       real(r8), parameter :: eps = 1.0e-20_r8
-      real(r8) :: ice_thick
       real(r8) :: utau, dztop, rno, termt, terms, cht, chs, z0, zdz0
-#  else
+#  endif
       real(r8) :: dz, heat, tfr
       real(r8), parameter :: bl_thick = 5.0_r8
       real(r8) :: ice_thick, thickness, fract
@@ -197,7 +198,6 @@
       real(r8), parameter :: rho_fw             = 1000.0_r8    ! kg/m^3
       real(r8), parameter :: cp_over_lhfusion   =                       &
      &                 rho_sw*cp_sw/(latent_heat_fusion*rho_fw)
-#  endif
       real(r8), parameter :: rhocpr = 4093740._r8       ! [W s m-3 K-1]
       real(r8), parameter :: salice = 4.0_r8
       real(r8), parameter :: salref = 34.7_r8
@@ -251,7 +251,6 @@
 #  endif
             thickness = 0.0_r8
             DO k=N(ng),1,-1
-              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
               dz = Hz(i,j,k)
               t_fr = t_freeze(t(i,j,k,nnew,isalt),z_r(i,j,k))
               IF ((thickness + dz) > bl_thick) THEN
@@ -261,7 +260,7 @@
               thickness = thickness + dz
               potice = (t_fr - t(i,j,k,nnew,itemp)) * dz
 !
-!*** if potice < 0, use the heat to melt any ice from upper layers
+!*** if potice < 0, compute again later
 !*** if potice > 0, keep on freezing (wfr > 0)
 !
               IF ((wfr(i,j) + potice) > 0) THEN
@@ -274,7 +273,8 @@
      &                potice/Hz(i,j,k)
               t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)               &
      &              + (salref-salice)*potice*cp_over_lhfusion/Hz(i,j,k)
-!*** accumulate freezing potential
+!*** jump out if done with surface layer
+              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
             END DO
 #  if defined WET_DRY || defined MASKING
           END IF
@@ -306,8 +306,9 @@
      &                    (rho0 + rho(i,j,k) ) / ice_dens
                 t(i,j,k,nnew,itemp) = t(i,j,k,nnew,itemp) + gamma_k *   &
      &                 (Lhat + t(i,j,k,nnew,itemp)*(1.0_r8 - r))
+                sice = MIN(sice_ref,t(i,j,k,nnew,isalt))
                 t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt) *             &
-     &                                  (1.0_r8 + gamma_k)
+     &                  (1.0_r8 + gamma_k) - sice*gamma_k
               ELSE IF (wfr(i,j) > 0 .and.                               &
      &                 t(i,j,k,nnew,itemp) .gt. t_fr) THEN
 ! Use heat at this level to melt some ice from below.
@@ -395,7 +396,6 @@
           heat = 0.0_r8
           thickness = 0.0_r8
           DO k=N(ng),1,-1
-            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
             dz = Hz(i,j,k)
             tfr = t_freeze(t(i,j,k,nnew,isalt),0.0_r8)
             IF ((thickness + dz) < bl_thick) THEN
@@ -406,6 +406,7 @@
 !              thickness = thickness + dz*fract
               heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz*fract
             END IF
+            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
           END DO
 ! convert units to W/m^2
           wfr(i,j) = (wfr(i,j) - heat)*rhocpr/dt(ng)

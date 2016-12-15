@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -169,6 +169,42 @@
   'r3dvar'
   1.0d0
 
+'u_sur'                                            ! Output
+  'model surface u-momentum component'
+  'meter second-1'                                 ! [m/s]
+  'u_sur, scalar, series'
+  'ocean_time'
+  'idUsur'
+  'u2dvar'
+  1.0d0
+
+'v_sur'                                            ! Output
+  'model surface v-momentum component'
+  'meter second-1'                                 ! [m/s]
+  'v_sur, scalar, series'
+  'ocean_time'
+  'idVsur'
+  'v2dvar'
+  1.0d0
+
+'u_sur_eastward'                                   ! Output
+  'model surface eastward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'u_sur_eastward, scalar, series'
+  'ocean_time'
+  'idUsuE'
+  'r2dvar'
+  1.0d0
+
+'v_sur_northward'                                  ! Output
+  'model surface northward momentum component at RHO-points'
+  'meter second-1'                                 ! [m/s]
+  'v_sur_northward, scalar, series'
+  'ocean_time'
+  'idVsuN'
+  'r2dvar'
+  1.0d0
+
 'w'                                                ! Output
   'vertical momentum component'
   'meter second-1'                                 ! [m/s]
@@ -221,6 +257,60 @@
   'ocean_time'
   'idTvar(isalt)'
   'r3dvar'
+  1.0d0
+
+'temp_sur'                                         ! Output
+  'model surface potential temperature'
+  'Celsius'                                        ! [Celsius]
+  'temp_sur, scalar, series'
+  'ocean_time'
+  'idsurT(itemp)'
+  'r2dvar'
+  1.0d0
+
+'salt_sur'                                         ! Output
+  'model surface salinity'
+  'nondimensional'                                 ! [PSU]
+  'salinity, scalar, series'
+  'ocean_time'
+  'idsurT(isalt)'
+  'r2dvar'
+  1.0d0
+
+'z_rho'                                            ! Output
+  'depth of RHO-points'
+  'meter'                                          ! [meter]
+  'z_rho, scalar, series'
+  'ocean_time'
+  'idpthR'
+  'r3dvar'
+  1.0d0
+
+'z_u'                                              ! Output
+  'depth of U-points'
+  'meter'                                          ! [meter]
+  'z_u, scalar, series'
+  'ocean_time'
+  'idpthU'
+  'u3dvar'
+  1.0d0
+
+'z_v'                                              ! Output
+  'depth of V-points'
+  'meter'                                          ! [meter]
+  'z_v, scalar, series'
+  'ocean_time'
+  'idpthV'
+  'v3dvar'
+  1.0d0
+
+'z_w'                                              ! Output
+  'depth of W-points'
+  'meter'                                          ! [meter]
+  'z_w, scalar, series'
+  'ocean_time'
+  'idpthW'
+  'w3dvar'
   1.0d0
 
 !
@@ -2008,7 +2098,7 @@
   1.0
 
 'Pwave_top'                                        ! Input
-  'wind-induced surface wave Period'
+  'wind-induced peak surface wave period'
   'second'                                         ! [s]
   'Pwave_top, scalar, series'
   'wave_time'
@@ -6789,6 +6879,88 @@
 
 !
 !-----------------------------------------------------------------------
+!  Define names of variables associated with Red Tide module.
+!-----------------------------------------------------------------------
+!
+
+'dinoflagellate'                                   ! Input/Output
+  'red tide dinoflagellate concentration'
+  'cell meter-3'                                   ! [cell/m3]
+  'dinoflagellate, scalar, series'
+  'ocean_time'
+  'idTvar(iDino)'
+  'r3dvar'
+  1.0d0
+
+'cyst_bottom'                                      ! Input
+  'red tide dinoflagellate bottom cyst concentration'
+  'cell meter-2'                                   ! [cell/m2]
+  'cyst_bottom, scalar, series'
+  'cyst_time'
+  'idCyst'
+  'r2dvar'
+  1.0d0
+
+'swrad_avg'                                        ! Input/Output
+  'averaged solar shortwave radiation flux'
+  'watt meter-2'                                   ! Input:  [Watt/m2]
+  'averaged shortwave radiation, scalar, series'   ! [Celsius m/s]
+  'srf_time'                                       ! Output: [Watt/m2]
+  'idAsrf'
+  'r2dvar'
+  1.0d0
+
+'DIN_obs'                                          ! Input
+  'observed dissolved inorganic nutrient'
+  'millimole meter-3'                              ! [millimole/m3]
+  'DIN_obs, scalar, series'
+  'DIN_time'
+  'idODIN'
+  'r3dvar'
+  1.0d0
+
+!
+!  Boundary variables.
+!
+
+'dinoflagellate_east'                              ! Input
+  'red tide dinoflagellate eastern boundary condition'
+  'cells meter-3'                                  ! [cell/m3]
+  'dinoflagellate_east, scalar, series'
+  'dinoflagellate_time'
+  'idTbry(ieast,iDino)'
+  'nulvar'
+  1.0d0
+
+'dinoflagellate_west'                              ! Input
+  'red tide dinoflagellate western boundary condition'
+  'cells meter-3'                                  ! [cell/m3]
+  'dinoflagellate_west, scalar, series'
+  'dinoflagellate_time'
+  'idTbry(iwest,iDino)'
+  'nulvar'
+  1.0d0
+
+'dinoflagellate_south'                             ! Input
+  'red tide dinoflagellate southern boundary condition'
+  'cells meter-3'                                  ! [cell/m3]
+  'dinoflagellate_south, scalar, series'
+  'dinoflagellate_time'
+  'idTbry(isouth,iDino)'
+  'nulvar'
+  1.0d0
+
+'dinoflagellate_north'                             ! Input
+  'red tide dinoflagellate northern boundary condition'
+  'cells meter-3'                                  ! [cell/m3]
+  'dinoflagellate_north, scalar, series'
+  'dinoflagellate_time'
+  'idTbry(inorth,iDino)'
+  'nulvar'
+  1.0d0
+
+!
+!-----------------------------------------------------------------------
 !  Define names of variables associated with EcoSim bio-optical module.
 !-----------------------------------------------------------------------
 !
@@ -7892,6 +8064,24 @@
   'nulvar'
   1.0d0
 
+'obs_lon'                                         ! Input
+  'observation longitude'
+  'degrees_east'                                  ! [degrees_east]
+  'nulvar'
+  'datum'
+  'idOlon'
+  'nulvar'
+  1.0d0
+
+'obs_lat'                                         ! Input
+  'observation latitude'
+  'degrees_north'                                 ! [degrees_north]
+  'nulvar'
+  'datum'
+  'idOlat'
+  'nulvar'
+  1.0d0
+
 'obs_depth'                                        ! Input/Output
   'depth of observation'
   'meter'                                          ! [m]
@@ -8595,4 +8785,22 @@
   'bio_time'
   'idTSvar(iEupPrd)'
   'r3dvar'
+  1.0d0
+
+'BgError_value'                                    ! Output
+  'Background error at observation locations'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idBgEr'
+  'nulvar'
+  1.0d0
+
+'BgThresh_value'                                   ! Output
+  'Threshold for background quality control check of observations'
+  'nulvar'
+  'nulvar'
+  'datum'
+  'idBgTh'
+  'nulvar'
   1.0d0

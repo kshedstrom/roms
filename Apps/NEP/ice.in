@@ -1,7 +1,7 @@
 !  Ice model parameters
 !
 !==============================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                                !
 !========================================================= Hernan G. Arango ===
 !                                                                             !
 ! Input parameters can be entered in ANY order, provided that the parameter   !
@@ -36,16 +36,6 @@
 ! connected grids.
 
     Lice == T
-
-!
-!   Time step for sea ice model [s]
-
-     DTICE == 600.d0
-
-!
-!   Time step for updating (equilibrium) ice drift in sea ice model [s]
-
-     DTICE_EQ == 10800.d0
 
 ! Maximum number of iterations to achieve convergence of the nonlinear
 ! ice dynamics solution
@@ -127,7 +117,7 @@
 ! Minimum ice concentration
 ! (nondimensional)
 
-     min_a == 0.00d0
+     min_a == 1.00d-30
 
 ! Maximum ice concentration
 ! (nondimensional)
@@ -160,6 +150,12 @@
 ! Zero degree Celsius in Kelvin
 
      t0deg = 273.15d0
+
+! tunable parameters for Lemieux landfast ice
+
+     lf_k1 = 8.0d0
+     lf_k2 = 15.0d0
+     lf_u0 = 5.0e-5
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
@@ -243,22 +239,22 @@ Aout2(idT0mk) == F
 
 ! Logical switches (TRUE/FALSE) to activate writing of ice prognostic
 ! variables into HISTORY output file.
-Hout2(idUice) == T
-Hout2(idVice) == T
-Hout2(idUiceE) == T
-Hout2(idViceN) == T
-Hout2(idAice) == T
-Hout2(idHice) == T
-Hout2(idTice) == T
-Hout2(idHsno) == T
-Hout2(idTimid) == T
-Hout2(idApond) == T
-Hout2(idHpond) == T
-Hout2(idTauiw) == F
-Hout2(idChuiw) == F
-Hout2(idAgeice) == T
-Hout2(idSig11) == F
-Hout2(idSig12) == F
-Hout2(idSig22) == F
-Hout2(idS0mk) == F
-Hout2(idT0mk) == F
+Qout(idUice) == T
+Qout(idVice) == T
+Qout(idUiceE) == T
+Qout(idViceN) == T
+Qout(idAice) == T
+Qout(idHice) == T
+Qout(idTice) == T
+Qout(idHsno) == T
+Qout(idTimid) == T
+Qout(idApond) == T
+Qout(idHpond) == T
+Qout(idTauiw) == F
+Qout(idChuiw) == F
+Qout(idAgeice) == T
+Qout(idSig11) == F
+Qout(idSig12) == F
+Qout(idSig22) == F
+Qout(idS0mk) == F
+Qout(idT0mk) == F

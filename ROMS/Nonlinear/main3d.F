@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -47,8 +47,12 @@
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
       USE cawdir_eval_mod, ONLY : cawdir_eval
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES
+# if defined ALBEDO && defined SHORTWAVE
+#  if !defined NCEP_FLUXES && !defined ANA_ALBEDO
       USE albedo_mod
+#  elif defined ANA_ALBEDO
+      USE analytical_mod, only : ana_albedo
+#  endif
 # endif
 # if defined NCEP_FLUXES
       USE ncep_flux_mod, ONLY : ncep_flux
@@ -280,6 +284,7 @@
               IF (FrequentImpulse(ng)) THEN
                 DO tile=first_tile(ng),last_tile(ng),+1
                   CALL forcing (ng, tile, kstp(ng), nstp(ng))
+                  CALL set_depth (ng, tile)
                 END DO
 !$OMP BARRIER
               END IF
@@ -407,9 +412,12 @@
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
                 CALL cawdir_eval(ng, tile)
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES &&   \
-     !defined ALBEDO_FILE
+# if defined ALBEDO && defined SHORTWAVE
+#  ifdef ANA_ALBEDO
+                CALL ana_albedo(ng, tile, iNLM)
+#  elif !defined NCEP_FLUXES && !defined ALBEDO_FILE 
                 CALL albedo_eval(ng, tile)
+#  endif
 # endif
 # ifdef BULK_FLUXES
 #  if defined FOUR_DVAR && defined NL_BULK_FLUXES
@@ -421,7 +429,7 @@
 #  endif
 # endif
 # ifdef NCEP_FLUXES
-            CALL ncep_flux(ng, tile)
+                CALL ncep_flux(ng, tile)
 # endif
 # ifdef BBL_MODEL
                 CALL bblm (ng, tile)
@@ -949,9 +957,12 @@
 !-----------------------------------------------------------------------
 !
             DO il=NestLayers,1,-1
-              IF (do_twoway(nl,il,istep,ng)) THEN
-                CALL nesting (ng, iNLM, n2way)
-              END IF
+              DO ig=1,GridsInLayer(il)
+                ng=GridNumber(ig,il)
+                IF (do_twoway(nl,il,ng,istep)) THEN
+                  CALL nesting (ng, iNLM, n2way)
+                END IF
+              END DO
             END DO
 #  endif
 !

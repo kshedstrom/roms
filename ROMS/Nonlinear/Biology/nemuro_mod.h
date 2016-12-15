@@ -1,7 +1,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -219,7 +219,7 @@
 # ifdef IRON_LIMIT
       integer :: iFeSp                  ! Small phytoplankton iron
       integer :: iFeLp                  ! Large phytoplankton iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
       integer, parameter :: max_species = 5
       integer, parameter :: max_lstages = 6

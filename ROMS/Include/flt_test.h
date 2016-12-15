@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2016 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -25,10 +25,11 @@
 
 #ifdef SOLVE3D
 # define DJ_GRADPS
+# define SPLINES_VDIFF
+# define SPLINES_VVISC
 # define TS_A4HADVECTION
 # define TS_A4VADVECTION
 # define BODYFORCE
-# define SPLINES
 # define ANA_BTFLUX
 # define ANA_STFLUX
 #endif

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -186,15 +186,27 @@
 !
       IF (Hout(idbath,ng)) THEN
         scale=1.0_r8
+# ifdef PERFECT_RESTART
+        gtype=gfactor*r3dvar
+        status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath), &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, 3, scale,             &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     GRID(ng) % h,                                &
+     &                     SetFillVal = .FALSE.)
+# else
         gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idbath), &
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
-# ifdef MASKING
+#  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
-# endif
+#  endif
      &                     GRID(ng) % h,                                &
      &                     SetFillVal = .FALSE.)
+# endif
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idbath)), RST(ng)%Rindex
@@ -619,7 +631,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), 1, 2, scale,   &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % obgc(:,:,:,:,itrc))
 # else
@@ -628,7 +640,7 @@
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % obgc(:,:,:,NOUT,itrc))
 # endif
@@ -653,18 +665,18 @@
         status=nf_fwrite4d(ng, iNLM, RST(ng)%ncid,                      &
      &                     RST(ng)%Vid(idBetvar(itrc)),                 &
      &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), 1, 2, scale,   &
+     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), 1, 2, scale, &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % bt(:,:,:,:,itrc))
 # else
         status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid,                      &
                            RST(ng)%Vid(idBetvar(itrc)),                 &
      &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), scale,         &
+     &                     LBi, UBi, LBj, UBj, 1, NBL(ng), scale,       &
 #  ifdef MASKING
-     &                     GRID(ng) % rmask_full,                       &
+     &                     GRID(ng) % rmask,                            &
 #  endif
      &                     OCEAN(ng) % bt(:,:,:,NOUT,itrc))
 # endif
@@ -1996,19 +2008,20 @@
 !
   10  FORMAT (/,' WRT_RST - error while writing variable: ',a,/,11x,    &
      &        'into restart NetCDF file for time record: ',i4)
+
 #ifdef SOLVE3D
-  20  FORMAT (6x,'WRT_RST   - wrote re-start fields (Index=', i1,       &
+  20  FORMAT (6x,'WRT_RST     - wrote re-start', t39,                   &
 # ifdef NESTING
-     &        ',',i1,') into time record = ',i7.7,2x,i2.2)
+     &        'fields (Index=',i1,',',i1,') in record = ',i7.7,2x,i2.2)
 # else
-     &        ',',i1,') into time record = ',i7.7)
+     &        'fields (Index=',i1,',',i1,') in record = ',i7.7)
 # endif
 #else
-  20  FORMAT (6x,'WRT_RST   - wrote re-start fields (Index=', i1,       &
+  20  FORMAT (6x,'WRT_RST     - wrote re-start', t39,                   &
 # ifdef NESTING
-     &        ') into time record = ',i7.7,2x,i2.2)
+     &        'fields (Index=',i1,')   in record = ',i7.7,2x,i2.2)
 # else
-     &        ') into time record = ',i7.7)
+     &        'fields (Index=',i1,')   in record = ',i7.7)
 # endif
 #endif
 

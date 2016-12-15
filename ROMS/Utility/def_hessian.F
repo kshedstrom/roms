@@ -1,13 +1,13 @@
 #include "cppdefs.h"
-#if defined IS4DVAR              || \
-    (defined WEAK_CONSTRAINT     && \
-     (defined POSTERIOR_EOFS     || defined POSTERIOR_ERROR_I || \
-      defined POSTERIOR_ERROR_F))
+#if defined IS4DVAR               || \
+    (defined WEAK_CONSTRAINT      && \
+     (defined POSTERIOR_EOFS      || defined POSTERIOR_ERROR_I || \
+      defined POSTERIOR_ERROR_F)) ||  defined LCZ_FINAL
       SUBROUTINE def_hessian (ng)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -66,6 +66,11 @@
       integer :: Vsize(4)
 
       integer :: def_dim
+
+# ifdef EVOLVED_LCZ
+      integer :: MinnerDim, NinnerDim, NouterDim
+      integer :: vardim(2)
+# endif
 
 # ifdef SOLVE3D
       integer :: t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
@@ -169,6 +174,22 @@
         status=def_dim(ng, iADM, HSS(ng)%ncid, ncname, 'xy_v',          &
      &                 IOBOUNDS(ng)%xy_v, DimIDs(19))
         IF (exit_flag.ne.NoError) RETURN
+# endif
+
+# ifdef EVOLVED_LCZ
+
+        status=def_dim(ng, iADM, HSS(ng)%ncid, ncname, 'Ninner',        &
+     &                 Ninner, NinnerDim)
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iADM, HSS(ng)%ncid, ncname, 'Minner',        &
+     &                 Ninner+1, MinnerDim)
+        IF (exit_flag.ne.NoError) RETURN
+
+        status=def_dim(ng, iADM, HSS(ng)%ncid, ncname, 'Nouter',        &
+     &                 Nouter, NouterDim)
+        IF (exit_flag.ne.NoError) RETURN
+
 # endif
 
 # ifdef SOLVE3D
@@ -1031,10 +1052,10 @@
         HSS(ng)%Rindex=rec_size
       END IF QUERY
 !
-  10  FORMAT (3x,'DEF_HESSIAN  - creating Hessian file, Grid ',i2.2,    &
-     &        ': ',a)
-  20  FORMAT (3x,'DEF_HESSIAN  - inquiring Hessian file, Grid ',i2.2,   &
-     &        ': ',a)
+  10  FORMAT (6x,'DEF_HESSIAN - creating  Hessian', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
+  20  FORMAT (6x,'DEF_HESSIAN - inquiring Hessian', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_HESSIAN - unable to create Hessian NetCDF file:', &
      &        1x,a)
   40  FORMAT (a,', Hessian eigenvectors')

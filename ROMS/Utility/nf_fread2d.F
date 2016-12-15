@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -42,7 +42,7 @@
 
       CONTAINS
 
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_IN && defined DISTRIBUTE
 !
 !***********************************************************************
       FUNCTION nf_fread2d (ng, model, ncname, ncid,                     &

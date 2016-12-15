@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2015 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2016 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -83,11 +83,11 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -g -fbounds-check
+           FFLAGS += -g -fbounds-check -ffpe-trap=invalid,zero -ffree-line-length-none
            CFLAGS += -g
          CXXFLAGS += -g
 else
-           FFLAGS += -O3 -ffast-math
+           FFLAGS += -O3 -ffast-math -ffpe-trap=invalid,zero -ffree-line-length-none
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

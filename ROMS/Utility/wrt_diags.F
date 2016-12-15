@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -224,7 +224,7 @@
         END DO
       END DO
 # endif
-# if defined DIAGNOSTICS_BIO 
+# if defined DIAGNOSTICS_BIO
 !
 !  Write out 2D biological diagnostic fields.
 !
@@ -311,11 +311,11 @@
 !
   10  FORMAT (/,' WRT_DIAGS - error while writing variable: ',a,/,13x,  &
      &        'into diagnostics NetCDF file for time record: ',i4)
-  20  FORMAT (6x,'WRT_DIAGS - wrote diagnostics fields into time ',     &
+  20  FORMAT (6x,'WRT_AVG     - wrote diagnostics fields',t58,          &
 # ifdef NESTING
-     &        'record = ',t72,i7.7,2x,i2.2)
+     &        'in record = ',i7.7,2x,i2.2)
 # else
-     &        'record = ',t72,i7.7)
+     &        'in record = ',i7.7)
 # endif
 #else
       SUBROUTINE wrt_diags

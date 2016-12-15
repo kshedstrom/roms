@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -3291,10 +3291,10 @@
         STA(ng)%Rindex=(ntstart(ng)-1)/nSTA(ng)
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_STATION - creating stations file, Grid ',i2.2,    &
-     &        ': ',a)
-  20  FORMAT (6x,'DEF_STATION - inquiring stations file, Grid ',i2.2,   &
-     &        ': ',a)
+  10  FORMAT (6x,'DEF_STATION - creating  stations', t43,               &
+     &        ' file, Grid ',i2.2,': ', a)
+  20  FORMAT (6x,'DEF_STATION - inquiring stations', t43,               &
+     &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_STATION - unable to create stations NetCDF ',     &
      &        'file: ',a)
   40  FORMAT (1pe11.4,1x,'millimeter')

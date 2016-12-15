@@ -6,12 +6,12 @@ MODULE optic_manizza_mod
 !
 !svn $Id$
 !================================================== Raphael Dussin   ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-! BLA BLA
+!  From GFDL? See below for more comments
 !
       implicit none
 
@@ -30,6 +30,8 @@ MODULE optic_manizza_mod
       USE mod_stepping, only: nstp
 #ifdef BIO_COBALT
      USE mod_biology, only: iochl
+#elif defined BIO_UMAINE
+     USE mod_biology, only: iS1CH, iS2CH, iS3CH
 #endif
 !
 !  Imported variable declarations.
@@ -68,11 +70,6 @@ MODULE optic_manizza_mod
      &                            chl,                                  &
      &                            decayW)
 !
-!svn $Id$
-!================================================== Raphael Dussin   ===
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
-!    Licensed under a MIT/X style license                              !
-!    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
 !  This subroutine computes the  fraction  of  solar shortwave flux    !
@@ -272,15 +269,16 @@ MODULE optic_manizza_mod
       END DO
 
 #ifdef MASKING
-      DO nb=1,4
-       DO k=0,N(ng)
-        DO j=Jstr,Jend
-         DO i=Istr,Iend
-           decayW(i,j,k,nb) = decayW(i,j,k,nb) * rmask(i,j)
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+! This could be a bad idea...
+!      DO nb=1,4
+!       DO k=0,N(ng)
+!        DO j=Jstr,Jend
+!         DO i=Istr,Iend
+!           decayW(i,j,k,nb) = decayW(i,j,k,nb) * rmask(i,j)
+!         ENDDO
+!        ENDDO
+!       ENDDO
+!      ENDDO
 #endif
 
       RETURN

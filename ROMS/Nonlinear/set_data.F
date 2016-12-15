@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,6 +44,9 @@
 !***********************************************************************
 !
       USE mod_param
+#if defined RED_TIDE
+      USE mod_biology
+#endif
       USE mod_boundary
 # ifdef BEST_NPZ
       USE mod_biology
@@ -59,6 +62,10 @@
       USE mod_sources
 # if defined TRC_PSOURCE
       USE mod_trc_sources
+# endif
+# ifdef ARCTIC_MERRA_HACK
+      USE mod_ice
+      USE hack_mod
 # endif
 !
 # ifdef ANALYTICAL
@@ -170,14 +177,14 @@
      &                     FORCES(ng)%rainG,                            &
      &                     FORCES(ng)%rain,                             &
      &                     update)
-#ifdef SNOWFALL
+#   ifdef SNOWFALL
       CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%snowG,                            &
      &                     FORCES(ng)%snow,                             &
      &                     update)
-#endif
-#ifdef SNOW_FROM_RAIN
+#   endif
+#   ifdef SNOW_FROM_RAIN
 ! Subtract snowfall from total precip
       DO j=JstrR,JendR
         DO i=IstrR,IendR
@@ -190,21 +197,21 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          FORCES(ng)%rain)
       END IF
-# ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
       CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    FORCES(ng)%rain)
-# endif
-#endif
-#ifdef RUNOFF
+#    endif
+#   endif
+#   ifdef RUNOFF
       CALL set_2dfld_tile (ng, tile, iNLM, idRunoff,                    &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%runoffG,                          &
      &                     FORCES(ng)%runoff,                           &
      &                     update)
-#endif
+#   endif
       CALL set_2dfld_tile (ng, tile, iNLM, idSkt,                       &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%sktG,                             &
@@ -242,7 +249,7 @@
 #    endif
 #   endif
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -268,16 +275,16 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            FORCES(ng)%nvstr)
         END IF
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%nustr,                           &
      &                      FORCES(ng)%nvstr)
-#     endif
-      END IF
 #    endif
+      END IF
+#   endif
 #  endif
 # else
 
@@ -493,7 +500,24 @@
 #   endif
 #  endif
 
-#  if defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
+#  if defined RED_TIDE && defined DAILY_SHORTWAVE
+!
+!-----------------------------------------------------------------------
+!  Set kinematic daily-averaged surface solar shortwave radiation flux
+!  (degC m/s).
+!-----------------------------------------------------------------------
+!
+      CALL set_2dfld_tile (ng, tile, iNLM, idAsrf,                      &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%srflxG_avg,                       &
+     &                     FORCES(ng)%srflx_avg,                        &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
+#  endif
+
+#  ifdef ANA_LRFLUX
+      CALL ana_lrflux (ng, tile, iNLM)
+#  elif defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation (degC m/s).
@@ -507,7 +531,7 @@
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
-#  if defined LONGWAVE_OUT && defined BULK_FLUXES
+#  if defined LONGWAVE_OUT && defined BULK_FLUXES && !defined ANA_LRFLUX
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation (degC m/s).
@@ -520,17 +544,24 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #  endif
+#  ifdef ARCTIC_MERRA_HACK
+      CALL hack_flux_tile (ng, tile, iNLM,                              &
+     &                     LBi, UBi, LBj, UBj,                          &
+     &                     FORCES(ng)%srflx,                            &
+     &                     FORCES(ng)%lrflx,                            &
+     &                     ICE(ng)%ai)
+#  endif
 # endif
 
-#  if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
+# if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
 !
 !-----------------------------------------------------------------------
 !  Set surface winds (m/s).
 !-----------------------------------------------------------------------
 !
-#   ifdef ANA_WINDS
+#  ifdef ANA_WINDS
       CALL ana_winds (ng, tile, iNLM)
-#   else
+#  else
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%UwindG,                           &
@@ -545,7 +576,7 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point surface winds or interpolated from coarse data, rotate
 !  to curvilinear grid.
@@ -573,18 +604,18 @@
      &                            FORCES(ng)%VWind)
         END IF
 
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%UWind,                           &
      &                      FORCES(ng)%VWind)
-#     endif
-      END IF
 #    endif
+      END IF
 #   endif
 #  endif
+# endif
 
 # ifdef SOLVE3D
 #  ifdef BULK_FLUXES
@@ -604,12 +635,16 @@
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 #   ifdef SNOWFALL
+#    ifdef ANA_SNOW
+      CALL ana_snow (ng, tile, iNLM)
+#    else
       CALL set_2dfld_tile (ng, tile, iNLM, idsnow,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%snowG,                            &
      &                     FORCES(ng)%snow,                             &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+#    endif
 #   endif
 !
 !-----------------------------------------------------------------------
@@ -1166,6 +1201,20 @@
         END DO
 #  endif
       END IF
+# endif
+
+# ifdef RED_TIDE
+!
+!-----------------------------------------------------------------------
+!  Red tide Observed Dissolved Inorganic Nutrient.
+!-----------------------------------------------------------------------
+!
+      CALL set_3dfld_tile (ng, tile, iNLM, idODIN,                      &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng),                &
+     &                     OCEAN(ng)%DIN_obsG,                          &
+     &                     OCEAN(ng)%DIN_obs,                           &
+     &                     update)
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2197,7 +2246,8 @@
 #   endif
 #  endif
 
-#  ifdef AICLIMATOLOGY
+#  ifdef ICE_MODEl
+      IF (LaiCLM(ng)) THEN
 #   ifdef ANA_AICLIMA
         CALL ana_aiclima (ng, tile, iNLM)
 #   else
@@ -2207,22 +2257,47 @@
      &                       CLIMA(ng)%aiclm,                           &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-#   endif
-#  endif
-#  ifdef HICLIMATOLOGY
-#   ifdef ANA_HICLIMA
-        CALL ana_hiclima (ng, tile, iNLM)
-#   else
         CALL set_2dfld_tile (ng, tile, iNLM, idHIclm,                   &
      &                       LBi, UBi, LBj, UBj,                        &
      &                       CLIMA(ng)%hiclmG,                          &
      &                       CLIMA(ng)%hiclm,                           &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idHSNclm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%hsnclmG,                         &
+     &                       CLIMA(ng)%hsnclm,                          &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
 #   endif
-#  endif
+      END IF
 
-#  ifdef MICLIMATOLOGY
+      IF (LsiCLM(ng)) THEN
+#   ifdef ANA_SICLIMA
+        CALL ana_siclima (ng, tile, iNLM)
+#   else
+        CALL set_2dfld_tile (ng, tile, iNLM, idS11clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig11clmG,                       &
+     &                       CLIMA(ng)%sig11clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idS12clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig12clmG,                       &
+     &                       CLIMA(ng)%sig12clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+        CALL set_2dfld_tile (ng, tile, iNLM, idS22clm,                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       CLIMA(ng)%sig22clmG,                       &
+     &                       CLIMA(ng)%sig22clm,                        &
+     &                       update)
+        IF (exit_flag.ne.NoError) RETURN
+#   endif
+      END IF
+
+      IF (LmiCLM(ng)) THEN
 #   ifdef ANA_MICLIMA
         CALL ana_miclima (ng, tile, iNLM)
 #   else
@@ -2239,6 +2314,7 @@
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
 #   endif
+      END IF
 #  endif
 # endif
 
@@ -2336,8 +2412,6 @@
      &                       OCEAN(ng)%f_zeta,                          &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-
-#  ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -2354,7 +2428,6 @@
      &                       OCEAN(ng)%f_vbar,                          &
      &                       update)
         IF (exit_flag.ne.NoError) RETURN
-#  endif
 
 #  ifdef SOLVE3D
 !

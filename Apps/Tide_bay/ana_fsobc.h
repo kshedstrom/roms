@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,6 +47,7 @@
       USE mod_param
       USE mod_boundary
       USE mod_grid
+      USE mod_ncparam
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -66,44 +67,30 @@
 !  Free-surface open boundary conditions.
 !-----------------------------------------------------------------------
 !
-#if defined FOO
-# ifdef EAST_FSOBC
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
+      IF (LBC(ieast,isFsur,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
         cff=0.1_r8*sin(2.0_r8*pi*time(ng)/(12.0_r8*3600.0_r8))
         DO j=JstrT,JendT
           BOUNDARY(ng)%zeta_east(j)=cff
         END DO
       END IF
-# endif
-#else
-# ifdef EAST_FSOBC
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrT,JendT
-          BOUNDARY(ng)%zeta_east(j)=0.0_r8
-        END DO
-      END IF
-# endif
-# ifdef WEST_FSOBC
-      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+      IF (LBC(iwest,isFsur,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrT,JendT
           BOUNDARY(ng)%zeta_west(j)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef SOUTH_FSOBC
-      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+      IF (LBC(isouth,isFsur,ng)%acquire.and.                            &
+     &    DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrT,IendT
           BOUNDARY(ng)%zeta_south(i)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef NORTH_FSOBC
-      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+      IF (LBC(inorth,isFsur,ng)%acquire.and.                            &
+     &    DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrT,IendT
           BOUNDARY(ng)%zeta_north(i)=0.0_r8
         END DO
       END IF
-# endif
-#endif
       RETURN
       END SUBROUTINE ana_fsobc_tile

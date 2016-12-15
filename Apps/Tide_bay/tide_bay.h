@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -13,7 +13,7 @@
 */
 
 #undef STATIONS
-#define FLOATS
+#undef FLOATS
 #undef  DIAGNOSTICS_UV
 
 #define UV_ADV

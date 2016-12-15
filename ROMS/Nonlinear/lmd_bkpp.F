@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Scott M. Durski   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Scott M. Durski   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -324,7 +324,7 @@
 !=======================================================================
 !
       DO j=Jstr,Jend
-# ifdef SPLINES
+# ifdef RI_SPLINES
 !
 ! Construct parabolic splines for vertical derivatives of potential
 ! density and velocity components at W-points.  FC is a scratch array.

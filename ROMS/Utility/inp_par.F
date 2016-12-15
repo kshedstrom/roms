@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -935,12 +935,14 @@
 !  Set internal switch for processing climatology data.
 !
 #ifdef SOLVE3D
-# if defined CLIMA_TS_MIX && (defined TS_DIF2 || defined TS_DIF4)
+# if defined TS_MIX_CLIMA && (defined TS_DIF2 || defined TS_DIF4)
         Lclimatology(ng)=.TRUE.
 # endif
         IF (LsshCLM(ng).or.                                             &
             Lm2CLM (ng).or.LnudgeM2CLM(ng).or.                          &
             Lm3CLM (ng).or.LnudgeM3CLM(ng).or.                          &
+            LmiCLM (ng).or.LnudgeMICLM(ng).or.                          &
+            LaiCLM (ng).or.LnudgeAICLM(ng).or.                          &
             ANY(LtracerCLM(:,ng)).or.ANY(LnudgeTCLM(:,ng))) THEN
           Lclimatology(ng)=.TRUE.
         END IF
@@ -956,6 +958,8 @@
 #ifdef SOLVE3D
         IF (LnudgeM2CLM(ng).or.                                         &
      &      LnudgeM3CLM(ng).or.                                         &
+     &      LnudgeMICLM(ng).or.                                         &
+     &      LnudgeAICLM(ng).or.                                         &
      &      ANY(LnudgeTCLM(:,ng))) THEN
           Lnudging(ng)=.TRUE.
         END IF
@@ -1900,7 +1904,8 @@
       RETURN
       END FUNCTION load_r
 
-      FUNCTION load_s1d (Nval, Fname, line, label, igrid, Nfiles, S)
+      FUNCTION load_s1d (Nval, Fname, Fdim, line, label, igrid, Nfiles, &
+     &                   S)
 !
 !=======================================================================
 !                                                                      !
@@ -1911,6 +1916,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     igrid      Nested grid counter (integer)                         !
@@ -1935,12 +1941,12 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval
+      integer, intent(in)    :: Nval, Fdim
       integer, intent(inout) :: igrid
       integer, intent(inout) :: Nfiles(Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(Ngrids)
@@ -2107,7 +2113,7 @@
       RETURN
       END FUNCTION load_s1d
 
-      FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
+      FUNCTION load_s2d (Nval, Fname, Fdim, line, label, ifile, igrid,  &
      &                   Nfiles, Ncount, idim, S)
 !
 !=======================================================================
@@ -2119,6 +2125,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     ifile      File structure counter (integer)                      !
@@ -2147,13 +2154,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval, idim
+      integer, intent(in)    :: Nval, Fdim, idim
       integer, intent(in)    :: Nfiles(Ngrids)
       integer, intent(inout) :: ifile, igrid
       integer, intent(inout) :: Ncount(idim,Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(idim,Ngrids)

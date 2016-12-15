@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -18,6 +18,8 @@
 !    BLK       Input bulk fluxes data in adjoint-based applications    !
 !    BRY       Input open boundary conditions data                     !
 !    CLM       Input climatology data                                  !
+!    DAI       Output data assimilation next cycle initial conditions  !
+!                (4D-Var analysis) or restart (Ensemble Kalman Filter) !
 !    DAV       Output 4D-Var data assimilation variables               !
 !    DIA       Output diagnostics fields                               !
 !    ERR       Output 4DVar posterior error estimate                   !
@@ -36,6 +38,7 @@
 !    IPR       Input representer model initial conditions              !
 !    ITL       Input tangent linear model initial conditions           !
 !    LCZ       Input/output Lanczos vectors                            !
+!    LZE       Input/output time-evolved Lanczos vectors               !
 !    NRM       Input/output error covariance normalization data        !
 !                NRM(1,ng)  initial conditions                         !
 !                NRM(2,ng)  model error                                !
@@ -44,6 +47,7 @@
 !    NUD       Input climatology nudging coefficients                  !
 !    OBS       Input/output 4D-Var observations                        !
 !    PRED      Predatory fish trajectory data                          !
+!    QCK       Output nonlinear model brief snpashots data             !
 !    RST       Output restart data                                     !
 !    TIDE      Input tide forcing                                      !
 !    TLF       Input/output tangent linear model impulse forcing       !
@@ -109,6 +113,7 @@
       TYPE(T_IO), allocatable :: AVG(:)     ! time-averaged fields
       TYPE(T_IO), allocatable :: AVG2(:)    ! secondary averaged fields
       TYPE(T_IO), allocatable :: BLK(:)     ! bulk fluxes fields
+      TYPE(T_IO), allocatable :: DAI(:)     ! Data assilation IC/restart
       TYPE(T_IO), allocatable :: DAV(:)     ! 4D-Var variables
       TYPE(T_IO), allocatable :: DIA(:)     ! diagnostics fields
       TYPE(T_IO), allocatable :: ERR(:)     ! 4D-Var posterior error
@@ -120,17 +125,18 @@
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
       TYPE(T_IO), allocatable :: HIS(:)     ! NLM history fields
-      TYPE(T_IO), allocatable :: HIS2(:)    ! surface history fields
       TYPE(T_IO), allocatable :: HSS(:)     ! Hessian eigenvectors
       TYPE(T_IO), allocatable :: IAD(:)     ! ADM initial conditions
       TYPE(T_IO), allocatable :: INI(:)     ! NLM initial conditions
       TYPE(T_IO), allocatable :: IRP(:)     ! RPM initial conditions
       TYPE(T_IO), allocatable :: ITL(:)     ! TLM initial conditions
       TYPE(T_IO), allocatable :: LCZ(:)     ! Lanczos vectors
+      TYPE(T_IO), allocatable :: LZE(:)     ! evolved Lanczos vectors
       TYPE(T_IO), allocatable :: NRM(:,:)   ! normalization
       TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
+      TYPE(T_IO), allocatable :: QCK(:)     ! quicksave fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
       TYPE(T_IO), allocatable :: SSF(:)     ! Sources/Sinks forcing
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
@@ -213,7 +219,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i
+      integer :: i, ng
 
       character (len=1), parameter :: blank = ' '
 !
@@ -226,6 +232,7 @@
       allocate ( AVG(Ngrids) )
       allocate ( AVG2(Ngrids) )
       allocate ( BLK(Ngrids) )
+      allocate ( DAI(Ngrids) )
       allocate ( DAV(Ngrids) )
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
@@ -242,15 +249,16 @@
       allocate ( GRD(Ngrids) )
       allocate ( GST(Ngrids) )
       allocate ( HIS(Ngrids) )
-      allocate ( HIS2(Ngrids) )
       allocate ( HSS(Ngrids) )
       allocate ( IAD(Ngrids) )
       allocate ( INI(Ngrids) )
       allocate ( IRP(Ngrids) )
       allocate ( ITL(Ngrids) )
       allocate ( LCZ(Ngrids) )
+      allocate ( LZE(Ngrids) )
       allocate ( NUD(Ngrids) )
       allocate ( OBS(Ngrids) )
+      allocate ( QCK(Ngrids) )
       allocate ( RST(Ngrids) )
       allocate ( SSF(Ngrids) )
       allocate ( STA(Ngrids) )
@@ -261,7 +269,6 @@
 
       allocate ( NRM(4,Ngrids) )
       allocate ( STD(4,Ngrids) )
-
 !
 !-----------------------------------------------------------------------
 !  Allocate variables.
@@ -270,6 +277,46 @@
       allocate ( nBCfiles(Ngrids) )
       allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
+!
+!-----------------------------------------------------------------------
+!  Initialize I/O NetCDF files ID to close state.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        ADM(ng)%ncid=-1
+        ADS(ng)%ncid=-1
+        AVG(ng)%ncid=-1
+        BLK(ng)%ncid=-1
+        DAI(ng)%ncid=-1
+        DAV(ng)%ncid=-1
+        DIA(ng)%ncid=-1
+        ERR(ng)%ncid=-1
+        FLT(ng)%ncid=-1
+        FWD(ng)%ncid=-1
+        GRD(ng)%ncid=-1
+        GST(ng)%ncid=-1
+        HIS(ng)%ncid=-1
+        HSS(ng)%ncid=-1
+        IAD(ng)%ncid=-1
+        INI(ng)%ncid=-1
+        IRP(ng)%ncid=-1
+        ITL(ng)%ncid=-1
+        LCZ(ng)%ncid=-1
+        LZE(ng)%ncid=-1
+        NUD(ng)%ncid=-1
+        OBS(ng)%ncid=-1
+        QCK(ng)%ncid=-1
+        RST(ng)%ncid=-1
+        SSF(ng)%ncid=-1
+        STA(ng)%ncid=-1
+        TLF(ng)%ncid=-1
+        TLM(ng)%ncid=-1
+
+        TIDE(ng)%ncid=-1
+
+        NRM(1:4,ng)%ncid=-1
+        STD(1:4,ng)%ncid=-1
+      END DO
 !
 !-----------------------------------------------------------------------
 !  Initialize file names to blanks.

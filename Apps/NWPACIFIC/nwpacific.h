@@ -1,7 +1,7 @@
 /*
 ** svn $Id: basin.h 8 2007-02-06 19:00:29Z arango $
 *******************************************************************************
-** Copyright (c) 2002-2010 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -11,7 +11,11 @@
 **
 **  Options for Northeast Pacific (NEP4) simulation
 */
- 
+
+#undef NO_HIS
+#undef NETCDF4
+#undef PARALLEL_IO
+
 /* general */
 
 #define CURVGRID
@@ -19,7 +23,9 @@
 #define NONLIN_EOS
 #define SOLVE3D
 #define SALINITY
-#define SPLINES
+#define SPLINES_VDIFF
+#define SPLINES_VVISC
+#define RI_SPLINES
 # undef FLOATS
 # undef STATIONS
 #undef CCSM_COUPLED

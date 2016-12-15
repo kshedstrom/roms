@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1023,10 +1023,10 @@
         LCZ(ng)%Rindex=rec_size
       END IF QUERY
 !
-  10  FORMAT (3x,'DEF_LANCZOS  - creating Lanczos file, Grid ',i2.2,    &
-     &        ': ',a)
-  20  FORMAT (3x,'DEF_LANCZOS  - inquiring Lanczos file, Grid ',i2.2,   &
-     &        ': ',a)
+  10  FORMAT (6x,'DEF_LANCZOS - creating  Lanczos', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
+  20  FORMAT (6x,'DEF_LANCZOS - inquiring Lanczos', t43,                &
+     &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_LANCZOS - unable to create Lanczos NetCDF file:', &
      &        1x,a)
   40  FORMAT (a,', Lanczos vectors')

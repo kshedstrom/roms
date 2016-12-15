@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group
+** Copyright (c) 2002-2016 The ROMS/TOMS Group
 **
 **   Licensed under a MIT/X style license
 **
@@ -19,7 +19,9 @@
 #define NONLIN_EOS
 #define SOLVE3D
 #define SALINITY
-#define SPLINES
+#define SPLINES_VDIFF
+#define SPLINES_VVISC
+#define RI_SPLINES
 # undef FLOATS
 # define STATIONS
 #define CCSM_COUPLED

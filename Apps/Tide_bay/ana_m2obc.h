@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -66,6 +66,7 @@
       USE mod_param
       USE mod_boundary
       USE mod_grid
+      USE mod_ncparam
       USE mod_scalars
 !
 !  Imported variable declarations.
@@ -116,38 +117,27 @@
 !  2D momentum open boundary conditions.
 !-----------------------------------------------------------------------
 !
-#if defined TIDE_BAY
-# ifdef EAST_M2OBC
-        tid_flow=3.0e6_r8
-        IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-          my_area=0.0_r8
-          my_flux=0.0_r8
-          DO j=JstrP,JendP
-            cff=0.5_r8*(zeta(Iend  ,j,knew)+h(Iend  ,j)+                &
-     &                  zeta(Iend+1,j,knew)+h(Iend+1,j))/pn(Iend,j)
-            my_area=my_area+cff
-          END DO
-          my_flux=-tid_flow*SIN(2.0_r8*pi*time(ng)/                     &
-     &            (12.0_r8*3600.0_r8))
-          DO j=Jstr,Jend
-            BOUNDARY(ng)%ubar_east(j)=my_flux/my_area
-            BOUNDARY(ng)%vbar_east(j)=0.0_r8
-          END DO
-        END IF
-# endif
-#else
-# ifdef EAST_M2OBC
-      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
-        DO j=JstrT,JendT
-          BOUNDARY(ng)%ubar_east(j)=0.0_r8
+      tid_flow=3.0e6_r8
+      IF (LBC(ieast,isUbar,ng)%acquire.and.                             &
+     &    LBC(ieast,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Eastern_Edge(tile)) THEN
+        my_area=0.0_r8
+        my_flux=0.0_r8
+        DO j=JstrP,JendP
+          cff=0.5_r8*(zeta(Iend  ,j,knew)+h(Iend  ,j)+                  &
+     &                zeta(Iend+1,j,knew)+h(Iend+1,j))/pn(Iend,j)
+          my_area=my_area+cff
         END DO
-        DO j=JstrP,JendT
+        my_flux=-tid_flow*SIN(2.0_r8*pi*time(ng)/                       &
+     &          (12.0_r8*3600.0_r8))
+        DO j=Jstr,Jend
+          BOUNDARY(ng)%ubar_east(j)=my_flux/my_area
           BOUNDARY(ng)%vbar_east(j)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef WEST_M2OBC
-      IF (DOMAIN(ng)%Western_Edge(tile)) THEN
+      IF (LBC(iwest,isUbar,ng)%acquire.and.                             &
+     &    LBC(iwest,isVbar,ng)%acquire.and.                             &
+     &    DOMAIN(ng)%Western_Edge(tile)) THEN
         DO j=JstrT,JendT
           BOUNDARY(ng)%ubar_west(j)=0.0_r8
         END DO
@@ -155,9 +145,9 @@
           BOUNDARY(ng)%vbar_west(j)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef SOUTH_M2OBC
-      IF (DOMAIN(ng)%Southern_Edge(tile)) THEN
+      IF (LBC(isouth,isUbar,ng)%acquire.and.                            &
+     &    LBC(isouth,isVbar,ng)%acquire.and.                            &
+     &    DOMAIN(ng)%Southern_Edge(tile)) THEN
         DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_south(i)=0.0_r8
         END DO
@@ -165,9 +155,9 @@
           BOUNDARY(ng)%vbar_south(i)=0.0_r8
         END DO
       END IF
-# endif
-# ifdef NORTH_M2OBC
-      IF (DOMAIN(ng)%Northern_Edge(tile)) THEN
+      IF (LBC(inorth,isUbar,ng)%acquire.and.                            &
+     &    LBC(inorth,isVbar,ng)%acquire.and.                            &
+     &    DOMAIN(ng)%Northern_Edge(tile)) THEN
         DO i=IstrP,IendT
           BOUNDARY(ng)%ubar_north(i)=0.0_r8
         END DO
@@ -175,7 +165,5 @@
           BOUNDARY(ng)%vbar_north(i)=0.0_r8
         END DO
       END IF
-# endif
-#endif
       RETURN
       END SUBROUTINE ana_m2obc_tile

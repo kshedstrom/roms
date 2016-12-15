@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -49,7 +49,7 @@
 #endif
       USE mod_sources
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
 #ifdef STATIONS
@@ -128,13 +128,6 @@
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#ifdef CICE_MODEL
-      CALL netcdf_put_ivar (ng, model, ncname, 'iROMSdate',             &
-     &                      iROMSdate, (/0/), (/0/),                    &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
-
       CALL netcdf_put_fvar (ng, model, ncname, 'dstart',                &
      &                      dstart, (/0/), (/0/),                       &
      &                      ncid = ncid)
@@ -204,17 +197,6 @@
 
       CALL netcdf_put_ivar (ng, model, ncname, 'ndefAVG2',              &
      &                      ndefAVG2(ng), (/0/), (/0/),                 &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-#endif
-#ifdef HISTORY2
-      CALL netcdf_put_ivar (ng, model, ncname, 'nHIS2',                 &
-     &                      nHIS2(ng), (/0/), (/0/),                    &
-     &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
-
-      CALL netcdf_put_ivar (ng, model, ncname, 'ndefHIS2',              &
-     &                      ndefHIS2(ng), (/0/), (/0/),                 &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 #endif
@@ -1296,6 +1278,8 @@
 #  include <npzd_Powell_wrt.h>
 # elif defined BIO_COBALT
 #  include <cobalt_wrt.h>
+# elif defined RED_TIDE
+#  include <red_tide_wrt.h>
 # endif
 #endif
 
@@ -1365,6 +1349,15 @@
 
       CALL netcdf_put_fvar (ng, model, ncname, 'hc',                    &
      &                      hc(ng), (/0/), (/0/),                       &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+!
+!  SGRID conventions for staggered data on structured grids. The value
+!  is arbitrary but is set to unity so it can be used as logical during
+!  post-processing.
+!
+      CALL netcdf_put_ivar (ng, model, ncname, 'grid',                  &
+     &                      (/1/), (/0/), (/0/),                        &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 !
@@ -2332,7 +2325,7 @@
       CALL netcdf_sync (ng, model, ncname, ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !

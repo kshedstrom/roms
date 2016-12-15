@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -606,7 +606,7 @@
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max
+              print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max, ng
             END IF
 #else
             uv_max = max(ubar(Istr,Jstr,krhs),vbar(Istr,Jstr,krhs))
@@ -620,7 +620,7 @@
               END DO
             END DO
             IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG speed ij ', uv_max, ii_max, jj_max
+              print *, 'DIAG speed ij ', uv_max, ii_max, jj_max, ng
             END IF
 #endif
           END IF
@@ -633,7 +633,7 @@
 !
           IF (maxrho(ng).gt.max_rho) THEN
             exit_flag=1
-            IF (Master) print *, 'DIAG rho trouble ', maxrho(ng)
+            IF (Master) print *, 'DIAG rho trouble ', maxrho(ng), ng
           END IF
 # ifdef BIOLOGY
           DO ibt=1,NBT
@@ -641,6 +641,14 @@
               IF (Master) print *, 'BIO trouble in DIAG ', maxbio(:,ng)
               exit_flag=1
             END IF
+            WRITE (pechar,'(1pe8.1)') maxbio(ibt,ng)
+            DO i=1,8
+              IF ((pechar(i:i).eq.'N').or.(pechar(i:i).eq.'n').or.      &
+     &            (pechar(i:i).eq.'*')) THEN
+                IF (Master) print *, 'BIO trouble in DIAG ', pechar, ibt
+                exit_flag=1
+              END IF
+            END DO
           END DO
 # endif
 #endif
