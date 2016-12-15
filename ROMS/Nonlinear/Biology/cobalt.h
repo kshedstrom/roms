@@ -1708,7 +1708,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
           & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k)
 
             phyto(nphyto)%C_2_chl(i,j,k) = phyto(nphyto)%f_n(i,j,k) *    &
-          & 6.625 * 12e+6 / phyto(nphyto)%chl(i,j,k)
+          & 6.625 * 12e+6 / max(phyto(nphyto)%chl(i,j,k),epsln)
 
           ! irradiance
             phyto(nphyto)%irrlim(i,j,k) = (1.0-exp(-phyto(nphyto)%alpha* &
