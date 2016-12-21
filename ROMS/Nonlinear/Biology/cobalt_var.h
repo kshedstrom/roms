@@ -899,6 +899,28 @@
                 iDbio2(iprod_n_100_bact)=varid
               CASE ('iDbio2(izloss_n_100_bact)')
                 iDbio2(izloss_n_100_bact)=varid
+!RDIAGS
+              CASE ('iDbio2(imesozooprod_200)')
+                iDbio2(imesozooprod_200)=varid
+              CASE ('iDbio2(iuptake_din_100)')
+                iDbio2(iuptake_din_100)=varid
+              CASE ('iDbio2(iuptake_no3_n2_100)')
+                iDbio2(iuptake_no3_n2_100)=varid
+              CASE ('iDbio2(iprod_mesozoo_100)')
+                iDbio2(iprod_mesozoo_100)=varid
+              CASE ('iDbio2(iz_ratio_100)')
+                iDbio2(iz_ratio_100)=varid
+              CASE ('iDbio2(ipe_ratio_100)')
+                iDbio2(ipe_ratio_100)=varid
+              CASE ('iDbio2(if_ratio_100)')
+                iDbio2(if_ratio_100)=varid
+              CASE ('iDbio2(iprod_don_100_smz)')
+                iDbio2(iprod_don_100_smz)=varid
+              CASE ('iDbio2(iprod_don_100_mdz)')
+                iDbio2(iprod_don_100_mdz)=varid
+              CASE ('iDbio2(iprod_don_100_lgz)')
+                iDbio2(iprod_don_100_lgz)=varid
+
 #ifdef COASTDIAT
               CASE ('iDbio2(iprod_n_100_md)')
                 iDbio2(iprod_n_100_md)=varid

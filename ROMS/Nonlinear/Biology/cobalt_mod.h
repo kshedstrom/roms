@@ -634,6 +634,10 @@
       integer :: iprod_n_100_mdz, iingest_n_100_mdz, izloss_n_100_mdz, ihploss_n_100_mdz, iprod_ndet_100_mdz
       integer :: iprod_n_100_lgz, iingest_n_100_lgz, izloss_n_100_lgz, ihploss_n_100_lgz, iprod_ndet_100_lgz
       integer :: iprod_n_100_bact, izloss_n_100_bact
+      ! 200 meters diags
+      integer :: imesozooprod_200, iuptake_din_100, iuptake_no3_n2_100, iprod_mesozoo_100
+      integer :: iz_ratio_100, ipe_ratio_100, if_ratio_100
+      integer :: iprod_don_100_smz, iprod_don_100_mdz, iprod_don_100_lgz
 #ifdef COASTDIAT
       integer :: imu_mem_md, iaggloss_md, ivirloss_md, izloss_md
       integer :: iagg_lim_md, idef_fe_md, ifelim_md, ino3lim_md, inh4lim_md, ipo4lim_md
@@ -1511,7 +1515,14 @@
           ffedet_100, &
           flithdet_100, &
           btm_temp,     &
-          btm_o2
+          btm_o2,       &
+          juptake_din_100, &
+          juptake_no3_n2_100, &
+          jprod_mesozoo_100, &
+          z_ratio_100, &
+          pe_ratio_100, &
+          f_ratio_100 
+          ! add 2d diags here
 
 !     real(8), dimension(:,:,:,:), pointer :: &
 !          p_alk,&
@@ -1863,10 +1874,10 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
 # ifdef COASTDIAT
-      NDbio2d = 53
+      NDbio2d = 63
       NDbio3d = 60
 # else
-      NDbio2d = 50
+      NDbio2d = 60
       NDbio3d = 48
 # endif
 #endif
@@ -2876,10 +2887,21 @@
       iprod_n_100_bact=49
       izloss_n_100_bact=50
 
+      imesozooprod_200=51
+      iuptake_din_100=52
+      iuptake_no3_n2_100=53
+      iprod_mesozoo_100=54
+      iz_ratio_100=55
+      ipe_ratio_100=56
+      if_ratio_100=57
+      iprod_don_100_smz=58
+      iprod_don_100_mdz=59
+      iprod_don_100_lgz=60
+
 #ifdef COASTDIAT
-      iprod_n_100_md=51
-      iaggloss_n_100_md=52
-      izloss_n_100_md=53
+      iprod_n_100_md=61
+      iaggloss_n_100_md=62
+      izloss_n_100_md=63
 #endif
 
       ! 3D Diagnostic variables
@@ -3403,7 +3425,7 @@
 !
       do nzoo = 1, NUM_ZOO
        allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
-!       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
+       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
       enddo
 !
       do nzoo = 1, NUM_ZOO
@@ -3427,7 +3449,7 @@
 !     allocate(cobalt%jprod_cadet_calc_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_calc_100 = 0.0
 !     allocate(cobalt%jprod_cadet_arag_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_arag_100 = 0.0
 !     allocate(cobalt%jremin_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jremin_ndet_100 = 0.0
-!     allocate(cobalt%jprod_mesozoo_200(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_200 = 0.0
+     allocate(cobalt%jprod_mesozoo_200(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_200 = 0.0
 !
 !     allocate(cobalt%f_ndet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_ndet_100 = 0.0
 !     allocate(cobalt%f_don_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_don_100  = 0.0
@@ -3446,6 +3468,13 @@
 !
 !     allocate(cobalt%btm_temp(IminS:ImaxS,JminS:JmaxS))              ; cobalt%btm_temp = 0.0
 !     allocate(cobalt%btm_o2(IminS:ImaxS,JminS:JmaxS))                ; cobalt%btm_o2 = 0.0
+
+      allocate(cobalt%juptake_din_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%juptake_din_100 = 0.0
+      allocate(cobalt%juptake_no3_n2_100(IminS:ImaxS,JminS:JmaxS))    ; cobalt%juptake_no3_n2_100 = 0.0
+      allocate(cobalt%jprod_mesozoo_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_100 = 0.0
+      allocate(cobalt%z_ratio_100(IminS:ImaxS,JminS:JmaxS))           ; cobalt%z_ratio_100 = 0.0
+      allocate(cobalt%pe_ratio_100(IminS:ImaxS,JminS:JmaxS))          ; cobalt%pe_ratio_100 = 0.0
+      allocate(cobalt%f_ratio_100(IminS:ImaxS,JminS:JmaxS))           ; cobalt%f_ratio_100 = 0.0
 
       RETURN
 

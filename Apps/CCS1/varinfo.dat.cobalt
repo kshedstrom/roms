@@ -222,11 +222,55 @@
   'r3dvar'
   1.0d0
 
+'z_rho'                                            ! Output
+  'depth of RHO-points'
+  'meter'                                          ! [meter]
+  'z_rho, scalar, series'
+  'ocean_time'
+  'idpthR'
+  'r3dvar'
+  1.0d0
+
+'z_u'                                              ! Output
+  'depth of U-points'
+  'meter'                                          ! [meter]
+  'z_u, scalar, series'
+  'ocean_time'
+  'idpthU'
+  'u3dvar'
+  1.0d0
+
+'z_v'                                              ! Output
+  'depth of V-points'
+  'meter'                                          ! [meter]
+  'z_v, scalar, series'
+  'ocean_time'
+  'idpthV'
+  'v3dvar'
+  1.0d0
+
+'z_w'                                              ! Output
+  'depth of W-points'
+  'meter'                                          ! [meter]
+  'z_w, scalar, series'
+  'ocean_time'
+  'idpthW'
+  'w3dvar'
+  1.0d0
+
 !
 !------------------------------------------------------------------------------
 !  Wet/dry masks.
 !------------------------------------------------------------------------------
 !
+'wetdry_mask_psi'                                  ! Input/Output
+  'wet/dry mask on PSI-points'
+  'nondimensional'
+  'wetdry_mask_psi, scalar, series'
+  'ocean_time'
+  'idPwet'
+  'p2dvar'
+  1.0d0
 
 'wetdry_mask_rho'                                  ! Input/Output
   'wet/dry mask on RHO-points'
@@ -800,6 +844,15 @@
   'r2dvar'
   1.0d0
 
+'snow_thick'
+  'thickness of snow cover'
+  'meter'
+  'snow thickness, scalar, series'
+  'ocean_time'
+  'idHSNclm'
+  'r2dvar'
+  1.0d0
+
 'tisrf'
   'temperature of ice surface'
   'degrees Celcius'
@@ -899,12 +952,30 @@
   'r2dvar'
   1.0d0
 
-'sfwat'
+'wdiv'
+  'rate of ice divergence'
+  'm^3 s-1'
+  'ice divergence rate, scalar, series'
+  'ocean_time'
+  'idWdiv'
+  'r2dvar'
+  1.0d0
+
+'apond'
+  'surface melt water fraction on ice'
+  'meter'
+  'melt water fraction, scalar, series'
+  'ocean_time'
+  'idApond'
+  'r2dvar'
+  1.0d0
+
+'hpond'
   'surface melt water thickness on ice'
   'meter'
   'melt water thickness, scalar, series'
   'ocean_time'
-  'idSfwat'
+  'idHpond'
   'r2dvar'
   1.0d0
 
@@ -950,6 +1021,33 @@
   'ice stress 12, scalar, series'
   'ocean_time'
   'idSig12'
+  'r2dvar'
+  1.0d0
+
+'sig11'
+  'internal ice stress 11 component'
+  'Newton meter-1'
+  'ice stress 11, scalar, series'
+  'ocean_time'
+  'idS11clm'
+  'r2dvar'
+  1.0d0
+
+'sig22'
+  'internal ice stress 22 component'
+  'Newton meter-1'
+  'ice stress 22, scalar, series'
+  'ocean_time'
+  'idS22clm'
+  'r2dvar'
+  1.0d0
+
+'sig12'
+  'internal ice stress 12 component'
+  'Newton meter-1'
+  'ice stress 12, scalar, series'
+  'ocean_time'
+  'idS12clm'
   'r2dvar'
   1.0d0
 
@@ -1904,6 +2002,15 @@
   'rain, scalar, series'
   'rain_time'
   'idrain'
+  'r2dvar'
+  1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
+
+'snow'                                             ! Input
+  'snow fall rate'
+  'kilogram meter-2 second-1'                      ! [kg m2/s]
+  'snow, scalar, series'
+  'snow_time'
+  'idsnow'
   'r2dvar'
   1.0d0                                            ! 1/rhow (0.001 m3/kg) if m/s
 
@@ -3277,6 +3384,15 @@
   'rdrag2, scalar, series'
   'ocean_time'
   'idragQ'
+  'r2dvar'
+  1.0d0
+
+'wavedrag'                                         ! Input/Output
+  'linear bottom drag coefficient'
+  'meter second-1'                                 ! [m/s]
+  'wavedrag, scalar, series'
+  'ocean_time'
+  'idragW'
   'r2dvar'
   1.0d0
 
@@ -4746,6 +4862,97 @@
   'iDbio2(izloss_n_100_md)'
   'r2dvar'
   1.0d0
+
+'mesozooprod_200'
+  'mesozoo production over top 200m'
+  'mgC m-2 day-1'
+  'mesozooprod_200, scalar, series'
+  'ocean_time'
+  'iDbio2(imesozooprod_200)'
+  'r2dvar'
+  1.0d0
+
+'uptake_din_100'
+  'uptake DIN over top 100m'
+  'mgC m-2 day-1'
+  'uptake_din_100, scalar, series'
+  'ocean_time'
+  'iDbio2(iuptake_din_100)'
+  'r2dvar'
+  1.0d0
+
+'uptake_no3_n2_100'
+  'uptake NO3+N2 over top 100m'
+  'mgC m-2 day-1'
+  'uptake_no3_n2_100, scalar, series'
+  'ocean_time'
+  'iDbio2(iuptake_no3_n2_100)'
+  'r2dvar'
+  1.0d0
+
+'prod_mesozoo_100'
+  'mesozoo production over top 100m'
+  'mgC m-2 day-1'
+  'prod_mesozoo_100, scalar, series'
+  'ocean_time'
+  'iDbio2(iprod_mesozoo_100)'
+  'r2dvar'
+  1.0d0
+
+'z_ratio_100'
+  'Z-ratio'
+  ''
+  'z_ratio_100, scalar, series'
+  'ocean_time'
+  'iDbio2(iz_ratio_100)'
+  'r2dvar'
+  1.0d0
+
+'pe_ratio_100'
+  'pe-ratio'
+  ''
+  'pe_ratio_100, scalar, series'
+  'ocean_time'
+  'iDbio2(ipe_ratio_100)'
+  'r2dvar'
+  1.0d0
+
+'f_ratio_100'
+  'f-ratio'
+  ''
+  'f_ratio_100, scalar, series'
+  'ocean_time'
+  'iDbio2(if_ratio_100)'
+  'r2dvar'
+  1.0d0
+
+'prod_don_100_smz'
+  'production DON by small zoo over top 100m'
+  'mol.m-2.s-1'
+  'prod_don_100_smz, scalar, series'
+  'ocean_time'
+  'iDbio2(iprod_don_100_smz)'
+  'r2dvar'
+  1.0d0
+
+'prod_don_100_mdz'
+  'production DON by medium zoo over top 100m'
+  'mol.m-2.s-1'
+  'prod_don_100_mdz, scalar, series'
+  'ocean_time'
+  'iDbio2(iprod_don_100_mdz)'
+  'r2dvar'
+  1.0d0
+
+'prod_don_100_lgz'
+  'production DON by large zoo over top 100m'
+  'mol.m-2.s-1'
+  'prod_don_100_lgz, scalar, series'
+  'ocean_time'
+  'iDbio2(iprod_don_100_lgz)'
+  'r2dvar'
+  1.0d0
+
 
 'chl'                                      
   'Chlorophyll'
