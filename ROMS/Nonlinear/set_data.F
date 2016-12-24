@@ -2132,7 +2132,7 @@
 #   endif
 #  endif
 
-#  ifdef ICE_MODEl
+#  ifdef ICE_MODEL
       IF (LaiCLM(ng)) THEN
 #   ifdef ANA_AICLIMA
         CALL ana_aiclima (ng, tile, iNLM)
