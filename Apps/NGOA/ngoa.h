@@ -36,7 +36,7 @@
 #undef T_PASSIVE
 #ifdef T_PASSIVE
 # define ANA_BPFLUX        /* analytical bottom passive tracers fluxes */
-# define ANA_SPFLUX 
+# define ANA_SPFLUX
 # define ANA_PASSIVE
 # define TRC_PSOURCE
 # define ANA_TRC_PSOURCE
@@ -46,7 +46,7 @@
 /* ice */
 
 #ifdef SOLVE3D
-# define  ICE_MODEL
+# undef  ICE_MODEL
 # ifdef ICE_MODEL
 #  define ANA_ICE
 #  undef  OUTFLOW_MASK
@@ -218,7 +218,7 @@
 **  Biological model options.
 */
 #define BIOLOGY
-#define BIO_COBALT 
+#define BIO_COBALT
 #undef BIO_UMAINE
 /* #define DEBUG_COBALT */
 /*#define COBALT_CONSERVATION_TEST */
@@ -230,6 +230,7 @@
 # define COBALT_MINERALS
 # define COBALT_PHOSPHORUS
 # define COBALT_IRON
+# define NO_IRON_COAST
 # define COBALT_CARBON
 # define DIAGNOSTICS_BIO
 /*# define BENTHIC  */

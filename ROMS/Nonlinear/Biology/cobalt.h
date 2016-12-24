@@ -76,7 +76,9 @@
 #ifdef COBALT_IRON
      &                   FORCES(ng) % soluble_fe,                       &
      &                   FORCES(ng) % ironsed,                          &
+# ifndef NO_IRON_COAST
      &                   FORCES(ng) % fecoast,                          &
+# endif
      &                   FORCES(ng) % river_fed,                        &
 #endif
      &                   FORCES(ng) % mineral_fe,                       &
@@ -138,9 +140,12 @@
 #endif
 #ifdef COBALT_IRON
      &                         soluble_fe, ironsed,                     &
-     &                         fecoast, river_fed,                      &
+# ifndef NO_IRON_COAST
+     &                         fecoast,                                 &
+# endif
+     &                         river_fed,                               &
 #endif
-     &                         mineral_fe,                              &   
+     &                         mineral_fe,                              &
 #ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
 #endif
@@ -197,7 +202,7 @@
       real(r8), intent(in) :: srflx(LBi:,LBj:)
 # ifdef OPTIC_MANIZZA
       real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
-#endif
+# endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:,LBj:)
 # else
@@ -209,36 +214,38 @@
       real(r8), intent(in) :: river_sldon(LBi:,LBj:)
       real(r8), intent(in) :: river_srdon(LBi:,LBj:)
       real(r8), intent(in) :: river_ndet(LBi:,LBj:)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
       real(r8), intent(in) :: river_po4(LBi:,LBj:)
       real(r8), intent(in) :: river_ldop(LBi:,LBj:)
       real(r8), intent(in) :: river_sldop(LBi:,LBj:)
       real(r8), intent(in) :: river_srdop(LBi:,LBj:)
-#endif
-#ifdef COBALT_CARBON
+# endif
+# ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:,LBj:)
-#endif
-#ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
       real(r8), intent(in) :: ironsed(LBi:,LBj:)
+#  ifndef NO_IRON_COAST
       real(r8), intent(in) :: fecoast(LBi:,LBj:)
+#  endif
       real(r8), intent(in) :: river_fed(LBi:,LBj:)
-#endif
+# endif
       real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
-#ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaBio3d(LBi:,LBj:,:,:)
-#endif
+# endif
       real(r8), intent(in)    :: rho(LBi:,LBj:,:)
       real(r8), intent(in)    :: zeta(LBi:,LBj:,:)
       real(r8), intent(inout) :: obgc(LBi:,LBj:,:,:,:)
       real(r8), intent(in)    :: tclm(LBi:,LBj:,:,:)
-#ifdef BENTHIC
+# ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
-#endif
-#ifdef TIMESERIES
+# endif
+# ifdef TIMESERIES
       real(r8), intent(inout) :: tms(:,:,:)
-#endif
+# endif
       real(r8), intent(inout) :: t(LBi:,LBj:,:,:,:)
 #else
 # ifdef MASKING
@@ -255,7 +262,7 @@
       real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
 # ifdef OPTIC_MANIZZA
       real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:UBk,4)
-#endif
+# endif
 # ifdef BULK_FLUXES
       real(r8), intent(in) :: u10_neutral(LBi:UBi,LBj:UBj)
 # else
@@ -267,36 +274,38 @@
       real(r8), intent(in) :: river_sldon(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_srdon(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_ndet(LBi:UBi,LBj:UBj)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
       real(r8), intent(in) :: river_po4(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_ldop(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_sldop(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_srdop(LBi:UBi,LBj:UBj)
-#endif
+# endif
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:UBi,LBj:UBj)
 # endif
 # ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ironsed(LBi:UBi,LBj:UBj)
+#  ifndef NO_IRON_COAST
       real(r8), intent(in) :: fecoast(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(in) :: river_fed(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
-#ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
       real(r8), intent(inout) :: DiaBio3d(LBi:UBi,LBj:UBj,UBk,NDbio3d)
-#endif
+# endif
       real(r8), intent(in)    :: rho(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in)    :: zeta(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) ! RD: not sure it'd work
       real(r8), intent(in)    :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM) ! RD: not sure it'd work
-#ifdef BENTHIC
+# ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,UBt) ! RD: not sure it'd work
-#endif
-#ifdef TIMESERIES
+# endif
+# ifdef TIMESERIES
       real(r8), intent(inout) :: tms(1,1,NT) ! RD: not sure it'd work
-#endif
+# endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,UBk,3,UBt)
 #endif
 
@@ -304,7 +313,7 @@
 !  Local variable declarations.
 !
     integer :: i, j, k, nphyto, nzoo, nprey ! loop indices
-    integer :: ntau, kblt, m, k_100, k_200 
+    integer :: ntau, kblt, m, k_100, k_200
     integer :: tau
 
     !real, dimension(:,:,:) ,pointer :: grid_tmask
@@ -3569,19 +3578,26 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        IF (cobalt%f_fed(i,j,k).gt.1.0e-9) THEN !{
           cobalt%jfe_ads(i,j,k) = min(r_dt,5.0*cobalt%alpha_fescav*cobalt%f_fed(i,j,k))
        ENDIF !}
+# ifndef NO_IRON_COAST
        !
        ! Coastal iron inputs (proxy for sediment inputs for areas with poorly resolved shelves)
        ! Reworked with charlie (july 2016) to create new input file at 1e-16 mol Fe kg-1 s-1
        !
        cobalt%jfe_coast(i,j,k) = fecoast(i,j)
 
-# ifdef DIAGNOSTICS_BIO
+#  ifdef DIAGNOSTICS_BIO
        ! add coastal iron source to fe_bulk_flx
        DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + &
-#  ifdef WET_DRY
+#   ifdef WET_DRY
   &                                   rmask_full(i,j)*               &
-#  endif
+#   endif
   &                                   cobalt%jfe_coast(i,j,k) * n_dt
+#  endif
+# else
+       !
+       ! Reworked again by Kate and Claudine (Dec 2016) for Gulf of Alaska with river inputs.
+       !
+       cobalt%jfe_coast(i,j,k) = 0.0
 # endif
 #endif
       ENDDO
@@ -4374,14 +4390,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #ifdef COASTDIAT
 &                       phyto(MEDIUM)%juptake_sio4(:,:,:) -             &
 #endif
-&                       phyto(LARGE)%juptake_sio4(:,:,:) 
+&                       phyto(LARGE)%juptake_sio4(:,:,:)
 #ifdef COBALT_IRON
 !
 !   *** Fed
 !
   cobalt%jprod_fed(:,:,:) = cobalt%jprod_fed(:,:,:)    +                 &
 &                           cobalt%jremin_fedet(:,:,:) +                 &
-&                           cobalt%jfe_coast(:,:,:)  
+&                           cobalt%jfe_coast(:,:,:)
 
   cobalt%jfed(:,:,:) = cobalt%jprod_fed(:,:,:)        -                  &
 &                      phyto(DIAZO)%juptake_fe(:,:,:) -                  &

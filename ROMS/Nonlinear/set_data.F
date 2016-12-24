@@ -340,7 +340,7 @@
 #    endif
 #   endif
 
-#  if defined BIO_COBALT
+#  if defined BIO_COBALT_RUNOFF
       CALL set_2dfld_tile (ng, tile, iNLM, idriver_no3,                 &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%river_no3G,                       &
@@ -438,13 +438,14 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
+#   ifndef NO_IRON_COAST
       CALL set_2dfld_tile (ng, tile, iNLM, idFeCoast,                   &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%fecoastG,                         &
      &                     FORCES(ng)%fecoast,                          &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
-#  endif
+#   endif
 
       CALL set_2dfld_tile (ng, tile, iNLM, idMineralFe,                 &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -452,6 +453,7 @@
      &                     FORCES(ng)%mineral_fe,                       &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+#  endif
 
 #   ifdef CLOUDS
 !
@@ -2245,7 +2247,7 @@
 #   endif
 #  endif
 
-#  ifdef ICE_MODEl
+#  ifdef ICE_MODEL
       IF (LaiCLM(ng)) THEN
 #   ifdef ANA_AICLIMA
         CALL ana_aiclima (ng, tile, iNLM)

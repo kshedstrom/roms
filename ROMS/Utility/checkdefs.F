@@ -605,6 +605,12 @@
       Coptions(is:is+12)=' BIO_COBALT,'
       ibiology=ibiology+1
 #endif
+#ifdef BIO_COBALT_RUNOFF
+      IF (Master) WRITE (stdout,20) 'BIO_COBALT_RUNOFF',                &
+     &   'GFDL Cobalt Runoff sources (like rain).'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' BIO_COBALT_RUNOFF,'
+#endif
 #ifdef BODYFORCE
       IF (Master) WRITE (stdout,20) 'BODYFORCE',                        &
      &   'Momentum stresses as body-forces.'
@@ -702,6 +708,12 @@
      &   'Turn on iron limitation in COBALT.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' COBALT_IRON,'
+# ifdef NO_IRON_COAST
+      IF (Master) WRITE (stdout,20) 'NO_IRON_COAST',                    &
+     &   'Turn off coastal iron sources in COBALT.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' NO_IRON_COAST,'
+# endif
 #endif
 #ifdef COBALT_MINERALS
       IF (Master) WRITE (stdout,20) 'COBALT_MINERALS',                  &

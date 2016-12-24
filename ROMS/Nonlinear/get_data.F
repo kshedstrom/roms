@@ -545,7 +545,7 @@
       IF (exit_flag.ne.NoError) RETURN
 # endif
 
-# if defined BIO_COBALT
+# if defined BIO_COBALT_RUNOFF
 !
 !-----------------------------------------------------------------------
 !  nutrients from rivers
@@ -689,6 +689,7 @@
      &                FORCES(ng) % ironsedG)
       IF (exit_flag.ne.NoError) RETURN
 
+#  ifndef NO_IRON_COAST
 !
 !-----------------------------------------------------------------------
 ! iron coastal source 
@@ -697,13 +698,13 @@
       CALL get_2dfld (ng, iNLM, idFeCoast, ncFRCid(idFeCoast,ng),       &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
+#   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#  endif
+#   endif
      &                FORCES(ng) % fecoastG)
       IF (exit_flag.ne.NoError) RETURN
 
-# endif
+#  endif
 
 !
 !-----------------------------------------------------------------------
@@ -718,6 +719,7 @@
 #  endif
      &                FORCES(ng) % mineral_feG)
       IF (exit_flag.ne.NoError) RETURN
+# endif
 
 # if !defined ANA_CLOUD && defined CLOUDS
 !
