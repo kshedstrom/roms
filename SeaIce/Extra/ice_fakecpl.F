@@ -330,20 +330,21 @@
           wrk_big(:,0) = wrk_big(:,1)
           wrk_big(:,Mm(Ng)+1) = wrk_big(:,Mm(Ng))
           call scatter(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar, wrk_big,   &
-     &             FORCES(ng)%stflx(LBi,LBj,1), ICE(ng)%ai, .false.)
+     &             FORCES(ng)%stflx(LBi,LBj,itemp), ICE(ng)%ai, .false.)
+! add fresh water flux to salt flux
           CALL gather_global(wrk_small, fsalt, master_task,             &
      &                     distrb_info)
           CALL gather_global(fresh_small, fresh, master_task,           &
      &                     distrb_info)
-! add fresh water flux to salt flux
-          wrk_small = wrk_small - sss_small*1.e-3_r8*fresh_small
+!  convert units of kg/m2/s to salt (factor of 1000.)
+          wrk_small = - wrk_small*1000._r8 - sss_small/rho0*fresh_small
           wrk_big(1:Lm(ng),1:Mm(Ng)) = wrk_small
           wrk_big(0,1:Mm(Ng)) = wrk_big(1,1:Mm(Ng))
           wrk_big(Lm(ng)+1,1:Mm(Ng)) = wrk_big(Lm(ng),1:Mm(Ng))
           wrk_big(:,0) = wrk_big(:,1)
           wrk_big(:,Mm(Ng)+1) = wrk_big(:,Mm(Ng))
           call scatter(ng, iNLM, LBi, UBi, LBj, UBj, r2dvar, wrk_big,   &
-     &             FORCES(ng)%stflx(LBi,LBj,2), ICE(ng)%ai, .false.)
+     &             FORCES(ng)%stflx(LBi,LBj,isalt), ICE(ng)%ai, .false.)
 
         END DO
 

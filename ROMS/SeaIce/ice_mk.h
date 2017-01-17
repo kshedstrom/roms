@@ -20,7 +20,6 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-      USE mod_clima
 
       implicit none
 
@@ -49,10 +48,6 @@
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 #endif
-     &                      CLIMA(ng) % aiclm,                          &
-     &                      CLIMA(ng) % hiclm,                          &
-     &                      CLIMA(ng) % hsnclm,                        &
-     &                      CLIMA(ng) % AInudgcof,                      &
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
      &                      OCEAN(ng) % t,                              &
@@ -71,6 +66,7 @@
 #endif
      &                      ICE(ng) % tis,                              &
      &                      ICE(ng) % ti,                               &
+     &                      ICE(ng) % t2,                               &
      &                      ICE(ng) % enthalpi,                         &
      &                      ICE(ng) % hage,                             &
      &                      ICE(ng) % ui,                               &
@@ -85,6 +81,12 @@
      &                      ICE(ng) % IceNO3,                           &
      &                      ICE(ng) % IceNH4,                           &
 #endif
+#ifdef ICE_DIAGS
+     &                      FORCES(ng) % saltflux_ice,                  &
+     &                      FORCES(ng) % qio_n,                         &
+     &                      FORCES(ng) % qi2_n,                         &
+     &                      FORCES(ng) % snoice,                        &
+#endif
      &                      FORCES(ng) % sustr,                         &
      &                      FORCES(ng) % svstr,                         &
      &                      FORCES(ng) % qai_n,                         &
@@ -92,6 +94,8 @@
      &                      FORCES(ng) % qao_n,                         &
      &                      FORCES(ng) % snow_n,                        &
      &                      FORCES(ng) % rain,                          &
+     &                      FORCES(ng) % srflx,                         &
+     &                      FORCES(ng) % SW_thru_ice,                   &
      &                      FORCES(ng) % stflx)
 #ifdef PROFILE
       CALL wclock_off (ng, iNLM, 51)
@@ -116,24 +120,26 @@
 #ifdef ICE_SHOREFAST
      &                        h, Zt_avg1,                               &
 #endif
-     &                        aiclm, hiclm, hsnclm, AInudgcof,          &
      &                        z_r, z_w, t,                              &
      &                        wfr, wai, wao, wio, wro,                  &
      &                        ai, hi, hsn, ageice,                      &
 #ifdef MELT_PONDS
      &                        apond, hpond,                             &
 #endif
-     &                        tis, ti, enthalpi, hage,                  &
+     &                        tis, ti, t2, enthalpi, hage,              &
      &                        ui, vi, coef_ice_heat, rhs_ice_heat,      &
      &                        s0mk, t0mk, io_mflux,                     &
 #if defined ICE_BIO && defined BERING_10K
      &                        IcePhL, IceNO3, IceNH4,                   &
 #endif
+#ifdef ICE_DIAGS
+     &                        saltflux_ice, qio_n, qi2_n, snoice,       &
+#endif
      &                        sustr, svstr,                             &
      &                        qai_n, qi_o_n, qao_n,                     &
      &                        snow_n,                                   &
      &                        rain,                                     &
-     &                        stflx)
+     &                        srflx, SW_thru_ice, stflx)
 !***********************************************************************
 !
 !  Original comment:
@@ -231,6 +237,7 @@
 !
       USE i2d_bc_mod
       USE tibc_mod, ONLY : tibc_tile
+      USE mod_clima
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
@@ -258,10 +265,6 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
-      real(r8), intent(in) :: aiclm(LBi:,LBj:)
-      real(r8), intent(in) :: hiclm(LBi:,LBj:)
-      real(r8), intent(in) :: hsnclm(LBi:,LBj:)
-      real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
       real(r8), intent(in) :: t(LBi:,LBj:,:,:,:)
@@ -280,6 +283,7 @@
 #endif
       real(r8), intent(inout) :: tis(LBi:,LBj:)
       real(r8), intent(inout) :: ti(LBi:,LBj:,:)
+      real(r8), intent(inout) :: t2(LBi:,LBj:)
       real(r8), intent(inout) :: enthalpi(LBi:,LBj:,:)
       real(r8), intent(inout) :: hage(LBi:,LBj:,:)
       real(r8), intent(in)    :: ui(LBi:,LBj:,:)
@@ -294,6 +298,12 @@
       real(r8), intent(inout) :: IceNO3(LBi:,LBj:,:)
       real(r8), intent(inout) :: IceNH4(LBi:,LBj:,:)
 #endif
+#ifdef ICE_DIAGS
+      real(r8), intent(out) :: saltflux_ice(LBi:,LBj:)
+      real(r8), intent(out) :: qio_n(LBi:,LBj:)
+      real(r8), intent(out) :: qi2_n(LBi:,LBj:)
+      real(r8), intent(out) :: snoice(LBi:,LBj:)
+#endif
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
       real(r8), intent(in) :: qai_n(LBi:,LBj:)
@@ -301,6 +311,8 @@
       real(r8), intent(in) :: qao_n(LBi:,LBj:)
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
+      real(r8), intent(inout) :: srflx(LBi:,LBj:)
+      real(r8), intent(in) :: SW_thru_ice(LBi:,LBj:)
       real(r8), intent(out) :: stflx(LBi:,LBj:,:)
 #else
 # ifdef MASKING
@@ -316,10 +328,6 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(in) :: aiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: hiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: hsnclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
@@ -338,6 +346,7 @@
 #endif
       real(r8), intent(inout) :: tis(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: ti(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(inout) :: t2(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: enthalpi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: hage(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in)    :: ui(LBi:UBi,LBj:UBj,2)
@@ -352,6 +361,12 @@
       real(r8), intent(inout) :: IceNO3(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: IceNH4(LBi:UBi,LBj:UBj,2)
 # endif
+#ifdef ICE_DIAGS
+      real(r8), intent(out) :: saltflux_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qio_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: qi2_n(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: snoice(LBi:UBi,LBj:UBj)
+#endif
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: qai_n(LBi:UBi,LBj:UBj)
@@ -359,6 +374,8 @@
       real(r8), intent(in) :: qao_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: SW_thru_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
 #endif
 
@@ -389,7 +406,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: coa
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: t2
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: cht
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: chs
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ai_old
@@ -795,7 +811,7 @@
           ELSE
 
 ! MK89 version
-#ifdef ICE_BOX0
+#ifdef ICE_BOX
 !  F_t set to 2 W/m^2
             wio(i,j) = (qio(i,j) - 2.0_r8)/(rhosw*hfus1(i,j))
             xtot = ai(i,j,linew)*wio(i,j)                               &
@@ -846,15 +862,18 @@
               END IF
               stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
      &                          *fac_shflx                              &
-     &                   +(ai(i,j,linew)*qio(i,j)                       &
+     &                   +(ai(i,j,linew)*(qio(i,j)-SW_thru_ice(i,j))    &
      &                   -xtot*hfus1(i,j))*fac_sf
 #else
               stflx(i,j,itemp) = (1.0_r8-ai(i,j,linew))*qao_n(i,j)      &
-     &                   +ai(i,j,linew)*qio(i,j)                        &
+     &                   + ai(i,j,linew)*(qio(i,j)-SW_thru_ice(i,j))    &
      &                   -xtot*hfus1(i,j)
 #endif
-#if defined WET_DRY && defined CASPIAN
-          stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+              srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)              &
+     &            +ai(i,j,linew)*SW_thru_ice(i,j)*rhocpr
+#ifdef ICE_DIAGS
+              qio_n(i,j) = qio(i,j)
+              qi2_n(i,j) = qi2(i,j)
 #endif
             END IF
 
@@ -874,13 +893,13 @@
      &                     *fac_sf
 #else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
-     &          - (xtot-ai(i,j,linew)*wro(i,j))*(sice(i,j)-s0mk(i,j))
+     &         + (xtot-ai(i,j,linew)*wro(i,j))*(salt_top(i,j)-sice(i,j))
 #endif
 
 ! Test for case of rainfall on snow/ice and assume 100% drainage
 #ifndef NCEP_FLUXES
             IF (rain(i,j).gt.0._r8.AND.snow_n(i,j).EQ.0._r8) THEN
-              stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
+              stflx(i,j,isalt) = stflx(i,j,isalt) -                     &
      &                           ai(i,j,linew)*rain(i,j)*0.001_r8
             END IF
 #endif
@@ -893,6 +912,10 @@
 #ifdef WET_DRY
             stflx(i,j,isalt) = stflx(i,j,isalt)*rmask_wet(i,j)
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
+#endif
+#ifdef ICE_DIAGS
+            saltflux_ice(i,j) = (xtot-ai(i,j,linew)*wro(i,j))*        &
+     &                   (salt_top(i,j)-sice(i,j))
 #endif
 #ifdef ICESHELF
           ELSE
@@ -934,19 +957,25 @@
           hstar = hsn(i,j,linew) - (rhosw - rhoice(ng)) *               &
      &             hi(i,j,linew) / rhosnow_dry(ng)
           IF (hstar .gt. 0.0_r8) THEN
-            hsn(i,j,linew) = hsn(i,j,linew) - rhoice(ng)*hstar/rhosw
-            hi(i,j,linew) = hi(i,j,linew) + rhosnow_dry(ng)*hstar/rhosw
+#ifdef ICE_DIAGS
+            snoice(i,j) = hstar*sice_ref/dtice(ng)
+#endif
+            hsn(i,j,linew) = hsn(i,j,linew) - hstar*rhoice(ng)/rhosw
+            hi(i,j,linew) = hi(i,j,linew) + hstar*rhosnow_dry(ng)/rhosw
+! Add salt to ice (negative salt flux) ??
+            stflx(i,j,isalt) = stflx(i,j,isalt) -                       &
+     &                   hstar*sice_ref/dtice(ng)
           END IF
 # endif
 #endif
           IF (LnudgeAICLM(ng)) THEN
-            cff = AInudgcof(i,j)
+            cff = CLIMA(ng)%AInudgcof(i,j)
             ai(i,j,linew)=ai(i,j,linew)+                                &
-     &                    dtice(ng)*cff*(aiclm(i,j)-ai(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%aiclm(i,j)-ai(i,j,linew))
             hi(i,j,linew)=hi(i,j,linew)+                                &
-     &                    dtice(ng)*cff*(hiclm(i,j)-hi(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%hiclm(i,j)-hi(i,j,linew))
             hsn(i,j,linew)=hsn(i,j,linew)+                              &
-     &                    dtice(ng)*cff*(hsnclm(i,j)-hsn(i,j,linew))
+     &             dtice(ng)*cff*(CLIMA(ng)%hsnclm(i,j)-hsn(i,j,linew))
           END IF
 #ifdef MASKING
           ai(i,j,linew) = ai(i,j,linew)*rmask(i,j)

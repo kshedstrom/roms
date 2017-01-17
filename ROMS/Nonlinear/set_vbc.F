@@ -475,9 +475,9 @@
 #endif
 #      endif
           stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
-#      ifdef NO_SCORRECTION_ICE
+#     ifdef NO_SCORRECTION_ICE
      &                     fac_ice*                                     &
-#      endif
+#     endif
      &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 
 #       if defined SSSC_THRESHOLD
@@ -506,7 +506,7 @@
 #     endif
 #   elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
-#     if defined SSSC_THRESHOLD
+#       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))

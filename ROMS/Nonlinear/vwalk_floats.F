@@ -178,8 +178,8 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifakt, Nfloats(ng),       &
-     &                    isBw3d, w3dvar, Lmask, spval, nudg,           &
+     &                    Lstr, Lend, nfindx, ifakt, isBw3d,            &
+     &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -190,8 +190,8 @@
      &                    my_thread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifdak, Nfloats(ng),       &
-     &                    isBr3d, r3dvar, Lmask, spval, nudg,           &
+     &                    Lstr, Lend, nfindx, ifdak, isBr3d,            &
+     &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -271,8 +271,8 @@
 !  Interpolate vertical slopes using nudging velocity coefficients.
 !
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, izrhs, Nfloats(ng),       &
-     &                    isBw3d, -w3dvar, Lmask, spval, nudg,          &
+     &                    Lstr, Lend, nfindx, izrhs, isBw3d,            &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &

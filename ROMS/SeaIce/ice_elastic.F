@@ -29,7 +29,6 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-      USE mod_clima
 
       integer, intent(in) :: ng, tile
 !
@@ -73,10 +72,6 @@
 # ifdef FASTICE_CLIMATOLOGY
      &                      FORCES(ng) % fastice_clm,                   &
 # endif
-     &                      CLIMA(ng) % uiclm,                          &
-     &                      CLIMA(ng) % viclm,                          &
-     &                      CLIMA(ng) % MInudgcof,                      &
-     &                      CLIMA(ng) % AInudgcof,                      &
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
      &                      ICE(ng) % uwater,                           &
@@ -125,7 +120,6 @@
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
 # endif
-     &                        uiclm, viclm, MInudgcof, AInudgcof,       &
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
      &                        ai, hi,                                   &
@@ -145,6 +139,7 @@
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
+      USE mod_clima
 !
       implicit none
 
@@ -184,10 +179,6 @@
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
 # endif
-      real(r8), intent(in) :: uiclm(LBi:,LBj:)
-      real(r8), intent(in) :: viclm(LBi:,LBj:)
-      real(r8), intent(in) :: MInudgcof(LBi:,LBj:)
-      real(r8), intent(in) :: AInudgcof(LBi:,LBj:)
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
       real(r8), intent(in) :: uwater(LBi:,LBj:)
@@ -233,10 +224,6 @@
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
 # endif
-      real(r8), intent(in) :: uiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: viclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: MInudgcof(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: AInudgcof(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: uwater(LBi:UBi,LBj:UBj)
@@ -595,7 +582,7 @@
           IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
 ! Don't have landfast ice in nudging band
             IF (LnudgeAICLM(ng)) THEN
-              cff4 = AInudgcof(i,j)
+              cff4 = CLIMA(ng)%AInudgcof(i,j)
             ELSE
               cff4 = 0.0_r8
             END IF
@@ -614,9 +601,10 @@
      &                       dte(ng)*uforce)/alfa 
 !
           IF (LnudgeMICLM(ng)) THEN
-            cff2 = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
+            cff2 = 0.5*(CLIMA(ng)%MInudgcof(i,j)+                       &
+     &                     CLIMA(ng)%MInudgcof(i-1,j))
             uie(i,j,lienw)=uie(i,j,lienw)+                              &
-     &                    dte(ng)*cff2*(uiclm(i,j)-uie(i,j,lienw))
+     &               dte(ng)*cff2*(CLIMA(ng)%uiclm(i,j)-uie(i,j,lienw))
           END IF
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
@@ -819,11 +807,18 @@
 #ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
-            u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
-     &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
-            speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-            vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
-            alfa = alfa + vdrag
+            IF (LnudgeAICLM(ng)) THEN
+              cff4 = CLIMA(ng)%AInudgcof(i,j)
+            ELSE
+              cff4 = 0.0_r8
+            END IF
+            IF (cff4 == 0.0_r8) THEN
+              u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),               &
+     &                  uie(i-1,j,lieol), uie(i-1,j-1,lieol))
+              speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
+              vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+              alfa = alfa + vdrag
+            END IF
           END IF
 #endif
 
@@ -832,9 +827,10 @@
      &                       dte(ng)*vforce)/alfa 
 !
           IF (LnudgeMICLM(ng)) THEN
-            cff = 0.5*(MInudgcof(i,j)+MInudgcof(i,j-1))
+            cff = 0.5*(CLIMA(ng)%MInudgcof(i,j)+                        &
+     &                  CLIMA(ng)%MInudgcof(i,j-1))
             vie(i,j,lienw)=vie(i,j,lienw)+                              &
-     &                    dte(ng)*cff*(viclm(i,j)-vie(i,j,lienw))
+     &                 dte(ng)*cff*(CLIMA(ng)%viclm(i,j)-vie(i,j,lienw))
           END IF
 # ifdef ICE_SHOREFAST
           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +            &

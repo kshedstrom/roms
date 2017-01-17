@@ -26,10 +26,13 @@
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
 # if defined SHORTWAVE && defined ALBEDO_CURVE
-     &                     GRID(ng) % latr,                             &   
+     &                     GRID(ng) % latr,                             &
 # endif
 # ifdef ICE_MODEL
      &                     FORCES(ng) % albedo_ice,                     &
+# endif
+# ifdef ALBEDO_HACK
+     &                     GRID(ng) % mask_albedo,                      &
 # endif
      &                     FORCES(ng) % albedo)
 !
@@ -56,6 +59,9 @@
 # ifdef ICE_MODEL
      &                            albedo_ice,                           &
 # endif
+# ifdef ALBEDO_HACK
+     &                            mask_albedo,                          &
+# endif
      &                            albedo)
 !***********************************************************************
 !
@@ -81,6 +87,9 @@
       real(r8), intent(out) :: albedo_ice(LBi:,LBj:)
 #  endif
       real(r8), intent(out) :: albedo(LBi:,LBj:)
+#ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:,LBj:)
+#endif
 #else
 #  if defined SHORTWAVE && defined ALBEDO_CURVE
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
@@ -89,6 +98,9 @@
       real(r8), intent(out) :: albedo_ice(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: albedo(LBi:UBi,LBj:UBj)
+#ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:UBi,LBj:UBj)
+#endif
 #endif
 !
 !  Local variable declarations.
@@ -124,6 +136,9 @@
 # endif
 #else
           albedo(i,j)=alb_w
+#endif
+#ifdef ALBEDO_HACK
+          albedo(i,j) = max(albedo(i,j), 0.95*mask_albedo(i,j))
 #endif
         END DO
       END DO
