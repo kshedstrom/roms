@@ -527,8 +527,6 @@
 !
       integer :: i, itrc, j, k
 
-      real(r8), parameter :: eps = 1.0E-14_r8
-
       real(r8) :: cff, nu_sx, nu_sxc, shear2
 # ifdef M2TIDE_DIFF
       real(r8), parameter :: lmd_k0 = 5.0e-3_r8  ! m2 s-1
@@ -537,6 +535,9 @@
       real(r8), parameter :: lmd_drag = 2.4e-3_r8
       real(r8), parameter :: eps = 1.e-20_r8
       real(r8) :: lmd_kz, lmd_ri
+# else
+      real(r8), parameter :: eps = 1.0E-14_r8
+
 # endif
 
 # include "set_bounds.h"

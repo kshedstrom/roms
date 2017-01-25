@@ -2807,6 +2807,7 @@
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
         LdefMOD(ng)=.FALSE.
+        LdefQCK(ng)=.FALSE.
         LdefRST(ng)=.TRUE.
         LdefSTA(ng)=.TRUE.
         LdefTLM(ng)=.FALSE.
@@ -2828,6 +2829,7 @@
 # endif
         LwrtHIS(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
+        LwrtQCK(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.
         LwrtInfo(ng)=.TRUE.
