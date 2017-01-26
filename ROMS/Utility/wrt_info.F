@@ -49,7 +49,7 @@
 #endif
       USE mod_sources
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
 #ifdef STATIONS
@@ -898,6 +898,12 @@
 # if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
         CALL netcdf_put_ivar (ng, model, ncname, 'NpostI',              &
      &                        NpostI, (/0/), (/0/),                     &
+     &                        ncid = ncid)
+# endif
+# if defined IS4DVAR_SENSITIVITY || defined W4DPSAS_SENSITIVITY || \
+     defined W4DVAR_SENSITIVITY
+        CALL netcdf_put_ivar (ng, model, ncname, 'Nimpact',             &
+     &                        Nimpact, (/0/), (/0/),                    &
      &                        ncid = ncid)
 # endif
 # ifndef IS4DVAR_SENSITIVITY
@@ -2325,7 +2331,7 @@
       CALL netcdf_sync (ng, model, ncname, ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !

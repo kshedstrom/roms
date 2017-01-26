@@ -580,8 +580,7 @@
 ** NO_LBC_ATT          use to not check NLM_LBC global attribute on restart  **
 ** NO_READ_GHOST       use to not include ghost points during read/scatter   **
 ** NO_WRITE_GRID       use if not writing grid arrays                        **
-** PARALLEL_IN         use if parallel Input via HDF5 or pnetcdf libraries   **
-** PARALLEL_OUT        use if parallel Output via HDF5 or pnetcdf libraries  **
+** PARALLEL_IO         use if parallel I/O via HDF5 or pnetcdf libraries     **
 ** PERFECT_RESTART     use to include perfect restart variables              **
 ** PNETCDF             use if parallel I/O with pnetcdf (classic format)     **
 ** POSITIVE_ZERO       use to impose positive zero in ouput data             **

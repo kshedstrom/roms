@@ -70,7 +70,7 @@
       USE mod_strings
 !
       USE def_var_mod, ONLY : def_var
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
       USE strings_mod, ONLY : join_string
@@ -100,7 +100,7 @@
 
       integer :: biodim(2)
 #endif
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
       integer :: p2dgrd(2), tbrydim(2)
@@ -992,7 +992,7 @@
 #endif
       END IF
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       CALL mp_bcasti (ng, model, ibuffer)
@@ -2144,6 +2144,15 @@
 # if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
       Vinfo( 1)='NpostI'
       Vinfo( 2)='number of Lanczos iterations in posterior analysis'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+# if defined IS4DVAR_SENSITIVITY || defined W4DPSAS_SENSITIVITY || \
+     defined W4DVAR_SENSITIVITY
+      Vinfo( 1)='Nimpact'
+      Vinfo( 2)='Observations impact/sensitivity outer loop to use'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)

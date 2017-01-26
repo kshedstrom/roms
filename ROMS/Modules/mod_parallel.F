@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -245,26 +245,23 @@
 !
 !  Identify master, input and output threads.
 !
-#  ifdef PARALLEL_IN
-      InpThread=.TRUE.
-#  else
-      InpThread=.FALSE.
-      IF (MyRank.eq.MyMaster) THEN
-        InpThread=.TRUE.
-      END IF
-#  endif
-#  ifdef PARALLEL_OUT
-      OutThread=.TRUE.
-#  else
-      OutThread=.FALSE.
-      IF (MyRank.eq.MyMaster) THEN
-        OutThread=.TRUE.
-      END IF
-#  endif
+#  ifdef PARALLEL_IO
       Master=.FALSE.
+      InpThread=.TRUE.
+      OutThread=.TRUE.
       IF (MyRank.eq.MyMaster) THEN
         Master=.TRUE.
       END IF
+#  else
+      Master=.FALSE.
+      InpThread=.FALSE.
+      OutThread=.FALSE.
+      IF (MyRank.eq.MyMaster) THEN
+        Master=.TRUE.
+        InpThread=.TRUE.
+        OutThread=.TRUE.
+      END IF
+#  endif
 # endif
 #endif
 
