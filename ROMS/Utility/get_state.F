@@ -111,7 +111,7 @@
 #endif
       integer :: IDmod, InpRec, gtype, i, ifield, itrc, lstr, lend
       integer :: Nrec, mySize, ncINPid, nvatts, nvdim, status, varid
-      integer :: Vsize(4)
+      integer :: Vsize(4), start(4), total(4)
 
       real(r8), parameter :: Fscl = 1.0_r8
 
@@ -121,9 +121,8 @@
 
       character (len=6 ) :: string
       character (len=14) :: t_code
-      character (len=15) :: tvarnam
-!
-      SourceFile='get_state.F'
+      character (len=15) :: attnam,tvarnam
+      character (len=40) :: tunits
 
 #ifdef ADJUST_BOUNDARY
 !
@@ -203,6 +202,7 @@
       DO i=1,4
         Vsize(i)=0
       END DO
+      SourceFile='get_state.F'
 !
 !-----------------------------------------------------------------------
 !  Open input NetCDF file and check time variable.

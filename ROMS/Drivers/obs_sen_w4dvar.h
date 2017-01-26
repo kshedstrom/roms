@@ -547,9 +547,17 @@
 !
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  Run nonlinear model and compute basic state trajectory.
+      SourceFile='obs_sen_w4dpsas.h, ROMS_run'
+      DO ng=1,Ngrids
+        CALL netcdf_put_ivar (ng, iNLM, DAV(ng)%name, 'Nimpact',        &
+     &                        Nimpact, (/0/), (/0/),                    &
+     &                        ncid = DAV(ng)%ncid)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !
       DO ng=1,Ngrids
+        wrtObsScale(ng)=.TRUE.
         IF (Master) THEN
           WRITE (stdout,20) 'NL', ng, ntstart(ng), ntend(ng)
         END IF
@@ -566,6 +574,7 @@
 
       DO ng=1,Ngrids
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
       END DO
 !
 !  Set forward basic state NetCDF ID to nonlinear model trajectory to

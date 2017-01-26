@@ -506,6 +506,7 @@
           LwrtDIA(ng)=.TRUE.
           WRITE (DIA(ng)%name,10) TRIM(DIA(ng)%base), outer
 #endif
+          wrtObsScale(ng)=.TRUE.
           IF (Master) THEN
             WRITE (stdout,20) 'NL', ng, ntstart(ng), ntend(ng)
           END IF
@@ -530,6 +531,7 @@
           LwrtDIA(ng)=.FALSE.
 #endif
           wrtNLmod(ng)=.FALSE.
+          wrtObsScale(ng)=.FALSE.
           wrtTLmod(ng)=.TRUE.
         END DO
 

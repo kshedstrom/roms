@@ -75,6 +75,9 @@
       USE mod_parallel
       USE mod_fourdvar
       USE mod_iounits
+#ifdef SKIP_NLM
+      USE mod_ncparam
+#endif
       USE mod_netcdf
       USE mod_scalars
 
@@ -251,6 +254,20 @@
       END DO
 #endif
 !
+#ifdef SKIP_NLM
+!
+!-----------------------------------------------------------------------
+!  If skiping runing nonlinear model, read in observation screening and
+!  quality control flag.
+!-----------------------------------------------------------------------
+!
+      wrtObsScale(1:Ngrids)=.FALSE.
+      DO ng=1,Ngrids
+        CALL netcdf_get_fvar (ng, iTLM, LCZ(ng)%name, Vname(1,idObsS),  &
+     &                        ObsScale)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+#endif
 !-----------------------------------------------------------------------
 !  Read in standard deviation factors for error covariance.
 !-----------------------------------------------------------------------
@@ -425,7 +442,7 @@
       DO ng=1,Ngrids
         LdefHIS(ng)=.TRUE.
         LwrtHIS(ng)=.TRUE.
-        WRITE (HIS(ng)%name,10) TRIM(FWD(ng)%base), outer
+        WRITE (HIS(ng)%name,10) TRIM(FWD(ng)%base), Nimpact-1
       END DO
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
@@ -543,6 +560,15 @@
         CALL def_mod (ng)
         IF (exit_flag.ne.NoError) RETURN
       END DO
+      SourceFile='obs_sen_w4dpsas.h, ROMS_run'
+      DO ng=1,Ngrids
+        CALL netcdf_put_ivar (ng, iNLM, DAV(ng)%name, 'Nimpact',        &
+     &                        Nimpact, (/0/), (/0/),                    &
+     &                        ncid = DAV(ng)%ncid)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+
+#ifndef SKIP_NLM
 !
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  Run nonlinear model and compute background state trajectory, X_n-1(t)
@@ -550,6 +576,7 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !
       DO ng=1,Ngrids
+        wrtObsScale(ng)=.TRUE.
         SporadicImpulse(ng)=.FALSE.
         FrequentImpulse(ng)=.FALSE.
         IF (Master) THEN
@@ -568,6 +595,7 @@
 
       DO ng=1,Ngrids
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
       END DO
 !
 !  Report data penalty function.
@@ -604,6 +632,7 @@
         FOURDVAR(ng)%NLPenalty=0.0_r8
       END DO
 !
+#endif /* !SKIP_NLM */
 !  Set forward basic state NetCDF ID to nonlinear model trajectory to
 !  avoid the inquiring stage.
 !
@@ -650,7 +679,7 @@
 !  If the required vectors and arrays from congrad from a previous run
 !  of the assimilation cycle are not available, rerun the 4D-Var cycle.
 !
-      OUTER_LOOP : DO my_outer=1,1
+      OUTER_LOOP : DO my_outer=1,Nouter
         outer=my_outer
         inner=0
 !
@@ -1143,8 +1172,13 @@
 !  Reset the start and end times for the adjoint forcing.
 !
       DO ng=1,Ngrids
+#ifdef SKIP_NLM
+        str_day=tdays(ng)+ntimes(ng)*dt(ng)*sec2day
+        end_day=tdays(ng)
+#else
         str_day=tdays(ng)
         end_day=str_day-ntimes(ng)*dt(ng)*sec2day
+#endif
         IF ((DstrS(ng).eq.0.0_r8).and.(DendS(ng).eq.0.0_r8)) THEN
           DstrS(ng)=end_day
           DendS(ng)=str_day
@@ -1159,7 +1193,7 @@
 !  derivative of each model operator (i.e. the tangent linear
 !  of the tangent linear operator).
 !
-      AD_OUTER_LOOP : DO my_outer=1,1,-1
+      AD_OUTER_LOOP : DO my_outer=Nimpact,Nimpact
         outer=my_outer
         inner=0
 !
@@ -1173,7 +1207,7 @@
         DO ng=1,Ngrids
           WRITE (FWD(ng)%name,10) TRIM(FWD(ng)%base), outer-1
         END DO
-        IF ((outer.eq.1).and.Master) THEN
+        IF (Master) THEN
           WRITE (stdout,50)
         END IF
 !
@@ -1347,7 +1381,11 @@
 !  Compute observation impact to the data assimilation system.
 !
         DO ng=1,Ngrids
+# ifdef RPCG
+          CALL rep_matrix (ng, iTLM, outer, Ninner-1)
+# else
           CALL rep_matrix (ng, iTLM, outer, Ninner)
+# endif
         END DO
 #else
 !
@@ -1554,7 +1592,6 @@
 !
 !  Write out total observation impact.
 !
-        IF (outer.eq.1) THEN
           SourceFile='obs_sen_w4dpsas.h, ROMS_run'
           DO ng=1,Ngrids
             CALL netcdf_put_fvar (ng, iNLM, DAV(ng)%name,               &
@@ -1566,12 +1603,10 @@
             CALL netcdf_sync (ng, iNLM, DAV(ng)%name, DAV(ng)%ncid)
             IF (exit_flag.ne.NoError) RETURN
           END DO
-        END IF
 #else
 !
 !  Write out observation sensitivity.
 !
-        IF (outer.eq.1) THEN
           SourceFile='obs_sen_w4dvar.h, ROMS_run'
           DO ng=1,Ngrids
             CALL netcdf_put_fvar (ng, iTLM, DAV(ng)%name,               &
@@ -1583,7 +1618,6 @@
             CALL netcdf_sync (ng, iNLM, DAV(ng)%name, DAV(ng)%ncid)
             IF (exit_flag.ne.NoError) RETURN
           END DO
-        END IF
 #endif
 !
 !  Close tangent linear NetCDF file.
@@ -1690,12 +1724,15 @@
 !  Compute observation impact to the data assimilation system.
 !
         DO ng=1,Ngrids
+# ifdef RPCG
+          CALL rep_matrix (ng, iTLM, outer, Ninner-1)
+# else
           CALL rep_matrix (ng, iTLM, outer, Ninner)
+# endif
         END DO
 !
 !  Write out observation sentivity.
 !
-        IF (outer.eq.1) THEN
           SourceFile='obs_sen_w4dvar.h, ROMS_run'
           DO ng=1,Ngrids
             CALL netcdf_put_fvar (ng, iTLM, DAV(ng)%name,               &
@@ -1707,7 +1744,6 @@
             CALL netcdf_sync (ng, iNLM, DAV(ng)%name, DAV(ng)%ncid)
             IF (exit_flag.ne.NoError) RETURN
           END DO
-        END IF
 
 # if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
 !
@@ -1805,12 +1841,15 @@
 !  Compute observation impact to the data assimilation system.
 !
         DO ng=1,Ngrids
+# ifdef RPCG
+          CALL rep_matrix (ng, iTLM, outer, Ninner-1)
+# else
           CALL rep_matrix (ng, iTLM, outer, Ninner)
+# endif
         END DO
 !
 !  Write out observation sentivity.
 !
-        IF (outer.eq.1) THEN
           SourceFile='obs_sen_w4dvar.h, ROMS_run'
           DO ng=1,Ngrids
             CALL netcdf_put_fvar (ng, iTLM, DAV(ng)%name,               &
@@ -1822,7 +1861,6 @@
             CALL netcdf_sync (ng, iNLM, DAV(ng)%name, DAV(ng)%ncid)
             IF (exit_flag.ne.NoError) RETURN
           END DO
-        END IF
 # endif
 
 # if defined ADJUST_BOUNDARY
@@ -1919,12 +1957,15 @@
 !  Compute observation impact to the data assimilation system.
 !
         DO ng=1,Ngrids
+# ifdef RPCG
+          CALL rep_matrix (ng, iTLM, outer, Ninner-1)
+# else
           CALL rep_matrix (ng, iTLM, outer, Ninner)
+# endif
         END DO
 !
 !  Write out observation sentivity.
 !
-        IF (outer.eq.1) THEN
           SourceFile='obs_sen_w4dvar.h, ROMS_run'
           DO ng=1,Ngrids
             CALL netcdf_put_fvar (ng, iTLM, DAV(ng)%name,               &
@@ -1936,7 +1977,6 @@
             CALL netcdf_sync (ng, iNLM, DAV(ng)%name, DAV(ng)%ncid)
             IF (exit_flag.ne.NoError) RETURN
           END DO
-        END IF
 # endif
 #endif /* OBS_IMPACT_SPLIT */
 !

@@ -68,10 +68,10 @@
       logical :: Linquire, Liocycle, Lmulti, Lonerec
 
       integer :: Nrec, Tid, Tindex, Trec, Vid, Vtype
-      integer :: i, ic, j, job, lend, lstr, npts
+      integer :: i, ic, j, job, lend, lstr, npts, status
 
-      real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta
-      real(r8) :: Tmax, Tmin, Tmono, Tscale
+      real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta, Tend
+      real(r8) :: Tmax, Tmin, Tmono, Tscale, Tstr
       real(r8) :: Tval
 
       real(r8), dimension((UBi-LBi+1)*UBj) :: A
@@ -257,6 +257,14 @@
         END IF
       END IF
 !
+  10  FORMAT (/,' GET_NGFLD   - unable to find dimension ',a,           &
+     &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
+     &        /,15x,'file is not CF compliant...')
+  20  FORMAT (/,' GET_NGFLD   - too small dimension for variable ',a,   &
+     &        ': ',2i5)
+  30  FORMAT (/,' GET_NGFLD   - unable to find requested variable: ',a, &
+     &       /,15x,'in file: ',a)
+  40  FORMAT (/,' GET_NGFLD   - unable to open input NetCDF file: ',a)
   50  FORMAT (/,' GET_NGFLD   - error while reading variable: ',a,2x,   &
      &          ' at TIME index = ',i7)
   60  FORMAT (3x,' GET_NGFLD   - ',a,/,19x,'(Min = ',1pe15.8,' Max = ', &

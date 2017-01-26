@@ -209,7 +209,6 @@
 !  needed for processing the nonlinear state solution at observation
 !  locations.
 !
-      CALL obs_initial (ng, iRPM, .FALSE.)
 !$OMP END MASTER
 !$OMP BARRIER
 # endif
@@ -487,6 +486,23 @@
         END DO
 !$OMP BARRIER
       END IF
+# endif
+
+# ifdef OBSERVATIONS
+!
+!-----------------------------------------------------------------------
+!  Open observations NetCDF file and initialize various variables
+!  needed for processing the tangent linear state solution at
+!  observation locations. Need to be done after processing initial
+!  conditions since the correct initial time is needed to determine
+!  the first "ObsTime" to process.
+!-----------------------------------------------------------------------
+!
+!$OMP MASTER
+      CALL obs_initial (ng, iRPM, .FALSE.)
+!$OMP MASTER
+!$OMP BARRIER
+      IF (exit_flag.ne.NoError) RETURN
 # endif
 
 # if defined ANA_PERTURB && defined SANITY_CHECK

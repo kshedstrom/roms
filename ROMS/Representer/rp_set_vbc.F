@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -372,7 +372,7 @@
         DO i=IstrR,IendR
 #  if defined SCORRECTION
 !>        stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-!>   &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
+!>   &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
 #   ifdef TL_IOMS
@@ -397,7 +397,7 @@
      &                         tl_t(i,j,N(ng),nrhs,isalt))
 #   endif
 #  elif defined SRELAXATION
-!>        stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
+!>        stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
 #   ifdef TL_IOMS

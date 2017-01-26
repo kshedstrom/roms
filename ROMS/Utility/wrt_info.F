@@ -2340,6 +2340,8 @@
      &        12x,'into file: ',a)
   20  FORMAT (/,' WRT_INFO - error while inquiring ID for variable: ',  &
      &        a,/,12x,'in file: ',a)
+  30  FORMAT (/,' WRT_INFO - unable to synchronize to disk file: ',     &
+     &        /,12x,a)
 
       RETURN
       END SUBROUTINE wrt_info

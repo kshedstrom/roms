@@ -266,22 +266,6 @@
 !$OMP END MASTER
 !$OMP BARRIER
 #endif
-#ifdef OBSERVATIONS
-!
-!-----------------------------------------------------------------------
-!  Open observations NetCDF file and initialize various variables
-!  needed for processing the nonlinear state solution at observation
-!  locations.
-!-----------------------------------------------------------------------
-!
-      DO ng=1,Ngrids
-!$OMP MASTER
-        CALL obs_initial (ng, iNLM, .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
-!$OMP END MASTER
-      END DO
-!$OMP BARRIER
-#endif
 !
 !=======================================================================
 !  On first pass of ensemble/perturbation/iteration loop, initialize
@@ -636,6 +620,24 @@
       END DO
 #endif
 
+#ifdef OBSERVATIONS
+!
+!-----------------------------------------------------------------------
+!  Open observations NetCDF file and initialize various variables
+!  needed for processing the nonlinear state solution at observation
+!  locations. Need to be done after processing initial conditions since
+!  the correct initial time is needed to determine the first "ObsTime"
+!  to process.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+!$OMP MASTER
+        CALL obs_initial (ng, iNLM, .FALSE.)
+!$OMP END MASTER
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+!$OMP BARRIER
+#endif
 #if (defined W4DPSAS || defined TL_W4DPSAS || \
      defined W4DPSAS_SENSITIVITY)          && \
     (defined ADJUST_BOUNDARY || defined ADJUST_WSTRESS ||\

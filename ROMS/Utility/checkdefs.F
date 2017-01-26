@@ -1584,7 +1584,7 @@
 #endif
 #ifdef NPZD_IRON
       IF (Master) WRITE (stdout,20) 'NPZD_IRON',                        &
-     &   'NPZD Biological Model (Powell et al.) with iron limitation'
+     &   'NPZD Biological Model (Powell et al.) with iron limitation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' NPZD_IRON,'
       ibiology=ibiology+1
@@ -2054,6 +2054,26 @@
       Coptions(is:is+11)=' SG_LOGINT,'
 # endif
 #endif
+#if defined SKIP_NLM && defined SENSITIVITY_4DVAR
+!
+      IF (Master) WRITE (stdout,20) 'SKIP_NLM',                         &
+     &   'Skipping running NLM, reading NLM state trajectory.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' SKIP_NLM,'
+#endif
+#ifdef SRELAXATION
+!
+      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
+     &   'Surface salinity relaxation as surface flux.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' SRELAXATION,'
+#endif
+#if defined SSSC_THRESHOLD
+      IF (Master) WRITE (stdout,20) 'SSSC_THRESHOLD',                   &
+     &   'Limit to SCORRECTION nudging.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' SSSC_THRESHOLD,'
+#endif
 #ifdef SNOWFALL
       IF (Master) WRITE (stdout,20) 'SNOWFALL',                         &
      &   'Surface snow accumulation on ice.'
@@ -2129,24 +2149,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SPHERICAL,'
 #endif
-#ifdef SRELAXATION
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' SRELAXATION,'
-#endif
 #if defined SSH_TIDES
       IF (Master) WRITE (stdout,20) 'SSH_TIDES',                        &
      &   'Add tidal elevation to SSH climatology.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SSH_TIDES,'
 #endif
-#if defined SSSC_THRESHOLD
-      IF (Master) WRITE (stdout,20) 'SSSC_THRESHOLD',                   &
-     &   'Limit to SCORRECTION nudging.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+16)=' SSSC_THRESHOLD,'
-#endif
+
 #ifdef SSW_BBL
        IF (Master) WRITE (stdout,20) 'SSW_BBL',                         &
      &   'Styles and Glenn Bottom Boundary Layer - modified.'

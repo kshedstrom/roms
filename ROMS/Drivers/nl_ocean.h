@@ -209,6 +209,7 @@
         DO ng=1,Ngrids
           LdefMOD(ng)=.TRUE.
           wrtNLmod(ng)=.TRUE.
+          wrtObsScale(ng)=.TRUE.
           CALL def_mod (ng)
           IF (exit_flag.ne.NoError) RETURN
         END DO

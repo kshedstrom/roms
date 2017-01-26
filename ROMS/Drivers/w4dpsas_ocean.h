@@ -584,6 +584,7 @@
         WRITE (DIA(ng)%name,10) TRIM(DIA(ng)%base), outer
 #endif
         wrtMisfit(ng)=.TRUE.
+        wrtObsScale(ng)=.TRUE.
         SporadicImpulse(ng)=.FALSE.
         FrequentImpulse(ng)=.FALSE.
         IF (Master) THEN
@@ -610,6 +611,7 @@
         LwrtDIA(ng)=.FALSE.
 #endif
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
       END DO
 !
 !  Report data penalty function.

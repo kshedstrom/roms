@@ -302,6 +302,20 @@
         IF (exit_flag.ne. NoError) RETURN
       END DO
 !
+#ifdef SKIP_NLM
+!
+!-----------------------------------------------------------------------
+!  If skiping runing nonlinear model, read in observation screening and
+!  quality control flag.
+!-----------------------------------------------------------------------
+!
+      wrtObsScale(1:Ngrids)=.FALSE.
+      DO ng=1,Ngrids
+        CALL netcdf_get_fvar (ng, iTLM, LCZ(ng)%name, Vname(1,idObsS),  &
+     &                        ObsScale)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+#endif
 !-----------------------------------------------------------------------
 !  Read in standard deviation factors for error covariance.
 !-----------------------------------------------------------------------
@@ -472,6 +486,7 @@
         END DO
       END IF
 #endif
+#ifndef SKIP_NLM
 !
 !  Run nonlinear model for the combined assimilation plus forecast
 !  period, t=t0 to t2. Save nonlinear (basic state) tracjectory, xb(t),
@@ -491,6 +506,7 @@
 #endif
 !$OMP END PARALLEL
       IF (exit_flag.ne.NoError) RETURN
+#endif
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
@@ -707,6 +723,16 @@
 #ifdef OBS_IMPACT_SPLIT
         wrtIMPACT_IC(ng)=.FALSE.
 #endif
+      END DO
+!
+!  Write out outer loop beeing processed.
+!
+      SourceFile='obs_sen_w4dpsas.h, ROMS_run'
+      DO ng=1,Ngrids
+        CALL netcdf_put_ivar (ng, iNLM, DAV(ng)%name, 'Nimpact',        &
+     &                        Nimpact, (/0/), (/0/),                    &
+     &                        ncid = DAV(ng)%ncid)
+        IF (exit_flag.ne.NoError) RETURN
       END DO
 !
 !  Run tangent linear model for the assimilation period, t=t0 to t1.

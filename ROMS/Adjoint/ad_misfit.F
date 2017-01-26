@@ -159,19 +159,17 @@
 # endif
 !-----------------------------------------------------------------------
 !
-      IF (ProcessObs(ng)) THEN
-# ifndef BGQC
 !
 !  Set observation scale (ObsScale). The scale factor is used for
 !  screenning  or normalization of the observations. If only screening,
 !  the scale is one for good observations and zero for bad observations.
 !  If normalizing, the scale is terms of screenning and some specified
+      IF (ProcessObs(ng)) THEN
 !  norm. In incremental 4DVAR only screenning is carried out.
 !
         DO iobs=1,Mobs
-          ObsScale(iobs)=IniVal
+          ObsVetting(iobs)=IniVal
         END DO
-# endif
 !
 !  Compute adjoint forcing terms at observation locations.
 !
@@ -206,7 +204,7 @@
      &                           rXmin(ng), rXmax(ng),                  &
      &                           rYmin(ng), rYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           ad_zeta(:,:,kfrc),                     &
 # ifdef MASKING
@@ -225,7 +223,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           ad_ubar(:,:,kfrc),                     &
 # ifdef MASKING
@@ -244,7 +242,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           ad_vbar(:,:,kfrc),                     &
 # ifdef MASKING
@@ -272,7 +270,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           ad_u(:,:,:,nfrc),                      &
      &                           z_v,                                   &
@@ -300,7 +298,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           ad_v(:,:,:,nfrc),                      &
      &                           z_v,                                   &
@@ -321,7 +319,7 @@
      &                             rXmin(ng), rXmax(ng),                &
      &                             rYmin(ng), rYmax(ng),                &
      &                             time(ng), dt(ng),                    &
-     &                             ObsType, ObsScale,                   &
+     &                             ObsType, ObsVetting,                 &
      &                             Tobs, Xobs, Yobs, Zobs,              &
      &                             ad_t(:,:,:,nfrc,itrc),               &
      &                             z_r,                                 &
@@ -332,13 +330,13 @@
           END IF
         END DO
 # endif
-# if defined DISTRIBUTE && !defined BGQC
+# ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
 !  Collect all observations scaling factors.
 !-----------------------------------------------------------------------
 !
-        CALL mp_collect (ng, model, Mobs, IniVal, ObsScale)
+        CALL mp_collect (ng, model, Mobs, IniVal, ObsVetting)
 # endif
 !
 !-----------------------------------------------------------------------

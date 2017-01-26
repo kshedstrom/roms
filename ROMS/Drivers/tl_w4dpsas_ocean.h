@@ -477,6 +477,7 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !
       DO ng=1,Ngrids
+        wrtObsScale(ng)=.TRUE.
         SporadicImpulse(ng)=.FALSE.
         FrequentImpulse(ng)=.FALSE.
         IF (Master) THEN
@@ -495,6 +496,7 @@
 
       DO ng=1,Ngrids
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
       END DO
 !
 !  Report data penalty function.

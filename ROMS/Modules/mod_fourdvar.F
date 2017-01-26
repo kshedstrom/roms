@@ -186,6 +186,7 @@
 
         real(r8), allocatable :: ObsErr(:)
         real(r8), allocatable :: ObsScale(:)
+        real(r8), allocatable :: ObsVetting(:)
         real(r8), allocatable :: ObsVal(:)
         real(r8), allocatable :: Tobs(:)
         real(r8), allocatable :: Xobs(:)
@@ -203,8 +204,8 @@
        defined CLIPPING
         real(r8), allocatable :: TLmodVal_S(:,:,:)
 #   endif
-#   if defined TL_W4DPSAS           || defined W4DPSAS    || \
-       defined W4DPSAS_SENSITIVITY
+#   if defined ARRAY_MODES || defined TL_W4DPSAS          || \
+       defined W4DPSAS     || defined W4DPSAS_SENSITIVITY
 
         real(r8), allocatable :: BCKmodVal(:)
         real(r8), allocatable :: Hbk(:,:)
@@ -338,6 +339,7 @@
 !  eigenvector Nvct:Ninner to will be processed, others will be
 !  disgarded).
 !
+        integer :: Nimpact
         integer :: Nvct
 !
 !  Optimal, normalized cost funtion minimum.  If the statistical
@@ -357,6 +359,7 @@
 !  observations locations into observations NetCDF file.
 !
         logical, allocatable :: wrtNLmod(:)
+        logical, allocatable :: wrtObsScale(:)
 !
 !  Switch to activate writting of representer model values at
 !  observations locations into observations NetCDF file.
@@ -776,6 +779,7 @@
       allocate ( ProcessObs(Ngrids) )
 
       allocate ( wrtNLmod(Ngrids) )
+      allocate ( wrtObsScale(Ngrids) )
       allocate ( wrtRPmod(Ngrids) )
       allocate ( wrtTLmod(Ngrids) )
       allocate ( wrtMisfit(Ngrids) )
@@ -1087,6 +1091,9 @@
 
       allocate ( ObsScale(Mobs) )
       ObsScale = IniVal
+
+      allocate ( ObsVetting(Mobs) )
+      ObsVetting = IniVal
 
       allocate ( ObsVal(Mobs) )
       ObsVal = IniVal
@@ -1481,6 +1488,7 @@
         wrote_Zobs(ng)=.FALSE.
         wrtMisfit(ng)=.FALSE.
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
         wrtRPmod(ng)=.FALSE.
         wrtTLmod(ng)=.FALSE.
 # ifdef BALANCE_OPERATOR

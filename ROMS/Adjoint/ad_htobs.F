@@ -175,6 +175,9 @@
         Mstr=NstrObs(ng)
         Mend=NendObs(ng)
 
+        DO iobs=Mstr,Mend
+          ObsVetting(iobs)=IniVal
+        END DO
 # ifdef BGQC
 !
 !  Reject observation that fail background quality control check.
@@ -199,7 +202,7 @@
      &                           rXmin(ng), rXmax(ng),                  &
      &                           rYmin(ng), rYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_zeta,                                &
 # ifdef MASKING
@@ -230,7 +233,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_ubar,                                &
 # ifdef MASKING
@@ -261,7 +264,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_vbar,                                &
 # ifdef MASKING
@@ -303,7 +306,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_u, z_v,                              &
 #  ifdef MASKING
@@ -344,7 +347,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_v, z_v,                              &
 #  ifdef MASKING
@@ -378,7 +381,7 @@
      &                             rXmin(ng), rXmax(ng),                &
      &                             rYmin(ng), rYmax(ng),                &
      &                             time(ng), dt(ng),                    &
-     &                             ObsType, ObsScale,                   &
+     &                             ObsType, ObsVetting,                 &
      &                             Tobs, Xobs, Yobs, Zobs,              &
      &                             f_t(:,:,:,itrc), z_r,                &
 #  ifdef MASKING
@@ -396,7 +399,7 @@
           END IF
         END DO
 # endif
-# if defined DISTRIBUTE && !defined BGQC
+# ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
 !  Collect all observations scaling factors.
@@ -404,7 +407,7 @@
 !
         Ncollect=Mend-Mstr+1
         CALL mp_collect (ng, model, Ncollect, IniVal,                   &
-     &                   ObsScale(Mstr:))
+     &                   ObsVetting(Mstr:))
 # endif
 !
 !-----------------------------------------------------------------------
