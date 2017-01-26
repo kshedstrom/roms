@@ -65,7 +65,7 @@
 !                                                                      !
 !=======================================================================
 !
-      USE mod_scalars
+      USE mod_scalars, only: LdefPRED
       USE mod_biology
       USE mod_fish
       USE mod_floats

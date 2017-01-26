@@ -979,7 +979,7 @@
         Vinfo(16)=Vname(1,idtime)
 # ifndef NO_4BYTE_REALS
         Vinfo(24)='_FillValue'
-        Aval(6)=spval
+        Aval(6)=0
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdeath),  &
      &                 nf90_int, 2, fgrd, Aval, Vinfo, ncname)

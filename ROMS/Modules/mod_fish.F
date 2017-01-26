@@ -165,7 +165,7 @@
 !                                                                      !
 !=======================================================================
 !
-      USE mod_scalars
+      USE mod_scalars, only: LdefFISH
       USE mod_biology
       USE mod_floats
 !
