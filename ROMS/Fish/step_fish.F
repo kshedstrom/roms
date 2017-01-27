@@ -215,6 +215,8 @@
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k, isp
       integer :: NptsF, NptsL, NptsM, NptsI
 
+      integer :: ct
+
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
       logical, parameter :: lFspv = .false.
@@ -1246,12 +1248,54 @@
 !  Collect fish on all nodes.
 !-----------------------------------------------------------------------
 !
-      Fwrk=RESHAPE(track,(/Npts/))
+
+      !Fwrk=RESHAPE(track,(/Npts/))
+      !CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
+      !track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=0,NFT
+          DO i=1,NFV(ng)
+               Fwrk(ct) = track(i,j,l)
+               ct=ct+1
+          ENDDO
+        ENDDO
+      ENDDO
+
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Nfish(ng)/))
-      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=0,NFT
+          DO i=1,NFV(ng)
+               track(i,j,l) = Fwrk(ct)
+               ct=ct+1
+          ENDDO
+        ENDDO
+      ENDDO
+
+      !FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      !CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      !bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=1,NFishV(ng)
+            FwrkF(ct) = bioenergy(j,l)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
-      bioenergy=RESHAPE(FwrkF,(/NFishV(ng),Nfish(ng)/))
+
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=1,NFishV(ng)
+            bioenergy(j,l) = FwrkF(ct)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, egg_dur)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, egg_num)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, ysac_dur)
@@ -1266,9 +1310,31 @@
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortP)
       CALL mp_collect (ng, iNLM, Nfish(ng), Fspv, fmortPsum)
       CALL mp_collect_i (ng, iNLM, Nfish(ng), iFspv, lifestage)
-      FwrkI=RESHAPE(swimtype,(/NptsI/))
+
+      !FwrkI=RESHAPE(swimtype,(/NptsI/))
+      !CALL mp_collect_i (ng, iNLM, NptsI, iFspv, FwrkI)
+      !swimtype=RESHAPE(FwrkI,(/2,Nfish(ng)/))
+
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=1,2
+            FwrkI(ct) = swimtype(j,l)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
       CALL mp_collect_i (ng, iNLM, NptsI, iFspv, FwrkI)
-      swimtype=RESHAPE(FwrkI,(/2,Nfish(ng)/))
+
+      ct=1
+      DO l=1,Nfish(ng)
+        DO j=1,2
+            swimtype(j,l) = FwrkI(ct)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
+      CALL mp_collect_i (ng, iNLM, NptsI, iFspv,swimtype)
+
       CALL mp_collect_i (ng, iNLM, Nfish(ng), iFspv, deathby)
       CALL mp_collect_i (ng, iNLM, Nfish(ng), iFspv, cellid)
       CALL mp_collect_l (ng, iNLM, Nfish(ng), alive)
