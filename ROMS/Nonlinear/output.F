@@ -188,6 +188,8 @@
 !  append new data to it.  Also,  notice that it is possible to
 !  create several files during a single model run.
 !
+      LwrtQCK(ng)=.FALSE.
+
       IF (LdefQCK(ng)) THEN
         IF (ndefQCK(ng).gt.0) THEN
           IF (idefQCK(ng).lt.0) THEN
