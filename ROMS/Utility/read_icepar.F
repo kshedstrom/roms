@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -177,6 +177,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idTimid,:))
+            CASE ('Hout(idT2ice)')
+              IF (idT2ice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT2ice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idT2ice,:))
             CASE ('Hout(idTauiw)')
               IF (idTauiw.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idTauiw'
@@ -298,6 +305,127 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idWdiv,:))
+#ifdef ICE_DIAGS
+            CASE ('Hout(idAlbe)')
+              IF (idAlbe.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAlbe'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idAlbe,:))
+            CASE ('Hout(idAlbI)')
+              IF (idAlbI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAlbI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idAlbI,:))
+            CASE ('Hout(idLWdn)')
+              IF (idLWdn.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLWdn'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idLWdn,:))
+            CASE ('Hout(idSWdn)')
+              IF (idSWdn.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWdn'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSWdn,:))
+            CASE ('Hout(idLatI)')
+              IF (idLatI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLatI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idLatI,:))
+            CASE ('Hout(idSenI)')
+              IF (idSenI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSenI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSenI,:))
+            CASE ('Hout(idLWupI)')
+              IF (idLWupI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLWupI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idLWupI,:))
+            CASE ('Hout(idSWupI)')
+              IF (idSWupI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWupI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSWupI,:))
+            CASE ('Hout(idSWinI)')
+              IF (idSWinI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWinI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSWinI,:))
+            CASE ('Hout(idSWthruI)')
+              IF (idSWthruI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWthruI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSWthruI,:))
+            CASE ('Hout(idSaltI)')
+              IF (idSaltI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSaltI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSaltI,:))
+            CASE ('Hout(idSaltL)')
+              IF (idSaltL.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSaltL'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSaltL,:))
+            CASE ('Hout(idQao)')
+              IF (idQao.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQao'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idQao,:))
+            CASE ('Hout(idQai)')
+              IF (idQai.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQai'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idQai,:))
+            CASE ('Hout(idQio)')
+              IF (idQio.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQio'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idQio,:))
+            CASE ('Hout(idQi2)')
+              IF (idQi2.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQi2'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idQi2,:))
+            CASE ('Hout(idSnoI)')
+              IF (idSnoI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSnoI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idSnoI,:))
+#endif
 #ifdef AVERAGES
             CASE ('Aout(idUice)')
               IF (idUice.eq.0) THEN
@@ -362,6 +490,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
+            CASE ('Aout(idT2ice)')
+              IF (idT2ice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT2ice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idT2ice,:))
             CASE ('Aout(idTauiw)')
               IF (idTauiw.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idTauiw'
@@ -483,6 +618,127 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idWdiv,:))
+# ifdef ICE_DIAGS
+            CASE ('Aout(idAlbe)')
+              IF (idAlbe.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAlbe'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idAlbe,:))
+            CASE ('Aout(idAlbI)')
+              IF (idAlbI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idAlbI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idAlbI,:))
+            CASE ('Aout(idLWdn)')
+              IF (idLWdn.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLWdn'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idLWdn,:))
+            CASE ('Aout(idSWdn)')
+              IF (idSWdn.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWdn'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSWdn,:))
+            CASE ('Aout(idLatI)')
+              IF (idLatI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLatI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idLatI,:))
+            CASE ('Aout(idSenI)')
+              IF (idSenI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSenI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSenI,:))
+            CASE ('Aout(idLWupI)')
+              IF (idLWupI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idLWupI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idLWupI,:))
+            CASE ('Aout(idSWupI)')
+              IF (idSWupI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWupI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSWupI,:))
+            CASE ('Aout(idSWinI)')
+              IF (idSWinI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWinI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSWinI,:))
+            CASE ('Aout(idSWthruI)')
+              IF (idSWthruI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSWthruI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSWthruI,:))
+            CASE ('Aout(idSaltI)')
+              IF (idSaltI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSaltI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSaltI,:))
+            CASE ('Aout(idSaltL)')
+              IF (idSaltL.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSaltL'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSaltL,:))
+            CASE ('Aout(idQao)')
+              IF (idQao.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQao'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idQao,:))
+            CASE ('Aout(idQai)')
+              IF (idQai.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQai'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idQai,:))
+            CASE ('Aout(idQio)')
+              IF (idQio.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQio'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idQio,:))
+            CASE ('Aout(idQi2)')
+              IF (idQi2.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQi2'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idQi2,:))
+            CASE ('Aout(idSnoI)')
+              IF (idSnoI.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idSnoI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idSnoI,:))
+# endif
 #endif
 #ifdef AVERAGES2
             CASE ('Aout2(idUice)')
@@ -503,6 +759,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTice,:))
             CASE ('Aout2(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTimid,:))
+            CASE ('Aout2(idT2ice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idT2ice,:))
             CASE ('Aout2(idTauiw)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTauiw,:))
             CASE ('Aout2(idChuiw)')
@@ -546,6 +804,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTice,:))
             CASE ('Qout(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTimid,:))
+            CASE ('Qout(idT2ice)')
+              Npts=load_l(Nval, Cval, Ngrids, Qout(idT2ice,:))
             CASE ('Qout(idTauiw)')
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTauiw,:))
             CASE ('Qout(idChuiw)')
@@ -668,6 +928,9 @@
           IF (Hout(idTimid,ng)) WRITE (out,70) Hout(idTimid,ng),        &
      &       'Hout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
+          IF (Hout(idT2ice,ng)) WRITE (out,70) Hout(idT2ice,ng),        &
+     &       'Hout(idT2ice)',                                           &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Hout(idApond,ng)) WRITE (out,70) Hout(idApond,ng),        &
      &       'Hout(idApond)',                                           &
@@ -721,6 +984,59 @@
           IF (Hout(idWdiv,ng)) WRITE (out,70) Hout(idWdiv,ng),          &
      &       'Hout(idWdiv)',                                            &
      &       'Write out ice divergence rate.'
+#ifdef ICE_DIAGS
+          IF (Hout(idAlbe,ng)) WRITE (out,70) Hout(idAlbe,ng),          &
+     &       'Hout(idAlbe)',                                            &
+     &       'Write out ocean surface albedo.'
+          IF (Hout(idAlbI,ng)) WRITE (out,70) Hout(idAlbI,ng),          &
+     &       'Hout(idAlbI)',                                            &
+     &       'Write out ice albedo.'
+          IF (Hout(idLWdn,ng)) WRITE (out,70) Hout(idLWdn,ng),          &
+     &       'Hout(idLWdn)',                                            &
+     &       'Write out downward longwave radiation.'
+          IF (Hout(idSWdn,ng)) WRITE (out,70) Hout(idSWdn,ng),          &
+     &       'Hout(idSWdn)',                                            &
+     &       'Write out downward shortwave radiation.'
+          IF (Hout(idLatI,ng)) WRITE (out,70) Hout(idLatI,ng),          &
+     &       'Hout(idLatI)',                                            &
+     &       'Write out latent heat flux over ice.'
+          IF (Hout(idSenI,ng)) WRITE (out,70) Hout(idSenI,ng),          &
+     &       'Hout(idSenI)',                                            &
+     &       'Write out sensible heat flux over ice.'
+          IF (Hout(idLWupI,ng)) WRITE (out,70) Hout(idLWupI,ng),        &
+     &       'Hout(idLWupI)',                                           &
+     &       'Write out upward longwave over ice.'
+          IF (Hout(idSWupI,ng)) WRITE (out,70) Hout(idSWupI,ng),        &
+     &       'Hout(idSWupI)',                                           &
+     &       'Write out upward shortwave over ice.'
+          IF (Hout(idSWinI,ng)) WRITE (out,70) Hout(idSWinI,ng),        &
+     &       'Hout(idSWinI)',                                           &
+     &       'Write out upward shortwave over ice.'
+          IF (Hout(idSWthruI,ng)) WRITE (out,70) Hout(idSWthruI,ng),    &
+     &       'Hout(idSWthruI)',                                         &
+     &       'Write out shortwave radiation through ice.'
+          IF (Hout(idSaltI,ng)) WRITE (out,70) Hout(idSaltI,ng),        &
+     &       'Hout(idSaltI)',                                           &
+     &       'Write out salt flux under ice.'
+          IF (Hout(idSaltL,ng)) WRITE (out,70) Hout(idSaltL,ng),        &
+     &       'Hout(idSaltL)',                                           &
+     &       'Write out salt flux in leads.'
+          IF (Hout(idQao,ng)) WRITE (out,70) Hout(idQao,ng),            &
+     &       'Hout(idQao)',                                             &
+     &       'Write out heat flux in leads.'
+          IF (Hout(idQai,ng)) WRITE (out,70) Hout(idQai,ng),            &
+     &       'Hout(idQai)',                                             &
+     &       'Write out heat flux on top of ice.'
+          IF (Hout(idQio,ng)) WRITE (out,70) Hout(idQio,ng),            &
+     &       'Hout(idQio)',                                             &
+     &       'Write out heat flux into ice.'
+          IF (Hout(idQi2,ng)) WRITE (out,70) Hout(idQi2,ng),            &
+     &       'Hout(idQi2)',                                             &
+     &       'Write out heat flux in ice.'
+          IF (Hout(idSnoI,ng)) WRITE (out,70) Hout(idSnoI,ng),          &
+     &       'Hout(idSnoI)',                                            &
+     &       'Write out heat flux into ice.'
+#endif
 #ifdef AVERAGES
           IF (Aout(idUice,ng)) WRITE (out,70) Aout(idUice,ng),          &
      &       'Aout(idUice)',                                            &
@@ -749,6 +1065,9 @@
           IF (Aout(idTimid,ng)) WRITE (out,70) Aout(idTimid,ng),        &
      &       'Aout(idTimid)',                                           &
      &       'Write out time-averaged interior ice temperature.'
+          IF (Aout(idT2ice,ng)) WRITE (out,70) Aout(idT2ice,ng),        &
+     &       'Aout(idT2ice)',                                           &
+     &       'Write out time-averaged top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Aout(idApond,ng)) WRITE (out,70) Aout(idApond,ng),        &
      &       'Aout(idApond)',                                           &
@@ -802,6 +1121,59 @@
           IF (Aout(idWdiv,ng)) WRITE (out,70) Aout(idWdiv,ng),          &
      &       'Aout(idWdiv)',                                            &
      &       'Write out time-averaged ice divergence rate.'
+# ifdef ICE_DIAGS
+          IF (Aout(idAlbe,ng)) WRITE (out,70) Aout(idAlbe,ng),          &
+     &       'Aout(idAlbe)',                                            &
+     &       'Write out ocean surface albedo.'
+          IF (Aout(idAlbI,ng)) WRITE (out,70) Aout(idAlbI,ng),          &
+     &       'Aout(idAlbI)',                                            &
+     &       'Write out ice albedo.'
+          IF (Aout(idLWdn,ng)) WRITE (out,70) Aout(idLWdn,ng),          &
+     &       'Aout(idLWdn)',                                            &
+     &       'Write out downward longwave radiation.'
+          IF (Aout(idSWdn,ng)) WRITE (out,70) Aout(idSWdn,ng),          &
+     &       'Aout(idSWdn)',                                            &
+     &       'Write out downward shortwave radiation.'
+          IF (Aout(idLatI,ng)) WRITE (out,70) Aout(idLatI,ng),          &
+     &       'Aout(idLatI)',                                            &
+     &       'Write out latent heat flux over ice.'
+          IF (Aout(idSenI,ng)) WRITE (out,70) Aout(idSenI,ng),          &
+     &       'Aout(idSenI)',                                            &
+     &       'Write out sensible heat flux over ice.'
+          IF (Aout(idLWupI,ng)) WRITE (out,70) Aout(idLWupI,ng),        &
+     &       'Aout(idLWupI)',                                           &
+     &       'Write out upward longwave over ice.'
+          IF (Aout(idSWupI,ng)) WRITE (out,70) Aout(idSWupI,ng),        &
+     &       'Aout(idSWupI)',                                           &
+     &       'Write out upward shortwave over ice.'
+          IF (Aout(idSWinI,ng)) WRITE (out,70) Aout(idSWinI,ng),        &
+     &       'Aout(idSWinI)',                                           &
+     &       'Write out upward shortwave over ice.'
+          IF (Aout(idSWthruI,ng)) WRITE (out,70) Aout(idSWthruI,ng),    &
+     &       'Aout(idSWthruI)',                                         &
+     &       'Write out shortwave radiation through ice.'
+          IF (Aout(idSaltI,ng)) WRITE (out,70) Aout(idSaltI,ng),        &
+     &       'Aout(idSaltI)',                                           &
+     &       'Write out salt flux under ice.'
+          IF (Aout(idSaltL,ng)) WRITE (out,70) Aout(idSaltL,ng),        &
+     &       'Aout(idSaltL)',                                           &
+     &       'Write out salt flux in leads.'
+          IF (Aout(idQao,ng)) WRITE (out,70) Aout(idQao,ng),            &
+     &       'Aout(idQao)',                                             &
+     &       'Write out heat flux in leads.'
+          IF (Aout(idQai,ng)) WRITE (out,70) Aout(idQai,ng),            &
+     &       'Aout(idQai)',                                             &
+     &       'Write out heat flux on top of ice.'
+          IF (Aout(idQio,ng)) WRITE (out,70) Aout(idQio,ng),            &
+     &       'Aout(idQio)',                                             &
+     &       'Write out heat flux into ice.'
+          IF (Aout(idQi2,ng)) WRITE (out,70) Aout(idQi2,ng),            &
+     &       'Aout(idQi2)',                                             &
+     &       'Write out heat flux in ice.'
+          IF (Aout(idSnoI,ng)) WRITE (out,70) Aout(idSnoI,ng),          &
+     &       'Aout(idSnoI)',                                            &
+     &       'Write out heat flux into ice.'
+# endif
 #endif
 #ifdef AVERAGES2
           IF (Aout2(idUice,ng)) WRITE (out,70) Aout2(idUice,ng),        &
@@ -831,6 +1203,9 @@
           IF (Aout2(idTimid,ng)) WRITE (out,70) Aout2(idTimid,ng),      &
      &       'Aout2(idTimid)',                                          &
      &       'Write out interior ice temperature.'
+          IF (Aout2(idT2ice,ng)) WRITE (out,70) Aout2(idT2ice,ng),      &
+     &       'Aout2(idT2ice)',                                          &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Aout2(idApond,ng)) WRITE (out,70) Aout2(idApond,ng),      &
      &       'Aout2(idApond)',                                          &
@@ -894,6 +1269,9 @@
           IF (Qout(idTimid,ng)) WRITE (out,70) Qout(idTimid,ng),        &
      &       'Qout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
+          IF (Qout(idT2ice,ng)) WRITE (out,70) Qout(idT2ice,ng),        &
+     &       'Qout(idT2ice)',                                           &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Qout(idApond,ng)) WRITE (out,70) Qout(idApond,ng),        &
      &       'Qout(idApond)',                                           &

@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !=================================================== Andrew M. Moore ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -473,10 +473,13 @@
 !
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !  Run nonlinear model and compute background state trajectory, X_n-1(t)
-!  and the background values at the observation points and times.
+!  and the background values at the observation points and times.  It
+!  processes and writes the observations accept/reject flag (ObsScale)
+!  once to allow background quality control, if any.
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !
       DO ng=1,Ngrids
+        wrtObsScale(ng)=.TRUE.
         SporadicImpulse(ng)=.FALSE.
         FrequentImpulse(ng)=.FALSE.
         IF (Master) THEN
@@ -495,6 +498,7 @@
 
       DO ng=1,Ngrids
         wrtNLmod(ng)=.FALSE.
+        wrtObsScale(ng)=.FALSE.
       END DO
 !
 !  Report data penalty function.

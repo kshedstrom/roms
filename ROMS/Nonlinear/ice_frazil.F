@@ -4,7 +4,7 @@
       || defined CICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the frazil ice growth in the water when the
@@ -274,7 +274,7 @@
               t(i,j,k,nnew,isalt) = t(i,j,k,nnew,isalt)               &
      &              + (salref-salice)*potice*cp_over_lhfusion/Hz(i,j,k)
 !*** jump out if done with surface layer
-              IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
+              IF (z_w(i,j,N(ng))-z_w(i,j,k-1) > bl_thick) EXIT
             END DO
 #  if defined WET_DRY || defined MASKING
           END IF
@@ -406,7 +406,7 @@
 !              thickness = thickness + dz*fract
               heat = heat + (t(i,j,k,nnew,itemp)-tfr)*dz*fract
             END IF
-            IF (z_w(i,j,N(ng))-z_w(i,j,k) > bl_thick) EXIT
+            IF (z_w(i,j,N(ng))-z_w(i,j,k-1) > bl_thick) EXIT
           END DO
 ! convert units to W/m^2
           wfr(i,j) = (wfr(i,j) - heat)*rhocpr/dt(ng)

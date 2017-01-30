@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -3743,6 +3743,15 @@
 !  we are estimating initial conditions.
 !
         nADJ(ng)=ntimes(ng)
+#endif
+#if defined W4DPSAS || defined W4DVAR
+!
+!  If dual formulation and strong constraint, limit writing the adjoint
+!  solution to the end of time-stepping.
+!
+        IF (nADJ(ng).gt.ntimes(ng)) THEN
+          nADJ(ng)=ntimes(ng)
+        END IF
 #endif
 #if defined IS4DVAR || defined W4DPSAS || defined W4DVAR
 !

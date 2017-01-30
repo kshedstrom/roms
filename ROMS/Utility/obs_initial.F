@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -289,13 +289,7 @@
       DO i=1,Mobs
         NLmodVal(i)=IniVal
         TLmodVal(i)=IniVal
-# ifdef BGQC
-        IF ((inner.eq.0).and.(outer.eq.0)) THEN
-          ObsScale(i)=IniVal
-        END IF
-# else
-        ObsScale(i)=IniVal
-# endif
+        ObsVetting(i)=IniVal
       END DO
 # endif
 !

@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !================================================ W. Paul Budgell ======
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine time steps the EVP stresses                            !
@@ -24,7 +24,6 @@
       USE mod_grid
       USE mod_ice
       USE mod_stepping
-      USE mod_clima
 
       integer, intent(in) :: ng, tile
 !
@@ -48,12 +47,7 @@
      &                      ICE(ng) % eta,                              &
      &                      ICE(ng) % sig11,                            &
      &                      ICE(ng) % sig22,                            &
-     &                      ICE(ng) % sig12,                            &
-     &                      CLIMA(ng) % sig11clm,                       &
-     &                      CLIMA(ng) % sig22clm,                       &
-     &                      CLIMA(ng) % sig12clm,                       &
-     &                      CLIMA(ng) % SInudgcof                       &
-     &                      )
+     &                      ICE(ng) % sig12)
 # ifdef PROFILE
       CALL wclock_off (ng, iNLM, 55)
 # endif
@@ -68,9 +62,7 @@
      &                        pm, pn,                                   &
      &                        uie, vie,                                 &
      &                        hi, pice, zetai, eta,                     &
-     &                        sig11, sig22, sig12,                      &
-     &                        sig11clm, sig22clm, sig12clm,             &
-     &                        SInudgcof)
+     &                        sig11, sig22, sig12)
 !***********************************************************************
 !
 
@@ -78,6 +70,7 @@
       USE mod_ncparam
       USE mod_scalars
       USE mod_boundary
+      USE mod_clima
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
@@ -107,10 +100,6 @@
       real(r8), intent(inout) :: sig11(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig22(LBi:,LBj:,:)
       real(r8), intent(inout) :: sig12(LBi:,LBj:,:)
-      real(r8), intent(in) :: sig11clm(LBi:,LBj:)
-      real(r8), intent(in) :: sig22clm(LBi:,LBj:)
-      real(r8), intent(in) :: sig12clm(LBi:,LBj:)
-      real(r8), intent(in) :: SInudgcof(LBi:,LBj:)
 # else
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -123,10 +112,6 @@
       real(r8), intent(inout) :: sig11(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig22(LBi:UBi,LBj:UBj,2)
       real(r8), intent(inout) :: sig12(LBi:UBi,LBj:UBj,2)
-      real(r8), intent(in) :: sig11clm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: sig22clm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: sig12clm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: SInudgcof(LBi:UBi,LBj:UBj)
 # endif
 
 ! Local variable definitions
@@ -209,13 +194,13 @@
 !
           END IF
           IF (LnudgeSICLM(ng)) THEN
-            cff = SInudgcof(i,j)
+            cff = CLIMA(ng)%SInudgcof(i,j)
             sig11(i,j,lienw)=sig11(i,j,lienw)+                          &
-     &                    dtice(ng)*cff*(sig11clm(i,j)-sig11(i,j,lienw))
+     &          dtice(ng)*cff*(CLIMA(ng)%sig11clm(i,j)-sig11(i,j,lienw))
             sig12(i,j,lienw)=sig12(i,j,lienw)+                          &
-     &                    dtice(ng)*cff*(sig12clm(i,j)-sig12(i,j,lienw))
+     &          dtice(ng)*cff*(CLIMA(ng)%sig12clm(i,j)-sig12(i,j,lienw))
             sig22(i,j,lienw)=sig22(i,j,lienw)+                          &
-     &                    dtice(ng)*cff*(sig22clm(i,j)-sig22(i,j,lienw))
+     &          dtice(ng)*cff*(CLIMA(ng)%sig22clm(i,j)-sig22(i,j,lienw))
           END IF
         END DO
       END DO

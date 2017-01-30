@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2016 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
+** Copyright (c) 2002-2017 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -556,7 +556,9 @@
 #ifdef FILTERED
 # define AVERAGES
 # undef  FILTRIM            /* define for fewer time-filtered fields */
-# define FILTERED_RST       /* define if use restart files for time-filtering */
+# ifndef ARCTIC
+#  define FILTERED_RST       /* define if use restart files for time-filtering */
+# endif
 #endif
 
 /*

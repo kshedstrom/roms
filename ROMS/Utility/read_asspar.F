@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -22,6 +22,8 @@
       USE mod_iounits
       USE mod_ncparam
       USE mod_scalars
+!
+      USE strings_mod, ONLY : uppercase
 !
       implicit none
 !
@@ -151,6 +153,9 @@
             CASE ('NpostI')
               Npts=load_i(Nval, Rval, 1, Ivalue)
               NpostI=Ivalue(1)
+            CASE ('Nimpact')
+              Npts=load_i(Nval, Rval, 1, Ivalue)
+              Nimpact=Ivalue(1)
             CASE ('tl_M2diff')
               Npts=load_r(Nval, Rval, Ngrids, tl_M2diff)
             CASE ('tl_M3diff')
@@ -764,6 +769,18 @@
           WRITE (out,80) NpostI, 'NpostI',                              &
      &            'Number of Lanczos iterations in posterior analysis.'
 #   endif
+#   if defined W4DPSAS_SENSITIVITY || defined W$DVAR_SENSITIVITY
+          WRITE (out,80) Nimpact, 'Nimpact',                             &
+     &            'Observations impact/sensitivity outer loop to use.'
+          IF (Nimpact.gt.Nouter) THEN
+            IF (Master) THEN
+              WRITE (out,240) 'Nimpact', Nimpact,                        &
+     &              'must be less or equal than Nouter'
+            END IF
+            exit_flag=5
+            RETURN
+          END IF
+#   endif
 #   ifndef TLM_CHECK
 #    ifndef IS4DVAR_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &
@@ -1261,6 +1278,25 @@
         END DO
       END IF
 
+#  if defined WEAK_CONSTRAINT && defined RPCG
+!
+!  Stop if activating pre-conditioning for the RBLanczos minimization
+!  algorithm. It does not work yet.
+!
+      DO ng=1,Ngrids
+        IF (Lprecond) THEN
+          IF (Master) THEN
+            WRITE (out,230) 'Lprecond', Lprecond,                       &
+     &            'pre-conditioning does not work yet with ' //         &
+     &            uppercase('rpcg') // ' algorithm.',                   &
+     &            'Set Lprecond to F in ' // TRIM(aparnam)
+          END IF
+          exit_flag=5
+          RETURN
+        END IF
+      END DO
+#  endif
+
 #  if defined WEAK_CONSTRAINT && defined TIME_CONV
 !
 !-----------------------------------------------------------------------
@@ -1297,6 +1333,10 @@
  200  FORMAT (1p,e11.4,2x,a,'(',i2.2,')',t30,a,':',1x,i6)
  210  FORMAT (/,' READ_ASSPAR - variable info not yet loaded, ', a)
  220  FORMAT (/,' READ_ASSPAR - could not find input file:  ',a)
+ 230  FORMAT (/,' READ_ASSPAR - Illegal parameter, ', a, ' = ', 1x, l1, &
+     &        /,15x,a,/,15x,a)
+ 240  FORMAT (/,' READ_ASSPAR - Illegal parameter, ', a, ' = ', 1x, i2, &
+     &        /,15x,a)
 # endif
 
       RETURN

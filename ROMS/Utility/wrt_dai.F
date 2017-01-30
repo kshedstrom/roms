@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -312,6 +312,71 @@
           RETURN
         END IF
       END DO
+!
+!  Write out vertical viscosity coefficient.
+!
+      scale=1.0_r8
+      gtype=gfactor*w3dvar
+      status=nf_fwrite3d(ng, iNLM, DAI(ng)%ncid, DAI(ng)%Vid(idVvis),   &
+     &                   DAI(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,           &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   MIXING(ng) % Akv,                              &
+     &                   SetFillVal = .FALSE.)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,20) TRIM(Vname(1,idVvis)), DAI(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+!
+!  Write out vertical diffusion coefficient for potential temperature.
+!
+      scale=1.0_r8
+      gtype=gfactor*w3dvar
+      status=nf_fwrite3d(ng, iNLM, DAI(ng)%ncid, DAI(ng)%Vid(idTdif),   &
+     &                   DAI(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,           &
+#  ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#  endif
+     &                   MIXING(ng) % Akt(:,:,:,itemp),                 &
+     &                   SetFillVal = .FALSE.)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,20) TRIM(Vname(1,idTdif)), DAI(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+#  ifdef SALINITY
+!
+!  Write out vertical diffusion coefficient for salinity.
+!
+      scale=1.0_r8
+      gtype=gfactor*w3dvar
+      status=nf_fwrite3d(ng, iNLM, DAI(ng)%ncid, DAI(ng)%Vid(idSdif), &
+     &                   DAI(ng)%Rindex, gtype,                       &
+     &                   LBi, UBi, LBj, UBj, 0, N(ng), scale,         &
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                            &
+#   endif
+     &                   MIXING(ng) % Akt(:,:,:,isalt),               &
+     &                   SetFillVal = .FALSE.)
+      IF (status.ne.nf90_noerr) THEN
+        IF (Master) THEN
+          WRITE (stdout,20) TRIM(Vname(1,idSdif)), DAI(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+#  endif
 # endif
 !
 !-----------------------------------------------------------------------
@@ -340,14 +405,14 @@
   20  FORMAT (/,' WRT_DAI - error while writing variable: ',a,/,11x,    &
      &        'into DA initial/rstart NetCDF file for time record: ',i4)
 # ifdef SOLVE3D
-  30  FORMAT (6x,'WRT_DAI     - wrote DA IC', t39,                      &
+  30  FORMAT (6x,'WRT_DAI     - wrote DA INI/RST', t39,                 &
 #  ifdef NESTING
      &        'fields (Index=',i1,',',i1,') in record = ',i7.7,2x,i2.2)
 #  else
      &        'fields (Index=',i1,',',i1,') in record = ',i7.7)
 #  endif
 # else
-  30  FORMAT (6x,'WRT_DAI     - wrote DA IC', t39,                      &
+  30  FORMAT (6x,'WRT_DAI     - wrote DA INI/RST', t39,                 &
 #  ifdef NESTING
      &        'fields (Index=',i1,')   in record = ',i7.7,2x,i2.2)
 #  else
