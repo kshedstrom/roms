@@ -294,7 +294,7 @@
                 AVERAGE2(ng)%avgt(i,j,itrc)=                            &
      &                    OCEAN(ng)%t(i,j,N(ng),Nout,itrc)
 #  ifdef WET_DRY
-                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,it)*  &
+                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,itrc)*&
      &                                       GRID(ng)%rmask_full(i,j)
 #  endif
               END DO

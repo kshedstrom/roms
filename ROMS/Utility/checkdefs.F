@@ -1358,6 +1358,7 @@
      &   'Ice initial conditions from GLORYS.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' INI_GLORYS_ICE,'
+#endif
 #if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
 !
       IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
@@ -2366,10 +2367,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' SNOWFALL,'
 #endif
-#ifdef SRELAXATION
-!
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux.'
 #ifdef SNOW_FROM_RAIN
       IF (Master) WRITE (stdout,20) 'SNOW_FROM_RAIN',                   &
      &   'Subtract snow from total precip (rain).'
