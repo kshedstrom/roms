@@ -49,7 +49,7 @@
 
       CONTAINS
 
-#if defined PARALLEL_OUT && defined DISTRIBUTE
+#if defined PARALLEL_IO && defined DISTRIBUTE
 !
 !***********************************************************************
       FUNCTION nf_fwrite3d (ng, model, ncid, ncvarid, tindex, gtype,    &

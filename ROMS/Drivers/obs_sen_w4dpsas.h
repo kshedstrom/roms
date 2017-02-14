@@ -269,6 +269,20 @@
       END DO
 #endif
 !
+#ifdef SKIP_NLM
+!
+!-----------------------------------------------------------------------
+!  If skiping runing nonlinear model, read in observation screening and
+!  quality control flag.
+!-----------------------------------------------------------------------
+!
+      wrtObsScale(1:Ngrids)=.FALSE.
+      DO ng=1,Ngrids
+        CALL netcdf_get_fvar (ng, iTLM, LCZ(ng)%name, Vname(1,idObsS),  &
+     &                        ObsScale)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+#endif
 !-----------------------------------------------------------------------
 !  Read in standard deviation factors for error covariance.
 !-----------------------------------------------------------------------
@@ -562,6 +576,15 @@
         CALL def_mod (ng)
         IF (exit_flag.ne.NoError) RETURN
       END DO
+      SourceFile='obs_sen_w4dpsas.h, ROMS_run'
+      DO ng=1,Ngrids
+        CALL netcdf_put_ivar (ng, iNLM, DAV(ng)%name, 'Nimpact',        &
+     &                        Nimpact, (/0/), (/0/),                    &
+     &                        ncid = DAV(ng)%ncid)
+        IF (exit_flag.ne.NoError) RETURN
+      END DO
+
+#ifndef SKIP_NLM
 !
 !  Write out outer loop beeing processed.
 !
@@ -641,6 +664,7 @@
 
 #endif /* !SKIP_NLM */
 !
+#endif /* !SKIP_NLM */
 !  Set forward basic state NetCDF ID to nonlinear model trajectory to
 !  avoid the inquiring stage.
 !

@@ -190,6 +190,9 @@
           ObsVetting(iobs)=IniVal
         END DO
 
+        DO iobs=Mstr,Mend
+          ObsVetting(iobs)=IniVal
+        END DO
 # ifdef BGQC
 !
 !  Reject observation that fail background quality control check.

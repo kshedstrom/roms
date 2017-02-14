@@ -1510,6 +1510,20 @@
         END DO
       END IF
 # endif
+# ifdef TEMP_CLAMP
+!
+!  Apply clamp to temperature
+!
+      IF (itrc .ge. itemp) THEN
+        DO k=1,N(ng)
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              t(i,j,k,nnew,itrc) = max(t(i,j,k,nnew,itrc),-1.8_r8)
+            END DO
+          END DO
+        END DO
+      END IF
+# endif
 # ifdef DIAGNOSTICS_TS
 !
 !  Compute time-rate-of-change diagnostic term.

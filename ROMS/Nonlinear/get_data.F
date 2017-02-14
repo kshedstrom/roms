@@ -643,7 +643,6 @@
       IF (exit_flag.ne.NoError) RETURN
 #  endif
 
-# endif
 # if defined COBALT_CARBON
 !
 !-----------------------------------------------------------------------
@@ -719,6 +718,9 @@
 #  endif
      &                FORCES(ng) % mineral_feG)
       IF (exit_flag.ne.NoError) RETURN
+# endif
+
+! END OF BIO_COBALT
 # endif
 
 # if !defined ANA_CLOUD && defined CLOUDS

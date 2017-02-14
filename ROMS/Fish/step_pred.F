@@ -139,6 +139,7 @@
       integer :: Ir, Jr, Npts, i, i1, i2, j, j1, j2, itrc, l, k
       integer :: NptsF, NptsL, NptsM
       integer :: ipsp, ipid
+      integer :: ct
 
       real(r8), parameter :: Fspv = 0.0_r8
       integer, parameter :: iFspv = 0
@@ -720,12 +721,54 @@
 !  Collect pred on all nodes.
 !-----------------------------------------------------------------------
 !
-      Fwrk=RESHAPE(track,(/Npts/))
+      !Fwrk=RESHAPE(track,(/Npts/))
+      !CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
+      !track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Npred(ng)/))
+
+      ct=1
+      DO l=1,Npred(ng)
+        DO j=0,NFT
+          DO i=1,NFV(ng)
+               Fwrk(ct) = track(i,j,l)
+               ct=ct+1
+          ENDDO
+        ENDDO
+      ENDDO
+
       CALL mp_collect (ng, iNLM, Npts, Fspv, Fwrk)
-      track=RESHAPE(Fwrk,(/NFV(ng),NFT+1,Npred(ng)/))
-      FwrkF=RESHAPE(bioenergy,(/NptsF/))
+
+      ct=1
+      DO l=1,Npred(ng)
+        DO j=0,NFT
+          DO i=1,NFV(ng)
+               track(i,j,l) = Fwrk(ct)
+               ct=ct+1
+          ENDDO
+        ENDDO
+      ENDDO
+
+      !FwrkF=RESHAPE(bioenergy,(/NptsF/))
+      !CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
+      !bioenergy=RESHAPE(FwrkF,(/NPredV(ng),Npred(ng)/))
+
+      ct=1
+      DO l=1,Npred(ng)
+        DO j=1,NpredV(ng)
+            FwrkF(ct) = bioenergy(j,l)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
       CALL mp_collect (ng, iNLM, NptsF, Fspv, FwrkF)
-      bioenergy=RESHAPE(FwrkF,(/NPredV(ng),Npred(ng)/))
+
+      ct=1
+      DO l=1,Npred(ng)
+        DO j=1,NpredV(ng)
+            bioenergy(j,l) = FwrkF(ct)
+            ct=ct+1
+        ENDDO
+      ENDDO
+
       CALL mp_collect_l (ng, iNLM, Npred(ng), alive)
 !
 #ifdef FOO

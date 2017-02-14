@@ -1822,7 +1822,7 @@
 #ifdef NPZD_IRON
 !
       IF (Master) WRITE (stdout,20) 'NPZD_IRON',                        &
-     &   'NPZD Biological Model (Powell et al.) with iron limitation'
+     &   'NPZD Biological Model (Powell et al.) with iron limitation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' NPZD_IRON,'
       ibiology=ibiology+1
@@ -1975,13 +1975,13 @@
       IF (Master) WRITE (stdout,20) 'PARALLEL_IN',                      &
      &   'Parallel I/O processing.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' PARALLEL_IN,'
+      Coptions(is:is+13)=' PARALLEL_IO,'
 #endif
-#if defined PARALLEL_OUT && defined DISTRIBUTE
-      IF (Master) WRITE (stdout,20) 'PARALLEL_OUT',                      &
+#if defined PARALLEL_IO && defined DISTRIBUTE
+      IF (Master) WRITE (stdout,20) 'PARALLEL_IO',                      &
      &   'Parallel I/O processing.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' PARALLEL_OUT,'
+      Coptions(is:is+14)=' PARALLEL_IO,'
 #endif
 #ifdef PERFECT_RESTART
 !
@@ -2447,6 +2447,7 @@
       Coptions(is:is+11)=' SPHERICAL,'
 #endif
 #ifdef SRELAXATION
+!
       IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
      &   'Surface salinity relaxation as surface flux.'
       is=LEN_TRIM(Coptions)+1
@@ -2460,6 +2461,7 @@
       Coptions(is:is+11)=' SSH_TIDES,'
 #endif
 #if defined SSSC_THRESHOLD
+!
       IF (Master) WRITE (stdout,20) 'SSSC_THRESHOLD',                   &
      &   'Limit to SCORRECTION nudging.'
       is=LEN_TRIM(Coptions)+1
@@ -3394,7 +3396,7 @@
         exit_flag=5
       END IF
 #endif
-#ifdef PARALLEL_OUT
+#ifdef PARALLEL_IO
 # if !(defined HDF5 || defined PNETCDF)
       IF (Master) THEN
         WRITE (stdout,170) uppercase('hdf5'),                           &

@@ -847,7 +847,88 @@
               CASE ('iDbio2(imesozoo_200)')
                 iDbio2(imesozoo_200)=varid
 
+              CASE ('iDbio2(iprod_n_100_sm)')
+                iDbio2(iprod_n_100_sm)=varid
+              CASE ('iDbio2(iaggloss_n_100_sm)')
+                iDbio2(iaggloss_n_100_sm)=varid
+              CASE ('iDbio2(izloss_n_100_sm)')
+                iDbio2(izloss_n_100_sm)=varid
+              CASE ('iDbio2(iprod_n_100_lg)')
+                iDbio2(iprod_n_100_lg)=varid
+              CASE ('iDbio2(iaggloss_n_100_lg)')
+                iDbio2(iaggloss_n_100_lg)=varid
+              CASE ('iDbio2(izloss_n_100_lg)')
+                iDbio2(izloss_n_100_lg)=varid
+              CASE ('iDbio2(iprod_n_100_di)')
+                iDbio2(iprod_n_100_di)=varid
+              CASE ('iDbio2(iaggloss_n_100_di)')
+                iDbio2(iaggloss_n_100_di)=varid
+              CASE ('iDbio2(izloss_n_100_di)')
+                iDbio2(izloss_n_100_di)=varid
+              CASE ('iDbio2(iprod_n_100_smz)')
+                iDbio2(iprod_n_100_smz)=varid
+              CASE ('iDbio2(iingest_n_100_smz)')
+                iDbio2(iingest_n_100_smz)=varid
+              CASE ('iDbio2(izloss_n_100_smz)')
+                iDbio2(izloss_n_100_smz)=varid
+              CASE ('iDbio2(ihploss_n_100_smz)')
+                iDbio2(ihploss_n_100_smz)=varid
+              CASE ('iDbio2(iprod_ndet_100_smz)')
+                iDbio2(iprod_ndet_100_smz)=varid
+              CASE ('iDbio2(iprod_n_100_mdz)')
+                iDbio2(iprod_n_100_mdz)=varid
+              CASE ('iDbio2(iingest_n_100_mdz)')
+                iDbio2(iingest_n_100_mdz)=varid
+              CASE ('iDbio2(izloss_n_100_mdz)')
+                iDbio2(izloss_n_100_mdz)=varid
+              CASE ('iDbio2(ihploss_n_100_mdz)')
+                iDbio2(ihploss_n_100_mdz)=varid
+              CASE ('iDbio2(iprod_ndet_100_mdz)')
+                iDbio2(iprod_ndet_100_mdz)=varid
+              CASE ('iDbio2(iprod_n_100_lgz)')
+                iDbio2(iprod_n_100_lgz)=varid
+              CASE ('iDbio2(iingest_n_100_lgz)')
+                iDbio2(iingest_n_100_lgz)=varid
+              CASE ('iDbio2(izloss_n_100_lgz)')
+                iDbio2(izloss_n_100_lgz)=varid
+              CASE ('iDbio2(ihploss_n_100_lgz)')
+                iDbio2(ihploss_n_100_lgz)=varid
+              CASE ('iDbio2(iprod_ndet_100_lgz)')
+                iDbio2(iprod_ndet_100_lgz)=varid
+              CASE ('iDbio2(iprod_n_100_bact)')
+                iDbio2(iprod_n_100_bact)=varid
+              CASE ('iDbio2(izloss_n_100_bact)')
+                iDbio2(izloss_n_100_bact)=varid
+!RDIAGS
+              CASE ('iDbio2(imesozooprod_200)')
+                iDbio2(imesozooprod_200)=varid
+              CASE ('iDbio2(iuptake_din_100)')
+                iDbio2(iuptake_din_100)=varid
+              CASE ('iDbio2(iuptake_no3_n2_100)')
+                iDbio2(iuptake_no3_n2_100)=varid
+              CASE ('iDbio2(iprod_mesozoo_100)')
+                iDbio2(iprod_mesozoo_100)=varid
+              CASE ('iDbio2(iz_ratio_100)')
+                iDbio2(iz_ratio_100)=varid
+              CASE ('iDbio2(ipe_ratio_100)')
+                iDbio2(ipe_ratio_100)=varid
+              CASE ('iDbio2(if_ratio_100)')
+                iDbio2(if_ratio_100)=varid
+              CASE ('iDbio2(iprod_don_100_smz)')
+                iDbio2(iprod_don_100_smz)=varid
+              CASE ('iDbio2(iprod_don_100_mdz)')
+                iDbio2(iprod_don_100_mdz)=varid
+              CASE ('iDbio2(iprod_don_100_lgz)')
+                iDbio2(iprod_don_100_lgz)=varid
 
+#ifdef COASTDIAT
+              CASE ('iDbio2(iprod_n_100_md)')
+                iDbio2(iprod_n_100_md)=varid
+              CASE ('iDbio2(iaggloss_n_100_md)')
+                iDbio2(iaggloss_n_100_md)=varid
+              CASE ('iDbio2(izloss_n_100_md)')
+                iDbio2(izloss_n_100_md)=varid
+#endif
               CASE ('iDbio3(ichl)')
                 iDbio3(ichl)=varid
               CASE ('iDbio3(ico3_ion)')
@@ -988,6 +1069,18 @@
                 iDbio3(ipo4lim_di)=varid
               CASE ('iDbio3(ipo4lim_lg)')
                 iDbio3(ipo4lim_lg)=varid
+              CASE ('iDbio3(ichl_di)')
+                iDbio3(ichl_di)=varid
+              CASE ('iDbio3(iC_2_chl_di)')
+                iDbio3(iC_2_chl_di)=varid
+              CASE ('iDbio3(ichl_sm)')
+                iDbio3(ichl_sm)=varid
+              CASE ('iDbio3(iC_2_chl_sm)')
+                iDbio3(iC_2_chl_sm)=varid
+              CASE ('iDbio3(ichl_lg)')
+                iDbio3(ichl_lg)=varid
+              CASE ('iDbio3(iC_2_chl_lg)')
+                iDbio3(iC_2_chl_lg)=varid
 #ifdef COASTDIAT
               CASE ('iDbio3(imu_mem_md)')
                 iDbio3(imu_mem_md)=varid
@@ -1009,6 +1102,10 @@
                 iDbio3(inh4lim_md)=varid
               CASE ('iDbio3(ipo4lim_md)')
                 iDbio3(ipo4lim_md)=varid
+              CASE ('iDbio3(ichl_md)')
+                iDbio3(ichl_md)=varid
+              CASE ('iDbio3(iC_2_chl_md)')
+                iDbio3(iC_2_chl_md)=varid
 #endif
 
 

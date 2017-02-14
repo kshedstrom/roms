@@ -580,6 +580,7 @@
                 ObsScale(iobs)=0.0_r8
               END IF
             END IF
+            END IF
           END DO
         END IF
 # endif
@@ -646,7 +647,6 @@
         END IF
 #   endif
 #  endif
-
 #  ifdef TLM_OBS
         IF (wrtTLmod(ng).or.wrtRPmod(ng)) THEN
           CALL mp_collect (ng, model, Ncollect, IniVal,                 &

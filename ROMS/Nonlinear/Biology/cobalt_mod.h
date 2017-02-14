@@ -492,7 +492,7 @@
 !
 
       integer, allocatable :: idbio(:)    ! Biological tracers
-      integer, allocatable :: iDobgc(:)   ! Other BGC 
+      integer, allocatable :: iDobgc(:)   ! Other BGC
 #ifdef DIAGNOSTICS_BIO
       integer, allocatable :: iDbio2(:)   ! 2D Biological diagnostics
       integer, allocatable :: iDbio3(:)   ! 3D Biological diagnostics
@@ -557,7 +557,7 @@
       integer              :: iomu_mem_di ! mum_mem_di in other BGC
       integer              :: iomu_mem_lg ! mum_mem_lg in other BGC
 #ifdef COASTDIAT
-      integer              :: iomu_mem_md 
+      integer              :: iomu_mem_md
 #endif
 
       integer              :: Nsink
@@ -624,9 +624,25 @@
       integer :: ino3lim_sm, ino3lim_di, ino3lim_lg
       integer :: inh4lim_sm, inh4lim_di, inh4lim_lg
       integer :: ipo4lim_sm, ipo4lim_di, ipo4lim_lg
+      integer :: ichl_di, iC_2_chl_di
+      integer :: ichl_sm, iC_2_chl_sm
+      integer :: ichl_lg, iC_2_chl_lg
+      integer :: iprod_n_100_sm, iaggloss_n_100_sm, izloss_n_100_sm
+      integer :: iprod_n_100_lg, iaggloss_n_100_lg, izloss_n_100_lg
+      integer :: iprod_n_100_di, iaggloss_n_100_di, izloss_n_100_di
+      integer :: iprod_n_100_smz, iingest_n_100_smz, izloss_n_100_smz, ihploss_n_100_smz, iprod_ndet_100_smz
+      integer :: iprod_n_100_mdz, iingest_n_100_mdz, izloss_n_100_mdz, ihploss_n_100_mdz, iprod_ndet_100_mdz
+      integer :: iprod_n_100_lgz, iingest_n_100_lgz, izloss_n_100_lgz, ihploss_n_100_lgz, iprod_ndet_100_lgz
+      integer :: iprod_n_100_bact, izloss_n_100_bact
+      ! 200 meters diags
+      integer :: imesozooprod_200, iuptake_din_100, iuptake_no3_n2_100, iprod_mesozoo_100
+      integer :: iz_ratio_100, ipe_ratio_100, if_ratio_100
+      integer :: iprod_don_100_smz, iprod_don_100_mdz, iprod_don_100_lgz
 #ifdef COASTDIAT
       integer :: imu_mem_md, iaggloss_md, ivirloss_md, izloss_md
       integer :: iagg_lim_md, idef_fe_md, ifelim_md, ino3lim_md, inh4lim_md, ipo4lim_md
+      integer :: ichl_md, iC_2_chl_md
+      integer :: iprod_n_100_md, iaggloss_n_100_md, izloss_n_100_md
 #endif
 
       integer :: ipCO2=-99999 ! is never used, for compatibility issues
@@ -983,7 +999,9 @@
           q_p_2_n     , &
           silim       , &
           q_si_2_n    , &
-          theta
+          theta       , &
+          chl         , &
+          C_2_chl
 !      integer ::            &
 !          id_def_fe       = -1, &
 !          id_def_p        = -1, &
@@ -1497,7 +1515,14 @@
           ffedet_100, &
           flithdet_100, &
           btm_temp,     &
-          btm_o2
+          btm_o2,       &
+          juptake_din_100, &
+          juptake_no3_n2_100, &
+          jprod_mesozoo_100, &
+          z_ratio_100, &
+          pe_ratio_100, &
+          f_ratio_100 
+          ! add 2d diags here
 
 !     real(8), dimension(:,:,:,:), pointer :: &
 !          p_alk,&
@@ -1848,11 +1873,12 @@
 #endif
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
-      NDbio2d = 24
 # ifdef COASTDIAT
-      NDbio3d = 52 
+      NDbio2d = 63
+      NDbio3d = 60
 # else
-      NDbio3d = 42 
+      NDbio2d = 60
+      NDbio3d = 48
 # endif
 #endif
 #ifdef BENTHIC
@@ -2817,7 +2843,7 @@
 
       !ijprod_ndet_100=17
       !ijremin_ndet_100=18
-      
+
       ialpha=17
       ico2star=18
       ipco2surf=19
@@ -2827,6 +2853,56 @@
       iironsed_flx=22
       inpp_100=23
       imesozoo_200=24
+
+      iprod_n_100_sm=25
+      iaggloss_n_100_sm=26
+      izloss_n_100_sm=27
+
+      iprod_n_100_lg=28
+      iaggloss_n_100_lg=29
+      izloss_n_100_lg=30
+
+      iprod_n_100_di=31
+      iaggloss_n_100_di=32
+      izloss_n_100_di=33
+
+      iprod_n_100_smz=34
+      iingest_n_100_smz=35
+      izloss_n_100_smz=36
+      ihploss_n_100_smz=37
+      iprod_ndet_100_smz=38
+
+      iprod_n_100_mdz=39
+      iingest_n_100_mdz=40
+      izloss_n_100_mdz=41
+      ihploss_n_100_mdz=42
+      iprod_ndet_100_mdz=43
+
+      iprod_n_100_lgz=44
+      iingest_n_100_lgz=45
+      izloss_n_100_lgz=46
+      ihploss_n_100_lgz=47
+      iprod_ndet_100_lgz=48
+
+      iprod_n_100_bact=49
+      izloss_n_100_bact=50
+
+      imesozooprod_200=51
+      iuptake_din_100=52
+      iuptake_no3_n2_100=53
+      iprod_mesozoo_100=54
+      iz_ratio_100=55
+      ipe_ratio_100=56
+      if_ratio_100=57
+      iprod_don_100_smz=58
+      iprod_don_100_mdz=59
+      iprod_don_100_lgz=60
+
+#ifdef COASTDIAT
+      iprod_n_100_md=61
+      iaggloss_n_100_md=62
+      izloss_n_100_md=63
+#endif
 
       ! 3D Diagnostic variables
       DO i=1,NDbio3d
@@ -2860,7 +2936,7 @@
       !idet_jhploss_n=22
       !idet_jhploss_p=23
       !idet_jhploss_fe=24
-      
+
 
       !indet_b4sink=25
       !ipdet_b4sink=26
@@ -2878,7 +2954,7 @@
 
       iomega_cadet_calc=10
       iomega_cadet_arag=11
-     
+
       iswdk=12
 
       imu_mem_sm=13
@@ -2917,21 +2993,31 @@
       ipo4lim_di=41
       ipo4lim_lg=42
 
+      ichl_di=43
+      iC_2_chl_di=44
+      ichl_sm=45
+      iC_2_chl_sm=46
+      ichl_lg=47
+      iC_2_chl_lg=48
+
 # ifdef COASTDIAT
-      imu_mem_md=43
-      iagg_lim_md=44
-      iaggloss_md=45
-      ivirloss_md=46
-      izloss_md=47
-      idef_fe_md=48
-      ifelim_md=49
-      ino3lim_md=50
-      inh4lim_md=51
-      ipo4lim_md=52
+      imu_mem_md=49
+      iagg_lim_md=50
+      iaggloss_md=51
+      ivirloss_md=52
+      izloss_md=53
+      idef_fe_md=54
+      ifelim_md=55
+      ino3lim_md=56
+      inh4lim_md=57
+      ipo4lim_md=58
+      ichl_md=59
+      iC_2_chl_md=60
 # endif
 
+
 #endif
-      
+
       ! Sediment variables
       ! RD: convert to bottom reservoirs
 #ifdef BENTHIC
@@ -2948,7 +3034,7 @@
       indet_btf=4
       ipdet_btf=5
       isidet_btf=6
-      
+
 #endif
 
       idsink(1) = indet
@@ -3036,6 +3122,8 @@
        allocate(phyto(nphyto)%q_p_2_n(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%q_p_2_n        = 0.0
        allocate(phyto(nphyto)%q_si_2_n(IminS:ImaxS,JminS:JmaxS,UBk))     ; phyto(nphyto)%q_si_2_n       = 0.0
        allocate(phyto(nphyto)%theta(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(nphyto)%theta          = 0.0
+       allocate(phyto(nphyto)%chl(IminS:ImaxS,JminS:JmaxS,UBk))          ; phyto(nphyto)%chl            = 0.0
+       allocate(phyto(nphyto)%C_2_chl(IminS:ImaxS,JminS:JmaxS,UBk))      ; phyto(nphyto)%C_2_chl        = 0.0
       enddo
 !
 ! allocate and initialize array elements of only some phytoplankton groups
@@ -3307,33 +3395,50 @@
 !      enddo
 !     allocate(phyto(DIAZO)%jprod_n_n2_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_n2_100 = 0.0
 !     allocate(phyto(SMALL)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jvirloss_n_100 = 0.0
-!     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jaggloss_n_100 = 0.0
-!     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jaggloss_n_100 = 0.0
+
+     allocate(phyto(SMALL)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jprod_n_100    = 0.0
+     allocate(phyto(LARGE)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jprod_n_100    = 0.0
+     allocate(phyto(DIAZO)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_100    = 0.0
+
+     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(SMALL)%jaggloss_n_100 = 0.0
+     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(LARGE)%jaggloss_n_100 = 0.0
+     allocate(phyto(DIAZO)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(DIAZO)%jaggloss_n_100 = 0.0
+
+     allocate(phyto(SMALL)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(SMALL)%jzloss_n_100   = 0.0
+     allocate(phyto(LARGE)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(LARGE)%jzloss_n_100   = 0.0
+     allocate(phyto(DIAZO)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(DIAZO)%jzloss_n_100   = 0.0
+
+#ifdef COASTDIAT
+     allocate(phyto(MEDIUM)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(MEDIUM)%jprod_n_100   = 0.0
+     allocate(phyto(MEDIUM)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))  ; phyto(MEDIUM)%jaggloss_n_100= 0.0
+     allocate(phyto(MEDIUM)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))    ; phyto(MEDIUM)%jzloss_n_100  = 0.0
+#endif
+
 !     allocate(cobalt%jprod_allphytos_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jprod_allphytos_100  = 0.0
 !
-!      do nzoo = 1, NUM_ZOO
-!       allocate(zoo(nzoo)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; zoo(nzoo)%jprod_n_100   = 0.0
-!       allocate(zoo(nzoo)%jingest_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jingest_n_100 = 0.0
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; zoo(nzoo)%jprod_n_100   = 0.0
+       allocate(zoo(nzoo)%jingest_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jingest_n_100 = 0.0
 !       allocate(zoo(nzoo)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jremin_n_100  = 0.0
 !       allocate(zoo(nzoo)%f_n_100(IminS:ImaxS,JminS:JmaxS))              ; zoo(nzoo)%f_n_100       = 0.0
-!      enddo
+      enddo
 !
-!      do nzoo = 1,2
-!       allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
-!       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
-!      enddo
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; zoo(nzoo)%jzloss_n_100  = 0.0
+       allocate(zoo(nzoo)%jprod_don_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jprod_don_100 = 0.0
+      enddo
 !
-!      do nzoo = 2,3
-!       allocate(zoo(nzoo)%jhploss_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jhploss_n_100  = 0.0
-!       allocate(zoo(nzoo)%jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; zoo(nzoo)%jprod_ndet_100 = 0.0
-!      enddo
+      do nzoo = 1, NUM_ZOO
+       allocate(zoo(nzoo)%jhploss_n_100(IminS:ImaxS,JminS:JmaxS))        ; zoo(nzoo)%jhploss_n_100  = 0.0
+       allocate(zoo(nzoo)%jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; zoo(nzoo)%jprod_ndet_100 = 0.0
+      enddo
 !
 !     allocate(cobalt%hp_jingest_n_100(IminS:ImaxS,JminS:JmaxS))      ; cobalt%hp_jingest_n_100    = 0.0
 !     allocate(cobalt%hp_jremin_n_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%hp_jremin_n_100     = 0.0
 !     allocate(cobalt%hp_jprod_ndet_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%hp_jprod_ndet_100   = 0.0
 !
-!     allocate(bact(1)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; bact(1)%jprod_n_100 = 0.0
-!     allocate(bact(1)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jzloss_n_100 = 0.0
+     allocate(bact(1)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))          ; bact(1)%jprod_n_100 = 0.0
+     allocate(bact(1)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jzloss_n_100 = 0.0
 !     allocate(bact(1)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))       ; bact(1)%jvirloss_n_100 = 0.0
 !     allocate(bact(1)%jremin_n_100(IminS:ImaxS,JminS:JmaxS))         ; bact(1)%jremin_n_100 = 0.0
 !     allocate(bact(1)%juptake_ldon_100(IminS:ImaxS,JminS:JmaxS))     ; bact(1)%juptake_ldon_100 = 0.0
@@ -3344,7 +3449,7 @@
 !     allocate(cobalt%jprod_cadet_calc_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_calc_100 = 0.0
 !     allocate(cobalt%jprod_cadet_arag_100(IminS:ImaxS,JminS:JmaxS))  ; cobalt%jprod_cadet_arag_100 = 0.0
 !     allocate(cobalt%jremin_ndet_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%jremin_ndet_100 = 0.0
-!     allocate(cobalt%jprod_mesozoo_200(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_200 = 0.0
+     allocate(cobalt%jprod_mesozoo_200(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_200 = 0.0
 !
 !     allocate(cobalt%f_ndet_100(IminS:ImaxS,JminS:JmaxS))            ; cobalt%f_ndet_100 = 0.0
 !     allocate(cobalt%f_don_100(IminS:ImaxS,JminS:JmaxS))             ; cobalt%f_don_100  = 0.0
@@ -3363,6 +3468,13 @@
 !
 !     allocate(cobalt%btm_temp(IminS:ImaxS,JminS:JmaxS))              ; cobalt%btm_temp = 0.0
 !     allocate(cobalt%btm_o2(IminS:ImaxS,JminS:JmaxS))                ; cobalt%btm_o2 = 0.0
+
+      allocate(cobalt%juptake_din_100(IminS:ImaxS,JminS:JmaxS))       ; cobalt%juptake_din_100 = 0.0
+      allocate(cobalt%juptake_no3_n2_100(IminS:ImaxS,JminS:JmaxS))    ; cobalt%juptake_no3_n2_100 = 0.0
+      allocate(cobalt%jprod_mesozoo_100(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jprod_mesozoo_100 = 0.0
+      allocate(cobalt%z_ratio_100(IminS:ImaxS,JminS:JmaxS))           ; cobalt%z_ratio_100 = 0.0
+      allocate(cobalt%pe_ratio_100(IminS:ImaxS,JminS:JmaxS))          ; cobalt%pe_ratio_100 = 0.0
+      allocate(cobalt%f_ratio_100(IminS:ImaxS,JminS:JmaxS))           ; cobalt%f_ratio_100 = 0.0
 
       RETURN
 

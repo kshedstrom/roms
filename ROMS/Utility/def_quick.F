@@ -228,6 +228,17 @@
         status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'boundary',      &
      &                 4, DimIDs(14))
         IF (exit_flag.ne.NoError) RETURN
+#ifdef FOUR_DVAR
+        status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'Nstate',        &
+     &                 NstateVar(ng), DimIDs(29))
+        IF (exit_flag.ne.NoError) RETURN
+#endif
+
+#ifdef ADJUST_BOUNDARY
+        status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'obc_adjust',    &
+     &                 Nbrec(ng), DimIDs(31))
+        IF (exit_flag.ne.NoError) RETURN
+#endif
 
 #ifdef FOUR_DVAR
         status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'Nstate',        &

@@ -83,7 +83,7 @@
       USE mod_netcdf
       USE mod_scalars
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -109,7 +109,7 @@
 #ifdef MASKING
       logical :: LandFill
 #endif
-#if defined PARALLEL_OUT && defined DISTRIBUTE
+#if defined PARALLEL_IO && defined DISTRIBUTE
       logical :: Ltiled
 #endif
       integer :: i, j, latt, status
@@ -145,7 +145,7 @@
           END IF
         END IF
 
-#if !defined PARALLEL_OUT && (defined HDF5 && defined DEFLATE)
+#if !defined PARALLEL_IO && (defined HDF5 && defined DEFLATE)
 !
 !  Define deflate (file compresion) parameters. Notice that deflation
 !  cannot be used in parallel I/O for writing data. This is because
@@ -943,7 +943,7 @@
           END IF
         END IF
 #endif
-#if defined PARALLEL_OUT && defined DISTRIBUTE
+#if defined PARALLEL_IO && defined DISTRIBUTE
 !
 !  Set parallel access for tiled and non-tiled variables. The optional
 !  argument "SetParAccess" is only available for non-tiled variables.
@@ -981,7 +981,7 @@
 !
 !  Set error flag
 !
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       CALL mp_bcasti (ng, model, exit_flag)
 #endif
       def_var=exit_flag
@@ -992,7 +992,7 @@
      &        ' for variable: ',a,/,11x,'in NetCDF file: ',a)
  30   FORMAT (/,'DEF_VAR - error while defining attribute: ',a,         &
      &        ' for variable: ',a,/,11x,'in NetCDF file: ',a)
-#if defined PARALLEL_OUT && defined DISTRIBUTE
+#if defined PARALLEL_IO && defined DISTRIBUTE
  40   FORMAT (/,'DEF_VAR - error while setting parallel access flag',   &
      &        ' for variable: ',a,/,11x,'in NetCDF file: ',a)
 #endif

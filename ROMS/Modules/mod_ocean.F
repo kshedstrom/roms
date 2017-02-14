@@ -446,7 +446,6 @@
       allocate ( OCEAN(ng) % v(LBi:UBi,LBj:UBj,N(ng),2) )
       allocate ( OCEAN(ng) % W(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( OCEAN(ng) % wvel(LBi:UBi,LBj:UBj,0:N(ng)) )
-
 # ifdef OPTIC_MANIZZA
       allocate ( OCEAN(ng) % decayW(LBi:UBi,LBj:UBj,0:N(ng),4) )
 # endif
@@ -465,31 +464,31 @@
 # ifdef OPTIC_MANIZZA
       allocate ( OCEAN(ng) % decayW(LBi:UBi,LBj:UBj,0:N(ng),4) )
 # endif
-# ifdef BEST_NPZ
-#  ifdef STATIONARY
+#ifdef BEST_NPZ
+# ifdef STATIONARY
       ! Add a 3D stationary array to the biology module
          allocate ( OCEAN(ng) % st(LBi:UBi,LBj:UBj,N(ng),3,NTS(ng)) )
-#  endif
-#  ifdef STATIONARY2
+# endif
+# ifdef STATIONARY2
       ! Add a 2D stationary array to the biology module
       allocate ( OCEAN(ng) % st2(LBi:UBi,LBj:UBj,3,NTS2(ng)) )
-#  endif
-#  ifdef PROD2
+# endif
+# ifdef PROD2
       ! Add a 2D stationary production array to the biology module
       allocate ( OCEAN(ng) % pt2(LBi:UBi,LBj:UBj,3,NPT2(ng)) )
-#  endif
-#  ifdef PROD3
+# endif
+# ifdef PROD3
       ! Add a 3D stationary production array to the biology module
       allocate ( OCEAN(ng) % pt3(LBi:UBi,LBj:UBj,N(ng),3,NPT3(ng)) )
-#  endif
-#  if defined ICE_BIO
+# endif
+# if defined ICE_BIO
       allocate ( OCEAN(ng) % it(LBi:UBi,LBj:UBj,3,NIceT(ng)) )
       allocate ( OCEAN(ng) % itL(LBi:UBi,LBj:UBj,3, NIceLog(ng)) )
-#  endif
-#  ifdef BIOFLUX
+# endif
+# ifdef BIOFLUX
       ! Add a 3D  biology flux array
        allocate ( OCEAN(ng) % bflx(NT(ng),NT(ng)))
-#  endif
+#    endif
 # endif
 
 # ifdef NEMURO_SED1

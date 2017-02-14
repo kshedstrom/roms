@@ -135,12 +135,14 @@
       USE mod_param
       USE mod_biology
       USE mod_ncparam
-      USE mod_scalars
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       USE mod_fish
       USE mod_grid
       USE mod_stepping
       USE mod_floats
+      USE mod_scalars, only: rho0,Cp,sec2day,dt,itemp
+#else
+      USE mod_scalars
 #endif
 !
 !  Imported variable declarations.

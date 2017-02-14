@@ -1,10 +1,10 @@
 #include "cppdefs.h"
       MODULE interp_floats_mod
-#if defined NONLINEAR && (defined FLOATS || defined NEMURO_SAN)
+#if defined NONLINEAR && defined FLOATS
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2016 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -54,8 +54,8 @@
 !
 !***********************************************************************
       SUBROUTINE interp_floats (ng, LBi, UBi, LBj, UBj, LBk, UBk,       &
-     &                          Lstr, Lend, itime, ifield, numflt,      &
-     &                          isBval, gtype, maskit, Fspval, nudg,    &
+     &                          Lstr, Lend, itime, ifield, isBval,      &
+     &                          gtype, maskit, Fspval, nudg,            &
      &                          pm, pn,                                 &
 # ifdef SOLVE3D
      &                          Hz,                                     &
@@ -69,22 +69,21 @@
       USE mod_param
       USE mod_ncparam
       USE mod_floats
-      USE mod_scalars, only:EWperiodic,NSperiodic
+      USE mod_scalars
 !
       implicit none
 !
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, LBi, UBi, LBj, UBj, LBk, UBk
-      integer, intent(in) :: Lstr, Lend, itime, ifield, gtype, numflt
-      integer, intent(in) :: isBval
+      integer, intent(in) :: Lstr, Lend, itime, ifield, isBval, gtype
 
       logical, intent(in) :: maskit
       logical, intent(in) :: my_thread(Lstr:Lend)
 # ifdef OFFLINE_FLOATS
-      logical, intent(inout) :: bounded(numflt)
+      logical, intent(inout) :: bounded(Nfloats(ng))
 # else
-      logical, intent(in) :: bounded(numflt)
+      logical, intent(in) :: bounded(Nfloats(ng))
 # endif
 
       real(r8), intent(in) :: Fspval
@@ -101,7 +100,7 @@
 # endif
       real(r8), intent(in) :: A(LBi:UBi,LBj:UBj,LBk:UBk)
 
-      real(r8), intent(inout) :: track(NFV(ng),0:NFT,numflt)
+      real(r8), intent(inout) :: track(NFV(ng),0:NFT,Nfloats(ng))
 !
 !  Local variable declarations.
 !

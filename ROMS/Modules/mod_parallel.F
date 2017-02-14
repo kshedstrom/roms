@@ -197,6 +197,7 @@
 !
 !  Local variable declarations.
 !
+      integer :: i
 #ifdef DISTRIBUTE
       integer :: MyError
 #else
@@ -244,26 +245,23 @@
 !
 !  Identify master, input and output threads.
 !
-#  ifdef PARALLEL_IN
-      InpThread=.TRUE.
-#  else
-      InpThread=.FALSE.
-      IF (MyRank.eq.MyMaster) THEN
-        InpThread=.TRUE.
-      END IF
-#  endif
-#  ifdef PARALLEL_OUT
-      OutThread=.TRUE.
-#  else
-      OutThread=.FALSE.
-      IF (MyRank.eq.MyMaster) THEN
-        OutThread=.TRUE.
-      END IF
-#  endif
+#  ifdef PARALLEL_IO
       Master=.FALSE.
+      InpThread=.TRUE.
+      OutThread=.TRUE.
       IF (MyRank.eq.MyMaster) THEN
         Master=.TRUE.
       END IF
+#  else
+      Master=.FALSE.
+      InpThread=.FALSE.
+      OutThread=.FALSE.
+      IF (MyRank.eq.MyMaster) THEN
+        Master=.TRUE.
+        InpThread=.TRUE.
+        OutThread=.TRUE.
+      END IF
+#  endif
 # endif
 #endif
 

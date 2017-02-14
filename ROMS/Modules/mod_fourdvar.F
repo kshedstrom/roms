@@ -351,6 +351,7 @@
 !  eigenvector Nvct:Ninner to will be processed, others will be
 !  disgarded).
 !
+        integer :: Nimpact
         integer :: Nvct
 !
 !  Optimal, normalized cost funtion minimum.  If the statistical
@@ -370,6 +371,7 @@
 !  observations locations into observations NetCDF file.
 !
         logical, allocatable :: wrtNLmod(:)
+        logical, allocatable :: wrtObsScale(:)
 !
 !  Sitch to process and write out observation accept/reject flag used
 !  for screening and quality control.

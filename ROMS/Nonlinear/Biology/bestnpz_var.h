@@ -364,9 +364,12 @@
 #endif
 
 
+#ifdef TS_PSOURCE
+
 /*
 **  Biological tracers point Source/Sinks (river runoff).
 */
 
               CASE ('idRtrc(iNO3)')
                 idRtrc(iNO3)=varid
+#endif

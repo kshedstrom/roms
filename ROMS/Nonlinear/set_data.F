@@ -413,7 +413,6 @@
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 
-#  endif
 #  if defined COBALT_CARBON 
       CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -453,6 +452,7 @@
      &                     FORCES(ng)%mineral_fe,                       &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
+! end of BIO_COBALT
 #  endif
 
 #   ifdef CLOUDS

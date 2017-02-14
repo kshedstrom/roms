@@ -308,9 +308,8 @@
             END IF
             eggcostWT=dJ/fishJ
             IF (ripe.ge.1.0_r8) THEN
-              !bioenergy(ifeggs,ifid)=0.5*ANINT(eggs)*MAX(0.0_r8,Fworth)
-              ! RD : 0.5 or 1 depends on namelist params
-              bioenergy(ifeggs,ifid)=ANINT(eggs)*MAX(0.0_r8,Fworth)
+              bioenergy(ifeggs,ifid)=0.5*ANINT(eggs)*MAX(0.0_r8,Fworth)
+              ! 0.5 is because we assume half of fishes are female and spawn
               bioenergy(ifteggs,ifid)=bioenergy(ifteggs,ifid)+          &
      &                                  bioenergy(ifeggs,ifid)
               bioenergy(ifbatch,ifid)=bioenergy(ifbatch,ifid)+1.0_r8

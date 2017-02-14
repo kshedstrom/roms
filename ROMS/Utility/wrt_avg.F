@@ -3169,8 +3169,6 @@
           RETURN
         END IF
       END IF
-#  endif
-#  if defined BULK_FLUXES || defined ECOSIM
 !
 !  Write out sensible heat flux.
 !

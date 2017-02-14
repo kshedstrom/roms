@@ -3150,6 +3150,7 @@
 !
 !  Correct coarse grid tracer at the finer grid western boundary.
 !
+            TFF=TFF*dt(ngc)/dt(ngf)
             cff=GRID(ngc)%pm(Ibc-1,Jbc)*                                &
      &          GRID(ngc)%pn(Ibc-1,Jbc)*                                &
      &          Dinv(Ibc-1,Jbc)
@@ -3203,6 +3204,7 @@
                 TFF=TFF+BRY_CONTACT(ieast,dgcr)%Tflux(Jbf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Zeroth order correction to fine grid time integral (RIL, 2016).
 !
@@ -3263,6 +3265,7 @@
                 TFF=TFF+BRY_CONTACT(isouth,dgcr)%Tflux(Ibf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Zeroth order correction to fine grid time integral (RIL, 2016).
 !
@@ -3323,6 +3326,7 @@
                 TFF=TFF+BRY_CONTACT(inorth,dgcr)%Tflux(Ibf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Zeroth order correction to fine grid time integral.
 !

@@ -83,7 +83,7 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -g -fbounds-check -ffpe-trap=invalid,zero -ffree-line-length-none
+           FFLAGS += -g -fbounds-check -ffpe-trap=invalid,zero -ffree-line-length-none -fbacktrace
            CFLAGS += -g
          CXXFLAGS += -g
 else

@@ -44,7 +44,7 @@
 
       CONTAINS
 
-#if defined PARALLEL_IN && defined DISTRIBUTE
+#if defined PARALLEL_IO && defined DISTRIBUTE
 !
 !***********************************************************************
       FUNCTION nf_fread3d (ng, model, ncname, ncid,                     &

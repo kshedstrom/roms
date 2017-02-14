@@ -49,7 +49,7 @@
 #endif
       USE mod_sources
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
 #ifdef STATIONS
@@ -2331,7 +2331,7 @@
       CALL netcdf_sync (ng, model, ncname, ncid)
       IF (exit_flag.ne.NoError) RETURN
 
-#if !defined PARALLEL_OUT  && defined DISTRIBUTE
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -2346,6 +2346,8 @@
      &        12x,'into file: ',a)
   20  FORMAT (/,' WRT_INFO - error while inquiring ID for variable: ',  &
      &        a,/,12x,'in file: ',a)
+  30  FORMAT (/,' WRT_INFO - unable to synchronize to disk file: ',     &
+     &        /,12x,a)
 
       RETURN
       END SUBROUTINE wrt_info
