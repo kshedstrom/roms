@@ -16,5 +16,7 @@
       USE mod_param
       USE mod_scalars
       USE mod_stepping
+      USE mod_stoperturb
 
       END SUBROUTINE set_stoperturb
+#endif
