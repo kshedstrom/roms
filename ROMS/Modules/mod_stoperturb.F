@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-      MODULE mod_perturb
+      MODULE mod_stoperturb
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -8,4 +8,4 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-      END MODULE mod_perturb
+      END MODULE mod_stoperturb
