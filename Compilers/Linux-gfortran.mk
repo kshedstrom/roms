@@ -23,7 +23,7 @@
 # LD             Program to load the objects into an executable
 # LDFLAGS        Flags to the loader
 # RANLIB         Name of ranlib command
-# MDEPFLAGS      Flags for sfmakedepend  (-s if you keep .f files)
+# MDEPFLAGS      Flags for sfmakedepend
 #
 # First the defaults
 #
@@ -44,7 +44,8 @@
              PERL := perl
              TEST := test
 
-        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
+        MDEPFLAGS := --file=- --objdir=$(SCRATCH_DIR)
+#        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
 
 #
 # Library locations, can be overridden by environment variables.

@@ -60,7 +60,7 @@ endif
 #  the .h extension. For example, the upwelling application includes the
 #  "upwelling.h" header file.
 
-ROMS_APPLICATION ?= 
+ROMS_APPLICATION ?= UPWELLING
 
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
@@ -75,7 +75,7 @@ MY_HEADER_DIR ?=
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?= 
+MY_ANALYTICAL_DIR ?=
 
 # If applicable, where does CICE put its binary files?
 
@@ -120,6 +120,11 @@ MY_CPP_FLAGS ?=
 #  library needs both the HDF5 and MPI libraries.
 
  USE_NETCDF4 ?= on
+
+#  Top of the ROMS source tree.
+
+#MY_ROMS_DIR ?= $(PWD)
+MY_ROMS_DIR ?= /u1/uaf/kshedstrom/feedme/
 
 #--------------------------------------------------------------------------
 #  We are going to include a file with all the settings that depend on
@@ -188,13 +193,15 @@ endif
 #--------------------------------------------------------------------------
 
 %.o: %.F
+	cd $(SCRATCH_DIR); $(FC) $(MY_CPP_FLAGS) -c $(FFLAGS) $<
+#	cd $(SCRATCH_DIR); $(FC) $(MY_CPP_FLAGS) -c $(FFLAGS) $(notdir $<)
 
-%.o: %.f90
-	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
-
-%.f90: %.F
-	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
-	$(CLEAN) $*.f90
+#%.o: %.f90
+#	cd $(SCRATCH_DIR); $(FC) -c $(FFLAGS) $(notdir $<)
+#
+#%.f90: %.F
+#	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.f90
+#	$(CLEAN) $*.f90
 
 CLEAN := ROMS/Bin/cpp_clean
 
@@ -290,15 +297,21 @@ define make-c-library
 	$(RANLIB) $$@
 endef
 
-# $(call f90-source, source-file-list)
-f90-source = $(call source-dir-to-binary-dir,     \
-                   $(subst .F,.f90,$1))
+## $(call f90-source, source-file-list)
+#f90-source = $(call source-dir-to-binary-dir,     \
+#                   $(subst .F,.f90,$1))
+
+## $(compile-rules)
+#define compile-rules
+#  $(foreach f, $(local_src),       \
+#    $(call one-compile-rule,$(call source-to-object,$f), \
+#    $(call f90-source,$f),$f))
+#endef
 
 # $(compile-rules)
 define compile-rules
   $(foreach f, $(local_src),       \
-    $(call one-compile-rule,$(call source-to-object,$f), \
-    $(call f90-source,$f),$f))
+    $(call one-compile-rule,$(call source-to-object,$f), $f))
 endef
 
 # $(c-compile-rules)
@@ -307,14 +320,21 @@ define c-compile-rules
     $(call one-c-compile-rule,$(call c-source-to-object,$f), $f))
 endef
 
-# $(call one-compile-rule, binary-file, f90-file, source-file)
-define one-compile-rule
-  $1: $2 $3
-	cd $$(SCRATCH_DIR); $$(FC) -c $$(FFLAGS) $(notdir $2)
+## $(call one-compile-rule, binary-file, f90-file, source-file)
+#define one-compile-rule
+#  $1: $2 $3
+#	cd $$(SCRATCH_DIR); $$(FC) -c $$(FFLAGS) $(notdir $2)
+#
+#  $2: $3
+#	$$(CPP) $$(CPPFLAGS) $$(MY_CPP_FLAGS) $$< > $$@
+#	$$(CLEAN) $$@
+#
+#endef
 
-  $2: $3
-	$$(CPP) $$(CPPFLAGS) $$(MY_CPP_FLAGS) $$< > $$@
-	$$(CLEAN) $$@
+# $(call one-compile-rule, binary-file, source-file)
+define one-compile-rule
+  $1: $2
+	cd $$(SCRATCH_DIR); $$(FC) -c $$(MY_CPP_FLAGS) $$(FFLAGS) $(notdir $2)
 
 endef
 
@@ -496,10 +516,11 @@ endif
  modules  +=	Master
  includes +=	Master Compilers
 
-vpath %.F $(modules)
+vpath %.F $(addprefix $(MY_ROMS_DIR)/, $(modules))
+#vpath %.F $(modules)
 vpath %.cc $(modules)
 vpath %.h $(includes)
-vpath %.f90 $(SCRATCH_DIR)
+#vpath %.f90 $(SCRATCH_DIR)
 vpath %.o $(SCRATCH_DIR)
 
 include $(addsuffix /Module.mk,$(modules))

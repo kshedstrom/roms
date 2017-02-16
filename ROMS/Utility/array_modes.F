@@ -203,7 +203,6 @@
 
 #  ifndef RPCG
 !
-#  ifndef RPCG
 !  Now convert ADmodVal back to physical units.
 !
         DO iobs=1,Ndatum(ng)

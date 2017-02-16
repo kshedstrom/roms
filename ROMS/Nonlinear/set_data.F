@@ -339,6 +339,7 @@
       FORCES(ng)%albedo_ice = FORCES(ng)%albedo
 #    endif
 #   endif
+#  endif
 
 #  if defined BIO_COBALT_RUNOFF
       CALL set_2dfld_tile (ng, tile, iNLM, idriver_no3,                 &
@@ -413,7 +414,7 @@
       IF (exit_flag.ne.NoError) RETURN
 #   endif
 
-#  if defined COBALT_CARBON 
+#  if defined COBALT_CARBON
       CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%atmCO2G,                          &

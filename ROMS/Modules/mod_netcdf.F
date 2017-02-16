@@ -148,7 +148,7 @@
       integer :: deflate = 1
       integer :: deflate_level = 1
 
-#ifdef PARALLEL_IO
+#if defined PARALLEL_IN || defined PARALLEL_OUT
 !
 !  Set parallel I/O access for processing non-tiled and tiled data.
 !  Two modes of parallel I/O access are possible: Independent and
@@ -222,7 +222,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
@@ -244,7 +244,7 @@
       integer :: ncid, i, j, status
       integer :: myID, myValue
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(5) :: ibuffer
 #endif
 !
@@ -283,7 +283,7 @@
         ncformat=-1
 #endif
         IF ((status.eq.nf90_noerr).and.(n_dim.le.Mdims)) THEN
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
           ibuffer(1)=n_dim
           ibuffer(2)=n_var
           ibuffer(3)=n_gatt
@@ -307,7 +307,7 @@
             END IF
             IF (dim_id(i).eq.rec_id) THEN
               rec_size=dim_size(i)
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
               ibuffer(5)=rec_size
 #endif
             END IF
@@ -327,7 +327,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast dimension to all processors in the group.
 !
@@ -1133,7 +1133,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcastf, mp_bcasts
 #endif
@@ -1160,7 +1160,7 @@
       integer :: i, j, status
       integer :: my_Alen, my_Atype, my_id, my_ncid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(4) :: ibuffer
 #endif
 
@@ -1202,7 +1202,7 @@
       IF (InpThread) THEN
         status=nf90_inquire(my_ncid, n_dim, n_var, n_gatt, rec_id)
         IF ((status.eq.nf90_noerr).and.(n_var.le.Mvars)) THEN
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
           ibuffer(1)=n_dim
           ibuffer(2)=n_var
           ibuffer(3)=n_gatt
@@ -1258,7 +1258,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast dimension to all processors in the group.
 !
@@ -1419,7 +1419,7 @@
             END IF
           END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast requested variable information to all processors in the
 !  group.
@@ -1516,7 +1516,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -1533,7 +1533,7 @@
 !  Local variable declarations.
 !
       integer :: status
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(3) :: ibuffer
 #endif
 !
@@ -1552,7 +1552,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       ibuffer(3)=VarID
@@ -1599,7 +1599,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf
 #endif
@@ -1621,7 +1621,7 @@
 !
       integer :: i, j, my_natts, my_ncid, nvatts, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       real(r8), dimension(20) :: buffer
 #endif
 
@@ -1701,7 +1701,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast information to all processors in the group. Pack all
 !  data into a real array for efficient communications.
@@ -1779,7 +1779,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
@@ -1801,7 +1801,7 @@
 !
       integer :: i, j, my_natts, my_ncid, nvatts, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(20) :: ibuffer
 #endif
 
@@ -1880,7 +1880,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast information to all processors in the group. Pack all
 !  data into a real array for efficient communications.
@@ -1967,7 +1967,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -1992,7 +1992,7 @@
 !
       integer :: my_ncid, status, varid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8), dimension(1) :: my_A
@@ -2037,7 +2037,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -2118,7 +2118,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -2146,7 +2146,7 @@
       integer :: i, my_ncid, status, varid
 
       integer, dimension(1) :: Asize
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8) :: Afactor, Aoffset, Aspval
@@ -2204,7 +2204,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -2344,7 +2344,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -2373,7 +2373,7 @@
 
       integer, dimension(2) :: Asize
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8) :: Afactor, Aoffset, Aspval
@@ -2429,7 +2429,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -2572,7 +2572,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -2601,7 +2601,7 @@
 
       integer, dimension(3) :: Asize
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8) :: Afactor, Aoffset, Aspval
@@ -2660,7 +2660,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -2811,7 +2811,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -2840,7 +2840,7 @@
 
       integer, dimension(4) :: Asize
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8) :: Afactor, Aoffset, Aspval
@@ -2901,7 +2901,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3058,7 +3058,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcastl
 #endif
@@ -3083,7 +3083,7 @@
       integer :: AI
       integer, dimension(1) :: my_AI
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       character (len=1) :: Achar
@@ -3157,7 +3157,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3229,7 +3229,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcastl
 #endif
@@ -3253,7 +3253,7 @@
 
       integer, dimension(SIZE(A,1)) :: AI
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       character (len=1), dimension(SIZE(A,1)) :: Achar
@@ -3330,7 +3330,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3399,7 +3399,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -3423,7 +3423,7 @@
 
       integer, dimension(1) :: my_A
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -3466,7 +3466,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3533,7 +3533,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -3555,7 +3555,7 @@
 !
       integer :: my_ncid, status, varid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -3597,7 +3597,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3665,7 +3665,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -3687,7 +3687,7 @@
 !
       integer :: my_ncid, status, varid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -3729,7 +3729,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3795,7 +3795,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
@@ -3817,7 +3817,7 @@
 !
       integer :: my_ncid, status, varid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -3859,7 +3859,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -3926,7 +3926,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
@@ -3948,7 +3948,7 @@
 !
       integer :: my_ncid, status, varid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -3990,7 +3990,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast read variable to all processors in the group.
 !
@@ -4056,7 +4056,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4078,7 +4078,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
       real(r8), dimension(1) :: my_A
@@ -4131,7 +4131,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4194,7 +4194,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4216,7 +4216,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4263,7 +4263,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4326,7 +4326,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4348,7 +4348,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4395,7 +4395,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4458,7 +4458,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4480,7 +4480,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4527,7 +4527,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4590,7 +4590,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4612,7 +4612,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4659,7 +4659,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4722,7 +4722,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4746,7 +4746,7 @@
 
       integer, dimension(1) :: my_A
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4798,7 +4798,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4861,7 +4861,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -4883,7 +4883,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -4930,7 +4930,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -4993,7 +4993,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5015,7 +5015,7 @@
 !
       integer :: my_ncid, my_varid, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5062,7 +5062,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5128,7 +5128,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5153,7 +5153,7 @@
       integer :: AI
       integer, dimension(1) :: my_AI
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5214,7 +5214,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5280,7 +5280,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5304,7 +5304,7 @@
 
       integer, dimension(SIZE(A,1)) :: AI
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5362,7 +5362,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5428,7 +5428,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5452,7 +5452,7 @@
 
       integer, dimension(SIZE(A,1),SIZE(A,2)) :: AI
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5512,7 +5512,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5575,7 +5575,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5598,7 +5598,7 @@
 
       integer, dimension(1) :: mystart, mytotal
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5647,7 +5647,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5710,7 +5710,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5734,7 +5734,7 @@
 
       integer, dimension(2) :: mystart, mytotal
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 !
@@ -5785,7 +5785,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5835,7 +5835,7 @@
       USE mod_ncparam
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -5859,7 +5859,7 @@
 #ifdef BIOLOGY
       integer :: AttLen, is, ie, lstr
 #endif
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(3) :: ibuffer
 #endif
       character (len=200) :: my_ncname
@@ -5950,7 +5950,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !
@@ -5997,7 +5997,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -6013,7 +6013,7 @@
 !  Local variable declarations.
 !
       integer :: my_cmode, status
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
       integer :: ibuffer(3)
 #endif
 !
@@ -6021,7 +6021,7 @@
 !  Create requested NetCDF file.
 !-----------------------------------------------------------------------
 !
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_OUT && defined DISTRIBUTE
 
 !  Create a netCDF-4/HDF5  format file. Since nf90_clobber=0, then
 !  OR(nf90_clobber, nf90_netcdf4)=nf90_netcdf.  Therefore, the default
@@ -6064,7 +6064,7 @@
 #endif
 !
   10  FORMAT (/,' NETCDF_CREATE - unable to create output NetCDF ',     &
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_OUT && defined DISTRIBUTE
      &        'parallel I/O file:',/,17x,a,/,17x,'call from:',2x,a)
 #else
      &        'file:',/,17x,a,/,17x,'call from:',2x,a)
@@ -6099,7 +6099,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -6114,7 +6114,7 @@
 !
       integer :: status
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
 !
@@ -6122,7 +6122,7 @@
 !  Leave definition mode.
 !-----------------------------------------------------------------------
 !
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_OUT && defined DISTRIBUTE
 
 ! There is not need to call this function when processing NetCDF-4
 ! format type file.
@@ -6181,7 +6181,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -6198,7 +6198,7 @@
 !
       integer :: status
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if defined DISTRIBUTE
       integer :: ibuffer(3)
 #endif
 !
@@ -6206,49 +6206,82 @@
 !  Create requested NetCDF file.
 !-----------------------------------------------------------------------
 !
-#if defined PARALLEL_IO && defined DISTRIBUTE
       SELECT CASE (omode)
         CASE (0)
+#if defined PARALLEL_IN && defined DISTRIBUTE
           status=nf90_open(path = TRIM(ncname),                         &
      &                     mode = nf90_nowrite,                         &
      &                     ncid = ncid,                                 &
      &                     comm = OCN_COMM_WORLD,                       &
      &                     info = MP_INFO)
-        CASE (1)
-          status=nf90_open(path = TRIM(ncname),                         &
-     &                     mode = nf90_write,                           &
-     &                     ncid = ncid,                                 &
-     &                     comm = OCN_COMM_WORLD,                       &
-     &                     info = MP_INFO)
-        CASE DEFAULT
-          status=nf90_open(path = TRIM(ncname),                         &
-     &                     mode = nf90_nowrite,                         &
-     &                     ncid = ncid,                                 &
-     &                     comm = OCN_COMM_WORLD,                       &
-     &                     info = MP_INFO)
-      END SELECT
           IF (status.ne.nf90_noerr) THEN
             IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
             exit_flag=3
             ioerror=status
           END IF
 #else
           IF (InpThread) THEN
-        SELECT CASE (omode)
-          CASE (0)
             status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
-          CASE (1)
-            status=nf90_open(TRIM(ncname), nf90_write, ncid)
-          CASE DEFAULT
-            status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
-        END SELECT
             IF (status.ne.nf90_noerr) THEN
-          WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
               exit_flag=3
               ioerror=status
             END IF
           END IF
-# ifdef DISTRIBUTE
+#endif
+        CASE (1)
+#if defined PARALLEL_OUT && defined DISTRIBUTE
+          status=nf90_open(path = TRIM(ncname),                         &
+     &                     mode = nf90_write,                           &
+     &                     ncid = ncid,                                 &
+     &                     comm = OCN_COMM_WORLD,                       &
+     &                     info = MP_INFO)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
+            exit_flag=3
+            ioerror=status
+          END IF
+#else
+          IF (OutThread) THEN
+            status=nf90_open(TRIM(ncname), nf90_write, ncid)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
+#endif
+        CASE DEFAULT
+#if defined PARALLEL_IN && defined DISTRIBUTE
+          status=nf90_open(path = TRIM(ncname),                         &
+     &                     mode = nf90_nowrite,                         &
+     &                     ncid = ncid,                                 &
+     &                     comm = OCN_COMM_WORLD,                       &
+     &                     info = MP_INFO)
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            PRINT *, trim(nf90_strerror(status))
+            exit_flag=3
+            ioerror=status
+          END IF
+#else
+          IF (InpThread) THEN
+            status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
+            IF (status.ne.nf90_noerr) THEN
+              IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+              PRINT *, trim(nf90_strerror(status))
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
+#endif
+      END SELECT
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
+      IF (omode == 1) THEN
         ibuffer(1)=exit_flag
         ibuffer(2)=ioerror
         ibuffer(3)=ncid
@@ -6256,11 +6289,22 @@
         exit_flag=ibuffer(1)
         ioerror=ibuffer(2)
         ncid=ibuffer(3)
+      END IF
 #endif
+#if !defined PARALLEL_IN && defined DISTRIBUTE
+      IF (omode == 0) THEN
+        ibuffer(1)=exit_flag
+        ibuffer(2)=ioerror
+        ibuffer(3)=ncid
+        CALL mp_bcasti (ng, model, ibuffer)
+        exit_flag=ibuffer(1)
+        ioerror=ibuffer(2)
+        ncid=ibuffer(3)
+      END IF
 #endif
 !
   10  FORMAT (/,' NETCDF_OPEN - unable to open existing NetCDF ',       &
-#if defined PARALLEL_IO && defined DISTRIBUTE
+#if defined PARALLEL_IN && defined DISTRIBUTE
      &        'file for parallel access:',/,15x,a,/,15x,                &
      &        'call from:',2x,a)
 #else
@@ -6295,7 +6339,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -6310,7 +6354,7 @@
 !
       integer :: status
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
 !
@@ -6328,7 +6372,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       CALL mp_bcasti (ng, model, ibuffer)
@@ -6370,7 +6414,7 @@
       USE mod_iounits
       USE mod_scalars
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
 !
       USE distribute_mod, ONLY : mp_bcasti
 #endif
@@ -6385,7 +6429,7 @@
 !
       integer :: status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
 !
@@ -6403,7 +6447,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_OUT && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       CALL mp_bcasti (ng, model, ibuffer)

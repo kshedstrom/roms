@@ -972,7 +972,7 @@
         NFV(ng)=NT(ng)+10
 #  endif
 # endif
-#ifdef OFFLINE_FLOATS_LATLON
+# ifdef OFFLINE_FLOATS_LATLON
 ! add 4 variables: x-space, y-space, water depth and Hz 
           NFV(ng)=NFV(ng)+4
 # endif

@@ -305,7 +305,7 @@
 #ifdef SKIP_NLM
 !
 !-----------------------------------------------------------------------
-!  If skiping runing nonlinear model, read in observation screening and
+!  If skipping running nonlinear model, read in observation screening and
 !  quality control flag.
 !-----------------------------------------------------------------------
 !
@@ -317,20 +317,6 @@
       END DO
 #endif
 !
-#ifdef SKIP_NLM
-!
-!-----------------------------------------------------------------------
-!  If skiping runing nonlinear model, read in observation screening and
-!  quality control flag.
-!-----------------------------------------------------------------------
-!
-      wrtObsScale(1:Ngrids)=.FALSE.
-      DO ng=1,Ngrids
-        CALL netcdf_get_fvar (ng, iTLM, LCZ(ng)%name, Vname(1,idObsS),  &
-     &                        ObsScale)
-        IF (exit_flag.ne.NoError) RETURN
-      END DO
-#endif
 !-----------------------------------------------------------------------
 !  Read in standard deviation factors for error covariance.
 !-----------------------------------------------------------------------
