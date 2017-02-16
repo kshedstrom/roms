@@ -17,6 +17,7 @@
       USE mod_scalars
       USE mod_stepping
       USE mod_stoperturb
+      USE mod_fftw3
 
       END SUBROUTINE set_stoperturb
 #endif
