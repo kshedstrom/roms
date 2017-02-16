@@ -114,8 +114,8 @@ endif
 ifdef USE_CXX
              LIBS += -lstdc++
 endif
-ifdef STOPERTURB
-             FFLAGS += $(shell pkg-config --cflags fftw3)
+ifdef USE_FFTW
+           FFLAGS += $(shell pkg-config --cflags fftw3)
              LIBS += $(shell pkg-config --libs fftw3)
 endif
 
