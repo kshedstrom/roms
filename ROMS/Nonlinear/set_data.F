@@ -413,6 +413,7 @@
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 #   endif
+#  endif
 
 #  if defined COBALT_CARBON
       CALL set_2dfld_tile (ng, tile, iNLM, idAtmCO2,                    &
@@ -456,7 +457,7 @@
 ! end of BIO_COBALT
 #  endif
 
-#   ifdef CLOUDS
+#  ifdef CLOUDS
 !
 !-----------------------------------------------------------------------
 !  Set cloud fraction (nondimensional).  Notice that clouds are
@@ -464,17 +465,17 @@
 !  radiation.
 !-----------------------------------------------------------------------
 !
-#    ifdef ANA_CLOUD
+#   ifdef ANA_CLOUD
       CALL ana_cloud (ng, tile, iNLM)
-#    else
+#   else
       CALL set_2dfld_tile (ng, tile, iNLM, idCfra,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%cloudG,                           &
      &                     FORCES(ng)%cloud,                            &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
-#    endif
 #   endif
+#  endif
 
 #  ifdef SHORTWAVE
 !
@@ -921,7 +922,6 @@
 #    endif
 #   endif
 #  endif
-# endif
 # endif
 
 # if !defined AIR_OCEAN   && defined FOUR_DVAR      && \
