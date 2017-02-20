@@ -485,13 +485,15 @@
 !
         real(r8), allocatable :: maxspeed(:)
         real(r8), allocatable :: maxrho(:)
+        real(r8), allocatable :: mintemp(:)
 !
 #ifdef NWGOA
         real(r8) :: max_speed = 80.0_r8         ! m/s
 #else
         real(r8) :: max_speed = 20.0_r8         ! m/s
 #endif
-        real(r8) :: max_rho = 200.0_r8          ! kg/m3
+        real(r8) :: max_rho  = 200.0_r8         ! kg/m3
+        real(r8) :: min_temp = -50.0_r8         ! degree C
 #ifdef BIOLOGY
         real(r8), allocatable :: maxbio(:,:)
         real(r8), allocatable :: max_bio(:)
@@ -1969,6 +1971,7 @@
 
       allocate ( maxspeed(Ngrids) )
       allocate ( maxrho(Ngrids) )
+      allocate ( mintemp(Ngrids) )
 
       allocate ( levsfrc(Ngrids) )
       allocate ( levbfrc(Ngrids) )
