@@ -63,6 +63,9 @@
 #if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice, ONLY : allocate_ice, initialize_ice
 #endif
+#ifdef STOPERTURB
+      USE mod_stoperturb, ONLY : allocate_perturb, initialize_perturb
+#endif
 !
       implicit none
 !
@@ -167,6 +170,10 @@
 #if defined TRC_PSOURCE
           CALL allocate_trc_sources (ng)
 #endif
+#ifdef STOPERTURB
+          CALL allocate_perturb (ng, LBi, UBi, LBj, UBj)
+#endif
+
 !$OMP END MASTER
 !$OMP BARRIER
         END DO
@@ -236,6 +243,10 @@
 #if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
           CALL initialize_tides (ng, tile)
 #endif
+#ifdef STOPERTURB
+          CALL initialize_perturb (ng, tile, model)
+#endif
+
         END DO
 !$OMP BARRIER
       END DO

@@ -36,6 +36,11 @@
       USE mod_scalars
       USE mod_sources
       USE mod_stepping
+#ifdef STOPERTURB
+      USE mod_stoperturb
+      USE set_stoperturb, ONLY : get_pseudo2D_field
+#endif
+
 !
       implicit none
 !
@@ -51,6 +56,7 @@
       integer :: ILB, IUB, JLB, JUB
       integer :: LBi, UBi, LBj, UBj
       integer :: i, ic, my_tile
+      real    :: dx=7000.0,dy=7000.0,rh=5.0E5
 !
 !  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
@@ -75,6 +81,7 @@
 !
       CALL wclock_on (ng, iNLM, 3)
 #endif
+
 !
 !=======================================================================
 !  Read in forcing data from FORCING NetCDF file.
@@ -286,6 +293,13 @@
 # endif
      &                FORCES(ng) % UwindG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      CALL get_pseudo2D_field(ng,idUair,                                &
+                              LBi, UBi, LBj, UBj,                       &
+                              ILB,IUB,JLB,JUB, 2, 1,                    &
+                              rh,dx,dy,PERTURB(ng) % UwindG)
+# endif
 
       CALL get_2dfld (ng , iNLM, idVair, ncFRCid(idVair,ng),            &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
@@ -295,7 +309,18 @@
 # endif
      &                FORCES(ng) % VwindG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      CALL get_pseudo2D_field(ng,idVair,                                &
+                              LBi, UBi, LBj, UBj,                       &
+                              ILB,IUB,JLB,JUB, 2, 1,                    &
+                              rh,dx,dy,PERTURB(ng) % VwindG)
+# endif
 #endif
+
+
+
+
 
 #if !defined AIR_OCEAN && !defined NCEP_FLUXES
 # if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \

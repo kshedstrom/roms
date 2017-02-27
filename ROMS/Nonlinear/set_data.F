@@ -92,6 +92,11 @@
       USE exchange_3d_mod
 #  endif
 # endif
+#if defined STOPERTURB
+      USE mod_stoperturb
+#endif
+
+
 !
       implicit none
 !
@@ -485,7 +490,11 @@
 #   else
       CALL set_2dfld_tile (ng, tile, iNLM, idSrad,                      &
      &                     LBi, UBi, LBj, UBj,                          &
+#    ifdef FORCE_PERTURB
+     &                     FORCES(ng)%srflxG+PERTURB(ng)%srflxG,        &
+#    else
      &                     FORCES(ng)%srflxG,                           &
+#    endif
      &                     FORCES(ng)%srflx,                            &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
