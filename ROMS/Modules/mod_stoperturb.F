@@ -39,13 +39,9 @@
         TYPE T_PERTURB
 
 #ifdef FORCE_PERTURB
-          real(r8), pointer :: Uwind(:,:)
           real(r8), pointer :: UwindG(:,:,:)
-          real(r8), pointer :: Vwind(:,:)
           real(r8), pointer :: VwindG(:,:,:)
-          real(r8), pointer :: Tair(:,:)
           real(r8), pointer :: TairG(:,:,:)
-          real(r8), pointer :: srflx(:,:)
           real(r8), pointer :: srflxG(:,:,:)
 #endif
 
@@ -81,13 +77,9 @@
 !
 
 #ifdef FORCE_PERTURB
-      allocate ( PERTURB(ng) % Uwind(LBi:UBi,LBj:UBj) )
       allocate ( PERTURB(ng) % UwindG(LBi:UBi,LBj:UBj,2) )
-      allocate ( PERTURB(ng) % Vwind(LBi:UBi,LBj:UBj) )
       allocate ( PERTURB(ng) % VwindG(LBi:UBi,LBj:UBj,2) )
-      allocate ( PERTURB(ng) % Tair(LBi:UBi,LBj:UBj) )
       allocate ( PERTURB(ng) % TairG(LBi:UBi,LBj:UBj,2) )
-      allocate ( PERTURB(ng) % srflx(LBi:UBi,LBj:UBj) )
       allocate ( PERTURB(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #endif
 
@@ -108,6 +100,7 @@
 !=======================================================================
 !
       USE mod_param
+      USE pseudo_rand2D, ONLY : random_seed_fixed
 !
 !  Imported variable declarations.
 !
@@ -116,10 +109,18 @@
 !  Local variable declarations.
 !
       integer :: Imin, Imax, Jmin, Jmax
-      integer :: i, j, k
+      integer :: i, j, k, 
+      integer :: seed_user = 42
       real(r8), parameter :: IniVal = 0.0_r8
 
 #include "set_bounds.h"
+
+
+!
+!  Initialize seed for random number generation
+!
+      CALL random_seed_fixed(seed_user)
+
 !
 !  Set array initialization range.
 !
@@ -161,16 +162,12 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
 #ifdef FORCE_PERTURB
-            PERTURB(ng) % Uwind(i,j) = IniVal
             PERTURB(ng) % UwindG(i,j,1) = IniVal
             PERTURB(ng) % UwindG(i,j,2) = IniVal
-            PERTURB(ng) % Vwind(i,j) = IniVal
             PERTURB(ng) % VwindG(i,j,1) = IniVal
             PERTURB(ng) % VwindG(i,j,2) = IniVal
-            PERTURB(ng) % Tair(i,j)  = IniVal
             PERTURB(ng) % TairG(i,j,1) = IniVal
             PERTURB(ng) % TairG(i,j,2) = IniVal
-            PERTURB(ng) % srflx(i,j) = IniVal
             PERTURB(ng) % srflxG(i,j,1) = IniVal
             PERTURB(ng) % srflxG(i,j,2) = IniVal
 #endif

@@ -319,9 +319,6 @@
 #endif
 
 
-
-
-
 #if !defined AIR_OCEAN && !defined NCEP_FLUXES
 # if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \
           && !defined BULK_FLUXES2D
@@ -531,6 +528,13 @@
 # endif
      &                FORCES(ng) % TairG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      CALL get_pseudo2D_field(ng,idTair,                                &
+                              LBi, UBi, LBj, UBj,                       &
+                              ILB,IUB,JLB,JUB, 2, 1,                    &
+                              rh,dx,dy,PERTURB(ng) % TairG)
+# endif
 #endif
 
 #if !defined ANA_HUMIDITY && \
@@ -776,6 +780,13 @@
 #  endif
      &                FORCES(ng) % srflxG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+#  if defined STOPERTURB && defined FORCE_PERTURB
+      CALL get_pseudo2D_field(ng,idSrad,                                &
+                              LBi, UBi, LBj, UBj,                       &
+                              ILB,IUB,JLB,JUB, 2, 1,                    &
+                              rh,dx,dy,PERTURB(ng) % srflxG)
+#  endif
 # endif
 
 # if defined RED_TIDE && defined DAILY_SHORTWAVE
