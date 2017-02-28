@@ -57,6 +57,7 @@
       integer :: LBi, UBi, LBj, UBj
       integer :: i, ic, my_tile
       real    :: dx=7000.0,dy=7000.0,rh=5.0E5
+      real(r8):: swrad_var=4.0,tair_var=0.36,uwind_var=0.81,vwind_var=0.81
 !
 !  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
@@ -295,10 +296,13 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
-      CALL get_pseudo2D_field(ng,idUair,                                &
-                              LBi, UBi, LBj, UBj,                       &
-                              ILB,IUB,JLB,JUB, 2, 1,                    &
-                              rh,dx,dy,PERTURB(ng) % UwindG)
+      IF (update(1)) THEN
+         CALL get_pseudo2D_field(ng,idUair,                             &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
+        &                        rh,dx,dy,PERTURB(ng) % UwindG,         &
+        &                        uwind_var)
+      ENDIF
 # endif
 
       CALL get_2dfld (ng , iNLM, idVair, ncFRCid(idVair,ng),            &
@@ -311,10 +315,13 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
-      CALL get_pseudo2D_field(ng,idVair,                                &
-                              LBi, UBi, LBj, UBj,                       &
-                              ILB,IUB,JLB,JUB, 2, 1,                    &
-                              rh,dx,dy,PERTURB(ng) % VwindG)
+      IF (update(1)) THEN
+         CALL get_pseudo2D_field(ng,idVair,                             &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
+        &                        rh,dx,dy,PERTURB(ng) % VwindG,         &
+        &                        vwind_var)
+      ENDIF
 # endif
 #endif
 
@@ -530,10 +537,13 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
-      CALL get_pseudo2D_field(ng,idTair,                                &
-                              LBi, UBi, LBj, UBj,                       &
-                              ILB,IUB,JLB,JUB, 2, 1,                    &
-                              rh,dx,dy,PERTURB(ng) % TairG)
+      IF (update(1)) THEN
+         CALL get_pseudo2D_field(ng,idTair,                             &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
+        &                        rh,dx,dy,PERTURB(ng) % TairG,          &
+        &                        tair_var)
+      ENDIF
 # endif
 #endif
 
@@ -782,10 +792,13 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 #  if defined STOPERTURB && defined FORCE_PERTURB
-      CALL get_pseudo2D_field(ng,idSrad,                                &
-                              LBi, UBi, LBj, UBj,                       &
-                              ILB,IUB,JLB,JUB, 2, 1,                    &
-                              rh,dx,dy,PERTURB(ng) % srflxG)
+      IF (update(1)) THEN
+         CALL get_pseudo2D_field(ng,idSrad,                             &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
+        &                        rh,dx,dy,PERTURB(ng) % srflxG,         &
+        &                        swrad_var)
+      ENDIF
 #  endif
 # endif
 

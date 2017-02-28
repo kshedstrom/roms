@@ -47,7 +47,20 @@
 
         END TYPE T_PERTURB
 
-        TYPE (T_PERTURB), allocatable :: PERTURB(:)
+        TYPE T_VAR_PERTURB
+
+#ifdef FORCE_PERTURB
+          real(r8) :: Uwind
+          real(r8) :: Vwind
+          real(r8) :: Tair
+          real(r8) :: srflx
+#endif
+
+        END TYPE T_VAR_PERTURB
+
+
+        TYPE (T_PERTURB),     allocatable :: PERTURB(:)
+        TYPE (T_VAR_PERTURB), allocatable :: VAR_PERTURB(:)
 
       CONTAINS
 
@@ -71,7 +84,10 @@
 !  Allocate module variables.
 !-----------------------------------------------------------------------
 !
-      IF (ng.eq.1) allocate ( PERTURB(Ngrids) )
+      IF (ng.eq.1) THEN
+         allocate ( PERTURB(Ngrids) )
+         allocate ( VAR_PERTURB(Ngrids) )
+      ENDIF
 !
 !  Nonlinear model state
 !
@@ -112,6 +128,7 @@
       integer :: i, j, k
       integer :: seed_user = 42
       real(r8), parameter :: IniVal = 0.0_r8
+      real(r8), parameter :: IniVar = 1.0_r8
 
 #include "set_bounds.h"
 
@@ -173,6 +190,10 @@
 #endif
           END DO
         END DO
+        VAR_PERTURB(ng) % Uwind = IniVar
+        VAR_PERTURB(ng) % Uwind = IniVar
+        VAR_PERTURB(ng) % Tair  = IniVar
+        VAR_PERTURB(ng) % srflx = IniVar
       END IF
       RETURN
       END SUBROUTINE initialize_perturb

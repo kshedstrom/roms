@@ -61,11 +61,12 @@
       integer, save :: n2_save=0
       integer       :: l,p,n,m,i
       real          :: kappa2,lambda2,kappa,lambda
-      real          :: pi2,deltak,asum,adjust
+      real          :: pi2,deltak
+      real*8        :: asum,adjust
       real          :: a1,b1,tol,fval
-      real, allocatable    :: phi(:,:)
-      real, allocatable    :: y(:,:)   ! Physical field
-      real, parameter :: pi=3.141592653589
+      real,   allocatable  :: phi(:,:)
+      real*8, allocatable  :: y(:,:)   ! Physical field
+      real,   parameter :: pi=3.141592653589
       
       ! Variables for FFTW 
       TYPE(C_PTR)                   :: plan
@@ -142,14 +143,14 @@
               CMPLX(real_part,imag_part)
        ENDDO
       ENDDO
-     !write(*,*) ' max, min of x amplitude = ', maxval(x),minval(x)
+      !write(*,*) ' max, min of x amplitude = ', maxval(x),minval(x)
 
-     ! 2-dimensional complex discrete fourier transfrom
-     ! call cdft2d(nmax, 2*n1, n2, 1, x, ip, w)
-     plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
-            FFTW_ESTIMATE)
-     CALL fftw_execute_dft(plan,Qinv, x)
-     CALL dfftw_destroy_plan(plan)
+      ! 2-dimensional complex discrete fourier transfrom
+      ! call cdft2d(nmax, 2*n1, n2, 1, x, ip, w)
+      plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
+                              FFTW_ESTIMATE)
+      CALL fftw_execute_dft(plan,Qinv, x)
+      CALL dfftw_destroy_plan(plan)
 
       ! store the result on the physical grid y(j1,j2)
       DO j2 = 0, n2 - 1
@@ -162,20 +163,17 @@
       asum = 0.0
       DO m=1,ny
          DO i=1,nx
-            Amat(i,m)=y(i-1,m-1)
+            Amat(i,m) = y(i-1,m-1)
             asum = asum + Amat(i,m)**2
          ENDDO
       ENDDO
 
       ! check if variance of the pseudo ran field is one
       ! if it is not one, amplify the magnitude of Amat
-      ! added by bjchoi 2014. 12. 19.
-       asum = asum / (nx*ny)
-       adjust = SQRT( 1.00/ asum )
-       Amat(:,:)=Amat(:,:)*adjust
-
-      !print *,'min,max y   :',minval(y),maxval(y)
-
+      asum = asum / (nx*ny)
+      adjust = SQRT( 1.00 / asum )
+      Amat(:,:) = Amat(:,:) * adjust
+      
       DEALLOCATE(phi, y, x, Qinv)
 
       END SUBROUTINE pseudo2D

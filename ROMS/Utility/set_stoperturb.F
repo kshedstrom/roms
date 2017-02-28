@@ -22,7 +22,8 @@
                                     LBi, UBi, LBj, UBj,      &
                                     ILB,IUB,JLB,JUB,         &
                                     Iout, Irec,              &
-                                    rh,dx,dy,RanField)
+                                    rh,dx,dy,RanField,       &
+                                    var)
 !
 !=======================================================================
 ! Main routine that generate the random field for ROMS and
@@ -39,6 +40,7 @@
 
       real, intent(in)    :: rh              ! Horizontal decorrelation length
       real, intent(in)    :: dx,dy           ! horizontal size of input grid
+      real(r8), intent(in):: var             ! desired variance for the perturbation
 
       real(r8), intent(inout) :: RanField(LBi:UBi,LBj:UBj,Iout) ! random field on tile
 !
@@ -69,7 +71,8 @@
 !  Select tile
 !-----------------------------------------------------------------------
 !
-      RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
+      RanField(LBi:UBi,LBj:UBj,Tindex) = &
+      RanFieldAll(LBi:UBi,LBj:UBj)*Fscale(ifield,ng)*SQRT(var)
 
       END SUBROUTINE get_pseudo2D_field
 

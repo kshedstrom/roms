@@ -305,7 +305,11 @@
 #   else
       CALL set_2dfld_tile (ng, tile, iNLM, idTair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
+#    ifdef FORCE_PERTURB
+     &                     FORCES(ng)%TairG+PERTURB(ng)%TairG,          &
+#    else
      &                     FORCES(ng)%TairG,                            &
+#    endif
      &                     FORCES(ng)%Tair,                             &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
@@ -573,14 +577,22 @@
 #  else
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
+#    ifdef FORCE_PERTURB
+     &                     FORCES(ng)%UwindG+PERTURB(ng)%UwindG,        &
+#    else
      &                     FORCES(ng)%UwindG,                           &
-     &                     FORCES(ng)%Uwind,                            &
+#    endif
+     &                     FORCES(ng)%Uwind,                           &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
 
       CALL set_2dfld_tile (ng, tile, iNLM, idVair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
+#    ifdef FORCE_PERTURB
+     &                     FORCES(ng)%VwindG+PERTURB(ng)%VwindG,        &
+#    else
      &                     FORCES(ng)%VwindG,                           &
+#    endif
      &                     FORCES(ng)%Vwind,                            &
      &                     update)
       IF (exit_flag.ne.NoError) RETURN
