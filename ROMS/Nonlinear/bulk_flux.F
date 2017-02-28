@@ -1398,7 +1398,7 @@
             snow_n(i,j) = 0.0_r8
           ELSE
 #  ifdef SNOWFALL
-            snow_n(i,j) = snow(i,j)/rhosnow_dry(ng)
+            snow_n(i,j) = (snow(i,j) + rain(i,j))/rhosnow_dry(ng)
 #  else
             snow_n(i,j) = rain(i,j)/rhosnow_dry(ng)
 #  endif
