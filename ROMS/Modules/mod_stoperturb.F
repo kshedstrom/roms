@@ -109,7 +109,7 @@
 !  Local variable declarations.
 !
       integer :: Imin, Imax, Jmin, Jmax
-      integer :: i, j, k, 
+      integer :: i, j, k
       integer :: seed_user = 42
       real(r8), parameter :: IniVal = 0.0_r8
 

@@ -11,7 +11,7 @@
       USE mod_fftw3
       USE mod_iounits
 
-      integer,parameter :: mnproc = 1
+      integer,parameter :: mnproc = 2
 
       CONTAINS
 
@@ -120,8 +120,6 @@
          IF (mnproc==1) PRINT *,'Ranfield: sigma  ',sigma
          IF (mnproc==1) PRINT *,'Ranfield: c=     ',c
       ENDIF
-   
-      !call random_seed() <-- Do not call random_seed here ! bjchoi. 2014.12.16.
 
       ! Calculating the random wave phases
       call RANDOM_NUMBER(phi)
@@ -156,7 +154,7 @@
       ! store the result on the physical grid y(j1,j2)
       DO j2 = 0, n2 - 1
         DO j1 = 0, n1 - 1
-              y(j1, j2) = x(j1, j2)
+              y(j1, j2) = x(j1+1, j2+1)
         END DO
       END DO
 
@@ -347,9 +345,11 @@
       !CALL DATE_AND_TIME(values=dt_seed)
       a_seed(i_seed)=seed_user; a_seed(1)=seed_user*60+100
       CALL RANDOM_SEED(put=a_seed)
-      WRITE(stdout,*) 'same pseudo random field will be generated for',&
-           ' the given  seed'
-      WRITE(stdout,*) 'your random seeds = ', a_seed(8), a_seed(1)
+      IF (mnproc==1) THEN
+         WRITE(stdout,*) 'same pseudo random field will be', &
+                         ' generated for the given  seed'
+         WRITE(stdout,*) 'your random seeds = ', a_seed(8), a_seed(1)
+      ENDIF
       DEALLOCATE(a_seed)
 
       END SUBROUTINE random_seed_fixed
