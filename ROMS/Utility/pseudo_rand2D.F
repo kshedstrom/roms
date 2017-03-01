@@ -53,20 +53,20 @@
       integer             :: n1,n2           ! horizontal dimensions in fft grid
       integer             :: nmax, j1, j2, n1n2max
       real*8, allocatable :: w(:)
-      real, save          :: rh_save=0.0  ! saving rh used in preprocessing.  Allow for new call to
+      real*8, save        :: rh_save=0.0  ! saving rh used in preprocessing.  Allow for new call to
                                           ! zeroin if rh changes.
-      real, save    :: sigma,sigma2
-      real, save    :: c
+      real*8, save  :: sigma,sigma2
+      real*8, save  :: c
       integer, save :: n1_save=0
       integer, save :: n2_save=0
       integer       :: l,p,n,m,i
-      real          :: kappa2,lambda2,kappa,lambda
-      real          :: pi2,deltak
+      real*8        :: kappa2,lambda2,kappa,lambda
+      real*8        :: pi2,deltak
       real*8        :: asum,adjust
-      real          :: a1,b1,tol,fval
-      real,   allocatable  :: phi(:,:)
-      real*8, allocatable  :: y(:,:)   ! Physical field
-      real,   parameter :: pi=3.141592653589
+      real*8        :: a1,b1,tol,fval
+      real*8, allocatable :: phi(:,:)
+      real*8, allocatable :: y(:,:)   ! Physical field
+      real*8, parameter :: pi=3.141592653589
       
       ! Variables for FFTW 
       TYPE(C_PTR)                   :: plan
@@ -74,11 +74,8 @@
       complex(C_DOUBLE_COMPLEX),&
             & allocatable           :: Qinv(:,:),x(:,:)
  
-
-      WRITE(6,*) 'RE: (pseudo2D) dx,dy,n1,n2 are :', dx,dy,n1,n2
-
       CALL initfftdim(nx,ny,n1,n2)
- 
+
       ALLOCATE(phi(-n1/2:n1/2,-n2/2:n2/2))
       ALLOCATE(y(0:2*n1-1,0:n2-1))
       ALLOCATE(x(n1,n2))
@@ -197,15 +194,15 @@
 ! minimization without derivatives, prentice - hall, inc. (1973).
 !=======================================================================
 !
-      real, external :: func
-      integer n1,n2
-      real zeropkt
-      real*8 length,dx,dy
-      real ax   ! left endpoint of initial interval
-      real bx   ! right endpoint of initial interval
-      real tol  !  desired length of the interval of uncertainty of the
-      real  a,b,c,d,e,eps,fa,fb,fc,tol1,xm,p,q,r,s
-      real  abs,sign,fval
+      real*8, external :: func
+      integer     :: n1,n2
+      real*8      :: zeropkt
+      real*8      :: length,dx,dy
+      real*8      :: ax   ! left endpoint of initial interval
+      real*8      :: bx   ! right endpoint of initial interval
+      real*8      :: tol  !  desired length of the interval of uncertainty of the
+      real*8      :: a,b,c,d,e,eps,fa,fb,fc,tol1,xm,p,q,r,s
+      real*8      :: fval
    
      ! compute eps, the relative machine precision
       icorr=0
@@ -236,7 +233,7 @@
       fc = fa
       d = b - a
       e = d
-   30 IF (abs(fc) .GE. abs(fb)) GO TO 40
+   30 IF (ABS(fc) .GE. ABS(fb)) GO TO 40
       a = b
       b = c
       c = a
@@ -244,13 +241,13 @@
       fb = fc
       fc = fa
      ! convergence test
-   40 tol1 = 2.0*eps*abs(b) + 0.5*tol
+   40 tol1 = 2.0*eps*ABS(b) + 0.5*tol
       xm = .5*(c - b)
-      IF (abs(xm) .LE. tol1) GO TO 90
+      IF (ABS(xm) .LE. tol1) GO TO 90
       IF (fb .EQ. 0.0) GO TO 90
      ! is bisection necessary
-      IF (abs(e) .LT. tol1) GO TO 70
-      IF (abs(fa) .LE. abs(fb)) GO TO 70
+      IF (ABS(e) .LT. tol1) GO TO 70
+      IF (ABS(fa) .LE. ABS(fb)) GO TO 70
      ! is quadratic interpolation possible
       IF (a .NE. c) GO TO 50
      ! linear interpolation
@@ -266,10 +263,10 @@
       q = (q - 1.0)*(r - 1.0)*(s - 1.0)
      ! adjust signs
    60 IF (p .GT. 0.0) q = -q
-      p = abs(p)
+      p = ABS(p)
      ! is interpolation acceptable
-      IF ((2.0*p) .GE. (3.0*xm*q - abs(tol1*q))) GO TO 70
-      IF (p .GE. abs(0.5*e*q)) GO TO 70
+      IF ((2.0*p) .GE. (3.0*xm*q - ABS(tol1*q))) GO TO 70
+      IF (p .GE. ABS(0.5*e*q)) GO TO 70
       e = d
       d = p/q
       GO TO 80
@@ -279,10 +276,10 @@
      ! complete step
    80 a = b
       fa = fb
-      IF (abs(d) .GT. tol1) b = b + d
-      IF (abs(d) .LE. tol1) b = b + sign(tol1, xm)
+      IF (ABS(d) .GT. tol1) b = b + d
+      IF (ABS(d) .LE. tol1) b = b + SIGN(tol1, xm)
       fb = func(b,length,dx,dy,n1,n2)
-      IF ((fb*(fc/abs(fc))) .GT. 0.0) GO TO 20
+      IF ((fb*(fc/ABS(fc))) .GT. 0.0) GO TO 20
       GO TO 30
      ! done
    90 zeropkt = b
@@ -291,15 +288,16 @@
 
 
 
-      real FUNCTION func2D(sigma,length,dx,dy,n1,n2)
+      real*8 FUNCTION func2D(sigma,length,dx,dy,n1,n2)
 !=======================================================================
 ! Function used to calculate $sigma$ and $c$.
 !=======================================================================
       implicit none
-      real sum1,sum2,sigma,length
-      real sigma2,pi2,kappa,kappa2,lambda,lambda2,dx,dy
-      integer l,p,n1,n2
-      real, parameter :: pi=3.141592653589
+      real*8  :: sum1,sum2,sigma,length
+      real*8  :: sigma2,pi2,kappa,kappa2,lambda,lambda2
+      real*8  :: dx,dy
+      integer :: l,p,n1,n2
+      real*8, parameter :: pi=3.141592653589
    
       sigma2=sigma**2
       pi2=2.0*pi
@@ -307,7 +305,7 @@
       kappa2=kappa**2
       lambda=pi2/(float(n2)*dy)
       lambda2=lambda**2
-   
+
       ! Calculate sum1
       sum1=0.0
       DO p=-n2/2+1,n2/2
@@ -327,6 +325,8 @@
       ENDDO
       func2D = sum1/sum2 - exp(-1.0)
       END FUNCTION func2D
+
+
 
       SUBROUTINE random_seed_fixed(seed_user)
 !=======================================================================

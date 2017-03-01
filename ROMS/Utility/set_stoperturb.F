@@ -14,6 +14,7 @@
       USE mod_stepping
       USE mod_ncparam
       USE pseudo_rand2D
+      USE mod_parallel
 
 
       CONTAINS
@@ -64,39 +65,53 @@
       nx=IUB-ILB+1
       ny=JUB-JLB+1
       ALLOCATE(ran_tmp(nx,ny))
+
+      dt = ABS(Vtime(Tindex,ifield,ng) - Vtime(3-Tindex,ifield,ng))
+      IF (Master) WRITE(6,*) "RE: dt,iic,ntstart = ", dt,iic,ntstart
+
+      IF ((dt .EQ. 0.0) .AND. ((iic(ng)+1) .EQ. ntstart(ng))) THEN
+!
+!-----------------------------------------------------------------------
+!  Read perturbation from restart
+!-----------------------------------------------------------------------
+!
+         ! Add the restart read HERE instead of following
+         CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+         RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
+         RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
+         RanField(LBi:UBi,LBj:UBj,Tindex) = &
+          RanField(LBi:UBi,LBj:UBj,Tindex) * Fscale(ifield,ng)*SQRT(var)
+      ELSE
 !
 !-----------------------------------------------------------------------
 !  Get the random field
 !-----------------------------------------------------------------------
 !
-      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
-      RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
+         CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+         RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
 !
 !-----------------------------------------------------------------------
 !  Select tile
 !-----------------------------------------------------------------------
 !
-      RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
+         RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
 !
 !-----------------------------------------------------------------------
 !  Time dependence
 !-----------------------------------------------------------------------
 !
-      dt = ABS(Vtime(Tindex,ifield,ng) - Vtime(3-Tindex,ifield,ng))
-      WRITE(6,*) 'RE: dt is :', dt
-      alpha = autocorr**(dt/tcorr)
-
-      RanField(LBi:UBi,LBj:UBj,Tindex) = &
-        alpha*RanField(LBi:UBi,LBj:UBj,3-Tindex) &
-        + sqrt(1-alpha*alpha)*RanField(LBi:UBi,LBj:UBj,Tindex)
+         alpha = autocorr**(dt/tcorr)
+         RanField(LBi:UBi,LBj:UBj,Tindex) = &
+          alpha*RanField(LBi:UBi,LBj:UBj,3-Tindex) &
+          + sqrt(1-alpha*alpha)*RanField(LBi:UBi,LBj:UBj,Tindex)
 !
 !-----------------------------------------------------------------------
 !  Normalize by desired variance
 !-----------------------------------------------------------------------
 !
-      RanField(LBi:UBi,LBj:UBj,Tindex) = &
-        RanField(LBi:UBi,LBj:UBj,Tindex) * Fscale(ifield,ng)*SQRT(var)
-
+         RanField(LBi:UBi,LBj:UBj,Tindex) = &
+          RanField(LBi:UBi,LBj:UBj,Tindex) * Fscale(ifield,ng)*SQRT(var)
+      ENDIF
 
       END SUBROUTINE get_pseudo2D_field
 
