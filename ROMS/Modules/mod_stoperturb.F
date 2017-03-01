@@ -33,7 +33,7 @@
 !
 
         USE mod_kinds
-
+        USE mod_scalars
         implicit none
 
         TYPE T_PERTURB
@@ -47,20 +47,7 @@
 
         END TYPE T_PERTURB
 
-        TYPE T_VAR_PERTURB
-
-#ifdef FORCE_PERTURB
-          real(r8) :: Uwind
-          real(r8) :: Vwind
-          real(r8) :: Tair
-          real(r8) :: srflx
-#endif
-
-        END TYPE T_VAR_PERTURB
-
-
         TYPE (T_PERTURB),     allocatable :: PERTURB(:)
-        TYPE (T_VAR_PERTURB), allocatable :: VAR_PERTURB(:)
 
       CONTAINS
 
@@ -86,7 +73,6 @@
 !
       IF (ng.eq.1) THEN
          allocate ( PERTURB(Ngrids) )
-         allocate ( VAR_PERTURB(Ngrids) )
       ENDIF
 !
 !  Nonlinear model state
@@ -126,9 +112,7 @@
 !
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, k
-      integer :: seed_user = 42
       real(r8), parameter :: IniVal = 0.0_r8
-      real(r8), parameter :: IniVar = 1.0_r8
 
 #include "set_bounds.h"
 
@@ -136,7 +120,7 @@
 !
 !  Initialize seed for random number generation
 !
-      CALL random_seed_fixed(seed_user)
+      CALL random_seed_fixed(seed_user(ng))
 
 !
 !  Set array initialization range.
@@ -190,10 +174,6 @@
 #endif
           END DO
         END DO
-        VAR_PERTURB(ng) % Uwind = IniVar
-        VAR_PERTURB(ng) % Uwind = IniVar
-        VAR_PERTURB(ng) % Tair  = IniVar
-        VAR_PERTURB(ng) % srflx = IniVar
       END IF
       RETURN
       END SUBROUTINE initialize_perturb

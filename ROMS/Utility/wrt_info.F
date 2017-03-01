@@ -1273,8 +1273,36 @@
      &                      var_perturb_swrad(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_lwrad',     &
-     &                      var_perturb_swrad(ng), (/0/), (/0/),        &
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Tair',      &
+     &                      var_perturb_Tair(ng), (/0/), (/0/),         &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Uwind',     &
+     &                      var_perturb_Uwind(ng), (/0/), (/0/),        &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Vwind',     &
+     &                      var_perturb_Vwind(ng), (/0/), (/0/),        &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dx',          &
+     &                      grid_mean_dx(ng), (/0/), (/0/),             &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dy',          &
+     &                      grid_mean_dy(ng), (/0/), (/0/),             &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'pert_rcorr',            &
+     &                      pert_rcorr(ng), (/0/), (/0/),               &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'pert_tcorr',            &
+     &                      pert_tcorr(ng), (/0/), (/0/),               &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_ivar (ng, model, ncname, 'seed_user',             &
+     &                      seed_user(ng), (/0/), (/0/),               &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
 #endif

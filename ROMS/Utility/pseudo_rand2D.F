@@ -47,8 +47,8 @@
       implicit none
       integer, intent(in) :: nx,ny           ! horizontal dimensions
       real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
-      real, intent(in)    :: rh              ! Horizontal decorrelation length
-      real, intent(in)    :: dx,dy           ! horizontal size of input grid
+      real*8, intent(in)  :: rh              ! Horizontal decorrelation length
+      real*8, intent(in)  :: dx,dy           ! horizontal size of input grid
 
       integer             :: n1,n2           ! horizontal dimensions in fft grid
       integer             :: nmax, j1, j2, n1n2max
@@ -73,7 +73,9 @@
       real                          :: real_part, imag_part
       complex(C_DOUBLE_COMPLEX),&
             & allocatable           :: Qinv(:,:),x(:,:)
-  
+ 
+
+      WRITE(6,*) 'RE: (pseudo2D) dx,dy,n1,n2 are :', dx,dy,n1,n2
 
       CALL initfftdim(nx,ny,n1,n2)
  
@@ -197,7 +199,8 @@
 !
       real, external :: func
       integer n1,n2
-      real zeropkt,length,dx,dy
+      real zeropkt
+      real*8 length,dx,dy
       real ax   ! left endpoint of initial interval
       real bx   ! right endpoint of initial interval
       real tol  !  desired length of the interval of uncertainty of the

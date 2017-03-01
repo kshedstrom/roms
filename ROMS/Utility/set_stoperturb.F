@@ -22,7 +22,8 @@
                                     LBi, UBi, LBj, UBj,      &
                                     ILB,IUB,JLB,JUB,         &
                                     Iout, Irec,              &
-                                    rh,dx,dy,RanField,       &
+                                    rcorr,tcorr,             &
+                                    dx,dy,RanField,          &
                                     var)
 !
 !=======================================================================
@@ -38,9 +39,10 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: ILB, IUB, JLB, JUB
 
-      real, intent(in)    :: rh              ! Horizontal decorrelation length
-      real, intent(in)    :: dx,dy           ! horizontal size of input grid
-      real(r8), intent(in):: var             ! desired variance for the perturbation
+      real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
+      real(r8), intent(in) :: tcorr           ! Temporal decorrelation period
+      real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
 
       real(r8), intent(inout) :: RanField(LBi:UBi,LBj:UBj,Iout) ! random field on tile
 !
@@ -48,6 +50,9 @@
 !
       integer              :: nx,ny            ! horizontal dimensions
       integer              :: Tindex           ! index of the current field (for 2 field interpolation)
+      real(r8)             :: autocorr=0.75    ! autocorrelation for dt=pert_tcorr
+      real(r8)             :: alpha            ! coefficient for time dependance
+      real(r8)             :: dt               ! dt between perturbation fields
       real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
       real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
 !
@@ -64,19 +69,36 @@
 !  Get the random field
 !-----------------------------------------------------------------------
 !
-      CALL pseudo2D(ran_tmp,nx,ny,rh,dx,dy)
+      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
       RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
 !
 !-----------------------------------------------------------------------
 !  Select tile
 !-----------------------------------------------------------------------
 !
+      RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
+!
+!-----------------------------------------------------------------------
+!  Time dependence
+!-----------------------------------------------------------------------
+!
+      dt = ABS(Vtime(Tindex,ifield,ng) - Vtime(3-Tindex,ifield,ng))
+      WRITE(6,*) 'RE: dt is :', dt
+      alpha = autocorr**(dt/tcorr)
+
       RanField(LBi:UBi,LBj:UBj,Tindex) = &
-      RanFieldAll(LBi:UBi,LBj:UBj)*Fscale(ifield,ng)*SQRT(var)
+        alpha*RanField(LBi:UBi,LBj:UBj,3-Tindex) &
+        + sqrt(1-alpha*alpha)*RanField(LBi:UBi,LBj:UBj,Tindex)
+!
+!-----------------------------------------------------------------------
+!  Normalize by desired variance
+!-----------------------------------------------------------------------
+!
+      RanField(LBi:UBi,LBj:UBj,Tindex) = &
+        RanField(LBi:UBi,LBj:UBj,Tindex) * Fscale(ifield,ng)*SQRT(var)
+
 
       END SUBROUTINE get_pseudo2D_field
-
-
 
       END MODULE set_stoperturb
 

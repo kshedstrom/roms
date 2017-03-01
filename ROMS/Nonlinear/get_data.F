@@ -56,8 +56,6 @@
       integer :: ILB, IUB, JLB, JUB
       integer :: LBi, UBi, LBj, UBj
       integer :: i, ic, my_tile
-      real    :: dx=7000.0,dy=7000.0,rh=5.0E5
-      real(r8):: swrad_var=4.0,tair_var=0.36,uwind_var=0.81,vwind_var=0.81
 !
 !  Lower and upper bounds for nontiled (global values) boundary arrays.
 !
@@ -300,8 +298,10 @@
          CALL get_pseudo2D_field(ng,idUair,                             &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
-        &                        rh,dx,dy,PERTURB(ng) % UwindG,         &
-        &                        uwind_var)
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % UwindG,                  &
+        &                        var_perturb_Uwind(ng))
       ENDIF
 # endif
 
@@ -319,8 +319,10 @@
          CALL get_pseudo2D_field(ng,idVair,                             &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
-        &                        rh,dx,dy,PERTURB(ng) % VwindG,         &
-        &                        vwind_var)
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % VwindG,                  &
+        &                        var_perturb_Vwind(ng))
       ENDIF
 # endif
 #endif
@@ -541,8 +543,10 @@
          CALL get_pseudo2D_field(ng,idTair,                             &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
-        &                        rh,dx,dy,PERTURB(ng) % TairG,          &
-        &                        tair_var)
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % TairG,                   &
+        &                        var_perturb_Tair(ng))
       ENDIF
 # endif
 #endif
@@ -796,8 +800,10 @@
          CALL get_pseudo2D_field(ng,idSrad,                             &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
-        &                        rh,dx,dy,PERTURB(ng) % srflxG,         &
-        &                        swrad_var)
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % srflxG,                  &
+        &                        var_perturb_swrad(ng))
       ENDIF
 #  endif
 # endif
