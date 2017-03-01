@@ -1267,6 +1267,18 @@
 # endif
 #endif
 
+
+#ifdef FORCE_PERTURB
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_swrad',     &
+     &                      var_perturb_swrad(ng), (/0/), (/0/),        &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_lwrad',     &
+     &                      var_perturb_swrad(ng), (/0/), (/0/),        &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
+
 #if defined BIOLOGY && defined SOLVE3D
 # if defined BIO_FENNEL
 #  include <fennel_wrt.h>

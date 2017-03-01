@@ -1175,6 +1175,12 @@
 !
         real(r8), allocatable :: SO_sdev(:,:)
 
+#if defined FORCE_PERTURB
+!  Stochastic perturbations on forcing fields (variance)
+        real(r8), allocatable :: var_perturb_swrad(:)
+        real(r8), allocatable :: var_perturb_lwrad(:)
+#endif
+
 #if defined FOUR_DVAR || defined VERIFICATION
 !
 !------------------------------------------------------------------------
@@ -2321,6 +2327,11 @@
       allocate ( SO_sdev(7+2*MT,Ngrids) )
 #else
       allocate ( SO_sdev(5,Ngrids) )
+#endif
+
+#if defined FORCE_PERTURB
+      allocate ( var_perturb_swrad(Ngrids) )
+      allocate ( var_perturb_lwrad(Ngrids) )
 #endif
 
 #if defined FOUR_DVAR || defined VERIFICATION

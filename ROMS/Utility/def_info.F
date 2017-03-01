@@ -2710,6 +2710,26 @@
 # endif
 #endif
 
+
+#ifdef FORCE_PERTURB
+      Vinfo( 1)='var_perturb_swrad'
+      Vinfo( 2)='variance for stochastic perturbations '//              &
+     &          'for shortwave'
+      Vinfo( 3)='W/m2'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+      Vinfo( 1)='var_perturb_lwrad'
+      Vinfo( 2)='variance for stochastic perturbations '//              &
+     &          'for longwave'
+      Vinfo( 3)='W/m2'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+#endif
+
 #if defined BIOLOGY && defined SOLVE3D
 # if defined BIO_FENNEL
 #  include <fennel_def.h>

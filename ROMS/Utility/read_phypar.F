@@ -1286,6 +1286,15 @@
               END DO
 # endif
 #endif
+
+#ifdef FORCE_PERTURB
+            !-- RD Stochastic perturbations on forcing fields --
+            CASE ('var_perturb_swrad')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_swrad)
+            CASE ('var_perturb_lwrad')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_lwrad)
+#endif
+
             CASE ('Hout(idUvel)')
               IF (idUvel.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUvel'
@@ -4880,6 +4889,12 @@
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 # endif
+#endif
+#ifdef FORCE_PERTURB
+          WRITE (out,140) var_perturb_swrad(ng), 'var_perturb_swrad',   &
+     &          'Stochastic perturbation on shortwave (variance)'
+          WRITE (out,140) var_perturb_lwrad(ng), 'var_perturb_lwrad',   &
+     &          'Stochastic perturbation on longwave (variance)'
 #endif
           IF ((nHIS(ng).gt.0).and.ANY(Hout(:,ng))) THEN
             WRITE (out,'(1x)')
