@@ -258,7 +258,7 @@
 !
           DO imodel=1,4
             total=0.0_r8
-            DO iregion=Iceregion,Nregion
+            DO iregion=Iceregion,Pertregion-1
               total=total+Csum(iregion,imodel,ng)
             END DO
             IF (Master.and.(total.gt.0.0_r8)) THEN
@@ -268,7 +268,40 @@
             sumcpu=0.0_r8
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
-              DO iregion=Iceregion,Nregion
+              DO iregion=Iceregion,Pertregion-1
+                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                  percent=100.0_r8*Csum(iregion, imodel,ng)/            &
+     &                             Csum( region,Mymodel,ng)
+                  IF (Master) WRITE (stdout,40) Pregion(iregion),       &
+     &                                          Csum(iregion,imodel,ng),&
+     &                                          percent
+                  sumcpu=sumcpu+Csum(iregion,imodel,ng)
+                  sumper=sumper+percent
+                END IF
+              END DO
+              IF (Master.and.(total.gt.0.0_r8)) THEN
+                WRITE (stdout,50) sumcpu, sumper
+              END IF
+            END IF
+          END DO
+# endif
+# ifdef STOPERTURB
+!
+!  Report elapsed time for message passage communications.
+!
+          DO imodel=1,4
+            total=0.0_r8
+            DO iregion=Pertregion,Nregion
+              total=total+Csum(iregion,imodel,ng)
+            END DO
+            IF (Master.and.(total.gt.0.0_r8)) THEN
+              WRITE (stdout,30) TRIM(label(imodel)),                    &
+     &                'Stoch. perturb elapsed time profile, Grid:', ng
+            END IF
+            sumcpu=0.0_r8
+            sumper=0.0_r8
+            IF (total.gt.0.0_r8) THEN
+              DO iregion=Pertregion,Nregion
                 IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
                   percent=100.0_r8*Csum(iregion, imodel,ng)/            &
      &                             Csum( region,Mymodel,ng)

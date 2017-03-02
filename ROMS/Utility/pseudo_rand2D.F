@@ -9,7 +9,7 @@
 !=======================================================================
 
       USE mod_fftw3
-      USE mod_iounits
+      USE mod_parallel
 
       integer,parameter :: mnproc = 2
 
@@ -21,7 +21,6 @@
 ! Get FFT dimensions (next power of two)
 !=======================================================================
 !
-      !Initialize fft dimensions and get fnx and fny
       implicit none
       integer, intent(in)  :: nx,ny
       integer, intent(out) :: fnx,fny
@@ -29,12 +28,10 @@
       fnx = 2**fnx
       fny = ceiling(log(float(ny))/log(2.))
       fny = 2**fny
-      IF (mnproc==1) THEN
-         WRITE(stdout,&
-         '(" initfftdim: Fourier transform dimensions ",2i6)') fnx,fny
-      END IF
 
-      END SUBROUTINE
+      END SUBROUTINE initfftdim
+
+
 
 
       SUBROUTINE pseudo2D(Amat,nx,ny,rh,dx,dy)
@@ -45,67 +42,78 @@
 !=======================================================================
 !
       implicit none
+!
+!  Imported variable declarations.
+!
       integer, intent(in) :: nx,ny           ! horizontal dimensions
-      real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
       real*8, intent(in)  :: rh              ! Horizontal decorrelation length
       real*8, intent(in)  :: dx,dy           ! horizontal size of input grid
-
-      integer             :: n1,n2           ! horizontal dimensions in fft grid
-      integer             :: nmax, j1, j2, n1n2max
-      real*8, allocatable :: w(:)
-      real*8, save        :: rh_save=0.0  ! saving rh used in preprocessing.  Allow for new call to
-                                          ! zeroin if rh changes.
+      real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
+!
+!  Local variable declarations.
+!
+      integer :: n1,n2                 ! horizontal dimensions in fft grid
+      integer :: l,p,n,m,i,j1,j2       ! Loop dummies
+      real*8  :: kappa2,lambda2,pi2    ! Squared parameters
+      real*8  :: kappa,lambda,deltak   ! Equation parameters
+      real*8  :: asum                  ! Summing dummy
+      real*8  :: adjust                ! Adjusting coefficient
+      real*8  :: a1,b1,tol,fval        ! Parameters of equation solver
+      real*8, allocatable :: phi(:,:)  ! Wave phases
+      real*8, parameter   :: pi=3.141592653589     
+!
+!  Saved variable declarations.
+!
+      real*8, save  :: rh_save=0.0  ! saving rh used in preprocessing.  Allow for new call to
+                                    ! zeroin if rh changes.
       real*8, save  :: sigma,sigma2
       real*8, save  :: c
       integer, save :: n1_save=0
       integer, save :: n2_save=0
-      integer       :: l,p,n,m,i
-      real*8        :: kappa2,lambda2,kappa,lambda
-      real*8        :: pi2,deltak
-      real*8        :: asum,adjust
-      real*8        :: a1,b1,tol,fval
-      real*8, allocatable :: phi(:,:)
-      real*8, allocatable :: y(:,:)   ! Physical field
-      real*8, parameter :: pi=3.141592653589
-      
-      ! Variables for FFTW 
-      TYPE(C_PTR)                   :: plan
-      real                          :: real_part, imag_part
-      complex(C_DOUBLE_COMPLEX),&
-            & allocatable           :: Qinv(:,:),x(:,:)
- 
+!
+!  Variables for FFTW 
+!
+      TYPE(C_PTR)   :: plan
+      real          :: real_part, imag_part
+      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
+!
+!-----------------------------------------------------------------------
+!  Get the dimensions of FFT
+!-----------------------------------------------------------------------
+! 
       CALL initfftdim(nx,ny,n1,n2)
-
+!
+!-----------------------------------------------------------------------
+!  Allocate arrays
+!-----------------------------------------------------------------------
+!
       ALLOCATE(phi(-n1/2:n1/2,-n2/2:n2/2))
-      ALLOCATE(y(0:2*n1-1,0:n2-1))
       ALLOCATE(x(n1,n2))
       ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
-   
-      y=0.0
-   
-      n1n2max = 2 + ceiling(sqrt(max(n1*1.0,n2*1.0)))
-      n1n2max = max(n1/2,n2/2)
-      ALLOCATE(w(0:n1n2max))
-   
-      nmax=nx
+!
+!-----------------------------------------------------------------------
+!  Compute equation parameters
+!-----------------------------------------------------------------------
+! 
       pi2=2.0*pi
       deltak=pi2**2/(float(n1*n2)*dx*dy)
       kappa=pi2/(float(n1)*dx)
       kappa2=kappa**2
       lambda=pi2/(float(n2)*dy)
       lambda2=lambda**2
-   
+!
+!-----------------------------------------------------------------------
+!  Solve the sigma equation (only the first time or if rh/n1/n2 change)
+!-----------------------------------------------------------------------
+!
       IF (rh /= rh_save .OR. n1 /= n1_save .OR. n2 /= n2_save) THEN
          rh_save=rh
          n1_save=n1
          n2_save=n2
-   
-         IF (mnproc==1) PRINT *,&
-            'pseudo2D: Solving for sigma. rh, dx and dy =',rh,dx,dy
          a1=0.1e-07
          b1=0.1e-06
          tol=0.1e-10
-         call zeroin(func2D,sigma,a1,b1,tol,rh,dx,dy,fval,n1,n2)
+         CALL zeroin(func2D,sigma,a1,b1,tol,rh,dx,dy,fval,n1,n2)
    
          sigma2=sigma**2
          asum=0.0
@@ -116,66 +124,72 @@
             ENDDO
          ENDDO
          c=sqrt(1.0/(deltak*asum))
-   
-         IF (mnproc==1) PRINT *,'Ranfield: sigma  ',sigma
-         IF (mnproc==1) PRINT *,'Ranfield: c=     ',c
       ENDIF
-
-      ! Calculating the random wave phases
+!
+!-----------------------------------------------------------------------
+!  Calculate the random wave phases
+!-----------------------------------------------------------------------
+!
       call RANDOM_NUMBER(phi)
       phi=pi2*phi
-
-      ! Calculating the wave amplitudes (A3)
+!
+!-----------------------------------------------------------------------
+!  Calculating the wave amplitudes (A3)
+!-----------------------------------------------------------------------
+!
       DO p=-n2/2,n2/2-1
        DO l=-n1/2,n1/2-1
-
-         real_part = &
-            EXP(-(kappa2*FLOAT(l*l)+lambda2*FLOAT(p*p))/sigma2)*&
-            COS(phi(l,p))*SQRT(deltak)*c
-
-         imag_part = &
-            EXP(-(kappa2*FLOAT(l*l)+lambda2*FLOAT(p*p))/sigma2)*&
-            SIN(phi(l,p))*SQRT(deltak)*c
-
-
-         Qinv(MOD(l+n1,n1)-n1/2,MOD(p+n2,n2)-n2/2) = &
-              CMPLX(real_part,imag_part)
-       ENDDO
-      ENDDO
-      !write(*,*) ' max, min of x amplitude = ', maxval(x),minval(x)
-
-      ! 2-dimensional complex discrete fourier transfrom
-      ! call cdft2d(nmax, 2*n1, n2, 1, x, ip, w)
+         real_part =                                                    &
+     &      EXP(-(kappa2*FLOAT(l*l)+lambda2*FLOAT(p*p))/sigma2)*        &
+     &      COS(phi(l,p))*SQRT(deltak)*c
+         imag_part =                                                    &
+     &      EXP(-(kappa2*FLOAT(l*l)+lambda2*FLOAT(p*p))/sigma2)*        &
+     &      SIN(phi(l,p))*SQRT(deltak)*c
+         Qinv(MOD(l+n1,n1)-n1/2,MOD(p+n2,n2)-n2/2) =                    &
+     &      CMPLX(real_part,imag_part)
+       END DO
+      END DO
+!
+!-----------------------------------------------------------------------
+!  Compute the 2-dimensional inverse discrete fourier transfrom (FFTW)
+!-----------------------------------------------------------------------
+!
       plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
                               FFTW_ESTIMATE)
       CALL fftw_execute_dft(plan,Qinv, x)
       CALL dfftw_destroy_plan(plan)
-
-      ! store the result on the physical grid y(j1,j2)
-      DO j2 = 0, n2 - 1
-        DO j1 = 0, n1 - 1
-              y(j1, j2) = x(j1+1, j2+1)
-        END DO
-      END DO
-
-      ! save the data
+!
+!-----------------------------------------------------------------------
+!  Save data in array and compute variance
+!-----------------------------------------------------------------------
+!
       asum = 0.0
       DO m=1,ny
          DO i=1,nx
-            Amat(i,m) = y(i-1,m-1)
+            Amat(i,m) = x(i,m)
             asum = asum + Amat(i,m)**2
-         ENDDO
-      ENDDO
-
-      ! check if variance of the pseudo ran field is one
-      ! if it is not one, amplify the magnitude of Amat
+         END DO
+      END DO
       asum = asum / (nx*ny)
+!
+!-----------------------------------------------------------------------
+!  Check if variance of the pseudo random field is one
+!  If it is not one, amplify the magnitude of Amat
+!-----------------------------------------------------------------------
+!
       adjust = SQRT( 1.00 / asum )
       Amat(:,:) = Amat(:,:) * adjust
-      
-      DEALLOCATE(phi, y, x, Qinv)
+!
+!-----------------------------------------------------------------------     
+!  Deallocate arrays
+!-----------------------------------------------------------------------
+!
+      DEALLOCATE(phi, x, Qinv)
 
       END SUBROUTINE pseudo2D
+
+
+
 
 
 
@@ -310,8 +324,8 @@
       sum1=0.0
       DO p=-n2/2+1,n2/2
          DO l=-n1/2+1,n1/2
-            sum1=sum1+exp(-2.0*(kappa2*float(l*l)&
-            +lambda2*float(p*p))/sigma2)*cos(kappa*float(l)*length)
+            sum1=sum1+exp(-2.0*(kappa2*float(l*l)                       &
+     &          +lambda2*float(p*p))/sigma2)*cos(kappa*float(l)*length)
          ENDDO
       ENDDO
    
@@ -319,8 +333,8 @@
       sum2=0.0
       DO p=-n2/2+1,n2/2
          DO l=-n1/2+1,n1/2
-            sum2=sum2+exp(-2.0*(kappa2*float(l*l)&
-                 +lambda2*float(p*p))/sigma2)
+            sum2=sum2+exp(-2.0*(kappa2*float(l*l)                       &
+     &          +lambda2*float(p*p))/sigma2)
          ENDDO
       ENDDO
       func2D = sum1/sum2 - exp(-1.0)
@@ -346,11 +360,6 @@
       !CALL DATE_AND_TIME(values=dt_seed)
       a_seed(i_seed)=seed_user; a_seed(1)=seed_user*60+100
       CALL RANDOM_SEED(put=a_seed)
-      IF (mnproc==1) THEN
-         WRITE(stdout,*) 'same pseudo random field will be', &
-                         ' generated for the given  seed'
-         WRITE(stdout,*) 'your random seeds = ', a_seed(8), a_seed(1)
-      ENDIF
       DEALLOCATE(a_seed)
 
       END SUBROUTINE random_seed_fixed
@@ -363,9 +372,9 @@
       implicit none
       character*(*), intent(in) :: cerror
       IF     (cerror .NE. ' ') THEN
-         WRITE(stdout,*) '*********************************************'
-         WRITE(stdout,*) cerror
-         WRITE(stdout,*) '*********************************************'
+         WRITE(6,*) '*********************************************'
+         WRITE(6,*) cerror
+         WRITE(6,*) '*********************************************'
       ENDIF
       STOP '(xcstop)'
       END SUBROUTINE xcstop
