@@ -45,6 +45,12 @@
           real(r8), pointer :: srflxG(:,:,:)
 #endif
 
+#ifdef EOS_PERTURB
+          real(r8), pointer :: deltax(:,:)
+          real(r8), pointer :: deltay(:,:)
+          real(r8), pointer :: deltaz(:,:)
+#endif
+
         END TYPE T_PERTURB
 
         TYPE (T_PERTURB),     allocatable :: PERTURB(:)
@@ -77,14 +83,17 @@
 !
 !  Nonlinear model state
 !
-
 #ifdef FORCE_PERTURB
       allocate ( PERTURB(ng) % UwindG(LBi:UBi,LBj:UBj,2) )
       allocate ( PERTURB(ng) % VwindG(LBi:UBi,LBj:UBj,2) )
       allocate ( PERTURB(ng) % TairG(LBi:UBi,LBj:UBj,2) )
       allocate ( PERTURB(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
 #endif
-
+#ifdef EOS_PERTURB
+      allocate ( PERTURB(ng) % deltax(LBi:UBi,LBj:UBj) )
+      allocate ( PERTURB(ng) % deltay(LBi:UBi,LBj:UBj) )
+      allocate ( PERTURB(ng) % deltaz(LBi:UBi,LBj:UBj) )
+#endif
       RETURN
       END SUBROUTINE allocate_perturb
 
@@ -171,6 +180,11 @@
             PERTURB(ng) % TairG(i,j,2) = IniVal
             PERTURB(ng) % srflxG(i,j,1) = IniVal
             PERTURB(ng) % srflxG(i,j,2) = IniVal
+#endif
+#ifdef EOS_PERTURB
+            PERTURB(ng) % deltax(i,j) = IniVal
+            PERTURB(ng) % deltay(i,j) = IniVal
+            PERTURB(ng) % deltaz(i,j) = IniVal
 #endif
           END DO
         END DO

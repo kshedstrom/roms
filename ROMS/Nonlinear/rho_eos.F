@@ -139,6 +139,10 @@
 #  ifdef SEDIMENT
       USE mod_sediment
 #  endif
+#if defined STOPERTURB  && defined EOS_PERTURB
+      USE mod_stoperturb
+      USE set_stoperturb
+#endif
 !
       USE exchange_2d_mod
       USE exchange_3d_mod
@@ -239,6 +243,18 @@
       real(r8), dimension(IminS:ImaxS,N(ng)) :: den1
 
 #  include "set_bounds.h"
+
+
+!
+!-----------------------------------------------------------------------
+! 
+! 
+!-----------------------------------------------------------------------
+!
+
+
+
+
 !
 !=======================================================================
 !  Nonlinear equation of state.  Notice that this equation of state

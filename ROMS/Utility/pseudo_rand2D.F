@@ -163,14 +163,8 @@
 !  Save data in array and compute variance
 !-----------------------------------------------------------------------
 !
-      asum = 0.0
-      DO m=1,ny
-         DO i=1,nx
-            Amat(i,m) = x(i,m)
-            asum = asum + Amat(i,m)**2
-         END DO
-      END DO
-      asum = asum / (nx*ny)
+      Amat(1:nx,1:ny) = x(1:nx,1:ny)
+      asum = SUM(Amat*Amat) / (nx*ny)
 !
 !-----------------------------------------------------------------------
 !  Check if variance of the pseudo random field is one
@@ -188,6 +182,33 @@
 
       END SUBROUTINE pseudo2D
 
+
+      SUBROUTINE random2D(Amat,nx,ny)
+!
+!=======================================================================
+! This routine calculates the uniform random fields
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: nx,ny           ! horizontal dimensions
+      real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
+!
+!  Local variable declarations.
+!
+      integer :: l,p                   ! Loop dummies
+      real*8  :: asum                  ! Summing dummy
+      real*8  :: adjust                ! Adjusting coefficient
+
+      call RANDOM_NUMBER(Amat)
+      asum=SUM(Amat*Amat)
+      asum = asum / (nx*ny)
+      adjust = SQRT( 1.00 / asum )
+      Amat(:,:) = Amat(:,:) * adjust
+
+      END SUBROUTINE random2D
 
 
 

@@ -11,7 +11,6 @@
 !
       USE mod_param
       USE mod_scalars
-      USE mod_stepping
       USE mod_ncparam
       USE pseudo_rand2D
       USE mod_parallel
@@ -19,17 +18,16 @@
 
       CONTAINS
 
-      SUBROUTINE get_pseudo2D_field(ng,ifield,               &
-                                    LBi, UBi, LBj, UBj,      &
-                                    ILB,IUB,JLB,JUB,         &
-                                    Iout, Irec,              &
-                                    rcorr,tcorr,             &
-                                    dx,dy,RanField,          &
+      SUBROUTINE get_pseudo2D_forc(ng,ifield,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              ILB,IUB,JLB,JUB,                    &
+     &                              Iout, Irec,                         &
+     &                              rcorr,tcorr,                        &
+     &                              dx,dy,RanField,                     &
                                     var)
 !
 !=======================================================================
-! Main routine that generate the random field for ROMS and
-! select the tile corresponding to the processor
+! Routine to generate a pseudo random field for forcings
 !=======================================================================
 !
       implicit none
@@ -49,100 +47,51 @@
 !
 !  Local variable declarations.
 !
-      integer              :: nx,ny            ! horizontal dimensions
-      integer              :: Tindex           ! index of the current field (for 2 field interpolation)
-      real(r8)             :: autocorr=0.5    ! autocorrelation for dt=pert_tcorr
-      real(r8)             :: alpha            ! coefficient for time dependance
-      real(r8)             :: dt               ! dt between perturbation fields
-      real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
-      real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
-
+      integer  :: Tindex       ! index of the current field (for 2 field interpolation)
+      real(r8) :: scal_fac     ! scale factor for current field
+      real(r8) :: dt           ! dt between perturbation fields (days)
 !
 !-----------------------------------------------------------------------
 !  Turn on input data time wall clock.
 !-----------------------------------------------------------------------
 !
-CALL wclock_on (ng, iNLM, 57)
-
+      CALL wclock_on (ng, iNLM, 57)
 !
 !-----------------------------------------------------------------------
-!  Initialize.
+!  Get infos on the forcing variable
 !-----------------------------------------------------------------------
 !
-
-      Tindex=Iinfo(8,ifield,ng)
-      nx=IUB-ILB+1
-      ny=JUB-JLB+1
-      ALLOCATE(ran_tmp(nx,ny))
-
+      scal_fac = Fscale(ifield,ng)
+      Tindex   = Iinfo(8,ifield,ng)
       dt = ABS(Vtime(Tindex,ifield,ng) - Vtime(3-Tindex,ifield,ng))
-      IF (Master) WRITE(6,*) "RE: (get_pseudo) variable : ",             &
-     &        TRIM(Vname(1,ifield))
-      IF (Master) WRITE(6,*) "RE: (get_pseudo) dt,iic,ntstart = ",      &
-     &        dt,iic,ntstart
-         IF (Master) WRITE(6,*) "RE: (get_pseudo)   max(t-1) = ",       &
-     &        MAXVAL(RanField(LBi:UBi,LBj:UBj,3-Tindex))
-
-      ! If dt and iic = 0, it means we are filling the first field of 
-      ! perturbations. This field is taken from the restart or ini file
+!
+!-----------------------------------------------------------------------
+!  Get pseudo random 2D field
+!-----------------------------------------------------------------------
+!
       IF ((dt .EQ. 0.0) .AND. (iic(ng) .EQ. 0)) THEN
-!
-!-----------------------------------------------------------------------
-!  Read perturbation from restart
-!-----------------------------------------------------------------------
-!
-         IF (Master) WRITE(6,*) "RE: (get_pseudo) Get pert from restart"
-
-         ! Add the restart read HERE instead of the following
-         CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
-         RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
-         RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
-         RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
-     &       RanField(LBi:UBi,LBj:UBj,Tindex)                           &
-     &       * Fscale(ifield,ng)*SQRT(var)
-
+         ! Read the perturbation from the restart file
+         CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,          &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,                                             &
+     &               dx,dy,var,                                         &
+     &               RanField(LBi:UBi,LBj:UBj,Tindex))
       ELSE
-!
-!-----------------------------------------------------------------------
-!  Get the random field
-!-----------------------------------------------------------------------
-!
-         CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
-         RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
-!
-!-----------------------------------------------------------------------
-!  Select tile
-!-----------------------------------------------------------------------
-!
-         RanField(LBi:UBi,LBj:UBj,Tindex) = RanFieldAll(LBi:UBi,LBj:UBj)
-         IF (Master) WRITE(6,*) "RE: (get_pseudo)     max(t) = ",       &
-     &        MAXVAL(RanField(LBi:UBi,LBj:UBj,Tindex)*                  &
-     &       Fscale(ifield,ng)*SQRT(var))
-!
-!-----------------------------------------------------------------------
-!  Time dependence
-!-----------------------------------------------------------------------
-!
-         alpha = autocorr**(dt/tcorr)
+         CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                    &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,tcorr,                                       &
+     &               dx,dy,dt,var,                                      &
+     &               RanField(LBi:UBi,LBj:UBj,3-Tindex)/scal_fac,       &
+     &               RanField(LBi:UBi,LBj:UBj,Tindex))
 
-         RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
-     &        alpha*RanField(LBi:UBi,LBj:UBj,3-Tindex) /                &
-     &        (Fscale(ifield,ng)*SQRT(var)) +                           &
-     &        sqrt(1-alpha*alpha)*RanField(LBi:UBi,LBj:UBj,Tindex)
-         IF (Master) WRITE(6,*) "RE: (get_pseudo)    max(t') = ",       &
-     &        MAXVAL(RanField(LBi:UBi,LBj:UBj,Tindex))
+      END IF
 !
 !-----------------------------------------------------------------------
-!  Normalize by desired variance
+!  Scale field by the variable scaling factor
 !-----------------------------------------------------------------------
 !
-         RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
-     &       RanField(LBi:UBi,LBj:UBj,Tindex)                           &
-     &       * Fscale(ifield,ng)*SQRT(var)
-
-      ENDIF
-      IF (Master) WRITE(6,*) "RE: (get_pseudo) max(t_fin) = ",       &
-     &   MAXVAL(RanField(LBi:UBi,LBj:UBj,Tindex))
+      RanField(LBi:UBi,LBj:UBj,Tindex) =                                &
+     &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
 !
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
@@ -150,7 +99,158 @@ CALL wclock_on (ng, iNLM, 57)
 !
       CALL wclock_off (ng, iNLM, 57)
 
+      END SUBROUTINE get_pseudo2D_forc
+
+
+
+
+
+      SUBROUTINE get_pseudo2D_field(LBi, UBi, LBj, UBj,                 &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,tcorr,                                       &
+     &               dx,dy,dt,var,                                      &
+     &               randfield_prev,                                    &
+     &               randfield_new)
+!
+!=======================================================================
+! Main routine that generate the random field for ROMS and
+! select the tile corresponding to the processor
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: ILB, IUB, JLB, JUB
+
+      real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
+      real(r8), intent(in) :: tcorr           ! Temporal decorrelation period
+      real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
+      real(r8), intent(in) :: dt              ! dt between perturbation fields
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      real(r8), intent(in)  :: randfield_prev(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: randfield_new(LBi:UBi,LBj:UBj)
+!
+!  Local variable declarations.
+!
+      integer              :: nx,ny            ! horizontal dimensions
+      real(r8)             :: autocorr=0.5     ! autocorrelation for dt=pert_tcorr
+      real(r8)             :: alpha            ! coefficient for time dependance
+      real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
+      real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      nx=IUB-ILB+1
+      ny=JUB-JLB+1
+      ALLOCATE(ran_tmp(nx,ny))
+!
+!-----------------------------------------------------------------------
+!  Get the random field
+!-----------------------------------------------------------------------
+!
+      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+      RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
+!
+!-----------------------------------------------------------------------
+!  Select tile
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) = RanFieldAll(LBi:UBi,LBj:UBj)
+!
+!-----------------------------------------------------------------------
+!  Time dependence
+!-----------------------------------------------------------------------
+!
+      alpha = autocorr**(dt/tcorr)
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        alpha*randfield_prev(LBi:UBi,LBj:UBj) / SQRT(var) +       &
+     &        sqrt(1-alpha*alpha)*randfield_new(LBi:UBi,LBj:UBj)
+!
+!-----------------------------------------------------------------------
+!  Normalize by desired variance
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
+
       END SUBROUTINE get_pseudo2D_field
+
+
+
+
+      SUBROUTINE get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,       &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,                                             &
+     &               dx,dy,var,                                         &
+     &               randfield_new)
+!
+!=======================================================================
+! Main routine that generate the random field for ROMS and
+! select the tile corresponding to the processor witout time dependance
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: ILB, IUB, JLB, JUB
+
+      real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
+      real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      real(r8), intent(inout) :: randfield_new(LBi:UBi,LBj:UBj)
+!
+!  Local variable declarations.
+!
+      integer              :: nx,ny            ! horizontal dimensions
+      real(r8)             :: autocorr=0.5     ! autocorrelation for dt=pert_tcorr
+      real(r8)             :: alpha            ! coefficient for time dependance
+      real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
+      real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      nx=IUB-ILB+1
+      ny=JUB-JLB+1
+      ALLOCATE(ran_tmp(nx,ny))
+!
+!-----------------------------------------------------------------------
+!  Get the random field
+!-----------------------------------------------------------------------
+!
+      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+      RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
+!
+!-----------------------------------------------------------------------
+!  Select tile
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) = RanFieldAll(LBi:UBi,LBj:UBj)
+!
+!-----------------------------------------------------------------------
+!  Normalize by desired variance
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
+
+      END SUBROUTINE get_pseudo2D_field_notimedep
+
+
+
+
+
+
+
 
       END MODULE set_stoperturb
 

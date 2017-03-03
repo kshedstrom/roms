@@ -164,7 +164,7 @@
      &      'Generate RHS for ice dynamics solver..............',       &
      &      'Iterative solver of ice dynamics..................',       &
      &      'Advection of ice tracers..........................',       &
-     &      'Computation of perturbations......................'/)
+     &      'Computation of forcing perturbations..............'/)
 
         character (len=80) :: my_os = MY_OS
         character (len=80) :: my_cpu = MY_CPU

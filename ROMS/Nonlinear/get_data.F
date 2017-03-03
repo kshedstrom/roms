@@ -36,9 +36,9 @@
       USE mod_scalars
       USE mod_sources
       USE mod_stepping
-#ifdef STOPERTURB
+#if defined STOPERTURB && defined FORCE_PERTURB
       USE mod_stoperturb
-      USE set_stoperturb, ONLY : get_pseudo2D_field
+      USE set_stoperturb, ONLY : get_pseudo2D_forc
 #endif
 
 !
@@ -295,7 +295,7 @@
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
       IF (update(1)) THEN
-         CALL get_pseudo2D_field(ng,idUair,                             &
+         CALL get_pseudo2D_forc(ng,idUair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
@@ -316,7 +316,7 @@
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
       IF (update(1)) THEN
-         CALL get_pseudo2D_field(ng,idVair,                             &
+         CALL get_pseudo2D_forc(ng,idVair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
@@ -540,7 +540,7 @@
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
       IF (update(1)) THEN
-         CALL get_pseudo2D_field(ng,idTair,                             &
+         CALL get_pseudo2D_forc(ng,idTair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
@@ -797,7 +797,7 @@
 ! Perturbations
 #  if defined STOPERTURB && defined FORCE_PERTURB
       IF (update(1)) THEN
-         CALL get_pseudo2D_field(ng,idSrad,                             &
+         CALL get_pseudo2D_forc(ng,idSrad,                              &
         &                        LBi, UBi, LBj, UBj,                    &
         &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &

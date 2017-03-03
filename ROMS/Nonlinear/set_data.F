@@ -92,7 +92,7 @@
       USE exchange_3d_mod
 #  endif
 # endif
-#if defined STOPERTURB
+#if defined STOPERTURB && defined FORCE_PERTURB
       USE mod_stoperturb
 #endif
 
