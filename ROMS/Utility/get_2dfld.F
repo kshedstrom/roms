@@ -202,6 +202,12 @@
      &                            Fmask,                                &
 #endif
      &                            Fout)
+                ! Not sure about this...
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout = Fout + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               ELSE
                 status=nf_fread2d(ng, model, ncfile, ncid,              &
      &                            Vname(1,ifield), Vid,                 &
@@ -212,11 +218,11 @@
      &                            Fmask,                                &
 #endif
      &                            Fout(:,:,Tindex))
-              END IF
-              IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
-                Fout = Fout + Finfo(11,ifield,ng)
-                Fmin = Fmin + Finfo(11,ifield,ng)
-                Fmax = Fmax + Finfo(11,ifield,ng)
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout(:,:,Tindex) = Fout(:,:,Tindex) + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               END IF
             ELSE
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
