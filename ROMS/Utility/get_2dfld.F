@@ -213,6 +213,11 @@
 #endif
      &                            Fout(:,:,Tindex))
               END IF
+              IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                Fout = Fout + Finfo(11,ifield,ng)
+                Fmin = Fmin + Finfo(11,ifield,ng)
+                Fmax = Fmax + Finfo(11,ifield,ng)
+              END IF
             ELSE
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
      &                              Fval,                               &
@@ -221,6 +226,8 @@
      &                              total = (/1/))
               Fval=Fval*Fscale(ifield,ng)
               Fpoint(Tindex,ifield,ng)=Fval
+              IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) &
+                 Fval = Fval + Finfo(11,ifield,ng)
               Fmin=Fval
               Fmax=Fval
             END IF
