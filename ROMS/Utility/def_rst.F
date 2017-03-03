@@ -33,6 +33,9 @@
 #if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 #endif
+#if defined STOPERTURB
+      USE mod_stoperturb
+#endif
 !
       USE def_var_mod, ONLY : def_var
 !
@@ -1139,6 +1142,36 @@
 !         status=def_var(ncRSTid(ng),hisBid(itrc,ng),NF_FOUT, &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
         END DO
+#  endif
+#  if defined FORCE_PERTURB
+!------------------------------------------
+!  Define forcing perturbation
+!------------------------------------------   
+
+          Vinfo( 1)='pert_Tair'
+          Vinfo( 2)='perturbation on Tair'
+          Vinfo( 3)='Celsius'
+          !Vinfo(14)=''
+          !Vinfo(16)=''
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Tair),NF_FOUT,            &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)='pert_swrad'
+          Vinfo( 2)='perturbation on swrad'
+          Vinfo( 3)='W/m2'
+          !Vinfo(14)=''
+          !Vinfo(16)=''
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_swrad),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+
+
 #  endif
 
 !------------------------------------------
