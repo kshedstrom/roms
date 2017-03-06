@@ -34,7 +34,7 @@
 
 
 
-      SUBROUTINE pseudo2D(Amat,nx,ny,rh,dx,dy)
+      SUBROUTINE pseudo2D(Amat,nx,ny,rh,dx,dy,plan)
 !
 !=======================================================================
 ! This routine calculates the pseudo random filds using
@@ -45,10 +45,11 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: nx,ny           ! horizontal dimensions
-      real*8, intent(in)  :: rh              ! Horizontal decorrelation length
-      real*8, intent(in)  :: dx,dy           ! horizontal size of input grid
-      real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
+      integer, intent(in)    :: nx,ny           ! horizontal dimensions
+      real*8, intent(in)     :: rh              ! Horizontal decorrelation length
+      real*8, intent(in)     :: dx,dy           ! horizontal size of input grid
+      real*8, intent(out)    :: Amat(nx,ny)     ! generated random fields
+      TYPE(C_PTR),intent(in) :: plan            ! plan for FFTW
 !
 !  Local variable declarations.
 !
@@ -73,8 +74,7 @@
 !
 !  Variables for FFTW 
 !
-      TYPE(C_PTR)   :: plan
-      real          :: real_part, imag_part
+      real             :: real_part, imag_part
       complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
 !
 !-----------------------------------------------------------------------
@@ -154,10 +154,10 @@
 !  Compute the 2-dimensional inverse discrete fourier transfrom (FFTW)
 !-----------------------------------------------------------------------
 !
-      plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
-                              FFTW_ESTIMATE)
+!      plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
+!                              FFTW_ESTIMATE)
       CALL fftw_execute_dft(plan,Qinv, x)
-      CALL dfftw_destroy_plan(plan)
+!      CALL dfftw_destroy_plan(plan)
 !
 !-----------------------------------------------------------------------
 !  Save data in array and compute variance

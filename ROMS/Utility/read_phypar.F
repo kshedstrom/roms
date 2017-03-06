@@ -1306,7 +1306,7 @@
             CASE ('pert_tcorr')
               Npts=load_r(Nval, Rval, Ngrids,pert_tcorr)
             CASE ('seed_user')
-              Npts=load_r(Nval, Rval, Ngrids,seed_user)
+              Npts=load_i(Nval, Rval, Ngrids,seed_user)
 #endif
 
             CASE ('Hout(idUvel)')

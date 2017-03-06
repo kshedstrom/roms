@@ -14,6 +14,7 @@
       USE mod_ncparam
       USE pseudo_rand2D
       USE mod_parallel
+      USE mod_stoperturb
 
 
       CONTAINS
@@ -71,11 +72,24 @@
 !
       IF ((dt .EQ. 0.0) .AND. (iic(ng) .EQ. 0)) THEN
          ! Read the perturbation from the restart file
-!         CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,          &
-!     &               ILB,IUB,JLB,JUB,                                   &
-!     &               rcorr,                                             &
-!     &               dx,dy,var,                                         &
-!     &               RanField(LBi:UBi,LBj:UBj,Tindex))
+         ! except for the first time step
+
+         IF (nrrec(ng) .EQ. 0) THEN
+            CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,       &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,                                             &
+     &               dx,dy,var,                                         &
+     &               RanField(LBi:UBi,LBj:UBj,Tindex),                  &
+     &               PERTURB(ng) % plan_fftw)
+!
+!-----------------------------------------------------------------------
+!  Scale field by the variable scaling factor
+!-----------------------------------------------------------------------
+!
+            RanField(LBi:UBi,LBj:UBj,Tindex) =                          &
+     &          RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
+
+         END IF
          
       ELSE
          CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                    &
@@ -83,7 +97,8 @@
      &               rcorr,tcorr,                                       &
      &               dx,dy,dt,var,                                      &
      &               RanField(LBi:UBi,LBj:UBj,3-Tindex)/scal_fac,       &
-     &               RanField(LBi:UBi,LBj:UBj,Tindex))
+     &               RanField(LBi:UBi,LBj:UBj,Tindex),                  &
+     &               PERTURB(ng) % plan_fftw)
 
 !
 !-----------------------------------------------------------------------
@@ -103,11 +118,15 @@
 
       IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
      &       TRIM(Vname(1,ifield)),",t) = ",                            &
-     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,Tindex)))
+     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,Tindex))),             &
+     &       "| dt,iic,ntstart,nrrec = ",dt,iic(ng),ntstart(ng),        &
+     &       nrrec(ng)
 
       IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
      &       TRIM(Vname(1,ifield)),",t-1) = ",                          &
-     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,3-Tindex)))
+     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,3-Tindex))),           &
+     &       "| dt,iic,ntstart,nrrec = ",dt,iic(ng),ntstart(ng),        &
+     &       nrrec(ng)
 
 
       END SUBROUTINE get_pseudo2D_forc
@@ -121,7 +140,7 @@
      &               rcorr,tcorr,                                       &
      &               dx,dy,dt,var,                                      &
      &               randfield_prev,                                    &
-     &               randfield_new)
+     &               randfield_new, plan)
 !
 !=======================================================================
 ! Main routine that generate the random field for ROMS and
@@ -140,6 +159,8 @@
       real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
       real(r8), intent(in) :: dt              ! dt between perturbation fields
       real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      TYPE(C_PTR),intent(in) :: plan          ! plan for FFTW
 
       real(r8), intent(in)  :: randfield_prev(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: randfield_new(LBi:UBi,LBj:UBj)
@@ -164,7 +185,7 @@
 !  Get the random field
 !-----------------------------------------------------------------------
 !
-      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy,plan)
       RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
 !
 !-----------------------------------------------------------------------
@@ -198,7 +219,7 @@
      &               ILB,IUB,JLB,JUB,                                   &
      &               rcorr,                                             &
      &               dx,dy,var,                                         &
-     &               randfield_new)
+     &               randfield_new, plan)
 !
 !=======================================================================
 ! Main routine that generate the random field for ROMS and
@@ -215,6 +236,8 @@
       real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
       real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
       real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      TYPE(C_PTR),intent(in) :: plan          ! plan for FFTW
 
       real(r8), intent(inout) :: randfield_new(LBi:UBi,LBj:UBj)
 !
@@ -238,7 +261,7 @@
 !  Get the random field
 !-----------------------------------------------------------------------
 !
-      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy)
+      CALL pseudo2D(ran_tmp,nx,ny,rcorr,dx,dy,plan)
       RanFieldAll(ILB:IUB,JLB:JUB) = ran_tmp(:,:)
 !
 !-----------------------------------------------------------------------
@@ -255,11 +278,6 @@
      &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
 
       END SUBROUTINE get_pseudo2D_field_notimedep
-
-
-
-
-
 
 
 

@@ -34,9 +34,13 @@
 
         USE mod_kinds
         USE mod_scalars
+        USE mod_fftw3
+
         implicit none
 
         TYPE T_PERTURB
+
+          TYPE(C_PTR)       :: plan_fftw
 
 #ifdef FORCE_PERTURB
           real(r8), pointer :: UwindG(:,:,:)
@@ -111,7 +115,7 @@
 !=======================================================================
 !
       USE mod_param
-      USE pseudo_rand2D, ONLY : random_seed_fixed
+      USE pseudo_rand2D, ONLY : random_seed_fixed, initfftdim
 !
 !  Imported variable declarations.
 !
@@ -122,15 +126,30 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, k
       real(r8), parameter :: IniVal = 0.0_r8
+      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
+      integer :: nx,ny                 ! horizontal dimensions
+      integer :: n1,n2                 ! horizontal dimensions in fft grid
+      integer :: my_tile
 
 #include "set_bounds.h"
-
 
 !
 !  Initialize seed for random number generation
 !
       CALL random_seed_fixed(seed_user(ng))
+!
+!  Initialize plan for FFTW (pseudo random generation)
+!
+      my_tile=-1                           ! for global values
+      nx=BOUNDS(ng)%UBi(my_tile)-BOUNDS(ng)%LBi(my_tile)+1
+      ny=BOUNDS(ng)%UBj(my_tile)-BOUNDS(ng)%LBj(my_tile)+1
 
+      CALL initfftdim(nx,ny,n1,n2)
+      ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
+      ALLOCATE(x(n1,n2))
+      Qinv=CMPLX(0,0)
+      PERTURB(ng) % plan_fftw = fftw_plan_dft_2d(n1,n2, Qinv, x,        &
+     &                          FFTW_BACKWARD,FFTW_ESTIMATE)
 !
 !  Set array initialization range.
 !
