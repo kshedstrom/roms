@@ -71,11 +71,12 @@
 !
       IF ((dt .EQ. 0.0) .AND. (iic(ng) .EQ. 0)) THEN
          ! Read the perturbation from the restart file
-         CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,          &
-     &               ILB,IUB,JLB,JUB,                                   &
-     &               rcorr,                                             &
-     &               dx,dy,var,                                         &
-     &               RanField(LBi:UBi,LBj:UBj,Tindex))
+!         CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,          &
+!     &               ILB,IUB,JLB,JUB,                                   &
+!     &               rcorr,                                             &
+!     &               dx,dy,var,                                         &
+!     &               RanField(LBi:UBi,LBj:UBj,Tindex))
+         
       ELSE
          CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                    &
      &               ILB,IUB,JLB,JUB,                                   &
@@ -84,20 +85,30 @@
      &               RanField(LBi:UBi,LBj:UBj,3-Tindex)/scal_fac,       &
      &               RanField(LBi:UBi,LBj:UBj,Tindex))
 
-      END IF
 !
 !-----------------------------------------------------------------------
 !  Scale field by the variable scaling factor
 !-----------------------------------------------------------------------
 !
-      RanField(LBi:UBi,LBj:UBj,Tindex) =                                &
+         RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
      &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
 !
+      END IF
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
 !
+
       CALL wclock_off (ng, iNLM, 57)
+
+      IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
+     &       TRIM(Vname(1,ifield)),",t) = ",                            &
+     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,Tindex)))
+
+      IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
+     &       TRIM(Vname(1,ifield)),",t-1) = ",                          &
+     &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,3-Tindex)))
+
 
       END SUBROUTINE get_pseudo2D_forc
 

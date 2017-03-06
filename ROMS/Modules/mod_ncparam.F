@@ -291,7 +291,7 @@
         integer  :: idSSTc        ! SST climatology
 #ifdef FORCE_PERTURB
         integer  :: idpert_Tair    ! perturbation on Tair
-        integer  :: idpert_swrad   ! perturbation on shortwave radiation
+        integer  :: idpert_Srad    ! perturbation on shortwave radiation
         integer  :: idpert_Uwind   ! perturbation on zonal wind
         integer  :: idpert_Vwind   ! perturbation on merid wind
 #endif
@@ -1646,8 +1646,8 @@
 #if defined FORCE_PERTURB
             CASE ('idpert_Tair')
               idpert_Tair=varid
-            CASE ('idpert_swrad')
-              idpert_swrad=varid
+            CASE ('idpert_Srad')
+              idpert_Srad=varid
             CASE ('idpert_Uwind')
               idpert_Uwind=varid
             CASE ('idpert_Vwind')

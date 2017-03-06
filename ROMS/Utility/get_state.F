@@ -1830,26 +1830,26 @@
         END DO
 #  endif
 # if defined FORCE_PERTURB
-  ! read input data for perturbations
+! read input data for perturbations
 
       IF (get_var(idpert_Tair)) THEN
         foundit=find_string(var_name, n_var,                        &
- &                          TRIM(Vname(1,idpert_Tair)), varid)
+     &                          TRIM(Vname(1,idpert_Tair)), varid)
         gtype=var_flag(varid)*r2dvar
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
- &                          Vname(1,idpert_Tair), varid,            &
- &                          InpRec, gtype, Vsize,                   &
- &                          LBi, UBi, LBj, UBj,                     &
- &                          Fscl, Fmin, Fmax,                       &
+     &                      Vname(1,idpert_Tair), varid,            &
+     &                      InpRec, gtype, Vsize,                   &
+     &                      LBi, UBi, LBj, UBj,                     &
+     &                      Fscl, Fmin, Fmax,                       &
 #  ifdef MASKING
- &                          GRID(ng) % rmask,                       &
+     &                      GRID(ng) % rmask,                       &
 #  endif
- &                          PERTURB(ng) % TairG(:,:,Tindex))
+     &                      PERTURB(ng) % TairG(:,:,Tindex))
 
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,60) string, TRIM(Vname(1,idpert_Tair)),   &
- &                            InpRec, TRIM(ncname)
+     &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
           ioerror=status
@@ -1857,42 +1857,100 @@
         ELSE
           IF (Master) THEN
             WRITE (stdout,70) TRIM(Vname(2,idpert_Tair)),           &
- &                             Fmin, Fmax
+     &                         Fmin, Fmax
           END IF
         END IF
       END IF
 
-      IF (get_var(idpert_swrad)) THEN
+      IF (get_var(idpert_Srad)) THEN
         foundit=find_string(var_name, n_var,                        &
- &                          TRIM(Vname(1,idpert_swrad)), varid)
+     &                      TRIM(Vname(1,idpert_Srad)), varid)
         gtype=var_flag(varid)*r2dvar
         status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
- &                          Vname(1,idpert_swrad), varid,           &
- &                          InpRec, gtype, Vsize,                   &
- &                          LBi, UBi, LBj, UBj,                     &
- &                          Fscl, Fmin, Fmax,                       &
+     &                      Vname(1,idpert_Srad), varid,           &
+     &                      InpRec, gtype, Vsize,                   &
+     &                      LBi, UBi, LBj, UBj,                     &
+     &                      Fscl, Fmin, Fmax,                       &
 #  ifdef MASKING
- &                          GRID(ng) % rmask,                       &
+     &                      GRID(ng) % rmask,                       &
 #  endif
- &                          PERTURB(ng) % srflxG(:,:,Tindex))
+     &                      PERTURB(ng) % srflxG(:,:,Tindex))
 
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,60) string, TRIM(Vname(1,idpert_swrad)),   &
- &                            InpRec, TRIM(ncname)
+            WRITE (stdout,60) string, TRIM(Vname(1,idpert_Srad)),   &
+     &                        InpRec, TRIM(ncname)
           END IF
           exit_flag=2
           ioerror=status
           RETURN
         ELSE
           IF (Master) THEN
-            WRITE (stdout,70) TRIM(Vname(2,idpert_swrad)),           &
- &                             Fmin, Fmax
+            WRITE (stdout,70) TRIM(Vname(2,idpert_Srad)),           &
+     &                         Fmin, Fmax
           END IF
         END IF
       END IF
 
-! needs Uwind and Vwind too
+      IF (get_var(idpert_Uwind)) THEN
+        foundit=find_string(var_name, n_var,                        &
+     &                      TRIM(Vname(1,idpert_Uwind)), varid)
+        gtype=var_flag(varid)*r2dvar
+        status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                      Vname(1,idpert_Uwind), varid,           &
+     &                      InpRec, gtype, Vsize,                   &
+     &                      LBi, UBi, LBj, UBj,                     &
+     &                      Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                      GRID(ng) % rmask,                       &
+#  endif
+     &                      PERTURB(ng) % UwindG(:,:,Tindex))
+
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,60) string, TRIM(Vname(1,idpert_Uwind)),   &
+     &                        InpRec, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,70) TRIM(Vname(2,idpert_Uwind)),           &
+     &                         Fmin, Fmax
+          END IF
+        END IF
+      END IF
+
+      IF (get_var(idpert_Vwind)) THEN
+        foundit=find_string(var_name, n_var,                        &
+     &                      TRIM(Vname(1,idpert_Vwind)), varid)
+        gtype=var_flag(varid)*r2dvar
+        status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                      Vname(1,idpert_Vwind), varid,           &
+     &                      InpRec, gtype, Vsize,                   &
+     &                      LBi, UBi, LBj, UBj,                     &
+     &                      Fscl, Fmin, Fmax,                       &
+#  ifdef MASKING
+     &                      GRID(ng) % rmask,                       &
+#  endif
+     &                      PERTURB(ng) % VwindG(:,:,Tindex))
+
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,60) string, TRIM(Vname(1,idpert_Vwind)),   &
+     &                        InpRec, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,70) TRIM(Vname(2,idpert_Vwind)),           &
+     &                         Fmin, Fmax
+          END IF
+        END IF
+      END IF
 
 # endif
 

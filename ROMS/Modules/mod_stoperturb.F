@@ -55,9 +55,6 @@
 
         TYPE (T_PERTURB),     allocatable :: PERTURB(:)
 
-        integer, allocatable :: iDforcperturb(:)
-        integer              :: Nforcperturb=4
-
       CONTAINS
 
 
@@ -91,7 +88,6 @@
       allocate ( PERTURB(ng) % VwindG(LBi:UBi,LBj:UBj,2) )
       allocate ( PERTURB(ng) % TairG(LBi:UBi,LBj:UBj,2) )
       allocate ( PERTURB(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
-      allocate ( iDforcperturb(Nforcperturb) )
 #endif
 #ifdef EOS_PERTURB
       allocate ( PERTURB(ng) % deltax(LBi:UBi,LBj:UBj) )

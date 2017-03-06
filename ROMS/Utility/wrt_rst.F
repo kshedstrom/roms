@@ -718,7 +718,7 @@
         scale=1.0_r8 ! change me
         gtype=gfactor*r3dvar
         status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
-                           RST(ng)%Vid(idpert_swrad),                   &
+                           RST(ng)%Vid(idpert_Srad),                   &
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 # ifdef MASKING
@@ -727,14 +727,50 @@
      &                     PERTURB(ng) % srflxG(:,:,NOUT))
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idpert_swrad)), RST(ng)%Rindex
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Srad)), RST(ng)%Rindex
           END IF
           exit_flag=3
           ioerror=status
           RETURN
         END IF
 
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Uwind),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % UwindG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Uwind)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
 
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Vwind),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % VwindG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Vwind)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
 #endif
 
 

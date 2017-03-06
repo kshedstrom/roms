@@ -139,10 +139,10 @@
 #  ifdef SEDIMENT
       USE mod_sediment
 #  endif
-#if defined STOPERTURB  && defined EOS_PERTURB
+#  if defined STOPERTURB  && defined EOS_PERTURB
       USE mod_stoperturb
       USE set_stoperturb
-#endif
+#  endif
 !
       USE exchange_2d_mod
       USE exchange_3d_mod
@@ -245,15 +245,15 @@
 #  include "set_bounds.h"
 
 
+#  ifdef EOS_PERTURB
 !
 !-----------------------------------------------------------------------
-! 
-! 
+! Add perturbations on T and S
 !-----------------------------------------------------------------------
 !
 
 
-
+#  endif
 
 !
 !=======================================================================

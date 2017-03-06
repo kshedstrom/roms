@@ -1148,29 +1148,49 @@
 !  Define forcing perturbation
 !------------------------------------------   
 
-          Vinfo( 1)='pert_Tair'
-          Vinfo( 2)='perturbation on Tair'
-          Vinfo( 3)='Celsius'
-          !Vinfo(14)=''
-          !Vinfo(16)=''
+          Vinfo( 1)=Vname(1,idpert_Tair)
+          Vinfo( 2)=Vname(2,idpert_Tair)
+          Vinfo( 3)=Vname(3,idpert_Tair)
+          Vinfo(14)=Vname(4,idpert_Tair)
+          Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r3dvar,r8)
           status=def_var(ng,iNLM,RST(ng)%ncid,                        &
    &                     RST(ng)%Vid(idpert_Tair),NF_FOUT,            &
    &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
-          Vinfo( 1)='pert_swrad'
-          Vinfo( 2)='perturbation on swrad'
-          Vinfo( 3)='W/m2'
-          !Vinfo(14)=''
-          !Vinfo(16)=''
+          Vinfo( 1)=Vname(1,idpert_Srad)
+          Vinfo( 2)=Vname(2,idpert_Srad)
+          Vinfo( 3)=Vname(3,idpert_Srad)
+          Vinfo(14)=Vname(4,idpert_Srad)
+          Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
           Aval(5)=REAL(r3dvar,r8)
           status=def_var(ng,iNLM,RST(ng)%ncid,                        &
-   &                     RST(ng)%Vid(idpert_swrad),NF_FOUT,           &
+   &                     RST(ng)%Vid(idpert_Srad),NF_FOUT,           &
    &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
+          Vinfo( 1)=Vname(1,idpert_Uwind)
+          Vinfo( 2)=Vname(2,idpert_Uwind)
+          Vinfo( 3)=Vname(3,idpert_Uwind)
+          Vinfo(14)=Vname(4,idpert_Uwind)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Uwind),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
+          Vinfo( 1)=Vname(1,idpert_Vwind)
+          Vinfo( 2)=Vname(2,idpert_Vwind)
+          Vinfo( 3)=Vname(3,idpert_Vwind)
+          Vinfo(14)=Vname(4,idpert_Vwind)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Vwind),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 #  endif
 
