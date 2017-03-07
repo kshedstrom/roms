@@ -32,7 +32,7 @@
 
 
 
-      SUBROUTINE pseudo2D(Amat,nx,ny,rh,dx,dy,plan)
+      SUBROUTINE pseudo2D(Randmat,nx,ny,rh,dx,dy,plan)
 !
 !=======================================================================
 ! This routine calculates the pseudo random filds using
@@ -46,7 +46,7 @@
       integer, intent(in)    :: nx,ny           ! horizontal dimensions
       real*8, intent(in)     :: rh              ! Horizontal decorrelation length
       real*8, intent(in)     :: dx,dy           ! horizontal size of input grid
-      real*8, intent(out)    :: Amat(nx,ny)     ! generated random fields
+      real*8, intent(out)    :: Randmat(nx,ny)  ! generated random fields
       TYPE(C_PTR),intent(in) :: plan            ! plan for FFTW
 !
 !  Local variable declarations.
@@ -72,10 +72,9 @@
 !
 !  Variables for FFTW 
 !
-      real             :: real_part, imag_part
+      real         :: real_part, imag_part
+      type(C_PTR)  :: q,s             ! pointers for FFTW
       complex(C_DOUBLE_COMPLEX), pointer :: Qinv(:,:),x(:,:)
-      type(C_PTR) :: q,s
-
 
 !
 !-----------------------------------------------------------------------
@@ -89,6 +88,9 @@
 !-----------------------------------------------------------------------
 !
       ALLOCATE(phi(-n1/2:n1/2,-n2/2:n2/2))
+      ! For FFTW, we allocate arrays with an external C function :
+      ! fftw_alloc_complex
+      ! (http://www.fftw.org/fftw3_doc/Allocating-aligned-memory-in-Fortran.html)
       q = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
       s = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
       CALL c_f_pointer(q, x, [n1,n2])
@@ -163,16 +165,16 @@
 !  Save data in array and compute variance
 !-----------------------------------------------------------------------
 !
-      Amat(1:nx,1:ny) = x(1:nx,1:ny)
-      asum = SUM(Amat*Amat) / (nx*ny)
+      Randmat(1:nx,1:ny) = x(1:nx,1:ny)
+      asum = SUM(Randmat*Randmat) / (nx*ny)
 !
 !-----------------------------------------------------------------------
 !  Check if variance of the pseudo random field is one
-!  If it is not one, amplify the magnitude of Amat
+!  If it is not one, amplify the magnitude of Randmat
 !-----------------------------------------------------------------------
 !
       adjust = SQRT( 1.00 / asum )
-      Amat(:,:) = Amat(:,:) * adjust
+      Randmat(:,:) = Randmat(:,:) * adjust
 !
 !-----------------------------------------------------------------------     
 !  Deallocate arrays
@@ -185,7 +187,7 @@
       END SUBROUTINE pseudo2D
 
 
-      SUBROUTINE random2D(Amat,nx,ny)
+      SUBROUTINE random2D(Randmat,nx,ny)
 !
 !=======================================================================
 ! This routine calculates the uniform random fields
@@ -196,7 +198,7 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: nx,ny           ! horizontal dimensions
-      real*8, intent(out) :: Amat(nx,ny)     ! generated random fields
+      real*8, intent(out) :: Randmat(nx,ny)  ! generated random fields
 !
 !  Local variable declarations.
 !
@@ -204,11 +206,11 @@
       real*8  :: asum                  ! Summing dummy
       real*8  :: adjust                ! Adjusting coefficient
 
-      call RANDOM_NUMBER(Amat)
-      asum=SUM(Amat*Amat)
+      CALL RANDOM_NUMBER(Randmat)
+      asum=SUM(Randmat*Randmat)
       asum = asum / (nx*ny)
       adjust = SQRT( 1.00 / asum )
-      Amat(:,:) = Amat(:,:) * adjust
+      Randmat(:,:) = Randmat(:,:) * adjust
 
       END SUBROUTINE random2D
 
@@ -332,6 +334,7 @@
       real*8  :: sigma2,pi2,kappa,kappa2,lambda,lambda2
       real*8  :: dx,dy
       integer :: l,p,n1,n2
+      
       real*8, parameter :: pi=3.141592653589
    
       sigma2=sigma**2

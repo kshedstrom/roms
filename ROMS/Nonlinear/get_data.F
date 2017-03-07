@@ -294,10 +294,11 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idUair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % UwindG,                  &
@@ -315,10 +316,11 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idVair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % VwindG,                  &
@@ -539,10 +541,11 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 # if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idTair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % TairG,                   &
@@ -796,10 +799,11 @@
       IF (exit_flag.ne.NoError) RETURN
 ! Perturbations
 #  if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idSrad,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        ILB,IUB,JLB,JUB, 2, 1,                 &
         &                        pert_rcorr(ng),pert_tcorr(ng),         &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % srflxG,                  &

@@ -126,9 +126,8 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, k
       real(r8), parameter :: IniVal = 0.0_r8
+      type(C_PTR)  :: q,s              ! pointers for FFTW
       complex(C_DOUBLE_COMPLEX), pointer :: Qinv(:,:),x(:,:)
-      type(C_PTR) :: p,s
-!      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
       integer :: nx,ny                 ! horizontal dimensions
       integer :: n1,n2                 ! horizontal dimensions in fft grid
       integer :: my_tile
@@ -142,23 +141,26 @@
 !
 !  Initialize plan for FFTW (pseudo random generation)
 !
+      ! Get size of roms grid
       my_tile=-1                           ! for global values
       nx=BOUNDS(ng)%UBi(my_tile)-BOUNDS(ng)%LBi(my_tile)+1
       ny=BOUNDS(ng)%UBj(my_tile)-BOUNDS(ng)%LBj(my_tile)+1
 
+      ! Initialize arrays
       CALL initfftdim(nx,ny,n1,n2)
-      p = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
       s = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
-      CALL c_f_pointer(p, x, [n1,n2])
-      CALL c_f_pointer(s, Qinv, [n1,n2])
-!      ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
-!      ALLOCATE(x(n1,n2))
+      q = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
+      CALL c_f_pointer(s, x, [n1,n2])
+      CALL c_f_pointer(q, Qinv, [n1,n2])
+
+      ! Create plan with zeros on the FFT
       Qinv=CMPLX(0,0)
       PERTURB(ng) % plan_fftw = fftw_plan_dft_2d(n1,n2, Qinv, x,        &
      &                          FFTW_BACKWARD,FFTW_ESTIMATE)
-!      DEALLOCATE(x, Qinv)
-      call fftw_free(p)
-      call fftw_free(s)
+
+      ! Free the memory
+      CALL fftw_free(q)
+      CALL fftw_free(s)
 !
 !  Set array initialization range.
 !

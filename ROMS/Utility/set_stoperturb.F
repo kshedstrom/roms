@@ -20,12 +20,10 @@
       CONTAINS
 
       SUBROUTINE get_pseudo2D_forc(ng,ifield,                           &
-     &                              LBi, UBi, LBj, UBj,                 &
-     &                              ILB,IUB,JLB,JUB,                    &
-     &                              Iout, Irec,                         &
-     &                              rcorr,tcorr,                        &
-     &                              dx,dy,RanField,                     &
-                                    var)
+     &                             LBi, UBi, LBj, UBj,                  &
+     &                             rcorr,tcorr,                         &
+     &                             dx,dy,RanField,                      &
+                                   var)
 !
 !=======================================================================
 ! Routine to generate a pseudo random field for forcings
@@ -35,20 +33,21 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng,ifield,Iout, Irec
-      integer, intent(in) :: LBi, UBi, LBj, UBj
-      integer, intent(in) :: ILB, IUB, JLB, JUB
+      integer, intent(in) :: ng,ifield             ! grid id, field id
+      integer, intent(in) :: LBi, UBi, LBj, UBj    ! Size of tile
 
       real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
       real(r8), intent(in) :: tcorr           ! Temporal decorrelation period
       real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
       real(r8), intent(in) :: var             ! desired variance for the perturbation
 
-      real(r8), intent(inout) :: RanField(LBi:UBi,LBj:UBj,Iout) ! random field on tile
+      real(r8), intent(inout) :: RanField(LBi:UBi,LBj:UBj,2) ! random field on tile
 !
 !  Local variable declarations.
 !
+      integer  :: ILB, IUB, JLB, JUB  ! Size of whole ROMS grid
       integer  :: Tindex       ! index of the current field (for 2 field interpolation)
+      integer  :: my_tile      ! tile index
       real(r8) :: scal_fac     ! scale factor for current field
       real(r8) :: dt           ! dt between perturbation fields (days)
 !
@@ -57,6 +56,16 @@
 !-----------------------------------------------------------------------
 !
       CALL wclock_on (ng, iNLM, 57)
+!
+!-----------------------------------------------------------------------
+!  Get ROMS grid size
+!-----------------------------------------------------------------------
+!
+      my_tile=-1                           ! for global values
+      ILB=BOUNDS(ng)%LBi(my_tile)
+      IUB=BOUNDS(ng)%UBi(my_tile)
+      JLB=BOUNDS(ng)%LBj(my_tile)
+      JUB=BOUNDS(ng)%UBj(my_tile)
 !
 !-----------------------------------------------------------------------
 !  Get infos on the forcing variable
@@ -71,8 +80,9 @@
 !-----------------------------------------------------------------------
 !
       IF ((dt .EQ. 0.0) .AND. (iic(ng) .EQ. 0)) THEN
-         ! Read the perturbation from the restart file
-         ! except for the first time step
+         ! Read the perturbation from the restart file on first time
+         ! step (iic=0) except for the first job (nrrec=0). In this case
+         ! we generate a random field without time dependance
 
          IF (nrrec(ng) .EQ. 0) THEN
             CALL get_pseudo2D_field_notimedep(LBi, UBi, LBj, UBj,       &
@@ -107,13 +117,11 @@
 !
          RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
      &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
-!
       END IF
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
 !
-
       CALL wclock_off (ng, iNLM, 57)
 
       IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
@@ -127,7 +135,6 @@
      &       MAXVAL(ABS(RanField(LBi:UBi,LBj:UBj,3-Tindex))),           &
      &       "| dt,iic,ntstart,nrrec = ",dt,iic(ng),ntstart(ng),        &
      &       nrrec(ng)
-
 
       END SUBROUTINE get_pseudo2D_forc
 
@@ -174,11 +181,13 @@
       real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
 !
 !-----------------------------------------------------------------------
-!  Initialize.
+!  Initialize
 !-----------------------------------------------------------------------
 !
+      ! Get size of ROMS grid
       nx=IUB-ILB+1
       ny=JUB-JLB+1
+      ! Allocate temporary random field at ROMS size
       ALLOCATE(ran_tmp(nx,ny))
 !
 !-----------------------------------------------------------------------
@@ -253,8 +262,10 @@
 !  Initialize.
 !-----------------------------------------------------------------------
 !
+      ! Get size of ROMS grid
       nx=IUB-ILB+1
       ny=JUB-JLB+1
+      ! Allocate temporary random field at ROMS size
       ALLOCATE(ran_tmp(nx,ny))
 !
 !-----------------------------------------------------------------------
