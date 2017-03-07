@@ -126,7 +126,9 @@
       integer :: Imin, Imax, Jmin, Jmax
       integer :: i, j, k
       real(r8), parameter :: IniVal = 0.0_r8
-      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
+      complex(C_DOUBLE_COMPLEX), pointer :: Qinv(:,:),x(:,:)
+      type(C_PTR) :: p,s
+!      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
       integer :: nx,ny                 ! horizontal dimensions
       integer :: n1,n2                 ! horizontal dimensions in fft grid
       integer :: my_tile
@@ -145,11 +147,18 @@
       ny=BOUNDS(ng)%UBj(my_tile)-BOUNDS(ng)%LBj(my_tile)+1
 
       CALL initfftdim(nx,ny,n1,n2)
-      ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
-      ALLOCATE(x(n1,n2))
+      p = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
+      s = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
+      CALL c_f_pointer(p, x, [n1,n2])
+      CALL c_f_pointer(s, Qinv, [n1,n2])
+!      ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
+!      ALLOCATE(x(n1,n2))
       Qinv=CMPLX(0,0)
       PERTURB(ng) % plan_fftw = fftw_plan_dft_2d(n1,n2, Qinv, x,        &
      &                          FFTW_BACKWARD,FFTW_ESTIMATE)
+!      DEALLOCATE(x, Qinv)
+      call fftw_free(p)
+      call fftw_free(s)
 !
 !  Set array initialization range.
 !

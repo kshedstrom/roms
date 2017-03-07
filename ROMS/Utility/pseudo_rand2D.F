@@ -75,7 +75,10 @@
 !  Variables for FFTW 
 !
       real             :: real_part, imag_part
-      complex(C_DOUBLE_COMPLEX), allocatable :: Qinv(:,:),x(:,:)
+      complex(C_DOUBLE_COMPLEX), pointer :: Qinv(:,:),x(:,:)
+      type(C_PTR) :: q,s
+
+
 !
 !-----------------------------------------------------------------------
 !  Get the dimensions of FFT
@@ -88,8 +91,10 @@
 !-----------------------------------------------------------------------
 !
       ALLOCATE(phi(-n1/2:n1/2,-n2/2:n2/2))
-      ALLOCATE(x(n1,n2))
-      ALLOCATE(Qinv(-n1/2:n1/2,-n2/2:n2/2))
+      q = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
+      s = fftw_alloc_complex(int(n1*n2, C_SIZE_T))
+      CALL c_f_pointer(q, x, [n1,n2])
+      CALL c_f_pointer(s, Qinv, [n1,n2])
 !
 !-----------------------------------------------------------------------
 !  Compute equation parameters
@@ -145,7 +150,7 @@
          imag_part =                                                    &
      &      EXP(-(kappa2*FLOAT(l*l)+lambda2*FLOAT(p*p))/sigma2)*        &
      &      SIN(phi(l,p))*SQRT(deltak)*c
-         Qinv(MOD(l+n1,n1)-n1/2,MOD(p+n2,n2)-n2/2) =                    &
+         Qinv(MOD(l+n1,n1)+1,MOD(p+n2,n2)+1) =                    &
      &      CMPLX(real_part,imag_part)
        END DO
       END DO
@@ -154,10 +159,7 @@
 !  Compute the 2-dimensional inverse discrete fourier transfrom (FFTW)
 !-----------------------------------------------------------------------
 !
-!      plan = fftw_plan_dft_2d(n1,n2, Qinv, x,FFTW_BACKWARD,&
-!                              FFTW_ESTIMATE)
       CALL fftw_execute_dft(plan,Qinv, x)
-!      CALL dfftw_destroy_plan(plan)
 !
 !-----------------------------------------------------------------------
 !  Save data in array and compute variance
@@ -178,7 +180,9 @@
 !  Deallocate arrays
 !-----------------------------------------------------------------------
 !
-      DEALLOCATE(phi, x, Qinv)
+      DEALLOCATE(phi)
+      call fftw_free(q)
+      call fftw_free(s)
 
       END SUBROUTINE pseudo2D
 
