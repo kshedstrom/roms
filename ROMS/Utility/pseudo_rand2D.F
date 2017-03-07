@@ -11,8 +11,6 @@
       USE mod_fftw3
       USE mod_parallel
 
-      integer,parameter :: mnproc = 2
-
       CONTAINS
 
       SUBROUTINE initfftdim(nx,ny,fnx,fny)
@@ -261,8 +259,6 @@
          IF (icorr < 20) THEN
            GOTO 77
          ELSE
-         !if (mnproc==1) write(*,'(2(a,g13.5))')'zeroin: No convergence, ax=',ax,'
-         !bx=',bx
            CALL xcstop('(zeroin)')
            STOP  '(zeroin)'
          ENDIF
