@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -536,7 +536,7 @@
         IF (LdefSTA(ng).and.(iic(ng).eq.ntstart(ng))) THEN
 #if defined NEP5 || defined NEP6 || defined CASPIAN || defined CHUKCHI \
            || defined CORAL || defined NWA || defined ARC_NATL \
-           || defined ARCTIC || defined NWGOA
+           || defined ARCTIC || defined NWGOA || defined BEAUFORT
           CALL def_station (ng, .true.)
 #else
           CALL def_station (ng, ldefout(ng))

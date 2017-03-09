@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -170,7 +170,7 @@
 #  ifdef BIOLOGY
       integer :: Nreduce
 #  else
-      integer, parameter :: Nreduce = 5
+      integer, parameter :: Nreduce = 6
 #  endif
       integer, parameter :: Ncourant = 7
 # else
@@ -194,7 +194,7 @@
 #endif
       real(r8) :: my_maxspeed, u2v2
 #ifdef SOLVE3D
-      real(r8) :: my_maxrho
+      real(r8) :: my_maxrho, my_mintemp
 # ifdef BIOLOGY
       real(r8) :: my_maxbio(NBT)
 # endif
@@ -216,7 +216,7 @@
 !
 #ifdef DISTRIBUTE
 # ifdef BIOLOGY
-      Nreduce = 5 + NBT
+      Nreduce = 6 + NBT
 # endif
       IF (.not. allocated(buffer))    allocate (buffer(Nreduce))
       IF (.not. allocated(op_handle)) allocate (op_handle(Nreduce))
@@ -236,6 +236,7 @@
         my_maxspeed=0.0_r8
 #ifdef SOLVE3D
         my_maxrho=-1.0E+20_r8
+        my_mintemp=1.0E+20_r8
 # ifdef BIOLOGY
         DO ibt=1,NBT
           my_maxbio(ibt)=-1.0E+20_r8
@@ -278,6 +279,7 @@
               END IF
               my_maxspeed=MAX(my_maxspeed,SQRT(0.5_r8*u2v2))
               my_maxrho=MAX(my_maxrho,rho(i,j,k))
+              my_mintemp=MIN(my_mintemp,t(i,j,k,itemp,nstp))
             END DO
           END DO
 # ifdef BIOLOGY
@@ -386,6 +388,7 @@
           maxspeed(ng)=my_maxspeed
 #ifdef SOLVE3D
           maxrho(ng)=my_maxrho
+          mintemp(ng)=my_mintemp
 # ifdef BIOLOGY
           DO ibt=1,NBT
             maxbio(ibt,ng)=0.0_r8
@@ -410,6 +413,7 @@
           maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
 #ifdef SOLVE3D
           maxrho(ng)=MAX(maxrho(ng),my_maxrho)
+          mintemp(ng)=MIN(mintemp(ng),my_mintemp)
 # ifdef BIOLOGY
           DO ibt=1,NBT
             maxbio(ibt,ng)=MAX(maxbio(ibt,ng),my_maxbio(ibt))
@@ -446,9 +450,10 @@
           buffer(4)=maxspeed(ng)
 # ifdef SOLVE3D
           buffer(5)=maxrho(ng)
+          buffer(6)=mintemp(ng)
 #  ifdef BIOLOGY
           DO ibt=1,NBT
-            buffer(5+ibt)=maxbio(ibt,ng)
+            buffer(6+ibt)=maxbio(ibt,ng)
           END DO
 #  endif
 # endif
@@ -458,9 +463,10 @@
           op_handle(4)='MAX'
 # ifdef SOLVE3D
           op_handle(5)='MAX'
+          op_handle(6)='MIN'
 #  ifdef BIOLOGY
           DO ibt=1,NBT
-            op_handle(5+ibt)='MAX'
+            op_handle(6+ibt)='MAX'
           END DO
 #  endif
 # endif
@@ -471,9 +477,10 @@
           maxspeed(ng)=buffer(4)
 # ifdef SOLVE3D
           maxrho(ng)=buffer(5)
+          mintemp(ng)=buffer(6)
 #  ifdef BIOLOGY
           DO ibt=1,NBT
-            maxbio(ibt,ng)=buffer(5+ibt)
+            maxbio(ibt,ng)=buffer(6+ibt)
           END DO
 #  endif
 # endif
@@ -631,9 +638,32 @@
 !  salinity.  This is a good way to screen for very bad values which
 !  indicates that the model is blowing-up.
 !
-          IF (maxrho(ng).gt.max_rho) THEN
+          IF (maxrho(ng) .gt. max_rho) THEN
             exit_flag=1
             IF (Master) print *, 'DIAG rho trouble ', maxrho(ng), ng
+          END IF
+          IF (mintemp(ng) .lt. min_temp) THEN
+            exit_flag=1
+            IF (Master) print *, 'DIAG temperature trouble ', mintemp(ng), ng
+            ii_max = Istr
+            jj_max = Jstr
+            kk_max = 1
+            uv_max = t(Istr,Jstr,1,itemp,nstp)
+            DO j=Jstr,Jend
+              DO k=1,N(ng)
+                DO i=Istr,Iend
+                  IF (t(i,j,k,itemp,nstp) > uv_max) THEN
+                    ii_max = i
+                    jj_max = j
+                    kk_max = k
+                    uv_max = t(i,j,k,itemp,nstp)
+                  END IF
+                END DO
+              END DO
+            END DO
+            IF (uv_max.gt.max_speed) THEN
+              print *, 'DIAG temp ijk ', uv_max, ii_max, jj_max, kk_max, ng
+            END IF
           END IF
 # ifdef BIOLOGY
           DO ibt=1,NBT
@@ -641,6 +671,14 @@
               IF (Master) print *, 'BIO trouble in DIAG ', maxbio(:,ng)
               exit_flag=1
             END IF
+            WRITE (pechar,'(1pe8.1)') maxbio(ibt,ng)
+            DO i=1,8
+              IF ((pechar(i:i).eq.'N').or.(pechar(i:i).eq.'n').or.      &
+     &            (pechar(i:i).eq.'*')) THEN
+                IF (Master) print *, 'BIO trouble in DIAG ', pechar, ibt
+                exit_flag=1
+              END IF
+            END DO
           END DO
 # endif
 #endif

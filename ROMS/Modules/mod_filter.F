@@ -88,6 +88,7 @@
 #   endif
           real(r8), pointer :: filtis(:,:,:)
           real(r8), pointer :: filti(:,:,:)
+          real(r8), pointer :: filt2(:,:,:)
           real(r8), pointer :: filAgeice(:,:,:)
           real(r8), pointer :: fils0mk(:,:,:)
           real(r8), pointer :: filt0mk(:,:,:)
@@ -119,6 +120,7 @@
           real(r8), pointer :: filQao(:,:,:)
           real(r8), pointer :: filQai(:,:,:)
           real(r8), pointer :: filQio(:,:,:)
+          real(r8), pointer :: filQi2(:,:,:)
           real(r8), pointer :: filSnoI(:,:,:)
 #   endif
 #  endif
@@ -345,6 +347,9 @@
       IF (Aout(idTimid,ng)) THEN
         allocate ( FILTER(NG) % filti(LBi:UBi,LBj:UBj,FILN) )
       END IF
+      IF (Aout(idT2ice,ng)) THEN
+        allocate ( FILTER(NG) % filt2(LBi:UBi,LBj:UBj,FILN) )
+      END IF
       IF (Aout(idHsno,ng)) THEN
         allocate ( FILTER(NG) % filhsn(LBi:UBi,LBj:UBj,FILN) )
       END IF
@@ -446,6 +451,9 @@
       END IF
       IF (Aout(idQio,ng)) THEN
         allocate ( FILTER(NG) % filQio(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(idQi2,ng)) THEN
+        allocate ( FILTER(NG) % filQi2(LBi:UBi,LBj:UBj,FILN) )
       END IF
       IF (Aout(idSnoI,ng)) THEN
         allocate ( FILTER(NG) % filSnoI(LBi:UBi,LBj:UBj,FILN) )
@@ -889,6 +897,15 @@
           END DO
         END DO
       END IF
+      IF (Aout(idT2ice,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filt2(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
       IF (Aout(idAgeice,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax
@@ -1147,6 +1164,15 @@
           DO j=Jmin,Jmax
             DO i=Imin,Imax
               FILTER(ng) % filQio(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(idQi2,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filQi2(i,j,if) = IniVal
             END DO
           END DO
         END DO

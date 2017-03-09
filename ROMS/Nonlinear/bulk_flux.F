@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1241,13 +1241,6 @@
 # ifdef ICE_BOX
           SHeat(i,j) = sensible_MU(month)
           LHeat(i,j) = latent_MU(month)
-# else
-#  ifdef ICE_MODEL
-          SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qsh_i
-          LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qlh_i
-#  endif
 # endif
         END DO
       END DO
@@ -1398,7 +1391,7 @@
             snow_n(i,j) = 0.0_r8
           ELSE
 #  ifdef SNOWFALL
-            snow_n(i,j) = snow(i,j)/rhosnow_dry(ng)
+            snow_n(i,j) = (snow(i,j) + rain(i,j))/rhosnow_dry(ng)
 #  else
             snow_n(i,j) = rain(i,j)/rhosnow_dry(ng)
 #  endif

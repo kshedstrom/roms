@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -930,11 +930,12 @@
 # if defined TS_MIX_CLIMA && (defined TS_DIF2 || defined TS_DIF4)
         Lclimatology(ng)=.TRUE.
 # endif
-        IF (LsshCLM(ng).or.                                             &
-            Lm2CLM (ng).or.LnudgeM2CLM(ng).or.                          &
-            Lm3CLM (ng).or.LnudgeM3CLM(ng).or.                          &
-            LmiCLM (ng).or.LnudgeMICLM(ng).or.                          &
-            LaiCLM (ng).or.LnudgeAICLM(ng).or.                          &
+        IF (LsshCLM(ng) .or.                                            &
+            Lm2CLM(ng) .or. LnudgeM2CLM(ng) .or.                        &
+            Lm3CLM(ng) .or. LnudgeM3CLM(ng) .or.                        &
+            LmiCLM(ng) .or. LnudgeMICLM(ng) .or.                        &
+            LaiCLM(ng) .or. LnudgeAICLM(ng) .or.                        &
+            LsiCLM(ng) .or. LnudgeSICLM(ng) .or.                        &
             ANY(LtracerCLM(:,ng)).or.ANY(LnudgeTCLM(:,ng))) THEN
           Lclimatology(ng)=.TRUE.
         END IF
@@ -948,10 +949,11 @@
 !  Set internal switch for nudging to climatology fields.
 !
 #ifdef SOLVE3D
-        IF (LnudgeM2CLM(ng).or.                                         &
-     &      LnudgeM3CLM(ng).or.                                         &
-     &      LnudgeMICLM(ng).or.                                         &
-     &      LnudgeAICLM(ng).or.                                         &
+        IF (LnudgeM2CLM(ng) .or.                                        &
+     &      LnudgeM3CLM(ng) .or.                                        &
+     &      LnudgeMICLM(ng) .or.                                        &
+     &      LnudgeAICLM(ng) .or.                                        &
+     &      LnudgeSICLM(ng) .or.                                        &
      &      ANY(LnudgeTCLM(:,ng))) THEN
           Lnudging(ng)=.TRUE.
         END IF

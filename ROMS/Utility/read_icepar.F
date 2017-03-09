@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -177,6 +177,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idTimid,:))
+            CASE ('Hout(idT2ice)')
+              IF (idT2ice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT2ice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idT2ice,:))
             CASE ('Hout(idTauiw)')
               IF (idTauiw.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idTauiw'
@@ -404,6 +411,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Hout(idQio,:))
+            CASE ('Hout(idQi2)')
+              IF (idQi2.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQi2'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Hout(idQi2,:))
             CASE ('Hout(idSnoI)')
               IF (idSnoI.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idSnoI'
@@ -476,6 +490,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idTimid,:))
+            CASE ('Aout(idT2ice)')
+              IF (idT2ice.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idT2ice'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idT2ice,:))
             CASE ('Aout(idTauiw)')
               IF (idTauiw.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idTauiw'
@@ -703,6 +724,13 @@
                 RETURN
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout(idQio,:))
+            CASE ('Aout(idQi2)')
+              IF (idQi2.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idQi2'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Aout(idQi2,:))
             CASE ('Aout(idSnoI)')
               IF (idSnoI.eq.0) THEN
                 IF (Master) WRITE (out,80) 'idSnoI'
@@ -731,6 +759,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTice,:))
             CASE ('Aout2(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTimid,:))
+            CASE ('Aout2(idT2ice)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idT2ice,:))
             CASE ('Aout2(idTauiw)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idTauiw,:))
             CASE ('Aout2(idChuiw)')
@@ -774,6 +804,8 @@
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTice,:))
             CASE ('Qout(idTimid)')
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTimid,:))
+            CASE ('Qout(idT2ice)')
+              Npts=load_l(Nval, Cval, Ngrids, Qout(idT2ice,:))
             CASE ('Qout(idTauiw)')
               Npts=load_l(Nval, Cval, Ngrids, Qout(idTauiw,:))
             CASE ('Qout(idChuiw)')
@@ -896,6 +928,9 @@
           IF (Hout(idTimid,ng)) WRITE (out,70) Hout(idTimid,ng),        &
      &       'Hout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
+          IF (Hout(idT2ice,ng)) WRITE (out,70) Hout(idT2ice,ng),        &
+     &       'Hout(idT2ice)',                                           &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Hout(idApond,ng)) WRITE (out,70) Hout(idApond,ng),        &
      &       'Hout(idApond)',                                           &
@@ -995,6 +1030,9 @@
           IF (Hout(idQio,ng)) WRITE (out,70) Hout(idQio,ng),            &
      &       'Hout(idQio)',                                             &
      &       'Write out heat flux into ice.'
+          IF (Hout(idQi2,ng)) WRITE (out,70) Hout(idQi2,ng),            &
+     &       'Hout(idQi2)',                                             &
+     &       'Write out heat flux in ice.'
           IF (Hout(idSnoI,ng)) WRITE (out,70) Hout(idSnoI,ng),          &
      &       'Hout(idSnoI)',                                            &
      &       'Write out heat flux into ice.'
@@ -1027,6 +1065,9 @@
           IF (Aout(idTimid,ng)) WRITE (out,70) Aout(idTimid,ng),        &
      &       'Aout(idTimid)',                                           &
      &       'Write out time-averaged interior ice temperature.'
+          IF (Aout(idT2ice,ng)) WRITE (out,70) Aout(idT2ice,ng),        &
+     &       'Aout(idT2ice)',                                           &
+     &       'Write out time-averaged top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Aout(idApond,ng)) WRITE (out,70) Aout(idApond,ng),        &
      &       'Aout(idApond)',                                           &
@@ -1126,6 +1167,9 @@
           IF (Aout(idQio,ng)) WRITE (out,70) Aout(idQio,ng),            &
      &       'Aout(idQio)',                                             &
      &       'Write out heat flux into ice.'
+          IF (Aout(idQi2,ng)) WRITE (out,70) Aout(idQi2,ng),            &
+     &       'Aout(idQi2)',                                             &
+     &       'Write out heat flux in ice.'
           IF (Aout(idSnoI,ng)) WRITE (out,70) Aout(idSnoI,ng),          &
      &       'Aout(idSnoI)',                                            &
      &       'Write out heat flux into ice.'
@@ -1159,6 +1203,9 @@
           IF (Aout2(idTimid,ng)) WRITE (out,70) Aout2(idTimid,ng),      &
      &       'Aout2(idTimid)',                                          &
      &       'Write out interior ice temperature.'
+          IF (Aout2(idT2ice,ng)) WRITE (out,70) Aout2(idT2ice,ng),      &
+     &       'Aout2(idT2ice)',                                          &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Aout2(idApond,ng)) WRITE (out,70) Aout2(idApond,ng),      &
      &       'Aout2(idApond)',                                          &
@@ -1222,6 +1269,9 @@
           IF (Qout(idTimid,ng)) WRITE (out,70) Qout(idTimid,ng),        &
      &       'Qout(idTimid)',                                           &
      &       'Write out interior ice temperature.'
+          IF (Qout(idT2ice,ng)) WRITE (out,70) Qout(idT2ice,ng),        &
+     &       'Qout(idT2ice)',                                           &
+     &       'Write out top of ice temperature.'
 #ifdef MELT_PONDS
           IF (Qout(idApond,ng)) WRITE (out,70) Qout(idApond,ng),        &
      &       'Qout(idApond)',                                           &

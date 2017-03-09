@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -294,7 +294,7 @@
                 AVERAGE2(ng)%avgt(i,j,itrc)=                            &
      &                    OCEAN(ng)%t(i,j,N(ng),Nout,itrc)
 #  ifdef WET_DRY
-                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,it)*  &
+                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,itrc)*&
      &                                       GRID(ng)%rmask_full(i,j)
 #  endif
               END DO

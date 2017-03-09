@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -69,7 +69,8 @@
      &                   GRID(ng) % z_w,                                &
 #endif
 #if defined DIFF_GRID || defined DIFF_3DCOEF || \
-    defined VISC_GRID || defined VISC_3DCOEF
+    defined VISC_GRID || defined VISC_3DCOEF || \
+    defined ICE_STRENGTH_QUAD
      &                   GRID(ng) % grdscl,                             &
 #endif
 #if defined DIFF_3DCOEF
@@ -119,7 +120,8 @@
      &                         Hz, z_r, z_w,                            &
 #endif
 #if defined DIFF_GRID || defined DIFF_3DCOEF || \
-    defined VISC_GRID || defined VISC_3DCOEF
+    defined VISC_GRID || defined VISC_3DCOEF || \
+    defined ICE_STRENGTH_QUAD
      &                         grdscl,                                  &
 #endif
 #if defined DIFF_3DCOEF
@@ -187,7 +189,8 @@
 #  endif
 # endif
 #if defined DIFF_GRID || defined DIFF_3DCOEF || \
-    defined VISC_GRID || defined VISC_3DCOEF
+    defined VISC_GRID || defined VISC_3DCOEF || \
+    defined ICE_STRENGTH_QUAD
       real(r8), intent(out) :: grdscl(LBi:,LBj:)
 # endif
 # if defined DIFF_3DCOEF
@@ -241,7 +244,8 @@
 #  endif
 # endif
 #if defined DIFF_GRID || defined DIFF_3DCOEF || \
-    defined VISC_GRID || defined VISC_3DCOEF
+    defined VISC_GRID || defined VISC_3DCOEF || \
+    defined ICE_STRENGTH_QUAD
       real(r8), intent(out) :: grdscl(LBi:UBi,LBj:UBj)
 # endif
 # if defined DIFF_3DCOEF
@@ -607,7 +611,8 @@
 #endif
 
 #if defined DIFF_GRID || defined DIFF_3DCOEF || \
-    defined VISC_GRID || defined VISC_3DCOEF
+    defined VISC_GRID || defined VISC_3DCOEF || \
+    defined ICE_STRENGTH_QUAD
 !
 !-----------------------------------------------------------------------
 ! Determine the squared root of the area of each grid cell used to

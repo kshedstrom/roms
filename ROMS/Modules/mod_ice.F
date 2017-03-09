@@ -28,6 +28,7 @@
           real(r8), pointer :: wdiv(:,:)
           real(r8), pointer :: tis(:,:)
           real(r8), pointer :: ti(:,:,:)
+          real(r8), pointer :: t2(:,:)
           real(r8), pointer :: enthalpi(:,:,:)
           real(r8), pointer :: hage(:,:,:)
           real(r8), pointer :: utau_iw(:,:)
@@ -113,6 +114,7 @@
       allocate ( ICE(ng) % wdiv(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tis(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % ti(LBi:UBi,LBj:UBj,2) )
+      allocate ( ICE(ng) % t2(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % enthalpi(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % hage(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % utau_iw(LBi:UBi,LBj:UBj) )
@@ -251,6 +253,7 @@
           ICE(ng) % tis(i,j) = IniVal
           ICE(ng) % ti(i,j,1) = IniVal
           ICE(ng) % ti(i,j,2) = IniVal
+          ICE(ng) % t2(i,j) = IniVal
           ICE(ng) % enthalpi(i,j,1) = IniVal
           ICE(ng) % enthalpi(i,j,2) = IniVal
           ICE(ng) % hage(i,j,1) = IniVal

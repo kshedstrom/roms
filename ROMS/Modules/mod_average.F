@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -335,6 +335,7 @@
           real(r8), pointer :: avghice(:,:)
           real(r8), pointer :: avgtice(:,:)
           real(r8), pointer :: avgtimid(:,:)
+          real(r8), pointer :: avgt2ice(:,:)
           real(r8), pointer :: avghsno(:,:)
 #   ifdef MELT_PONDS
           real(r8), pointer :: avgapond(:,:)
@@ -371,6 +372,7 @@
           real(r8), pointer :: avgQao(:,:)
           real(r8), pointer :: avgQai(:,:)
           real(r8), pointer :: avgQio(:,:)
+          real(r8), pointer :: avgQi2(:,:)
           real(r8), pointer :: avgSnoI(:,:)
 #endif
 #  endif
@@ -741,6 +743,9 @@
       IF (Aout(idTimid,ng)) THEN
         allocate ( AVERAGE(ng) % avgtimid(LBi:UBi,LBj:UBj) )
       END IF
+      IF (Aout(idT2ice,ng)) THEN
+        allocate ( AVERAGE(ng) % avgt2ice(LBi:UBi,LBj:UBj) )
+      END IF
       IF (Aout(idHsno,ng)) THEN
         allocate ( AVERAGE(ng) % avghsno(LBi:UBi,LBj:UBj) )
       END IF
@@ -843,6 +848,9 @@
       END IF
       IF (Aout(idQio,ng)) THEN
         allocate ( AVERAGE(ng) % avgQio(LBi:UBi,LBj:UBj) )
+      END IF
+      IF (Aout(idQi2,ng)) THEN
+        allocate ( AVERAGE(ng) % avgQi2(LBi:UBi,LBj:UBj) )
       END IF
       IF (Aout(idSnoI,ng)) THEN
         allocate ( AVERAGE(ng) % avgSnoI(LBi:UBi,LBj:UBj) )
@@ -1865,6 +1873,13 @@
           END DO
         END DO
       END IF
+      IF (Aout(idT2ice,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgt2ice(i,j) = IniVal
+          END DO
+        END DO
+      END IF
       IF (Aout(idHsno,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax
@@ -2096,6 +2111,13 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgQio(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idQi2,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgQi2(i,j) = IniVal
           END DO
         END DO
       END IF

@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -902,7 +902,7 @@ contains
           slp = Pair(i,j)*100._r8 !Convert back to Pascal from millibars
           cff = 611._r8*                                                &
      &      10._r8**(9.5_r8*(sfc_temp-273.16_r8)/(sfc_temp-7.66_r8))
-          Qsati=epsilon*cff/(slp-(1._r8-.62197_r8)*cff)
+          Qsati=epsilon*cff/(slp-(1._r8-epsilon)*cff)
           dq_i=Hair(i,j)-Qsati
           fqlat1=rhoAir(i)*Ce*vmag
           qlh_i = fqlat1*le_i*dq_i
@@ -975,12 +975,6 @@ contains
 # else
           SHeat(i,j) = cpair * tau * tstar / ustar
           LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
-#  ifdef ICE_MODEL
-          SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qsh_i
-          LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
-     &                    ai(i,j,listp)*qlh_i
-#  endif
 # endif
 !          IF ((i==133 .or. i==134) .and. j==610) THEN
 !            snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
@@ -1110,7 +1104,7 @@ contains
             snow_n(i,j) = 0.0_r8
           ELSE
 #  ifdef SNOWFALL
-            snow_n(i,j) = snow(i,j)/rhosnow_dry(ng)
+            snow_n(i,j) = (snow(i,j) + rain(i,j))/rhosnow_dry(ng)
 #  else
             snow_n(i,j) = rain(i,j)/rhosnow_dry(ng)
 #  endif

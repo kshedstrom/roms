@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -898,6 +898,12 @@
 # if defined POSTERIOR_EOFS && defined WEAK_CONSTRAINT
         CALL netcdf_put_ivar (ng, model, ncname, 'NpostI',              &
      &                        NpostI, (/0/), (/0/),                     &
+     &                        ncid = ncid)
+# endif
+# if defined IS4DVAR_SENSITIVITY || defined W4DPSAS_SENSITIVITY || \
+     defined W4DVAR_SENSITIVITY
+        CALL netcdf_put_ivar (ng, model, ncname, 'Nimpact',             &
+     &                        Nimpact, (/0/), (/0/),                    &
      &                        ncid = ncid)
 # endif
 # ifndef IS4DVAR_SENSITIVITY

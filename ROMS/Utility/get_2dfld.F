@@ -8,7 +8,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -202,6 +202,12 @@
      &                            Fmask,                                &
 #endif
      &                            Fout)
+                ! Not sure about this...
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout = Fout + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               ELSE
                 status=nf_fread2d(ng, model, ncfile, ncid,              &
      &                            Vname(1,ifield), Vid,                 &
@@ -212,6 +218,11 @@
      &                            Fmask,                                &
 #endif
      &                            Fout(:,:,Tindex))
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout(:,:,Tindex) = Fout(:,:,Tindex) + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               END IF
             ELSE
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
@@ -221,6 +232,8 @@
      &                              total = (/1/))
               Fval=Fval*Fscale(ifield,ng)
               Fpoint(Tindex,ifield,ng)=Fval
+              IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) &
+                 Fval = Fval + Finfo(11,ifield,ng)
               Fmin=Fval
               Fmax=Fval
             END IF

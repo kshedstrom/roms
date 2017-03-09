@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !=======================================================================
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine timesteps the ice momentum equations.
@@ -807,11 +807,18 @@
 #ifdef ICE_LANDFAST
 ! *** stress on bottom of keels
           IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
-            u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),                 &
-     &                uie(i-1,j,lieol), uie(i-1,j-1,lieol))
-            speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
-            vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
-            alfa = alfa + vdrag
+            IF (LnudgeAICLM(ng)) THEN
+              cff4 = CLIMA(ng)%AInudgcof(i,j)
+            ELSE
+              cff4 = 0.0_r8
+            END IF
+            IF (cff4 == 0.0_r8) THEN
+              u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),               &
+     &                  uie(i-1,j,lieol), uie(i-1,j-1,lieol))
+              speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
+              vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+              alfa = alfa + vdrag
+            END IF
           END IF
 #endif
 

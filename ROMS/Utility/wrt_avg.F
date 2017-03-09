@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1718,6 +1718,27 @@
         END IF
       END IF
 !
+! Write out ice top temperature.
+!
+      IF (Aout(idT2ice,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idT2ice),&
+     &                   AVG(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+#   ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+#   endif
+     &                   AVERAGE(ng) % avgt2ice)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idT2ice)), AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          RETURN
+        END IF
+      END IF
+!
 ! Write out snow thickness.
 !
       IF (Aout(idHsno,ng)) THEN
@@ -2454,6 +2475,30 @@
         IF (status.ne.nf90_noerr) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idQio)),                     &
+     &                        AVG(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out ice heat flux
+!
+      IF (Aout(idQi2,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
+     &                     AVG(ng)%Vid(idQi2),                          &
+     &                     AVG(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#  ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#  endif
+     &                     AVERAGE(ng) % avgQi2)
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idQi2)),                     &
      &                        AVG(ng)%Rindex
           END IF
           exit_flag=3

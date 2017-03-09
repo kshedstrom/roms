@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -56,6 +56,7 @@
 !               Finfo( 8,*) => minimum value for current data.         !
 !               Finfo( 9,*) => maximum value for current data.         !
 !               Finfo(10,*) => value of scale_factor attribute if any. !
+!               Finfo(11,*) => value of add_offset attribute if any.   !
 !  Fscale     Scale to convert input data to model units.              !
 !  Fpoint     Latest two-time records of input point data.             !
 !  Tintrp     Time (sec) of latest field snapshots used for            !
@@ -404,6 +405,7 @@
 
 ! Ice variables
         integer  :: idTimid        ! interior ice temperature
+        integer  :: idT2ice        ! top of ice temperature
         integer  :: idTauiw        ! ice-water friction velocity
         integer  :: idChuiw        ! ice-water momentum transfer coefficient
         integer  :: idS0mk         ! salinity of molecular sub-layer under ice
@@ -453,6 +455,7 @@
         integer  :: idQao          ! heat flux in leads
         integer  :: idQai          ! heat flux ice to atmosphere
         integer  :: idQio          ! heat flux ocean to ice
+        integer  :: idQi2          ! heat flux ocean to ice
         integer  :: idSnoI         ! snow-ice conversion
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
@@ -749,7 +752,7 @@
 
       allocate ( Iinfo(10,NV,Ngrids) )
 
-      allocate ( Finfo(10,NV,Ngrids) )
+      allocate ( Finfo(11,NV,Ngrids) )
       allocate ( Fpoint(2,NV,Ngrids) )
       allocate ( Fscale(NV,Ngrids) )
       allocate ( Tintrp(2,NV,Ngrids) )
@@ -962,6 +965,7 @@
           Finfo(6,i,ng)=0.0_r8
           Finfo(7,i,ng)=0.0_r8
           Finfo(10,i,ng)=1.0_r8
+          Finfo(11,i,ng)=0.0_r8
           Fscale(i,ng)=1.0_r8
           Fpoint(1,i,ng)=0.0_r8
           Fpoint(2,i,ng)=0.0_r8
@@ -1906,6 +1910,8 @@
                 idTice=varid
               CASE ('idTimid')
                 idTimid=varid
+              CASE ('idT2ice')
+                idT2ice=varid
               CASE ('idTauiw')
                 idTauiw=varid
               CASE ('idChuiw')
@@ -1985,6 +1991,8 @@
                 idQai=varid
               CASE ('idQio')
                 idQio=varid
+              CASE ('idQi2')
+                idQi2=varid
               CASE ('idSnoI')
                 idSnoI=varid
 #endif

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2016 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -99,7 +99,7 @@
         CALL get_ngfldr (ng, iADM, idRtra, SSF(ng)%ncid,                &
      &                   1, SSF(ng), update(1),                         &
      &                   1, Nsrc(ng), 1, 2, 1, Nsrc(ng), 1,             &
-     &                   SOURCES(ng) % QbarG(:,1))
+     &                   SOURCES(ng) % QbarG)
         IF (exit_flag.ne.NoError) RETURN
       END IF
 

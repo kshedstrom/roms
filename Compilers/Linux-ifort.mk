@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2016 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2017 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -51,13 +51,9 @@
 #
 
 ifdef USE_NETCDF4
-# HACK! setting NC_CONFIG in my shell for something else.
-        NC_CONFIG := /usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016//bin/nc-config
-    NETCDF_INCDIR ?= /usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016/include
-             LIBS := -L/usr/local/pkg/netcdf/netcdf-4.3.0.intel-2016/lib -lnetcdff -lnetcdf
-#       NC_CONFIG ?= nc-config
-#   NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
-#            LIBS := $(shell $(NC_CONFIG) --flibs)
+        NF_CONFIG ?= nf-config
+    NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --prefix)/include
+             LIBS := $(shell $(NF_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
@@ -90,7 +86,7 @@ endif
 ifdef USE_DEBUG
 #          FFLAGS += -g -check bounds -traceback
 #          FFLAGS += -g -check bounds -traceback -check uninit -warn interfaces,nouncalled -gen-interfaces
-           FFLAGS += -g -check uninit -ftrapuv -traceback -check bounds
+           FFLAGS += -g -check uninit -ftrapuv -traceback -check bounds -fpe0
            CFLAGS += -g
          CXXFLAGS += -g
 else
