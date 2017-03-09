@@ -1,5 +1,14 @@
            The status of the CICE 5 coupling
 
+There is both the Metroms coupling and the fake coupler coupling.
+Metroms is from https://doi.org/10.5281/zenodo.290667
+
+The fake coupler is described below, but I did much the same for the
+MCT coupling from metroms, placing CICE in its own directory with a
+metroms branch.
+
+Fake coupler:
+
 I assume one would download CICE 5.1 and place it somewhere else. I have
 a copy of clean_ice and comp_ice in the SeaIce directory. Both point to
 the place you put your copy of CICE with the SRCDIR variable. They also
@@ -30,9 +39,7 @@ in the makefile.
 Status:
 
 1. Running! It creates roughly the same amount of ice as Paul's ice
-model. It is then less efficient at melting it - and Paul's isn't melting
-enough to begin with. The ocean heat flux to the ice is computed in
-ice_frazil.F, similar to how ice_mk.h does it for Paul's model.
+model. It is then less efficient at melting it.
 
 cppdefs:
 
