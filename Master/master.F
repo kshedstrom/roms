@@ -12,6 +12,7 @@
 **                                                                    **
 ************************************************************************
 */
+#if defined MODEL_COUPLING
 
       PROGRAM mct_coupler
 !
@@ -235,3 +236,6 @@
       STOP
 
       END PROGRAM mct_coupler
+#else
+# include "ocean.h"
+#endif
