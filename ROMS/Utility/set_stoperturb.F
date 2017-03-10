@@ -118,6 +118,7 @@
          RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
      &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
       END IF
+!
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
@@ -138,6 +139,82 @@
 
       END SUBROUTINE get_pseudo2D_forc
 
+
+
+
+      SUBROUTINE get_pseudo2D_delta(ng,LBi, UBi, LBj, UBj,              &
+     &                             rcorr,tcorr,                         &
+     &                             dx,dy,RanField,                      &
+                                   var)
+!
+!=======================================================================
+! Routine to generate a pseudo random field for delta of T and S
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng                    ! grid id, field id
+      integer, intent(in) :: LBi, UBi, LBj, UBj    ! Size of tile
+
+      real(r8), intent(in) :: rcorr           ! Horizontal decorrelation length
+      real(r8), intent(in) :: tcorr           ! Temporal decorrelation period
+      real(r8), intent(in) :: dx,dy           ! horizontal size of input grid
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      real(r8), intent(inout) :: RanField(LBi:UBi,LBj:UBj) ! random field on tile
+!
+!  Local variable declarations.
+!
+      integer  :: ILB, IUB, JLB, JUB  ! Size of whole ROMS grid
+      integer  :: my_tile             ! tile index
+      real(r8) :: deltat              ! dt between perturbation fields (days)
+      real(r8) :: ran_prev(LBi:UBi,LBj:UBj) ! previous random field
+!
+!-----------------------------------------------------------------------
+!  Turn on input data time wall clock.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, iNLM, 58)
+!
+!-----------------------------------------------------------------------
+!  Get ROMS grid size
+!-----------------------------------------------------------------------
+!
+      my_tile=-1                           ! for global values
+      ILB=BOUNDS(ng)%LBi(my_tile)
+      IUB=BOUNDS(ng)%UBi(my_tile)
+      JLB=BOUNDS(ng)%LBj(my_tile)
+      JUB=BOUNDS(ng)%UBj(my_tile)
+!
+!-----------------------------------------------------------------------
+!  Get infos on the forcing variable
+!-----------------------------------------------------------------------
+!
+      deltat=dt(ng)/86400
+!
+!-----------------------------------------------------------------------
+!  Get pseudo random 2D field
+!-----------------------------------------------------------------------
+!
+      ran_prev(LBi:UBi,LBj:UBj) = RanField(LBi:UBi,LBj:UBj)
+      CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                       &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               rcorr,tcorr,                                       &
+     &               dx,dy,deltat,var,                                  &
+     &               ran_prev(LBi:UBi,LBj:UBj),                         &
+     &               RanField(LBi:UBi,LBj:UBj),                         &
+     &               PERTURB(ng) % plan_fftw)
+!
+!-----------------------------------------------------------------------
+!  Turn off input data time wall clock.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, iNLM, 58)
+
+
+      END SUBROUTINE get_pseudo2D_delta
 
 
 

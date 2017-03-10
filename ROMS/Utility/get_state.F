@@ -1828,8 +1828,8 @@
             END IF
           END IF
         END DO
-#  endif
-# if defined FORCE_PERTURB
+#endif
+#if defined FORCE_PERTURB
 ! read input data for perturbations
       IF (nrrec(ng).ne.0) THEN
         IF (get_var(idpert_Tair)) THEN
@@ -1841,9 +1841,9 @@
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                        GRID(ng) % rmask,                         &
-#  endif
+# endif
      &                        PERTURB(ng) % TairG(:,:,Tindex))
 
           IF (status.ne.nf90_noerr) THEN
@@ -1871,9 +1871,9 @@
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                        GRID(ng) % rmask,                         &
-#  endif
+# endif
      &                        PERTURB(ng) % srflxG(:,:,Tindex))
 
           IF (status.ne.nf90_noerr) THEN
@@ -1901,9 +1901,9 @@
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                        GRID(ng) % rmask,                         &
-#  endif
+# endif
      &                        PERTURB(ng) % UwindG(:,:,Tindex))
 
           IF (status.ne.nf90_noerr) THEN
@@ -1931,9 +1931,9 @@
      &                        InpRec, gtype, Vsize,                     &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        Fscl, Fmin, Fmax,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                        GRID(ng) % rmask,                         &
-#  endif
+# endif
      &                        PERTURB(ng) % VwindG(:,:,Tindex))
 
           IF (status.ne.nf90_noerr) THEN
@@ -1952,12 +1952,101 @@
           END IF
         END IF
       END IF
+#endif
+#if defined EOS_PERTURB
+! read input data for perturbations
+      IF (nrrec(ng).ne.0) THEN
+        IF (get_var(idpert_dx)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                     TRIM(Vname(1,idpert_dx)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idpert_dx), varid,              &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
 # endif
+     &                        PERTURB(ng) % deltax(:,:))
 
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idpert_dx)),     &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idpert_dx)),             &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
 
+        IF (get_var(idpert_dy)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                     TRIM(Vname(1,idpert_dy)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idpert_dy), varid,              &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        PERTURB(ng) % deltay(:,:))
 
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idpert_dy)),     &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idpert_dy)),             &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
 
+        IF (get_var(idpert_dz)) THEN
+          foundit=find_string(var_name, n_var,                          &
+     &                     TRIM(Vname(1,idpert_dz)), varid)
+          gtype=var_flag(varid)*r2dvar
+          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
+     &                        Vname(1,idpert_dz), varid,              &
+     &                        InpRec, gtype, Vsize,                     &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        Fscl, Fmin, Fmax,                         &
+# ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+# endif
+     &                        PERTURB(ng) % deltaz(:,:))
 
+          IF (status.ne.nf90_noerr) THEN
+            IF (Master) THEN
+              WRITE (stdout,60) string, TRIM(Vname(1,idpert_dz)),     &
+     &                          InpRec, TRIM(ncname)
+            END IF
+            exit_flag=2
+            ioerror=status
+            RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,70) TRIM(Vname(2,idpert_dz)),             &
+     &                           Fmin, Fmax
+            END IF
+          END IF
+        END IF
+      END IF
+#endif
 
 
 
