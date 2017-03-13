@@ -2784,7 +2784,7 @@
       Vinfo( 1)='force_pert_tcorr'
       Vinfo( 2)='Temporal radius of correlation for '//                 &
      &          'forcing stochastic perturbations'
-      Vinfo( 3)='meters'
+      Vinfo( 3)='days'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
@@ -2827,7 +2827,7 @@
       Vinfo( 1)='eos_pert_tcorr'
       Vinfo( 2)='Temporal radius of correlation for '//                 &
      &          'T,S stochastic perturbations on EOS'
-      Vinfo( 3)='meters'
+      Vinfo( 3)='days'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)

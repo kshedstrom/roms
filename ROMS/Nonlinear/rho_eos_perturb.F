@@ -224,11 +224,14 @@
 #   endif
       real(r8) :: cff, cff1, cff2
       real(r8) :: deltaT, deltaTx, deltaTy, deltaTz
+      real(r8) :: dTmax, dTmean, dSmax, dSmean, dTxmax,dTymax,dTzmax
+      integer  :: ndTbad, ndTxbad, imean
       real(r8) :: deltaS, deltaSx, deltaSy, deltaSz
       real(r8) :: DbulkDS_tmp,DbulkDT_tmp,Dden1DS_tmp,Dden1DT_tmp
       real(r8) :: bulk_tmp,bulk0_tmp,bulk1_tmp,bulk2_tmp
       real(r8) :: den_tmp,den1_tmp
       real(r8) :: den_pert1,den1_pert1,den_pert2,den1_pert2
+      real(r8) :: clamp_dT, clamp_dS
 #   ifdef EOS_TDERIVATIVE
       real(r8), dimension(IminS:ImaxS,N(ng)) :: DbulkDS
       real(r8), dimension(IminS:ImaxS,N(ng)) :: DbulkDT
@@ -273,6 +276,19 @@
      &                   PERTURB(ng) % deltaz,                          &
      &                   var_perturb_dz(ng))
 
+      clamp_dT=0.8
+      clamp_dS=0.5
+
+      dTmax=0.0
+      dTxmax=0.0
+      dTymax=0.0
+      dTzmax=0.0
+      dSmax=0.0
+      dTmean=0.0
+      dSmean=0.0
+      ndTbad=0
+      ndTxbad=0
+      imean=0
       DO j=JstrT,JendT
         DO k=1,N(ng)
           DO i=IstrT,IendT
@@ -314,6 +330,16 @@
 !  Multiply by perturbation
 !-----------------------------------------------------------------------
 !
+            IF (ABS(deltaTx) .GE. clamp_dT) ndTxbad=ndTxbad+1 
+            IF (ABS(deltaTx) .GE. clamp_dT) deltaTx=SIGN(clamp_dT,deltaTx)
+            IF (ABS(deltaTy) .GE. clamp_dT) deltaTy=SIGN(clamp_dT,deltaTy)
+            IF (ABS(deltaTz) .GE. clamp_dT) deltaTz=SIGN(clamp_dT,deltaTz)
+            IF (ABS(deltaSx) .GE. clamp_dS) deltaSx=SIGN(clamp_dS,deltaSx)
+            IF (ABS(deltaSy) .GE. clamp_dS) deltaSy=SIGN(clamp_dS,deltaSy)
+            IF (ABS(deltaSz) .GE. clamp_dS) deltaSz=SIGN(clamp_dS,deltaSz)
+            dTxmax = MAX(ABS(deltaTx),dTxmax)
+            dTymax = MAX(ABS(deltaTy),dTymax)
+            dTzmax = MAX(ABS(deltaTz),dTzmax)
             deltaTx = deltaTx*(PERTURB(ng) % deltax(i,j))
             deltaTy = deltaTy*(PERTURB(ng) % deltay(i,j))
             deltaTz = deltaTz*(PERTURB(ng) % deltaz(i,j))
@@ -327,6 +353,12 @@
 !
             deltaT = deltaTx + deltaTy + deltaTz
             deltaS = deltaSx + deltaSy + deltaSz
+            IF (ABS(deltaT) .GE. 1) ndTbad=ndTbad+1
+            dTmax = MAX(ABS(deltaT),dTmax)
+            dSmax = MAX(ABS(deltaS),dSmax)
+            imean=imean+1
+            dTmean = ((imean-1)*dTmean+ABS(deltaT))/imean
+            dSmean = ((imean-1)*dSmean+ABS(deltaS))/imean
 !
 !-----------------------------------------------------------------------
 !  Compute density with perturbations on T and S
@@ -386,6 +418,10 @@
 
             den(i,k)  = (den_pert1+den_pert2)/2
             den1(i,k) = (den1_pert1+den1_pert2)/2
+!            den(i,k)  = den_tmp
+!            den1(i,k) = den1_tmp
+
+
 
 #   ifdef MASKING
             den(i,k)=den(i,k)*rmask(i,j)
@@ -514,6 +550,14 @@
           END DO
         END DO
       END DO
+      IF (Master) THEN
+      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,dSmax,dTmean,dSmean=", &
+     &         iic(ng), dTmax, dSmax, dTmean, dSmean
+      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,ndTbad,ndTxbad,imean=", &
+     &         iic(ng), dTmax,ndTbad,ndTxbad,imean
+      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,dTxmax,dTymax,dTzmax=", &
+     &         iic(ng), dTmax, dTxmax, dTymax, dTzmax
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.
