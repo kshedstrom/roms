@@ -221,6 +221,7 @@
 ! This routine calculates gaussian random fields
 !=======================================================================
 !
+      USE nrutil, ONLY : gasdev
       implicit none
 !
 !  Imported variable declarations.
@@ -234,21 +235,14 @@
       real*8  :: num                   ! Random number
       real*8  :: asum                  ! Summing dummy
       real*8  :: adjust                ! Adjusting coefficient
-      integer :: ig
 
       asum = 0.0
-      ig = 1
       DO p = 1,ny
          DO l = 1,nx
-            CALL random_gauss(num,ig)
+            CALL gasdev(num)
             Randmat(l,p) = num
-            asum = asum + num*num
          END DO
       END DO
-     
-      asum = asum / (nx*ny)
-      adjust = SQRT( 1.00 / asum )
-      Randmat(:,:) = Randmat(:,:) * adjust
 
       END SUBROUTINE random2D_gauss
 

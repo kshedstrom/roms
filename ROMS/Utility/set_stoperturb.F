@@ -199,13 +199,22 @@
 !-----------------------------------------------------------------------
 !
       ran_prev(LBi:UBi,LBj:UBj) = RanField(LBi:UBi,LBj:UBj)
-      CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                       &
+      IF (rcorr .EQ. 0) THEN
+        CALL get_pseudo2D_field_nospatdep(LBi, UBi, LBj, UBj,           &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               tcorr,                                             &
+     &               deltat,var,                                        &
+     &               ran_prev(LBi:UBi,LBj:UBj),                         &
+     &               RanField(LBi:UBi,LBj:UBj))
+      ELSE
+        CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                     &
      &               ILB,IUB,JLB,JUB,                                   &
      &               rcorr,tcorr,                                       &
      &               dx,dy,deltat,var,                                  &
      &               ran_prev(LBi:UBi,LBj:UBj),                         &
      &               RanField(LBi:UBi,LBj:UBj),                         &
      &               PERTURB(ng) % plan_fftw)
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Turn off input data time wall clock.
@@ -309,7 +318,7 @@
 !
 !=======================================================================
 ! Main routine that generate the random field for ROMS and
-! select the tile corresponding to the processor witout time dependance
+! select the tile corresponding to the processor witout time dependency
 !=======================================================================
 !
       implicit none
@@ -330,8 +339,6 @@
 !  Local variable declarations.
 !
       integer              :: nx,ny            ! horizontal dimensions
-      real(r8)             :: autocorr=0.5     ! autocorrelation for dt=pert_tcorr
-      real(r8)             :: alpha            ! coefficient for time dependance
       real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
       real(r8) :: RanFieldAll(ILB:IUB,JLB:JUB) ! random field on whole grid
 !
@@ -366,6 +373,134 @@
      &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
 
       END SUBROUTINE get_pseudo2D_field_notimedep
+
+
+
+
+      SUBROUTINE get_pseudo2D_field_nodep(LBi, UBi, LBj, UBj,           &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               var,randfield_new)
+!
+!=======================================================================
+! Main routine that generate the random field for ROMS and
+! select the tile corresponding to the processor witout any dependency
+! (Gaussian distribution)
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: ILB, IUB, JLB, JUB
+
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      real(r8), intent(inout) :: randfield_new(LBi:UBi,LBj:UBj)
+!
+!  Local variable declarations.
+!
+      integer              :: nx,ny            ! horizontal dimensions
+      real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
+!
+!-----------------------------------------------------------------------
+!  Initialize.
+!-----------------------------------------------------------------------
+!
+      ! Get size of ROMS grid
+      nx=UBi-LBi+1
+      ny=UBj-LBj+1
+      ! Allocate temporary random field at ROMS size
+      ALLOCATE(ran_tmp(nx,ny))
+!
+!-----------------------------------------------------------------------
+!  Get the random field
+!-----------------------------------------------------------------------
+!
+      CALL random2D_gauss(ran_tmp,nx,ny)
+      randfield_new(LBi:UBi,LBj:UBj) = ran_tmp(:,:)
+!
+!-----------------------------------------------------------------------
+!  Normalize by desired variance
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
+
+      END SUBROUTINE get_pseudo2D_field_nodep
+
+
+
+
+      SUBROUTINE get_pseudo2D_field_nospatdep(LBi, UBi, LBj, UBj,       &
+     &               ILB,IUB,JLB,JUB,                                   &
+     &               tcorr,                                             &
+     &               dt,var,                                            &
+     &               randfield_prev,                                    &
+     &               randfield_new)
+!
+!=======================================================================
+! Main routine that generate the random field for ROMS and
+! select the tile corresponding to the processor with no spatial 
+! dependency (Gaussian distribution)
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: LBi, UBi, LBj, UBj
+      integer, intent(in) :: ILB, IUB, JLB, JUB
+
+      real(r8), intent(in) :: tcorr           ! Temporal decorrelation period
+      real(r8), intent(in) :: dt              ! dt between perturbation fields
+      real(r8), intent(in) :: var             ! desired variance for the perturbation
+
+      real(r8), intent(in)  :: randfield_prev(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: randfield_new(LBi:UBi,LBj:UBj)
+!
+!  Local variable declarations.
+!
+      integer              :: nx,ny            ! horizontal dimensions
+      real(r8)             :: autocorr=0.5     ! autocorrelation for dt=pert_tcorr
+      real(r8)             :: alpha            ! coefficient for time dependance
+      real(r8),allocatable :: ran_tmp(:,:)     ! Temporary random field
+!
+!-----------------------------------------------------------------------
+!  Initialize
+!-----------------------------------------------------------------------
+!
+      ! Get size of ROMS grid
+      nx=UBi-LBi+1
+      ny=UBj-LBj+1
+      ! Allocate temporary random field at ROMS size
+      ALLOCATE(ran_tmp(nx,ny))
+!
+!-----------------------------------------------------------------------
+!  Get the random field
+!-----------------------------------------------------------------------
+!
+      CALL random2D_gauss(ran_tmp,nx,ny)
+      randfield_new(LBi:UBi,LBj:UBj) = ran_tmp(:,:)
+!
+!-----------------------------------------------------------------------
+!  Time dependence
+!-----------------------------------------------------------------------
+!
+      alpha = autocorr**(dt/tcorr)
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        alpha*randfield_prev(LBi:UBi,LBj:UBj) / SQRT(var) +       &
+     &        sqrt(1-alpha*alpha)*randfield_new(LBi:UBi,LBj:UBj)
+!
+!-----------------------------------------------------------------------
+!  Normalize by desired variance
+!-----------------------------------------------------------------------
+!
+      randfield_new(LBi:UBi,LBj:UBj) =                                  &
+     &        randfield_new(LBi:UBi,LBj:UBj) * SQRT(var)
+
+      END SUBROUTINE get_pseudo2D_field_nospatdep
+
 
 
 

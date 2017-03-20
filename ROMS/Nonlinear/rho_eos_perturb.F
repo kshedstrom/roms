@@ -224,8 +224,9 @@
 #   endif
       real(r8) :: cff, cff1, cff2
       real(r8) :: deltaT, deltaTx, deltaTy, deltaTz
-      real(r8) :: dTmax, dTmean, dSmax, dSmean, dTxmax,dTymax,dTzmax
-      integer  :: ndTbad, ndTxbad, imean
+      !! *DEBUG
+      real(r8) :: dTmax, dTmean, dSmax, dSmean
+      !! DEBUG*
       real(r8) :: deltaS, deltaSx, deltaSy, deltaSz
       real(r8) :: DbulkDS_tmp,DbulkDT_tmp,Dden1DS_tmp,Dden1DT_tmp
       real(r8) :: bulk_tmp,bulk0_tmp,bulk1_tmp,bulk2_tmp
@@ -277,18 +278,14 @@
      &                   var_perturb_dz(ng))
 
       clamp_dT=0.8
-      clamp_dS=0.5
+      clamp_dS=0.3
 
+      !! *DEBUG
       dTmax=0.0
-      dTxmax=0.0
-      dTymax=0.0
-      dTzmax=0.0
       dSmax=0.0
       dTmean=0.0
       dSmean=0.0
-      ndTbad=0
-      ndTxbad=0
-      imean=0
+      !! DEBUG*
       DO j=JstrT,JendT
         DO k=1,N(ng)
           DO i=IstrT,IendT
@@ -297,49 +294,60 @@
 !  Compute T and S gradients (centered)
 !-----------------------------------------------------------------------
 !
-            ! If we are on the edges, not centered
-            i1=MAX(i-1,IstrT)
-            i2=MIN(i+1,IendT)
-            ! If we are near the coast, not centered
-            IF (rmask(i1,j) .EQ. 0) i1=i
-            IF (rmask(i2,j) .EQ. 0) i2=i
-            deltaTx = (t(i2,j,k,nrhs,itemp) - t(i1,j,k,nrhs,itemp))/    &
-     &             MAX(i2-i1,1)
-            deltaSx = (t(i2,j,k,nrhs,isalt) - t(i1,j,k,nrhs,isalt))/    &
-     &             MAX(i2-i1,1)
-            ! If we are on the edges, not centered
-            j1=MAX(j-1,JstrT)
-            j2=MIN(j+1,JendT)
-            ! If we are near the coast, not centered
-            IF (rmask(i,j1) .EQ. 0) j1=j
-            IF (rmask(i,j2) .EQ. 0) j2=j
-            deltaTy = (t(i,j2,k,nrhs,itemp) - t(i,j1,k,nrhs,itemp))/    &
-     &             MAX(j2-j1,1)
-            deltaSy = (t(i,j2,k,nrhs,isalt) - t(i,j1,k,nrhs,isalt))/    &
-     &             MAX(j2-j1,1)
-            ! If we are at surface or bottom, not centered
-            k1=MAX(k-1,1)
-            k2=MIN(k+1,N(ng))
-            deltaTz = (t(i,j,k2,nrhs,itemp) - t(i,j,k1,nrhs,itemp))/    &
-     &             (k2-k1)
-            deltaSz = (t(i,j,k2,nrhs,isalt) - t(i,j,k1,nrhs,isalt))/    &
-     &             (k2-k1)
-
+            IF (rmask(i,j) .EQ. 0) THEN
+              deltaTx = 0
+              deltaTy = 0
+              deltaTz = 0
+              deltaSx = 0
+              deltaSy = 0
+              deltaSz = 0
+            ELSE
+              ! If we are on the edges, not centered
+              i1=MAX(i-1,IstrT)
+              i2=MIN(i+1,IendT)
+              ! If we are near the coast, not centered
+              IF (rmask(i1,j) .EQ. 0) i1=i
+              IF (rmask(i2,j) .EQ. 0) i2=i
+              deltaTx = (t(i2,j,k,nrhs,itemp) - t(i1,j,k,nrhs,itemp))/  &
+     &               MAX(i2-i1,1)
+              deltaSx = (t(i2,j,k,nrhs,isalt) - t(i1,j,k,nrhs,isalt))/  &
+     &               MAX(i2-i1,1)
+              ! If we are on the edges, not centered
+              j1=MAX(j-1,JstrT)
+              j2=MIN(j+1,JendT)
+              ! If we are near the coast, not centered
+              IF (rmask(i,j1) .EQ. 0) j1=j
+              IF (rmask(i,j2) .EQ. 0) j2=j
+              deltaTy = (t(i,j2,k,nrhs,itemp) - t(i,j1,k,nrhs,itemp))/  &
+     &               MAX(j2-j1,1)
+              deltaSy = (t(i,j2,k,nrhs,isalt) - t(i,j1,k,nrhs,isalt))/  &
+     &               MAX(j2-j1,1)
+              ! If we are at surface or bottom, not centered
+              k1=MAX(k-1,1)
+              k2=MIN(k+1,N(ng))
+              deltaTz = (t(i,j,k2,nrhs,itemp) - t(i,j,k1,nrhs,itemp))/  &
+     &               (k2-k1)
+              deltaSz = (t(i,j,k2,nrhs,isalt) - t(i,j,k1,nrhs,isalt))/  &
+     &               (k2-k1)
+            END IF 
 !
 !-----------------------------------------------------------------------
 !  Multiply by perturbation
 !-----------------------------------------------------------------------
 !
-            IF (ABS(deltaTx) .GE. clamp_dT) ndTxbad=ndTxbad+1 
-            IF (ABS(deltaTx) .GE. clamp_dT) deltaTx=SIGN(clamp_dT,deltaTx)
-            IF (ABS(deltaTy) .GE. clamp_dT) deltaTy=SIGN(clamp_dT,deltaTy)
-            IF (ABS(deltaTz) .GE. clamp_dT) deltaTz=SIGN(clamp_dT,deltaTz)
-            IF (ABS(deltaSx) .GE. clamp_dS) deltaSx=SIGN(clamp_dS,deltaSx)
-            IF (ABS(deltaSy) .GE. clamp_dS) deltaSy=SIGN(clamp_dS,deltaSy)
-            IF (ABS(deltaSz) .GE. clamp_dS) deltaSz=SIGN(clamp_dS,deltaSz)
-            dTxmax = MAX(ABS(deltaTx),dTxmax)
-            dTymax = MAX(ABS(deltaTy),dTymax)
-            dTzmax = MAX(ABS(deltaTz),dTzmax)
+            ! Clamp dT and dS to avoid too high values
+            IF (ABS(deltaTx) .GE. clamp_dT)                             &
+     &              deltaTx=SIGN(clamp_dT,deltaTx)
+            IF (ABS(deltaTy) .GE. clamp_dT)                             &
+     &              deltaTy=SIGN(clamp_dT,deltaTy)
+            IF (ABS(deltaTz) .GE. clamp_dT)                             &
+     &              deltaTz=SIGN(clamp_dT,deltaTz)
+            IF (ABS(deltaSx) .GE. clamp_dS)                             &
+     &              deltaSx=SIGN(clamp_dS,deltaSx)
+            IF (ABS(deltaSy) .GE. clamp_dS)                             &
+     &              deltaSy=SIGN(clamp_dS,deltaSy)
+            IF (ABS(deltaSz) .GE. clamp_dS)                             &
+     &              deltaSz=SIGN(clamp_dS,deltaSz)
             deltaTx = deltaTx*(PERTURB(ng) % deltax(i,j))
             deltaTy = deltaTy*(PERTURB(ng) % deltay(i,j))
             deltaTz = deltaTz*(PERTURB(ng) % deltaz(i,j))
@@ -353,12 +361,12 @@
 !
             deltaT = deltaTx + deltaTy + deltaTz
             deltaS = deltaSx + deltaSy + deltaSz
-            IF (ABS(deltaT) .GE. 1) ndTbad=ndTbad+1
+            !! *DEBUG
             dTmax = MAX(ABS(deltaT),dTmax)
             dSmax = MAX(ABS(deltaS),dSmax)
-            imean=imean+1
             dTmean = ((imean-1)*dTmean+ABS(deltaT))/imean
             dSmean = ((imean-1)*dSmean+ABS(deltaS))/imean
+            !! DEBUG*
 !
 !-----------------------------------------------------------------------
 !  Compute density with perturbations on T and S
@@ -420,8 +428,6 @@
             den1(i,k) = (den1_pert1+den1_pert2)/2
 !            den(i,k)  = den_tmp
 !            den1(i,k) = den1_tmp
-
-
 
 #   ifdef MASKING
             den(i,k)=den(i,k)*rmask(i,j)
@@ -551,12 +557,8 @@
         END DO
       END DO
       IF (Master) THEN
-      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,dSmax,dTmean,dSmean=", &
-     &         iic(ng), dTmax, dSmax, dTmean, dSmean
-      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,ndTbad,ndTxbad,imean=", &
-     &         iic(ng), dTmax,ndTbad,ndTxbad,imean
-      WRITE(6,*) "RE:(rho_eos_pert) iic,dTmax,dTxmax,dTymax,dTzmax=", &
-     &         iic(ng), dTmax, dTxmax, dTymax, dTzmax
+      WRITE(6,*) "RE:(rho_eos_pert) t,iic,dTmax,dSmax,dTmean,dSmean=",  &
+     &         tile,iic(ng), dTmax, dSmax, dTmean, dSmean
       END IF
 !
 !-----------------------------------------------------------------------
