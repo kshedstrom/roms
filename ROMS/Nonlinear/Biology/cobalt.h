@@ -4141,9 +4141,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          ! new diag here
       ENDDO
 
-      cobalt%f_ratio_100(i,j) = cobalt%juptake_no3_n2_100(i,j) / sign( max( abs(cobalt%juptake_din_100(i,j)),epsln) , cobalt%juptake_din_100(i,j) )
-      cobalt%z_ratio_100(i,j) = cobalt%jprod_mesozoo_100(i,j) /  sign( max( abs(cobalt%f_npp_100(i,j)),epsln) , cobalt%f_npp_100(i,j) )
-      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng) / sign( max( abs(cobalt%f_npp_100(i,j)),epsln) , cobalt%f_npp_100(i,j) )
+!     cobalt%f_ratio_100(i,j) = cobalt%juptake_no3_n2_100(i,j) / cobalt%juptake_din_100(i,j)
+!     cobalt%z_ratio_100(i,j) = cobalt%jprod_mesozoo_100(i,j) /  cobalt%f_npp_100(i,j)
+      cobalt%f_ratio_100(i,j) = 0. ! needs to be computed on daily values
+      cobalt%z_ratio_100(i,j) = 0. ! needs to be computed on daily values
+      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng) 
 
       DiaBio2d(i,j,inpp_100)           = Diabio2d(i,j,inpp_100)           + cobalt%f_npp_100(i,j)            * rmask_local(i,j)
       DiaBio2d(i,j,iprod_n_100_sm)     = DiaBio2d(i,j,iprod_n_100_sm)     + phyto(SMALL)%jprod_n_100(i,j)    * rmask_local(i,j)
