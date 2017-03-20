@@ -364,8 +364,6 @@
             !! *DEBUG
             dTmax = MAX(ABS(deltaT),dTmax)
             dSmax = MAX(ABS(deltaS),dSmax)
-            dTmean = ((imean-1)*dTmean+ABS(deltaT))/imean
-            dSmean = ((imean-1)*dSmean+ABS(deltaS))/imean
             !! DEBUG*
 !
 !-----------------------------------------------------------------------
@@ -557,8 +555,8 @@
         END DO
       END DO
       IF (Master) THEN
-      WRITE(6,*) "RE:(rho_eos_pert) t,iic,dTmax,dSmax,dTmean,dSmean=",  &
-     &         tile,iic(ng), dTmax, dSmax, dTmean, dSmean
+      WRITE(6,*) "RE:(rho_eos_pert) t,iic,dTmax,dSmax=",  &
+     &         tile,iic(ng), dTmax, dSmax
       END IF
 !
 !-----------------------------------------------------------------------
