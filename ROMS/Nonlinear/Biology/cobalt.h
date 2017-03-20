@@ -4237,6 +4237,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ENDDO
   ENDDO
 
+  DO j=Jstr,Jend
+     DO i=Istr,Iend
+       cobalt%jno3denit_wc_vint(i,j) = 0.0d0
+       DO k=1,UBk
+          cobalt%jno3denit_wc_vint(i,j) = cobalt%jno3denit_wc_vint(i,j) + cobalt%jno3denit_wc(i,j,k) * Hz(i,j,k)
+       ENDDO
+       DiaBio2d(i,j,ijno3denit_wc_vint) = DiaBio2d(i,j,ijno3denit_wc_vint) + cobalt%jno3denit_wc_vint(i,j) * rmask_local(i,j)
+     ENDDO
+  ENDDO
 
 #endif
 
