@@ -1876,7 +1876,7 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
 # ifdef COASTDIAT
-      NDbio2d = 63
+      NDbio2d = 64
       NDbio3d = 60
 # else
       NDbio2d = 61
