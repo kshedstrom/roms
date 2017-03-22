@@ -277,8 +277,8 @@
      &                   PERTURB(ng) % deltaz,                          &
      &                   var_perturb_dz(ng))
 
-      clamp_dT=0.8
-      clamp_dS=0.3
+      clamp_dT=0.6
+      clamp_dS=0.2
 
       !! *DEBUG
       dTmax=0.0

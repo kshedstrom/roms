@@ -114,6 +114,14 @@ ifdef USE_CXX
              LIBS += -lstdc++
 endif
 
+ifdef USE_FFTW
+           FFLAGS += -I/glade/apps/opt/fftw/3.3.4/gnu/4.8.2/include
+             LIBS += -L/glade/apps/opt/fftw/3.3.4/gnu/4.8.2/lib -lfftw3
+#           FFLAGS += $(shell pkg-config --cflags fftw3)
+#             LIBS += $(shell pkg-config --libs fftw3)
+endif
+
+
        clean_list += ifc* work.pc*
 
 #
