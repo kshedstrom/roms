@@ -111,9 +111,11 @@
               dVde=grad(Istr,j  )
             END IF
             cff=MAX(dVdx*dVdx+dVde*dVde,eps)
-            Cx=dVdt*dVdx
+	    if (dVdx == 0.0_r8) dVdx = eps
+            Cx=dVdt/dVdx
 # ifdef RADIATION_2D
-            Ce=MIN(cff,MAX(dVdt*dVde,-cff))
+	    if (dVde == 0.0_r8) dVde = eps
+            Ce=MIN(cff,MAX(dVdt/dVde,-cff))
 # else
             Ce=0.0_r8
 # endif
@@ -221,9 +223,11 @@
               dVde=grad(Iend,j  )
             END IF
             cff=MAX(dVdx*dVdx+dVde*dVde,eps)
-            Cx=dVdt*dVdx
+	    if (dVdx == 0.0_r8) dVdx = eps
+            Cx=dVdt/dVdx
 # ifdef RADIATION_2D
-            Ce=MIN(cff,MAX(dVdt*dVde,-cff))
+	    if (dVde == 0.0_r8) dVde = eps
+            Ce=MIN(cff,MAX(dVdt/dVde,-cff))
 # else
             Ce=0.0_r8
 # endif
@@ -332,11 +336,13 @@
             END IF
             cff=MAX(dVdx*dVdx+dVde*dVde,eps)
 # ifdef RADIATION_2D
-            Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
+	    if (dVdx == 0.0_r8) dVdx = eps
+            Cx=MIN(cff,MAX(dVdt/dVdx,-cff))
 # else
             Cx=0.0_r8
 # endif
-            Ce=dVdt*dVde
+	    if (dVde == 0.0_r8) dVde = eps
+            Ce=dVdt/dVde
             vi(i,Jstr,liunw)=(cff*vi(i,Jstr  ,know)+                    &
      &                       Ce *vi(i,Jstr+1,liunw)-                    &
      &                       MAX(Cx,0.0_r8)*grad(i  ,Jstr)-             &
@@ -426,11 +432,13 @@
             END IF
             cff=MAX(dVdx*dVdx+dVde*dVde,eps)
 # ifdef RADIATION_2D
-            Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
+	    if (dVdx == 0.0_r8) dVdx = eps
+            Cx=MIN(cff,MAX(dVdt/dVdx,-cff))
 # else
             Cx=0.0_r8
 # endif
-            Ce=dVdt*dVde
+	    if (dVde == 0.0_r8) dVde = eps
+            Ce=dVdt/dVde
             vi(i,Jend+1,liunw)=(cff*vi(i,Jend+1,know)+                  &
      &                         Ce *vi(i,Jend  ,liunw)-                  &
      &                         MAX(Cx,0.0_r8)*grad(i  ,Jend+1)-         &

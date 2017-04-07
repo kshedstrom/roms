@@ -112,9 +112,11 @@
               dUde=grad(Istr+1,j+1)
             END IF
             cff=MAX(dUdx*dUdx+dUde*dUde,eps)
-            Cx=dUdt*dUdx
+	    if (dUdx == 0.0_r8) dUdx = eps
+            Cx=dUdt/dUdx
 # ifdef RADIATION_2D
-            Ce=MIN(cff,MAX(dUdt*dUde,-cff))
+	    if (dUde == 0.0_r8) dUde = eps
+            Ce=MIN(cff,MAX(dUdt/dUde,-cff))
 # else
             Ce=0.0_r8
 # endif
@@ -206,9 +208,11 @@
               dUde=grad(Iend,j+1)
             END IF
             cff=MAX(dUdx*dUdx+dUde*dUde,eps)
-            Cx=dUdt*dUdx
+	    if (dUdx == 0.0_r8) dUdx = eps
+            Cx=dUdt/dUdx
 # ifdef RADIATION_2D
-            Ce=MIN(cff,MAX(dUdt*dUde,-cff))
+	    if (dUde == 0.0_r8) dUde = eps
+            Ce=MIN(cff,MAX(dUdt/dUde,-cff))
 # else
             Ce=0.0_r8
 # endif
@@ -301,11 +305,13 @@
             END IF
             cff=MAX(dUdx*dUdx+dUde*dUde,eps)
 # ifdef RADIATION_2D
-            Cx=MIN(cff,MAX(dUdt*dUdx,-cff))
+	    if (dUdx == 0.0_r8) dUdx = eps
+            Cx=MIN(cff,MAX(dUdt/dUdx,-cff))
 # else
             Cx=0.0_r8
 # endif
-            Ce=dUdt*dUde
+	    if (dUde == 0.0_r8) dUde = eps
+            Ce=dUdt/dUde
             ui(i,Jstr-1,liunw)=(cff*ui(i,Jstr-1,know)+                  &
      &                         Ce *ui(i,Jstr  ,liunw)-                  &
      &                         MAX(Cx,0.0_r8)*grad(i-1,Jstr-1)-         &
@@ -411,11 +417,13 @@
             END IF
             cff=MAX(dUdx*dUdx+dUde*dUde,eps)
 # ifdef RADIATION_2D
-            Cx=MIN(cff,MAX(dUdt*dUdx,-cff))
+	    if (dUdx == 0.0_r8) dUdx = eps
+            Cx=MIN(cff,MAX(dUdt/dUdx,-cff))
 # else
             Cx=0.0_r8
 # endif
-            Ce=dUdt*dUde
+	    if (dUde == 0.0_r8) dUde = eps
+            Ce=dUdt/dUde
             ui(i,Jend+1,liunw)=(cff*ui(i,Jend+1,know)+                  &
      &                         Ce *ui(i,Jend  ,liunw)-                  &
      &                         MAX(Cx,0.0_r8)*grad(i-1,Jend+1)-         &
