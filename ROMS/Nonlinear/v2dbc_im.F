@@ -167,12 +167,12 @@
               END IF
               cff=MAX(dVdx*dVdx+dVde*dVde,eps)
 #ifdef RADIATION_2D
-	      if (dVdx == 0.0_r8) dVdx = eps
+              if (dVdx == 0.0_r8) dVdx = eps
               Cx=MIN(cff,MAX(dVdt/dVdx,-cff))
 #else
               Cx=0.0_r8
 #endif
-	      if (dVde == 0.0_r8) dVde = eps
+              if (dVde == 0.0_r8) dVde = eps
               Ce=dVdt/dVde
 #if defined CELERITY_WRITE && defined FORWARD_WRITE
               BOUNDARY(ng)%vbar_south_Cx(i)=Cx
@@ -530,12 +530,12 @@
               END IF
               cff=MAX(dVdx*dVdx+dVde*dVde,eps)
 #ifdef RADIATION_2D
-	      if (dVdx == 0.0_r8) dVdx = eps
+              if (dVdx == 0.0_r8) dVdx = eps
               Cx=MIN(cff,MAX(dVdt/dVdx,-cff))
 #else
               Cx=0.0_r8
 #endif
-	      if (dVde == 0.0_r8) dVde = eps
+              if (dVde == 0.0_r8) dVde = eps
               Ce=dVdt/dVde
 #if defined CELERITY_WRITE && defined FORWARD_WRITE
               BOUNDARY(ng)%vbar_north_Cx(i)=Cx
@@ -892,10 +892,10 @@
                 dVde=grad(Istr,j  )
               END IF
               cff=MAX(dVdx*dVdx+dVde*dVde,eps)
-	      if (dVdx == 0.0_r8) dVdx = eps
+              if (dVdx == 0.0_r8) dVdx = eps
               Cx=dVdt/dVdx
 #ifdef RADIATION_2D
-	      if (dVde == 0.0_r8) dVde = eps
+              if (dVde == 0.0_r8) dVde = eps
               Ce=MIN(cff,MAX(dVdt/dVde,-cff))
 #else
               Ce=0.0_r8
@@ -1051,10 +1051,10 @@
                 dVde=grad(Iend,j  )
               END IF
               cff=MAX(dVdx*dVdx+dVde*dVde,eps)
-	      if (dVdx == 0.0_r8) dVdx = eps
+              if (dVdx == 0.0_r8) dVdx = eps
               Cx=dVdt/dVdx
 #ifdef RADIATION_2D
-	      if (dVde == 0.0_r8) dVde = eps
+              if (dVde == 0.0_r8) dVde = eps
               Ce=MIN(cff,MAX(dVdt/dVde,-cff))
 #else
               Ce=0.0_r8

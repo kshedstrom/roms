@@ -141,10 +141,10 @@
                 dZde=grad(Istr,j+1)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
-	      if (dZdx == 0.0_r8) dZdx = eps
+              if (dZdx == 0.0_r8) dZdx = eps
               Cx=dZdt/dZdx
 #ifdef RADIATION_2D
-	      if (dZde == 0.0_r8) dZde = eps
+              if (dZde == 0.0_r8) dZde = eps
               Ce=MIN(cff,MAX(dZdt/dZde,-cff))
 #else
               Ce=0.0_r8
@@ -298,10 +298,10 @@
                 dZde=grad(Iend,j+1)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
-	      if (dZdx == 0.0_r8) dZdx = eps
+              if (dZdx == 0.0_r8) dZdx = eps
               Cx=dZdt/dZdx
 #ifdef RADIATION_2D
-	      if (dZde == 0.0_r8) dZde = eps
+              if (dZde == 0.0_r8) dZde = eps
               Ce=MIN(cff,MAX(dZdt/dZde,-cff))
 #else
               Ce=0.0_r8
@@ -456,12 +456,12 @@
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
 #ifdef RADIATION_2D
-	      if (dZdx == 0.0_r8) dZdx = eps
+              if (dZdx == 0.0_r8) dZdx = eps
               Cx=MIN(cff,MAX(dZdt/dZdx,-cff))
 #else
               Cx=0.0_r8
 #endif
-	      if (dZde == 0.0_r8) dZde = eps
+              if (dZde == 0.0_r8) dZde = eps
               Ce=dZdt/dZde
 #if defined CELERITY_WRITE && defined FORWARD_WRITE
               BOUNDARY(ng)%zeta_south_Cx(i)=Cx
@@ -613,12 +613,12 @@
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
 #ifdef RADIATION_2D
-	      if (dZdx == 0.0_r8) dZdx = eps
+              if (dZdx == 0.0_r8) dZdx = eps
               Cx=MIN(cff,MAX(dZdt/dZdx,-cff))
 #else
               Cx=0.0_r8
 #endif
-	      if (dZde == 0.0_r8) dZde = eps
+              if (dZde == 0.0_r8) dZde = eps
               Ce=dZdt/dZde
 #if defined CELERITY_WRITE && defined FORWARD_WRITE
               BOUNDARY(ng)%zeta_north_Cx(i)=Cx
