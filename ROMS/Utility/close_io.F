@@ -147,6 +147,8 @@
       USE mod_biology
 #endif
 !
+      USE dateclock_mod, ONLY : get_date
+!
       implicit none
 !
 !  Local variable declarations.
