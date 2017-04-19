@@ -147,7 +147,7 @@
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
-      real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),NT(ng),2)
+      real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: wvel(LBi:UBi,LBj:UBj,0:N(ng))
 # endif
 # ifdef ICESHELF
@@ -279,7 +279,7 @@
               END IF
               my_maxspeed=MAX(my_maxspeed,SQRT(0.5_r8*u2v2))
               my_maxrho=MAX(my_maxrho,rho(i,j,k))
-              my_mintemp=MIN(my_mintemp,t(i,j,k,itemp,nstp))
+              my_mintemp=MIN(my_mintemp,t(i,j,k,nstp,itemp))
             END DO
           END DO
 # ifdef BIOLOGY
@@ -648,7 +648,7 @@
             ii_max = Istr
             jj_max = Jstr
             kk_max = 1
-            uv_max = t(Istr,Jstr,1,itemp,nstp)
+            uv_max = t(Istr,Jstr,1,nstp,itemp)
             DO j=Jstr,Jend
               DO k=1,N(ng)
                 DO i=Istr,Iend
@@ -656,7 +656,7 @@
                     ii_max = i
                     jj_max = j
                     kk_max = k
-                    uv_max = t(i,j,k,itemp,nstp)
+                    uv_max = t(i,j,k,nstp,itemp)
                   END IF
                 END DO
               END DO
