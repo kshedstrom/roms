@@ -56,6 +56,7 @@
 !               Finfo( 8,*) => minimum value for current data.         !
 !               Finfo( 9,*) => maximum value for current data.         !
 !               Finfo(10,*) => value of scale_factor attribute if any. !
+!               Finfo(11,*) => value of add_offset attribute if any.   !
 !  Fscale     Scale to convert input data to model units.              !
 !  Fpoint     Latest two-time records of input point data.             !
 !  Tintrp     Time (sec) of latest field snapshots used for            !
@@ -852,7 +853,7 @@
 
       allocate ( Iinfo(10,NV,Ngrids) )
 
-      allocate ( Finfo(10,NV,Ngrids) )
+      allocate ( Finfo(11,NV,Ngrids) )
       allocate ( Fpoint(2,NV,Ngrids) )
       allocate ( Fscale(NV,Ngrids) )
       allocate ( Tintrp(2,NV,Ngrids) )
@@ -1077,6 +1078,7 @@
           Finfo(6,i,ng)=0.0_r8
           Finfo(7,i,ng)=0.0_r8
           Finfo(10,i,ng)=1.0_r8
+          Finfo(11,i,ng)=0.0_r8
           Fscale(i,ng)=1.0_r8
           Fpoint(1,i,ng)=0.0_r8
           Fpoint(2,i,ng)=0.0_r8

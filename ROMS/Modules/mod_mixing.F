@@ -232,9 +232,6 @@
 # ifdef M2TIDE_DIFF
           real(r8), pointer :: m2_amp(:,:)
 # endif
-# if defined MIX_ISO_TS || defined GENT_McWILLIAMS
-          real(r8), pointer :: neutral(:,:,:)
-# endif
 # if defined GLS_MIXING || defined MY25_MIXING
           real(r8), pointer :: tke(:,:,:,:)
           real(r8), pointer :: gls(:,:,:,:)
@@ -499,10 +496,6 @@
 
 # ifdef M2TIDE_DIFF
       allocate ( MIXING(ng) % m2_amp(LBi:UBi,LBj:UBj) )
-# endif
-
-# if defined MIX_ISO_TS || defined GENT_McWILLIAMS
-      allocate ( MIXING(ng) % neutral(LBi:UBi,LBj:UBj,0:N(ng)) )
 # endif
 
 # if defined GLS_MIXING || defined MY25_MIXING
@@ -885,13 +878,6 @@
 # ifdef M2TIDE_DIFF
           DO i=Imin,Imax
             MIXING(ng) % m2_amp(i,j) = IniVal
-          END DO
-# endif
-# if defined MIX_ISO_TS || defined GENT_McWILLIAMS
-          DO k=0,N(ng)
-            DO i=Imin,Imax
-              MIXING(ng) % neutral(i,j,k) = IniVal
-            END DO
           END DO
 # endif
 # if defined GLS_MIXING || defined MY25_MIXING

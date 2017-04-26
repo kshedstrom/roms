@@ -181,11 +181,16 @@ contains
       real(r8) :: cff
 # ifdef ICE_BULK_FLUXES
 #  ifdef ALBEDO_CSIM
-      real(r8), parameter :: alb_i_thick=0.54_r8
       real(r8) :: alb_i_dry
       real(r8) :: alb_ice, alb_snow, fh, fsn
-      real(r8), parameter :: alb_s_dry=0.83_r8
-      real(r8), parameter :: alb_s_wet=0.70_r8
+! Was these values
+!     real(r8), parameter :: alb_i_thick=0.54_r8
+!     real(r8), parameter :: alb_s_dry=0.83_r8
+!     real(r8), parameter :: alb_s_wet=0.70_r8
+! Values from Ungermann et al, 2017
+      real(r8), parameter :: alb_i_thick=0.71_r8
+      real(r8), parameter :: alb_s_dry=0.86_r8
+      real(r8), parameter :: alb_s_wet=0.79_r8
 #  else
 #ifdef ICE_BOX
       real(r8), parameter :: alb_i_dry=0.75_r8
@@ -272,7 +277,9 @@ contains
           fsn = snow_thick(i,j) / (snow_thick(i,j) + 0.02)
           alb_i_dry = alb_w*(1-fh) + alb_i_thick*fh
           cff1 = alb_s_wet - alb_s_dry
-          cff2 = -0.075      ! alb_i_wet - alb_i_dry
+!         cff2 = -0.075      ! alb_i_wet - alb_i_dry
+!  From Ungermann et al., 2017
+          cff2 = 0.0019
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (tis(i,j) .gt. -1.0_r8) THEN
               alb_snow = cff1*(tis(i,j)+1.0_r8)+alb_s_dry

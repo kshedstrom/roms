@@ -231,6 +231,7 @@
       USE mod_param
       USE mod_ncparam
       USE mod_scalars
+      USE dateclock_mod
 !
       USE bc_2d_mod, ONLY : bc_r2d_tile
       USE mod_boundary
@@ -471,7 +472,8 @@
 
 #include "set_bounds.h"
 
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), yy_i=year, yd_r8=yday, mm_i=month,        &
+     &             dd_i=iday, h_r8=hour)
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)

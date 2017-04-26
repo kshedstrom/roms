@@ -28,6 +28,7 @@
       USE mod_tides, ONLY : nstep_hour
 # endif
 !
+      USE dateclock_mod, ONLY : get_date
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif

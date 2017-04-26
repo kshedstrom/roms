@@ -197,6 +197,10 @@
             IF (TRIM(var_Aname(i)).eq.'scale_factor') THEN
               scale=var_Afloat(i)
               Finfo(10,ifield,ng)=scale
+            ELSE IF (TRIM(var_Aname(i)).eq.'units' .and. &
+                  INDEX(TRIM(var_Achar(i)),'K').ne.0 .and. &
+                  ifield == idTair) THEN
+              Finfo(11,ifield,ng) = -273.16
             ELSE IF (TRIM(var_Aname(i)).eq.'water_points') THEN
               Iinfo(1,ifield,ng)=-ABS(Iinfo(1,ifield,ng))
               Vtype=Iinfo(1,ifield,ng)

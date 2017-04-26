@@ -147,7 +147,7 @@
       real(r8), intent(in) :: rho(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
-      real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),NT(ng),2)
+      real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: wvel(LBi:UBi,LBj:UBj,0:N(ng))
 # endif
 # ifdef ICESHELF
@@ -279,7 +279,7 @@
               END IF
               my_maxspeed=MAX(my_maxspeed,SQRT(0.5_r8*u2v2))
               my_maxrho=MAX(my_maxrho,rho(i,j,k))
-              my_mintemp=MIN(my_mintemp,t(i,j,k,itemp,nstp))
+              my_mintemp=MIN(my_mintemp,t(i,j,k,nstp,itemp))
             END DO
           END DO
 # ifdef BIOLOGY
@@ -516,7 +516,7 @@
           IF (first_time(ng).eq.0) THEN
             first_time(ng)=1
             IF (Master.and.(ng.eq.1)) THEN
-              WRITE (stdout,10) 'STEP', 'Day HH:MM:SS',                 &
+              WRITE (stdout,10) 'TIME-STEP', 'YYYY-MM-DD hh:mm:ss.ss',  &
      &                          'KINETIC_ENRG', 'POTEN_ENRG',           &
 #ifdef NESTING
      &                          'TOTAL_ENRG', 'NET_VOLUME', 'Grid'
@@ -531,22 +531,22 @@
      &                          ' C Max', 'Max Speed'
 #endif
 #ifdef NESTING
- 10           FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a,2x,a)
+ 10           FORMAT (/,1x,a,1x,a,2x,a,3x,a,4x,a,4x,a,2x,a)
 #else
- 10           FORMAT (/,3x,a,3x,a,2x,a,3x,a,4x,a,4x,a)
+ 10           FORMAT (/,1x,a,1x,a,2x,a,3x,a,4x,a,4x,a)
 #endif
- 20           FORMAT (10x,a,7x,a,12x,a,10x,a,7x,a,/)
+ 20           FORMAT (21x,a,7x,a,12x,a,10x,a,7x,a,/)
             END IF
           END IF
-          IF (Master) THEN
-            WRITE (stdout,30) iic(ng)-1, time_code(ng),                 &
+          IF (Master) THEN    ! restart counter after 1 billion steps
+            WRITE (stdout,30) MOD(iic(ng)-1,1000000000), time_code(ng),&
 #ifdef NESTING
      &                        avgke, avgpe, avgkp, volume, ng
 #else
      &                        avgke, avgpe, avgkp, volume
 #endif
 #ifdef SOLVE3D
-            ispace=24-(6+Idigits(ng)+Jdigits(ng)+Kdigits(ng))
+            ispace=35-(6+Idigits(ng)+Jdigits(ng)+Kdigits(ng))
             WRITE (frmt,40) ispace,                                     &
      &                      '"("', Idigits(ng), Idigits(ng),            &
      &                      '","', Jdigits(ng), Jdigits(ng),            &
@@ -555,7 +555,7 @@
      &                          max_Ck, max_Cu, max_Cv, max_Cw,         &
      &                          maxspeed(ng)
 #else
-            ispace=24-(5+Idigits(ng)+Jdigits(ng))
+            ispace=35-(5+Idigits(ng)+Jdigits(ng))
             WRITE (frmt,40) ispace,                                     &
      &                      '"("', Idigits(ng), Idigits(ng),            &
      &                      '","', Jdigits(ng), Jdigits(ng), '")"'
@@ -565,16 +565,16 @@
 #endif
             CALL my_flush (stdout)
 #ifdef NESTING
- 30         FORMAT (i8,1x,a,4(1pe14.6),2x,i2.2)
+ 30         FORMAT (i10,1x,a,4(1pe14.6),2x,i2.2)
 #else
- 30         FORMAT (i8,1x,a,4(1pe14.6))
+ 30         FORMAT (i10,1x,a,4(1pe14.6))
 #endif
  40         FORMAT ('(',i2.2,'x,',a,',i',i1,'.',i1,',',                 &
      &                            a,',i',i1,'.',i1,',',                 &
 #ifdef SOLVE3D
      &                            a,',i',i1,'.',i1,',',                 &
 #endif
-     &                            a,',t24,4(1pe13.6,1x))')
+     &                            a,',t35,4(1pe13.6,1x))')
           END IF
 !
 !  If blowing-up, set exit_flag to stop computations.
@@ -648,7 +648,7 @@
             ii_max = Istr
             jj_max = Jstr
             kk_max = 1
-            uv_max = t(Istr,Jstr,1,itemp,nstp)
+            uv_max = t(Istr,Jstr,1,nstp,itemp)
             DO j=Jstr,Jend
               DO k=1,N(ng)
                 DO i=Istr,Iend
@@ -656,7 +656,7 @@
                     ii_max = i
                     jj_max = j
                     kk_max = k
-                    uv_max = t(i,j,k,itemp,nstp)
+                    uv_max = t(i,j,k,nstp,itemp)
                   END IF
                 END DO
               END DO
