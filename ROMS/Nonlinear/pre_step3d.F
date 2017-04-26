@@ -129,9 +129,6 @@
      &                            rmask_wet,                            &
 #  endif
 # endif
-# ifdef WET_DRY
-     &                            rmask_wet,                            &
-# endif
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
      &                            z_r, z_w,                             &
@@ -194,9 +191,6 @@
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
 #   endif
 #  endif
-#  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-#  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
@@ -254,9 +248,6 @@
 #   if defined SOLAR_SOURCE && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #   endif
-#  endif
-#  ifdef WET_DRY
-      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)

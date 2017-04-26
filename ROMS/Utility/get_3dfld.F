@@ -83,7 +83,7 @@
 
       real(r8) :: Clength, Fmax, Fmin, Tdelta
       real(r8) :: Tmax, Tmin, Tmono, Tscale
-      real(r8) :: Fval, Tval
+      real(r8) :: Fval, Tsec, Tval
 
       character (len=22)  :: t_code
 !

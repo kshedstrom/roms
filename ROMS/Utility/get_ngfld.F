@@ -74,7 +74,7 @@
 
       real(r8) :: Aval, Clength, Fmax, Fmin, Tdelta
       real(r8) :: Tmax, Tmin, Tmono, Tscale
-      real(r8) :: Tval
+      real(r8) :: Tsec, Tval
 
       real(r8), dimension((UBi-LBi+1)*UBj) :: A
 
