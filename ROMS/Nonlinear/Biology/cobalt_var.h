@@ -920,6 +920,8 @@
                 iDbio2(iprod_don_100_mdz)=varid
               CASE ('iDbio2(iprod_don_100_lgz)')
                 iDbio2(iprod_don_100_lgz)=varid
+              CASE ('iDbio2(ijno3denit_wc_vint)')
+                iDbio2(ijno3denit_wc_vint)=varid
 
 #ifdef COASTDIAT
               CASE ('iDbio2(iprod_n_100_md)')

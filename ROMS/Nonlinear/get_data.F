@@ -36,6 +36,11 @@
       USE mod_scalars
       USE mod_sources
       USE mod_stepping
+#if defined STOPERTURB && defined FORCE_PERTURB
+      USE mod_stoperturb
+      USE set_stoperturb, ONLY : get_pseudo2D_forc
+#endif
+
 !
       implicit none
 !
@@ -75,6 +80,7 @@
 !
       CALL wclock_on (ng, iNLM, 3)
 #endif
+
 !
 !=======================================================================
 !  Read in forcing data from FORCING NetCDF file.
@@ -286,6 +292,19 @@
 # endif
      &                FORCES(ng) % UwindG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
+      IF (update(1)) THEN
+         CALL get_pseudo2D_forc(ng,idUair,                              &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % UwindG,                  &
+        &                        var_perturb_Uwind(ng))
+      ENDIF
+# endif
 
       CALL get_2dfld (ng , iNLM, idVair, ncFRCid(idVair,ng),            &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
@@ -295,7 +314,21 @@
 # endif
      &                FORCES(ng) % VwindG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
+      IF (update(1)) THEN
+         CALL get_pseudo2D_forc(ng,idVair,                              &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % VwindG,                  &
+        &                        var_perturb_Vwind(ng))
+      ENDIF
+# endif
 #endif
+
 
 #if !defined AIR_OCEAN && !defined NCEP_FLUXES
 # if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \
@@ -506,6 +539,19 @@
 # endif
      &                FORCES(ng) % TairG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+# if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
+      IF (update(1)) THEN
+         CALL get_pseudo2D_forc(ng,idTair,                              &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % TairG,                   &
+        &                        var_perturb_Tair(ng))
+      ENDIF
+# endif
 #endif
 
 #if !defined ANA_HUMIDITY && \
@@ -753,6 +799,19 @@
 #  endif
      &                FORCES(ng) % srflxG)
       IF (exit_flag.ne.NoError) RETURN
+! Perturbations
+#  if defined STOPERTURB && defined FORCE_PERTURB
+      ! If there was an update in the forcing field, update the 
+      ! perturbation field
+      IF (update(1)) THEN
+         CALL get_pseudo2D_forc(ng,idSrad,                              &
+        &                        LBi, UBi, LBj, UBj,                    &
+        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
+        &                        PERTURB(ng) % srflxG,                  &
+        &                        var_perturb_swrad(ng))
+      ENDIF
+#  endif
 # endif
 
 # if defined RED_TIDE && defined DAILY_SHORTWAVE

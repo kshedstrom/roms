@@ -151,6 +151,9 @@ export     MY_PROJECT_DIR=${PWD}
 
 #export       USE_MY_LIBS=on            # use my library paths below
 
+#export           USE_FFTW=on            # use FFTW library
+
+
 # There are several MPI libraries available. Here, we set the desired
 # "mpif90" script to use during compilation. This only works if the make
 # configuration file (say, Linux-pgi.mk) in the "Compilers" directory

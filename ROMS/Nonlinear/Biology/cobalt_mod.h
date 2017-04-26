@@ -616,6 +616,7 @@
       integer :: iironsed_flx
       integer :: inpp_100
       integer :: imesozoo_200
+      integer :: ijno3denit_wc_vint
       integer :: iswdk
       integer :: imu_mem_sm, imu_mem_di, imu_mem_lg
       integer :: iagg_lim_sm, iagg_lim_di, iagg_lim_lg
@@ -1521,7 +1522,8 @@
           jprod_mesozoo_100, &
           z_ratio_100, &
           pe_ratio_100, &
-          f_ratio_100 
+          f_ratio_100, &
+          jno3denit_wc_vint 
           ! add 2d diags here
 
 !     real(8), dimension(:,:,:,:), pointer :: &
@@ -1874,10 +1876,10 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
 # ifdef COASTDIAT
-      NDbio2d = 63
+      NDbio2d = 64
       NDbio3d = 60
 # else
-      NDbio2d = 60
+      NDbio2d = 61
       NDbio3d = 48
 # endif
 #endif
@@ -2898,10 +2900,11 @@
       iprod_don_100_mdz=59
       iprod_don_100_lgz=60
 
+      ijno3denit_wc_vint=61
 #ifdef COASTDIAT
-      iprod_n_100_md=61
-      iaggloss_n_100_md=62
-      izloss_n_100_md=63
+      iprod_n_100_md=62
+      iaggloss_n_100_md=63
+      izloss_n_100_md=64
 #endif
 
       ! 3D Diagnostic variables
@@ -3476,6 +3479,7 @@
       allocate(cobalt%pe_ratio_100(IminS:ImaxS,JminS:JmaxS))          ; cobalt%pe_ratio_100 = 0.0
       allocate(cobalt%f_ratio_100(IminS:ImaxS,JminS:JmaxS))           ; cobalt%f_ratio_100 = 0.0
 
+      allocate(cobalt%jno3denit_wc_vint(IminS:ImaxS,JminS:JmaxS))     ; cobalt%jno3denit_wc_vint = 0.0
       RETURN
 
       END SUBROUTINE cobalt_alloc_arrays

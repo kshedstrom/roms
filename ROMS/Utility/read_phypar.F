@@ -1287,6 +1287,29 @@
               END DO
 # endif
 #endif
+
+#ifdef FORCE_PERTURB
+            !-- RD Stochastic perturbations on forcing fields --
+            CASE ('var_perturb_swrad')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_swrad)
+            CASE ('var_perturb_Tair')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_Tair)
+            CASE ('var_perturb_Uwind')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_Uwind)
+            CASE ('var_perturb_Vwind')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_Vwind)
+            CASE ('grid_mean_dx')
+              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dx)
+            CASE ('grid_mean_dy')
+              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dy)
+            CASE ('pert_rcorr')
+              Npts=load_r(Nval, Rval, Ngrids,pert_rcorr)
+            CASE ('pert_tcorr')
+              Npts=load_r(Nval, Rval, Ngrids,pert_tcorr)
+            CASE ('seed_user')
+              Npts=load_i(Nval, Rval, Ngrids,seed_user)
+#endif
+
             CASE ('Hout(idUvel)')
               IF (idUvel.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idUvel'
@@ -4881,6 +4904,26 @@
      &         itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 # endif
+#endif
+#ifdef FORCE_PERTURB
+          WRITE (out,140) var_perturb_swrad(ng), 'var_perturb_swrad',   &
+     &          'Stochastic perturbation on shortwave (variance)'
+          WRITE (out,140) var_perturb_Tair(ng), 'var_perturb_Tair',     &
+     &          'Stochastic perturbation on Tair (variance)'
+          WRITE (out,140) var_perturb_Uwind(ng), 'var_perturb_Uwind',   &
+     &          'Stochastic perturbation on Uwind (variance)'
+          WRITE (out,140) var_perturb_Vwind(ng), 'var_perturb_Vwind',   &
+     &          'Stochastic perturbation on Vwind (variance)'
+          WRITE (out,140) grid_mean_dx(ng), 'grid_mean_dx',             &
+     &          'Grid mean dx (in meters)'
+          WRITE (out,140) grid_mean_dy(ng), 'grid_mean_dy',             &
+     &          'Grid mean dy (in meters)'
+          WRITE (out,140) pert_rcorr(ng), 'pert_rcorr',                 &
+     &          'Stochastic perturbation radius of correlation (meters)'
+          WRITE (out,140) pert_tcorr(ng), 'pert_tcorr',                 &
+     &          'Stochastic perturbation time correlation (days)'
+          WRITE (out,120) seed_user(ng), 'seed_user',                   &
+     &          'Seed used for initialization of random generator'
 #endif
           IF ((nHIS(ng).gt.0).and.ANY(Hout(:,ng))) THEN
             WRITE (out,'(1x)')

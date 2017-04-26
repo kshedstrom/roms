@@ -1213,6 +1213,19 @@
 !
         real(r8), allocatable :: SO_sdev(:,:)
 
+#if defined FORCE_PERTURB
+!  Stochastic perturbations on forcing fields (variance)
+        real(r8), allocatable :: var_perturb_swrad(:)
+        real(r8), allocatable :: var_perturb_Tair(:)
+        real(r8), allocatable :: var_perturb_Uwind(:)
+        real(r8), allocatable :: var_perturb_Vwind(:)
+        real(r8), allocatable :: grid_mean_dx(:)
+        real(r8), allocatable :: grid_mean_dy(:)
+        real(r8), allocatable :: pert_rcorr(:)
+        real(r8), allocatable :: pert_tcorr(:)
+        integer,  allocatable :: seed_user(:)
+#endif
+
 #if defined FOUR_DVAR || defined VERIFICATION
 !
 !------------------------------------------------------------------------
@@ -2360,6 +2373,18 @@
       allocate ( SO_sdev(7+2*MT,Ngrids) )
 #else
       allocate ( SO_sdev(5,Ngrids) )
+#endif
+
+#if defined FORCE_PERTURB
+      allocate ( var_perturb_swrad(Ngrids) )
+      allocate ( var_perturb_Tair(Ngrids) )
+      allocate ( var_perturb_Uwind(Ngrids) )
+      allocate ( var_perturb_Vwind(Ngrids) )
+      allocate ( grid_mean_dx(Ngrids) )
+      allocate ( grid_mean_dy(Ngrids) )
+      allocate ( pert_rcorr(Ngrids) )
+      allocate ( pert_tcorr(Ngrids) )
+      allocate ( seed_user(Ngrids) )
 #endif
 
 #if defined FOUR_DVAR || defined VERIFICATION

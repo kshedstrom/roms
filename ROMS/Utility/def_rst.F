@@ -33,6 +33,9 @@
 #if defined SEDIMENT || defined BBL_MODEL
       USE mod_sediment
 #endif
+#if defined STOPERTURB
+      USE mod_stoperturb
+#endif
 !
       USE def_var_mod, ONLY : def_var
 !
@@ -1128,6 +1131,56 @@
 !         status=def_var(ncRSTid(ng),hisBid(itrc,ng),NF_FOUT, &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
         END DO
+#  endif
+#  if defined FORCE_PERTURB
+!------------------------------------------
+!  Define forcing perturbation
+!------------------------------------------   
+
+          Vinfo( 1)=Vname(1,idpert_Tair)
+          Vinfo( 2)=Vname(2,idpert_Tair)
+          Vinfo( 3)=Vname(3,idpert_Tair)
+          Vinfo(14)=Vname(4,idpert_Tair)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Tair),NF_FOUT,            &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)=Vname(1,idpert_Srad)
+          Vinfo( 2)=Vname(2,idpert_Srad)
+          Vinfo( 3)=Vname(3,idpert_Srad)
+          Vinfo(14)=Vname(4,idpert_Srad)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Srad),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)=Vname(1,idpert_Uwind)
+          Vinfo( 2)=Vname(2,idpert_Uwind)
+          Vinfo( 3)=Vname(3,idpert_Uwind)
+          Vinfo(14)=Vname(4,idpert_Uwind)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Uwind),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)=Vname(1,idpert_Vwind)
+          Vinfo( 2)=Vname(2,idpert_Vwind)
+          Vinfo( 3)=Vname(3,idpert_Vwind)
+          Vinfo(14)=Vname(4,idpert_Vwind)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_Vwind),NF_FOUT,           &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
 #  endif
 
 !------------------------------------------

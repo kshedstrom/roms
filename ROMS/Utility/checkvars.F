@@ -254,6 +254,12 @@
         get_var(idRhoa)=.true.
 # endif
 #endif
+#if defined FORCE_PERTURB
+        get_var(idpert_Tair)=.true.
+        get_var(idpert_Srad)=.true.
+        get_var(idpert_Uwind)=.true.
+        get_var(idpert_Vwind)=.true.
+#endif
 #ifdef PERFECT_RESTART
 !
 !  Determine perfect restart fields to read from input NetCDF file.

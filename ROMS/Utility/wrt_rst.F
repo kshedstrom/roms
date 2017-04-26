@@ -41,6 +41,9 @@
 #if defined BENTHIC
       USE mod_biology, only: idBeTvar
 #endif
+#if defined STOPERTURB
+      USE mod_stoperturb
+#endif
       USE mod_stepping
 !
       USE nf_fwrite2d_mod, ONLY : nf_fwrite2d
@@ -690,6 +693,90 @@
         END IF
       END DO
 #endif
+#ifdef FORCE_PERTURB
+!----- perturbations on forcing fields
+
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Tair),                    &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % TairG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Tair)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Srad),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % srflxG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Srad)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Uwind),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % UwindG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Uwind)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+
+        scale=1.0_r8 ! change me
+        gtype=gfactor*r3dvar
+        status=nf_fwrite2d(ng, iNLM, RST(ng)%ncid,                      &
+                           RST(ng)%Vid(idpert_Vwind),                   &
+     &                     RST(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+# endif
+     &                     PERTURB(ng) % VwindG(:,:,NOUT))
+        IF (status.ne.nf90_noerr) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idpert_Vwind)), RST(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+#endif
+
+
+
+
+
 # if defined PERFECT_RESTART && defined ICE_MODEL
 !
 !  Write out surface active traces fluxes.
