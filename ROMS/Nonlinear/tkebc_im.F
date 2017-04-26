@@ -137,8 +137,10 @@
                   dKde=grad(Istr,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
+                if (dKdx == 0.0_r8) dKdx = eps
                 Cx=dKdt*dKdx
 # ifdef RADIATION_2D
+                if (dKde == 0.0_r8) dKde = eps
                 Ce=MIN(cff,MAX(dKdt*dKde,-cff))
 # else
                 Ce=0.0_r8
@@ -164,9 +166,11 @@
                   dKde=gradL(Istr,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                Cx=dKdt*dKdx
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=dKdt/dKdx
 # ifdef RADIATION_2D
-                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -275,9 +279,11 @@
                   dKde=grad(Iend,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                Cx=dKdt*dKdx
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=dKdt/dKdx
 # ifdef RADIATION_2D
-                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -302,9 +308,11 @@
                   dKde=gradL(Iend,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                Cx=dKdt*dKdx
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=dKdt/dKdx
 # ifdef RADIATION_2D
-                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -410,11 +418,13 @@
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde, eps)
 # ifdef RADIATION_2D
-                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                Ce=dKdt*dKde
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=dKdt/dKde
                 tke(i,Jstr-1,k,nout)=(cff*tke(i,Jstr-1,k,nstp)+         &
      &                                Ce *tke(i,Jstr  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -437,11 +447,13 @@
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
 # ifdef RADIATION_2D
-                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                Ce=dKdt*dKde
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=dKdt/dKde
                 gls(i,Jstr-1,k,nout)=(cff*gls(i,Jstr-1,k,nstp)+         &
      &                                Ce *gls(i,Jstr  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -548,11 +560,13 @@
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
 # ifdef RADIATION_2D
-                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                Ce=dKdt*dKde
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=dKdt/dKde
                 tke(i,Jend+1,k,nout)=(cff*tke(i,Jend+1,k,nstp)+         &
      &                                Ce *tke(i,Jend  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -575,11 +589,13 @@
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
 # ifdef RADIATION_2D
-                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
+                if (dKdx == 0.0_r8) dKdx = eps
+                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                Ce=dKdt*dKde
+                if (dKde == 0.0_r8) dKde = eps
+                Ce=dKdt/dKde
                 gls(i,Jend+1,k,nout)=(cff*gls(i,Jend+1,k,nstp)+         &
      &                                Ce *gls(i,Jend  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
