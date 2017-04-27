@@ -538,8 +538,9 @@
  20           FORMAT (21x,a,7x,a,12x,a,10x,a,7x,a,/)
             END IF
           END IF
-          IF (Master) THEN    ! restart counter after 1 billion steps
-            WRITE (stdout,30) MOD(iic(ng)-1,1000000000), time_code(ng),&
+          IF (Master) THEN    ! restart counter after 10 billion steps
+            WRITE (stdout,30) INT(MOD(REAL(iic(ng)-1,r8),1.0E+10_r8)),  &
+                              time_code(ng),                            &
 #ifdef NESTING
      &                        avgke, avgpe, avgkp, volume, ng
 #else
