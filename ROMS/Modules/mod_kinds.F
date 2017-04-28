@@ -22,10 +22,10 @@
         integer, parameter :: r4 = ESMF_KIND_R4                ! 32-bit
         integer, parameter :: r8 = ESMF_KIND_R8                ! 64-bit
 #else
-        integer, parameter :: i1b= SELECTED_INT_KIND(1)        !  8-bit
-        integer, parameter :: i2b= SELECTED_INT_KIND(2)        !  8-bit
-        integer, parameter :: i4b= SELECTED_INT_KIND(4)        ! 16-bit
-        integer, parameter :: i8b= SELECTED_INT_KIND(8)        ! 32-bit
+        integer, parameter :: i1b= SELECTED_INT_KIND(2)        !  8-bit
+        integer, parameter :: i2b= SELECTED_INT_KIND(4)        ! 16-bit
+        integer, parameter :: i4b= SELECTED_INT_KIND(9)        ! 32-bit
+        integer, parameter :: i8b= SELECTED_INT_KIND(9)        ! 32-bit
         integer, parameter :: c8 = SELECTED_REAL_KIND(6,30)    ! 32-bit
         integer, parameter :: r4 = SELECTED_REAL_KIND(6,30)    ! 32-bit
         integer, parameter :: r8 = SELECTED_REAL_KIND(12,300)  ! 64-bit
