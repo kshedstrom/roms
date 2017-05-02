@@ -268,7 +268,7 @@
           IF (exit_flag.eq.NoError) THEN
             status = nf90_put_att(FIL(ifile,ng)%ncid, nf90_global,      &
      &               'type', TRIM(type))
-            IF (status.ne.nf90_noerr) THEN 
+            IF (status.ne.nf90_noerr) THEN
               IF (Master) WRITE (stdout,20) 'type', TRIM(ncname)
               exit_flag=3
               ioerror=status
@@ -288,19 +288,8 @@
 !
           Vinfo( 1)=Vname(1,idtime)
           Vinfo( 2)=Vname(2,idtime)
-          IF (INT(time_ref).eq.-2) THEN
-            Vinfo( 3)='seconds since 1968-05-23 00:00:00 GMT'
-            Vinfo( 4)='gregorian'
-          ELSE IF (INT(time_ref).eq.-1) THEN
-            Vinfo( 3)='seconds since 0001-01-01 00:00:00'
-            Vinfo( 4)='360_day'
-          ELSE IF (INT(time_ref).eq.0) THEN
-            Vinfo( 3)='seconds since 0001-01-01 00:00:00'
-            Vinfo( 4)='365.25_day'
-          ELSE IF (time_ref.gt.0.0_r8) THEN
-            WRITE (Vinfo( 3),'(a,1x,a)') 'seconds since', TRIM(r_text)
-            Vinfo( 4)='standard'
-          END IF
+          WRITE (Vinfo(3),'(a,a)') 'seconds since ', TRIM(Rclock%string)
+          Vinfo( 4)=TRIM(Rclock%calendar)
           Vinfo(14)=Vname(4,idtime)
           status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &             FIL(ifile,ng)%Vid(idtime), NF_TYPE, 1, (/ recdim /), &
