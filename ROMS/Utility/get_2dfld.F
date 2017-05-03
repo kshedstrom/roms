@@ -221,6 +221,11 @@
      &                            Fmask,                                &
 #endif
      &                            Fout(:,:,Tindex), Lregrid)
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout(:,:,Tindex) = Fout(:,:,Tindex) + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               END IF
             ELSE
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
