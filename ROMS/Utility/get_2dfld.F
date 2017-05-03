@@ -221,6 +221,11 @@
      &                            Fmask,                                &
 #endif
      &                            Fout(:,:,Tindex), Lregrid)
+                IF (ifield == idTair .and. Finfo(11,ifield,ng) /= 0.0) THEN
+                  Fout(:,:,Tindex) = Fout(:,:,Tindex) + Finfo(11,ifield,ng)
+                  Fmin = Fmin + Finfo(11,ifield,ng)
+                  Fmax = Fmax + Finfo(11,ifield,ng)
+                END IF
               END IF
             ELSE
               CALL netcdf_get_fvar (ng, model, ncfile, Vname(1,ifield), &
@@ -281,12 +286,6 @@
       END IF
 !
 
-  10  FORMAT (/,' GET_2DFLD   - unable to find dimension ',a,           &
-     &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
-     &        /,15x,'file is not CF compliant...')
-  20  FORMAT (/,' GET_2DFLD   - unable to find requested variable: ',a, &
-     &        /,15x,'in ',a)
-  30  FORMAT (/,' GET_2DFLD   - unable to open input NetCDF file: ',a)
   40  FORMAT (/,' GET_2DFLD   - error while reading variable: ',a,2x,   &
      &        ' at TIME index = ',i7)
   50  FORMAT (3x,' GET_2DFLD   - ',a,/,19x,'(Grid = ',i2.2,             &
