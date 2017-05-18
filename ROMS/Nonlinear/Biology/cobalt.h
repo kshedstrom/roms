@@ -1056,10 +1056,8 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
-#ifdef DIAGNOSTICS_BIO
-# ifdef COBALT_IRON
+#if defined DIAGNOSTICS_BIO && defined COBALT_IRON
         DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt * rmask_local(i,j)
-# endif
 #endif
 
     ENDDO
@@ -1310,18 +1308,22 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
+# ifdef COBALT_IRON
+          ! iron diagnostics
           DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + phyto(SMALL)%def_fe(i,j,k)  * rmask_local(i,j)
-# ifdef COASTDIAT
+#  ifdef COASTDIAT
           DiaBio3d(i,j,k,idef_fe_md) = DiaBio3d(i,j,k,idef_fe_md) + phyto(MEDIUM)%def_fe(i,j,k) * rmask_local(i,j)
-# endif
+#  endif
           DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + phyto(DIAZO)%def_fe(i,j,k)  * rmask_local(i,j)
           DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + phyto(LARGE)%def_fe(i,j,k)  * rmask_local(i,j)
           DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + phyto(SMALL)%felim(i,j,k)   * rmask_local(i,j)
-# ifdef COASTDIAT
+#  ifdef COASTDIAT
           DiaBio3d(i,j,k,ifelim_md)  = DiaBio3d(i,j,k,ifelim_md)  + phyto(MEDIUM)%felim(i,j,k)  * rmask_local(i,j)
-# endif
+#  endif
           DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + phyto(DIAZO)%felim(i,j,k)   * rmask_local(i,j)
           DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + phyto(LARGE)%felim(i,j,k)   * rmask_local(i,j)
+# endif
+          ! nitrogen diagnostics
           DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + phyto(SMALL)%no3lim(i,j,k)  * rmask_local(i,j)
 # ifdef COASTDIAT
           DiaBio3d(i,j,k,ino3lim_md) = DiaBio3d(i,j,k,ino3lim_md) + phyto(MEDIUM)%no3lim(i,j,k) * rmask_local(i,j)
@@ -1338,12 +1340,15 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !  &                                  + rmask_local(i,j)*             &
 !  &                                    phyto(DIAZO)%nh4lim(i,j,k)
           DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + phyto(LARGE)%nh4lim(i,j,k)  * rmask_local(i,j)
+# ifdef COBALT_PHOSPHORUS
+          ! phosphorus diagnostics
           DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + phyto(SMALL)%po4lim(i,j,k)  * rmask_local(i,j)
-# ifdef COASTDIAT
+#  ifdef COASTDIAT
           DiaBio3d(i,j,k,ipo4lim_md) = DiaBio3d(i,j,k,ipo4lim_md) + phyto(MEDIUM)%po4lim(i,j,k) * rmask_local(i,j)
-# endif
+#  endif
           DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + phyto(DIAZO)%po4lim(i,j,k)  * rmask_local(i,j)
           DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + phyto(LARGE)%po4lim(i,j,k)  * rmask_local(i,j)
+# endif
        ENDDO
      ENDDO
    ENDDO
@@ -3480,7 +3485,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !
        cobalt%jfe_coast(i,j,k) = fecoast(i,j)
 
-# ifdef DIAGNOSTICS_BIO
+# if defined DIAGNOSTICS_BIO && defined COBALT_IRON
        ! add coastal iron source to fe_bulk_flx
        DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt * rmask_local(i,j)
 # endif
@@ -3867,7 +3872,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 # ifdef COBALT_CONSERVATION_TEST
     cobalt%ffe_sed(i,j) = 0.0d0
 # endif
-# ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO 
     ! output in diagnostic variable
     DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt * rmask_local(i,j)
 # endif
