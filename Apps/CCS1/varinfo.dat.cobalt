@@ -4593,6 +4593,15 @@
   'r2dvar'
   1.0d0
 
+'no3denit_sed'
+  'sedimentary denitrification'
+  'mol N m-2 day-1'
+  'no3denit_sed, scalar, series'
+  'ocean_time'
+  'iDbio2(ino3denit_sed)'
+  'r2dvar'
+  1.0d0
+
 'jno3denit_wc_vint'
   'sedimentary denitrification'
   'mgC/m2/day'

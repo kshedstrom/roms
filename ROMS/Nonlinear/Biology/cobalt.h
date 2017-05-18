@@ -4844,6 +4844,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          DiaBio2d(i,j,ino3_btf)        = DiaBio2d(i,j,ino3_btf)        + cobalt%b_no3(i,j)              * rmask_local(i,j)
          DiaBio2d(i,j,io2_btf)         = DiaBio2d(i,j,io2_btf)         + cobalt%b_o2(i,j)               * rmask_local(i,j)
          DiaBio2d(i,j,isio4_btf)       = DiaBio2d(i,j,isio4_btf)       + cobalt%b_sio4(i,j)             * rmask_local(i,j)
+         DiaBio2d(i,j,ino3denit_sed)  = DiaBio2d(i,j,ino3denit_sed)    + cobalt%fno3denit_sed(i,j)      * rmask_local(i,j)
 #ifdef COBALT_PHOSPHORUS
          DiaBio2d(i,j,ipo4_btf)        = DiaBio2d(i,j,ipo4_btf)        + cobalt%b_po4(i,j)              * rmask_local(i,j)
          DiaBio2d(i,j,ipdet_btf)       = DiaBio2d(i,j,ipdet_btf)       + cobalt%f_pdet_btf(i,j,1)       * rmask_local(i,j)
