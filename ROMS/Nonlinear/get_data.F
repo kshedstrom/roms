@@ -299,7 +299,8 @@
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idUair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        force_pert_rcorr(ng),                  &
+        &                        force_pert_tcorr(ng),                  &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % UwindG,                  &
         &                        var_perturb_Uwind(ng))
@@ -321,7 +322,8 @@
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idVair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        force_pert_rcorr(ng),                  &
+        &                        force_pert_tcorr(ng),                  &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % VwindG,                  &
         &                        var_perturb_Vwind(ng))
@@ -546,7 +548,8 @@
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idTair,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        force_pert_rcorr(ng),                  &
+        &                        force_pert_tcorr(ng),                  &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % TairG,                   &
         &                        var_perturb_Tair(ng))
@@ -804,7 +807,8 @@
       IF (update(1)) THEN
          CALL get_pseudo2D_forc(ng,idSrad,                              &
         &                        LBi, UBi, LBj, UBj,                    &
-        &                        pert_rcorr(ng),pert_tcorr(ng),         &
+        &                        force_pert_rcorr(ng),                  &
+        &                        force_pert_tcorr(ng),                  &
         &                        grid_mean_dx(ng),grid_mean_dy(ng),     &
         &                        PERTURB(ng) % srflxG,                  &
         &                        var_perturb_swrad(ng))

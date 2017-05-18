@@ -1175,17 +1175,27 @@
 !
         real(r8), allocatable :: SO_sdev(:,:)
 
-#if defined FORCE_PERTURB
+#if defined STOPERTURB
+        integer,  allocatable :: seed_user(:)
+        real(r8), allocatable :: grid_mean_dx(:)
+        real(r8), allocatable :: grid_mean_dy(:)
+# if defined FORCE_PERTURB
 !  Stochastic perturbations on forcing fields (variance)
         real(r8), allocatable :: var_perturb_swrad(:)
         real(r8), allocatable :: var_perturb_Tair(:)
         real(r8), allocatable :: var_perturb_Uwind(:)
         real(r8), allocatable :: var_perturb_Vwind(:)
-        real(r8), allocatable :: grid_mean_dx(:)
-        real(r8), allocatable :: grid_mean_dy(:)
-        real(r8), allocatable :: pert_rcorr(:)
-        real(r8), allocatable :: pert_tcorr(:)
-        integer,  allocatable :: seed_user(:)
+        real(r8), allocatable :: force_pert_rcorr(:)
+        real(r8), allocatable :: force_pert_tcorr(:)
+# endif
+# if defined EOS_PERTURB
+!  Stochastic perturbations on T/S for EOS (variance)
+        real(r8), allocatable :: var_perturb_dx(:)
+        real(r8), allocatable :: var_perturb_dy(:)
+        real(r8), allocatable :: var_perturb_dz(:)
+        real(r8), allocatable :: eos_pert_rcorr(:)
+        real(r8), allocatable :: eos_pert_tcorr(:)
+# endif
 #endif
 
 #if defined FOUR_DVAR || defined VERIFICATION
@@ -2336,16 +2346,25 @@
       allocate ( SO_sdev(5,Ngrids) )
 #endif
 
-#if defined FORCE_PERTURB
+#if defined STOPERTURB
+      allocate ( grid_mean_dx(Ngrids) )
+      allocate ( grid_mean_dy(Ngrids) )
+      allocate ( seed_user(Ngrids) )
+# if defined FORCE_PERTURB
       allocate ( var_perturb_swrad(Ngrids) )
       allocate ( var_perturb_Tair(Ngrids) )
       allocate ( var_perturb_Uwind(Ngrids) )
       allocate ( var_perturb_Vwind(Ngrids) )
-      allocate ( grid_mean_dx(Ngrids) )
-      allocate ( grid_mean_dy(Ngrids) )
-      allocate ( pert_rcorr(Ngrids) )
-      allocate ( pert_tcorr(Ngrids) )
-      allocate ( seed_user(Ngrids) )
+      allocate ( force_pert_rcorr(Ngrids) )
+      allocate ( force_pert_tcorr(Ngrids) )
+# endif
+# if defined EOS_PERTURB
+      allocate ( var_perturb_dx(Ngrids) )
+      allocate ( var_perturb_dy(Ngrids) )
+      allocate ( var_perturb_dz(Ngrids) )
+      allocate ( eos_pert_rcorr(Ngrids) )
+      allocate ( eos_pert_tcorr(Ngrids) )
+# endif
 #endif
 
 #if defined FOUR_DVAR || defined VERIFICATION

@@ -1267,8 +1267,20 @@
 # endif
 #endif
 
-
-#ifdef FORCE_PERTURB
+#ifdef STOPERTURB
+      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dx',          &
+     &                      grid_mean_dx(ng), (/0/), (/0/),             &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dy',          &
+     &                      grid_mean_dy(ng), (/0/), (/0/),             &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_ivar (ng, model, ncname, 'seed_user',             &
+     &                      seed_user(ng), (/0/), (/0/),               &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+# ifdef FORCE_PERTURB
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_swrad',     &
      &                      var_perturb_swrad(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
@@ -1285,26 +1297,37 @@
      &                      var_perturb_Vwind(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dx',          &
-     &                      grid_mean_dx(ng), (/0/), (/0/),             &
+      CALL netcdf_put_fvar (ng, model, ncname, 'force_pert_rcorr',      &
+     &                      force_pert_rcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dy',          &
-     &                      grid_mean_dy(ng), (/0/), (/0/),             &
+      CALL netcdf_put_fvar (ng, model, ncname, 'force_pert_tcorr',      &
+     &                      force_pert_tcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_fvar (ng, model, ncname, 'pert_rcorr',            &
-     &                      pert_rcorr(ng), (/0/), (/0/),               &
+# endif
+# ifdef EOS_PERTURB
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dx',        &
+     &                      var_perturb_dx(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_fvar (ng, model, ncname, 'pert_tcorr',            &
-     &                      pert_tcorr(ng), (/0/), (/0/),               &
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dy',        &
+     &                      var_perturb_dy(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
-      CALL netcdf_put_ivar (ng, model, ncname, 'seed_user',             &
-     &                      seed_user(ng), (/0/), (/0/),               &
+      CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dz',        &
+     &                      var_perturb_dz(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
       IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'eos_pert_rcorr',      &
+     &                      eos_pert_rcorr(ng), (/0/), (/0/),         &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+      CALL netcdf_put_fvar (ng, model, ncname, 'eos_pert_tcorr',      &
+     &                      eos_pert_tcorr(ng), (/0/), (/0/),         &
+     &                      ncid = ncid)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
 #endif
 
 #if defined BIOLOGY && defined SOLVE3D
