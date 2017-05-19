@@ -2700,8 +2700,32 @@
 # endif
 #endif
 
+#ifdef STOPERTURB
+      Vinfo( 1)='grid_mean_dx'
+      Vinfo( 2)='Mean grid delta x'
+      Vinfo( 3)='meters'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
 
-#ifdef FORCE_PERTURB
+      Vinfo( 1)='grid_mean_dy'
+      Vinfo( 2)='Mean grid delta y'
+      Vinfo( 3)='meters'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='seed_user'
+      Vinfo( 2)='Seed used for the initialization of random '//         &
+     &          'generator'
+      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+# ifdef FORCE_PERTURB
       Vinfo( 1)='var_perturb_swrad'
       Vinfo( 2)='variance for stochastic perturbations '//              &
      &          'for shortwave'
@@ -2738,48 +2762,67 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='grid_mean_dx'
-      Vinfo( 2)='Mean grid delta x'
-      Vinfo( 3)='meters'
-      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
-     &               1, (/0/), Aval, Vinfo, ncname,                     &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-
-      Vinfo( 1)='grid_mean_dy'
-      Vinfo( 2)='Mean grid delta y'
-      Vinfo( 3)='meters'
-      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
-     &               1, (/0/), Aval, Vinfo, ncname,                     &
-     &               SetParAccess = .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-
-      Vinfo( 1)='pert_rcorr'
+      Vinfo( 1)='force_pert_rcorr'
       Vinfo( 2)='Horizontal radius of correlation for '//               &
-     &          'stochastic perturbations'
+     &          'forcing stochastic perturbations'
       Vinfo( 3)='meters'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='pert_tcorr'
+      Vinfo( 1)='force_pert_tcorr'
       Vinfo( 2)='Temporal radius of correlation for '//                 &
-     &          'stochastic perturbations'
+     &          'forcing stochastic perturbations'
+      Vinfo( 3)='days'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+# endif
+# ifdef EOS_PERTURB
+      Vinfo( 1)='var_perturb_dx'
+      Vinfo( 2)='variance for stochastic perturbations '//              &
+     &          'for T,S in x direction'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='var_perturb_dy'
+      Vinfo( 2)='variance for stochastic perturbations '//              &
+     &          'for T,S in y direction'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='var_perturb_dz'
+      Vinfo( 2)='variance for stochastic perturbations '//              &
+     &          'for T,S in z direction'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
+      Vinfo( 1)='eos_pert_rcorr'
+      Vinfo( 2)='Horizontal radius of correlation for '//               &
+     &          'T,S stochastic perturbations on EOS'
       Vinfo( 3)='meters'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
-      Vinfo( 1)='seed_user'
-      Vinfo( 2)='Seed used for the initialization of random '//         &
-     &          'generator'
-      status=def_var(ng, model, ncid, varid, nf90_int,                  &
+      Vinfo( 1)='eos_pert_tcorr'
+      Vinfo( 2)='Temporal radius of correlation for '//                 &
+     &          'T,S stochastic perturbations on EOS'
+      Vinfo( 3)='days'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
      &               1, (/0/), Aval, Vinfo, ncname,                     &
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
-
+# endif
 #endif
 
 #if defined BIOLOGY && defined SOLVE3D

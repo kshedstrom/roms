@@ -616,6 +616,7 @@
       integer :: iironsed_flx
       integer :: inpp_100
       integer :: imesozoo_200
+      integer :: ino3denit_sed
       integer :: ijno3denit_wc_vint
       integer :: iswdk
       integer :: imu_mem_sm, imu_mem_di, imu_mem_lg
@@ -1876,10 +1877,10 @@
 #ifdef DIAGNOSTICS_BIO
       ! Diagnostic tracers
 # ifdef COASTDIAT
-      NDbio2d = 64
+      NDbio2d = 65
       NDbio3d = 60
 # else
-      NDbio2d = 61
+      NDbio2d = 62
       NDbio3d = 48
 # endif
 #endif
@@ -2900,11 +2901,12 @@
       iprod_don_100_mdz=59
       iprod_don_100_lgz=60
 
-      ijno3denit_wc_vint=61
+      ino3denit_sed =61
+      ijno3denit_wc_vint=62
 #ifdef COASTDIAT
-      iprod_n_100_md=62
-      iaggloss_n_100_md=63
-      izloss_n_100_md=64
+      iprod_n_100_md=63
+      iaggloss_n_100_md=64
+      izloss_n_100_md=65
 #endif
 
       ! 3D Diagnostic variables

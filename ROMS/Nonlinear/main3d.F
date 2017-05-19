@@ -107,7 +107,11 @@
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
 # ifndef TS_FIXED
+#  ifdef EOS_PERTURB
+      USE rho_eos_perturb_mod, ONLY : rho_eos_perturb
+#  else
       USE rho_eos_mod, ONLY : rho_eos
+#  endif
 # endif
       USE rhs3d_mod, ONLY : rhs3d
 # ifdef SEDIMENT
@@ -342,7 +346,11 @@
               DO tile=first_tile(ng),last_tile(ng),+1
                 CALL set_massflux (ng, tile)
 # ifndef TS_FIXED
+#  ifdef EOS_PERTURB
+                CALL rho_eos_perturb (ng, tile)
+#  else
                 CALL rho_eos (ng, tile)
+#  endif
 # endif
                 CALL diag (ng, tile)
 # ifdef TLM_CHECK

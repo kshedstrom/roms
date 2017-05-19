@@ -1182,6 +1182,45 @@
    &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
 #  endif
+#  if defined EOS_PERTURB
+!------------------------------------------
+!  Define EOS perturbation
+!------------------------------------------   
+          Vinfo( 1)=Vname(1,idpert_dx)
+          Vinfo( 2)=Vname(2,idpert_dx)
+          Vinfo( 3)=Vname(3,idpert_dx)
+          Vinfo(14)=Vname(4,idpert_dx)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_dx),NF_FOUT,            &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)=Vname(1,idpert_dy)
+          Vinfo( 2)=Vname(2,idpert_dy)
+          Vinfo( 3)=Vname(3,idpert_dy)
+          Vinfo(14)=Vname(4,idpert_dy)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_dy),NF_FOUT,            &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+
+          Vinfo( 1)=Vname(1,idpert_dz)
+          Vinfo( 2)=Vname(2,idpert_dz)
+          Vinfo( 3)=Vname(3,idpert_dz)
+          Vinfo(14)=Vname(4,idpert_dz)
+          Vinfo(16)=Vname(1,idtime)
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng,iNLM,RST(ng)%ncid,                        &
+   &                     RST(ng)%Vid(idpert_dz),NF_FOUT,            &
+   &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
+#  endif
+
+
 
 !------------------------------------------
 !  Define ice bio tracer type variables.

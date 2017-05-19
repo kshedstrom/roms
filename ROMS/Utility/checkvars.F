@@ -243,22 +243,27 @@
 #  endif
 # endif
 # ifdef NCEP_FLUXES
-        get_var(idWg2d)=.true.
-        get_var(idCdd)=.true.
-        get_var(idChd)=.true.
-        get_var(idCed)=.true.
-        get_var(idWg2m)=.true.
-        get_var(idCdm)=.true.
-        get_var(idChm)=.true.
-        get_var(idCem)=.true.
-        get_var(idRhoa)=.true.
+        get_var(idWg2d)=.TRUE.
+        get_var(idCdd)=.TRUE.
+        get_var(idChd)=.TRUE.
+        get_var(idCed)=.TRUE.
+        get_var(idWg2m)=.TRUE.
+        get_var(idCdm)=.TRUE.
+        get_var(idChm)=.TRUE.
+        get_var(idCem)=.TRUE.
+        get_var(idRhoa)=.TRUE.
 # endif
 #endif
 #if defined FORCE_PERTURB
-        get_var(idpert_Tair)=.true.
-        get_var(idpert_Srad)=.true.
-        get_var(idpert_Uwind)=.true.
-        get_var(idpert_Vwind)=.true.
+        get_var(idpert_Tair)=.TRUE.
+        get_var(idpert_Srad)=.TRUE.
+        get_var(idpert_Uwind)=.TRUE.
+        get_var(idpert_Vwind)=.TRUE.
+#endif
+#if defined EOS_PERTURB
+        get_var(idpert_dx)=.TRUE.
+        get_var(idpert_dy)=.TRUE.
+        get_var(idpert_dz)=.TRUE.
 #endif
 #ifdef PERFECT_RESTART
 !

@@ -190,7 +190,7 @@
       SUBROUTINE random2D(Randmat,nx,ny)
 !
 !=======================================================================
-! This routine calculates the uniform random fields
+! This routine calculates uniform random fields
 !=======================================================================
 !
       implicit none
@@ -215,6 +215,85 @@
       END SUBROUTINE random2D
 
 
+      SUBROUTINE random2D_gauss(Randmat,nx,ny)
+!
+!=======================================================================
+! This routine calculates gaussian random fields
+!=======================================================================
+!
+      USE nrutil, ONLY : gasdev
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: nx,ny           ! horizontal dimensions
+      real*8, intent(out) :: Randmat(nx,ny)  ! generated random fields
+!
+!  Local variable declarations.
+!
+      integer :: l,p                   ! Loop dummies
+      real*8  :: num                   ! Random number
+      real*8  :: asum                  ! Summing dummy
+      real*8  :: adjust                ! Adjusting coefficient
+
+      asum = 0.0
+      DO p = 1,ny
+         DO l = 1,nx
+            CALL gasdev(num)
+            Randmat(l,p) = num
+         END DO
+      END DO
+
+      END SUBROUTINE random2D_gauss
+
+
+
+      SUBROUTINE random_gauss(gran,ig)
+!
+!=======================================================================
+! This routine calculates gaussian random number
+! ** Method  :   Generate 2 new Gaussian draws (gran1 and gran2)
+!                from 2 uniform draws on [-1,1] (u1 and u2),
+!                using the Marsaglia polar method
+!                (see Devroye, Non-Uniform Random Variate
+!                 Generation, p. 235-236)
+!
+!=======================================================================
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer,intent(inout) :: ig
+      real*8, intent(out)   :: gran
+!
+!  Local variable declarations.
+!
+      real*8 :: u1, u2, rsq, fac, gran1, gran2
+      real*8, parameter :: huge64=9223372036854775808.0_8
+
+      IF (ig.EQ.1) THEN
+         rsq = 2
+         DO WHILE ( (rsq.GE.1).OR. (rsq.EQ.0) )
+            CALL RANDOM_NUMBER(u1)
+            CALL RANDOM_NUMBER(u2)
+            u1 = u1 / huge64
+            u2 = u2 / huge64
+            rsq = u1*u1 + u2*u2
+         ENDDO
+         fac = SQRT(-2*LOG(rsq)/rsq)
+         gran1 = u1 * fac
+         gran2 = u2 * fac
+      ENDIF
+
+      ! Output one of the 2 draws
+      IF (ig.EQ.1) THEN
+         gran = gran1 ; ig = 2
+      ELSE
+         gran = gran2 ; ig = 1
+      ENDIF
+
+      END SUBROUTINE random_gauss
 
 
 

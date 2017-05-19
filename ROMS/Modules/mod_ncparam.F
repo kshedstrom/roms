@@ -290,11 +290,18 @@
         integer  :: idSSSc        ! SSS climatology
         integer  :: idSSSf        ! SSS flux correction
         integer  :: idSSTc        ! SST climatology
-#ifdef FORCE_PERTURB
+#ifdef STOPERTURB
+# ifdef FORCE_PERTURB
         integer  :: idpert_Tair    ! perturbation on Tair
         integer  :: idpert_Srad    ! perturbation on shortwave radiation
         integer  :: idpert_Uwind   ! perturbation on zonal wind
         integer  :: idpert_Vwind   ! perturbation on merid wind
+# endif
+# ifdef EOS_PERTURB
+        integer  :: idpert_dx  ! zonal perturbation on T,S for EOS
+        integer  :: idpert_dy  ! meridional perturbation on T,S for EOS
+        integer  :: idpert_dz  ! vertical perturbation on T,S for EOS
+# endif
 #endif
         integer  :: idShea        ! net sensible heat flux
         integer  :: idSWCW        ! SIN(omega(k)*t)*COS(omega(l)*t)
@@ -1646,7 +1653,8 @@
               idSSSc=varid
             CASE ('idSSTc')
               idSSTc=varid
-#if defined FORCE_PERTURB
+#ifdef STOPERTURB
+# ifdef FORCE_PERTURB
             CASE ('idpert_Tair')
               idpert_Tair=varid
             CASE ('idpert_Srad')
@@ -1655,6 +1663,15 @@
               idpert_Uwind=varid
             CASE ('idpert_Vwind')
               idpert_Vwind=varid
+# endif
+# ifdef EOS_PERTURB
+            CASE ('idpert_dx')
+              idpert_dx=varid
+            CASE ('idpert_dy')
+              idpert_dy=varid
+            CASE ('idpert_dz')
+              idpert_dz=varid
+# endif
 #endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \

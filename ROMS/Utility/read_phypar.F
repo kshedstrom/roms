@@ -1288,8 +1288,15 @@
 # endif
 #endif
 
-#ifdef FORCE_PERTURB
-            !-- RD Stochastic perturbations on forcing fields --
+#ifdef STOPERTURB
+            CASE ('grid_mean_dx')
+              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dx)
+            CASE ('grid_mean_dy')
+              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dy)
+            CASE ('seed_user')
+              Npts=load_i(Nval, Rval, Ngrids,seed_user)
+# ifdef FORCE_PERTURB
+            ! Stochastic perturbations on forcing fields --
             CASE ('var_perturb_swrad')
               Npts=load_r(Nval, Rval, Ngrids, var_perturb_swrad)
             CASE ('var_perturb_Tair')
@@ -1298,16 +1305,23 @@
               Npts=load_r(Nval, Rval, Ngrids, var_perturb_Uwind)
             CASE ('var_perturb_Vwind')
               Npts=load_r(Nval, Rval, Ngrids, var_perturb_Vwind)
-            CASE ('grid_mean_dx')
-              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dx)
-            CASE ('grid_mean_dy')
-              Npts=load_r(Nval, Rval, Ngrids,grid_mean_dy)
-            CASE ('pert_rcorr')
-              Npts=load_r(Nval, Rval, Ngrids,pert_rcorr)
-            CASE ('pert_tcorr')
-              Npts=load_r(Nval, Rval, Ngrids,pert_tcorr)
-            CASE ('seed_user')
-              Npts=load_i(Nval, Rval, Ngrids,seed_user)
+            CASE ('force_pert_rcorr')
+              Npts=load_r(Nval, Rval, Ngrids,force_pert_rcorr)
+            CASE ('force_pert_tcorr')
+              Npts=load_r(Nval, Rval, Ngrids,force_pert_tcorr)
+# endif
+# ifdef EOS_PERTURB
+            CASE ('var_perturb_dx')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_dx)
+            CASE ('var_perturb_dy')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_dy)
+            CASE ('var_perturb_dz')
+              Npts=load_r(Nval, Rval, Ngrids, var_perturb_dz)
+            CASE ('eos_pert_rcorr')
+              Npts=load_r(Nval, Rval, Ngrids,eos_pert_rcorr)
+            CASE ('eos_pert_tcorr')
+              Npts=load_r(Nval, Rval, Ngrids,eos_pert_tcorr)
+# endif
 #endif
 
             CASE ('Hout(idUvel)')
@@ -4922,7 +4936,14 @@
           END DO
 # endif
 #endif
-#ifdef FORCE_PERTURB
+#ifdef STOPERTURB
+          WRITE (out,140) grid_mean_dx(ng), 'grid_mean_dx',             &
+     &          'Grid mean dx (in meters)'
+          WRITE (out,140) grid_mean_dy(ng), 'grid_mean_dy',             &
+     &          'Grid mean dy (in meters)'
+          WRITE (out,120) seed_user(ng), 'seed_user',                   &
+     &          'Seed used for initialization of random generator'
+# ifdef FORCE_PERTURB
           WRITE (out,140) var_perturb_swrad(ng), 'var_perturb_swrad',   &
      &          'Stochastic perturbation on shortwave (variance)'
           WRITE (out,140) var_perturb_Tair(ng), 'var_perturb_Tair',     &
@@ -4931,16 +4952,23 @@
      &          'Stochastic perturbation on Uwind (variance)'
           WRITE (out,140) var_perturb_Vwind(ng), 'var_perturb_Vwind',   &
      &          'Stochastic perturbation on Vwind (variance)'
-          WRITE (out,140) grid_mean_dx(ng), 'grid_mean_dx',             &
-     &          'Grid mean dx (in meters)'
-          WRITE (out,140) grid_mean_dy(ng), 'grid_mean_dy',             &
-     &          'Grid mean dy (in meters)'
-          WRITE (out,140) pert_rcorr(ng), 'pert_rcorr',                 &
-     &          'Stochastic perturbation radius of correlation (meters)'
-          WRITE (out,140) pert_tcorr(ng), 'pert_tcorr',                 &
-     &          'Stochastic perturbation time correlation (days)'
-          WRITE (out,120) seed_user(ng), 'seed_user',                   &
-     &          'Seed used for initialization of random generator'
+          WRITE (out,140) force_pert_rcorr(ng), 'force_pert_rcorr',     &
+     &          'Forcing perturbation radius of correlation (meters)'
+          WRITE (out,140) force_pert_tcorr(ng), 'force_pert_tcorr',     &
+     &          'Forcing perturbation time correlation (days)'
+# endif
+# ifdef EOS_PERTURB
+          WRITE (out,140) var_perturb_dx(ng), 'var_perturb_dx',         &
+     &         'Zonal stochastic perturbation on T,S for EOS (variance)'
+          WRITE (out,140) var_perturb_dy(ng), 'var_perturb_dy',         &
+     &    'Meridional stochastic perturbation on T,S for EOS (variance)'
+          WRITE (out,140) var_perturb_dz(ng), 'var_perturb_dz',         &
+     &      'Vertical stochastic perturbation on T,S for EOS (variance)'
+          WRITE (out,140) eos_pert_rcorr(ng), 'eos_pert_rcorr',         &
+     &          'T,S perturbation for EOS radius of correlation (meters)'
+          WRITE (out,140) eos_pert_tcorr(ng), 'eos_pert_tcorr',         &
+     &          'T,S perturbation for EOS time correlation (days)'
+# endif
 #endif
           IF ((nHIS(ng).gt.0).and.ANY(Hout(:,ng))) THEN
             WRITE (out,'(1x)')
