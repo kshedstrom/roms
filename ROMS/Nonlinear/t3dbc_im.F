@@ -132,13 +132,13 @@
                 dTdx=t(Istr,j,k,nout,itrc)-t(Istr+1,j,k,nout,itrc)
 
                 IF (LBC(iwest,isTvar(itrc),ng)%nudging) THEN
-                  IF (LnudgeTCLM(itrc,ng)) THEN
-                    obc_out=CLIMA(ng)%Tnudgcof(Istr-1,j,k,ic)
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeTCLM(itrc,ng)) THEN
+!                   obc_out=CLIMA(ng)%Tnudgcof(Istr-1,j,k,ic)
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=Tobc_out(itrc,ng,iwest)
                     obc_in =Tobc_in (itrc,ng,iwest)
-                  END IF
+!                 END IF
                   IF ((dTdt*dTdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -283,13 +283,13 @@
                 dTdx=t(Iend,j,k,nout,itrc)-t(Iend-1,j,k,nout,itrc)
 
                 IF (LBC(ieast,isTvar(itrc),ng)%nudging) THEN
-                  IF (LnudgeTCLM(itrc,ng)) THEN
-                    obc_out=CLIMA(ng)%Tnudgcof(Iend+1,j,k,ic)
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeTCLM(itrc,ng)) THEN
+!                   obc_out=CLIMA(ng)%Tnudgcof(Iend+1,j,k,ic)
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=Tobc_out(itrc,ng,ieast)
                     obc_in =Tobc_in (itrc,ng,ieast)
-                  END IF
+!                 END IF
                   IF ((dTdt*dTdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -434,13 +434,13 @@
                 dTde=t(i,Jstr,k,nout,itrc)-t(i,Jstr+1,k,nout,itrc)
 
                 IF (LBC(isouth,isTvar(itrc),ng)%nudging) THEN
-                  IF (LnudgeTCLM(itrc,ng)) THEN
-                    obc_out=CLIMA(ng)%Tnudgcof(i,Jstr-1,k,ic)
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeTCLM(itrc,ng)) THEN
+!                   obc_out=CLIMA(ng)%Tnudgcof(i,Jstr-1,k,ic)
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=Tobc_out(itrc,ng,isouth)
                     obc_in =Tobc_in (itrc,ng,isouth)
-                  END IF
+!                 END IF
                   IF ((dTdt*dTde).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -586,13 +586,13 @@
                 dTde=t(i,Jend,k,nout,itrc)-t(i,Jend-1,k,nout,itrc)
 
                 IF (LBC(inorth,isTvar(itrc),ng)%nudging) THEN
-                  IF (LnudgeTCLM(itrc,ng)) THEN
-                    obc_out=CLIMA(ng)%Tnudgcof(i,Jend+1,k,ic)
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeTCLM(itrc,ng)) THEN
+!                   obc_out=CLIMA(ng)%Tnudgcof(i,Jend+1,k,ic)
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=Tobc_out(itrc,ng,inorth)
                     obc_in =Tobc_in (itrc,ng,inorth)
-                  END IF
+!                 END IF
                   IF ((dTdt*dTde).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -656,6 +656,10 @@
      &                                  GRID(ng)%rmask(i,Jend+1)
 #  endif
 # endif
+!               if (i==77 .and. k==40) then
+!                 print *, 'in t3dbc', itrc, Ce, Cx, cff,               &
+!    &              tau, t(i,Jend+1,k,nout,itrc)
+!               endif
               END IF
             END DO
           END DO
