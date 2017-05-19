@@ -110,15 +110,15 @@
                 dUdx=u(Istr+1,j,k,nout)-u(Istr+2,j,k,nout)
 
                 IF (LBC(iwest,isUvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(Istr-1,j,k)+           &
-     &                       CLIMA(ng)%M3nudgcof(Istr  ,j,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(Istr-1,j,k)+           &
+!    &                       CLIMA(ng)%M3nudgcof(Istr  ,j,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,iwest)
                     obc_in =M3obc_in (ng,iwest)
-                  END IF
+!                 END IF
                   IF ((dUdt*dUdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -244,15 +244,15 @@
                 dUdx=u(Iend,j,k,nout)-u(Iend-1,j,k,nout)
 
                 IF (LBC(ieast,isUvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(Iend  ,j,k)+           &
-     &                       CLIMA(ng)%M3nudgcof(Iend+1,j,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(Iend  ,j,k)+           &
+!    &                       CLIMA(ng)%M3nudgcof(Iend+1,j,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,ieast)
                     obc_in =M3obc_in (ng,ieast)
-                  END IF
+!                 END IF
                   IF ((dUdt*dUdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -378,15 +378,15 @@
                 dUde=u(i,Jstr,k,nout)-u(i,Jstr+1,k,nout)
 
                 IF (LBC(isouth,isUvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(i-1,Jstr-1,k)+         &
-     &                       CLIMA(ng)%M3nudgcof(i  ,Jstr-1,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(i-1,Jstr-1,k)+         &
+!    &                       CLIMA(ng)%M3nudgcof(i  ,Jstr-1,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,isouth)
                     obc_in =M3obc_in (ng,isouth)
-                  END IF
+!                 END IF
                   IF ((dUdt*dUde).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE

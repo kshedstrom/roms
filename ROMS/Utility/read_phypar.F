@@ -3625,6 +3625,9 @@
 # ifndef ANA_AICLIMA
         IF (LaiCLM(ng)) CLM_FILE(ng)=.TRUE.
 # endif
+# ifndef ANA_SICLIMA
+        IF (LsiCLM(ng)) CLM_FILE(ng)=.TRUE.
+# endif
 #endif
 
 #if defined IS4DVAR || defined WEAK_CONSTRAINT
@@ -4567,6 +4570,13 @@
             WRITE (out,170) LaiCLM(ng), 'LaiCLM',                        &
      &          'Turning OFF processing of ice tracer climatology.'
           END IF
+          IF (LsiCLM(ng)) THEN
+            WRITE (out,170) LsiCLM(ng), 'LsiCLM',                        &
+     &          'Turning ON  processing of ice stress climatology.'
+          ELSE
+            WRITE (out,170) LsiCLM(ng), 'LsiCLM',                        &
+     &          'Turning OFF processing of ice stress climatology.'
+          END IF
           IF (LnudgeMICLM(ng)) THEN
             WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
      &          'Turning ON  nudging of ice momentum climatology.'
@@ -4574,12 +4584,19 @@
             WRITE (out,170) LnudgeMICLM(ng), 'LnudgeMICLM',              &
      &          'Turning OFF nudging of ice momentum climatology.'
           END IF
-         IF (LnudgeAICLM(ng)) THEN
+          IF (LnudgeAICLM(ng)) THEN
             WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
      &          'Turning ON  nudging of ice tracer climatology.'
           ELSE
             WRITE (out,170) LnudgeAICLM(ng), 'LnudgeAICLM',              &
      &          'Turning OFF nudging of ice tracer climatology.'
+          END IF
+          IF (LnudgeSICLM(ng)) THEN
+            WRITE (out,170) LnudgeSICLM(ng), 'LnudgeSICLM',              &
+     &          'Turning ON  nudging of ice stress climatology.'
+          ELSE
+            WRITE (out,170) LnudgeSICLM(ng), 'LnudgeSICLM',              &
+     &          'Turning OFF nudging of ice stress climatology.'
           END IF
 #endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
