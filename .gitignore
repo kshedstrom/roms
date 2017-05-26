@@ -6,3 +6,11 @@ makefile.*
 Makefile.*
 clean_ice_*
 comp_ice_*
+*~
+oceanM
+oceanG
+ROMS*.e*
+ROMS*.o*
+run*.out
+PIGruns.txt
+*.qsub
