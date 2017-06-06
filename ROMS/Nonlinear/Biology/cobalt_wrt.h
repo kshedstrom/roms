@@ -1051,6 +1051,11 @@
       &                      ncid = ncid)
        IF (exit_flag.ne.NoError) RETURN
 
+       CALL netcdf_put_fvar (ng, model, ncname, 'ffe_sed_max',          &
+      &                      ffe_sed_max(ng), (/0/), (/0/),             &
+      &                      ncid = ncid)
+       IF (exit_flag.ne.NoError) RETURN
+
        CALL netcdf_put_fvar (ng, model, ncname, 'beta_fescav',          &
       &                      beta_fescav(ng), (/0/), (/0/),             &
       &                      ncid = ncid)

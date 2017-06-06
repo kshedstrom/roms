@@ -480,6 +480,8 @@
                Npts=load_r(Nval, Rval, Ngrids, fe_coast)
              CASE ('alpha_fescav')
                Npts=load_r(Nval, Rval, Ngrids, alpha_fescav)
+             CASE ('ffe_sed_max')
+               Npts=load_r(Nval, Rval, Ngrids, ffe_sed_max)
              CASE ('beta_fescav')
                Npts=load_r(Nval, Rval, Ngrids, beta_fescav)
              CASE ('remin_eff_fedet')
@@ -1882,6 +1884,8 @@
      &            'fe_coast: Iron chemistry[mol Fe m kg-1 s-1].'
              WRITE (out,100) alpha_fescav(ng), 'alpha_fescav',                           &
      &            'alpha_fescav: Iron chemistry[sec-1].'
+             WRITE (out,100) ffe_sed_max(ng), 'ffe_sed_max',                           &
+     &            'ffe_sed_max: Iron chemistry[micromol Fe m-2 d-1].'
              WRITE (out,100) beta_fescav(ng), 'beta_fescav',                           &
      &            'beta_fescav: Iron chemistry[mol N-1 sec-1].'
              WRITE (out,100) remin_eff_fedet(ng), 'remin_eff_fedet',                           &

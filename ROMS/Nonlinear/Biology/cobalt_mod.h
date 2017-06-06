@@ -417,6 +417,8 @@
 !
 ! alpha_fescav  alpha_fescav: Iron chemistry  sec-1 !
 !
+! ffe_sed_max  ffe_sed_max: Iron chemistry  micromol Fe m-2 d-1 !
+!
 ! beta_fescav  beta_fescav: Iron chemistry  mol N-1 sec-1 !
 !
 ! remin_eff_fedet  remin_eff_fedet: Iron chemistry  unitless !
@@ -861,6 +863,7 @@
       real(r8), allocatable :: fe_2_n_sed(:)                 ! mol Fe mol N-1
       real(r8), allocatable :: fe_coast(:)                   ! mol Fe m kg-1 s-1
       real(r8), allocatable :: alpha_fescav(:)               ! sec-1
+      real(r8), allocatable :: ffe_sed_max(:)                ! micromol m-2 d-1
       real(r8), allocatable :: beta_fescav(:)                ! mol N-1 sec-1
       real(r8), allocatable :: remin_eff_fedet(:)            ! unitless
       real(r8), allocatable :: ki_fescav(:)                  ! watts m-2
@@ -1262,6 +1265,7 @@
           kfe_eq_lig_hl,    &
           kfe_eq_lig_ll,    &
           alpha_fescav,     &
+          ffe_sed_max,      &
           beta_fescav,      &
           gamma_fescav,     &
           ki_fescav,        &
@@ -1524,7 +1528,7 @@
           z_ratio_100, &
           pe_ratio_100, &
           f_ratio_100, &
-          jno3denit_wc_vint 
+          jno3denit_wc_vint
           ! add 2d diags here
 
 !     real(8), dimension(:,:,:,:), pointer :: &
@@ -2530,6 +2534,9 @@
       END IF
       IF (.not.allocated(alpha_fescav)) THEN
         allocate ( alpha_fescav(Ngrids) )
+      END IF
+      IF (.not.allocated(ffe_sed_max)) THEN
+        allocate ( ffe_sed_max(Ngrids) )
       END IF
       IF (.not.allocated(beta_fescav)) THEN
         allocate ( beta_fescav(Ngrids) )
@@ -3710,6 +3717,7 @@
       cobalt%fe_2_n_sed    = fe_2_n_sed(ng)
       cobalt%fe_coast      = fe_coast(ng)
       cobalt%alpha_fescav  = alpha_fescav(ng)
+      cobalt%ffe_sed_max   = ffe_sed_max(ng)
       cobalt%beta_fescav   = beta_fescav(ng)
       cobalt%remin_eff_fedet = remin_eff_fedet(ng)
       cobalt%ki_fescav     = ki_fescav(ng)

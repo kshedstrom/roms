@@ -1472,6 +1472,13 @@
      &               SetParAccess = .FALSE.)
       IF (exit_flag.ne.NoError) RETURN
 
+      Vinfo( 1)='ffe_sed_max'
+      Vinfo( 2)='ffe_sed_max: Iron chemistry'
+      status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
+     &               1, (/0/), Aval, Vinfo, ncname,                     &
+     &               SetParAccess = .FALSE.)
+      IF (exit_flag.ne.NoError) RETURN
+
       Vinfo( 1)='beta_fescav'
       Vinfo( 2)='beta_fescav: Iron chemistry'
       status=def_var(ng, model, ncid, varid, NF_TYPE,                   &
