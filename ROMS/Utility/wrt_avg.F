@@ -1034,7 +1034,7 @@
 !---------------------------------------------
       DO itrc=1,NPT3(ng)
         !print *,
-	'XXX',AVG(ng)%ncid,AVG(ng)%PT3id(itrc),AVG(ng)%Rindex
+        'XXX',AVG(ng)%ncid,AVG(ng)%PT3id(itrc),AVG(ng)%Rindex
         !print *, 'xxx',Aout(idPT3var(itrc),ng)
         IF (Aout(idPT3var(itrc),ng)) THEN
           scale=1.0_r8
@@ -1600,7 +1600,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % umask_avg,                        &
+     &                     GRID(ng) % rmask_avg,                        &
 #   endif
      &                     AVERAGE(ng) % avguiceE)
         IF (status.ne.nf90_noerr) THEN
@@ -1622,7 +1622,7 @@
      &                     AVG(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, scale,                   &
 #   ifdef MASKING
-     &                     GRID(ng) % vmask_avg,                        &
+     &                     GRID(ng) % rmask_avg,                        &
 #   endif
      &                     AVERAGE(ng) % avgviceN)
        IF (status.ne.nf90_noerr) THEN
