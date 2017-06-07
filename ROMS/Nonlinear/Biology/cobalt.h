@@ -3910,7 +3910,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !   cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1)
     ! Dale's relationship
     cobalt%ffe_sed(i,j) = cobalt%ffe_sed_max * tanh( (cobalt%f_ndet_btf(i,j,1)*cobalt%c_2_n*sperd*1.0e3)/ &
-                        max(cobalt%f_o2(i,j,1)*1.0e6,epsln) )
+                        max(cobalt%f_o2(i,j,1)*1.0e6,epsln) ) * 1.e-6/sperd
 
 !#ASKCHARLIE if we need this
 # ifdef COBALT_CONSERVATION_TEST
