@@ -3798,8 +3798,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2)/((7.0+fpoc_btm)**2)
 
 
-#ifdef COBALT_CONSERVATION_TEST
-      ! RD dev notes ; this is to test conservation
+#if defined COBALT_CONSERVATION_TEST || defined COBALT_NOBURIAL
+      ! RD dev notes ; this is to test conservation or if no burial is necessary
       cobalt%frac_burial(i,j) = 0.0d0
 #endif
 
