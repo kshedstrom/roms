@@ -23,6 +23,8 @@
 #  include <goanpz_inp.h>
 # elif defined BIO_UMAINE
 #  include <umaine_inp.h>
+# elif defined HYPOXIA_SRM
+#  include <hypoxia_srm_inp.h>
 # elif defined NEMURO
 #  include <nemuro_inp.h>
 # elif defined NPZD_FRANKS

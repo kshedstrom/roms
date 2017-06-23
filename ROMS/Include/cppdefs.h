@@ -515,6 +515,10 @@
 ** JELLY               use if jellyfish                                      **
 ** CLIM_ICE_1D         use if one-D with ice                                 **
 **                                                                           **
+** Hypoxia ecosysten model OPTIONS:                                          **
+**                                                                           **
+** HYPOXIA_SRM         use if Hypoxia Simple Respiration Model               **
+**                                                                           **
 ** NPZD biology model OPTIONS:                                               **
 **                                                                           **
 ** BIO_UMAINE          use if Chai et al. (2002) CoSINE model                **

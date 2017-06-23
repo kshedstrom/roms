@@ -2008,6 +2008,8 @@
 #  include <umaine_var.h>
 # elif defined ECOSIM
 #  include <ecosim_var.h>
+# elif defined HYPOXIA_SRM
+#  include <hypoxia_srm_var.h>
 # elif defined NEMURO
 #  include <nemuro_var.h>
 # elif defined NPZD_FRANKS

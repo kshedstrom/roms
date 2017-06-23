@@ -3872,7 +3872,7 @@
 !
 !---------------------------------------------------------------------
 !  Define names of variables associated with Fennel et al (2006),
-!  NEMURO, NPZD or UMaine ecosystem models.
+!  NEMURO, NPZD, Hypoxia or UMaine ecosystem models.
 !---------------------------------------------------------------------
 !
 
@@ -4404,6 +4404,15 @@
   'Oxygen, scalar, series'
   'ocean_time'
   'idTads(iOxyg)'
+  'r3dvar'
+  1.0d0
+
+'respiration'                                      ! Input
+  'total respiration rate'
+  'millimole_oxygen meter-3 day-1'                 ! [millimoe/m3/day]
+  'respiration, scalar, series'
+  'respiration_time'
+  'idResR'
   'r3dvar'
   1.0d0
 

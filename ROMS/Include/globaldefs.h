@@ -542,9 +542,10 @@
 */
 
 #if defined BIO_FENNEL  || defined ECOSIM      || \
-    defined NEMURO      || defined NPZD_FRANKS || \
-    defined NPZD_IRON   || defined NPZD_POWELL || \
-    defined RED_TIDE    || defined BIO_GOANPZ  || \
+    defined HYPOXIA_SRM || defined NEMURO      || \
+    defined NPZD_FRANKS || defined NPZD_IRON   || \
+    defined NPZD_POWELL || defined RED_TIDE
+    defined BIO_GOANPZ  || \
     defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY
 #endif
@@ -673,30 +674,31 @@
 # endif
 # if !defined ANA_BTFLUX   || \
     (!defined AIR_OCEAN    && \
-     !defined BULK_FLUXES  && !defined ANA_SMFLUX)   || \
-    (!defined BULK_FLUXES  && !defined ANA_STFLUX)   || \
-    ( defined BIOLOGY      && !defined ANA_SPFLUX)   || \
-    ( defined BIOLOGY      && !defined ANA_BPFLUX)   || \
-    ( defined BULK_FLUXES  && !defined LONGWAVE      && \
-     !defined ANA_LRFLUX)                            || \
-    ( defined BULK_FLUXES  && !defined ANA_PAIR)     || \
-    ( defined BULK_FLUXES  && !defined ANA_TAIR)     || \
-    ( defined BULK_FLUXES  && !defined ANA_HUMIDITY) || \
-    ( defined BULK_FLUXES  && !defined ANA_CLOUD)    || \
-    ( defined BULK_FLUXES  && !defined ANA_RAIN)     || \
-    ( defined BULK_FLUXES  && !defined ANA_WINDS)    || \
-    ( defined BULK_FLUXES  && !defined ANA_SRFLUX)   || \
-    ( defined LMD_SKPP     && !defined ANA_SRFLUX)   || \
+     !defined BULK_FLUXES  && !defined ANA_SMFLUX)      || \
+    (!defined BULK_FLUXES  && !defined ANA_STFLUX)      || \
+    ( defined BIOLOGY      && !defined ANA_SPFLUX)      || \
+    ( defined BIOLOGY      && !defined ANA_BPFLUX)      || \
+    ( defined BULK_FLUXES  && !defined LONGWAVE         && \
+     !defined ANA_LRFLUX)                               || \
+    ( defined BULK_FLUXES  && !defined ANA_PAIR)        || \
+    ( defined BULK_FLUXES  && !defined ANA_TAIR)        || \
+    ( defined BULK_FLUXES  && !defined ANA_HUMIDITY)    || \
+    ( defined BULK_FLUXES  && !defined ANA_CLOUD)       || \
+    ( defined BULK_FLUXES  && !defined ANA_RAIN)        || \
+    ( defined BULK_FLUXES  && !defined ANA_WINDS)       || \
+    ( defined BULK_FLUXES  && !defined ANA_SRFLUX)      || \
+    ( defined HYPOXIA_SRM  && !defined ANA_RESPIRATION) || \
+    ( defined LMD_SKPP     && !defined ANA_SRFLUX)      || \
       defined RED_TIDE     || \
-    ( defined SALINITY     && !defined ANA_SSFLUX    && \
-     (defined BULK_FLUXES  && !defined EMINUSP))     || \
-    ( defined SOLAR_SOURCE && !defined ANA_SRFLUX)   || \
-    ( defined SSH_TIDES    || defined UV_TIDES)      || \
-    ( defined BBL_MODEL    && (!defined ANA_WWAVE    && \
-     !defined WAVES_OCEAN))                          || \
-    ( defined SEDIMENT     && !defined ANA_SPFLUX)   || \
-    ( defined SEDIMENT     && !defined ANA_BPFLUX)   || \
-    ( defined WAVE_DATA    && (!defined ANA_WWAVE    && \
+    ( defined SALINITY     && !defined ANA_SSFLUX       && \
+     (defined BULK_FLUXES  && !defined EMINUSP))        || \
+    ( defined SOLAR_SOURCE && !defined ANA_SRFLUX)      || \
+    ( defined SSH_TIDES    || defined UV_TIDES)         || \
+    ( defined BBL_MODEL    && (!defined ANA_WWAVE       && \
+     !defined WAVES_OCEAN))                             || \
+    ( defined SEDIMENT     && !defined ANA_SPFLUX)      || \
+    ( defined SEDIMENT     && !defined ANA_BPFLUX)      || \
+    ( defined WAVE_DATA    && (!defined ANA_WWAVE       && \
      !defined WAVES_OCEAN))
 #  define FRC_FILE
 # endif
@@ -786,6 +788,11 @@
 #   undef DIAGNOSTICS_TS
 # endif
 #endif
+#if (!defined BIO_FENNEL  && defined DIAGNOSTICS_BIO) || \
+    (!defined HYPOXIA_SRM && defined DIAGNOSTICS_BIO) || \
+    (!defined BIO_COBALT  && defined DIAGNOSTICS_BIO)
+#  undef DIAGNOSTICS_BIO
+#endif
 #if defined DIAGNOSTICS_BIO || defined DIAGNOSTICS_TS || \
     defined DIAGNOSTICS_UV
 # define DIAGNOSTICS
@@ -795,27 +802,28 @@
 ** Check if any analytical expression is defined.
 */
 
-#if defined ANA_BIOLOGY    || defined ANA_BPFLUX     || \
-    defined ANA_BSFLUX     || defined ANA_BTFLUX     || \
-    defined ANA_CLOUD      || defined ANA_DIAG       || \
-    defined ANA_DQDSST     || defined ANA_DRAG       || \
-    defined ANA_FSOBC      || defined ANA_GRID       || \
-    defined ANA_HUMIDITY   || defined ANA_INITIAL    || \
-    defined ANA_M2CLIMA    || defined ANA_M2OBC      || \
-    defined ANA_M3CLIMA    || defined ANA_M3OBC      || \
-    defined ANA_MASK       || defined ANA_NUDGCOEF   || \
-    defined ANA_PAIR       || defined ANA_PASSIVE    || \
-    defined ANA_PERTURB    || defined ANA_PSOURCE    || \
-    defined ANA_RAIN       || defined ANA_SEDIMENT   || \
-    defined ANA_SMFLUX     || defined ANA_SPFLUX     || \
-    defined ANA_SPINNING   || defined ANA_SPONGE     || \
-    defined ANA_SRFLUX     || defined ANA_SSFLUX     || \
-    defined ANA_SSH        || defined ANA_SSS        || \
-    defined ANA_SST        || defined ANA_STFLUX     || \
-    defined ANA_TAIR       || defined ANA_TCLIMA     || \
-    defined ANA_TOBC       || defined ANA_VMIX       || \
-    defined ANA_WINDS      || defined ANA_WWAVE      || \
-    defined DIFF_GRID      || defined VISC_GRID
+#if defined ANA_BIOLOGY    || defined ANA_BPFLUX      || \
+    defined ANA_BSFLUX     || defined ANA_BTFLUX      || \
+    defined ANA_CLOUD      || defined ANA_DIAG        || \
+    defined ANA_DQDSST     || defined ANA_DRAG        || \
+    defined ANA_FSOBC      || defined ANA_GRID        || \
+    defined ANA_HUMIDITY   || defined ANA_INITIAL     || \
+    defined ANA_M2CLIMA    || defined ANA_M2OBC       || \
+    defined ANA_M3CLIMA    || defined ANA_M3OBC       || \
+    defined ANA_MASK       || defined ANA_NUDGCOEF    || \
+    defined ANA_PAIR       || defined ANA_PASSIVE     || \
+    defined ANA_PERTURB    || defined ANA_PSOURCE     || \
+    defined ANA_RAIN       || defined ANA_RESPIRATION || \
+    defined ANA_SEDIMENT   || defined ANA_SMFLUX      || \
+    defined ANA_SPFLUX     || defined ANA_SPINNING    || \
+    defined ANA_SPONGE     || defined ANA_SRFLUX      || \
+    defined ANA_SSFLUX     || defined ANA_SSH         || \
+    defined ANA_SSS        || defined ANA_SST         || \
+    defined ANA_STFLUX     || defined ANA_TAIR        || \
+    defined ANA_TCLIMA     || defined ANA_TOBC        || \
+    defined ANA_VMIX       || defined ANA_WINDS       || \
+    defined ANA_WWAVE      || defined DIFF_GRID       || \
+    defined VISC_GRID
 # define ANALYTICAL
 #endif
 

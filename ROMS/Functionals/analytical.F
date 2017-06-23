@@ -46,6 +46,7 @@
 !! ana_psource.h       Analytical mass/tracer point sources/sinks.     !
 !! ana_trc_psource.h   Analytical mass/tracer point sources/sinks.     !
 !! ana_rain.h          Analytical rain fall rate.                      !
+!! ana_respiration.h   Analytical total respiration for hypoxia.       !
 !! ana_scope.h         Analytical adjoint sensitivity spatial scope    !
 !!                       mask.                                         !
 !! ana_sediment.h      Analytical initial conditions for sediment      !
@@ -227,6 +228,12 @@
 
 #  if defined ANA_RAIN && defined BULK_FLUXES
 #   include <ana_rain.h>
+#  endif
+# endif
+
+# ifdef SOLVE3D
+#  if defined ANA_RESPIRATION && defined HYPOXIA_SRM
+#   include <ana_respiration.h>
 #  endif
 # endif
 
