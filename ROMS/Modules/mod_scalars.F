@@ -198,7 +198,7 @@
 !    io_time       Current I/O time (s) processed in "get_state".
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
-!    time_code     Model time clock (string, YYYY-MM-DD hh:mm:ss.s)
+!    time_code     Model time clock (string, YYYY-MM-DD hh:mm:ss.ss)
 !    AVGtime       Model time clock for averages output (s).
 !    AVG2time      Model time clock for averages output (s).
 !    DIAtime       Model time clock for diagnostics output (s).
