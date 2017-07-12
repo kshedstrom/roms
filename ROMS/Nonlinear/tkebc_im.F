@@ -129,7 +129,6 @@
               IF (LBC_apply(ng)%west(j)) THEN
                 dKdt=tke(Istr,j,k,nstp)-tke(Istr  ,j,k,nout)
                 dKdx=tke(Istr,j,k,nout)-tke(Istr+1,j,k,nout)
-                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(grad(Istr,j  )+                              &
      &                     grad(Istr,j+1))).gt.0.0_r8) THEN
                   dKde=grad(Istr,j  )
@@ -137,10 +136,9 @@
                   dKde=grad(Istr,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                if (dKdx == 0.0_r8) dKdx = eps
+                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
                 Cx=dKdt*dKdx
 # ifdef RADIATION_2D
-                if (dKde == 0.0_r8) dKde = eps
                 Ce=MIN(cff,MAX(dKdt*dKde,-cff))
 # else
                 Ce=0.0_r8
@@ -158,7 +156,6 @@
 # endif
                 dKdt=gls(Istr,j,k,nstp)-gls(Istr  ,j,k,nout)
                 dKdx=gls(Istr,j,k,nout)-gls(Istr+1,j,k,nout)
-                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(gradL(Istr,j  )+                             &
      &                     gradL(Istr,j+1))).gt.0.0_r8) THEN
                   dKde=gradL(Istr,j  )
@@ -166,11 +163,10 @@
                   dKde=gradL(Istr,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=dKdt/dKdx
+                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
+                Cx=dKdt*dKdx
 # ifdef RADIATION_2D
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
+                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -271,7 +267,6 @@
               IF (LBC_apply(ng)%east(j)) THEN
                 dKdt=tke(Iend,j,k,nstp)-tke(Iend  ,j,k,nout)
                 dKdx=tke(Iend,j,k,nout)-tke(Iend-1,j,k,nout)
-                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(grad(Iend,j  )+                              &
      &                     grad(Iend,j+1))).gt.0.0_r8) THEN
                   dKde=grad(Iend,j  )
@@ -279,11 +274,10 @@
                   dKde=grad(Iend,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=dKdt/dKdx
+                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
+                Cx=dKdt*dKdx
 # ifdef RADIATION_2D
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
+                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -300,7 +294,6 @@
 # endif
                 dKdt=gls(Iend,j,k,nstp)-gls(Iend  ,j,k,nout)
                 dKdx=gls(Iend,j,k,nout)-gls(Iend-1,j,k,nout)
-                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(gradL(Iend,j  )+                             &
      &                     gradL(Iend,j+1))).gt.0.0_r8) THEN
                   dKde=gradL(Iend,j  )
@@ -308,11 +301,10 @@
                   dKde=gradL(Iend,j+1)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=dKdt/dKdx
+                IF ((dKdt*dKdx).lt.0.0_r8) dKdt=0.0_r8
+                Cx=dKdt*dKdx
 # ifdef RADIATION_2D
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=MIN(cff,MAX(dKdt/dKde,-cff))
+                Ce=MIN(cff,MAX(dKdt*dKde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -409,7 +401,6 @@
               IF (LBC_apply(ng)%south(i)) THEN
                 dKdt=tke(i,Jstr,k,nstp)-tke(i,Jstr  ,k,nout)
                 dKde=tke(i,Jstr,k,nout)-tke(i,Jstr+1,k,nout)
-                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(grad(i  ,Jstr)+                              &
      &                     grad(i+1,Jstr))).gt.0.0_r8) THEN
                   dKdx=grad(i  ,Jstr)
@@ -417,14 +408,13 @@
                   dKdx=grad(i+1,Jstr)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde, eps)
+                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
+                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=dKdt/dKde
+                Ce=dKdt*dKde
                 tke(i,Jstr-1,k,nout)=(cff*tke(i,Jstr-1,k,nstp)+         &
      &                                Ce *tke(i,Jstr  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -438,7 +428,6 @@
 # endif
                 dKdt=gls(i,Jstr,k,nstp)-gls(i,Jstr  ,k,nout)
                 dKde=gls(i,Jstr,k,nout)-gls(i,Jstr+1,k,nout)
-                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(gradL(i  ,Jstr)+                             &
      &                     gradL(i+1,Jstr))).gt.0.0_r8) THEN
                   dKdx=gradL(i  ,Jstr)
@@ -446,14 +435,13 @@
                   dKdx=gradL(i+1,Jstr)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
+                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
+                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=dKdt/dKde
+                Ce=dKdt*dKde
                 gls(i,Jstr-1,k,nout)=(cff*gls(i,Jstr-1,k,nstp)+         &
      &                                Ce *gls(i,Jstr  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -551,7 +539,6 @@
               IF (LBC_apply(ng)%north(i)) THEN
                 dKdt=tke(i,Jend,k,nstp)-tke(i,Jend  ,k,nout)
                 dKde=tke(i,Jend,k,nout)-tke(i,Jend-1,k,nout)
-                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(grad(i  ,Jend)+                              &
      &                     grad(i+1,Jend))).gt.0.0_r8) THEN
                   dKdx=grad(i  ,Jend)
@@ -559,14 +546,13 @@
                   dKdx=grad(i+1,Jend)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
+                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
+                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=dKdt/dKde
+                Ce=dKdt*dKde
                 tke(i,Jend+1,k,nout)=(cff*tke(i,Jend+1,k,nstp)+         &
      &                                Ce *tke(i,Jend  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
@@ -580,7 +566,6 @@
 # endif
                 dKdt=gls(i,Jend,k,nstp)-gls(i,Jend  ,k,nout)
                 dKde=gls(i,Jend,k,nout)-gls(i,Jend-1,k,nout)
-                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
                 IF ((dKdt*(gradL(i  ,Jend)+                             &
      &                     gradL(i+1,Jend))).gt.0.0_r8) THEN
                   dKdx=gradL(i  ,Jend)
@@ -588,14 +573,13 @@
                   dKdx=gradL(i+1,Jend)
                 END IF
                 cff=MAX(dKdx*dKdx+dKde*dKde,eps)
+                IF ((dKdt*dKde).lt.0.0_r8) dKdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dKdx == 0.0_r8) dKdx = eps
-                Cx=MIN(cff,MAX(dKdt/dKdx,-cff))
+                Cx=MIN(cff,MAX(dKdt*dKdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dKde == 0.0_r8) dKde = eps
-                Ce=dKdt/dKde
+                Ce=dKdt*dKde
                 gls(i,Jend+1,k,nout)=(cff*gls(i,Jend+1,k,nstp)+         &
      &                                Ce *gls(i,Jend  ,k,nout)-         &
      &                                MAX(Cx,0.0_r8)*                   &
