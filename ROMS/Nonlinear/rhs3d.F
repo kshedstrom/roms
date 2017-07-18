@@ -100,7 +100,7 @@
 !-----------------------------------------------------------------------
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 21)
+      CALL wclock_on (ng, iNLM, 21, __LINE__, __FILE__)
 # endif
       CALL rhs3d_tile (ng, tile,                                        &
      &                 LBi, UBi, LBj, UBj,                              &
@@ -150,7 +150,7 @@
      &                 OCEAN(ng) % ru,                                  &
      &                 OCEAN(ng) % rv)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 21)
+      CALL wclock_off (ng, iNLM, 21, __LINE__, __FILE__)
 # endif
 # ifdef UV_VIS2
 !

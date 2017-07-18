@@ -303,7 +303,6 @@
 !-----------------------------------------------------------------------
 !
       DO i=1,LEN(Iname)
-        Iname(i:i)=blank
         Wname(i:i)=blank
         NGCname(i:i)=blank
         USRname(i:i)=blank

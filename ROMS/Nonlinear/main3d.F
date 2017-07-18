@@ -212,11 +212,7 @@
               time(ng)=time(ng)+dt(ng)
               tdays(ng)=time(ng)*sec2day
               CALL time_string (time(ng), time_code(ng))
-# ifdef REGCM_COUPLING
-              IF (MOD(step_counter(ng),Rsteps).eq.0) Time_Step=.FALSE.
-# else
               IF (step_counter(ng).eq.Rsteps) Time_Step=.FALSE.
-# endif
             END DO
 !
 !-----------------------------------------------------------------------
@@ -262,7 +258,7 @@
               IF (FrequentImpulse(ng)) THEN
                 DO tile=first_tile(ng),last_tile(ng),+1
                   CALL forcing (ng, tile, kstp(ng), nstp(ng))
-                  CALL set_depth (ng, tile)
+                  CALL set_depth (ng, tile, iNLM)
                 END DO
 !$OMP BARRIER
               END IF
@@ -282,7 +278,7 @@
 !
                 DO tile=first_tile(ng),last_tile(ng),+1
                   CALL ini_zeta (ng, tile, iNLM)
-                  CALL set_depth (ng, tile)
+                  CALL set_depth (ng, tile, iNLM)
                 END DO
 !$OMP BARRIER
 !
@@ -313,9 +309,9 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-                CALL set_massflux (ng, tile)
+                CALL set_massflux (ng, tile, iNLM)
 # ifndef TS_FIXED
-                CALL rho_eos (ng, tile)
+                CALL rho_eos (ng, tile, iNLM)
 # endif
                 CALL diag (ng, tile)
 # ifdef TLM_CHECK
@@ -533,7 +529,7 @@
 # if defined DIFF_3DCOEF || defined VISC_3DCOEF
                 CALL hmixing (ng, tile)
 # endif
-                CALL omega (ng, tile)
+                CALL omega (ng, tile, iNLM)
                 CALL wvelocity (ng, tile, nstp(ng))
               END DO
 !$OMP BARRIER
@@ -794,7 +790,7 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=last_tile(ng),first_tile(ng),-1
-                CALL set_depth (ng, tile)
+                CALL set_depth (ng, tile, iNLM)
               END DO
 !$OMP BARRIER
             END DO
@@ -847,7 +843,7 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-                CALL omega (ng, tile)
+                CALL omega (ng, tile, iNLM)
 # ifdef MY25_MIXING
                 CALL my25_corstep (ng, tile)
 # elif defined GLS_MIXING

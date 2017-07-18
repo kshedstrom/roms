@@ -28,7 +28,7 @@
 #include "tile.h"
 
 #ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 51)
+      CALL wclock_on (ng, iNLM, 76, __LINE__, __FILE__)
 #endif
 
       CALL ice_thermo_tile (ng, tile,                                   &
@@ -98,7 +98,7 @@
      &                      FORCES(ng) % SW_thru_ice,                   &
      &                      FORCES(ng) % stflx)
 #ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 51)
+      CALL wclock_off (ng, iNLM, 76, __LINE__, __FILE__)
 #endif
       RETURN
       END SUBROUTINE ice_thermo
