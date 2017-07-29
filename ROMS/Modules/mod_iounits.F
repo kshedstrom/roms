@@ -28,6 +28,7 @@
 !    FWD       Input basic state forward solution                      !
 !    GRD       Input grid data                                         !
 !    GST       Input/output GST analysis check pointing data           !
+!    HAR       Output detiding least-squares harmonics coefficients    !
 !    HIS       Output nonlinear model history data                     !
 !    HSS       Input/output Hessian eigenvectors                       !
 !    IAD       Input adjoint model initial conditions                  !
@@ -115,6 +116,7 @@
       TYPE(T_IO), allocatable :: FWD(:)     ! forward solution
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
+      TYPE(T_IO), allocatable :: HAR(:)     ! detiding harmonics
       TYPE(T_IO), allocatable :: HIS(:)     ! NLM history fields
       TYPE(T_IO), allocatable :: HSS(:)     ! Hessian eigenvectors
       TYPE(T_IO), allocatable :: IAD(:)     ! ADM initial conditions
@@ -229,6 +231,7 @@
       allocate ( FWD(Ngrids) )
       allocate ( GRD(Ngrids) )
       allocate ( GST(Ngrids) )
+      allocate ( HAR(Ngrids) )
       allocate ( HIS(Ngrids) )
       allocate ( HSS(Ngrids) )
       allocate ( IAD(Ngrids) )
@@ -275,6 +278,7 @@
         FWD(ng)%ncid=-1
         GRD(ng)%ncid=-1
         GST(ng)%ncid=-1
+        HAR(ng)%ncid=-1
         HIS(ng)%ncid=-1
         HSS(ng)%ncid=-1
         IAD(ng)%ncid=-1
