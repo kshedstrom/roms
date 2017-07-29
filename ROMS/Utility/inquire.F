@@ -48,6 +48,8 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE strings_mod, ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -76,7 +78,7 @@
       character (len=3  ) :: label
       character (len=256) :: Fname
 !
-      SourceFile='inquire.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  On first call, inquire about the contents of input NetCDF file.
@@ -125,7 +127,8 @@
             lstr=LEN_TRIM(S(ifile)%name)
             S(ifile)%base=S(ifile)%name(1:lstr-3)
             CALL netcdf_close (ng, model, ncid)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             IF (label(1:3).eq.'FRC') THEN
               FRCids(ifile,ng)=-1
             END IF
@@ -162,7 +165,8 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, model, Fname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Inquire about requested variable.
 !
@@ -172,7 +176,8 @@
      &                       VarID = Vid,                               &
      &                       nVarDim = nvdim,                           &
      &                       nVarAtt = nvatt)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Determine if gridded or point data.  Set variable dimensions.
 !
@@ -296,7 +301,8 @@
      &                    ncfile, Tname(ifield), Nrec, tdays(ng),       &
      &                    Tid, Liocycle, Clength, Trec,                 &
      &                    Tstr, Tend, Tmin, Tmax,  Tscale)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Store variable information into global information arrays.  Also
@@ -408,7 +414,8 @@
 !
       IF (ncid.eq.-1) THEN
         CALL netcdf_open (ng, model, ncfile, 0, ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,60) TRIM(ncfile)
           RETURN
         END IF
@@ -488,7 +495,8 @@
      &                            ncid = ncid,                          &
      &                            start = (/Trec-1/),                   &
      &                            total = (/1/))
-            IF (exit_flag.ne.NoError) THEN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,70) TRIM(Tname(ifield)), Trec
               RETURN
             END IF

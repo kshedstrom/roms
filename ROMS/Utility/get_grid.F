@@ -33,10 +33,10 @@
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
 # ifdef NESTING
-      USE nesting_mod, ONLY : fill_contact
+      USE nesting_mod,     ONLY : fill_contact
 # endif
-      USE nf_fread2d_mod, ONLY : nf_fread2d
-      USE strings_mod, ONLY : find_string
+      USE nf_fread2d_mod,  ONLY : nf_fread2d
+      USE strings_mod,     ONLY : FoundError, find_string
 !
       implicit none
 !
@@ -67,25 +67,28 @@
 
       character (len=256) :: ncname
 !
-      SourceFile='get_grid.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Inquire about the contents of grid NetCDF file:  Inquire about
 !  the dimensions and variables.  Check for consistency.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       ncname=GRD(ng)%name
 !
 !  Check grid file dimensions for consitency
 !
       CALL netcdf_check_dim (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
       CALL netcdf_inq_var (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef NESTING
 !
@@ -269,7 +272,8 @@
 !
       IF (GRD(ng)%ncid.eq.-1) THEN
         CALL netcdf_open (ng, model, ncname, 0, GRD(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,20) TRIM(ncname)
           RETURN
         END IF
@@ -282,7 +286,8 @@
         CALL netcdf_get_lvar (ng, model, ncname, 'spherical',           &
      &                        spherical,                                &
      &                        ncid = GRD(ng)%ncid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !-----------------------------------------------------------------------
@@ -320,7 +325,8 @@
             CALL netcdf_get_fvar (ng, model, ncname, 'xl',              &
      &                            xl(ng),                               &
      &                            ncid = GRD(ng)%ncid)
-            IF (exit_flag.ne.NoError) EXIT
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) EXIT
 !
 !  Read in basin Y-length.
 !
@@ -328,7 +334,8 @@
             CALL netcdf_get_fvar (ng, model, ncname, 'el',              &
      &                            el(ng),                               &
      &                            ncid = GRD(ng)%ncid)
-            IF (exit_flag.ne.NoError) EXIT
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) EXIT
 !
 !  Read in bathymetry.
 !
@@ -343,7 +350,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % h)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) THEN
                 WRITE (stdout,30) 'h', TRIM(ncname)
               END IF
@@ -358,7 +366,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % h,                   &
      &                        GRID(ng) % h)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 # endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -385,7 +394,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % rmask,                         &
      &                        GRID(ng) % rmask)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -397,7 +407,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % rmask,               &
      &                        GRID(ng) % rmask)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -423,7 +434,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % umask,                         &
      &                        GRID(ng) % umask)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -435,7 +447,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % umask,               &
      &                        GRID(ng) % umask)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_u2d_tile (ng, tile,                         &
@@ -461,7 +474,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % vmask,                         &
      &                        GRID(ng) % vmask)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -473,7 +487,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % vmask,               &
      &                        GRID(ng) % vmask)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_v2d_tile (ng, tile,                         &
@@ -499,7 +514,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % pmask,                         &
      &                        GRID(ng) % pmask)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -584,7 +600,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        GRID(ng) % zice)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -618,7 +635,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        MIXING(ng) % Jwtype)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -652,7 +670,8 @@
      &                          GRID(ng) % rmask,                       &
 #  endif
      &                          MIXING(ng) % visc_factor)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -687,7 +706,8 @@
      &                          GRID(ng) % rmask,                       &
 #   endif
      &                          MIXING(ng) % diff_factor)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -721,7 +741,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % f)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -733,7 +754,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % f,                   &
      &                        GRID(ng) % f)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 # endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -762,7 +784,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % pm)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -774,7 +797,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % pm,                  &
      &                        GRID(ng) % pm)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 # endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -803,7 +827,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % pn)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -815,7 +840,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % pn,                  &
      &                        GRID(ng) % pn)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 # endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -844,7 +870,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        GRID(ng) % dmde)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -856,7 +883,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % dmde,                &
      &                        GRID(ng) % dmde)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -884,7 +912,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        GRID(ng) % dndx)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -896,7 +925,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % dndx,                &
      &                        GRID(ng) % dndx)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -925,7 +955,8 @@
      &                        GRID(ng) % pmask,                         &
 # endif
      &                        GRID(ng) % xp)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -951,7 +982,8 @@
      &                        GRID(ng) % pmask,                         &
 # endif
      &                        GRID(ng) % yp)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -977,7 +1009,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % xr)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -990,7 +1023,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xr,                &
      &                          GRID(ng) % xr)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
 # ifdef DISTRIBUTE
@@ -1014,7 +1048,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % yr)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1027,7 +1062,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yr,                &
      &                          GRID(ng) % yr)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
 # ifdef DISTRIBUTE
@@ -1051,7 +1087,8 @@
      &                        GRID(ng) % umask,                         &
 # endif
      &                        GRID(ng) % xu)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1064,7 +1101,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xu,                &
      &                          GRID(ng) % xu)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
 # ifdef DISTRIBUTE
@@ -1088,7 +1126,8 @@
      &                        GRID(ng) % umask,                         &
 # endif
      &                        GRID(ng) % yu)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1101,7 +1140,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yu,                &
      &                          GRID(ng) % yu)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
 # ifdef DISTRIBUTE
@@ -1133,10 +1173,12 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xv,                &
      &                          GRID(ng) % xv)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1162,7 +1204,8 @@
      &                        GRID(ng) % vmask,                         &
 # endif
      &                        GRID(ng) % yv)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1175,7 +1218,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yv,                &
      &                          GRID(ng) % yv)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END IF
 # endif
 # ifdef DISTRIBUTE
@@ -1200,7 +1244,8 @@
      &                          GRID(ng) % pmask,                       &
 # endif
      &                          GRID(ng) % lonp)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1228,7 +1273,8 @@
      &                          GRID(ng) % pmask,                       &
 # endif
      &                          GRID(ng) % latp)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1256,7 +1302,8 @@
      &                          GRID(ng) % rmask,                       &
 # endif
      &                          GRID(ng) % lonr)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1268,7 +1315,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xr,                &
      &                          GRID(ng) % lonr)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1293,7 +1341,8 @@
      &                          GRID(ng) % rmask,                       &
 # endif
      &                          GRID(ng) % latr)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1305,7 +1354,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yr,                &
      &                          GRID(ng) % latr)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1330,7 +1380,8 @@
      &                          GRID(ng) % umask,                       &
 # endif
      &                          GRID(ng) % lonu)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1342,7 +1393,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xu,                &
      &                          GRID(ng) % lonu)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1367,7 +1419,8 @@
      &                          GRID(ng) % umask,                       &
 # endif
      &                          GRID(ng) % latu)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1379,7 +1432,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yu,                &
      &                          GRID(ng) % latu)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1404,7 +1458,8 @@
      &                          GRID(ng) % vmask,                       &
 # endif
      &                          GRID(ng) % lonv)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1416,7 +1471,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Xv,                &
      &                          GRID(ng) % lonv)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1441,7 +1497,8 @@
      &                          GRID(ng) % vmask,                       &
 # endif
      &                          GRID(ng) % latv)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 exit_flag=2
                 ioerror=status
                 EXIT
@@ -1453,7 +1510,8 @@
      &                          LBi, UBi, LBj, UBj,                     &
      &                          CONTACT_METRIC(cr) % Yv,                &
      &                          GRID(ng) % latv)
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
 # endif
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1477,7 +1535,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % angler)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1489,7 +1548,8 @@
      &                        LBi, UBi, LBj, UBj,                       &
      &                        CONTACT_METRIC(cr) % angler,              &
      &                        GRID(ng) % angler)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -1520,7 +1580,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        GRID(ng) % Rscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1552,7 +1613,8 @@
      &                        GRID(ng) % umask,                         &
 #  endif
      &                        GRID(ng) % Uscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1584,7 +1646,8 @@
      &                        GRID(ng) % vmask,                         &
 #  endif
      &                        GRID(ng) % Vscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1640,7 +1703,8 @@
 # endif
         END SELECT
       END DO
-      IF (exit_flag.ne.NoError) THEN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) THEN
         IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
         RETURN
       END IF
@@ -1660,7 +1724,8 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  GRID(ng) % ZoBot)
-      IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
         IF (Master) WRITE (stdout,30) TRIM(Vname(1,idZoBL)),            &
      &                                TRIM(ncname)
         exit_flag=2
@@ -1694,7 +1759,8 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  GRID(ng) % rdrag)
-      IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
         IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragL)),            &
      &                                TRIM(ncname)
         exit_flag=2
@@ -1728,7 +1794,8 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  GRID(ng) % rdrag2)
-      IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
         IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragQ)),            &
      &                                TRIM(ncname)
         exit_flag=2
@@ -1753,7 +1820,8 @@
 ! Close GRID NetCDF file.
 !
       CALL netcdf_close (ng, model, GRD(ng)%ncid, ncname, .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
      defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -1769,12 +1837,14 @@
 !  Check grid file dimensions for consitency
 !
       CALL netcdf_check_dim (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
       CALL netcdf_inq_var (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Check if the adjoint sensitivity scope arrays are available.
 !
@@ -1809,7 +1879,8 @@
 !
       IF (GotScope(4).and.(ADS(ng)%ncid.eq.-1)) THEN
         CALL netcdf_open (ng, model, ncname, 0, ADS(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,20) TRIM(ncname)
           RETURN
         END IF
@@ -1834,7 +1905,8 @@
      &                        GRID(ng) % rmask,                         &
 #  endif
      &                        GRID(ng) % Rscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1865,7 +1937,8 @@
      &                        GRID(ng) % umask,                         &
 #  endif
      &                        GRID(ng) % Uscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1896,7 +1969,8 @@
      &                        GRID(ng) % vmask,                         &
 #  endif
      &                        GRID(ng) % Vscope)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1915,7 +1989,8 @@
 #  endif
         END SELECT
       END DO
-      IF (exit_flag.ne.NoError) THEN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) THEN
         IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
         RETURN
       END IF

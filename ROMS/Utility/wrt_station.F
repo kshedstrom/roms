@@ -40,10 +40,11 @@
 # else
       USE extract_sta_mod, ONLY : extract_sta2d
 # endif
-      USE uv_rotate_mod, ONLY : uv_rotate2d
+      USE uv_rotate_mod,   ONLY : uv_rotate2d
 # ifdef SOLVE3D
-      USE uv_rotate_mod, ONLY : uv_rotate3d
+      USE uv_rotate_mod,   ONLY : uv_rotate3d
 # endif
+      USE strings_mod,     ONLY : FoundError
 !
       implicit none
 !
@@ -78,7 +79,7 @@
       real(r8), allocatable :: Vr3d(:,:,:)
 # endif
 !
-      SourceFile='wrt_station.F'
+      SourceFile=__FILE__
 !
       LBi=LBOUND(GRID(ng)%h,DIM=1)
       UBi=UBOUND(GRID(ng)%h,DIM=1)
@@ -89,7 +90,8 @@
 !  Write out station data at RHO-points.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set time record index.
 !
@@ -146,7 +148,8 @@
      &                      (/STA(ng)%Rindex/), (/1/),                  &
      &                      ncid = STA(ng)%ncid,                        &
      &                      varid = STA(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out free-surface (m).
 !
@@ -161,7 +164,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idFsur))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 # if defined SEDIMENT && defined SED_MORPH
@@ -179,7 +183,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idbath))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 !
@@ -196,7 +201,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbar))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D momentum component (m/s) in the ETA-direction.
@@ -212,7 +218,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbar))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D Eastward and Northward momentum components (m/s) at
@@ -253,7 +260,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idu2dE))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         CALL extract_sta2d (ng, iNLM, Cgrid, idv2dN, r2dvar,            &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -264,7 +272,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idv2dN))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         deallocate (Ur2d)
         deallocate (Vr2d)
@@ -286,7 +295,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUvel))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D momentum component (m/s) in the ETA-direction.
@@ -303,7 +313,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVvel))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D Eastward and Northward momentum components (m/s) at
@@ -345,7 +356,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idu3dE))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         CALL extract_sta3d (ng, iNLM, Cgrid, idv3dN, r3dvar,            &
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
@@ -357,7 +369,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idv3dN))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         deallocate (Ur3d)
         deallocate (Vr3d)
@@ -377,7 +390,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWvel))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write S-coordinate "omega" vertical velocity (m3/s).
@@ -394,7 +408,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idOvel))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out tracer type variables.
@@ -413,7 +428,8 @@
      &                          (/N(ng),Nstation(ng),1/),               &
      &                          ncid = STA(ng)%ncid,                    &
      &                          varid = STA(ng)%Tid(i))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 !
@@ -431,7 +447,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idDano))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 #  ifdef NEMURO_SED1
@@ -549,7 +566,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idHsbl))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  ifdef LMD_BKPP
@@ -567,7 +585,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idHbbl))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 !
@@ -585,7 +604,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVvis))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out vertical diffusion coefficient for potential temperature.
@@ -602,7 +622,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idTdif))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 #  ifdef SALINITY
@@ -621,7 +642,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idSdif))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  if defined MY25_MIXING || defined GLS_MIXING
@@ -640,7 +662,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idMtke))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out turbulent kinetic energy times length scale.
@@ -657,7 +680,8 @@
      &                        (/N(ng)+1,Nstation(ng),1/),               &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idMtls))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
@@ -675,7 +699,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idPair))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM
@@ -693,7 +718,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUair))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
       IF (Sout(idVair,ng)) THEN
@@ -707,7 +733,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVair))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D Eastward and Northward surface winds (m/s) at
@@ -781,7 +808,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(ifield))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out surface salt flux.
@@ -798,7 +826,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(ifield))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 #  ifdef BULK_FLUXES
@@ -816,7 +845,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idLhea))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out sensible heat flux.
@@ -832,7 +862,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idShea))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out longwave radiation flux.
@@ -848,7 +879,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idLrad))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  ifdef SHORTWAVE
@@ -866,7 +898,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idSrad))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 #  if defined EMINUSP && defined BULK_FLUXES
@@ -884,7 +917,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idEmPf))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out evaportaion rate (kg/m2/s).
@@ -900,7 +934,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idevap))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out precipitation rate (kg/m2/s).
@@ -916,7 +951,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idrain))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 # endif
@@ -934,7 +970,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUsms))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out surface V-momentum stress.
@@ -950,7 +987,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVsms))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out bottom U-momentum stress.
@@ -966,7 +1004,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbms))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out bottom V-momentum stress.
@@ -982,7 +1021,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbms))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 # ifdef SOLVE3D
@@ -1001,7 +1041,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbrs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out current-induced, bottom V-stress.
@@ -1017,7 +1058,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbrs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out wind-induced, bottom U-stress.
@@ -1033,7 +1075,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbws))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out wind-induced, bottom V-wave stress.
@@ -1049,7 +1092,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbws))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out maximum wind and current, bottom U-stress.
@@ -1065,7 +1109,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbcs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out maximum wind and current, bottom V-stress.
@@ -1081,7 +1126,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbcs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out wind-induced, bed wave orbital U-velocity.
@@ -1097,7 +1143,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbot))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out wind-induced, bed wave orbital V-velocity.
@@ -1113,7 +1160,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbot))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out bottom U-velocity above bed.
@@ -1129,7 +1177,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idUbur))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out bottom V-velocity above bed.
@@ -1145,7 +1194,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idVbvr))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 
@@ -1166,7 +1216,8 @@
      &                          (/Nbed,Nstation(ng),1/),                &
      &                          ncid = STA(ng)%ncid,                    &
      &                          varid = STA(ng)%Vid(idfrac(i)))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Write out sediment mass of each size class in each bed layer.
@@ -1184,7 +1235,8 @@
      &                          (/Nbed,Nstation(ng),1/),                &
      &                          ncid = STA(ng)%ncid,                    &
      &                          varid = STA(ng)%Vid(idBmas(i)))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 !
@@ -1203,7 +1255,8 @@
      &                          (/Nbed,Nstation(ng),1/),                &
      &                          ncid = STA(ng)%ncid,                    &
      &                          varid = STA(ng)%Vid(idSbed(i)))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 #  endif
@@ -1225,7 +1278,8 @@
      &                          (/Nstation(ng),1/),                     &
      &                          ncid = STA(ng)%ncid,                    &
      &                          varid = STA(ng)%Vid(idBott(i)))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 #  endif
@@ -1245,7 +1299,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW2xx))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D radiation stress, Sxy-component.
@@ -1261,7 +1316,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW2xy))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D radiation stress, Syy-component.
@@ -1277,7 +1333,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW2yy))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out total 2D U-radiation stress.
@@ -1293,7 +1350,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idU2rs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out total 2D V-radiation stress.
@@ -1309,7 +1367,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idV2rs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D U-momentum Stokes drift velocity.
@@ -1325,7 +1384,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idU2Sd))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 2D V-momentum Stokes drift velocity.
@@ -1341,7 +1401,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idV2Sd))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 #  ifdef SOLVE3D
@@ -1360,7 +1421,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW3xx))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D radiation stress, Sxy-horizontal component.
@@ -1377,7 +1439,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW3xy))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D radiation stress, Syy-horizontal component.
@@ -1394,7 +1457,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW3yy))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 
 #   ifdef NEARSHORE_MELLOR05
@@ -1413,7 +1477,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW3zx))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D radiation stress, Szy-vertical component.
@@ -1430,7 +1495,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idW3zy))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #   endif
 !
@@ -1448,7 +1514,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idU3rs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D total V-radiation stress.
@@ -1465,7 +1532,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idV3rs))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D U-momentum Stokes drift velocity.
@@ -1482,7 +1550,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idU3Sd))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Write out 3D V-momentum stokes velocity.
@@ -1499,7 +1568,8 @@
      &                        (/N(ng),Nstation(ng),1/),                 &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idV3Sd))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  endif
 # endif
@@ -1518,7 +1588,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWamp))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WAVES_LENGTH
@@ -1536,7 +1607,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWlen))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WAVES_DIR
@@ -1554,7 +1626,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWdir))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WAVES_TOP_PERIOD
@@ -1572,7 +1645,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWptp))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WAVES_BOT_PERIOD
@@ -1590,7 +1664,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWpbt))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WAVES_UB
@@ -1608,7 +1683,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWorb))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # if defined TKE_WAVEDISS || defined WAVES_OCEAN
@@ -1626,7 +1702,8 @@
      &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
      &                        ncid = STA(ng)%ncid,                      &
      &                        varid = STA(ng)%Vid(idWdis))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 # ifdef WET_DRY

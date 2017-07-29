@@ -21,6 +21,8 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE strings_mod, ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -31,7 +33,7 @@
 !
       integer :: Fcount, i, j, lstr
 !
-      SourceFile='close_inp, close_io.F'
+      SourceFile=__FILE__ // ", close_io.F"
 !
 !-----------------------------------------------------------------------
 !  If multi-file input fields, close several input files.
@@ -52,7 +54,7 @@
           END DO
           IF (model.eq.iADM) THEN
             DO j=1,FRC(i,ng)%Nfiles
-              IF ((FRC(i,ng)%time_min(j).le.tdays(ng)).and.              &
+              IF ((FRC(i,ng)%time_min(j).le.tdays(ng)).and.             &
      &            (tdays(ng).le.FRC(i,ng)%time_max(j))) THEN
                 Fcount=j
                 EXIT
@@ -67,7 +69,8 @@
           FRC(i,ng)%base=FRC(i,ng)%name(1:lstr-3)
           CALL netcdf_close (ng, model, FRC(i,ng)%ncid,                 &
      &                       FRC(i,ng)%files(i), .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 #endif
@@ -94,7 +97,8 @@
             BRY(i,ng)%base=BRY(i,ng)%name(1:lstr-3)
             CALL netcdf_close (ng, model, BRY(i,ng)%ncid,               &
      &                         BRY(i,ng)%files(i),  .FALSE.)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -106,7 +110,7 @@
           IF ((CLM(i,ng)%Nfiles.gt.1).and.(CLM(i,ng)%ncid.ge.0)) THEN
             IF (model.eq.iADM) THEN
               DO j=1,CLM(i,ng)%Nfiles
-                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.             &
+                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.           &
      &            (tdays(ng).le.CLM(i,ng)%time_max(i))) THEN
                   Fcount=j
                   EXIT
@@ -119,9 +123,10 @@
             CLM(i,ng)%name=TRIM(CLM(i,ng)%files(Fcount))
             lstr=LEN_TRIM(CLM(i,ng)%name)
             CLM(i,ng)%base=CLM(i,ng)%name(1:lstr-3)
-            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,                 &
+            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,               &
      &                     CLM(i,ng)%files(i),  .FALSE.)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -146,6 +151,7 @@
 #if defined BIOFLUX
       USE mod_biology
 #endif
+      USE strings_mod, ONLY : FoundError
 !
       USE dateclock_mod, ONLY : get_date
 !
@@ -207,7 +213,7 @@
       END DO
 #endif
 !
-      SourceFile='close_out, close_io.F'
+      SourceFile=__FILE__ // ", close_out"
 !
 !-----------------------------------------------------------------------
 !  Close output NetCDF files. Set file indices to closed state.
@@ -434,7 +440,8 @@
 !  If applicable, report internal exit errors.
 !-----------------------------------------------------------------------
 !
-      IF (Master.and.(exit_flag.ne.NoError)) THEN
+      IF (Master.and.(FoundError(exit_flag, NoError, __LINE__,          &
+     &               __FILE__))) THEN
         WRITE (stdout,40) Rerror(exit_flag), exit_flag
       END IF
       IF (exit_flag.eq.NoError) THEN

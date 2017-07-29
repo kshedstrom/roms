@@ -130,7 +130,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 72, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 72, __LINE__,                          &
+     &                __FILE__//":mp_barrier")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -146,7 +147,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 72, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 72, __LINE__,                         &
+     &                 __FILE__//":mp_barrier")
 # endif
 
       RETURN
@@ -197,7 +199,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -222,7 +225,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
 # endif
 
       RETURN
@@ -273,7 +277,9 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
+
 # endif
 !
 !-----------------------------------------------------------------------
@@ -301,7 +307,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
 # endif
 
       RETURN
@@ -354,7 +361,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -384,7 +392,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
 # endif
 
       RETURN
@@ -437,7 +446,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -468,7 +478,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
 # endif
 
       RETURN
@@ -521,7 +532,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -553,7 +565,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
 # endif
 
       RETURN
@@ -603,7 +616,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcasti")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -628,7 +642,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcasti")
 # endif
 
       RETURN
@@ -679,7 +694,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcasti")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -707,7 +723,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcasti")
 # endif
 
       RETURN
@@ -759,7 +776,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcasti")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -789,7 +807,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                __FILE__//":mp_bcasti")
 # endif
 
       RETURN
@@ -840,7 +859,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastl")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -866,7 +886,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastl")
 # endif
 
       RETURN
@@ -917,7 +938,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastl")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -945,7 +967,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastl")
 # endif
 
       RETURN
@@ -997,7 +1020,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastl")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1027,7 +1051,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastl")
 # endif
 
       RETURN
@@ -1078,7 +1103,8 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwclock) THEN
-        CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+        CALL wclock_on (ng, model, 64, __LINE__,                        &
+     &                  __FILE__//":mp_bcasts")
       END IF
 # endif
 !
@@ -1107,7 +1133,8 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwclock) THEN
-        CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+        CALL wclock_off (ng, model, 64, __LINE__,                       &
+     &                   __FILE__//":mp_bcasts")
       END IF
 # endif
 
@@ -1159,7 +1186,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcasts")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1188,7 +1216,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 64, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcasts")
 # endif
 
       RETURN
@@ -1264,7 +1293,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 68, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 68, __LINE__,                          &
+     &                __FILE__//":mp_boundary")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1361,7 +1391,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 68, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 68, __LINE__,                         &
+     &                 __FILE__//":mp_boundary")
 # endif
 
       RETURN
@@ -1429,7 +1460,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 70, __LINE__,                          &
+     &                __FILE__//":mp_assemble")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1571,7 +1603,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 70, __LINE__,                         &
+     &                 __FILE__//":mp_assemble")
 # endif
 !
  10   FORMAT (/,' MP_ASSEMBLEF_1D - inconsistent array size, Npts = ',  &
@@ -1652,7 +1685,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 70, __LINE__,                          &
+     &                __FILE__//":mp_assemble")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -1809,7 +1843,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 70, __LINE__,                         &
+     &                 __FILE__//":mp_assemble")
 # endif
 !
  10   FORMAT (/,' MP_ASSEMBLEF_2D - inconsistent array size, Npts = ',  &
@@ -1890,7 +1925,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 70, __LINE__,                          &
+     &                __FILE__//":mp_assemble")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2048,7 +2084,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 70, __LINE__,                         &
+     &                 __FILE__//":mp_assemble")
 # endif
 !
  10   FORMAT (/,' MP_ASSEMBLEF_3D - inconsistent array size, Npts = ',  &
@@ -2125,7 +2162,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 70, __LINE__,                          &
+     &                __FILE__//":mp_assemble")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2267,7 +2305,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 70, __LINE__,                         &
+     &                 __FILE__//":mp_assemble")
 # endif
 !
  10   FORMAT (/,' MP_ASSEMBLEI_1D - inconsistent array size, Npts = ',  &
@@ -2347,7 +2386,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 70, __LINE__,                          &
+     &                __FILE__//":mp_assemble")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2505,7 +2545,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 70, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 70, __LINE__,                         &
+     &                 __FILE__//":mp_assemble")
 # endif
 !
  10   FORMAT (/,' MP_ASSEMBLEI_2D - inconsistent array size, Npts = ',  &
@@ -2581,7 +2622,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 69, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 69, __LINE__,                          &
+     &                __FILE__//":mp_collect")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2706,7 +2748,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 69, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 69, __LINE__,                         &
+     &                 __FILE__//":mp_collect")
 # endif
 
       RETURN
@@ -2774,7 +2817,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 69, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 69, __LINE__,                          &
+     &                __FILE__//":mp_collect")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -2899,7 +2943,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 69, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 69, __LINE__,                         &
+     &                 __FILE__//":mp_collect")
 # endif
       RETURN
       END SUBROUTINE mp_collect_i
@@ -3175,7 +3220,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 66, __LINE__,                          &
+     &                __FILE__//":mp_gather2d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -3401,7 +3447,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 66, __LINE__,                         &
+     &                 __FILE__//":mp_gather2d")
 # endif
 
       RETURN
@@ -3504,7 +3551,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 66, __LINE__,                          &
+     &                __FILE__//":mp_gather3d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -3751,7 +3799,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 66, __LINE__,                         &
+     &                 __FILE__//":mp_gather3d")
 # endif
 
       RETURN
@@ -3815,7 +3864,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 66, __LINE__,                          &
+     &                __FILE__//":mp_gather_state")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -3897,7 +3947,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 66, __LINE__,                         &
+     &                 __FILE__//":mp_gather_state")
 # endif
 
       RETURN
@@ -3977,7 +4028,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 67, __LINE__,                          &
+     &                __FILE__//":mp_ncread1d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -4101,7 +4153,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 67, __LINE__,                         &
+     &                 __FILE__//":mp_ncread1d")
 # endif
 
  10   FORMAT (/,' MP_NCREAD1D- error during ',a,' call, Node = ',       &
@@ -4190,7 +4243,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 67, __LINE__,                          &
+     &                __FILE__//":mp_ncread2d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -4324,7 +4378,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 67, __LINE__,                         &
+     &                 __FILE__//":mp_ncread2d")
 # endif
 
  10   FORMAT (/,' MP_NCREAD2D - error during ',a,' call, Node = ',      &
@@ -4411,7 +4466,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 66, __LINE__,                          &
+     &                __FILE__//":mp_ncwrite1d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -4541,7 +4597,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 66, __LINE__,                         &
+     &                 __FILE__//":mp_ncwrite1d")
 # endif
 
  10   FORMAT (/,' MP_NCWRITE1D - error during ',a,' call, Node = ',     &
@@ -4630,7 +4687,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 66, __LINE__,                          &
+     &                __FILE__//":mp_ncwrite2d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -4770,7 +4828,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 66, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 66, __LINE__,                         &
+     &                 __FILE__//":mp_ncwrite2d")
 # endif
 
  10   FORMAT (/,' MP_NCWRITE2D - error during ',a,' call, Node = ',     &
@@ -4844,7 +4903,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 65, __LINE__,                          &
+     &                __FILE__//":mp_reduce")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -4960,7 +5020,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 65, __LINE__,                         &
+     &                 __FILE__//":mp_reduce")
 # endif
 
       RETURN
@@ -5027,7 +5088,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 65, __LINE__,                          &
+     &                __FILE__//":mp_reduce")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -5155,7 +5217,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 65, __LINE__,                         &
+     &                 __FILE__//":mp_reduce")
 # endif
 
       RETURN
@@ -5219,7 +5282,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 65, __LINE__,                          &
+     &                __FILE__//":mp_reduce2")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -5270,7 +5334,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 65, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 65, __LINE__,                         &
+     &                 __FILE__//":mp_reduce2")
 # endif
 
       RETURN
@@ -5359,7 +5424,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 67, __LINE__,                          &
+     &                __FILE__//":mp_scatter2d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -5537,7 +5603,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 67, __LINE__,                         &
+     &                 __FILE__//":mp_scatter2d")
 # endif
 
       RETURN
@@ -5628,7 +5695,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 67, __LINE__,                          &
+     &                __FILE__//":mp_scatter3d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -5819,7 +5887,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 67, __LINE__,                         &
+     &                 __FILE__//":mp_scatter3d")
 # endif
 
       RETURN
@@ -5888,7 +5957,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 67, __LINE__,                          &
+     &                __FILE__//":mp_scatter_state")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -5981,7 +6051,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 67, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 67, __LINE__,                         &
+     &                 __FILE__//":mp_scatter_state")
 # endif
 
       RETURN
@@ -6179,7 +6250,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 71, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 71, __LINE__,                          &
+     &                __FILE__//":mp_aggregate2d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -6303,7 +6375,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 71, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 71, __LINE__,                         &
+     &                 __FILE__//":mp_aggregate2d")
 # endif
 
       RETURN
@@ -6384,7 +6457,8 @@
 !  Turn on time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, model, 71, __LINE__, __FILE__)
+      CALL wclock_on (ng, model, 71, __LINE__,                          &
+     &                __FILE__//":mp_aggregate3d")
 # endif
 !
 !-----------------------------------------------------------------------
@@ -6514,7 +6588,8 @@
 !  Turn off time clocks.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, model, 71, __LINE__, __FILE__)
+      CALL wclock_off (ng, model, 71, __LINE__,                         &
+     &                 __FILE__//":mp_aggregate3d")
 # endif
 
       RETURN
