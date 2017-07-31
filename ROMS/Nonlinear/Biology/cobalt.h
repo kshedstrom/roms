@@ -1070,11 +1070,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
     DO i=Istr,Iend
 
 #ifdef COBALT_IRON
-       iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) )
+       iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) ) * rmask_local(i,j)
        ! units mol/kg/s       =  [mol.m-2.s-1]  / [kg.m-3] * [m]
 #endif
 
-       lith_dust_src(i,j,UBk) = mineral_fe(i,j) / (rho0 * Hz(i,j,UBk) )
+       lith_dust_src(i,j,UBk) = mineral_fe(i,j) / (rho0 * Hz(i,j,UBk) ) * rmask_local(i,j)
        ! units g/kg/s         = [g.m-2.s-1]     / [kg.m-3] * [m]
 
 #ifdef COBALT_CONSERVATION_TEST
@@ -1084,7 +1084,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
 #if defined DIAGNOSTICS_BIO && defined COBALT_IRON
-        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * rmask(i,j) * n_dt * rmask_local(i,j)
+        DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * n_dt
 #endif
 
     ENDDO
@@ -1110,7 +1110,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
 
 #if defined DIAGNOSTICS_BIO && defined COBALT_IRON
-          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * rmask(i,j) * n_dt * rmask_local(i,j)
+          DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + iron_dust_src(i,j,k) * n_dt
 #endif
 
        ENDDO
@@ -3916,7 +3916,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 # ifdef COBALT_CONSERVATION_TEST
     cobalt%ffe_sed(i,j) = 0.0d0
 # endif
-# ifdef DIAGNOSTICS_BIO 
+# ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
     DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt * rmask_local(i,j)
 # endif
@@ -4193,7 +4193,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !     cobalt%z_ratio_100(i,j) = cobalt%jprod_mesozoo_100(i,j) /  cobalt%f_npp_100(i,j)
       cobalt%f_ratio_100(i,j) = 0. ! needs to be computed on daily values
       cobalt%z_ratio_100(i,j) = 0. ! needs to be computed on daily values
-      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng) 
+      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng)
 
       DiaBio2d(i,j,inpp_100)           = Diabio2d(i,j,inpp_100)           + cobalt%f_npp_100(i,j)            * rmask_local(i,j)
       DiaBio2d(i,j,iprod_n_100_sm)     = DiaBio2d(i,j,iprod_n_100_sm)     + phyto(SMALL)%jprod_n_100(i,j)    * rmask_local(i,j)
