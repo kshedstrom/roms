@@ -290,8 +290,8 @@
 
 #endif
 
-#if !defined ANA_WINDS && (defined BULK_FLUXES || defined   \
-         BULK_FLUXES2D || defined ECOSIM)
+#if !(defined ANA_WINDS   || defined ATM_COUPLING) && \
+     (defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM)
 !
 !-----------------------------------------------------------------------
 !  Surface wind components.
@@ -318,9 +318,8 @@
      &               __FILE__)) RETURN
 #endif
 
-#if !defined AIR_OCEAN && !defined NCEP_FLUXES
-# if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined ANA_NCEP \
-          && !defined BULK_FLUXES2D
+#if !(defined ANA_SMFLUX || defined ATM_COUPLING || defined BULK_FLUXES || \
+      defined ANA_NCEP   || defined NCEP_FLUXES  || defined BULK_FLUXES2D)
 !
 !-----------------------------------------------------------------------
 !  Surface wind stress components.
@@ -329,9 +328,9 @@
       CALL get_2dfld (ng, iNLM, idUsms, ncFRCid(idUsms,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                GRID(ng) % umask,                                 &
-#  endif
+# endif
      &                FORCES(ng) % sustrG)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
@@ -339,15 +338,15 @@
       CALL get_2dfld (ng, iNLM, idVsms, ncFRCid(idVsms,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
+# ifdef MASKING
      &                GRID(ng) % vmask,                                 &
-#  endif
+# endif
      &                FORCES(ng) % svstrG)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
-# endif
+#endif
 
-# if defined FOUR_DVAR && defined BULK_FLUXES && defined NL_BULK_FLUXES
+#if defined FOUR_DVAR && defined BULK_FLUXES && defined NL_BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  If not first NLM run, get surface wind stress components from initial
@@ -358,9 +357,9 @@
         CALL get_2dfld (ng, iNLM, idUsms, BLK(ng)%ncid,                 &
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+# ifdef MASKING
      &                  GRID(ng) % umask,                               &
-#  endif
+# endif
      &                  FORCES(ng) % sustrG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
@@ -368,14 +367,13 @@
         CALL get_2dfld (ng, iNLM, idVsms, BLK(ng)%ncid,                 &
      &                  1, BLK(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#  ifdef MASKING
+# ifdef MASKING
      &                  GRID(ng) % vmask,                               &
-#  endif
+# endif
      &                  FORCES(ng) % svstrG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END IF
-# endif
 #endif
 
 #ifdef SOLVE3D
@@ -405,8 +403,9 @@
 # endif
 #endif
 
-#if !defined ANA_PAIR && (defined BULK_FLUXES || defined ECOSIM || \
-        defined CCSM_FLUXES2D || defined ATM_PRESS)
+#if !(defined ANA_PAIR    || defined ATM_COUPLING) && \
+     (defined BULK_FLUXES || defined ECOSIM        || defined ATM_PRESS || \
+      defined CCSM_FLUXES2D)
 !
 !-----------------------------------------------------------------------
 !  Surface air pressure.
@@ -526,9 +525,9 @@
 # endif
 #endif
 
-#if !defined ANA_TAIR && \
-    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
+# if !(defined ANA_TAIR   || defined ATM_COUPLING) && \
+    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D \
+     (defined SHORTWAVE   && defined ANA_SRFLUX    && defined ALBEDO) )
 !
 !-----------------------------------------------------------------------
 !  Surface air temperature.
@@ -545,7 +544,7 @@
      &               __FILE__)) RETURN
 #endif
 
-#if !defined ANA_HUMIDITY && \
+#if !(defined ANA_HUMIDITY || defined ATM_COUPLING) && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 
@@ -584,7 +583,7 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !defined ANA_CLOUD && defined CLOUDS
+# if !(defined ANA_CLOUD || defined ATM_COUPLING) && defined CLOUDS
 !
 !-----------------------------------------------------------------------
 !  Cloud fraction.
@@ -601,7 +600,8 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !defined ANA_SRFLUX && defined SHORTWAVE && !defined ANA_NCEP
+# if !(defined ANA_SRFLUX || defined ATM_COUPLING || defined ANA_NCEP) && \
+       defined SHORTWAVE
 !
 !-----------------------------------------------------------------------
 !  Surface solar shortwave radiation.
@@ -635,8 +635,9 @@
      &               __FILE__)) RETURN
 # endif
 
-# if defined BULK_FLUXES && !defined LONGWAVE && \
-    !defined ANA_LRFLUX  && !defined LONGWAVE_OUT
+# if defined BULK_FLUXES  && \
+   !(defined ATM_COUPLING || defined LONGWAVE || defined LONGWAVE_OUT || \
+     defined ANA_LRFLUX)
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation.
@@ -653,7 +654,8 @@
      &               __FILE__)) RETURN
 # endif
 
-# if defined BULK_FLUXES && defined LONGWAVE_OUT && !defined ANA_LRFLUX
+# if defined BULK_FLUXES  && defined LONGWAVE_OUT && \
+    !(defined ATM_COUPLING || defined ANA_LRFLUX)
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation.
@@ -670,7 +672,7 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !defined ANA_RAIN && defined BULK_FLUXES
+# if !(defined ANA_RAIN   || defined ATM_COUPLING) && defined BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  Rain fall rate.  Snow fall rate.
@@ -715,7 +717,8 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !defined ANA_STFLUX && !defined BULK_FLUXES && !defined NCEP_FLUXES
+# if !(defined ANA_STFLUX  || defined ATM_COUPLING || \
+       defined BULK_FLUXES || defined NCEP_FLUXES)
 !
 !-----------------------------------------------------------------------
 !  Surface net heat flux.
@@ -824,7 +827,8 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-#  elif !(defined ANA_SSFLUX || defined EMINUSP || defined SRELAXATION)
+#  elif !(defined ANA_SSFLUX || defined ATM_COUPLING || \
+          defined EMINUSP    || defined SRELAXATION)
 !
 !-----------------------------------------------------------------------
 !  Surface net freshwater flux: E-P.

@@ -59,7 +59,7 @@
       USE set_masks_mod,     ONLY : set_masks
 #endif
       USE stiffness_mod,     ONLY : stiffness
-#ifdef WAVES_OCEAN
+#if defined WAV_COUPLING && defined MCT_LIB
       USE ocean_coupler_mod, ONLY : ocn2wav_coupling
 #endif
       USE strings_mod,       ONLY : FoundError
@@ -986,7 +986,7 @@
       END DO
 #endif
 
-# ifdef WAVES_OCEAN
+# if defined WAV_COUPLING && defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Read in initial forcing from coupled wave model.

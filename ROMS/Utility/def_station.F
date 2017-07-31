@@ -1641,7 +1641,7 @@
      &                   __FILE__)) RETURN
         END IF
 # endif
-# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+# if defined TKE_WAVEDISS || defined WAV_COUPLING
 !
 !  Define wave dissipation.
 !
@@ -2999,7 +2999,7 @@
             got_var(idWorb)=.TRUE.
             STA(ng)%Vid(idWorb)=var_id(i)
 # endif
-# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+# if defined TKE_WAVEDISS || defined WAV_COUPLING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdis))) THEN
             got_var(idWdis)=.TRUE.
             STA(ng)%Vid(idWdis)=var_id(i)
@@ -3545,7 +3545,7 @@
           RETURN
         END IF
 # endif
-# if defined TKE_WAVEDISS || defined WAVES_OCEAN
+# if defined TKE_WAVEDISS || defined WAV_COUPLING
         IF (.not.got_var(idWdis).and.Sout(idWdis,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWdis)),          &
      &                                  TRIM(ncname)

@@ -326,7 +326,8 @@
 !
 #   ifdef ANA_TAIR
       CALL ana_tair (ng, tile, iNLM)
-#   else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idTair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%TairG,                            &
@@ -346,7 +347,8 @@
 !
 #   ifdef ANA_HUMIDITY
       CALL ana_humid (ng, tile, iNLM)
-#   else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idQair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%HairG,                            &
@@ -371,8 +373,6 @@
       FORCES(ng)%albedo_ice = FORCES(ng)%albedo
 #    endif
 #   endif
-
-#   ifdef CLOUDS
 !
 !-----------------------------------------------------------------------
 !  Set cloud fraction (nondimensional).  Notice that clouds are
@@ -382,7 +382,8 @@
 !
 #    ifdef ANA_CLOUD
       CALL ana_cloud (ng, tile, iNLM)
-#    else
+#    elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idCfra,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%cloudG,                           &
@@ -401,7 +402,8 @@
 !
 #   ifdef ANA_SRFLUX
       CALL ana_srflux (ng, tile, iNLM)
-#   else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idSrad,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%srflxG,                           &
@@ -438,7 +440,10 @@
 
 #  ifdef ANA_LRFLUX
       CALL ana_lrflux (ng, tile, iNLM)
-#  elif defined BULK_FLUXES && !defined LONGWAVE && !defined LONGWAVE_OUT
+#  elif defined BULK_FLUXES     && \
+    !(defined LONGWAVE        || defined LONGWAVE_OUT)    && \
+     ( (defined ATM_COUPLING  && defined COUPLING_INTERP) || \
+       !defined ATM_COUPLING )
 !
 !-----------------------------------------------------------------------
 !  Surface net longwave radiation (degC m/s).
@@ -453,7 +458,9 @@
      &               __FILE__)) RETURN
 #  endif
 
-#  if defined LONGWAVE_OUT && defined BULK_FLUXES && !defined ANA_LRFLUX
+#  if defined LONGWAVE_OUT   && defined BULK_FLUXES      && \
+     ( (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+       !defined ATM_COUPLING ) && !defined ANA_LRFLUX
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation (degC m/s).
@@ -484,7 +491,8 @@
 !
 #  ifdef ANA_WINDS
       CALL ana_winds (ng, tile, iNLM)
-#  else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idUair,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%UwindG,                           &
@@ -551,7 +559,8 @@
 !
 #   ifdef ANA_RAIN
       CALL ana_rain (ng, tile, iNLM)
-#   else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idrain,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%rainG,                            &
@@ -597,7 +606,8 @@
 !
 #   ifdef ANA_STFLUX
       CALL ana_stflux (ng, tile, iNLM, itemp)
-#   else
+#   elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+         !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idTsur(itemp),               &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%stflxG(:,:,:,itemp),              &
@@ -702,7 +712,10 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-#    elif !(defined EMINUSP || defined SRELAXATION)
+#    elif !(defined EMINUSP      || defined SRELAXATION)     && \
+         ( (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+           !defined ATM_COUPLING )
+
       CALL set_2dfld_tile (ng, tile, iNLM, idsfwf,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%stflxG(:,:,:,isalt),              &
@@ -795,16 +808,16 @@
 #  endif
 # endif
 
-# ifndef AIR_OCEAN
-#  if !defined BULK_FLUXES && !defined BULK_FLUXES2D
+# if !defined BULK_FLUXES && !defined BULK_FLUXES2D
 !
 !-----------------------------------------------------------------------
 !  Set kinematic surface momentum flux (m2/s2).
 !-----------------------------------------------------------------------
 !
-#   ifdef ANA_SMFLUX
+#  ifdef ANA_SMFLUX
       CALL ana_smflux (ng, tile, iNLM)
-#   else
+#  elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+        !defined ATM_COUPLING
       CALL set_2dfld_tile (ng, tile, iNLM, idUsms,                      &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     FORCES(ng)%sustrG,                           &
@@ -821,7 +834,7 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-#    ifdef CURVGRID
+#   ifdef CURVGRID
 !
 !  If input point wind stress, rotate to curvilinear grid.  Notice
 !  that rotation is done at RHO-points. It does not matter.
@@ -849,23 +862,22 @@
      &                            FORCES(ng)%svstr)
         END IF
 
-#     ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange2d (ng, tile, iNLM, 2,                          &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      FORCES(ng)%sustr,                           &
      &                      FORCES(ng)%svstr)
-#     endif
-      END IF
 #    endif
+      END IF
 #   endif
 #  endif
 # endif
 # endif
 
-# if !defined AIR_OCEAN   && defined FOUR_DVAR      && \
-      defined BULK_FLUXES && defined NL_BULK_FLUXES
+# if !defined ATM_COUPLING && defined FOUR_DVAR      && \
+      defined BULK_FLUXES  && defined NL_BULK_FLUXES
 !
 !-----------------------------------------------------------------------
 !  If not first NLM run, set surface wind stress components from first
@@ -900,7 +912,8 @@
 !
 #  ifdef ANA_PAIR
       CALL ana_pair (ng, tile, iNLM)
-#  else
+#  elif (defined ATM_COUPLING && defined COUPLING_INTERP) || \
+        !defined ATM_COUPLING
       SetBC=.TRUE.
 !     SetBC=.FALSE.
       CALL set_2dfld_tile (ng, tile, iNLM, idPair,                      &
@@ -1151,13 +1164,9 @@
      &                      SOURCES(ng) % TsrcG(:,:,:,itrc),            &
      &                      SOURCES(ng) % Tsrc(:,:,itrc),               &
      &                      update)
-<<<<<<< HEAD
 #   endif
-            IF (exit_flag.ne.NoError) RETURN
-=======
             IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
->>>>>>> 6b5a6ca... src:ticket:736
           END IF
         END DO
 #  endif
@@ -1419,22 +1428,156 @@
 # endif
       END IF
 
-<<<<<<< HEAD
+# ifdef SOLVE3D
+!
+!  3D momentum.
+!
+      IF (LprocessOBC(ng)) THEN 
+#  ifdef ANA_M3OBC
+        CALL ana_m3obc (ng, tile, iNLM)
+#  else 
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN 
+          IF (LBC(iwest,isUvel,ng)%acquire) THEN 
+            CALL set_ngfld (ng, iNLM, idU3bc(iwest), JLB, JUB, N(ng),   &
+     &                      0, Mm(ng)+1, N(ng),                         &    
+     &                      BOUNDARY(ng) % uG_west,                     &    
+     &                      BOUNDARY(ng) % u_west,                      &    
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &    
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(iwest,isVvel,ng)%acquire) THEN 
+            CALL set_ngfld (ng, iNLM, idV3bc(iwest), JLB, JUB, N(ng),   &
+     &                      1, Mm(ng)+1, N(ng),                         &    
+     &                      BOUNDARY(ng) % vG_west,                     &    
+     &                      BOUNDARY(ng) % v_west,                      &    
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &    
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(ieast,isUvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idU3bc(ieast), JLB, JUB, N(ng),   &
+     &                      0, Mm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % uG_east,                     &
+     &                      BOUNDARY(ng) % u_east,                      &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(ieast,isVvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idV3bc(ieast), JLB, JUB, N(ng),   &
+     &                      1, Mm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % vG_east,                     &
+     &                      BOUNDARY(ng) % v_east,                      &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(isouth,isUvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idU3bc(isouth), ILB, IUB, N(ng),  &
+     &                      1, Lm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % uG_south,                    &
+     &                      BOUNDARY(ng) % u_south,                     &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(isouth,isVvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idV3bc(isouth), ILB, IUB, N(ng),  &
+     &                      0, Lm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % vG_south,                    &
+     &                      BOUNDARY(ng) % v_south,                     &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(inorth,isUvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idU3bc(inorth), ILB, IUB, N(ng),  &
+     &                      1, Lm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % uG_north,                    &
+     &                      BOUNDARY(ng) % u_north,                     &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+
+          IF (LBC(inorth,isVvel,ng)%acquire) THEN
+            CALL set_ngfld (ng, iNLM, idV3bc(inorth), ILB, IUB, N(ng),  &
+     &                      0, Lm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % vG_north,                    &
+     &                      BOUNDARY(ng) % v_north,                     &
+     &                      update)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+        END IF
+#  endif
+      END IF
+!
+!  Tracers.
+!
+      IF (LprocessOBC(ng)) THEN
+#  ifdef ANA_TOBC
+        CALL ana_tobc (ng, tile, iNLM)
+#  else
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+           DO itrc=1,NT(ng)
+            IF (LBC(iwest,isTvar(itrc),ng)%acquire) THEN
+              CALL set_ngfld (ng, iNLM, idTbry(iwest,itrc),             &
+     &                        JLB, JUB, N(ng), 0, Mm(ng)+1, N(ng),      &
+     &                        BOUNDARY(ng) % tG_west(:,:,:,itrc),       &
+     &                        BOUNDARY(ng) % t_west(:,:,itrc),          &
+     &                        update)
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
+            END IF
+
+            IF (LBC(ieast,isTvar(itrc),ng)%acquire) THEN
+              CALL set_ngfld (ng, iNLM, idTbry(ieast,itrc),             &
+     &                        JLB, JUB, N(ng), 0, Mm(ng)+1, N(ng),      &
+     &                        BOUNDARY(ng) % tG_east(:,:,:,itrc),       &
+     &                        BOUNDARY(ng) % t_east(:,:,itrc),          &
+     &                        update)
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
+            END IF
+
+            IF (LBC(isouth,isTvar(itrc),ng)%acquire) THEN
+              CALL set_ngfld (ng, iNLM, idTbry(isouth,itrc),            &
+     &                        ILB, IUB, N(ng), 0, Lm(ng)+1, N(ng),      &
+     &                        BOUNDARY(ng) % tG_south(:,:,:,itrc),      &
+     &                        BOUNDARY(ng) % t_south(:,:,itrc),         &
+     &                        update)
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
+            END IF
+
+            IF (LBC(inorth,isTvar(itrc),ng)%acquire) THEN
+              CALL set_ngfld (ng, iNLM, idTbry(inorth,itrc),            &
+     &                        ILB, IUB, N(ng), 0, Lm(ng)+1, N(ng),      &
+     &                        BOUNDARY(ng) % tG_north(:,:,:,itrc),      &
+     &                        BOUNDARY(ng) % t_north(:,:,itrc),         &
+     &                        update)
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
+            END IF
+          END DO
+        END IF
+#  endif
+      END IF
+# endif
+
 #ifdef ICE_MODEL
       IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
 # ifdef ANA_AIOBC
         CALL ana_aiobc (ng, tile, iNLM)
 # else
-=======
-# ifdef SOLVE3D
-!
-!  3D momentum.
-!
-      IF (LprocessOBC(ng)) THEN
-#  ifdef ANA_M3OBC
-        CALL ana_m3obc (ng, tile, iNLM)
-#  else
->>>>>>> 6b5a6ca... src:ticket:736
         IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
           IF (LBC(iwest,isAice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idAibc(iwest), JLB, JUB, 1,       &
@@ -1883,144 +2026,6 @@
 # endif
       END IF
 #endif
-
-# ifdef SOLVE3D
-!
-!  3D momentum.
-!
-      IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
-#  ifdef ANA_M3OBC
-        CALL ana_m3obc (ng, tile, iNLM)
-#  else
-        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-          IF (LBC(iwest,isUvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idU3bc(iwest), JLB, JUB, N(ng),   &
-     &                      0, Mm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % uG_west,                     &
-     &                      BOUNDARY(ng) % u_west,                      &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(iwest,isVvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idV3bc(iwest), JLB, JUB, N(ng),   &
-     &                      1, Mm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % vG_west,                     &
-     &                      BOUNDARY(ng) % v_west,                      &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(ieast,isUvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idU3bc(ieast), JLB, JUB, N(ng),   &
-     &                      0, Mm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % uG_east,                     &
-     &                      BOUNDARY(ng) % u_east,                      &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(ieast,isVvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idV3bc(ieast), JLB, JUB, N(ng),   &
-     &                      1, Mm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % vG_east,                     &
-     &                      BOUNDARY(ng) % v_east,                      &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(isouth,isUvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idU3bc(isouth), ILB, IUB, N(ng),  &
-     &                      1, Lm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % uG_south,                    &
-     &                      BOUNDARY(ng) % u_south,                     &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(isouth,isVvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idV3bc(isouth), ILB, IUB, N(ng),  &
-     &                      0, Lm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % vG_south,                    &
-     &                      BOUNDARY(ng) % v_south,                     &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(inorth,isUvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idU3bc(inorth), ILB, IUB, N(ng),  &
-     &                      1, Lm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % uG_north,                    &
-     &                      BOUNDARY(ng) % u_north,                     &
-     &                      update)
-            IF (exit_flag.ne.NoError) RETURN
-          END IF
-
-          IF (LBC(inorth,isVvel,ng)%acquire) THEN
-            CALL set_ngfld (ng, iNLM, idV3bc(inorth), ILB, IUB, N(ng),  &
-     &                      0, Lm(ng)+1, N(ng),                         &
-     &                      BOUNDARY(ng) % vG_north,                    &
-     &                      BOUNDARY(ng) % v_north,                     &
-     &                      update)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__)) RETURN
-          END IF
-        END IF
-#  endif
-      END IF
-!
-!  Tracers.
-!
-      IF (LprocessOBC(ng)) THEN
-#  ifdef ANA_TOBC
-        CALL ana_tobc (ng, tile, iNLM)
-#  else
-        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
-           DO itrc=1,NT(ng)
-            IF (LBC(iwest,isTvar(itrc),ng)%acquire) THEN
-              CALL set_ngfld (ng, iNLM, idTbry(iwest,itrc),             &
-     &                        JLB, JUB, N(ng), 0, Mm(ng)+1, N(ng),      &
-     &                        BOUNDARY(ng) % tG_west(:,:,:,itrc),       &
-     &                        BOUNDARY(ng) % t_west(:,:,itrc),          &
-     &                        update)
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
-            END IF
-
-            IF (LBC(ieast,isTvar(itrc),ng)%acquire) THEN
-              CALL set_ngfld (ng, iNLM, idTbry(ieast,itrc),             &
-     &                        JLB, JUB, N(ng), 0, Mm(ng)+1, N(ng),      &
-     &                        BOUNDARY(ng) % tG_east(:,:,:,itrc),       &
-     &                        BOUNDARY(ng) % t_east(:,:,itrc),          &
-     &                        update)
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
-            END IF
-
-            IF (LBC(isouth,isTvar(itrc),ng)%acquire) THEN
-              CALL set_ngfld (ng, iNLM, idTbry(isouth,itrc),            &
-     &                        ILB, IUB, N(ng), 0, Lm(ng)+1, N(ng),      &
-     &                        BOUNDARY(ng) % tG_south(:,:,:,itrc),      &
-     &                        BOUNDARY(ng) % t_south(:,:,itrc),         &
-     &                        update)
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
-            END IF
-
-            IF (LBC(inorth,isTvar(itrc),ng)%acquire) THEN
-              CALL set_ngfld (ng, iNLM, idTbry(inorth,itrc),            &
-     &                        ILB, IUB, N(ng), 0, Lm(ng)+1, N(ng),      &
-     &                        BOUNDARY(ng) % tG_north(:,:,:,itrc),      &
-     &                        BOUNDARY(ng) % t_north(:,:,itrc),         &
-     &                        update)
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
-            END IF
-          END DO
-        END IF
-#  endif
-      END IF
-# endif
 !
 !-----------------------------------------------------------------------
 !  Set sea surface height climatology (m).
