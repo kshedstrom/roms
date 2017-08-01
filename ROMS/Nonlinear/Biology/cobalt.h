@@ -2811,7 +2811,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! CAS, aggregation revision, aggregation doesn't ramp up until you are in limiting light
   ! conditions, as determined by the ratio of the 24 hour growth to 1/4 of the maximum.
   ! agg_lim is a new 3D diag variable for the phytoplankton type.
+#ifdef COBALT_NO_DIAZO_AGGLIM
+  phyto(1)%agg_lim(:,:,:) = 0.0
+#else
   phyto(1)%agg_lim(:,:,:) = max(1.0 - phyto(1)%f_mu_mem(:,:,:)/(0.25*phyto(1)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+#endif
   phyto(2)%agg_lim(:,:,:) = max(1.0 - phyto(2)%f_mu_mem(:,:,:)/(0.25*phyto(2)%P_C_max*cobalt%expkT(:,:,:)),0.0)
   phyto(3)%agg_lim(:,:,:) = max(1.0 - phyto(3)%f_mu_mem(:,:,:)/(0.25*phyto(3)%P_C_max*cobalt%expkT(:,:,:)),0.0)
 #ifdef COASTDIAT
@@ -3838,8 +3842,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2)/((7.0+fpoc_btm)**2)
 
 
-#ifdef COBALT_CONSERVATION_TEST
-      ! RD dev notes ; this is to test conservation
+#if defined COBALT_CONSERVATION_TEST || defined COBALT_NOBURIAL
+      ! RD dev notes ; this is to test conservation or if no burial is necessary
       cobalt%frac_burial(i,j) = 0.0d0
 #endif
 
