@@ -1081,7 +1081,7 @@
           Iinfo(5,i,ng)=0
           Iinfo(6,i,ng)=0
           Iinfo(7,i,ng)=0
-          Iinfo(8,i,ng)=0
+          Iinfo(8,i,ng)=2
           Iinfo(9,i,ng)=0
           Iinfo(10,i,ng)=0
           Finfo(1,i,ng)=0.0_r8
@@ -2164,6 +2164,8 @@
 #  include <umaine_var.h>
 # elif defined ECOSIM
 #  include <ecosim_var.h>
+# elif defined HYPOXIA_SRM
+#  include <hypoxia_srm_var.h>
 # elif defined NEMURO
 #  include <nemuro_var.h>
 # elif defined NPZD_FRANKS

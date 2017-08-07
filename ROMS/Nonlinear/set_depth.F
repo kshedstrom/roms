@@ -30,7 +30,7 @@
       CONTAINS
 !
 !***********************************************************************
-      SUBROUTINE set_depth (ng, tile)
+      SUBROUTINE set_depth (ng, tile, model)
 !***********************************************************************
 !
       USE mod_param
@@ -44,16 +44,16 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 !
 !  Local variable declarations.
 !
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 12)
+      CALL wclock_on (ng, model, 12, __LINE__, __FILE__)
 # endif
-      CALL set_depth_tile (ng, tile,                                    &
+      CALL set_depth_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
      &                     IminS, ImaxS, JminS, JmaxS,                  &
      &                     nstp(ng), nnew(ng),                          &
@@ -69,14 +69,14 @@
      &                     GRID(ng) % z_r,                              &
      &                     GRID(ng) % z_w)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 12)
+      CALL wclock_off (ng, model, 12, __LINE__, __FILE__)
 # endif
 
       RETURN
       END SUBROUTINE set_depth
 !
 !***********************************************************************
-      SUBROUTINE set_depth_tile (ng, tile,                              &
+      SUBROUTINE set_depth_tile (ng, tile, model,                       &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           IminS, ImaxS, JminS, JmaxS,            &
      &                           nstp, nnew,                            &
@@ -102,7 +102,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nstp, nnew
@@ -315,17 +315,17 @@
       END IF
 
 # ifdef DISTRIBUTE
-      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange2d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    h)
-      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    z_w)
-      CALL mp_exchange3d (ng, tile, iNLM, 2,                            &
+      CALL mp_exchange3d (ng, tile, model, 2,                           &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
@@ -339,7 +339,7 @@
 !  free-surface values (zeta_west, zeta_east, zeta_south, zeta_north).
 !-----------------------------------------------------------------------
 !
-      CALL set_depth_bry (ng, tile)
+      CALL set_depth_bry (ng, tile, model)
 # endif
 
       RETURN
@@ -347,7 +347,7 @@
 
 !
 !***********************************************************************
-      SUBROUTINE set_depth0 (ng, tile)
+      SUBROUTINE set_depth0 (ng, tile, model)
 !***********************************************************************
 !
       USE mod_param
@@ -356,16 +356,16 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 !
 !  Local variable declarations.
 !
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 12)
+      CALL wclock_on (ng, model, 12, __LINE__, __FILE__)
 # endif
-      CALL set_depth0_tile (ng, tile,                                   &
+      CALL set_depth0_tile (ng, tile, model,                            &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      GRID(ng) % h,                               &
@@ -375,14 +375,14 @@
      &                      GRID(ng) % z0_r,                            &
      &                      GRID(ng) % z0_w)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 12)
+      CALL wclock_off (ng, model, 12, __LINE__, __FILE__)
 # endif
 
       RETURN
       END SUBROUTINE set_depth0
 !
 !***********************************************************************
-      SUBROUTINE set_depth0_tile (ng, tile,                             &
+      SUBROUTINE set_depth0_tile (ng, tile, model,                      &
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            h,                                    &
@@ -403,7 +403,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
@@ -532,12 +532,12 @@
       END IF
 
 # ifdef DISTRIBUTE
-      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 0, N(ng),                 &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    z_w)
-      CALL mp_exchange3d (ng, tile, iNLM, 1,                            &
+      CALL mp_exchange3d (ng, tile, model, 1,                           &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
@@ -550,7 +550,7 @@
 # ifdef ADJUST_BOUNDARY
 !
 !***********************************************************************
-      SUBROUTINE set_depth_bry (ng, tile)
+      SUBROUTINE set_depth_bry (ng, tile, model)
 !***********************************************************************
 !
       USE mod_param
@@ -558,16 +558,16 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
 !
 !  Local variable declarations.
 !
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 12)
+      CALL wclock_on (ng, model, 12, __LINE__, __FILE__)
 #  endif
-      CALL set_depth_bry_tile (ng, tile,                                &
+      CALL set_depth_bry_tile (ng, tile, model,                         &
      &                         LBi, UBi, LBj, UBj, LBij, UBij,          &
      &                         IminS, ImaxS, JminS, JmaxS,              &
      &                         GRID(ng) % h,                            &
@@ -576,14 +576,14 @@
 #  endif
      &                         GRID(ng) % Hz_bry)
 #  ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 12)
+      CALL wclock_off (ng, model, 12, __LINE__, __FILE__)
 #  endif
 
       RETURN
       END SUBROUTINE set_depth_bry
 !
 !***********************************************************************
-      SUBROUTINE set_depth_bry_tile (ng, tile,                          &
+      SUBROUTINE set_depth_bry_tile (ng, tile, model,                   &
      &                               LBi, UBi, LBj, UBj, LBij, UBij,    &
      &                               IminS, ImaxS, JminS, JmaxS,        &
      &                               h,                                 &
@@ -604,7 +604,7 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile
+      integer, intent(in) :: ng, tile, model
       integer, intent(in) :: LBi, UBi, LBj, UBj, LBij, UBij
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 !
@@ -855,7 +855,7 @@
 !-----------------------------------------------------------------------
 !
       DO ibry=1,4
-        CALL mp_exchange3d_bry (ng, tile, iNLM, 1, ibry,                &
+        CALL mp_exchange3d_bry (ng, tile, model, 1, ibry,               &
      &                          LBij, UBij, 1, N(ng),                   &
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &

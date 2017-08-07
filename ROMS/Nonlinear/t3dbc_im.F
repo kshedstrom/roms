@@ -147,7 +147,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(Istr,j  )+                              &
      &                     grad(Istr,j+1))).gt.0.0_r8) THEN
                   dTde=grad(Istr,j  )
@@ -155,11 +154,10 @@
                   dTde=grad(Istr,j+1)
                 END IF
                 cff=MAX(dTdx*dTdx+dTde*dTde,eps)
-                if (dTdx == 0.0_r8) dTdx = eps
-                Cx=dTdt/dTdx
+                IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+                Cx=dTdt*dTdx
 # ifdef RADIATION_2D
-                if (dTde == 0.0_r8) dTde = eps
-                Ce=MIN(cff,MAX(dTdt/dTde,-cff))
+                Ce=MIN(cff,MAX(dTdt*dTde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -298,7 +296,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(Iend,j  )+                              &
      &                     grad(Iend,j+1))).gt.0.0_r8) THEN
                   dTde=grad(Iend,j  )
@@ -306,11 +303,10 @@
                   dTde=grad(Iend,j+1)
                 END IF
                 cff=MAX(dTdx*dTdx+dTde*dTde,eps)
-                if (dTdx == 0.0_r8) dTdx = eps
-                Cx=dTdt/dTdx
+                IF ((dTdt*dTdx).lt.0.0_r8) dTdt=0.0_r8
+                Cx=dTdt*dTdx
 # ifdef RADIATION_2D
-                if (dTde == 0.0_r8) dTde = eps
-                Ce=MIN(cff,MAX(dTdt/dTde,-cff))
+                Ce=MIN(cff,MAX(dTdt*dTde,-cff))
 # else
                 Ce=0.0_r8
 # endif
@@ -449,7 +445,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(i  ,Jstr)+                              &
      &                     grad(i+1,Jstr))).gt.0.0_r8) THEN
                   dTdx=grad(i  ,Jstr)
@@ -457,14 +452,13 @@
                   dTdx=grad(i+1,Jstr)
                 END IF
                 cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+                IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dTdx == 0.0_r8) dTdx = eps
-                Cx=MIN(cff,MAX(dTdt/dTdx,-cff))
+                Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dTde == 0.0_r8) dTde = eps
-                Ce=dTdt/dTde
+                Ce=dTdt*dTde
 # if defined CELERITY_WRITE && defined FORWARD_WRITE
                 BOUNDARY(ng)%t_south_Cx(i,k,itrc)=Cx
                 BOUNDARY(ng)%t_south_Ce(i,k,itrc)=Ce
@@ -601,7 +595,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
                 IF ((dTdt*(grad(i  ,Jend)+                              &
      &                     grad(i+1,Jend))).gt.0.0_r8) THEN
                   dTdx=grad(i  ,Jend)
@@ -609,14 +602,13 @@
                   dTdx=grad(i+1,Jend)
                 END IF
                 cff=MAX(dTdx*dTdx+dTde*dTde,eps)
+                IF ((dTdt*dTde).lt.0.0_r8) dTdt=0.0_r8
 # ifdef RADIATION_2D
-                if (dTdx == 0.0_r8) dTdx = eps
-                Cx=MIN(cff,MAX(dTdt/dTdx,-cff))
+                Cx=MIN(cff,MAX(dTdt*dTdx,-cff))
 # else
                 Cx=0.0_r8
 # endif
-                if (dTde == 0.0_r8) dTde = eps
-                Ce=dTdt/dTde
+                Ce=dTdt*dTde
 # if defined CELERITY_WRITE && defined FORWARD_WRITE
                 BOUNDARY(ng)%t_north_Cx(i,k,itrc)=Cx
                 BOUNDARY(ng)%t_north_Ce(i,k,itrc)=Ce

@@ -32,7 +32,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 52)
+      CALL wclock_on (ng, iNLM, 77, __LINE__, __FILE__)
 # endif
 !
       CALL ice_evp_tile (ng, tile,                                      &
@@ -58,7 +58,7 @@
      &                   ICE(ng) % eta                                  &
      &                   )
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 52)
+      CALL wclock_off (ng, iNLM, 77, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE ice_evp

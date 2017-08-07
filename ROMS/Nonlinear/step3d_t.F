@@ -57,7 +57,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 35)
+      CALL wclock_on (ng, iNLM, 35, __LINE__, __FILE__)
 # endif
       CALL step3d_t_tile (ng, tile,                                     &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -116,7 +116,7 @@
 #endif
      &                               )
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 35)
+      CALL wclock_off (ng, iNLM, 35, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE step3d_t

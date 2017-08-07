@@ -56,7 +56,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 18)
+      CALL wclock_on (ng, iNLM, 18, __LINE__, __FILE__)
 # endif
       IF (.not.PerfectRST(ng).or.iic(ng).ne.ntstart(ng)) THEN
         CALL lmd_vmix_tile (ng, tile,                                   &
@@ -86,7 +86,7 @@
         CALL lmd_finish (ng, tile)
       END IF
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 18)
+      CALL wclock_off (ng, iNLM, 18, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE lmd_vmix
@@ -577,6 +577,23 @@
             Akt(i,j,k,itemp)=Akt(i,j,k,itemp)+lmd_nu0c*nu_sxc
 #  ifdef SALINITY
             Akt(i,j,k,isalt)=Akt(i,j,k,isalt)+lmd_nu0c*nu_sxc
+#  endif
+# endif
+# if defined LIMIT_VDIFF || defined LIMIT_VVISC
+!
+!  Limit vertical mixing coefficients with the upper threshold value.
+!  This is an engineering fix but it can be based on the fact that
+!  vertical mixing in the ocean from indirect observations is not
+!  higher than the threshold value.
+!
+#  ifdef LIMIT_VVISC
+            Akv(i,j,k)=MIN(Akv_limit(ng), Akv(i,j,k))
+#  endif
+#  ifdef LIMIT_VDIFF
+            Akt(i,j,k,itemp)=MIN(Akt_limit(itemp,ng), Akt(i,j,k,itemp))
+#   ifdef SALINITY
+            Akt(i,j,k,isalt)=MIN(Akt_limit(isalt,ng), Akt(i,j,k,isalt))
+#   endif
 #  endif
 # endif
           END DO

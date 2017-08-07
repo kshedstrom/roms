@@ -858,6 +858,8 @@
       USE mod_ncparam
       USE mod_netcdf
 !
+      USE strings_mod, ONLY : FoundError
+!
 !  Local variable declarations.
 !
       integer :: my_NstateVar, i, ng
@@ -867,7 +869,7 @@
 # endif
       real(r8), parameter :: IniVal = 0.0_r8
 !
-      SourceFile='mod_fourdvar.F, initialize_fourdvar'
+      SourceFile=__FILE__ // ", initialize_fourdvar"
 
 # ifdef OBSERVATIONS
 !
@@ -881,7 +883,8 @@
 !
       DO ng=1,Ngrids
         CALL netcdf_get_dim(ng, iNLM, TRIM(OBS(ng)%name))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
         Ndatum(ng)=0
         Nsurvey(ng)=0
@@ -1070,7 +1073,8 @@
      &                        FOURDVAR(ng)%NobsSurvey,                  &
      &                        start = (/1/),                            &
      &                        total = (/Nsurvey(ng)/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Read in the time of each observation survey.
 !
@@ -1079,7 +1083,8 @@
      &                        FOURDVAR(ng)%SurveyTime,                  &
      &                        start = (/1/),                            &
      &                        total = (/Nsurvey(ng)/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Determine maximum size of observation arrays.
 !
@@ -1543,7 +1548,8 @@
      &                        FOURDVAR(ng)%ObsVar,                      &
      &                        start = (/1/),                            &
      &                        total = (/my_NstateVar/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
       END DO
 

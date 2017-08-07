@@ -50,6 +50,7 @@
       USE mod_scalars
 !
       USE dateclock_mod, ONLY : time_string
+      USE strings_mod,   ONLY : FoundError
 !
       implicit none
 !
@@ -80,13 +81,14 @@
 
       character (len=22) :: t_code
 !
-      SourceFile='get_ngfld.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Initialize.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Determine if inquiring about the field to process in input NetCDF
 !  file(s).  This usually happens on first call or when the field
@@ -107,9 +109,10 @@
 !
       IF (Linquire) THEN
         job=1
-        CALL inquire (ng, model, job, UBk, Iend, UBi, ifield, ncid,     &
+        CALL inquiry (ng, model, job, UBk, Iend, UBi, ifield, ncid,     &
      &                Lmulti, nfiles, S)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Load properties for requested field from information arrays.
@@ -164,7 +167,8 @@
      &                            ncid = ncid,                          &
      &                            start = (/Trec/),                     &
      &                            total = (/1/))
-            IF (exit_flag.ne.NoError) THEN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,50) TRIM(Tname(ifield)), Trec
               RETURN
             END IF
@@ -202,7 +206,8 @@
      &                               total = (/Iend-Istr+1,1/))
               END IF
             END IF
-            IF (exit_flag.ne.NoError) THEN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,50) TRIM(Vname(1,ifield)), Trec
               RETURN
             END IF
