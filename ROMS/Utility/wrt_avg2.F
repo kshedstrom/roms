@@ -64,7 +64,8 @@
 !  Write out time-averaged fields when appropriate.
 !-----------------------------------------------------------------------
 !
-      if (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set grid type factor to write full (gfactor=1) fields or water
 !  points (gfactor=-1) fields only.
@@ -88,7 +89,8 @@
      &                      (/AVG2(ng)%Rindex/), (/1/),                 &
      &                      ncid = AVG2(ng)%ncid,                       &
      &                      varid = AVG2(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Write out free-surface (m).
 !
@@ -1706,7 +1708,8 @@
 !-----------------------------------------------------------------------
 !
       CALL netcdf_sync (ng, iNLM, AVG2(ng)%name, AVG2(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       IF (Master) WRITE (stdout,20) AVG2(ng)%Rindex
 !

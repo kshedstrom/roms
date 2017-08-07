@@ -224,7 +224,8 @@
      &                  GRID(ng) % rmask,                               &
 #  endif
      &                  MIXING(ng) % m2_amp)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #endif
 
@@ -519,7 +520,8 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    TIDES(ng) % POT_Tamp)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),         &
      &                    nFfiles(ng), FRC(1,ng), update(1),            &
@@ -528,7 +530,8 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    TIDES(ng) % POT_Tphase)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           time(ng)=time_save
           tdays(ng)=time(ng)*sec2day

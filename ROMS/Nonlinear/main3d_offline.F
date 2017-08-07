@@ -165,7 +165,8 @@
 !
         DO ng=1,Ngrids
           CALL get_data (ng)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
 !
 !-----------------------------------------------------------------------
@@ -179,7 +180,8 @@
           END DO
 !$OMP BARRIER
         END DO
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Initialize all time levels and compute other initial fields.
@@ -220,7 +222,8 @@
           END DO
 !$OMP BARRIER
         END DO
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # ifdef NESTING
         CALL nesting (5)
 # endif
@@ -340,8 +343,8 @@
 !
         DO ng=1,Ngrids
           CALL output (ng)
-          IF ((exit_flag.ne.NoError).or.                                &
-     &        ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) RETURN 
+          IF ((FoundError(exit_flag, NoError, __LINE__, __FILE__)).or.
+     &        ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) RETURN
         END DO
 !
 !-----------------------------------------------------------------------

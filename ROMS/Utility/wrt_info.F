@@ -203,17 +203,20 @@
       CALL netcdf_put_ivar (ng, model, ncname, 'ntsAVG2',               &
      &                      ntsAVG2(ng), (/0/), (/0/),                  &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       CALL netcdf_put_ivar (ng, model, ncname, 'nAVG2',                 &
      &                      nAVG2(ng), (/0/), (/0/),                    &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       CALL netcdf_put_ivar (ng, model, ncname, 'ndefAVG2',              &
      &                      ndefAVG2(ng), (/0/), (/0/),                 &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #endif
 
 #ifdef ADJOINT
@@ -736,7 +739,8 @@
       CALL netcdf_put_fvar (ng, model, ncname, 'Tnudg',                 &
      &                      nudg, (/1/), (/NT(ng)/),                    &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       CALL netcdf_put_fvar (ng, model, ncname, 'Tnudg_SSS',             &
      &                      Tnudg_SSS(ng)/sec2day, (/0/), (/0/),        &
@@ -1444,62 +1448,76 @@
       CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dx',          &
      &                      grid_mean_dx(ng), (/0/), (/0/),             &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'grid_mean_dy',          &
      &                      grid_mean_dy(ng), (/0/), (/0/),             &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_ivar (ng, model, ncname, 'seed_user',             &
      &                      seed_user(ng), (/0/), (/0/),               &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # ifdef FORCE_PERTURB
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_swrad',     &
      &                      var_perturb_swrad(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Tair',      &
      &                      var_perturb_Tair(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Uwind',     &
      &                      var_perturb_Uwind(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_Vwind',     &
      &                      var_perturb_Vwind(ng), (/0/), (/0/),        &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'force_pert_rcorr',      &
      &                      force_pert_rcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'force_pert_tcorr',      &
      &                      force_pert_tcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 # ifdef EOS_PERTURB
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dx',        &
      &                      var_perturb_dx(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dy',        &
      &                      var_perturb_dy(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'var_perturb_dz',        &
      &                      var_perturb_dz(ng), (/0/), (/0/),           &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'eos_pert_rcorr',      &
      &                      eos_pert_rcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       CALL netcdf_put_fvar (ng, model, ncname, 'eos_pert_tcorr',      &
      &                      eos_pert_tcorr(ng), (/0/), (/0/),         &
      &                      ncid = ncid)
-      IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 #endif
 

@@ -66,7 +66,8 @@
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       ncname=FISH(ng)%name
 !
       IF (Master) THEN
@@ -83,7 +84,8 @@
 !
       DEFINE : IF (ldef) THEN
         CALL netcdf_create (ng, iNLM, TRIM(ncname), FISH(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
@@ -97,67 +99,81 @@
 # ifdef SOLVE3D
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 's_rho',        &
      &                 N(ng), DimIDs( 9))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 's_w',          &
      &                 N(ng)+1, DimIDs(10))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'tracer',       &
      &                 NT(ng), DimIDs(11))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 #  ifdef SEDIMENT
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Nbed',         &
      &                 Nbed, DimIDs(16))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #  endif
 
 #  ifdef ECOSIM
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Nphy',         &
      &                 Nphy, DimIDs(25))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Nbac',         &
      &                 Nbac, DimIDs(26))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Ndom',         &
      &                 Ndom, DimIDs(27))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Nfec',         &
      &                 Nfec, DimIDs(28))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #  endif
 # endif
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'drifter' ,     &
      &                 Nfish(ng), DimIDs(15))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'species' ,     &
      &                 Nspecies(ng), DimIDs(32))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'yearclass' ,   &
      &                 Nyearclass(ng), DimIDs(33))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'boundary',     &
      &                 4, DimIDs(14))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # ifdef FOUR_DVAR
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname, 'Nstate',       &
      &                 NstateVar(ng), DimIDs(29))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 
         status=def_dim(ng, iNLM, FISH(ng)%ncid, ncname,                 &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         recdim=DimIDs(12)
         fishdim=DimIDs(15)
@@ -189,7 +205,8 @@
 !-----------------------------------------------------------------------
 !
         CALL def_info (ng, iNLM, FISH(ng)%ncid, ncname, DimIDs)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Define variables and their attributes.
@@ -216,7 +233,8 @@
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idtime),   &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !*********************************************************************
 ! This next batch gets written out, but not as a timeseries, they get
@@ -230,7 +248,8 @@
         Vinfo( 2)='Fish species'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFspc),   &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish behavior
 !
@@ -238,12 +257,14 @@
         Vinfo( 2)='Fish horizontal behavior'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFhbhv),  &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         Vinfo( 1)='Vbehave'
         Vinfo( 2)='Fish vertical behavior'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFvbhv),  &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish alive
 !
@@ -253,7 +274,8 @@
         Vinfo(10)='Fish dead'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFalv),   &
      &                 nf90_int, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define time since last spawn (needed on restart)
 !
@@ -261,7 +283,8 @@
         Vinfo( 2)='Time since last spawn'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFTspwn), &
      &                 NF_FOUT, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define initial worth (needed on restart)
 !
@@ -269,7 +292,8 @@
         Vinfo( 2)='Initial worth'
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idFiniw),  &
      &                 NF_FOUT, 1, (/fishdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish age base
 !
@@ -277,7 +301,8 @@
         Vinfo( 2)='Fish age base'
         status=def_var(ng, iNLM, FISH(ng)%ncid, varid, nf90_int,        &
      &           1, (/specdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish species base
 !
@@ -285,7 +310,8 @@
         Vinfo( 2)='Fish species base'
         status=def_var(ng, iNLM, FISH(ng)%ncid, varid, nf90_int,        &
      &           1, (/specdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish num free
 !
@@ -293,7 +319,8 @@
         Vinfo( 2)='Number of free superindividuals'
         status=def_var(ng, iNLM, FISH(ng)%ncid, varid, nf90_int,        &
      &           1, (/specdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish next free
 !
@@ -301,7 +328,8 @@
         Vinfo( 2)='Next free superindividual'
         status=def_var(ng, iNLM, FISH(ng)%ncid, varid, nf90_int,        &
      &           1, (/specdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish number per spawn
 !
@@ -309,7 +337,8 @@
         Vinfo( 2)='Number superindividuals per spawn'
         status=def_var(ng, iNLM, FISH(ng)%ncid, varid, nf90_int,        &
      &           1, (/specdim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish X-grid locations.
 !
@@ -327,7 +356,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idXgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish Y-grid locations.
 !
@@ -345,7 +375,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idYgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -365,7 +396,8 @@
 #  endif
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idZgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 !
 !  Define fish (lon,lat) or (x,y) locations.
@@ -386,7 +418,8 @@
           Aval(3)=180.0_r8
           status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
           Vinfo( 1)='lat'
           Vinfo( 2)='latitude of fish trajectories'
@@ -403,7 +436,8 @@
           Aval(3)=90.0_r8
           status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
        ELSE
           Vinfo( 1)='x'
           Vinfo( 2)='x-location of fish trajectories'
@@ -416,7 +450,8 @@
 # endif
           status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
           Vinfo( 1)='y'
           Vinfo( 2)='y-location of fish trajectories'
@@ -429,7 +464,8 @@
 # endif
           status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         END IF
 
 # ifdef SOLVE3D
@@ -447,7 +483,8 @@
 #  endif
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(iddpth),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define density anomaly.
 !
@@ -462,7 +499,8 @@
 #  endif
         status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Vid(idDano),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define tracer type variables.
 !
@@ -485,7 +523,8 @@
 #  endif
           status=def_var(ng, iNLM, FISH(ng)%ncid, FISH(ng)%Tid(itrc),   &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         END DO
 # endif
 !
@@ -502,7 +541,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFwwt),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish worth
 !
@@ -517,7 +557,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFworth),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish length
 !
@@ -532,7 +573,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFlngth),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !
 !  Define fish P-value
@@ -548,7 +590,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFpval),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish age
 !
@@ -563,7 +606,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFage),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish birthday
 !
@@ -578,7 +622,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFbday),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define PS consumption
 !
@@ -593,7 +638,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmPS),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define PL consumption
 !
@@ -608,7 +654,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmPL),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define ZS consumption
 !
@@ -623,7 +670,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmZS),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define ZL consumption
 !
@@ -638,7 +686,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmZL),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define ZP consumption
 !
@@ -653,7 +702,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmZP),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Fish consumption on species 1
 !
@@ -668,7 +718,8 @@
 !# endif
 !        status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmF1),  &
 !     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+!        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+!     &                 __FILE__)) RETURN
 !
 !  Define Fish consumption on species 2
 !
@@ -683,7 +734,8 @@
 !# endif
 !        status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmF2),  &
 !     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+!        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+!     &                 __FILE__)) RETURN
 !
 !  Define Fish consumption on species 3
 !
@@ -698,7 +750,8 @@
 !# endif
 !        status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmF3),  &
 !     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+!        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+!     &                 __FILE__)) RETURN
 !
 !  Define Fish consumption on species 4
 !
@@ -713,7 +766,8 @@
 !# endif
 !        status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmF4),  &
 !     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+!        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+!     &                 __FILE__)) RETURN
 !
 !  Define Fish consumption on species 5
 !
@@ -728,7 +782,8 @@
 !# endif
 !        status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFcsmF5),  &
 !     &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-!        IF (exit_flag.ne.NoError) RETURN
+!        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+!     &                 __FILE__)) RETURN
 !
 !  Define respiration
 !
@@ -743,7 +798,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFresp),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define egg duration
 !
@@ -758,7 +814,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdegg),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define numbers of eggs
 !
@@ -773,7 +830,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFnegg),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define yolk sac duration
 !
@@ -788,7 +846,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdysac),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define numbers of yolk sacs
 !
@@ -803,7 +862,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFnysac),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define larval duration
 !
@@ -818,7 +878,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdlarv),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define numbers of larvae
 !
@@ -833,7 +894,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFnlarv),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define juvenile duration
 !
@@ -848,7 +910,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdjuv),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define numbers of juveniles
 !
@@ -863,7 +926,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFnjuv),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define numbers of subadults
 !
@@ -878,7 +942,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFnsuba),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define natural mortality
 !
@@ -893,7 +958,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFmortN),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define starvation mortality
 !
@@ -908,7 +974,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFmortS),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fishing mortality
 !
@@ -923,7 +990,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFmortF),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define predation mortality
 !
@@ -938,7 +1006,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFmortP),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define summed predation mortality
 !
@@ -953,7 +1022,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFmrtPs),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish lifestage
 !
@@ -968,7 +1038,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFlfsg),   &
      &                 nf90_int, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish cause of death (1=starve, 2=Nmort, 3=Pmort, 4=Fmort)
 !
@@ -983,7 +1054,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFdeath),  &
      &                 nf90_int, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish batch count
 !
@@ -998,7 +1070,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFbatch),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fish egg count
 !
@@ -1013,7 +1086,8 @@
 # endif
         status=def_var(ng, iNLM, FISH(ng)%ncid,FISH(ng)%Vid(idFeggs),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
@@ -1024,14 +1098,16 @@
 !-----------------------------------------------------------------------
 !
         CALL netcdf_enddef (ng, iNLM, ncname, FISH(ng)%ncid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
         CALL wrt_info (ng, iNLM, FISH(ng)%ncid, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF DEFINE
 !
 !=======================================================================
@@ -1045,7 +1121,8 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Get the size of the drifter dimension.
 !
@@ -1059,12 +1136,14 @@
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Open fish file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, FISH(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF
@@ -1420,7 +1499,8 @@
      &                        ncid = FISH(ng)%ncid,                     &
      &                        start = (/1,FISH(ng)%Rindex/),            &
      &                        total = (/Nfish(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Nfish(ng)
           IF ((Tinp(l).gt.REAL(Lm(ng)+1,r8)-0.5_r8).or.                 &
@@ -1440,7 +1520,8 @@
      &                        ncid = FISH(ng)%ncid,                     &
      &                        start = (/1,FISH(ng)%Rindex/),            &
      &                        total = (/Nfish(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Nfish(ng)
           IF ((Tinp(l).gt.REAL(Mm(ng)+1,r8)-0.5_r8).or.                 &
@@ -1897,7 +1978,8 @@
      &                        start = (/1/),                            &
      &                        total = (/Nspecies(ng)/))
 
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         IF (Master) THEN
           print *, 'First Year for Fish'

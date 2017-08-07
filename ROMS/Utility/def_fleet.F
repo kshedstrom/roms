@@ -66,7 +66,8 @@
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &             __FILE__)) RETURN
       ncname=FLEET(ng)%name
 !
       IF (Master) THEN
@@ -83,7 +84,8 @@
 !
       DEFINE : IF (ldef) THEN
         CALL netcdf_create (ng, iNLM, TRIM(ncname), FLEET(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
@@ -96,58 +98,71 @@
 !
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_rho',      &
      &                 IOBOUNDS(ng)%xi_rho, DimIDs( 1))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_u',        &
      &                 IOBOUNDS(ng)%xi_u, DimIDs( 2))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_v',        &
      &                 IOBOUNDS(ng)%xi_v, DimIDs( 3))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'xi_psi',      &
      &                 IOBOUNDS(ng)%xi_psi, DimIDs( 4))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_rho',     &
      &                 IOBOUNDS(ng)%eta_rho, DimIDs( 5))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_u',       &
      &                 IOBOUNDS(ng)%eta_u, DimIDs( 6))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_v',       &
      &                 IOBOUNDS(ng)%eta_v, DimIDs( 7))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'eta_psi',     &
      &                 IOBOUNDS(ng)%eta_psi, DimIDs( 8))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'tracer',      &
      &                 NT(ng), DimIDs(11))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'drifter' ,    &
      &                 Nboats(ng), DimIDs(15))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'boundary',    &
      &                 4, DimIDs(14))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # ifdef FOUR_DVAR
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname, 'Nstate',      &
      &                 NstateVar(ng), DimIDs(29))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 
         status=def_dim(ng, iNLM, FLEET(ng)%ncid, ncname,                &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         recdim=DimIDs(12)
         fleetdim=DimIDs(15)
@@ -180,7 +195,8 @@
 !-----------------------------------------------------------------------
 !
         CALL def_info (ng, iNLM, FLEET(ng)%ncid, ncname, DimIDs)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Define variables and their attributes.
@@ -208,7 +224,8 @@
      &                 FLEET(ng)%Vid(idtime),                           &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet X-grid locations.
 !
@@ -224,7 +241,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBxprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet Y-grid locations.
 !
@@ -240,7 +258,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idByprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet port locations.
 !
@@ -256,7 +275,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBnprt),                          &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define number of fishing locations.
 !
@@ -272,7 +292,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBnfloc),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet X-grid 1st fishing location.
 !
@@ -288,7 +309,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBxfsh1),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet Y-grid 1st fishing location.
 !
@@ -304,7 +326,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idByfsh1),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet X-grid 2st fishing location.
 !
@@ -320,7 +343,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBxfsh2),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet Y-grid 1st fishing location.
 !
@@ -336,7 +360,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idByfsh2),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet catch
 !
@@ -352,7 +377,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBcatch),                         &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define fleet cummulative catch
 !
@@ -368,7 +394,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBcmctch),                        &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define average catch per unit effort
 !
@@ -384,7 +411,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBacpue),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define perceived catch per unit effort
 !
@@ -400,7 +428,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBpcpue),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define distance to nearest port
 !
@@ -416,7 +445,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBpdist),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define nearest port number
 !
@@ -432,7 +462,8 @@
         status=def_var(ng, iNLM, FLEET(ng)%ncid,                        &
      &                 FLEET(ng)%Vid(idBpnear),                         &
      &                 NF_FOUT, 3, t2dgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
@@ -443,14 +474,16 @@
 !-----------------------------------------------------------------------
 !
         CALL netcdf_enddef (ng, iNLM, ncname, FLEET(ng)%ncid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
         CALL wrt_info (ng, iNLM, FLEET(ng)%ncid, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF DEFINE
 !
 !=======================================================================
@@ -464,7 +497,8 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Get the size of the drifter dimension.
 !
@@ -478,12 +512,14 @@
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Open fleet file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, FLEET(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF
@@ -590,7 +626,8 @@
      &                        ncid = FLEET(ng)%ncid,                    &
      &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Nboats(ng)
           BOATS(ng)%boat(ibiloc,l)=Tinp(l)
@@ -601,7 +638,8 @@
      &                        ncid = FLEET(ng)%ncid,                    &
      &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Nboats(ng)
           BOATS(ng)%boat(ibjloc,l)=Tinp(l)
@@ -612,13 +650,15 @@
      &                        ncid = FLEET(ng)%ncid,                    &
      &                        start = (/1,FLEET(ng)%Rindex/),           &
      &                        total = (/Nboats(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Nboats(ng)
           BOATS(ng)%boat(ibport,l)=Tinp(l)
         END DO
 
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       END IF QUERY
 !

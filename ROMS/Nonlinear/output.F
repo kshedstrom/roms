@@ -685,7 +685,8 @@
               CALL netcdf_close (ng, iNLM, FISH(ng)%ncid)
             END IF
             CALL def_fish (ng, NewFile)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
             LwrtFISH(ng)=.FALSE.                 ! avoid writing initial
@@ -695,7 +696,8 @@
         ELSE
           IF (iic(ng).eq.ntstart(ng)) THEN
             CALL def_fish (ng, ldefout(ng))
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             LwrtFISH(ng)=.TRUE.
             LdefFISH(ng)=.FALSE.
           END IF
@@ -708,7 +710,8 @@
       IF (LwrtFISH(ng)) THEN
           IF (MOD(iic(ng)-1,nFSH(ng)).eq.0) THEN
             CALL wrt_fish (ng)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
       END IF
 
@@ -769,7 +772,8 @@
               CALL netcdf_close (ng, iNLM, PRED(ng)%ncid)
             END IF
             CALL def_pred (ng, NewFile)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
             LwrtPRED(ng)=.FALSE.                 ! avoid writing initial
@@ -779,7 +783,8 @@
         ELSE
           IF (iic(ng).eq.ntstart(ng)) THEN
             CALL def_pred (ng, ldefout(ng))
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             LwrtPRED(ng)=.TRUE.
             LdefPRED(ng)=.FALSE.
           END IF
@@ -793,7 +798,8 @@
       IF (LwrtPRED(ng)) THEN
           IF (MOD(iic(ng)-1,nPRE(ng)).eq.0) THEN
             CALL wrt_pred (ng)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
       END IF
 
@@ -855,7 +861,8 @@
               CALL netcdf_close (ng, iNLM, FLEET(ng)%ncid)
             END IF
             CALL def_fleet (ng, NewFile)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF ((iic(ng).eq.ntstart(ng)).and.(nrrec(ng).ne.0)) THEN
             LwrtFLEET(ng)=.FALSE.                 ! avoid writing initial
@@ -865,7 +872,8 @@
         ELSE
           IF (iic(ng).eq.ntstart(ng)) THEN
             CALL def_fleet (ng, ldefout(ng))
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             LwrtFLEET(ng)=.TRUE.
             LdefFLEET(ng)=.FALSE.
           END IF
@@ -878,7 +886,8 @@
       IF (LwrtFLEET(ng)) THEN
           IF (MOD(iic(ng)-1,nFLE(ng)).eq.0) THEN
             CALL wrt_fleet (ng)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
       END IF
 
