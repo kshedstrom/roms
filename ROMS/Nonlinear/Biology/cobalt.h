@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2013 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -719,15 +719,18 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(htotal)  =', MINVAL(cobalt%f_htotal(:,:,k)),  MAXVAL(cobalt%f_htotal(:,:,k))
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) =', MINVAL(cobalt%f_co3_ion(:,:,k)), MAXVAL(cobalt%f_co3_ion(:,:,k))
 #endif
+   cobalt%co2_alpha(:,:) = cobalt%co2_alpha(:,:) * rmask_local(:,:)
+   cobalt%co2_csurf(:,:) = cobalt%co2_csurf(:,:) * rmask_local(:,:)
+   cobalt%pco2_csurf(:,:) = cobalt%pco2_csurf(:,:) * rmask_local(:,:)
 !
 #ifdef DIAGNOSTICS_BIO
 ! RD dev notes:
 ! save diagnostics on carbon chemistry
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + cobalt%co2_alpha(i,j)  * rmask_local(i,j)
-        DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + cobalt%co2_csurf(i,j)  * rmask_local(i,j)
-        DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j) * rmask_local(i,j)
+        DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + cobalt%co2_alpha(i,j)
+        DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + cobalt%co2_csurf(i,j)
+        DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j)
      ENDDO
    ENDDO
 #endif
@@ -789,14 +792,14 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        airsea_co2_flx(i,j) = co2_piston_vel * co2_alpha * (pCO2atm - pCO2surface) * rmask(i,j)
 
        ! convert airsea_co2_flx from mol.m-2.s-1 to mol.kg-1.s-1
-       airsea_co2_flx(i,j) = airsea_co2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk)
+       airsea_co2_flx(i,j) = airsea_co2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
 
 #ifdef COBALT_CONSERVATION_TEST
        airsea_co2_flx(i,j) = 0.0d0
 #endif
 
 #ifdef DIAGNOSTICS_BIO
-       DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) + airsea_co2_flx(i,j) * n_dt * rmask_local(i,j)
+       DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) + airsea_co2_flx(i,j) * n_dt
 #endif
      ENDDO
    ENDDO
@@ -873,7 +876,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        airsea_o2_flx(i,j) = o2_piston_vel * (o2_saturation - o2_csurf) * rmask(i,j)
 
        ! convert flux in mol.kg-1.s-1
-       airsea_o2_flx(i,j) = airsea_o2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk)
+       airsea_o2_flx(i,j) = airsea_o2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
 
        ! don't think I need this now
        !o2_alpha(i,j) = (o2_saturation / 0.21)
@@ -882,7 +885,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         airsea_o2_flx(i,j) = 0.0d0
 #endif
 #ifdef DIAGNOSTICS_BIO
-        DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) + airsea_o2_flx(i,j) * n_dt * rmask_local(i,j)
+        DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) + airsea_o2_flx(i,j) * n_dt
 #endif
      ENDDO
    ENDDO
@@ -1143,24 +1146,24 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 ! RD TODO clean 1-4 SMALL-LARGE
 #ifdef COBALT_IRON
-  phyto(1)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(1)%f_fe(:,:,:) / &
-& max(epsln,phyto(1)%f_n(:,:,:)))
-  phyto(2)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(2)%f_fe(:,:,:) / &
-& max(epsln,phyto(2)%f_n(:,:,:)))
-  phyto(3)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(3)%f_fe(:,:,:) / &
-& max(epsln,phyto(3)%f_n(:,:,:)))
-#ifdef COASTDIAT
-  phyto(4)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(4)%f_fe(:,:,:) / &
-& max(epsln,phyto(4)%f_n(:,:,:)))
-#endif
+  phyto(DIAZO)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(DIAZO)%f_fe(:,:,:) / &
+                               max(epsln,phyto(DIAZO)%f_n(:,:,:)))
+  phyto(LARGE)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(LARGE)%f_fe(:,:,:) / &
+                               max(epsln,phyto(LARGE)%f_n(:,:,:)))
+# ifdef COASTDIAT
+  phyto(MEDIUM)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(MEDIUM)%f_fe(:,:,:) / &
+                                max(epsln,phyto(MEDIUM)%f_n(:,:,:)))
+# endif
+  phyto(SMALL)%q_fe_2_n(:,:,:)=max(0.0d0,phyto(SMALL)%f_fe(:,:,:) / &
+                               max(epsln,phyto(SMALL)%f_n(:,:,:)))
 #endif
 
-  phyto(1)%q_p_2_n(:,:,:) = phyto(1)%p_2_n_static
-  phyto(2)%q_p_2_n(:,:,:) = phyto(2)%p_2_n_static
-  phyto(3)%q_p_2_n(:,:,:) = phyto(3)%p_2_n_static
+  phyto(DIAZO)%q_p_2_n(:,:,:) = phyto(DIAZO)%p_2_n_static
+  phyto(LARGE)%q_p_2_n(:,:,:) = phyto(LARGE)%p_2_n_static
 #ifdef COASTDIAT
-  phyto(4)%q_p_2_n(:,:,:) = phyto(4)%p_2_n_static
+  phyto(MEDIUM)%q_p_2_n(:,:,:) = phyto(MEDIUM)%p_2_n_static
 #endif
+  phyto(SMALL)%q_p_2_n(:,:,:) = phyto(SMALL)%p_2_n_static
 
 
 !
@@ -1177,52 +1180,56 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !  ENDDO
 !  nphyto=overflow
 
-  phyto(2)%no3lim(:,:,:) = cobalt%f_no3(:,:,:) /   &
-& ( (phyto(2)%k_no3 + cobalt%f_no3(:,:,:))     *   &
-& (1.0d0 + cobalt%f_nh4(:,:,:) / phyto(2)%k_nh4) )
-
-  phyto(3)%no3lim(:,:,:) = cobalt%f_no3(:,:,:) /   &
-& ( (phyto(3)%k_no3 + cobalt%f_no3(:,:,:))     *   &
-& (1.0d0 + cobalt%f_nh4(:,:,:) / phyto(3)%k_nh4) )
+  DO k=1,UBk
+    phyto(LARGE)%no3lim(:,:,k) = cobalt%f_no3(:,:,k) /   &
+             ( (phyto(LARGE)%k_no3 + cobalt%f_no3(:,:,k))     *   &
+             (1.0d0 + cobalt%f_nh4(:,:,k) / phyto(LARGE)%k_nh4) ) * rmask_local(:,:)
 
 #ifdef COASTDIAT
-  phyto(4)%no3lim(:,:,:) = cobalt%f_no3(:,:,:) /   &
-& ( (phyto(4)%k_no3 + cobalt%f_no3(:,:,:))     *   &
-& (1.0d0 + cobalt%f_nh4(:,:,:) / phyto(4)%k_nh4) )
+    phyto(MEDIUM)%no3lim(:,:,k) = cobalt%f_no3(:,:,k) /   &
+             ( (phyto(MEDIUM)%k_no3 + cobalt%f_no3(:,:,k))     *   &
+             (1.0d0 + cobalt%f_nh4(:,:,k) / phyto(MEDIUM)%k_nh4) ) * rmask_local(:,:)
 #endif
 
-  phyto(2)%nh4lim(:,:,:) = cobalt%f_nh4(:,:,:) /   &
-& (phyto(2)%k_nh4 + cobalt%f_nh4(:,:,:))
+    phyto(SMALL)%no3lim(:,:,k) = cobalt%f_no3(:,:,k) /   &
+             ( (phyto(SMALL)%k_no3 + cobalt%f_no3(:,:,k))     *   &
+             (1.0d0 + cobalt%f_nh4(:,:,k) / phyto(SMALL)%k_nh4) ) * rmask_local(:,:)
 
-  phyto(3)%nh4lim(:,:,:) = cobalt%f_nh4(:,:,:) /   &
-& (phyto(3)%k_nh4 + cobalt%f_nh4(:,:,:))
+    phyto(LARGE)%nh4lim(:,:,k) = cobalt%f_nh4(:,:,k) /   &
+             (phyto(LARGE)%k_nh4 + cobalt%f_nh4(:,:,k)) * rmask_local(:,:)
 
 #ifdef COASTDIAT
-  phyto(4)%nh4lim(:,:,:) = cobalt%f_nh4(:,:,:) /   &
-& (phyto(4)%k_nh4 + cobalt%f_nh4(:,:,:))
+    phyto(MEDIUM)%nh4lim(:,:,k) = cobalt%f_nh4(:,:,k) /   &
+             (phyto(MEDIUM)%k_nh4 + cobalt%f_nh4(:,:,k)) * rmask_local(:,:)
 #endif
+
+    phyto(SMALL)%nh4lim(:,:,k) = cobalt%f_nh4(:,:,k) /   &
+             (phyto(SMALL)%k_nh4 + cobalt%f_nh4(:,:,k)) * rmask_local(:,:)
+  ENDDO
 
 
 !
 ! O2 inhibition term for diazotrophs
 !
 
-  nphyto=DIAZO
-  phyto(nphyto)%o2lim(:,:,:) = (1.0d0 -               &
-  & cobalt%f_o2(:,:,:)**cobalt%o2_inhib_Di_pow /      &
-  & (cobalt%f_o2(:,:,:)**cobalt%o2_inhib_Di_pow +     &
-  & cobalt%o2_inhib_Di_sat**cobalt%o2_inhib_Di_pow))
+  DO k=1,UBk
+    nphyto=DIAZO
+    phyto(nphyto)%o2lim(:,:,k) = (1.0d0 -               &
+  &   cobalt%f_o2(:,:,k)**cobalt%o2_inhib_Di_pow /      &
+  &   (cobalt%f_o2(:,:,k)**cobalt%o2_inhib_Di_pow +     &
+  &   cobalt%o2_inhib_Di_sat**cobalt%o2_inhib_Di_pow)) * rmask_local(:,:)
 
 !
 ! SiO4, PO4 and Fe uptake limitation with Michaelis-Menten
 !
 
-  phyto(LARGE)%silim(:,:,:) = cobalt%f_sio4(:,:,:) /  &
-  & (phyto(LARGE)%k_sio4 + cobalt%f_sio4(:,:,:))
+    phyto(LARGE)%silim(:,:,k) = cobalt % f_sio4(:,:,k) /  &
+  &   (phyto(LARGE)%k_sio4 + cobalt%f_sio4(:,:,k)) * rmask_local(:,:)
 #ifdef COASTDIAT
-  phyto(MEDIUM)%silim(:,:,:) = cobalt%f_sio4(:,:,:) /  &
-  & (phyto(MEDIUM)%k_sio4 + cobalt%f_sio4(:,:,:))
+    phyto(MEDIUM)%silim(:,:,k) = cobalt%f_sio4(:,:,k) /  &
+  &   (phyto(MEDIUM)%k_sio4 + cobalt%f_sio4(:,:,k)) * rmask_local(:,:)
 #endif
+  ENDDO
 
 !  DO nphyto=1,NUM_PHYTO
 !
@@ -1242,60 +1249,80 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 ! set to 1 when the model is not using them.
 
 #ifdef COBALT_PHOSPHORUS
-  phyto(1)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
-& (phyto(1)%k_po4 + cobalt%f_po4(:,:,:))
-  phyto(2)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
-& (phyto(2)%k_po4 + cobalt%f_po4(:,:,:))
-  phyto(3)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
-& (phyto(3)%k_po4 + cobalt%f_po4(:,:,:))
+  phyto(DIAZO)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
+& (phyto(DIAZO)%k_po4 + cobalt%f_po4(:,:,:))
+  phyto(LARGE)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
+& (phyto(LARGE)%k_po4 + cobalt%f_po4(:,:,:))
+  phyto(SMALL)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
+& (phyto(SMALL)%k_po4 + cobalt%f_po4(:,:,:))
 # ifdef COASTDIAT
-     phyto(4)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
-&    (phyto(4)%k_po4 + cobalt%f_po4(:,:,:))
+     phyto(MEDIUM)%po4lim(:,:,:) = cobalt%f_po4(:,:,:) / &
+&    (phyto(MEDIUM)%k_po4 + cobalt%f_po4(:,:,:))
 # endif
 #else
-  phyto(1)%po4lim(:,:,:) = 1.
-  phyto(2)%po4lim(:,:,:) = 1.
-  phyto(3)%po4lim(:,:,:) = 1.
+  phyto(DIAZO)%po4lim(:,:,:) = 1.
+  phyto(LARGE)%po4lim(:,:,:) = 1.
+  phyto(SMALL)%po4lim(:,:,:) = 1.
 # ifdef COASTDIAT
-    phyto(4)%po4lim(:,:,:) = 1.
+    phyto(MEDIUM)%po4lim(:,:,:) = 1.
 # endif
 #endif
+   DO k=1,UBk
+     phyto(DIAZO)%po4lim(:,:,k) = phyto(DIAZO)%po4lim(:,:,k) * rmask_local(:,:)
+     phyto(LARGE)%po4lim(:,:,k) = phyto(LARGE)%po4lim(:,:,k) * rmask_local(:,:)
+     phyto(SMALL)%po4lim(:,:,k) = phyto(SMALL)%po4lim(:,:,k) * rmask_local(:,:)
+# ifdef COASTDIAT
+     phyto(MEDIUM)%po4lim(:,:,k) = phyto(MEDIUM)%po4lim(:,:,k) * rmask_local(:,:)
+# endif
+   ENDDO
 
 #ifdef COBALT_IRON
-  phyto(1)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
-& (phyto(1)%k_fed + cobalt%f_fed(:,:,:))
-  phyto(2)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
-& (phyto(2)%k_fed + cobalt%f_fed(:,:,:))
-  phyto(3)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
-& (phyto(3)%k_fed + cobalt%f_fed(:,:,:))
+  phyto(DIAZO)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
+& (phyto(DIAZO)%k_fed + cobalt%f_fed(:,:,:))
+  phyto(LARGE)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
+& (phyto(LARGE)%k_fed + cobalt%f_fed(:,:,:))
+  phyto(SMALL)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
+& (phyto(SMALL)%k_fed + cobalt%f_fed(:,:,:))
 # ifdef COASTDIAT
-  phyto(4)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
-& (phyto(4)%k_fed + cobalt%f_fed(:,:,:))
+  phyto(MEDIUM)%felim(:,:,:) = cobalt%f_fed(:,:,:) / &
+& (phyto(MEDIUM)%k_fed + cobalt%f_fed(:,:,:))
 # endif
 
-  phyto(1)%def_fe(:,:,:)=phyto(1)%q_fe_2_n(:,:,:)**2 / &
-& (phyto(1)%k_fe_2_n**2+phyto(1)%q_fe_2_n(:,:,:)**2)
-  phyto(2)%def_fe(:,:,:)=phyto(2)%q_fe_2_n(:,:,:)**2 / &
-& (phyto(2)%k_fe_2_n**2+phyto(2)%q_fe_2_n(:,:,:)**2)
-  phyto(3)%def_fe(:,:,:)=phyto(3)%q_fe_2_n(:,:,:)**2 / &
-& (phyto(3)%k_fe_2_n**2+phyto(3)%q_fe_2_n(:,:,:)**2)
+  phyto(DIAZO)%def_fe(:,:,:)=phyto(DIAZO)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(DIAZO)%k_fe_2_n**2+phyto(DIAZO)%q_fe_2_n(:,:,:)**2)
+  phyto(LARGE)%def_fe(:,:,:)=phyto(LARGE)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(LARGE)%k_fe_2_n**2+phyto(LARGE)%q_fe_2_n(:,:,:)**2)
+  phyto(SMALL)%def_fe(:,:,:)=phyto(SMALL)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(SMALL)%k_fe_2_n**2+phyto(SMALL)%q_fe_2_n(:,:,:)**2)
 # ifdef COASTDIAT
-  phyto(4)%def_fe(:,:,:)=phyto(4)%q_fe_2_n(:,:,:)**2 / &
-& (phyto(4)%k_fe_2_n**2+phyto(4)%q_fe_2_n(:,:,:)**2)
+  phyto(MEDIUM)%def_fe(:,:,:)=phyto(MEDIUM)%q_fe_2_n(:,:,:)**2 / &
+& (phyto(MEDIUM)%k_fe_2_n**2+phyto(MEDIUM)%q_fe_2_n(:,:,:)**2)
 # endif
 #else
-  phyto(1)%def_fe(:,:,:)=1.
-  phyto(2)%def_fe(:,:,:)=1.
-  phyto(3)%def_fe(:,:,:)=1.
-  phyto(1)%felim(:,:,:)=1.
-  phyto(2)%felim(:,:,:)=1.
-  phyto(3)%felim(:,:,:)=1.
+  phyto(DIAZO)%def_fe(:,:,:)=1.
+  phyto(LARGE)%def_fe(:,:,:)=1.
+  phyto(SMALL)%def_fe(:,:,:)=1.
+  phyto(DIAZO)%felim(:,:,:)=1.
+  phyto(LARGE)%felim(:,:,:)=1.
+  phyto(SMALL)%felim(:,:,:)=1.
 # ifdef COASTDIAT
-  phyto(4)%def_fe(:,:,:)=1.
-  phyto(4)%felim(:,:,:)=1.
+  phyto(MEDIUM)%def_fe(:,:,:)=1.
+  phyto(MEDIUM)%felim(:,:,:)=1.
 # endif
 #endif
 
+   DO k=1,UBk
+     phyto(DIAZO)%def_fe(:,:,k) = phyto(DIAZO)%def_fe(:,:,k) * rmask_local(:,:)
+     phyto(LARGE)%def_fe(:,:,k) = phyto(LARGE)%def_fe(:,:,k) * rmask_local(:,:)
+     phyto(SMALL)%def_fe(:,:,k) = phyto(SMALL)%def_fe(:,:,k) * rmask_local(:,:)
+     phyto(DIAZO)%felim(:,:,k) = phyto(DIAZO)%felim(:,:,k) * rmask_local(:,:)
+     phyto(LARGE)%felim(:,:,k) = phyto(LARGE)%felim(:,:,k) * rmask_local(:,:)
+     phyto(SMALL)%felim(:,:,k) = phyto(SMALL)%felim(:,:,k) * rmask_local(:,:)
+# ifdef COASTDIAT
+     phyto(MEDIUM)%def_fe(:,:,k) = phyto(MEDIUM)%def_fe(:,:,k) * rmask_local(:,:)
+     phyto(MEDIUM)%felim(:,:,k) = phyto(MEDIUM)%felim(:,:,k) * rmask_local(:,:)
+# endif
+   ENDDO
 
 !
 ! Calculate nutrient limitation based on the most limiting nutrient (liebig_lim)
@@ -1313,23 +1340,22 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !  ENDDO
 !  nphyto=overflow
 
-     phyto(2)%liebig_lim(:,:,:) = min( phyto(2)%no3lim(:,:,:)+ &
-   &                                        phyto(2)%nh4lim(:,:,:), &
-   &                                        phyto(2)%po4lim,        &
-   &                                        phyto(2)%def_fe )
+     phyto(LARGE)%liebig_lim(:,:,:) = min( phyto(LARGE)%no3lim(:,:,:)+ &
+   &                                       phyto(LARGE)%nh4lim(:,:,:), &
+   &                                       phyto(LARGE)%po4lim,        &
+   &                                       phyto(LARGE)%def_fe )
 
-     phyto(3)%liebig_lim(:,:,:) = min( phyto(3)%no3lim(:,:,:)+ &
-   &                                        phyto(3)%nh4lim(:,:,:), &
-   &                                        phyto(3)%po4lim,        &
-   &                                        phyto(3)%def_fe )
+     phyto(SMALL)%liebig_lim(:,:,:) = min( phyto(SMALL)%no3lim(:,:,:)+ &
+   &                                       phyto(SMALL)%nh4lim(:,:,:), &
+   &                                       phyto(SMALL)%po4lim,        &
+   &                                       phyto(SMALL)%def_fe )
 
 #ifdef COASTDIAT
-     phyto(4)%liebig_lim(:,:,:) = min( phyto(4)%no3lim(:,:,:)+ &
-   &                                        phyto(4)%nh4lim(:,:,:), &
-   &                                        phyto(4)%po4lim,        &
-   &                                        phyto(4)%def_fe )
+     phyto(MEDIUM)%liebig_lim(:,:,:) = min( phyto(MEDIUM)%no3lim(:,:,:)+ &
+   &                                        phyto(MEDIUM)%nh4lim(:,:,:), &
+   &                                        phyto(MEDIUM)%po4lim,        &
+   &                                        phyto(MEDIUM)%def_fe )
 #endif
-
 
 #ifdef DIAGNOSTICS_BIO
    DO k=1,UBk
@@ -1337,44 +1363,42 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        DO i=Istr,Iend
 # ifdef COBALT_IRON
           ! iron diagnostics
-          DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + phyto(SMALL)%def_fe(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,idef_fe_sm) = DiaBio3d(i,j,k,idef_fe_sm) + phyto(SMALL)%def_fe(i,j,k)
 #  ifdef COASTDIAT
-          DiaBio3d(i,j,k,idef_fe_md) = DiaBio3d(i,j,k,idef_fe_md) + phyto(MEDIUM)%def_fe(i,j,k) * rmask_local(i,j)
+          DiaBio3d(i,j,k,idef_fe_md) = DiaBio3d(i,j,k,idef_fe_md) + phyto(MEDIUM)%def_fe(i,j,k)
 #  endif
-          DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + phyto(DIAZO)%def_fe(i,j,k)  * rmask_local(i,j)
-          DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + phyto(LARGE)%def_fe(i,j,k)  * rmask_local(i,j)
-          DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + phyto(SMALL)%felim(i,j,k)   * rmask_local(i,j)
+          DiaBio3d(i,j,k,idef_fe_di) = DiaBio3d(i,j,k,idef_fe_di) + phyto(DIAZO)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,idef_fe_lg) = DiaBio3d(i,j,k,idef_fe_lg) + phyto(LARGE)%def_fe(i,j,k)
+          DiaBio3d(i,j,k,ifelim_sm)  = DiaBio3d(i,j,k,ifelim_sm)  + phyto(SMALL)%felim(i,j,k)
 #  ifdef COASTDIAT
-          DiaBio3d(i,j,k,ifelim_md)  = DiaBio3d(i,j,k,ifelim_md)  + phyto(MEDIUM)%felim(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,ifelim_md)  = DiaBio3d(i,j,k,ifelim_md)  + phyto(MEDIUM)%felim(i,j,k)
 #  endif
-          DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + phyto(DIAZO)%felim(i,j,k)   * rmask_local(i,j)
-          DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + phyto(LARGE)%felim(i,j,k)   * rmask_local(i,j)
+          DiaBio3d(i,j,k,ifelim_di)  = DiaBio3d(i,j,k,ifelim_di)  + phyto(DIAZO)%felim(i,j,k)
+          DiaBio3d(i,j,k,ifelim_lg)  = DiaBio3d(i,j,k,ifelim_lg)  + phyto(LARGE)%felim(i,j,k)
 # endif
           ! nitrogen diagnostics
-          DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + phyto(SMALL)%no3lim(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,ino3lim_sm) = DiaBio3d(i,j,k,ino3lim_sm) + phyto(SMALL)%no3lim(i,j,k)
 # ifdef COASTDIAT
-          DiaBio3d(i,j,k,ino3lim_md) = DiaBio3d(i,j,k,ino3lim_md) + phyto(MEDIUM)%no3lim(i,j,k) * rmask_local(i,j)
+          DiaBio3d(i,j,k,ino3lim_md) = DiaBio3d(i,j,k,ino3lim_md) + phyto(MEDIUM)%no3lim(i,j,k)
 # endif
           DiaBio3d(i,j,k,ino3lim_di) = DiaBio3d(i,j,k,ino3lim_di)   !&
-!  &                                  + rmask_local(i,j)*             &
-!  &                                    phyto(DIAZO)%no3lim(i,j,k)
-          DiaBio3d(i,j,k,ino3lim_lg) = DiaBio3d(i,j,k,ino3lim_lg) + phyto(LARGE)%no3lim(i,j,k)  * rmask_local(i,j)
-          DiaBio3d(i,j,k,inh4lim_sm) = DiaBio3d(i,j,k,inh4lim_sm) + phyto(SMALL)%nh4lim(i,j,k)  * rmask_local(i,j)
+!  &                                  + phyto(DIAZO)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,ino3lim_lg) = DiaBio3d(i,j,k,ino3lim_lg) + phyto(LARGE)%no3lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_sm) = DiaBio3d(i,j,k,inh4lim_sm) + phyto(SMALL)%nh4lim(i,j,k)
 # ifdef COASTDIAT
-          DiaBio3d(i,j,k,inh4lim_md) = DiaBio3d(i,j,k,inh4lim_md) + phyto(MEDIUM)%nh4lim(i,j,k) * rmask_local(i,j)
+          DiaBio3d(i,j,k,inh4lim_md) = DiaBio3d(i,j,k,inh4lim_md) + phyto(MEDIUM)%nh4lim(i,j,k)
 # endif
           DiaBio3d(i,j,k,inh4lim_di) = DiaBio3d(i,j,k,inh4lim_di)   !&
-!  &                                  + rmask_local(i,j)*             &
-!  &                                    phyto(DIAZO)%nh4lim(i,j,k)
-          DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + phyto(LARGE)%nh4lim(i,j,k)  * rmask_local(i,j)
+!  &                                  + phyto(DIAZO)%nh4lim(i,j,k)
+          DiaBio3d(i,j,k,inh4lim_lg) = DiaBio3d(i,j,k,inh4lim_lg) + phyto(LARGE)%nh4lim(i,j,k)
 # ifdef COBALT_PHOSPHORUS
           ! phosphorus diagnostics
-          DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + phyto(SMALL)%po4lim(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,ipo4lim_sm) = DiaBio3d(i,j,k,ipo4lim_sm) + phyto(SMALL)%po4lim(i,j,k)
 #  ifdef COASTDIAT
-          DiaBio3d(i,j,k,ipo4lim_md) = DiaBio3d(i,j,k,ipo4lim_md) + phyto(MEDIUM)%po4lim(i,j,k) * rmask_local(i,j)
+          DiaBio3d(i,j,k,ipo4lim_md) = DiaBio3d(i,j,k,ipo4lim_md) + phyto(MEDIUM)%po4lim(i,j,k)
 #  endif
-          DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + phyto(DIAZO)%po4lim(i,j,k)  * rmask_local(i,j)
-          DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + phyto(LARGE)%po4lim(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,ipo4lim_di) = DiaBio3d(i,j,k,ipo4lim_di) + phyto(DIAZO)%po4lim(i,j,k)
+          DiaBio3d(i,j,k,ipo4lim_lg) = DiaBio3d(i,j,k,ipo4lim_lg) + phyto(LARGE)%po4lim(i,j,k)
 # endif
        ENDDO
      ENDDO
@@ -1398,7 +1422,8 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=0,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          swdk3(i,j,k) = decayW(i,j,k,3) + decayW(i,j,k,4) ! use only visible bands
+	 ! use only visible bands
+         swdk3(i,j,k) = (decayW(i,j,k,3) + decayW(i,j,k,4)) * rmask_local(i,j)
        END DO
      END DO
    ENDDO
@@ -1412,7 +1437,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k) * rmask_local(i,j)
+         DiaBio3d(i,j,k,iswdk) = DiaBio3d(i,j,k,iswdk) + swdk3(i,j,k)
        END DO
      END DO
    ENDDO
@@ -1429,9 +1454,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ! rho_ref is set to the surface value
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        mxl_blev(i,j)  = 1
-        mxl_depth(i,j) = z_w(i,j,UBk) - h(i,j)
-        rho_ref(i,j)   = rho(i,j,UBk)
+       mxl_blev(i,j)  = 1
+       mxl_depth(i,j) = z_w(i,j,UBk) - h(i,j)
+       rho_ref(i,j)   = rho(i,j,UBk)
      ENDDO
    ENDDO
    i=overflow ; j=overflow
@@ -1439,8 +1464,8 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=0,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          FM(i,j,k) = z_w(i,j,UBk) - z_w(i,j,k) ! get zeta out ?
-          FM2(i,j,k) = ABS( FM(i,j,k) - rho_ref_depth )
+         FM(i,j,k) = z_w(i,j,UBk) - z_w(i,j,k) ! get zeta out ?
+         FM2(i,j,k) = ABS( FM(i,j,k) - rho_ref_depth )
        ENDDO
      ENDDO
    ENDDO
@@ -1470,17 +1495,17 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
    DO j=Jstr,Jend
      DO i=Istr,Iend
-        krhoref = MINLOC( FM2(i,j,:),1)
-        krhoref = MAX(krhoref,1)
-        rho_ref(i,j) = rho(i,j,krhoref)
-        !mxl_blev(i,j) = MINLOC( ABS( rho(i,j,:) - rho_ref(i,j) - rho_crit ) )
+       krhoref = MINLOC( FM2(i,j,:),1)
+       krhoref = MAX(krhoref,1)
+       rho_ref(i,j) = rho(i,j,krhoref)
+       !mxl_blev(i,j) = MINLOC( ABS( rho(i,j,:) - rho_ref(i,j) - rho_crit ) )
      ENDDO
    ENDDO
 
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          IF (rho(i,j,k) > rho_ref(i,j) + rho_crit)   mxl_blev(i,j) = k
+         IF (rho(i,j,k) > rho_ref(i,j) + rho_crit)   mxl_blev(i,j) = k
        ENDDO
      ENDDO
    ENDDO
@@ -1583,7 +1608,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 !      DO k=kblt+1,N(ng)
       DO k=kblt,UBk
-         cobalt%irr_mix(i,j,k) = tmp_irrad_ML * rmask(i,j) / mxl_depth(i,j)
+         cobalt%irr_mix(i,j,k) = tmp_irrad_ML * rmask_local(i,j) / mxl_depth(i,j)
       ENDDO
 
      ENDDO
@@ -1612,7 +1637,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          cobalt%expkT(i,j,k) = exp(cobalt%kappa_eppley * cobalt%f_temp(i,j,k))
          cobalt%f_irr_mem(i,j,k) = (cobalt%f_irr_mem(i,j,k) + &
        & (cobalt%irr_mix(i,j,k)  - cobalt%f_irr_mem(i,j,k)) * &
-       & min(1.0d0,cobalt%gamma_irr_mem * n_dt)) * rmask(i,j)
+       & min(1.0d0,cobalt%gamma_irr_mem * n_dt)) * rmask_local(i,j)
       ENDDO
     ENDDO
   ENDDO
@@ -1699,7 +1724,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          ENDDO
 
          DO k=kblt,UBk
-           phyto(nphyto)%mu_mix(i,j,k) = tmp_mu_ML * rmask(i,j) / mxl_depth(i,j)
+           phyto(nphyto)%mu_mix(i,j,k) = tmp_mu_ML * rmask_local(i,j) / mxl_depth(i,j)
          ENDDO
 
        ENDDO
@@ -1715,7 +1740,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
         DO nphyto = 1,NUM_PHYTO
         phyto(nphyto)%f_mu_mem(i,j,k) = (phyto(nphyto)%f_mu_mem(i,j,k) + &
      & (phyto(nphyto)%mu_mix(i,j,k)  - phyto(nphyto)%f_mu_mem(i,j,k)) *  &
-     & min(1.0d0,cobalt%gamma_mu_mem * n_dt)) * rmask(i,j)
+     & min(1.0d0,cobalt%gamma_mu_mem * n_dt)) * rmask_local(i,j)
         ENDDO
       ENDDO
     ENDDO
@@ -1731,58 +1756,62 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !
 
 !   call system_clock(clock1start)
-  nphyto=DIAZO
 
-   phyto(nphyto)%juptake_n2(:,:,:) = max( 0.0,                           &
- & (1.0 - phyto(LARGE)%no3lim(:,:,:) - phyto(LARGE)%nh4lim(:,:,:)) *     &
- & phyto(nphyto)%mu(:,:,:) * phyto(nphyto)%f_n(:,:,:) )
+  DO k=1,UBk
+    nphyto=DIAZO
+    phyto(nphyto)%juptake_n2(:,:,k) = max( 0.0,                            &
+ &   (1.0 - phyto(LARGE)%no3lim(:,:,k) - phyto(LARGE)%nh4lim(:,:,k)) *     &
+ &   phyto(nphyto)%mu(:,:,k) * phyto(nphyto)%f_n(:,:,k) ) * rmask_local(:,:)
 
-   phyto(nphyto)%juptake_nh4(:,:,:)=max(0.0,phyto(LARGE)%nh4lim(:,:,:) * &
- & phyto(nphyto)%mu(:,:,:)*phyto(nphyto)%f_n(:,:,:))
+    phyto(nphyto)%juptake_nh4(:,:,k)=max(0.0,phyto(LARGE)%nh4lim(:,:,k) * &
+ &   phyto(nphyto)%mu(:,:,k)*phyto(nphyto)%f_n(:,:,k)) * rmask_local(:,:)
 
-   phyto(nphyto)%juptake_no3(:,:,:)=max(0.0,phyto(LARGE)%no3lim(:,:,:) * &
- & phyto(nphyto)%mu(:,:,:)*phyto(nphyto)%f_n(:,:,:))
+    phyto(nphyto)%juptake_no3(:,:,k)=max(0.0,phyto(LARGE)%no3lim(:,:,k) * &
+ &   phyto(nphyto)%mu(:,:,k)*phyto(nphyto)%f_n(:,:,k)) * rmask_local(:,:)
 
    ! If growth is negative, net remineralization of organic material
-   phyto(nphyto)%juptake_nh4(:,:,:) = phyto(nphyto)%juptake_nh4(:,:,:) + &
- & min(0.0,phyto(nphyto)%mu(:,:,:)  * phyto(nphyto)%f_n(:,:,:))
+    phyto(nphyto)%juptake_nh4(:,:,k) = phyto(nphyto)%juptake_nh4(:,:,k) + &
+ &   min(0.0,phyto(nphyto)%mu(:,:,k)  * phyto(nphyto)%f_n(:,:,k)) * rmask_local(:,:)
 
-   phyto(nphyto)%jprod_n(:,:,:) = phyto(nphyto)%juptake_nh4(:,:,:)     + &
- & phyto(nphyto)%juptake_no3(:,:,:) + phyto(nphyto)%juptake_n2(:,:,:)
+    phyto(nphyto)%jprod_n(:,:,k) = phyto(nphyto)%juptake_nh4(:,:,k)     + &
+ &   phyto(nphyto)%juptake_no3(:,:,k) + phyto(nphyto)%juptake_n2(:,:,k) * rmask_local(:,:)
 
-   DO nphyto=2,NUM_PHYTO
+    DO nphyto=2,NUM_PHYTO
 
-      phyto(nphyto)%juptake_no3(:,:,:)=max(0.0,phyto(nphyto)%mu(:,:,:) * &
-    & phyto(nphyto)%f_n(:,:,:) * phyto(nphyto)%no3lim(:,:,:)           / &
-    & (phyto(nphyto)%no3lim(:,:,:) + phyto(nphyto)%nh4lim(:,:,:)+epsln) )
+       phyto(nphyto)%juptake_no3(:,:,k)=max(0.0,phyto(nphyto)%mu(:,:,k) * &
+    &    phyto(nphyto)%f_n(:,:,k) * phyto(nphyto)%no3lim(:,:,k)           / &
+    &   (phyto(nphyto)%no3lim(:,:,k) + phyto(nphyto)%nh4lim(:,:,k)+epsln) ) * rmask_local(:,:)
 
-      phyto(nphyto)%juptake_nh4(:,:,:)=max(0.0,phyto(nphyto)%mu(:,:,:) * &
-    & phyto(nphyto)%f_n(:,:,:) * phyto(nphyto)%nh4lim(:,:,:)           / &
-    & (phyto(nphyto)%no3lim(:,:,:) + phyto(nphyto)%nh4lim(:,:,:)+epsln) )
+       phyto(nphyto)%juptake_nh4(:,:,k)=max(0.0,phyto(nphyto)%mu(:,:,k) * &
+    &   phyto(nphyto)%f_n(:,:,k) * phyto(nphyto)%nh4lim(:,:,k)           / &
+    &  (phyto(nphyto)%no3lim(:,:,k) + phyto(nphyto)%nh4lim(:,:,k)+epsln) ) * rmask_local(:,:)
 
       ! If growth is negative, net remineralization of organic material
-      phyto(nphyto)%juptake_nh4(:,:,:)=phyto(nphyto)%juptake_nh4(:,:,:)+ &
-    & min(0.0,phyto(nphyto)%mu(:,:,:) *phyto(nphyto)%f_n(:,:,:))
+       phyto(nphyto)%juptake_nh4(:,:,k)=phyto(nphyto)%juptake_nh4(:,:,k)+ &
+    &   min(0.0,phyto(nphyto)%mu(:,:,k) *phyto(nphyto)%f_n(:,:,k)) * rmask_local(:,:)
 
-      phyto(nphyto)%jprod_n(:,:,:) = phyto(nphyto)%juptake_nh4(:,:,:) +  &
-    & phyto(nphyto)%juptake_no3(:,:,:)
+       phyto(nphyto)%jprod_n(:,:,k) = phyto(nphyto)%juptake_nh4(:,:,k) +  &
+    &   phyto(nphyto)%juptake_no3(:,:,k) * rmask_local(:,:)
 
-   ENDDO
-   nphyto=overflow
+    ENDDO
+  ENDDO
+  nphyto=overflow
 
 !
 ! Phosphorous uptake
 !
 
 #ifdef COBALT_PHOSPHORUS
-  nphyto=DIAZO
-  phyto(nphyto)%juptake_po4(:,:,:) = (phyto(nphyto)%juptake_n2(:,:,:)  + &
-  & phyto(nphyto)%juptake_nh4(:,:,:)+phyto(nphyto)%juptake_no3(:,:,:)) * &
-  & phyto(nphyto)%p_2_n_static
+  DO k=1,UBk
+    nphyto=DIAZO
+    phyto(nphyto)%juptake_po4(:,:,k) = (phyto(nphyto)%juptake_n2(:,:,k)  + &
+  &   phyto(nphyto)%juptake_nh4(:,:,k)+phyto(nphyto)%juptake_no3(:,:,k)) * &
+  &   phyto(nphyto)%p_2_n_static * rmask_local(:,:)
 
-  DO nphyto=2,NUM_PHYTO
-     phyto(nphyto)%juptake_po4(:,:,:)=(phyto(nphyto)%juptake_no3(:,:,:)+ &
-     phyto(nphyto)%juptake_nh4(:,:,:)) * phyto(nphyto)%p_2_n_static
+    DO nphyto=2,NUM_PHYTO
+       phyto(nphyto)%juptake_po4(:,:,k)=(phyto(nphyto)%juptake_no3(:,:,k)+ &
+       phyto(nphyto)%juptake_nh4(:,:,k)) * phyto(nphyto)%p_2_n_static * rmask_local(:,:)
+    ENDDO
   ENDDO
   nphyto=overflow
 #endif
@@ -1799,7 +1828,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
           IF (phyto(nphyto)%q_fe_2_n(i,j,k).lt.phyto(nphyto)%fe_2_n_max) THEN
              phyto(nphyto)%juptake_fe(i,j,k) = phyto(nphyto)%P_C_max * &
            & cobalt%expkT(i,j,k) * phyto(nphyto)%f_n(i,j,k)          * &
-           & phyto(nphyto)%felim(i,j,k) * cobalt%fe_2_n_upt_fac
+           & phyto(nphyto)%felim(i,j,k) * cobalt%fe_2_n_upt_fac * rmask_local(i,j)
           ELSE
              phyto(nphyto)%juptake_fe(i,j,k) = 0.0
           ENDIF
@@ -1823,21 +1852,23 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
  & phyto(MEDIUM)%silim(:,:,:)
 #endif
 
-   cobalt%q_si_2_n_lg_diatoms(:,:,:) = cobalt%f_silg(:,:,:) /            &
- & (cobalt%nlg_diatoms(:,:,:) + epsln)
+  DO k=1,UBk
+    cobalt%q_si_2_n_lg_diatoms(:,:,k) = cobalt%f_silg(:,:,k) /            &
+ &   (cobalt%nlg_diatoms(:,:,k) + epsln) * rmask_local(:,:)
 #ifdef COASTDIAT
-   cobalt%q_si_2_n_md_diatoms(:,:,:) = cobalt%f_simd(:,:,:) /            &
- & (cobalt%nmd_diatoms(:,:,:) + epsln)
+    cobalt%q_si_2_n_md_diatoms(:,:,k) = cobalt%f_simd(:,:,k) /            &
+ &   (cobalt%nmd_diatoms(:,:,k) + epsln) * rmask_local(:,:)
 #endif
+  ENDDO
 
-   phyto(LARGE)%juptake_sio4(:,:,:)=max(phyto(LARGE)%juptake_no3(:,:,:)+ &
- & phyto(LARGE)%juptake_nh4(:,:,:),0.0) * phyto(LARGE)%silim(:,:,:)    * &
- & phyto(LARGE)%silim(:,:,:) * phyto(LARGE)%si_2_n_max
+  phyto(LARGE)%juptake_sio4(:,:,:)=max(phyto(LARGE)%juptake_no3(:,:,:)+ &
+ &   phyto(LARGE)%juptake_nh4(:,:,:),0.0) * phyto(LARGE)%silim(:,:,:)    * &
+ &   phyto(LARGE)%silim(:,:,:) * phyto(LARGE)%si_2_n_max
 #ifdef COASTDIAT
- phyto(MEDIUM)%juptake_sio4(:,:,:)=max(phyto(MEDIUM)%juptake_no3(:,:,:)+ &
+  phyto(MEDIUM)%juptake_sio4(:,:,:)=max(phyto(MEDIUM)%juptake_no3(:,:,:)+ &
 &                                      phyto(MEDIUM)%juptake_nh4(:,:,:)+ &
 &                                 0.0,0.0) * phyto(MEDIUM)%silim(:,:,:)* &
-& phyto(MEDIUM)%silim(:,:,:) * phyto(MEDIUM)%si_2_n_max
+&    phyto(MEDIUM)%silim(:,:,:) * phyto(MEDIUM)%si_2_n_max
 #endif
 
 
@@ -1845,10 +1876,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 ! Note that this is si_2_n in large phytoplankton pool, not in diatoms themselves
 
 ! RD : forgot this line (oups...)
-   phyto(LARGE)%q_si_2_n(:,:,:) = cobalt%f_silg(:,:,:)/(phyto(LARGE)%f_n(:,:,:)+epsln)
+  DO k=1,UBk
+    phyto(LARGE)%q_si_2_n(:,:,k) = cobalt%f_silg(:,:,k) * rmask_local(:,:) &
+              /(phyto(LARGE)%f_n(:,:,k)+epsln)
 #ifdef COASTDIAT
-  phyto(MEDIUM)%q_si_2_n(:,:,:) = cobalt%f_simd(:,:,:)/(phyto(MEDIUM)%f_n(:,:,:)+epsln)
+    phyto(MEDIUM)%q_si_2_n(:,:,k) = cobalt%f_simd(:,:,k) * rmask_local(:,:) &
+              /(phyto(MEDIUM)%f_n(:,:,k)+epsln)
 #endif
+  ENDDO
 
 !   call system_clock(clock1stop)
 !   time_clock1 = elapsed_time(clock1start,clock1stop)
@@ -1876,26 +1911,27 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          bact_ldon_lim = cobalt%f_ldon(i,j,k)/(bact(1)%k_ldon + cobalt%f_ldon(i,j,k))
 
          bact(1)%juptake_ldon(i,j,k)=vmax_bact*bact(1)%temp_lim(i,j,k) * &
-       & bact_ldon_lim * bact(1)%f_n(i,j,k)
+       & bact_ldon_lim * bact(1)%f_n(i,j,k) * rmask_local(i,j)
 
 
          bact_uptake_ratio = ( cobalt%f_ldop(i,j,k)/max(cobalt%f_ldon(i,j,k),epsln) )
 
-         bact(1)%juptake_ldop(i,j,k) = bact(1)%juptake_ldon(i,j,k)*bact_uptake_ratio
+         bact(1)%juptake_ldop(i,j,k) = bact(1)%juptake_ldon(i,j,k)*bact_uptake_ratio &
+	             * rmask_local(i,j)
 
          IF (bact_uptake_ratio.lt.bact(1)%q_p_2_n) THEN
 
             bact(1)%jprod_n(i,j,k) = bact(1)%gge_max                   * &
           & bact(1)%juptake_ldop(i,j,k)*16.0 - bact(1)%f_n(i,j,k)      / &
           & (refuge_conc + bact(1)%f_n(i,j,k))*bact(1)%temp_lim(i,j,k) * &
-          & bact(1)%bresp * bact(1)%f_n(i,j,k)
+          & bact(1)%bresp * bact(1)%f_n(i,j,k) * rmask_local(i,j)
 
          ELSE
 
             bact(1)%jprod_n(i,j,k) = bact(1)%gge_max                   * &
           & bact(1)%juptake_ldon(i,j,k) - bact(1)%f_n(i,j,k)           / &
           & (refuge_conc + bact(1)%f_n(i,j,k))*bact(1)%temp_lim(i,j,k) * &
-          & bact(1)%bresp * bact(1)%f_n(i,j,k)
+          & bact(1)%bresp * bact(1)%f_n(i,j,k) * rmask_local(i,j)
          ENDIF
 
       ENDDO
@@ -1909,7 +1945,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO j=Jstr,Jend
       DO i=Istr,Iend
 
-         bact(1)%temp_lim(i,j,k) = exp(bact(1)%ktemp*cobalt%f_temp(i,j,k))
+         bact(1)%temp_lim(i,j,k) = exp(bact(1)%ktemp*cobalt%f_temp(i,j,k)) &
+	      * rmask_local(i,j)
 
          bact_ldon_lim = cobalt%f_ldon(i,j,k)/(bact(1)%k_ldon + cobalt%f_ldon(i,j,k))
 
@@ -2098,7 +2135,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        m = 1
        !zoo(m)%temp_lim(i,j,k) = exp(zoo(m)%ktemp*cobalt%f_temp(i,j,k))
-       ztemp_lim_zoo1 = exp(zoo(m)%ktemp*ztemp)
+       ztemp_lim_zoo1 = exp(zoo(m)%ktemp*ztemp) * rmask_local(i,j)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo1
 
        sw_fac_denom =  (ipa_matrix(m,4)*prey_vec(4))**2 +    &
@@ -2140,7 +2177,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        m = 2
        !zoo(m)%temp_lim(i,j,k) = exp(zoo(m)%ktemp*cobalt%f_temp(i,j,k))
-       ztemp_lim_zoo2 = exp(zoo(m)%ktemp*ztemp)
+       ztemp_lim_zoo2 = exp(zoo(m)%ktemp*ztemp) * rmask_local(i,j)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo2
 
        sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**2 +    &
@@ -2189,7 +2226,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        m = 3
        !zoo(m)%temp_lim(i,j,k) = exp(zoo(m)%ktemp*cobalt%f_temp(i,j,k))
-       ztemp_lim_zoo3 = exp(zoo(m)%ktemp*ztemp)
+       ztemp_lim_zoo3 = exp(zoo(m)%ktemp*ztemp) * rmask_local(i,j)
        zoo(m)%temp_lim(i,j,k) = ztemp_lim_zoo3
 
       sw_fac_denom = (ipa_matrix(m,1)*prey_vec(1))**2 +    &
@@ -2248,23 +2285,23 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    &                                  ingest_matrix(3,SMALL)
 
 # ifdef COBALT_PHOSPHORUS
-       phyto(1)%jzloss_p(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_p2n_vec(1)
-       phyto(2)%jzloss_p(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_p2n_vec(2)
-       phyto(3)%jzloss_p(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_p2n_vec(3)
-       phyto(4)%jzloss_p(i,j,k) = phyto(4)%jzloss_n(i,j,k)*prey_p2n_vec(4)
+       phyto(DIAZO)%jzloss_p(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_p2n_vec(1)
+       phyto(LARGE)%jzloss_p(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_p2n_vec(2)
+       phyto(MEDIUM)%jzloss_p(i,j,k) = phyto(MEDIUM)%jzloss_n(i,j,k)*prey_p2n_vec(3)
+       phyto(SMALL)%jzloss_p(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_p2n_vec(4)
 # endif
 
 # ifdef COBALT_IRON
-       phyto(1)%jzloss_fe(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
-       phyto(2)%jzloss_fe(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
-       phyto(3)%jzloss_fe(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
-       phyto(4)%jzloss_fe(i,j,k) = phyto(4)%jzloss_n(i,j,k)*prey_fe2n_vec(4)
+       phyto(DIAZO)%jzloss_fe(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
+       phyto(LARGE)%jzloss_fe(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
+       phyto(MEDIUM)%jzloss_fe(i,j,k) = phyto(MEDIUM)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
+       phyto(SMALL)%jzloss_fe(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_fe2n_vec(4)
 # endif
 
-       phyto(1)%jzloss_sio2(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_si2n_vec(1)
-       phyto(2)%jzloss_sio2(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_si2n_vec(2)
-       phyto(3)%jzloss_sio2(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_si2n_vec(3)
-       phyto(4)%jzloss_sio2(i,j,k) = phyto(4)%jzloss_n(i,j,k)*prey_si2n_vec(4)
+       phyto(DIAZO)%jzloss_sio2(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_si2n_vec(1)
+       phyto(LARGE)%jzloss_sio2(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_si2n_vec(2)
+       phyto(MEDIUM)%jzloss_sio2(i,j,k) = phyto(MEDIUM)%jzloss_n(i,j,k)*prey_si2n_vec(3)
+       phyto(SMALL)%jzloss_sio2(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_si2n_vec(4)
 
        bact(1)%jzloss_n(i,j,k) = ingest_matrix(1,5) + &
      &                           ingest_matrix(2,5) + &
@@ -2632,20 +2669,20 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    &                                  ingest_matrix(3,SMALL)
 
 # ifdef COBALT_PHOSPHORUS
-       phyto(1)%jzloss_p(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_p2n_vec(1)
-       phyto(2)%jzloss_p(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_p2n_vec(2)
-       phyto(3)%jzloss_p(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_p2n_vec(3)
+       phyto(DIAZO)%jzloss_p(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_p2n_vec(1)
+       phyto(LARGE)%jzloss_p(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_p2n_vec(2)
+       phyto(SMALL)%jzloss_p(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_p2n_vec(3)
 # endif
 
 # ifdef COBALT_IRON
-       phyto(1)%jzloss_fe(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
-       phyto(2)%jzloss_fe(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
-       phyto(3)%jzloss_fe(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
+       phyto(DIAZO)%jzloss_fe(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_fe2n_vec(1)
+       phyto(LARGE)%jzloss_fe(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_fe2n_vec(2)
+       phyto(SMALL)%jzloss_fe(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_fe2n_vec(3)
 # endif
 
-       phyto(1)%jzloss_sio2(i,j,k) = phyto(1)%jzloss_n(i,j,k)*prey_si2n_vec(1)
-       phyto(2)%jzloss_sio2(i,j,k) = phyto(2)%jzloss_n(i,j,k)*prey_si2n_vec(2)
-       phyto(3)%jzloss_sio2(i,j,k) = phyto(3)%jzloss_n(i,j,k)*prey_si2n_vec(3)
+       phyto(DIAZO)%jzloss_sio2(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_si2n_vec(1)
+       phyto(LARGE)%jzloss_sio2(i,j,k) = phyto(LARGE)%jzloss_n(i,j,k)*prey_si2n_vec(2)
+       phyto(SMALL)%jzloss_sio2(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_si2n_vec(3)
 
 
        bact(1)%jzloss_n(i,j,k) = ingest_matrix(1,4) + &
@@ -2812,47 +2849,62 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! conditions, as determined by the ratio of the 24 hour growth to 1/4 of the maximum.
   ! agg_lim is a new 3D diag variable for the phytoplankton type.
 #ifdef COBALT_NO_DIAZO_AGGLIM
-  phyto(1)%agg_lim(:,:,:) = 0.0
+  phyto(DIAZO)%agg_lim(:,:,:) = 0.0
 #else
-  phyto(1)%agg_lim(:,:,:) = max(1.0 - phyto(1)%f_mu_mem(:,:,:)/(0.25*phyto(1)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(DIAZO)%agg_lim(:,:,:) = max(1.0 - phyto(DIAZO)%f_mu_mem(:,:,:)/   &
+                               (0.25*phyto(DIAZO)%P_C_max*cobalt%expkT(:,:,:)),0.0)
 #endif
-  phyto(2)%agg_lim(:,:,:) = max(1.0 - phyto(2)%f_mu_mem(:,:,:)/(0.25*phyto(2)%P_C_max*cobalt%expkT(:,:,:)),0.0)
-  phyto(3)%agg_lim(:,:,:) = max(1.0 - phyto(3)%f_mu_mem(:,:,:)/(0.25*phyto(3)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(LARGE)%agg_lim(:,:,:) = max(1.0 - phyto(LARGE)%f_mu_mem(:,:,:)/   &
+                               (0.25*phyto(LARGE)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(SMALL)%agg_lim(:,:,:) = max(1.0 - phyto(SMALL)%f_mu_mem(:,:,:)/   &
+                               (0.25*phyto(SMALL)%P_C_max*cobalt%expkT(:,:,:)),0.0)
 #ifdef COASTDIAT
-  phyto(4)%agg_lim(:,:,:) = max(1.0 - phyto(4)%f_mu_mem(:,:,:)/(0.25*phyto(4)%P_C_max*cobalt%expkT(:,:,:)),0.0)
+  phyto(MEDIUM)%agg_lim(:,:,:) = max(1.0 - phyto(MEDIUM)%f_mu_mem(:,:,:)/   &
 #endif
+  DO k=1,UBk
+    phyto(DIAZO)%agg_lim(:,:,k) = phyto(DIAZO)%agg_lim(:,:,k) * rmask_local(:,:)
+    phyto(LARGE)%agg_lim(:,:,k) = phyto(LARGE)%agg_lim(:,:,k) * rmask_local(:,:)
+    phyto(SMALL)%agg_lim(:,:,k) = phyto(SMALL)%agg_lim(:,:,k) * rmask_local(:,:)
+#ifdef COASTDIAT
+    phyto(MEDIUM)%agg_lim(:,:,k) = phyto(MEDIUM)%agg_lim(:,:,k) * rmask_local(:,:)
+#endif
+  ENDDO
 
-  phyto(1)%jaggloss_n(:,:,:) = (phyto(1)%agg_lim(:,:,:)**2)*phyto(1)%agg*phyto(1)%f_n(:,:,:)**2
-  phyto(2)%jaggloss_n(:,:,:) = (phyto(2)%agg_lim(:,:,:)**2)*phyto(2)%agg*phyto(2)%f_n(:,:,:)**2
-  phyto(3)%jaggloss_n(:,:,:) = (phyto(3)%agg_lim(:,:,:)**2)*phyto(3)%agg*phyto(3)%f_n(:,:,:)**2
+  phyto(DIAZO)%jaggloss_n(:,:,:) = (phyto(DIAZO)%agg_lim(:,:,:)**2)*   &
+                               phyto(DIAZO)%agg*phyto(DIAZO)%f_n(:,:,:)**2
+  phyto(LARGE)%jaggloss_n(:,:,:) = (phyto(LARGE)%agg_lim(:,:,:)**2)*   &
+                               phyto(LARGE)%agg*phyto(LARGE)%f_n(:,:,:)**2
+  phyto(SMALL)%jaggloss_n(:,:,:) = (phyto(SMALL)%agg_lim(:,:,:)**2)*   &
+                               phyto(SMALL)%agg*phyto(SMALL)%f_n(:,:,:)**2
 #ifdef COASTDIAT
-  phyto(4)%jaggloss_n(:,:,:) = (phyto(4)%agg_lim(:,:,:)**2)*phyto(4)%agg*phyto(4)%f_n(:,:,:)**2
+  phyto(MEDIUM)%jaggloss_n(:,:,:) = (phyto(MEDIUM)%agg_lim(:,:,:)**2)*   &
+                               phyto(MEDIUM)%agg*phyto(MEDIUM)%f_n(:,:,:)**2
 #endif
 
 
 #ifdef COBALT_PHOSPHORUS
-  phyto(1)%jaggloss_p(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_p_2_n(:,:,:)
-  phyto(2)%jaggloss_p(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_p_2_n(:,:,:)
-  phyto(3)%jaggloss_p(:,:,:) = phyto(3)%jaggloss_n(:,:,:)*phyto(3)%q_p_2_n(:,:,:)
+  phyto(DIAZO)%jaggloss_p(:,:,:) = phyto(DIAZO)%jaggloss_n(:,:,:)*phyto(DIAZO)%q_p_2_n(:,:,:)
+  phyto(LARGE)%jaggloss_p(:,:,:) = phyto(LARGE)%jaggloss_n(:,:,:)*phyto(LARGE)%q_p_2_n(:,:,:)
+  phyto(SMALL)%jaggloss_p(:,:,:) = phyto(SMALL)%jaggloss_n(:,:,:)*phyto(SMALL)%q_p_2_n(:,:,:)
 # ifdef COASTDIAT
-    phyto(4)%jaggloss_p(:,:,:) = phyto(4)%jaggloss_n(:,:,:)*phyto(4)%q_p_2_n(:,:,:)
+    phyto(MEDIUM)%jaggloss_p(:,:,:) = phyto(MEDIUM)%jaggloss_n(:,:,:)*phyto(MEDIUM)%q_p_2_n(:,:,:)
 # endif
 #endif
 
 #ifdef COBALT_IRON
-  phyto(1)%jaggloss_fe(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_fe_2_n(:,:,:)
-  phyto(2)%jaggloss_fe(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_fe_2_n(:,:,:)
-  phyto(3)%jaggloss_fe(:,:,:) = phyto(3)%jaggloss_n(:,:,:)*phyto(3)%q_fe_2_n(:,:,:)
+  phyto(DIAZO)%jaggloss_fe(:,:,:) = phyto(DIAZO)%jaggloss_n(:,:,:)*phyto(DIAZO)%q_fe_2_n(:,:,:)
+  phyto(LARGE)%jaggloss_fe(:,:,:) = phyto(LARGE)%jaggloss_n(:,:,:)*phyto(LARGE)%q_fe_2_n(:,:,:)
+  phyto(SMALL)%jaggloss_fe(:,:,:) = phyto(SMALL)%jaggloss_n(:,:,:)*phyto(SMALL)%q_fe_2_n(:,:,:)
 # ifdef COASTDIAT
-  phyto(4)%jaggloss_fe(:,:,:) = phyto(4)%jaggloss_n(:,:,:)*phyto(4)%q_fe_2_n(:,:,:)
+  phyto(MEDIUM)%jaggloss_fe(:,:,:) = phyto(MEDIUM)%jaggloss_n(:,:,:)*phyto(MEDIUM)%q_fe_2_n(:,:,:)
 # endif
 #endif
 
-  phyto(1)%jaggloss_sio2(:,:,:) = phyto(1)%jaggloss_n(:,:,:)*phyto(1)%q_si_2_n(:,:,:)
-  phyto(2)%jaggloss_sio2(:,:,:) = phyto(2)%jaggloss_n(:,:,:)*phyto(2)%q_si_2_n(:,:,:)
-  phyto(3)%jaggloss_sio2(:,:,:) = phyto(3)%jaggloss_n(:,:,:)*phyto(3)%q_si_2_n(:,:,:)
+  phyto(DIAZO)%jaggloss_sio2(:,:,:) = phyto(DIAZO)%jaggloss_n(:,:,:)*phyto(DIAZO)%q_si_2_n(:,:,:)
+  phyto(LARGE)%jaggloss_sio2(:,:,:) = phyto(LARGE)%jaggloss_n(:,:,:)*phyto(LARGE)%q_si_2_n(:,:,:)
+  phyto(SMALL)%jaggloss_sio2(:,:,:) = phyto(SMALL)%jaggloss_n(:,:,:)*phyto(SMALL)%q_si_2_n(:,:,:)
 #ifdef COASTDIAT
-  phyto(4)%jaggloss_sio2(:,:,:) = phyto(4)%jaggloss_n(:,:,:)*phyto(4)%q_si_2_n(:,:,:)
+  phyto(MEDIUM)%jaggloss_sio2(:,:,:) = phyto(MEDIUM)%jaggloss_n(:,:,:)*phyto(MEDIUM)%q_si_2_n(:,:,:)
 #endif
   ! RD end rewritten code
 
@@ -2868,37 +2920,41 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !     phyto(nphyto)%jvirloss_sio2(:,:,:) = phyto(nphyto)%jvirloss_n(:,:,:)*phyto(nphyto)%q_si_2_n(:,:,:)
 !  ENDDO
 
+  DO k=1,UBk
+    bact(1)%temp_lim(:,:,k) = bact(1)%temp_lim(:,:,k) * rmask_local(:,:)
+  ENDDO
+
   ! RD rewritten code
-   phyto(1)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(1)%vir*phyto(1)%f_n(:,:,:)**2
-   phyto(2)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(2)%vir*phyto(2)%f_n(:,:,:)**2
-   phyto(3)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(3)%vir*phyto(3)%f_n(:,:,:)**2
+   phyto(DIAZO)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(DIAZO)%vir*phyto(DIAZO)%f_n(:,:,:)**2
+   phyto(LARGE)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(LARGE)%vir*phyto(LARGE)%f_n(:,:,:)**2
+   phyto(SMALL)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(SMALL)%vir*phyto(SMALL)%f_n(:,:,:)**2
 #ifdef COASTDIAT
-   phyto(4)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(4)%vir*phyto(4)%f_n(:,:,:)**2
+   phyto(MEDIUM)%jvirloss_n(:,:,:) = bact(1)%temp_lim(:,:,:)*phyto(MEDIUM)%vir*phyto(MEDIUM)%f_n(:,:,:)**2
 #endif
 
 #ifdef COBALT_PHOSPHORUS
-   phyto(1)%jvirloss_p(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_p_2_n(:,:,:)
-   phyto(2)%jvirloss_p(:,:,:) = phyto(2)%jvirloss_n(:,:,:)*phyto(2)%q_p_2_n(:,:,:)
-   phyto(3)%jvirloss_p(:,:,:) = phyto(3)%jvirloss_n(:,:,:)*phyto(3)%q_p_2_n(:,:,:)
+   phyto(DIAZO)%jvirloss_p(:,:,:) = phyto(DIAZO)%jvirloss_n(:,:,:)*phyto(DIAZO)%q_p_2_n(:,:,:)
+   phyto(LARGE)%jvirloss_p(:,:,:) = phyto(LARGE)%jvirloss_n(:,:,:)*phyto(LARGE)%q_p_2_n(:,:,:)
+   phyto(SMALL)%jvirloss_p(:,:,:) = phyto(SMALL)%jvirloss_n(:,:,:)*phyto(SMALL)%q_p_2_n(:,:,:)
 # ifdef COASTDIAT
-     phyto(4)%jvirloss_p(:,:,:) = phyto(4)%jvirloss_n(:,:,:)*phyto(4)%q_p_2_n(:,:,:)
+     phyto(MEDIUM)%jvirloss_p(:,:,:) = phyto(MEDIUM)%jvirloss_n(:,:,:)*phyto(MEDIUM)%q_p_2_n(:,:,:)
 # endif
 #endif
 
 #ifdef COBALT_IRON
-   phyto(1)%jvirloss_fe(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_fe_2_n(:,:,:)
-   phyto(2)%jvirloss_fe(:,:,:) = phyto(2)%jvirloss_n(:,:,:)*phyto(2)%q_fe_2_n(:,:,:)
-   phyto(3)%jvirloss_fe(:,:,:) = phyto(3)%jvirloss_n(:,:,:)*phyto(3)%q_fe_2_n(:,:,:)
+   phyto(DIAZO)%jvirloss_fe(:,:,:) = phyto(DIAZO)%jvirloss_n(:,:,:)*phyto(DIAZO)%q_fe_2_n(:,:,:)
+   phyto(LARGE)%jvirloss_fe(:,:,:) = phyto(LARGE)%jvirloss_n(:,:,:)*phyto(LARGE)%q_fe_2_n(:,:,:)
+   phyto(SMALL)%jvirloss_fe(:,:,:) = phyto(SMALL)%jvirloss_n(:,:,:)*phyto(SMALL)%q_fe_2_n(:,:,:)
 # ifdef COASTDIAT
-   phyto(4)%jvirloss_fe(:,:,:) = phyto(4)%jvirloss_n(:,:,:)*phyto(4)%q_fe_2_n(:,:,:)
+   phyto(MEDIUM)%jvirloss_fe(:,:,:) = phyto(MEDIUM)%jvirloss_n(:,:,:)*phyto(MEDIUM)%q_fe_2_n(:,:,:)
 # endif
 #endif
 
-   phyto(1)%jvirloss_sio2(:,:,:) = phyto(1)%jvirloss_n(:,:,:)*phyto(1)%q_si_2_n(:,:,:)
-   phyto(2)%jvirloss_sio2(:,:,:) = phyto(2)%jvirloss_n(:,:,:)*phyto(2)%q_si_2_n(:,:,:)
-   phyto(3)%jvirloss_sio2(:,:,:) = phyto(3)%jvirloss_n(:,:,:)*phyto(3)%q_si_2_n(:,:,:)
+   phyto(DIAZO)%jvirloss_sio2(:,:,:) = phyto(DIAZO)%jvirloss_n(:,:,:)*phyto(DIAZO)%q_si_2_n(:,:,:)
+   phyto(LARGE)%jvirloss_sio2(:,:,:) = phyto(LARGE)%jvirloss_n(:,:,:)*phyto(LARGE)%q_si_2_n(:,:,:)
+   phyto(SMALL)%jvirloss_sio2(:,:,:) = phyto(SMALL)%jvirloss_n(:,:,:)*phyto(SMALL)%q_si_2_n(:,:,:)
 #ifdef COASTDIAT
-   phyto(4)%jvirloss_sio2(:,:,:) = phyto(4)%jvirloss_n(:,:,:)*phyto(4)%q_si_2_n(:,:,:)
+   phyto(MEDIUM)%jvirloss_sio2(:,:,:) = phyto(MEDIUM)%jvirloss_n(:,:,:)*phyto(MEDIUM)%q_si_2_n(:,:,:)
 #endif
   ! RD end rewritten code
 
@@ -2913,33 +2969,33 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 ! 3.2.3 Calculate losses to exudation
 !
 
-  phyto(1)%jexuloss_n(:,:,:) = phyto(1)%exu*                   &
-&                              max(phyto(1)%juptake_no3(:,:,:)+     &
-&                              phyto(1)%juptake_nh4(:,:,:)+phyto(1)%juptake_n2(:,:,:),0.0)
-  phyto(2)%jexuloss_n(:,:,:) = phyto(2)%exu*                &
-&   max(phyto(2)%juptake_no3(:,:,:)+phyto(2)%juptake_nh4(:,:,:),0.0)
-  phyto(3)%jexuloss_n(:,:,:) = phyto(3)%exu*                &
-&   max(phyto(3)%juptake_no3(:,:,:)+phyto(3)%juptake_nh4(:,:,:),0.0)
+  phyto(DIAZO)%jexuloss_n(:,:,:) = phyto(DIAZO)%exu*                   &
+&                              max(phyto(DIAZO)%juptake_no3(:,:,:)+     &
+&                              phyto(DIAZO)%juptake_nh4(:,:,:)+phyto(DIAZO)%juptake_n2(:,:,:),0.0)
+  phyto(LARGE)%jexuloss_n(:,:,:) = phyto(LARGE)%exu*                &
+&   max(phyto(LARGE)%juptake_no3(:,:,:)+phyto(LARGE)%juptake_nh4(:,:,:),0.0)
+  phyto(SMALL)%jexuloss_n(:,:,:) = phyto(SMALL)%exu*                &
+&   max(phyto(SMALL)%juptake_no3(:,:,:)+phyto(SMALL)%juptake_nh4(:,:,:),0.0)
 #ifdef COASTDIAT
-  phyto(4)%jexuloss_n(:,:,:) = phyto(4)%exu*                &
-&   max(phyto(4)%juptake_no3(:,:,:)+phyto(4)%juptake_nh4(:,:,:),0.0)
+  phyto(MEDIUM)%jexuloss_n(:,:,:) = phyto(MEDIUM)%exu*                &
+&   max(phyto(MEDIUM)%juptake_no3(:,:,:)+phyto(MEDIUM)%juptake_nh4(:,:,:),0.0)
 #endif
 
 #ifdef COBALT_PHOSPHORUS
-  phyto(1)%jexuloss_p(:,:,:) = phyto(1)%exu*max(phyto(1)%juptake_po4(:,:,:),0.0)
-  phyto(2)%jexuloss_p(:,:,:) = phyto(2)%exu*max(phyto(2)%juptake_po4(:,:,:),0.0)
-  phyto(3)%jexuloss_p(:,:,:) = phyto(3)%exu*max(phyto(3)%juptake_po4(:,:,:),0.0)
+  phyto(DIAZO)%jexuloss_p(:,:,:) = phyto(DIAZO)%exu*max(phyto(DIAZO)%juptake_po4(:,:,:),0.0)
+  phyto(LARGE)%jexuloss_p(:,:,:) = phyto(LARGE)%exu*max(phyto(LARGE)%juptake_po4(:,:,:),0.0)
+  phyto(SMALL)%jexuloss_p(:,:,:) = phyto(SMALL)%exu*max(phyto(SMALL)%juptake_po4(:,:,:),0.0)
 # ifdef COASTDIAT
-    phyto(4)%jexuloss_p(:,:,:) = phyto(4)%exu*max(phyto(4)%juptake_po4(:,:,:),0.0)
+    phyto(MEDIUM)%jexuloss_p(:,:,:) = phyto(MEDIUM)%exu*max(phyto(MEDIUM)%juptake_po4(:,:,:),0.0)
 # endif
 #endif
 
 #ifdef COBALT_IRON
-  phyto(1)%jexuloss_fe(:,:,:) = phyto(1)%exu*max(phyto(1)%juptake_fe(:,:,:),0.0)
-  phyto(2)%jexuloss_fe(:,:,:) = phyto(2)%exu*max(phyto(2)%juptake_fe(:,:,:),0.0)
-  phyto(3)%jexuloss_fe(:,:,:) = phyto(3)%exu*max(phyto(3)%juptake_fe(:,:,:),0.0)
+  phyto(DIAZO)%jexuloss_fe(:,:,:) = phyto(DIAZO)%exu*max(phyto(DIAZO)%juptake_fe(:,:,:),0.0)
+  phyto(LARGE)%jexuloss_fe(:,:,:) = phyto(LARGE)%exu*max(phyto(LARGE)%juptake_fe(:,:,:),0.0)
+  phyto(SMALL)%jexuloss_fe(:,:,:) = phyto(SMALL)%exu*max(phyto(SMALL)%juptake_fe(:,:,:),0.0)
 # ifdef COASTDIAT
-  phyto(4)%jexuloss_fe(:,:,:) = phyto(4)%exu*max(phyto(4)%juptake_fe(:,:,:),0.0)
+  phyto(MEDIUM)%jexuloss_fe(:,:,:) = phyto(MEDIUM)%exu*max(phyto(MEDIUM)%juptake_fe(:,:,:),0.0)
 # endif
 #endif
 
@@ -3313,7 +3369,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &         (PRESS - 1.013) / (382.92 * TK)
 
        cobalt%co3_sol_arag(i,j,k) = 10**(-PKSPA) / (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k)))
-       cobalt%omega_arag(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_arag(i,j,k)
+       cobalt%omega_arag(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_arag(i,j,k) * rmask_local(i,j)
 
        PKSPC = 171.9065 + 0.077993 * TK - 2839.319 / TK - 71.595 *       &
      &         log10(TK) - (-0.77712 + 2.8426e-3 *                       &
@@ -3326,14 +3382,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &         (PRESS - 1.013) / (382.92 * TK)
 
        cobalt%co3_sol_calc(i,j,k) = 10**(-PKSPC) / (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k)))
-       cobalt%omega_calc(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_calc(i,j,k)
+       cobalt%omega_calc(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_calc(i,j,k) * rmask_local(i,j)
 
 
 #ifdef DIAGNOSTICS_BIO
-      DiaBio3d(i,j,k,ico3_sol_arag)     = DiaBio3d(i,j,k,ico3_sol_arag)     + cobalt%co3_sol_arag(i,j,k) * rmask_local(i,j)
-      DiaBio3d(i,j,k,ico3_sol_calc)     = DiaBio3d(i,j,k,ico3_sol_calc)     + cobalt%co3_sol_calc(i,j,k) * rmask_local(i,j)
-      DiaBio3d(i,j,k,iomega_cadet_arag) = DiaBio3d(i,j,k,iomega_cadet_arag) + cobalt%omega_arag(i,j,k)   * rmask_local(i,j)
-      DiaBio3d(i,j,k,iomega_cadet_calc) = DiaBio3d(i,j,k,iomega_cadet_calc) + cobalt%omega_calc(i,j,k)   * rmask_local(i,j)
+      DiaBio3d(i,j,k,ico3_sol_arag)     = DiaBio3d(i,j,k,ico3_sol_arag)     + cobalt%co3_sol_arag(i,j,k)
+      DiaBio3d(i,j,k,ico3_sol_calc)     = DiaBio3d(i,j,k,ico3_sol_calc)     + cobalt%co3_sol_calc(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_arag) = DiaBio3d(i,j,k,iomega_cadet_arag) + cobalt%omega_arag(i,j,k)
+      DiaBio3d(i,j,k,iomega_cadet_calc) = DiaBio3d(i,j,k,iomega_cadet_calc) + cobalt%omega_calc(i,j,k)
 #endif
 
       ENDDO
@@ -3516,16 +3572,21 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !
 
        cobalt%jfe_ads(i,j,k) = min(r_dt,cobalt%alpha_fescav*feprime)
+!       ! Option for elevated iron scavenging for high iron concentration
+!       ! RD TODO set parameter for threshold of f_fed.
+!       IF (cobalt%f_fed(i,j,k).gt.1.0e-9) THEN
+!          cobalt%jfe_ads(i,j,k) = min(r_dt,5.0*cobalt%alpha_fescav*cobalt%f_fed(i,j,k))
+!       ENDIF
 # ifndef NO_IRON_COAST
        !
        ! Coastal iron inputs (proxy for sediment inputs for areas with poorly resolved shelves)
        ! Reworked with charlie (july 2016) to create new input file at 1e-16 mol Fe kg-1 s-1
        !
-       cobalt%jfe_coast(i,j,k) = fecoast(i,j)
+       cobalt%jfe_coast(i,j,k) = fecoast(i,j) * rmask_local(i,j)
 
 # if defined DIAGNOSTICS_BIO && defined COBALT_IRON
        ! add coastal iron source to fe_bulk_flx
-       DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt * rmask_local(i,j)
+       DiaBio3d(i,j,k,ife_bulk_flx) = DiaBio3d(i,j,k,ife_bulk_flx) + cobalt%jfe_coast(i,j,k) * n_dt
 #  endif
 # else
        !
@@ -3731,6 +3792,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   &                       (1.5_r8-cu)*                             &
   &                       (bR(i,ks)+bL(i,ks)-                      &
   &                        2.0_r8*qc(i,ks))))
+           FC(i,k-1) = FC(i,k-1) * rmask_local(i,j)
          END DO
        END DO
 
@@ -3745,7 +3807,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          IF ( ibio == indet ) THEN
             ndet_sinking(i,j,k) = r_dt * (FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
 #ifdef DIAGNOSTICS_BIO
-! WILL NEED TO ADD rmask_local factor for WET_DRY
+! WILL NEED TO ADD rmask_local factor for WET_DRY - above, silly
             !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * t(i,j,k,nstp,indet)
             !DiaBio3d(i,j,k,indet_b4sink) = Hz(i,j,k) * qc(i,k)
             !DiaBio3d(i,j,k,indet_b4sink) = 0.0d0
@@ -3839,7 +3901,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
       ! fpoc_bottom in mmoles C m-2 day-1 for burial relationship
       fpoc_btm = (cobalt%f_ndet_btf(i,j,1)*cobalt%c_2_n*sperd*1000.0)
-      cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2)/((7.0+fpoc_btm)**2)
+      cobalt%frac_burial(i,j) = (0.013 + 0.53*fpoc_btm**2)/((7.0+fpoc_btm)**2) &
+                             * rmask_local(i,j)
 
 
 #if defined COBALT_CONSERVATION_TEST || defined COBALT_NOBURIAL
@@ -3911,10 +3974,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ! THE original code from cobalt uses ndet bottom flux as a proxy to diagnose
 !   ! iron sources from sediments
 !   ! Elrod's relationship
-!   cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1)
+!   cobalt%ffe_sed(i,j) = cobalt%fe_2_n_sed * cobalt%f_ndet_btf(i,j,1) * rmask_local(i,j)
     ! Dale's relationship
     cobalt%ffe_sed(i,j) = cobalt%ffe_sed_max * tanh( (cobalt%f_ndet_btf(i,j,1)*cobalt%c_2_n*sperd*1.0e3)/ &
-                        max(cobalt%f_o2(i,j,1)*1.0e6,epsln) ) * 1.e-6/sperd
+                        max(cobalt%f_o2(i,j,1)*1.0e6,epsln) ) * 1.e-6/sperd * rmask_local(i,j)
 
 !#ASKCHARLIE if we need this
 # ifdef COBALT_CONSERVATION_TEST
@@ -3922,7 +3985,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 # endif
 # ifdef DIAGNOSTICS_BIO
     ! output in diagnostic variable
-    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt * rmask_local(i,j)
+    DiaBio2d(i,j,iironsed_flx) = DiaBio2d(i,j,iironsed_flx) + cobalt%ffe_sed(i,j) *  n_dt
 # endif
 #endif
 
@@ -3957,7 +4020,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   &                        (cobalt%f_cadet_calc_btf(i,j,1) -             &
   &                         cobalt%fcased_redis(i,j) -                   &
   &                         cobalt%fcased_burial(i,j)) / cobalt%z_sed *  &
-  &                         n_dt * rmask(i,j)
+  &                         n_dt * rmask_local(i,j)
 
 
    !
@@ -3984,13 +4047,14 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     cobalt%b_fed(i,j) = - cobalt%ffe_sed(i,j)
 #endif
 #endif
-    cobalt%b_nh4(i,j) = - cobalt%f_ndet_btf(i,j,1) + cobalt%fndet_burial(i,j)
-    cobalt%b_no3(i,j) = cobalt%fno3denit_sed(i,j)
-    cobalt%b_o2(i,j)  = cobalt%o2_2_nh4 * (cobalt%fnoxic_sed(i,j) + cobalt%fnfeso4red_sed(i,j))
+    cobalt%b_nh4(i,j) = (- cobalt%f_ndet_btf(i,j,1) + cobalt%fndet_burial(i,j)) * rmask_local(i,j)
+    cobalt%b_no3(i,j) = cobalt%fno3denit_sed(i,j) * rmask_local(i,j)
+    cobalt%b_o2(i,j)  = cobalt%o2_2_nh4 * (cobalt%fnoxic_sed(i,j) + cobalt%fnfeso4red_sed(i,j)) &
+                        * rmask_local(i,j)
 #ifdef COBALT_PHOSPHORUS
-    cobalt%b_po4(i,j) = - cobalt%f_pdet_btf(i,j,1) + cobalt%fpdet_burial(i,j)
+    cobalt%b_po4(i,j) = (- cobalt%f_pdet_btf(i,j,1) + cobalt%fpdet_burial(i,j) ) * rmask_local(i,j)
 #endif
-    cobalt%b_sio4(i,j)= - cobalt%f_sidet_btf(i,j,1)
+    cobalt%b_sio4(i,j)= - cobalt%f_sidet_btf(i,j,1) * rmask_local(i,j)
 
    ! these have to be added to the bottom level but with opposite sign
 
@@ -4123,29 +4187,35 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! new diag here
 
       DO k=kdi+1,UBk
-         cobalt%f_npp_100(i,j) = cobalt%f_npp_100(i,j) + cobalt%f_npp(i,j,k) * Hz(i,j,k)
+         cobalt%f_npp_100(i,j) = cobalt%f_npp_100(i,j) + cobalt%f_npp(i,j,k) * Hz(i,j,k) * rmask_local(i,j)
 
          ! convert in mgC m-2 day-1
          ! uptake in mol/kg/s, vertical integration gives mol/kg/s * m, we multiply by 1035 kg/m3 * 86400 s/day *
          ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
-         cobalt%juptake_din_100(i,j) = cobalt%juptake_din_100(i,j) + 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
- &                                   ( phyto(SMALL)%juptake_no3(i,j,k) + phyto(SMALL)%juptake_nh4(i,j,k) +                 &
+         cobalt%juptake_din_100(i,j) = cobalt%juptake_din_100(i,j) +          &
+	                               1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
+                                     ( phyto(SMALL)%juptake_no3(i,j,k) + phyto(SMALL)%juptake_nh4(i,j,k) + &
 #ifdef COASTDIAT
- &                                     phyto(MEDIUM)%juptake_no3(i,j,k)+ phyto(MEDIUM)%juptake_nh4(i,j,k)+                 &
+                                       phyto(MEDIUM)%juptake_no3(i,j,k)+ phyto(MEDIUM)%juptake_nh4(i,j,k)+ &
 #endif
- &                                     phyto(LARGE)%juptake_no3(i,j,k) + phyto(LARGE)%juptake_nh4(i,j,k) +                 &
- &                                     phyto(DIAZO)%juptake_no3(i,j,k) + phyto(DIAZO)%juptake_n2(i,j,k)  + phyto(DIAZO)%juptake_nh4(i,j,k) )
+                                       phyto(LARGE)%juptake_no3(i,j,k) + phyto(LARGE)%juptake_nh4(i,j,k) + &
+                                       phyto(DIAZO)%juptake_no3(i,j,k) + phyto(DIAZO)%juptake_n2(i,j,k)  + &
+                                       phyto(DIAZO)%juptake_nh4(i,j,k) ) * rmask_local(i,j)
 
-         cobalt%juptake_no3_n2_100(i,j) = cobalt%juptake_no3_n2_100(i,j) + 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
- &                                      ( phyto(SMALL)%juptake_no3(i,j,k) +                                                      &
+         cobalt%juptake_no3_n2_100(i,j) = cobalt%juptake_no3_n2_100(i,j) +       &
+	                                  1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
+                                        ( phyto(SMALL)%juptake_no3(i,j,k) +                     &
 #ifdef COASTDIAT
- &                                        phyto(MEDIUM)%juptake_no3(i,j,k)+                                                      &
+                                          phyto(MEDIUM)%juptake_no3(i,j,k)+                     &
 #endif
- &                                        phyto(LARGE)%juptake_no3(i,j,k) +                                                      &
- &                                        phyto(DIAZO)%juptake_no3(i,j,k) + phyto(DIAZO)%juptake_n2(i,j,k)  )
+                                          phyto(LARGE)%juptake_no3(i,j,k) +                     &
+                                          phyto(DIAZO)%juptake_no3(i,j,k) +                     &
+					  phyto(DIAZO)%juptake_n2(i,j,k)  ) * rmask_local(i,j)
 
-         cobalt%jprod_mesozoo_100(i,j) = cobalt%jprod_mesozoo_100(i,j) + 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
- &                                     ( zoo(2)%jprod_n(i,j,k) + zoo(3)%jprod_n(i,j,k) ) * Hz(i,j,k)
+         cobalt%jprod_mesozoo_100(i,j) = cobalt%jprod_mesozoo_100(i,j) + &
+	                                 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
+                                       ( zoo(2)%jprod_n(i,j,k) +  &
+                                         zoo(3)%jprod_n(i,j,k) ) * Hz(i,j,k) * rmask_local(i,j)
 
 
 
@@ -4199,55 +4269,55 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       cobalt%z_ratio_100(i,j) = 0. ! needs to be computed on daily values
       cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng)
 
-      DiaBio2d(i,j,inpp_100)           = Diabio2d(i,j,inpp_100)           + cobalt%f_npp_100(i,j)            * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_n_100_sm)     = DiaBio2d(i,j,iprod_n_100_sm)     + phyto(SMALL)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iaggloss_n_100_sm)  = DiaBio2d(i,j,iaggloss_n_100_sm)  + phyto(SMALL)%jaggloss_n_100(i,j) * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_sm)    = DiaBio2d(i,j,izloss_n_100_sm)    + phyto(SMALL)%jzloss_n_100(i,j)   * rmask_local(i,j)
+      DiaBio2d(i,j,inpp_100)           = Diabio2d(i,j,inpp_100)           + cobalt%f_npp_100(i,j)
+      DiaBio2d(i,j,iprod_n_100_sm)     = DiaBio2d(i,j,iprod_n_100_sm)     + phyto(SMALL)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iaggloss_n_100_sm)  = DiaBio2d(i,j,iaggloss_n_100_sm)  + phyto(SMALL)%jaggloss_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_sm)    = DiaBio2d(i,j,izloss_n_100_sm)    + phyto(SMALL)%jzloss_n_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_lg)     = DiaBio2d(i,j,iprod_n_100_lg)     + phyto(LARGE)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iaggloss_n_100_lg)  = DiaBio2d(i,j,iaggloss_n_100_lg)  + phyto(LARGE)%jaggloss_n_100(i,j) * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_lg)    = DiaBio2d(i,j,izloss_n_100_lg)    + phyto(LARGE)%jzloss_n_100(i,j)   * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_lg)     = DiaBio2d(i,j,iprod_n_100_lg)     + phyto(LARGE)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iaggloss_n_100_lg)  = DiaBio2d(i,j,iaggloss_n_100_lg)  + phyto(LARGE)%jaggloss_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_lg)    = DiaBio2d(i,j,izloss_n_100_lg)    + phyto(LARGE)%jzloss_n_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_di)     = DiaBio2d(i,j,iprod_n_100_di)     + phyto(DIAZO)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iaggloss_n_100_di)  = DiaBio2d(i,j,iaggloss_n_100_di)  + phyto(DIAZO)%jaggloss_n_100(i,j) * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_di)    = DiaBio2d(i,j,izloss_n_100_di)    + phyto(DIAZO)%jzloss_n_100(i,j)   * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_di)     = DiaBio2d(i,j,iprod_n_100_di)     + phyto(DIAZO)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iaggloss_n_100_di)  = DiaBio2d(i,j,iaggloss_n_100_di)  + phyto(DIAZO)%jaggloss_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_di)    = DiaBio2d(i,j,izloss_n_100_di)    + phyto(DIAZO)%jzloss_n_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_smz)    = DiaBio2d(i,j,iprod_n_100_smz)    + zoo(1)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iingest_n_100_smz)  = DiaBio2d(i,j,iingest_n_100_smz)  + zoo(1)%jingest_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_smz)   = DiaBio2d(i,j,izloss_n_100_smz)   + zoo(1)%jzloss_n_100(i,j)   * rmask_local(i,j)
-      DiaBio2d(i,j,ihploss_n_100_smz)  = DiaBio2d(i,j,ihploss_n_100_smz)  + zoo(1)%jhploss_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_ndet_100_smz) = DiaBio2d(i,j,iprod_ndet_100_smz) + zoo(1)%jprod_ndet_100(i,j) * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_smz)    = DiaBio2d(i,j,iprod_n_100_smz)    + zoo(1)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iingest_n_100_smz)  = DiaBio2d(i,j,iingest_n_100_smz)  + zoo(1)%jingest_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_smz)   = DiaBio2d(i,j,izloss_n_100_smz)   + zoo(1)%jzloss_n_100(i,j)
+      DiaBio2d(i,j,ihploss_n_100_smz)  = DiaBio2d(i,j,ihploss_n_100_smz)  + zoo(1)%jhploss_n_100(i,j)
+      DiaBio2d(i,j,iprod_ndet_100_smz) = DiaBio2d(i,j,iprod_ndet_100_smz) + zoo(1)%jprod_ndet_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_mdz)    = DiaBio2d(i,j,iprod_n_100_mdz)    + zoo(2)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iingest_n_100_mdz)  = DiaBio2d(i,j,iingest_n_100_mdz)  + zoo(2)%jingest_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_mdz)   = DiaBio2d(i,j,izloss_n_100_mdz)   + zoo(2)%jzloss_n_100(i,j)   * rmask_local(i,j)
-      DiaBio2d(i,j,ihploss_n_100_mdz)  = DiaBio2d(i,j,ihploss_n_100_mdz)  + zoo(2)%jhploss_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_ndet_100_mdz) = DiaBio2d(i,j,iprod_ndet_100_mdz) + zoo(2)%jprod_ndet_100(i,j) * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_mdz)    = DiaBio2d(i,j,iprod_n_100_mdz)    + zoo(2)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iingest_n_100_mdz)  = DiaBio2d(i,j,iingest_n_100_mdz)  + zoo(2)%jingest_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_mdz)   = DiaBio2d(i,j,izloss_n_100_mdz)   + zoo(2)%jzloss_n_100(i,j)
+      DiaBio2d(i,j,ihploss_n_100_mdz)  = DiaBio2d(i,j,ihploss_n_100_mdz)  + zoo(2)%jhploss_n_100(i,j)
+      DiaBio2d(i,j,iprod_ndet_100_mdz) = DiaBio2d(i,j,iprod_ndet_100_mdz) + zoo(2)%jprod_ndet_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_lgz)    = DiaBio2d(i,j,iprod_n_100_lgz)    + zoo(3)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iingest_n_100_lgz)  = DiaBio2d(i,j,iingest_n_100_lgz)  + zoo(3)%jingest_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_lgz)   = DiaBio2d(i,j,izloss_n_100_lgz)   + zoo(3)%jzloss_n_100(i,j)   * rmask_local(i,j)
-      DiaBio2d(i,j,ihploss_n_100_lgz)  = DiaBio2d(i,j,ihploss_n_100_lgz)  + zoo(3)%jhploss_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_ndet_100_lgz) = DiaBio2d(i,j,iprod_ndet_100_lgz) + zoo(3)%jprod_ndet_100(i,j) * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_lgz)    = DiaBio2d(i,j,iprod_n_100_lgz)    + zoo(3)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iingest_n_100_lgz)  = DiaBio2d(i,j,iingest_n_100_lgz)  + zoo(3)%jingest_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_lgz)   = DiaBio2d(i,j,izloss_n_100_lgz)   + zoo(3)%jzloss_n_100(i,j)
+      DiaBio2d(i,j,ihploss_n_100_lgz)  = DiaBio2d(i,j,ihploss_n_100_lgz)  + zoo(3)%jhploss_n_100(i,j)
+      DiaBio2d(i,j,iprod_ndet_100_lgz) = DiaBio2d(i,j,iprod_ndet_100_lgz) + zoo(3)%jprod_ndet_100(i,j)
 
-      DiaBio2d(i,j,iprod_n_100_bact)   = DiaBio2d(i,j,iprod_n_100_bact)   + bact(1)%jprod_n_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_bact)  = DiaBio2d(i,j,izloss_n_100_bact)  + bact(1)%jzloss_n_100(i,j) * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_bact)   = DiaBio2d(i,j,iprod_n_100_bact)   + bact(1)%jprod_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_bact)  = DiaBio2d(i,j,izloss_n_100_bact)  + bact(1)%jzloss_n_100(i,j)
 
 #ifdef COASTDIAT
-      DiaBio2d(i,j,iprod_n_100_md)     = DiaBio2d(i,j,iprod_n_100_md)     + phyto(MEDIUM)%jprod_n_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iaggloss_n_100_md)  = DiaBio2d(i,j,iaggloss_n_100_md)  + phyto(MEDIUM)%jaggloss_n_100(i,j) * rmask_local(i,j)
-      DiaBio2d(i,j,izloss_n_100_md)    = DiaBio2d(i,j,izloss_n_100_md)    + phyto(MEDIUM)%jzloss_n_100(i,j)   * rmask_local(i,j)
+      DiaBio2d(i,j,iprod_n_100_md)     = DiaBio2d(i,j,iprod_n_100_md)     + phyto(MEDIUM)%jprod_n_100(i,j)
+      DiaBio2d(i,j,iaggloss_n_100_md)  = DiaBio2d(i,j,iaggloss_n_100_md)  + phyto(MEDIUM)%jaggloss_n_100(i,j)
+      DiaBio2d(i,j,izloss_n_100_md)    = DiaBio2d(i,j,izloss_n_100_md)    + phyto(MEDIUM)%jzloss_n_100(i,j)
 #endif
 
-      DiaBio2d(i,j,iuptake_din_100)      = DiaBio2d(i,j,iuptake_din_100)    + cobalt%juptake_din_100(i,j)    * rmask_local(i,j)
-      DiaBio2d(i,j,iuptake_no3_n2_100)   = DiaBio2d(i,j,iuptake_no3_n2_100) + cobalt%juptake_no3_n2_100(i,j) * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_mesozoo_100)    = DiaBio2d(i,j,iprod_mesozoo_100)  + cobalt%jprod_mesozoo_100(i,j)  * rmask_local(i,j)
-      DiaBio2d(i,j,iz_ratio_100)         = DiaBio2d(i,j,iz_ratio_100)       + cobalt%z_ratio_100(i,j)        * rmask_local(i,j)
-      DiaBio2d(i,j,ipe_ratio_100)        = DiaBio2d(i,j,ipe_ratio_100)      + cobalt%pe_ratio_100(i,j)       * rmask_local(i,j)
-      DiaBio2d(i,j,if_ratio_100)         = DiaBio2d(i,j,if_ratio_100)       + cobalt%f_ratio_100(i,j)        * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_don_100_smz)    = DiaBio2d(i,j,iprod_don_100_smz)  + zoo(1)%jprod_don_100(i,j)      * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_don_100_mdz)    = DiaBio2d(i,j,iprod_don_100_mdz)  + zoo(2)%jprod_don_100(i,j)      * rmask_local(i,j)
-      DiaBio2d(i,j,iprod_don_100_lgz)    = DiaBio2d(i,j,iprod_don_100_lgz)  + zoo(3)%jprod_don_100(i,j)      * rmask_local(i,j)
+      DiaBio2d(i,j,iuptake_din_100)      = DiaBio2d(i,j,iuptake_din_100)    + cobalt%juptake_din_100(i,j)
+      DiaBio2d(i,j,iuptake_no3_n2_100)   = DiaBio2d(i,j,iuptake_no3_n2_100) + cobalt%juptake_no3_n2_100(i,j)
+      DiaBio2d(i,j,iprod_mesozoo_100)    = DiaBio2d(i,j,iprod_mesozoo_100)  + cobalt%jprod_mesozoo_100(i,j)
+      DiaBio2d(i,j,iz_ratio_100)         = DiaBio2d(i,j,iz_ratio_100)       + cobalt%z_ratio_100(i,j)
+      DiaBio2d(i,j,ipe_ratio_100)        = DiaBio2d(i,j,ipe_ratio_100)      + cobalt%pe_ratio_100(i,j)
+      DiaBio2d(i,j,if_ratio_100)         = DiaBio2d(i,j,if_ratio_100)       + cobalt%f_ratio_100(i,j)
+      DiaBio2d(i,j,iprod_don_100_smz)    = DiaBio2d(i,j,iprod_don_100_smz)  + zoo(1)%jprod_don_100(i,j)
+      DiaBio2d(i,j,iprod_don_100_mdz)    = DiaBio2d(i,j,iprod_don_100_mdz)  + zoo(2)%jprod_don_100(i,j)
+      DiaBio2d(i,j,iprod_don_100_lgz)    = DiaBio2d(i,j,iprod_don_100_lgz)  + zoo(3)%jprod_don_100(i,j)
 
       ! new diag here
 
@@ -4281,8 +4351,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          ! new diag here
       ENDDO
 
-      DiaBio2d(i,j,imesozoo_200)     = DiaBio2d(i,j,imesozoo_200)     + cobalt%f_mesozoo_200(i,j)     * rmask_local(i,j)
-      DiaBio2d(i,j,imesozooprod_200) = DiaBio2d(i,j,imesozooprod_200) + cobalt%jprod_mesozoo_200(i,j) * rmask_local(i,j)
+      DiaBio2d(i,j,imesozoo_200)     = DiaBio2d(i,j,imesozoo_200)     + cobalt%f_mesozoo_200(i,j)
+      DiaBio2d(i,j,imesozooprod_200) = DiaBio2d(i,j,imesozooprod_200) + cobalt%jprod_mesozoo_200(i,j)
       ! new diag here
 
     ENDDO
@@ -4294,7 +4364,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        DO k=1,UBk
           cobalt%jno3denit_wc_vint(i,j) = cobalt%jno3denit_wc_vint(i,j) + cobalt%jno3denit_wc(i,j,k) * Hz(i,j,k)
        ENDDO
-       DiaBio2d(i,j,ijno3denit_wc_vint) = DiaBio2d(i,j,ijno3denit_wc_vint) + cobalt%jno3denit_wc_vint(i,j) * rmask_local(i,j)
+       DiaBio2d(i,j,ijno3denit_wc_vint) = DiaBio2d(i,j,ijno3denit_wc_vint) + cobalt%jno3denit_wc_vint(i,j)
      ENDDO
   ENDDO
 
@@ -4578,7 +4648,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-! WILL NEED TO ADD rmask_local factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_lithdet) = DiaBio3d(:,:,:,ijprod_lithdet) + cobalt%jprod_lithdet(:,:,:)
 #endif
 !
@@ -4592,7 +4661,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-! WILL NEED TO ADD rmask_local factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_ndet) = DiaBio3d(:,:,:,ijprod_ndet) + cobalt%jprod_ndet(:,:,:)
   ! diag on remineralization
 !  DiaBio3d(:,:,:,ijremin_ndet) = DiaBio3d(:,:,:,ijremin_ndet) + cobalt%jremin_ndet(:,:,:)
@@ -4616,7 +4684,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-! WILL NEED TO ADD rmask_local factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_pdet) = DiaBio3d(:,:,:,ijprod_pdet) + cobalt%jprod_pdet(:,:,:)
   ! diag on remineralization
 !  DiaBio3d(:,:,:,ijremin_pdet) = DiaBio3d(:,:,:,ijremin_pdet) + cobalt%jremin_pdet(:,:,:)
@@ -4636,7 +4703,6 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
-! WILL NEED TO ADD rmask_local factor for WET_DRY
 !  DiaBio3d(:,:,:,ijprod_sidet) = DiaBio3d(:,:,:,ijprod_sidet) + cobalt%jprod_sidet(:,:,:)
 #endif
 !
@@ -4878,27 +4944,27 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ! update 2d diagnostics variables in ROMS
     DO j=Jstr,Jend
       DO i=Istr,Iend
-         DiaBio2d(i,j,icased)          = DiaBio2d(i,j,icased)          + cobalt%f_cased(i,j,1)          * rmask_local(i,j)
-         DiaBio2d(i,j,icadet_arag_btf) = DiaBio2d(i,j,icadet_arag_btf) + cobalt%f_cadet_arag_btf(i,j,1) * rmask_local(i,j)
-         DiaBio2d(i,j,icadet_calc_btf) = DiaBio2d(i,j,icadet_calc_btf) + cobalt%f_cadet_calc_btf(i,j,1) * rmask_local(i,j)
-         DiaBio2d(i,j,indet_btf)       = DiaBio2d(i,j,indet_btf)       + cobalt%f_ndet_btf(i,j,1)       * rmask_local(i,j)
-         DiaBio2d(i,j,isidet_btf)      = DiaBio2d(i,j,isidet_btf)      + cobalt%f_sidet_btf(i,j,1)      * rmask_local(i,j)
-         DiaBio2d(i,j,imxl_depth)      = DiaBio2d(i,j,imxl_depth)      + mxl_depth(i,j)                 * rmask_local(i,j)
-         DiaBio2d(i,j,imxl_level)      = DiaBio2d(i,j,imxl_level)      + mxl_blev(i,j)                  * rmask_local(i,j)
+         DiaBio2d(i,j,icased)          = DiaBio2d(i,j,icased)          + cobalt%f_cased(i,j,1)
+         DiaBio2d(i,j,icadet_arag_btf) = DiaBio2d(i,j,icadet_arag_btf) + cobalt%f_cadet_arag_btf(i,j,1)
+         DiaBio2d(i,j,icadet_calc_btf) = DiaBio2d(i,j,icadet_calc_btf) + cobalt%f_cadet_calc_btf(i,j,1)
+         DiaBio2d(i,j,indet_btf)       = DiaBio2d(i,j,indet_btf)       + cobalt%f_ndet_btf(i,j,1)
+         DiaBio2d(i,j,isidet_btf)      = DiaBio2d(i,j,isidet_btf)      + cobalt%f_sidet_btf(i,j,1)
+         DiaBio2d(i,j,imxl_depth)      = DiaBio2d(i,j,imxl_depth)      + mxl_depth(i,j)
+         DiaBio2d(i,j,imxl_level)      = DiaBio2d(i,j,imxl_level)      + mxl_blev(i,j)
 
-         DiaBio2d(i,j,ialk_btf)        = DiaBio2d(i,j,ialk_btf)        + cobalt%b_alk(i,j)              * rmask_local(i,j)
-         DiaBio2d(i,j,idic_btf)        = DiaBio2d(i,j,idic_btf)        + cobalt%b_dic(i,j)              * rmask_local(i,j)
+         DiaBio2d(i,j,ialk_btf)        = DiaBio2d(i,j,ialk_btf)        + cobalt%b_alk(i,j)
+         DiaBio2d(i,j,idic_btf)        = DiaBio2d(i,j,idic_btf)        + cobalt%b_dic(i,j)
 # ifdef COBALT_IRON
-         DiaBio2d(i,j,ifed_btf)        = DiaBio2d(i,j,ifed_btf)        + cobalt%b_fed(i,j)              * rmask_local(i,j)
+         DiaBio2d(i,j,ifed_btf)        = DiaBio2d(i,j,ifed_btf)        + cobalt%b_fed(i,j)
 # endif
-         DiaBio2d(i,j,inh4_btf)        = DiaBio2d(i,j,inh4_btf)        + cobalt%b_nh4(i,j)              * rmask_local(i,j)
-         DiaBio2d(i,j,ino3_btf)        = DiaBio2d(i,j,ino3_btf)        + cobalt%b_no3(i,j)              * rmask_local(i,j)
-         DiaBio2d(i,j,io2_btf)         = DiaBio2d(i,j,io2_btf)         + cobalt%b_o2(i,j)               * rmask_local(i,j)
-         DiaBio2d(i,j,isio4_btf)       = DiaBio2d(i,j,isio4_btf)       + cobalt%b_sio4(i,j)             * rmask_local(i,j)
-         DiaBio2d(i,j,ino3denit_sed)  = DiaBio2d(i,j,ino3denit_sed)    + cobalt%fno3denit_sed(i,j)      * rmask_local(i,j)
+         DiaBio2d(i,j,inh4_btf)        = DiaBio2d(i,j,inh4_btf)        + cobalt%b_nh4(i,j)
+         DiaBio2d(i,j,ino3_btf)        = DiaBio2d(i,j,ino3_btf)        + cobalt%b_no3(i,j)
+         DiaBio2d(i,j,io2_btf)         = DiaBio2d(i,j,io2_btf)         + cobalt%b_o2(i,j)
+         DiaBio2d(i,j,isio4_btf)       = DiaBio2d(i,j,isio4_btf)       + cobalt%b_sio4(i,j)
+         DiaBio2d(i,j,ino3denit_sed)  = DiaBio2d(i,j,ino3denit_sed)    + cobalt%fno3denit_sed(i,j)
 #ifdef COBALT_PHOSPHORUS
-         DiaBio2d(i,j,ipo4_btf)        = DiaBio2d(i,j,ipo4_btf)        + cobalt%b_po4(i,j)              * rmask_local(i,j)
-         DiaBio2d(i,j,ipdet_btf)       = DiaBio2d(i,j,ipdet_btf)       + cobalt%f_pdet_btf(i,j,1)       * rmask_local(i,j)
+         DiaBio2d(i,j,ipo4_btf)        = DiaBio2d(i,j,ipo4_btf)        + cobalt%b_po4(i,j)
+         DiaBio2d(i,j,ipdet_btf)       = DiaBio2d(i,j,ipdet_btf)       + cobalt%f_pdet_btf(i,j,1)
 #endif
 
       ENDDO
@@ -4910,12 +4976,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-          DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)      + cobalt%f_chl(i,j,k)     * rmask_local(i,j)
-          DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion)  + cobalt%f_co3_ion(i,j,k) * rmask_local(i,j)
-          DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)   + cobalt%f_htotal(i,j,k)  * rmask_local(i,j)
-          DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem)  + cobalt%f_irr_mem(i,j,k) * rmask_local(i,j)
-          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix)  + cobalt%irr_mix(i,j,k)   * rmask_local(i,j)
-          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)  * rmask_local(i,j)
+          DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)      + cobalt%f_chl(i,j,k)
+          DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion)  + cobalt%f_co3_ion(i,j,k)
+          DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)   + cobalt%f_htotal(i,j,k)
+          DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem)  + cobalt%f_irr_mem(i,j,k)
+          DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix)  + cobalt%irr_mix(i,j,k)
+          DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
         ENDDO
       ENDDO
     ENDDO
@@ -4925,15 +4991,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,ichl_di)     = DiaBio3d(i,j,k,ichl_di)     + phyto(DIAZO)%chl(i,j,k)      * rmask_local(i,j)
-           DiaBio3d(i,j,k,iC_2_chl_di) = DiaBio3d(i,j,k,iC_2_chl_di) + phyto(DIAZO)%C_2_chl(i,j,k)  * rmask_local(i,j)
-           DiaBio3d(i,j,k,ichl_sm)     = DiaBio3d(i,j,k,ichl_sm)     + phyto(SMALL)%chl(i,j,k)      * rmask_local(i,j)
-           DiaBio3d(i,j,k,iC_2_chl_sm) = DiaBio3d(i,j,k,iC_2_chl_sm) + phyto(SMALL)%C_2_chl(i,j,k)  * rmask_local(i,j)
-           DiaBio3d(i,j,k,ichl_lg)     = DiaBio3d(i,j,k,ichl_lg)     + phyto(LARGE)%chl(i,j,k)      * rmask_local(i,j)
-           DiaBio3d(i,j,k,iC_2_chl_lg) = DiaBio3d(i,j,k,iC_2_chl_lg) + phyto(LARGE)%C_2_chl(i,j,k)  * rmask_local(i,j)
+           DiaBio3d(i,j,k,ichl_di)     = DiaBio3d(i,j,k,ichl_di)     + phyto(DIAZO)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_di) = DiaBio3d(i,j,k,iC_2_chl_di) + phyto(DIAZO)%C_2_chl(i,j,k)
+           DiaBio3d(i,j,k,ichl_sm)     = DiaBio3d(i,j,k,ichl_sm)     + phyto(SMALL)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_sm) = DiaBio3d(i,j,k,iC_2_chl_sm) + phyto(SMALL)%C_2_chl(i,j,k)
+           DiaBio3d(i,j,k,ichl_lg)     = DiaBio3d(i,j,k,ichl_lg)     + phyto(LARGE)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_lg) = DiaBio3d(i,j,k,iC_2_chl_lg) + phyto(LARGE)%C_2_chl(i,j,k)
 #ifdef COASTDIAT
-           DiaBio3d(i,j,k,ichl_md)     = DiaBio3d(i,j,k,ichl_md)     + phyto(MEDIUM)%chl(i,j,k)     * rmask_local(i,j)
-           DiaBio3d(i,j,k,iC_2_chl_md) = DiaBio3d(i,j,k,iC_2_chl_md) + phyto(MEDIUM)%C_2_chl(i,j,k) * rmask_local(i,j)
+           DiaBio3d(i,j,k,ichl_md)     = DiaBio3d(i,j,k,ichl_md)     + phyto(MEDIUM)%chl(i,j,k)
+           DiaBio3d(i,j,k,iC_2_chl_md) = DiaBio3d(i,j,k,iC_2_chl_md) + phyto(MEDIUM)%C_2_chl(i,j,k)
 #endif
         ENDDO
       ENDDO
@@ -4943,18 +5009,18 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           DiaBio3d(i,j,k,imu_mem_sm)  = DiaBio3d(i,j,k,imu_mem_sm)  + phyto(SMALL)%f_mu_mem(i,j,k)  * rmask_local(i,j)
-           DiaBio3d(i,j,k,imu_mem_di)  = DiaBio3d(i,j,k,imu_mem_di)  + phyto(DIAZO)%f_mu_mem(i,j,k)  * rmask_local(i,j)
+           DiaBio3d(i,j,k,imu_mem_sm)  = DiaBio3d(i,j,k,imu_mem_sm)  + phyto(SMALL)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,imu_mem_di)  = DiaBio3d(i,j,k,imu_mem_di)  + phyto(DIAZO)%f_mu_mem(i,j,k)
 # ifdef COASTDIAT
-           DiaBio3d(i,j,k,imu_mem_md)  = DiaBio3d(i,j,k,imu_mem_md)  + phyto(MEDIUM)%f_mu_mem(i,j,k) * rmask_local(i,j)
+           DiaBio3d(i,j,k,imu_mem_md)  = DiaBio3d(i,j,k,imu_mem_md)  + phyto(MEDIUM)%f_mu_mem(i,j,k)
 # endif
-           DiaBio3d(i,j,k,imu_mem_lg)  = DiaBio3d(i,j,k,imu_mem_lg)  + phyto(LARGE)%f_mu_mem(i,j,k)  * rmask_local(i,j)
-           DiaBio3d(i,j,k,iagg_lim_sm) = DiaBio3d(i,j,k,iagg_lim_sm) + phyto(SMALL)%agg_lim(i,j,k)   * rmask_local(i,j)
-           DiaBio3d(i,j,k,iagg_lim_di) = DiaBio3d(i,j,k,iagg_lim_di) + phyto(DIAZO)%agg_lim(i,j,k)   * rmask_local(i,j)
+           DiaBio3d(i,j,k,imu_mem_lg)  = DiaBio3d(i,j,k,imu_mem_lg)  + phyto(LARGE)%f_mu_mem(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_sm) = DiaBio3d(i,j,k,iagg_lim_sm) + phyto(SMALL)%agg_lim(i,j,k)
+           DiaBio3d(i,j,k,iagg_lim_di) = DiaBio3d(i,j,k,iagg_lim_di) + phyto(DIAZO)%agg_lim(i,j,k)
 # ifdef COASTDIAT
-           DiaBio3d(i,j,k,iagg_lim_md) = DiaBio3d(i,j,k,iagg_lim_md) + phyto(MEDIUM)%agg_lim(i,j,k)  * rmask_local(i,j)
+           DiaBio3d(i,j,k,iagg_lim_md) = DiaBio3d(i,j,k,iagg_lim_md) + phyto(MEDIUM)%agg_lim(i,j,k)
 # endif
-           DiaBio3d(i,j,k,iagg_lim_lg) = DiaBio3d(i,j,k,iagg_lim_lg) + phyto(LARGE)%agg_lim(i,j,k)   * rmask_local(i,j)
+           DiaBio3d(i,j,k,iagg_lim_lg) = DiaBio3d(i,j,k,iagg_lim_lg) + phyto(LARGE)%agg_lim(i,j,k)
         ENDDO
       ENDDO
     ENDDO
@@ -4963,26 +5029,26 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       DO j=Jstr,Jend
         DO i=Istr,Iend
 
-           DiaBio3d(i,j,k,iaggloss_lg) = DiaBio3d(i,j,k,iaggloss_lg) + phyto(LARGE)%jaggloss_n(i,j,k)  * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,iaggloss_lg) = DiaBio3d(i,j,k,iaggloss_lg) + phyto(LARGE)%jaggloss_n(i,j,k)  * n_dt
 # ifdef COASTDIAT
-           DiaBio3d(i,j,k,iaggloss_md) = DiaBio3d(i,j,k,iaggloss_md) + phyto(MEDIUM)%jaggloss_n(i,j,k) * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,iaggloss_md) = DiaBio3d(i,j,k,iaggloss_md) + phyto(MEDIUM)%jaggloss_n(i,j,k) * n_dt
 # endif
-           DiaBio3d(i,j,k,iaggloss_sm) = DiaBio3d(i,j,k,iaggloss_sm) + phyto(SMALL)%jaggloss_n(i,j,k)  * n_dt * rmask_local(i,j)
-           DiaBio3d(i,j,k,iaggloss_di) = DiaBio3d(i,j,k,iaggloss_di) + phyto(DIAZO)%jaggloss_n(i,j,k)  * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,iaggloss_sm) = DiaBio3d(i,j,k,iaggloss_sm) + phyto(SMALL)%jaggloss_n(i,j,k)  * n_dt
+           DiaBio3d(i,j,k,iaggloss_di) = DiaBio3d(i,j,k,iaggloss_di) + phyto(DIAZO)%jaggloss_n(i,j,k)  * n_dt
 
-           DiaBio3d(i,j,k,ivirloss_lg) = DiaBio3d(i,j,k,ivirloss_lg) + phyto(LARGE)%jvirloss_n(i,j,k)  * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,ivirloss_lg) = DiaBio3d(i,j,k,ivirloss_lg) + phyto(LARGE)%jvirloss_n(i,j,k)  * n_dt
 # ifdef COASTDIAT
-           DiaBio3d(i,j,k,ivirloss_md) = DiaBio3d(i,j,k,ivirloss_md) + phyto(MEDIUM)%jvirloss_n(i,j,k) * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,ivirloss_md) = DiaBio3d(i,j,k,ivirloss_md) + phyto(MEDIUM)%jvirloss_n(i,j,k) * n_dt
 # endif
-           DiaBio3d(i,j,k,ivirloss_sm) = DiaBio3d(i,j,k,ivirloss_sm) + phyto(SMALL)%jvirloss_n(i,j,k)  * n_dt * rmask_local(i,j)
-           DiaBio3d(i,j,k,ivirloss_di) = DiaBio3d(i,j,k,ivirloss_di) + phyto(DIAZO)%jvirloss_n(i,j,k)  * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,ivirloss_sm) = DiaBio3d(i,j,k,ivirloss_sm) + phyto(SMALL)%jvirloss_n(i,j,k)  * n_dt
+           DiaBio3d(i,j,k,ivirloss_di) = DiaBio3d(i,j,k,ivirloss_di) + phyto(DIAZO)%jvirloss_n(i,j,k)  * n_dt
 
-           DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)   + phyto(LARGE)%jzloss_n(i,j,k)    * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)   + phyto(LARGE)%jzloss_n(i,j,k)    * n_dt
 #ifdef COASTDIAT
-           DiaBio3d(i,j,k,izloss_md)   = DiaBio3d(i,j,k,izloss_md)   + phyto(MEDIUM)%jzloss_n(i,j,k)   * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,izloss_md)   = DiaBio3d(i,j,k,izloss_md)   + phyto(MEDIUM)%jzloss_n(i,j,k)   * n_dt
 #endif
-           DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)   + phyto(SMALL)%jzloss_n(i,j,k)    * n_dt * rmask_local(i,j)
-           DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)   + phyto(DIAZO)%jzloss_n(i,j,k)    * n_dt * rmask_local(i,j)
+           DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)   + phyto(SMALL)%jzloss_n(i,j,k)    * n_dt
+           DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)   + phyto(DIAZO)%jzloss_n(i,j,k)    * n_dt
 
         ENDDO
       ENDDO
@@ -5010,7 +5076,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
-    cff_ts = n_dt * rmask(i,j) * Hz(i,j,k)
+    cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
 #ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
 #endif
@@ -5038,7 +5104,7 @@ ENDDO
 DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
-    cff_ts = n_dt * rmask(i,j) * Hz(i,j,k)
+    cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
 #ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
 #endif
@@ -5061,7 +5127,7 @@ ENDDO
 DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
-    cff_ts = n_dt * rmask(i,j) * Hz(i,j,k)
+    cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
 #ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
 #endif
@@ -5079,7 +5145,7 @@ ENDDO
 DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
-    cff_ts = n_dt * rmask(i,j) * Hz(i,j,k)
+    cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
 #ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
 #endif
@@ -5100,7 +5166,7 @@ ENDDO
 DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
-    cff_ts = n_dt * rmask(i,j) * Hz(i,j,k)
+    cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
 #ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
 #endif
@@ -5134,7 +5200,6 @@ ENDDO
      DO k=1,UBk
        DO j=Jstr,Jend
          DO i=Istr,Iend
-          !total_tracer(it) = total_tracer(it) + ( t(i,j,k,nstp,it) * omn(i,j) * rmask(i,j) * Hz(i,j,k) )
           total_tracer(it) = total_tracer(it) + ( t(i,j,k,nnew,it) * omn(i,j) * rmask_local(i,j) )
          ENDDO
        ENDDO
@@ -5150,7 +5215,7 @@ ENDDO
    DO k=1,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-          zvolume = zvolume + ( omn(i,j) * rmask(i,j) * Hz(i,j,k) )
+          zvolume = zvolume + ( omn(i,j) * rmask_local(i,j) * Hz(i,j,k) )
        ENDDO
      ENDDO
    ENDDO
