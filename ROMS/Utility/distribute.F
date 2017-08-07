@@ -3078,7 +3078,7 @@
             RETURN
           END IF
           DO i=1,Npts
-            A(i)=A(i)+Arecv(i)
+            A(i)=A(i) .or. Arecv(i)
           END DO
         END DO
         deallocate (Arecv)

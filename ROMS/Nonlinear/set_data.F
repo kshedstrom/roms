@@ -374,6 +374,7 @@
 #    endif
 #   endif
 !
+#   ifdef CLOUDS
 !-----------------------------------------------------------------------
 !  Set cloud fraction (nondimensional).  Notice that clouds are
 !  processed first in case that they are used to adjust shortwave
@@ -1432,28 +1433,28 @@
 !
 !  3D momentum.
 !
-      IF (LprocessOBC(ng)) THEN 
+      IF (LprocessOBC(ng)) THEN
 #  ifdef ANA_M3OBC
         CALL ana_m3obc (ng, tile, iNLM)
-#  else 
-        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN 
-          IF (LBC(iwest,isUvel,ng)%acquire) THEN 
+#  else
+        IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (LBC(iwest,isUvel,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idU3bc(iwest), JLB, JUB, N(ng),   &
-     &                      0, Mm(ng)+1, N(ng),                         &    
-     &                      BOUNDARY(ng) % uG_west,                     &    
-     &                      BOUNDARY(ng) % u_west,                      &    
+     &                      0, Mm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % uG_west,                     &
+     &                      BOUNDARY(ng) % u_west,                      &
      &                      update)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &    
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
           END IF
 
-          IF (LBC(iwest,isVvel,ng)%acquire) THEN 
+          IF (LBC(iwest,isVvel,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idV3bc(iwest), JLB, JUB, N(ng),   &
-     &                      1, Mm(ng)+1, N(ng),                         &    
-     &                      BOUNDARY(ng) % vG_west,                     &    
-     &                      BOUNDARY(ng) % v_west,                      &    
+     &                      1, Mm(ng)+1, N(ng),                         &
+     &                      BOUNDARY(ng) % vG_west,                     &
+     &                      BOUNDARY(ng) % v_west,                      &
      &                      update)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &    
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
           END IF
 

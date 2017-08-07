@@ -1236,10 +1236,10 @@
 #  if defined BENTHIC
 !------------------------------------------
 !  Define benthic tracer type variables.
-!------------------------------------------   
+!------------------------------------------
         DO itrc=1,NBeT(ng)
           hisBid(itrc,ng) = 0
- 
+
           IF (Hout(idBeTvar(itrc),ng)) THEN
 
             Vinfo( 1)=Vname(1,idBeTvar(itrc))
@@ -1252,7 +1252,7 @@
             status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%Bid(itrc),      &
      &                     NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
-!Will need to switch this if have more than one depth level for benthos 
+!Will need to switch this if have more than one depth level for benthos
 !         status=def_var(HIS(ng)%ncid,HIS(ng)%Bid(itrc),NF_FOUT,            &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
           END IF
@@ -1260,7 +1260,7 @@
 #  endif
 !------------------------------------------
 !  Define ice bio tracer type variables.
-!------------------------------------------  
+!------------------------------------------
 #  if defined ICE_BIO
 #   ifdef CLIM_ICE_1D
 
@@ -1275,7 +1275,7 @@
             Vinfo(14)=Vname(4,idIceBvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
-            Aval(5)=REAL(r2dvar,r8)  
+            Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng,iNLM,HIS(ng)%ncid,HIS(ng)%IceBid(itrc),   &
      &                    NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
 
@@ -3348,7 +3348,6 @@
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF
-# endif
 #endif
 #ifdef NEARSHORE_MELLOR
 !
@@ -4979,7 +4978,7 @@
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
-        END IF            
+        END IF
 # endif
 # ifdef MELT_PONDS
         IF (.not.got_var(idApond).and.Hout(idApond,ng)) THEN

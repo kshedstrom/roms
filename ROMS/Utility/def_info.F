@@ -675,7 +675,6 @@
               WRITE (clmatt,40) i
               status=nf90_put_att(ncid, nf90_global, clmatt,            &
      &                            string(1:lstr))
-              IF (status.ne.nf90_noerr) THEN
               IF (FoundError(status, nf90_noerr, __LINE__,              &
      &                     __FILE__)) THEN
                 IF (Master) WRITE (stdout,20) TRIM(clmatt), TRIM(ncname)

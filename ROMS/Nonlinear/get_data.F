@@ -526,8 +526,8 @@
 #endif
 
 # if !(defined ANA_TAIR   || defined ATM_COUPLING) && \
-    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D \
-     (defined SHORTWAVE   && defined ANA_SRFLUX    && defined ALBEDO) )
+    ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
+     (defined SHORTWAVE   && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 !
 !-----------------------------------------------------------------------
 !  Surface air temperature.
