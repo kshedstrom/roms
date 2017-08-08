@@ -67,7 +67,7 @@
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
-      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
       ncname=AVG2(ng)%name
 !
@@ -1868,7 +1868,7 @@
 !-----------------------------------------------------------------------
 !
         CALL netcdf_enddef (ng, iNLM, ncname, AVG2(ng)%ncid)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
@@ -1876,7 +1876,7 @@
 !-----------------------------------------------------------------------
 !
         CALL wrt_info (ng, model, AVG2(ng)%ncid, ncname)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END IF DEFINE
 !
@@ -1891,20 +1891,20 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, model, ncname)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, model, ncname)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 !
 !  Open averages file for read/write.
 !
         CALL netcdf_open (ng, model, ncname, 1, AVG2(ng)%ncid)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
-     &                 __FILE__)) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF
