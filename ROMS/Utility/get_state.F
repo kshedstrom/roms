@@ -1835,7 +1835,8 @@
 #  endif
      &                          OCEAN(ng) % obgc(:,:,:,Tindex,itrc))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) THEN
                 WRITE (stdout,60) string, TRIM(Vname(1,iDobgc(itrc))),  &
      &                            InpRec, TRIM(ncname)
@@ -1915,7 +1916,8 @@
 # endif
      &                        PERTURB(ng) % TairG(:,:,Tindex))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_Tair)),     &
      &                          InpRec, TRIM(ncname)
@@ -1945,7 +1947,8 @@
 # endif
      &                        PERTURB(ng) % srflxG(:,:,Tindex))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_Srad)),     &
      &                          InpRec, TRIM(ncname)
@@ -1975,7 +1978,8 @@
 # endif
      &                        PERTURB(ng) % UwindG(:,:,Tindex))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_Uwind)),    &
      &                          InpRec, TRIM(ncname)
@@ -2005,7 +2009,8 @@
 # endif
      &                        PERTURB(ng) % VwindG(:,:,Tindex))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_Vwind)),    &
      &                          InpRec, TRIM(ncname)
@@ -2039,7 +2044,8 @@
 # endif
      &                        PERTURB(ng) % deltax(:,:))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_dx)),     &
      &                          InpRec, TRIM(ncname)
@@ -2069,7 +2075,8 @@
 # endif
      &                        PERTURB(ng) % deltay(:,:))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_dy)),     &
      &                          InpRec, TRIM(ncname)
@@ -2099,7 +2106,8 @@
 # endif
      &                        PERTURB(ng) % deltaz(:,:))
 
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                 &
+     &                   __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,60) string, TRIM(Vname(1,idpert_dz)),     &
      &                          InpRec, TRIM(ncname)

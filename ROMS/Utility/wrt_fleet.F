@@ -52,7 +52,8 @@
 !  Write out fleet data at RHO-points.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set time record index.
 !
@@ -66,7 +67,8 @@
      &                      (/FLEET(ng)%Rindex/), (/1/),                &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet X-grid locations.
 !
@@ -78,7 +80,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBxprt))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet Y-grid locations.
 !
@@ -90,7 +93,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idByprt))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet port locations.
 !
@@ -102,7 +106,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBnprt))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet number of fished locations.
 !
@@ -114,7 +119,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBnfloc))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet X-grid 1st fishing locations.
 !
@@ -126,7 +132,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBxfsh1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet Y-grid 1st fishing locations.
 !
@@ -138,7 +145,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idByfsh1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet X-grid 2nd fishing locations.
 !
@@ -150,7 +158,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBxfsh2))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet Y-grid 2nd fishing locations.
 !
@@ -162,7 +171,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idByfsh2))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet daily catch.
 !
@@ -174,7 +184,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBcatch))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fleet cummulative annual catch.
 !
@@ -186,7 +197,8 @@
      &                      (/1,FLEET(ng)%Rindex/), (/Nboats(ng),1/),   &
      &                      ncid = FLEET(ng)%ncid,                      &
      &                      varid = FLEET(ng)%Vid(idBcmctch))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out average catch per unit effort (kg)
 !
@@ -198,7 +210,8 @@
      &                   GRID(ng) % rmask,                              &
 #endif
      &                   OCEAN(ng) % avgcpue(:,:))
-      IF (status.ne.nf90_noerr) RETURN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out perceived catch per unit effort (kg)
 !
@@ -210,7 +223,8 @@
      &                   GRID(ng) % rmask,                              &
 #endif
      &                   OCEAN(ng) % percpue(:,:))
-      IF (status.ne.nf90_noerr) RETURN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out distance to nearest port (km)
 !
@@ -222,7 +236,8 @@
      &                   GRID(ng) % rmask,                              &
 #endif
      &                   OCEAN(ng) % distport(:,:))
-      IF (status.ne.nf90_noerr) RETURN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out nearest port number
 !
@@ -234,7 +249,8 @@
      &                   GRID(ng) % rmask,                              &
 #endif
      &                   REAL(OCEAN(ng) % nearport(:,:),r8))
-      IF (status.ne.nf90_noerr) RETURN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Synchronize fleet NetCDF file to disk.

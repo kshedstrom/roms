@@ -242,12 +242,12 @@
           real(r8), pointer :: rmask(:,:)
           real(r8), pointer :: umask(:,:)
           real(r8), pointer :: vmask(:,:)
-#ifdef BERING_STRAIT
+# ifdef BERING_STRAIT
           real(r8), pointer :: mask2(:,:)
-#endif
-#ifdef ALBEDO_HACK
+# endif
+# ifdef ALBEDO_HACK
           real(r8), pointer :: mask_albedo(:,:)
-#endif
+# endif
 
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \

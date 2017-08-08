@@ -43,7 +43,8 @@
 !  Write out station data at RHO-points.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set time record index.
 !
@@ -57,7 +58,8 @@
      &                      (/FISH(ng)%Rindex/), (/1/),                 &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish species.
 !
@@ -67,7 +69,8 @@
      &                      (/1/), (/Nfish(ng)/),                       &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFspc))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish lifestage.
 !
@@ -77,7 +80,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFlfsg))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish cause of death
 !
@@ -87,7 +91,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFdeath))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish behavior.
 !
@@ -104,7 +109,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFhbhv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
           ToutI(l)=FISHES(ng)%swimtype(2,l)
@@ -118,7 +124,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFvbhv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish aliveness.
 !
@@ -128,7 +135,8 @@
      &                      (/1/), (/Nfish(ng)/),                       &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFalv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out time since last spawn.
 !
@@ -144,7 +152,8 @@
      &                      Tout, (/1/), (/Nfish(ng)/),                 &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFTspwn))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out initial worth.
 !
@@ -160,7 +169,8 @@
      &                      Tout, (/1/), (/Nfish(ng)/),                 &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFiniw))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish age base.
 !
@@ -169,7 +179,8 @@
      &                      FISHES(ng) % age_base,                      &
      &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = FISH(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish species base.
 !
@@ -178,7 +189,8 @@
      &                      FISHES(ng) % species_base,                  &
      &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = FISH(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish num free.
 !
@@ -187,7 +199,8 @@
      &                      FISHES(ng) % num_free,                      &
      &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = FISH(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish next free.
 !
@@ -196,7 +209,8 @@
      &                      FISHES(ng) % next_free,                     &
      &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = FISH(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out superindividuals per spawn.
 !
@@ -205,7 +219,8 @@
      &                      FISHES(ng) % num_super,                     &
      &                      (/1/), (/Nspecies(ng)/),                    &
      &                      ncid = FISH(ng)%ncid)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish X-grid locations.
 !
@@ -221,7 +236,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idXgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out fish Y-grid locations.
 !
@@ -237,7 +253,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idYgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -255,7 +272,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idZgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 # endif
 !
 !  Write out fish (lon,lat) or (x,y) locations.
@@ -276,7 +294,8 @@
      &                        ncid = FISH(ng)%ncid,                     &
      &                        varid = FISH(ng)%Vid(idglon))
       END IF
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
       DO l=1,Nfish(ng)
         Tout(l)=FISHES(ng)%track(iflat,nf(ng),l)
@@ -294,7 +313,8 @@
      &                        ncid = FISH(ng)%ncid,                     &
      &                        varid = FISH(ng)%Vid(idglat))
       END IF
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -312,7 +332,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(iddpth))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out density anomaly.
 !
@@ -328,7 +349,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idDano))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out tracer type variables.
 !
@@ -345,7 +367,8 @@
      &                        (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),   &
      &                        ncid = FISH(ng)%ncid,                     &
      &                        varid = FISH(ng)%Tid(itrc))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END DO
 #  ifdef NEMURO_SAN
 !  Write fish wet weight.
@@ -361,7 +384,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFwwt))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish worth.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -375,7 +399,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFworth))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish length
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -390,7 +415,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFlngth))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish P-value.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -404,7 +430,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFpval))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish age
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -418,7 +445,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFage))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish birthday
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -432,7 +460,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFbday))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write PS consumption
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -446,7 +475,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFcsmPS))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write PL consumption
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -460,7 +490,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFcsmPL))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write ZS consumption
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -474,7 +505,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFcsmZS))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write ZL consumption
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -488,7 +520,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFcsmZL))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write ZP consumption
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -502,7 +535,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFcsmZP))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Fish consumption on species 1
 !      DO l=1,Nfish(ng)
 !        IF (FISHES(ng)%bounded(l)) THEN
@@ -516,7 +550,8 @@
 !     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
 !     &                      ncid = FISH(ng)%ncid,                       &
 !     &                      varid = FISH(ng)%Vid(idFcsmF1))
-!      IF (exit_flag.ne.NoError) RETURN
+!     IF (FoundError(exit_flag, NoError, __LINE__,                      &
+!    &               __FILE__)) RETURN
 !  Write Fish consumption on species 2
 !      DO l=1,Nfish(ng)
 !        IF (FISHES(ng)%bounded(l)) THEN
@@ -530,7 +565,8 @@
 !     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
 !     &                      ncid = FISH(ng)%ncid,                       &
 !     &                      varid = FISH(ng)%Vid(idFcsmF2))
-!      IF (exit_flag.ne.NoError) RETURN
+!     IF (FoundError(exit_flag, NoError, __LINE__,                      &
+!    &               __FILE__)) RETURN
 !  Write Fish consumption on species 3
 !      DO l=1,Nfish(ng)
 !        IF (FISHES(ng)%bounded(l)) THEN
@@ -544,7 +580,8 @@
 !     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
 !     &                      ncid = FISH(ng)%ncid,                       &
 !     &                      varid = FISH(ng)%Vid(idFcsmF3))
-!      IF (exit_flag.ne.NoError) RETURN
+!     IF (FoundError(exit_flag, NoError, __LINE__,                      &
+!    &               __FILE__)) RETURN
 !  Write Fish consumption on species 4
 !      DO l=1,Nfish(ng)
 !        IF (FISHES(ng)%bounded(l)) THEN
@@ -558,7 +595,8 @@
 !     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
 !     &                      ncid = FISH(ng)%ncid,                       &
 !     &                      varid = FISH(ng)%Vid(idFcsmF4))
-!      IF (exit_flag.ne.NoError) RETURN
+!     IF (FoundError(exit_flag, NoError, __LINE__,                      &
+!    &               __FILE__)) RETURN
 !  Write Fish consumption on species 5
 !      DO l=1,Nfish(ng)
 !        IF (FISHES(ng)%bounded(l)) THEN
@@ -572,7 +610,8 @@
 !     &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
 !     &                      ncid = FISH(ng)%ncid,                       &
 !     &                      varid = FISH(ng)%Vid(idFcsmF5))
-!      IF (exit_flag.ne.NoError) RETURN
+!     IF (FoundError(exit_flag, NoError, __LINE__,                      &
+!    &               __FILE__)) RETURN
 !  Write respiration
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -586,7 +625,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFresp))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write egg duration
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -600,7 +640,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFdegg))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write number of eggs
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -614,7 +655,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFnegg))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write yolk sac duration
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -628,7 +670,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFdysac))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write number of yolk sacs
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -642,7 +685,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFnysac))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write larval duration
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -656,7 +700,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFdlarv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write number of larvae
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -670,7 +715,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFnlarv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write juvenile duration
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -684,7 +730,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFdjuv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write number of juveniles
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -698,7 +745,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFnjuv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write number of subadults
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -712,7 +760,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFnsuba))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write natural mortality
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -726,7 +775,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmortN))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write starvation mortality
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -740,7 +790,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmortS))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fishing mortality
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -754,7 +805,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmortF))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write predation mortality
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -768,7 +820,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmortP))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write summed predation mortality
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -783,7 +836,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFmrtPs))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write fish batch.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -797,7 +851,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFbatch))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write total fish eggs.
       DO l=1,Nfish(ng)
         IF (FISHES(ng)%bounded(l)) THEN
@@ -812,7 +867,8 @@
      &                      (/1,FISH(ng)%Rindex/), (/Nfish(ng),1/),     &
      &                      ncid = FISH(ng)%ncid,                       &
      &                      varid = FISH(ng)%Vid(idFeggs))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #  endif
 # endif
 !

@@ -22,6 +22,7 @@
       USE mod_scalars
       USE nf_fread2d_mod, ONLY : nf_fread2d
       USE nf_fread3d_mod, ONLY : nf_fread3d
+      USE strings_mod,    ONLY : FoundError
 !
       implicit none
 !

@@ -40,10 +40,11 @@
       SourceFile='wrt_tms.F'
 !
 !-----------------------------------------------------------------------
-!  Write out timeserie data 
+!  Write out timeserie data
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set time record index.
 !
@@ -58,21 +59,23 @@
      &                      (/TMS(ng)%Rindex/), (/1/),                  &
      &                      ncid = TMS(ng)%ncid,                        &
      &                      varid = TMS(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out tracer type variables.
 !
       DO i=1,NT(ng)
         ifield=idTvar(i)
-          scale=1.0_r8
-          CALL netcdf_put_fvar (ng, iNLM, TMS(ng)%name,                 &
-     &                          TRIM(Vname(1,idTvar(i))),               &
-     &                          OCEAN(ng)%tms(1,1,i) ,                  &
-     &                          (/TMS(ng)%Rindex/),                     &
-     &                          (/1/),                                  &
-     &                          ncid = TMS(ng)%ncid,                    &
-     &                          varid = TMS(ng)%Tid(i))
-          IF (exit_flag.ne.NoError) RETURN
+        scale=1.0_r8
+        CALL netcdf_put_fvar (ng, iNLM, TMS(ng)%name,                   &
+     &                        TRIM(Vname(1,idTvar(i))),                 &
+     &                        OCEAN(ng)%tms(1,1,i) ,                    &
+     &                        (/TMS(ng)%Rindex/),                       &
+     &                        (/1/),                                    &
+     &                        ncid = TMS(ng)%ncid,                      &
+     &                        varid = TMS(ng)%Tid(i))
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END DO
 !
 !
@@ -81,6 +84,8 @@
 !-----------------------------------------------------------------------
 !
       CALL netcdf_sync (ng, iNLM, TMS(ng)%name, TMS(ng)%ncid)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 #else
       SUBROUTINE wrt_tms

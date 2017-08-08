@@ -527,7 +527,8 @@
             status=nf90_put_att(ncid, nf90_global, 'fish_file',         &
      &                          TRIM(FISH(ng)%name))
           END IF
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'fish_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
@@ -805,7 +806,8 @@
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'fishpos_file',        &
      &                        TRIM(fishposnam))
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'fishpos_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
@@ -815,7 +817,8 @@
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'predpos_file',        &
      &                        TRIM(predposnam))
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'predpos_file', TRIM(ncname)
             exit_flag=3
             ioerror=status

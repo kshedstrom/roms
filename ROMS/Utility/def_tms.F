@@ -64,7 +64,8 @@
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       ncname=TMS(ng)%name
 !
       IF (Master) THEN
@@ -81,7 +82,8 @@
 !
       DEFINE : IF (ldef) THEN
         CALL netcdf_create (ng, iNLM, TRIM(ncname), TMS(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
@@ -95,30 +97,36 @@
 # ifdef SOLVE3D
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname, 's_rho',         &
      &                 N(ng), DimIDs( 9))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname, 's_w',           &
      &                 N(ng)+1, DimIDs(10))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname, 'tracer',        &
      &                 NT(ng), DimIDs(11))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # endif
 
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname, 'tms' ,          &
      &                 1, DimIDs(13))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname, 'boundary',      &
      &                 4, DimIDs(14))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, TMS(ng)%ncid, ncname,                  &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         recdim=DimIDs(12)
         stadim=DimIDs(13)
@@ -169,7 +177,8 @@
 !-----------------------------------------------------------------------
 !
         CALL def_info (ng, iNLM, TMS(ng)%ncid, ncname, DimIDs)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Define variables and their attributes.
@@ -196,9 +205,8 @@
         status=def_var(ng, iNLM, TMS(ng)%ncid, TMS(ng)%Vid(idtime),     &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
-
-
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 
 # ifdef SOLVE3D
@@ -217,7 +225,8 @@
      &                     NF_FOUT, 1, rgrd, Aval, Vinfo, ncname,       &
      &                     SetFillVal = .TRUE.,                         &
      &                     SetParAccess = .FALSE.)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) RETURN
 !          END IF
         END DO
 
@@ -228,14 +237,16 @@
 !-----------------------------------------------------------------------
 !
         CALL netcdf_enddef (ng, iNLM, ncname, TMS(ng)%ncid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
         CALL wrt_info (ng, iNLM, TMS(ng)%ncid, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       END IF DEFINE
 !
@@ -250,17 +261,20 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Open timeseries file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, TMS(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF

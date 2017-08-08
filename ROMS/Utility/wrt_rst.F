@@ -678,7 +678,8 @@
 #  endif
      &                     OCEAN(ng) % obgc(:,:,:,NOUT,itrc))
 # endif
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,iDobgc(itrc))), RST(ng)%Rindex
           END IF
@@ -714,7 +715,8 @@
 #  endif
      &                     OCEAN(ng) % bt(:,:,:,NOUT,itrc))
 # endif
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idBeTvar(itrc))), RST(ng)%Rindex
           END IF
@@ -737,7 +739,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % TairG(:,:,NOUT))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_Tair)), RST(ng)%Rindex
           END IF
@@ -756,7 +759,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % srflxG(:,:,NOUT))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_Srad)), RST(ng)%Rindex
           END IF
@@ -775,7 +779,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % UwindG(:,:,NOUT))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_Uwind)), RST(ng)%Rindex
           END IF
@@ -794,7 +799,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % VwindG(:,:,NOUT))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_Vwind)), RST(ng)%Rindex
           END IF
@@ -816,7 +822,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % deltax(:,:))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_dx)), RST(ng)%Rindex
           END IF
@@ -835,7 +842,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % deltay(:,:))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_dy)), RST(ng)%Rindex
           END IF
@@ -854,7 +862,8 @@
      &                     GRID(ng) % rmask,                            &
 # endif
      &                     PERTURB(ng) % deltaz(:,:))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idpert_dz)), RST(ng)%Rindex
           END IF

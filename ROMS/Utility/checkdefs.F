@@ -805,6 +805,14 @@
       Coptions(is:is+16)=' CLIPPING_SPLIT,'
 # endif
 #endif
+#ifdef COAMPS_COUPLING
+!
+      IF (Master) WRITE (stdout,20) 'COAMPS_COUPLING',                   &
+     &   'Atmosphere coupling with COAMPS.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' COAMPS_COUPLING,'
+      iatms=iatms+1
+#endif
 #ifdef COBALT_CARBON
       IF (Master) WRITE (stdout,20) 'COBALT_CARBON',                    &
      &   'Turn on carbon chemistry in COBALT.'
@@ -834,13 +842,6 @@
      &   'Turn on phosphorus chemistry in COBALT.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' COBALT_PHOSPHORUS,'
-#ifdef COAMPS_COUPLING
-!
-      IF (Master) WRITE (stdout,20) 'COAMPS_COUPLING',                   &
-     &   'Atmosphere coupling with COAMPS.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' COAMPS_COUPLING,'
-      iatms=iatms+1
 #endif
 #if defined DISTRIBUTE
 # if defined COLLECT_ALLGATHER
