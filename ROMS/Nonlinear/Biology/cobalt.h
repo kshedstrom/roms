@@ -2268,21 +2268,21 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        cobalt%total_filter_feeding(i,j,k) = ingest_matrix(2,1) +         &
      &    ingest_matrix(2,3) + ingest_matrix(3,1) + ingest_matrix(3,2)
 
-       phyto(DIAZO)%jzloss_n(i,j,k) = ingest_matrix(1,DIAZO)       +     &
-   &                                  ingest_matrix(2,DIAZO)       +     &
-   &                                  ingest_matrix(3,DIAZO)
+       phyto(DIAZO)%jzloss_n(i,j,k) = (ingest_matrix(1,DIAZO)       +     &
+   &                                   ingest_matrix(2,DIAZO)       +     &
+   &                                   ingest_matrix(3,DIAZO) ) * rmask_local(i,j)
 
-       phyto(LARGE)%jzloss_n(i,j,k) = ingest_matrix(1,LARGE)       +     &
-   &                                  ingest_matrix(2,LARGE)       +     &
-   &                                  ingest_matrix(3,LARGE)
+       phyto(LARGE)%jzloss_n(i,j,k) = (ingest_matrix(1,LARGE)       +     &
+   &                                   ingest_matrix(2,LARGE)       +     &
+   &                                   ingest_matrix(3,LARGE) ) * rmask_local(i,j)
 
-       phyto(MEDIUM)%jzloss_n(i,j,k) = ingest_matrix(1,MEDIUM)       +     &
-   &                                   ingest_matrix(2,MEDIUM)       +     &
-   &                                   ingest_matrix(3,MEDIUM)
+       phyto(MEDIUM)%jzloss_n(i,j,k) = (ingest_matrix(1,MEDIUM)       +     &
+   &                                    ingest_matrix(2,MEDIUM)       +     &
+   &                                    ingest_matrix(3,MEDIUM) ) * rmask_local(i,j)
 
-       phyto(SMALL)%jzloss_n(i,j,k) = ingest_matrix(1,SMALL)       +     &
-   &                                  ingest_matrix(2,SMALL)       +     &
-   &                                  ingest_matrix(3,SMALL)
+       phyto(SMALL)%jzloss_n(i,j,k) = (ingest_matrix(1,SMALL)       +     &
+   &                                   ingest_matrix(2,SMALL)       +     &
+   &                                   ingest_matrix(3,SMALL) ) * rmask_local(i,j)
 
 # ifdef COBALT_PHOSPHORUS
        phyto(DIAZO)%jzloss_p(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_p2n_vec(1)
@@ -2309,21 +2309,21 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
        ! RD end rewritten code
 # ifdef COBALT_PHOSPHORUS
-       bact(1)%jzloss_p(i,j,k) = bact(1)%jzloss_n(i,j,k)*prey_p2n_vec(5)
+       bact(1)%jzloss_p(i,j,k) = bact(1)%jzloss_n(i,j,k)*prey_p2n_vec(5) * rmask_local(i,j)
 # endif
 
 
-       zoo(1)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+1) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+1) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+1)
+       zoo(1)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+1) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+1) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+1) ) * rmask_local(i,j)
 
-       zoo(2)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+2) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+2) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+2)
+       zoo(2)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+2) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+2) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+2) ) * rmask_local(i,j)
 
-       zoo(3)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+3) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+3) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+3)
+       zoo(3)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+3) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+3) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+3) ) * rmask_local(i,j)
 
 # ifdef COBALT_PHOSPHORUS
        zoo(1)%jzloss_p(i,j,k) = zoo(1)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+1)
@@ -2565,19 +2565,19 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                      prey_vec(5)*zfn_zoo2/(zoo(m)%ki+tot_prey(m))
 
 
-       zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,2) + &
-     &                           ingest_matrix(m,5)
+       zoo(m)%jingest_n(i,j,k) = (ingest_matrix(m,1)+ingest_matrix(m,2) + &
+     &                            ingest_matrix(m,5) ) * rmask_local(i,j)
 
 # ifdef COBALT_PHOSPHORUS
-       zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
-     &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
-     &                           ingest_matrix(m,5)*prey_p2n_vec(5)
+       zoo(m)%jingest_p(i,j,k) = (ingest_matrix(m,1)*prey_p2n_vec(1) +    &
+     &                            ingest_matrix(m,2)*prey_p2n_vec(2) +    &
+     &                            ingest_matrix(m,5)*prey_p2n_vec(5) ) * rmask_local(i,j)
 # endif
 # ifdef COBALT_IRON
-       zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
-     &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
+       zoo(m)%jingest_fe(i,j,k) = (ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
+     &                             ingest_matrix(m,2)*prey_fe2n_vec(2) ) * rmask_local(i,j)
 # endif
-       zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
+       zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2) * rmask_local(i,j)
 
        !
        ! Large zooplankton (m = 3) consuming diazotrophs (1), large phytoplankton (2)
@@ -2636,18 +2636,18 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &                      prey_vec(6)*zfn_zoo3/(zoo(m)%ki+tot_prey(m))
 
 
-       zoo(m)%jingest_n(i,j,k) = ingest_matrix(m,1)+ingest_matrix(m,2) + &
-     &                           ingest_matrix(m,6)
+       zoo(m)%jingest_n(i,j,k) = (ingest_matrix(m,1)+ingest_matrix(m,2) + &
+     &                            ingest_matrix(m,6) ) * rmask_local(i,j)
 # ifdef COBALT_PHOSPHORUS
-       zoo(m)%jingest_p(i,j,k) = ingest_matrix(m,1)*prey_p2n_vec(1) +    &
-     &                           ingest_matrix(m,2)*prey_p2n_vec(2) +    &
-     &                           ingest_matrix(m,6)*prey_p2n_vec(6)
+       zoo(m)%jingest_p(i,j,k) = (ingest_matrix(m,1)*prey_p2n_vec(1) +    &
+     &                            ingest_matrix(m,2)*prey_p2n_vec(2) +    &
+     &                            ingest_matrix(m,6)*prey_p2n_vec(6) ) * rmask_local(i,j)
 # endif
 # ifdef COBALT_IRON
-       zoo(m)%jingest_fe(i,j,k) = ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
-     &                            ingest_matrix(m,2)*prey_fe2n_vec(2)
+       zoo(m)%jingest_fe(i,j,k) = (ingest_matrix(m,1)*prey_fe2n_vec(1) +  &
+     &                             ingest_matrix(m,2)*prey_fe2n_vec(2) ) * rmask_local(i,j)
 # endif
-       zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2)
+       zoo(m)%jingest_sio2(i,j,k) = ingest_matrix(m,2)*prey_si2n_vec(2) * rmask_local(i,j)
 
        cobalt%total_filter_feeding(i,j,k) = ingest_matrix(2,1) +         &
      &                                      ingest_matrix(2,2) +         &
@@ -2656,17 +2656,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
 
 
-       phyto(DIAZO)%jzloss_n(i,j,k) = ingest_matrix(1,DIAZO)       +     &
-   &                                  ingest_matrix(2,DIAZO)       +     &
-   &                                  ingest_matrix(3,DIAZO)
+       phyto(DIAZO)%jzloss_n(i,j,k) = (ingest_matrix(1,DIAZO)       +     &
+   &                                   ingest_matrix(2,DIAZO)       +     &
+   &                                   ingest_matrix(3,DIAZO) ) * rmask_local(i,j)
 
-       phyto(LARGE)%jzloss_n(i,j,k) = ingest_matrix(1,LARGE)       +     &
-   &                                  ingest_matrix(2,LARGE)       +     &
-   &                                  ingest_matrix(3,LARGE)
+       phyto(LARGE)%jzloss_n(i,j,k) = (ingest_matrix(1,LARGE)       +     &
+   &                                   ingest_matrix(2,LARGE)       +     &
+   &                                   ingest_matrix(3,LARGE) ) * rmask_local(i,j)
 
-       phyto(SMALL)%jzloss_n(i,j,k) = ingest_matrix(1,SMALL)       +     &
-   &                                  ingest_matrix(2,SMALL)       +     &
-   &                                  ingest_matrix(3,SMALL)
+       phyto(SMALL)%jzloss_n(i,j,k) = (ingest_matrix(1,SMALL)       +     &
+   &                                   ingest_matrix(2,SMALL)       +     &
+   &                                   ingest_matrix(3,SMALL) ) * rmask_local(i,j)
 
 # ifdef COBALT_PHOSPHORUS
        phyto(DIAZO)%jzloss_p(i,j,k) = phyto(DIAZO)%jzloss_n(i,j,k)*prey_p2n_vec(1)
@@ -2685,9 +2685,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        phyto(SMALL)%jzloss_sio2(i,j,k) = phyto(SMALL)%jzloss_n(i,j,k)*prey_si2n_vec(3)
 
 
-       bact(1)%jzloss_n(i,j,k) = ingest_matrix(1,4) + &
-     &                           ingest_matrix(2,4) + &
-     &                           ingest_matrix(3,4)
+       bact(1)%jzloss_n(i,j,k) = (ingest_matrix(1,4) + &
+     &                            ingest_matrix(2,4) + &
+     &                            ingest_matrix(3,4) ) * rmask_local(i,j)
 
        ! RD end rewritten code
 # ifdef COBALT_PHOSPHORUS
@@ -2698,17 +2698,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        ! losses of zooplankton to zooplankton
        !
 
-       zoo(1)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+1) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+1) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+1)
+       zoo(1)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+1) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+1) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+1) ) * rmask_local(i,j)
 
-       zoo(2)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+2) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+2) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+2)
+       zoo(2)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+2) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+2) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+2) ) * rmask_local(i,j)
 
-       zoo(3)%jzloss_n(i,j,k) = ingest_matrix(1,NUM_PHYTO+1+3) +   &
-     &                          ingest_matrix(2,NUM_PHYTO+1+3) +   &
-     &                          ingest_matrix(3,NUM_PHYTO+1+3)
+       zoo(3)%jzloss_n(i,j,k) = (ingest_matrix(1,NUM_PHYTO+1+3) +   &
+     &                           ingest_matrix(2,NUM_PHYTO+1+3) +   &
+     &                           ingest_matrix(3,NUM_PHYTO+1+3) ) * rmask_local(i,j)
 
 # ifdef COBALT_PHOSPHORUS
        zoo(1)%jzloss_p(i,j,k) = zoo(1)%jzloss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+1)
@@ -2800,17 +2800,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
        !ENDDO !} n
 
        ! RD rewritten code
-       zoo(1)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+1)
-       zoo(2)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+2)
-       zoo(3)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+3)
+       zoo(1)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+1) * rmask_local(i,j)
+       zoo(2)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+2) * rmask_local(i,j)
+       zoo(3)%jhploss_n(i,j,k) = hp_ingest_vec(NUM_PHYTO+1+3) * rmask_local(i,j)
 
 #ifdef COBALT_PHOSPHORUS
 # ifdef COASTDIAT
-       cobalt%hp_jingest_p(i,j,k) = hp_ingest_vec(7)*prey_p2n_vec(7) +   &
-     &                              hp_ingest_vec(8)*prey_p2n_vec(8)
+       cobalt%hp_jingest_p(i,j,k) = (hp_ingest_vec(7)*prey_p2n_vec(7) +   &
+     &                               hp_ingest_vec(8)*prey_p2n_vec(8) ) * rmask_local(i,j)
 # else
-       cobalt%hp_jingest_p(i,j,k) = hp_ingest_vec(6)*prey_p2n_vec(6) +   &
-     &                              hp_ingest_vec(7)*prey_p2n_vec(7)
+       cobalt%hp_jingest_p(i,j,k) = (hp_ingest_vec(6)*prey_p2n_vec(6) +   &
+     &                               hp_ingest_vec(7)*prey_p2n_vec(7) ) * rmask_local(i,j)
 # endif
        zoo(1)%jhploss_p(i,j,k) = zoo(1)%jhploss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+1)
        zoo(2)%jhploss_p(i,j,k) = zoo(2)%jhploss_n(i,j,k)*prey_p2n_vec(NUM_PHYTO+1+2)
