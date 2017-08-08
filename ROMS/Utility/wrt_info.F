@@ -203,20 +203,20 @@
       CALL netcdf_put_ivar (ng, model, ncname, 'ntsAVG2',               &
      &                      ntsAVG2(ng), (/0/), (/0/),                  &
      &                      ncid = ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL netcdf_put_ivar (ng, model, ncname, 'nAVG2',                 &
      &                      nAVG2(ng), (/0/), (/0/),                    &
      &                      ncid = ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL netcdf_put_ivar (ng, model, ncname, 'ndefAVG2',              &
      &                      ndefAVG2(ng), (/0/), (/0/),                 &
      &                      ncid = ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #endif
 
 #ifdef ADJOINT
@@ -739,8 +739,8 @@
       CALL netcdf_put_fvar (ng, model, ncname, 'Tnudg',                 &
      &                      nudg, (/1/), (/NT(ng)/),                    &
      &                      ncid = ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL netcdf_put_fvar (ng, model, ncname, 'Tnudg_SSS',             &
      &                      Tnudg_SSS(ng)/sec2day, (/0/), (/0/),        &

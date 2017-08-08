@@ -596,7 +596,8 @@
         IF (OutThread) THEN
           status=nf90_inq_varid(FLT(ng)%ncid,'Ftype',varid)
           status=nf90_put_var(FLT(ng)%ncid, varid, DRIFTER(ng)%Ftype)
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             WRITE (stdout,70) 'Ftype', TRIM(ncname)
             exit_flag=3
             RETURN

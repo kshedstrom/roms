@@ -61,10 +61,11 @@
 !  Activate creation of filter NetCDF file.  Create a new filter
 !  file if during a restart run, the filter filename "FIL%name"
 !  is different than the restart filename "RST%name".  I would prefer to
-!  not create a new filter file during a restart run, but simply write to 
+!  not create a new filter file during a restart run, but simply write to
 !  one assumed to have been created before, but this doesn't work yet.
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       Ldefine=.FALSE.
       IF (((nrrec(ng).eq.0).and.(iic(ng).eq.ntstart(ng))).or.           &
      &      ((nrrec(ng).ne.0))) THEN
@@ -75,7 +76,8 @@
         ncname=FIL(ifile,ng)%name
         IF (Ldefine) THEN
           CALL netcdf_create(ng, iNLM, TRIM(ncname), FIL(ifile,ng)%ncid)
-          IF (exit_flag.ne.NoError) THEN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,30) TRIM(ncname)
             RETURN
           END IF
@@ -86,77 +88,99 @@
 !
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_rho', IOBOUNDS(ng)%xi_rho, DimIDs( 1))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_u', IOBOUNDS(ng)%xi_u, DimIDs( 2))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_v', IOBOUNDS(ng)%xi_v, DimIDs( 3))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xi_psi', IOBOUNDS(ng)%xi_psi, DimIDs( 4))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_rho', IOBOUNDS(ng)%eta_rho, DimIDs( 5))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_u', IOBOUNDS(ng)%eta_u, DimIDs( 6))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_v', IOBOUNDS(ng)%eta_v, DimIDs( 7))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'eta_psi', IOBOUNDS(ng)%eta_psi, DimIDs( 8))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 # if defined WRITE_WATER && defined MASKING
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_rho', IOBOUNDS(ng)%xy_rho, DimIDs(17))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_u', IOBOUNDS(ng)%xy_u, DimIDs(18))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xy_v', IOBOUNDS(ng)%xy_v, DimIDs(19))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 # endif
 # ifdef SOLVE3D
 #  if defined WRITE_WATER && defined MASKING
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_rho', IOBOUNDS(ng)%xy_rho*N(ng), DimIDs(20))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_u', IOBOUNDS(ng)%xy_u*N(ng), DimIDs(21))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_v', IOBOUNDS(ng)%xy_v*N(ng), DimIDs(22))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'xyz_w', IOBOUNDS(ng)%xy_rho*(N(ng)+1), DimIDs(23))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #  endif
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'N', N(ng), DimIDs( 9))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             's_rho', N(ng), DimIDs( 9))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             's_w', N(ng)+1, DimIDs(10))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'tracer', NT(ng), DimIDs(11))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 # endif
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'boundary', 4, DimIDs(14))
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
      &             'filterLevel', nf90_unlimited, DimIDs(32))
-          IF (exit_flag.ne.NoError) RETURN
-!         status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
-!     &            TRIM(ADJUSTL(Vname(5,idtime))),                      &
-!     &            nf90_unlimited, DimIDs(12))
-!         IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+!        status = def_dim(ng, iNLM, FIL(ifile,ng)%ncid, ncname,        &
+!    &            TRIM(ADJUSTL(Vname(5,idtime))),                      &
+!    &            nf90_unlimited, DimIDs(12))
+!         IF (FoundError(exit_flag, NoError, __LINE__,                  &
+!    &                   __FILE__)) RETURN
           recdim=DimIDs(32)
 !
 !  Set number of dimensions for output variables.
@@ -268,7 +292,8 @@
           IF (exit_flag.eq.NoError) THEN
             status = nf90_put_att(FIL(ifile,ng)%ncid, nf90_global,      &
      &               'type', TRIM(type))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,20) 'type', TRIM(ncname)
               exit_flag=3
               ioerror=status
@@ -282,7 +307,8 @@
           status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &           varid, NF90_INT, 1, (/recdim/), Aval,                  &
      &           Vinfo, ncname, SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 !
 !  Define ocean_time as scalar.
 !
@@ -294,7 +320,8 @@
           status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &             FIL(ifile,ng)%Vid(idtime), NF_TYPE, 1, (/ recdim /), &
      &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 !
 !  Define filter counts.
 !
@@ -303,7 +330,8 @@
           status = def_var(ng, iNLM, FIL(ifile,ng)%ncid,                &
      &             varid, NF90_INT, 1, (/recdim/),                      &
      &             Aval, Vinfo, ncname, SetParAccess = .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 !
@@ -329,7 +357,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idFsur),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define 2D momentum in the XI-direction.
@@ -348,7 +377,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idUbar),                           &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define 2D momentum in the ETA-direction.
@@ -367,7 +397,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idVbar),                           &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 # ifdef SOLVE3D
 !
@@ -388,7 +419,8 @@
           status=def_var(ng, iNLM, FIL(2,ng)%ncid,                      &
      &                 FIL(2,ng)%Vid(idUvel),                           &
      &                 NF_FOUT, nvd4, u3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define 3D momentum component in the ETA-direction.
@@ -408,7 +440,8 @@
           status=def_var(ng, iNLM, FIL(3,ng)%ncid,                      &
      &                 FIL(3,ng)%Vid(idVvel),                           &
      &                 NF_FOUT, nvd4, v3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define vertical (omega) velocity.
@@ -428,7 +461,8 @@
           status=def_var(ng, iNLM, FIL(9,ng)%ncid,                      &
      &                 FIL(9,ng)%Vid(idOvel),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define vertical (W) velocity.
@@ -448,7 +482,8 @@
           status=def_var(ng, iNLM, FIL(9,ng)%ncid,                      &
      &                 FIL(9,ng)%Vid(idWvel),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define density anomaly.
@@ -468,7 +503,8 @@
           status=def_var(ng, iNLM, FIL(7,ng)%ncid,                      &
      &                 FIL(7,ng)%Vid(idDano),                           &
      &                 NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define tracer type variables.
@@ -489,7 +525,8 @@
             status=def_var(ng, iNLM, FIL(8,ng)%ncid,                    &
      &                 FIL(8,ng)%Tid(itrc),                             &
      &                 NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
-            IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           END IF
         END DO
 #  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
@@ -511,7 +548,8 @@
           status=def_var(ng, iNLM, FIL(6,ng)%ncid,                      &
      &                 FIL(6,ng)%Vid(idVvis),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define vertical diffusion coefficient for potential temperature.
@@ -531,7 +569,8 @@
           status=def_var(ng, iNLM, FIL(4,ng)%ncid,                      &
      &                 FIL(4,ng)%Vid(idTdif),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define vertical diffusion coefficient for salinity.
@@ -551,7 +590,8 @@
           status=def_var(ng, iNLM, FIL(5,ng)%ncid,                      &
      &                 FIL(5,ng)%Vid(idSdif),                           &
      &                 NF_FOUT, nvd4, w3dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #  endif
 
@@ -574,7 +614,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idHsbl),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #  endif
 #  ifdef LMD_BKPP
@@ -595,7 +636,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                   FIL(1,ng)%Vid(idHbbl),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #  endif
 !
@@ -618,7 +660,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idTsur(itemp)),                    &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define surface net salt flux.
@@ -640,7 +683,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idTsur(isalt)),                    &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #  ifdef BULK_FLUXES
 !
@@ -662,7 +706,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idLhea),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define sensible heat flux.
@@ -683,7 +728,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idShea),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define longwave radiation flux.
@@ -704,7 +750,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idLrad),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #   ifdef EMINUSP
 !
@@ -724,7 +771,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idevap),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define precipitation.
@@ -743,7 +791,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idrain),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #   endif
 #  endif
@@ -767,7 +816,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idSrad),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #  endif
 # endif
@@ -788,7 +838,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idUsms),                           &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define surface v-momentum stress.
@@ -807,7 +858,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idVsms),                           &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define bottom u-momentum stress.
@@ -826,7 +878,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idUbms),                           &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define bottom v-momentum stress.
@@ -845,7 +898,8 @@
           status=def_var(ng, iNLM, FIL(1,ng)%ncid,                      &
      &                 FIL(1,ng)%Vid(idVbms),                           &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 # ifdef ICE_MODEL
 !
@@ -866,7 +920,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idUice),                          &
      &                 NF_FOUT, nvd3, u2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define 2D ice momentum in the ETA-direction.
@@ -885,7 +940,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idVice),                          &
      &                 NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice concentration
@@ -904,7 +960,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idAice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice thickness
@@ -923,7 +980,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idHice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define snow thickness
@@ -942,7 +1000,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idHsno),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #ifdef MELT_PONDS
 !
@@ -962,7 +1021,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idApond),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define surface melt ponds
@@ -981,7 +1041,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idHpond),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #endif
 !
@@ -1001,7 +1062,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idTice),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define internal ice temperature
@@ -1020,7 +1082,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idTimid),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define age of ice
@@ -1039,7 +1102,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idAgeice),                        &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define under-ice salinity
@@ -1058,7 +1122,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idS0mk),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define under-ice temperature
@@ -1077,7 +1142,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idT0mk),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define sig11 component of internal ice stress
@@ -1096,7 +1162,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSig11),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define sig12 component of internal ice stress
@@ -1115,7 +1182,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSig12),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define sig22 component of internal ice stress
@@ -1134,7 +1202,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSig22),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice-ocean mass flux
@@ -1153,7 +1222,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idIomflx),                        &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice-water friction velocity
@@ -1172,7 +1242,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idTauiw),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice-water momentum transfer coefficient
@@ -1191,7 +1262,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idChuiw),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define frazil ice growth rate.
@@ -1210,7 +1282,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWfr),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice-air melt rate.
@@ -1229,7 +1302,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWai),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ocean-air ice growth rate.
@@ -1248,7 +1322,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWao),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice-ocean ice melt/growth rate.
@@ -1267,7 +1342,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWio),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice melt runoff rate.
@@ -1286,7 +1362,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWro),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice divergence rate.
@@ -1305,7 +1382,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idWdiv),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #   ifdef ICE_DIAGS
 !
@@ -1325,7 +1403,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idAlbe),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice albedo.
@@ -1344,7 +1423,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idAlbI),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define downward longwave radiation.
@@ -1363,7 +1443,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idLWdn),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define downward shortwave radiation.
@@ -1382,7 +1463,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSWdn),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice latent heat.
@@ -1401,7 +1483,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idLatI),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define ice sensible heat.
@@ -1420,7 +1503,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSenI),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define upward longwave over ice.
@@ -1439,7 +1523,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idLWupI),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define upward shortwave over ice.
@@ -1458,7 +1543,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSWupI),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define shortwave into ice.
@@ -1477,7 +1563,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSWinI),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define shortwave through ice.
@@ -1496,7 +1583,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSWthruI),                       &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define salt flux from ice.
@@ -1515,7 +1603,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSaltI),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define salt flux in leads.
@@ -1534,7 +1623,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSaltL),                         &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define heat flux in leads
@@ -1553,7 +1643,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idQao),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define heat flux over ice.
@@ -1572,7 +1663,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idQai),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define heat flux under ice.
@@ -1591,7 +1683,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idQio),                           &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 !
 !  Define snow-ice conversion
@@ -1610,7 +1703,8 @@
           status=def_var(ng, iNLM, FIL(10,ng)%ncid,                     &
      &                 FIL(10,ng)%Vid(idSnoI),                          &
      &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #   endif
 # endif
@@ -1622,7 +1716,8 @@
         DO ifile=1,nfile
           CALL netcdf_enddef (ng, iNLM, FIL(ifile,ng)%name,             &
      &                        FIL(ifile,ng)%ncid)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
       END IF
 !
@@ -1645,12 +1740,14 @@
 !  Inquire about the dimensions and check for consistency.
 !
           CALL netcdf_check_dim (ng, iNLM, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
           CALL netcdf_inq_var (ng, iNLM, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           IF (Master) WRITE (stdout, 20) TRIM(ncname)
           ifield=0
@@ -1658,7 +1755,8 @@
 !  Open filter files for read/write.
 !
           CALL netcdf_open (ng, iNLM, ncname, 1, FIL(ifile,ng)%ncid)
-          IF (exit_flag.ne.NoError) THEN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,50) TRIM(ncname)
             RETURN
           END IF

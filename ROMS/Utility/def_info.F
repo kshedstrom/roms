@@ -437,7 +437,8 @@
             status=nf90_put_att(ncid, nf90_global, 'avg2_file',         &
      &                          TRIM(AVG2(ng)%name))
           END IF
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'avg2_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
@@ -3398,8 +3399,8 @@
           Aval(5)=REAL(r2dvar,r8)
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   2, t2dgrd, Aval, Vinfo, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #endif
 !

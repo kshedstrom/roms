@@ -1218,7 +1218,7 @@
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
             IF (Master) THEN
-              WRITE (stdout,10)TRIM(Vname(1,idBeTvar(itrc))),             &
+              WRITE (stdout,10)TRIM(Vname(1,idBeTvar(itrc))),           &
      &                       HIS(ng)%Rindex
             END IF
             exit_flag=3
@@ -2845,6 +2845,7 @@
 #  ifdef MASKING
      &                     GRID(ng) % rmask,                            &
 #  endif
+     &                     FORCES(ng) % saltflux_ocean)
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) THEN

@@ -343,7 +343,8 @@
 !
         DO ng=1,Ngrids
           CALL output (ng)
-          IF ((FoundError(exit_flag, NoError, __LINE__, __FILE__)).or.
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__) .or.
      &        ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) RETURN
         END DO
 !
