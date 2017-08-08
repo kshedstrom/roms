@@ -1658,7 +1658,8 @@
      &                      BOUNDARY(ng) % hiG_north,                   &
      &                      BOUNDARY(ng) % hi_north,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1685,7 +1686,8 @@
      &                      BOUNDARY(ng) % hsnG_west,                   &
      &                      BOUNDARY(ng) % hsn_west,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isHsno,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHsnbc(ieast), JLB, JUB, 1,      &
@@ -1693,7 +1695,8 @@
      &                      BOUNDARY(ng) % hsnG_east,                   &
      &                      BOUNDARY(ng) % hsn_east,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isHsno,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHsnbc(isouth), ILB, IUB, 1,     &
@@ -1701,7 +1704,8 @@
      &                      BOUNDARY(ng) % hsnG_south,                  &
      &                      BOUNDARY(ng) % hsn_south,                   &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isHsno,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHsnbc(inorth), ILB, IUB, 1,     &
@@ -1709,7 +1713,8 @@
      &                      BOUNDARY(ng) % hsnG_north,                  &
      &                      BOUNDARY(ng) % hsn_north,                   &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1726,7 +1731,8 @@
      &                      BOUNDARY(ng) % tiG_west,                    &
      &                      BOUNDARY(ng) % ti_west,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isTice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idTibc(ieast), JLB, JUB, 1,       &
@@ -1734,7 +1740,8 @@
      &                      BOUNDARY(ng) % tiG_east,                    &
      &                      BOUNDARY(ng) % ti_east,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isTice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idTibc(isouth), ILB, IUB, 1,      &
@@ -1742,7 +1749,8 @@
      &                      BOUNDARY(ng) % tiG_south,                   &
      &                      BOUNDARY(ng) % ti_south,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isTice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idTibc(inorth), ILB, IUB, 1,      &
@@ -1750,7 +1758,8 @@
      &                      BOUNDARY(ng) % tiG_north,                   &
      &                      BOUNDARY(ng) % ti_north,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1768,7 +1777,8 @@
      &                      BOUNDARY(ng) % apondG_west,                 &
      &                      BOUNDARY(ng) % apond_west,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isApond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idApdbc(ieast), JLB, JUB, 1,      &
@@ -1776,7 +1786,8 @@
      &                      BOUNDARY(ng) % apondG_east,                 &
      &                      BOUNDARY(ng) % apond_east,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isApond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idApdbc(isouth), ILB, IUB, 1,     &
@@ -1784,7 +1795,8 @@
      &                      BOUNDARY(ng) % apondG_south,                &
      &                      BOUNDARY(ng) % apond_south,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isApond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idApdbc(inorth), ILB, IUB, 1,     &
@@ -1792,7 +1804,8 @@
      &                      BOUNDARY(ng) % apondG_north,                &
      &                      BOUNDARY(ng) % apond_north,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(iwest,isHpond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHpdbc(iwest), JLB, JUB, 1,      &
@@ -1800,7 +1813,8 @@
      &                      BOUNDARY(ng) % hpondG_west,                 &
      &                      BOUNDARY(ng) % hpond_west,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isHpond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHpdbc(ieast), JLB, JUB, 1,      &
@@ -1808,7 +1822,8 @@
      &                      BOUNDARY(ng) % hpondG_east,                 &
      &                      BOUNDARY(ng) % hpond_east,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isHpond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHpdbc(isouth), ILB, IUB, 1,     &
@@ -1816,7 +1831,8 @@
      &                      BOUNDARY(ng) % hpondG_south,                &
      &                      BOUNDARY(ng) % hpond_south,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isHpond,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idHpdbc(inorth), ILB, IUB, 1,     &
@@ -1824,7 +1840,8 @@
      &                      BOUNDARY(ng) % hpondG_north,                &
      &                      BOUNDARY(ng) % hpond_north,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 #  endif
@@ -1842,7 +1859,8 @@
      &                      BOUNDARY(ng) % sig11G_west,                 &
      &                      BOUNDARY(ng) % sig11_west,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isSig11,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS11bc(ieast), JLB, JUB, 1,      &
@@ -1850,7 +1868,8 @@
      &                      BOUNDARY(ng) % sig11G_east,                 &
      &                      BOUNDARY(ng) % sig11_east,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isSig11,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS11bc(isouth), ILB, IUB, 1,     &
@@ -1858,7 +1877,8 @@
      &                      BOUNDARY(ng) % sig11G_south,                &
      &                      BOUNDARY(ng) % sig11_south,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isSig11,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS11bc(inorth), ILB, IUB, 1,     &
@@ -1866,7 +1886,8 @@
      &                      BOUNDARY(ng) % sig11G_north,                &
      &                      BOUNDARY(ng) % sig11_north,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1883,7 +1904,8 @@
      &                      BOUNDARY(ng) % sig22G_west,                 &
      &                      BOUNDARY(ng) % sig22_west,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isSig22,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS22bc(ieast), JLB, JUB, 1,      &
@@ -1891,7 +1913,8 @@
      &                      BOUNDARY(ng) % sig22G_east,                 &
      &                      BOUNDARY(ng) % sig22_east,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isSig22,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS22bc(isouth), ILB, IUB, 1,     &
@@ -1899,7 +1922,8 @@
      &                      BOUNDARY(ng) % sig22G_south,                &
      &                      BOUNDARY(ng) % sig22_south,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isSig22,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS22bc(inorth), ILB, IUB, 1,     &
@@ -1907,7 +1931,8 @@
      &                      BOUNDARY(ng) % sig22G_north,                &
      &                      BOUNDARY(ng) % sig22_north,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1924,7 +1949,8 @@
      &                      BOUNDARY(ng) % sig12G_west,                 &
      &                      BOUNDARY(ng) % sig12_west,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isSig12,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS12bc(ieast), JLB, JUB, 1,      &
@@ -1932,7 +1958,8 @@
      &                      BOUNDARY(ng) % sig12G_east,                 &
      &                      BOUNDARY(ng) % sig12_east,                  &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isSig12,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS12bc(isouth), ILB, IUB, 1,     &
@@ -1940,7 +1967,8 @@
      &                      BOUNDARY(ng) % sig12G_south,                &
      &                      BOUNDARY(ng) % sig12_south,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isSig12,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idS12bc(inorth), ILB, IUB, 1,     &
@@ -1948,7 +1976,8 @@
      &                      BOUNDARY(ng) % sig12G_north,                &
      &                      BOUNDARY(ng) % sig12_north,                 &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif
@@ -1965,7 +1994,8 @@
      &                      BOUNDARY(ng) % uiG_west,                    &
      &                      BOUNDARY(ng) % ui_west,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(iwest,isVice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idVibc(iwest), JLB, JUB, 1,       &
@@ -1973,7 +2003,8 @@
      &                      BOUNDARY(ng) % viG_west,                    &
      &                      BOUNDARY(ng) % vi_west,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isUice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idUibc(ieast), JLB, JUB, 1,       &
@@ -1981,7 +2012,8 @@
      &                      BOUNDARY(ng) % uiG_east,                    &
      &                      BOUNDARY(ng) % ui_east,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(ieast,isVice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idVibc(ieast), JLB, JUB, 1,       &
@@ -1989,7 +2021,8 @@
      &                      BOUNDARY(ng) % viG_east,                    &
      &                      BOUNDARY(ng) % vi_east,                     &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isUice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idUibc(isouth), ILB, IUB, 1,      &
@@ -1997,7 +2030,8 @@
      &                      BOUNDARY(ng) % uiG_south,                   &
      &                      BOUNDARY(ng) % ui_south,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(isouth,isVice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idVibc(isouth), ILB, IUB, 1,      &
@@ -2005,7 +2039,8 @@
      &                      BOUNDARY(ng) % viG_south,                   &
      &                      BOUNDARY(ng) % vi_south,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isUice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idUibc(inorth), ILB, IUB, 1,      &
@@ -2013,7 +2048,8 @@
      &                      BOUNDARY(ng) % uiG_north,                   &
      &                      BOUNDARY(ng) % ui_north,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
           IF (LBC(inorth,isVice,ng)%acquire) THEN
             CALL set_ngfld (ng, iNLM, idVibc(inorth), ILB, IUB, 1,      &
@@ -2021,7 +2057,8 @@
      &                      BOUNDARY(ng) % viG_north,                   &
      &                      BOUNDARY(ng) % vi_north,                    &
      &                      update)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END IF
 # endif

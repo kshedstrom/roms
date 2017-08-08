@@ -435,7 +435,8 @@
             status=nf90_put_att(ncid, nf90_global, 'avg2_file',         &
      &                          TRIM(AVG2(ng)%name))
           END IF
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'avg2_file', TRIM(ncname)
             exit_flag=3
             ioerror=status
@@ -1190,20 +1191,23 @@
      &   'starting time-step for accumulation of time-averaged fields'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &
      &               1, (/0/), Aval, Vinfo, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       Vinfo( 1)='nAVG2'
       Vinfo( 2)='number of time-steps between time-averaged records'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &
      &               1, (/0/), Aval, Vinfo, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       Vinfo( 1)='ndefAVG2'
       Vinfo( 2)=                                                        &
      &    'number of time-steps between the creation of average files'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &
      &               1, (/0/), Aval, Vinfo, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #endif
 
 #ifdef ADJOINT
@@ -3207,7 +3211,8 @@
           Aval(5)=REAL(r2dvar,r8)
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   2, t2dgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 #endif
 !

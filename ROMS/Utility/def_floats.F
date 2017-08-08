@@ -317,7 +317,8 @@
           Aval(3)=180.0_r8
           status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idglon,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           Vinfo( 1)='lat'
           Vinfo( 2)='latitude of floats trajectories'
@@ -334,7 +335,8 @@
           Aval(3)=90.0_r8
           status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idglat,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           Vinfo( 1)='x'
           Vinfo( 2)='x-location of floats trajectories'
@@ -347,7 +349,8 @@
 # endif
           status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idxspc,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           Vinfo( 1)='y'
           Vinfo( 2)='y-location of floats trajectories'
           Vinfo( 3)='meter'
@@ -359,7 +362,8 @@
 # endif
           status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idyspc,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           Vinfo( 1)='wd'
           Vinfo( 2)='water depth of floats trajectories'
@@ -372,7 +376,8 @@
 # endif
           status=def_var(ng, iNLM, FLT(ng)%ncid, fltVid(idwdph,ng),     &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
        END IF
 #else
         IF (spherical) THEN
@@ -591,7 +596,8 @@
         IF (OutThread) THEN
           status=nf90_inq_varid(FLT(ng)%ncid,'Ftype',varid)
           status=nf90_put_var(FLT(ng)%ncid, varid, DRIFTER(ng)%Ftype)
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             WRITE (stdout,70) 'Ftype', TRIM(ncname)
             exit_flag=3
             RETURN

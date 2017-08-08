@@ -545,7 +545,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % mask2,                         &
      &                        GRID(ng) % mask2)
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -572,7 +573,8 @@
      &                        Fscl, Fmin, Fmax,                         &
      &                        GRID(ng) % mask_albedo,                   &
      &                        GRID(ng) % mask_albedo)
-            IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
               exit_flag=2
               ioerror=status
               EXIT
@@ -1681,7 +1683,8 @@
      &                        GRID(ng) % rmask,                         &
 # endif
      &                        GRID(ng) % wavedrag)
-          IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
             IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragW)),        &
      &                                TRIM(ncname)
             exit_flag=2

@@ -399,7 +399,7 @@
 # if defined ALBEDO && defined SHORTWAVE
 #  ifdef ANA_ALBEDO
                 CALL ana_albedo(ng, tile, iNLM)
-#  elif !defined NCEP_FLUXES && !defined ALBEDO_FILE 
+#  elif !defined NCEP_FLUXES && !defined ALBEDO_FILE
                 CALL albedo_eval(ng, tile)
 #  endif
 # endif
@@ -882,7 +882,8 @@
                 CALL step3d_t (ng, tile)
               END DO
 !$OMP BARRIER
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END DO
 
 #  ifdef NESTING
