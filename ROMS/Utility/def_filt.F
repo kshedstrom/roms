@@ -22,6 +22,7 @@
       USE distribute_mod, ONLY : mp_bcasti
 # endif
       USE def_var_mod, ONLY : def_var
+      USE strings_mod, ONLY : FoundError
 !
       implicit none
 !

@@ -25,6 +25,7 @@
 # ifdef SOLVE3D
       USE nf_fwrite3d_mod, ONLY : nf_fwrite3d
 # endif
+      USE strings_mod,     ONLY : FoundError
 !
       implicit none
 !
