@@ -522,7 +522,7 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt)
 #     else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*MAX(0.0_r8,t(i,j,N(ng),nrhs,isalt))
 #     endif
 #     ifdef WET_DRY
           stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
