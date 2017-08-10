@@ -241,16 +241,16 @@
       DO ivar=1,NDbio2d
         ifield=iDbio2(ivar)
         IF (Dout(ifield,ng)) THEN
-# ifdef BIO_FENNEL
+#  ifdef BIO_FENNEL
           IF (ivar.eq.ipCO2) THEN
             scale=1.0_r8
           ELSE
             scale=1.0_r8/dtBIO                       ! mmole m-2 day-1
           END IF
 !RD COBALT
-# else
+#  else
             scale=1.0_r8
-# endif
+#  endif
           gtype=gfactor*r2dvar
           status=nf_fwrite2d(ng, iNLM, DIA(ng)%ncid,                    &
      &                       DIA(ng)%Vid(ifield),                       &
@@ -272,7 +272,7 @@
           END IF
         END IF
       END DO
-#  if defined BIO_FENNEL
+#  if defined BIO_FENNEL || defined BIO_COBALT
 !
 !  Write out 3D biological diagnostic fields.
 !

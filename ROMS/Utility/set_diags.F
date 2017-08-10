@@ -460,21 +460,20 @@
 # endif
 # ifdef DIAGNOSTICS_BIO
         DO idiag=1,NDbio2d
-#ifdef BIO_FENNEL
+#  ifdef BIO_FENNEL
           IF (idiag.ne.ipCO2) THEN
-#endif
+#  endif
             DO j=JstrR,JendR
               DO i=IstrR,IendR
                 DIAGS(ng)%DiaBio2d(i,j,idiag)=rfac(i,j)*                &
      &                    DIAGS(ng)%DiaBio2d(i,j,idiag)
               END DO
             END DO
-#ifdef BIO_FENNEL
+#  ifdef BIO_FENNEL
           END IF
-#endif
+#  endif
         END DO
-# endif
-# if defined BIO_FENNEL
+#  if defined BIO_FENNEL || defined BIO_COBALT
         DO idiag=1,NDbio3d
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -485,6 +484,7 @@
             END DO
           END DO
         END DO
+#  endif
 # endif
 # ifdef DIAGNOSTICS_UV
         DO idiag=1,NDM2d
@@ -605,8 +605,7 @@
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      DIAGS(ng)%DiaBio2d)
 #   endif
-#  endif
-#  if defined BIO_FENNEL
+#   if defined BIO_FENNEL || defined BIO_COBALT
 !
 !  Biological terms 3D diagnostics.
 !
@@ -615,12 +614,13 @@
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
      &                      DIAGS(ng)%DiaBio3d(:,:,:,idiag))
         END DO
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange4d (ng, tile, iNLM, 1,                          &
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 1, NDbio3d,   &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      DIAGS(ng)%DiaBio3d)
+#    endif
 #   endif
 #  endif
 # endif
