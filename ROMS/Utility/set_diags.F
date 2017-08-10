@@ -56,7 +56,7 @@
 !***********************************************************************
 !
       USE mod_param
-# if defined DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
       USE mod_biology
 # endif
       USE mod_diags
@@ -458,7 +458,7 @@
           END DO
         END DO
 # endif
-# if defined DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
         DO idiag=1,NDbio2d
 #ifdef BIO_FENNEL
           IF (idiag.ne.ipCO2) THEN
@@ -473,6 +473,8 @@
           END IF
 #endif
         END DO
+# endif
+# if defined BIO_FENNEL
         DO idiag=1,NDbio3d
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -587,7 +589,7 @@
 #    endif
 #   endif
 #  endif
-#  if defined DIAGNOSTICS_BIO
+#  ifdef DIAGNOSTICS_BIO
 !
 !  Biological terms 2D diagnostics.
 !
@@ -603,6 +605,8 @@
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      DIAGS(ng)%DiaBio2d)
 #   endif
+#  endif
+#  if defined BIO_FENNEL
 !
 !  Biological terms 3D diagnostics.
 !
