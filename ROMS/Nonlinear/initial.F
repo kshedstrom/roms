@@ -202,7 +202,6 @@
 !  histroy NetCDF files or append (false) to an existing file.  Set
 !  record to read from initial NetCDF file.
 !
-!$OMP MASTER
       IF (First) THEN
         First=.FALSE.
         DO ng=1,Ngrids
@@ -263,7 +262,6 @@
         LwrtRST(ng)=.TRUE.
       END DO
 # endif
-!$OMP END MASTER
 !$OMP BARRIER
 #endif
 !

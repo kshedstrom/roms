@@ -232,7 +232,7 @@
         END DO
       END DO
 # endif
-# if defined DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
 !
 !  Write out 2D biological diagnostic fields.
 !
@@ -267,6 +267,7 @@
           END IF
         END IF
       END DO
+#  if defined BIO_FENNEL
 !
 !  Write out 3D biological diagnostic fields.
 !
@@ -279,9 +280,9 @@
      &                       DIA(ng)%Vid(ifield),                       &
      &                       DIA(ng)%Rindex, gtype,                     &
      &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
-#  ifdef MASKING
+#   ifdef MASKING
      &                       GRID(ng) % rmask,                          &
-#  endif
+#   endif
      &                       DIAGS(ng) % DiaBio3d(:,:,:,ivar),          &
      &                       SetFillVal = .FALSE.)
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
@@ -295,6 +296,7 @@
           END IF
         END IF
       END DO
+#  endif
 # endif
 !
 !  Synchronize time-average NetCDF file to disk to allow other processes
