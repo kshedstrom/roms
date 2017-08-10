@@ -1422,7 +1422,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO k=0,UBk
      DO j=Jstr,Jend
        DO i=Istr,Iend
-	 ! use only visible bands
+         ! use only visible bands
          swdk3(i,j,k) = (decayW(i,j,k,3) + decayW(i,j,k,4)) * rmask_local(i,j)
        END DO
      END DO
@@ -1665,19 +1665,23 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
           & cobalt%thetamin
 
             cobalt%f_chl(i,j,k) = cobalt%f_chl(i,j,k) + cobalt%c_2_n *   &
-          & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k)
+          &         12.0e6 * phyto(nphyto)%theta(i,j,k) *                &
+          &         phyto(nphyto)%f_n(i,j,k) * rmask_local(i,j)
 
           ! chl and C/chl per class
 
             phyto(nphyto)%chl(i,j,k) = cobalt%c_2_n *                    &
-          & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k)
+          & 12.0e6 * phyto(nphyto)%theta(i,j,k) * phyto(nphyto)%f_n(i,j,k) &
+                   * rmask_local(i,j)
 
             phyto(nphyto)%C_2_chl(i,j,k) = phyto(nphyto)%f_n(i,j,k) *    &
-          & 6.625 * 12e+6 / max(phyto(nphyto)%chl(i,j,k),epsln)
+          & 6.625 * 12e+6 / max(phyto(nphyto)%chl(i,j,k),epsln) &
+                   * rmask_local(i,j)
 
           ! irradiance
             phyto(nphyto)%irrlim(i,j,k) = (1.0-exp(-phyto(nphyto)%alpha* &
-          & cobalt%irr_inst(i,j,k) * phyto(nphyto)%theta(i,j,k) / P_C_m))
+          & cobalt%irr_inst(i,j,k) * phyto(nphyto)%theta(i,j,k) / P_C_m)) &
+                   * rmask_local(i,j)
 
           ! calculate the growth rate
             phyto(nphyto)%mu(i,j,k) = P_C_m / (1.0 + cobalt%zeta) *      &
@@ -1917,18 +1921,18 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          bact_uptake_ratio = ( cobalt%f_ldop(i,j,k)/max(cobalt%f_ldon(i,j,k),epsln) )
 
          bact(1)%juptake_ldop(i,j,k) = bact(1)%juptake_ldon(i,j,k)*bact_uptake_ratio &
-	             * rmask_local(i,j)
+                     * rmask_local(i,j)
 
          IF (bact_uptake_ratio.lt.bact(1)%q_p_2_n) THEN
 
-            bact(1)%jprod_n(i,j,k) = (bact(1)%gge_max                   * &
+            bact(1)%jprod_n(i,j,k) = (bact(1)%gge_max                  * &
           & bact(1)%juptake_ldop(i,j,k)*16.0 - bact(1)%f_n(i,j,k)      / &
           & (refuge_conc + bact(1)%f_n(i,j,k))*bact(1)%temp_lim(i,j,k) * &
           & bact(1)%bresp * bact(1)%f_n(i,j,k)) * rmask_local(i,j)
 
          ELSE
 
-            bact(1)%jprod_n(i,j,k) = (bact(1)%gge_max                   * &
+            bact(1)%jprod_n(i,j,k) = (bact(1)%gge_max                  * &
           & bact(1)%juptake_ldon(i,j,k) - bact(1)%f_n(i,j,k)           / &
           & (refuge_conc + bact(1)%f_n(i,j,k))*bact(1)%temp_lim(i,j,k) * &
           & bact(1)%bresp * bact(1)%f_n(i,j,k)) * rmask_local(i,j)
@@ -1946,17 +1950,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       DO i=Istr,Iend
 
          bact(1)%temp_lim(i,j,k) = exp(bact(1)%ktemp*cobalt%f_temp(i,j,k)) &
-	      * rmask_local(i,j)
+              * rmask_local(i,j)
 
          bact_ldon_lim = cobalt%f_ldon(i,j,k)/(bact(1)%k_ldon + cobalt%f_ldon(i,j,k))
 
          bact(1)%juptake_ldon(i,j,k)=vmax_bact*bact(1)%temp_lim(i,j,k) * &
        & bact_ldon_lim * bact(1)%f_n(i,j,k)
 
-         bact(1)%jprod_n(i,j,k) = bact(1)%gge_max                   * &
+         bact(1)%jprod_n(i,j,k) = (bact(1)%gge_max                  * &
        & bact(1)%juptake_ldon(i,j,k) - bact(1)%f_n(i,j,k)           / &
        & (refuge_conc + bact(1)%f_n(i,j,k))*bact(1)%temp_lim(i,j,k) * &
-       & bact(1)%bresp * bact(1)%f_n(i,j,k)
+       & bact(1)%bresp * bact(1)%f_n(i,j,k)) * rmask_local(i,j)
 
       ENDDO
     ENDDO
@@ -3220,38 +3224,42 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 #endif
 
           ! adjust production terms for basal respiration costs
-            zoo(m)%jprod_n(i,j,k) = zoo(m)%jprod_n(i,j,k) -              &
-          &                         zoo(m)%f_n(i,j,k)/(refuge_conc +     &
-          &                         zoo(m)%f_n(i,j,k))*                  &
-          &                         zoo(m)%temp_lim(i,j,k)*zoo(m)%bresp*zoo(m)%f_n(i,j,k)
+            zoo(m)%jprod_n(i,j,k) = (zoo(m)%jprod_n(i,j,k) -              &
+          &                          zoo(m)%f_n(i,j,k)/(refuge_conc +     &
+          &                          zoo(m)%f_n(i,j,k))*                  &
+          &                          zoo(m)%temp_lim(i,j,k)*zoo(m)%bresp*zoo(m)%f_n(i,j,k)) * &
+          &                          rmask_local(i,j)
           !
           ! Ingested material that does not go to zooplankton production, detrital production
           ! or production of dissolved organic material is excreted as nh4 or po4.  If production
           ! is negative, zooplankton are lost to large detritus
           !
           IF (zoo(m)%jprod_n(i,j,k) .gt. 0.0) THEN
-             zoo(m)%jprod_nh4(i,j,k) =  zoo(m)%jingest_n(i,j,k)   -      &
+             zoo(m)%jprod_nh4(i,j,k) = (zoo(m)%jingest_n(i,j,k)   -      &
            &                            zoo(m)%jprod_ndet(i,j,k)  -      &
            &                            zoo(m)%jprod_n(i,j,k)     -      &
            &                            zoo(m)%jprod_ldon(i,j,k)  -      &
            &                            zoo(m)%jprod_sldon(i,j,k) -      &
-           &                            zoo(m)%jprod_srdon(i,j,k)
+           &                            zoo(m)%jprod_srdon(i,j,k)) *     &
+           &                            rmask_local(i,j)
 #ifdef COBALT_PHOSPHORUS
-             zoo(m)%jprod_po4(i,j,k) =  zoo(m)%jingest_p(i,j,k)   -      &
+             zoo(m)%jprod_po4(i,j,k) = (zoo(m)%jingest_p(i,j,k)   -      &
            &                            zoo(m)%jprod_pdet(i,j,k)  -      &
            &                            zoo(m)%jprod_n(i,j,k)     *      &
            &                            zoo(m)%q_p_2_n            -      &
            &                            zoo(m)%jprod_ldop(i,j,k)  -      &
            &                            zoo(m)%jprod_sldop(i,j,k) -      &
-           &                            zoo(m)%jprod_srdop(i,j,k)
+           &                            zoo(m)%jprod_srdop(i,j,k)) *     &
+           &                            rmask_local(i,j)
 #endif
           ELSE
              ! None of the ingestion material goes to zooplankton production
-             zoo(m)%jprod_nh4(i,j,k) =  zoo(m)%jingest_n(i,j,k)   -      &
+             zoo(m)%jprod_nh4(i,j,k) = (zoo(m)%jingest_n(i,j,k)   -      &
            &                            zoo(m)%jprod_ndet(i,j,k)  -      &
            &                            zoo(m)%jprod_ldon(i,j,k)  -      &
            &                            zoo(m)%jprod_sldon(i,j,k) -      &
-           &                            zoo(m)%jprod_srdon(i,j,k)
+           &                            zoo(m)%jprod_srdon(i,j,k)) *     &
+           &                            rmask_local(i,j)
 
              ! The negative production (i.e., mortality) is lost to large detritus. Update values
              ! for zooplankton and for total.
@@ -3260,11 +3268,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
              cobalt%jprod_ndet(i,j,k) = cobalt%jprod_ndet(i,j,k) - zoo(m)%jprod_n(i,j,k)
 
 #ifdef COBALT_PHOSPHORUS
-             zoo(m)%jprod_po4(i,j,k) =  zoo(m)%jingest_p(i,j,k)   -      &
+             zoo(m)%jprod_po4(i,j,k) = (zoo(m)%jingest_p(i,j,k)   -      &
            &                            zoo(m)%jprod_pdet(i,j,k)  -      &
            &                            zoo(m)%jprod_ldop(i,j,k)  -      &
            &                            zoo(m)%jprod_sldop(i,j,k) -      &
-           &                            zoo(m)%jprod_srdop(i,j,k)
+           &                            zoo(m)%jprod_srdop(i,j,k)) *     &
+           &                            rmask_local(i,j)
 
 
            zoo(m)%jprod_pdet(i,j,k) = zoo(m)%jprod_pdet(i,j,k) - zoo(m)%jprod_n(i,j,k)*zoo(m)%q_p_2_n
@@ -3368,8 +3377,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &         cobalt%f_temp(i,j,k))) * (PRESS - 1.013) *                &
      &         (PRESS - 1.013) / (382.92 * TK)
 
-       cobalt%co3_sol_arag(i,j,k) = 10**(-PKSPA) / (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k)))
-       cobalt%omega_arag(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_arag(i,j,k) * rmask_local(i,j)
+       cobalt%co3_sol_arag(i,j,k) = 10**(-PKSPA) /                       &
+     &                  (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k))) *    &
+     &                   rmask_local(i,j)
+       cobalt%omega_arag(i,j,k) = cobalt%f_co3_ion(i,j,k) /              &
+     &         max(cobalt%co3_sol_arag(i,j,k),epsln) * rmask_local(i,j)
 
        PKSPC = 171.9065 + 0.077993 * TK - 2839.319 / TK - 71.595 *       &
      &         log10(TK) - (-0.77712 + 2.8426e-3 *                       &
@@ -3381,8 +3393,12 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
      &         0.3692 * cobalt%f_temp(i,j,k))) * (PRESS - 1.013) *       &
      &         (PRESS - 1.013) / (382.92 * TK)
 
-       cobalt%co3_sol_calc(i,j,k) = 10**(-PKSPC) / (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k)))
-       cobalt%omega_calc(i,j,k) = cobalt%f_co3_ion(i,j,k) / cobalt%co3_sol_calc(i,j,k) * rmask_local(i,j)
+       cobalt%co3_sol_calc(i,j,k) = 10**(-PKSPC) /                       &
+     &                 (2.937d-4 * max(5.0, cobalt%f_salt(i,j,k))) *     &
+     &                 rmask_local(i,j)
+       cobalt%omega_calc(i,j,k) = cobalt%f_co3_ion(i,j,k) /              &
+     &              max(cobalt%co3_sol_calc(i,j,k),epsln) *              &
+     &              rmask_local(i,j)
 
 
 #ifdef DIAGNOSTICS_BIO
@@ -3482,7 +3498,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
         &                             cobalt%rpcaco3*                    &
         &                            (cobalt%f_cadet_arag(i,j,k) +       &
         &                             cobalt%f_cadet_calc(i,j,k)) -      &
-        & cobalt%rplith*cobalt%f_lithdet(i,j,k) - cobalt%rpsio2*cobalt%f_sidet(i,j,k) )
+        &                             cobalt%rplith*cobalt%f_lithdet(i,j,k) - &
+        &                             cobalt%rpsio2*cobalt%f_sidet(i,j,k) ) * &
+        &                   rmask_local(i,j)
        !
        ! Under sub-oxic conditions
        !
@@ -3494,7 +3512,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
         &      max(0.0, cobalt%f_ndet(i,j,k) -                           &
         &      cobalt%rpcaco3*(cobalt%f_cadet_arag(i,j,k) +              &
         &      cobalt%f_cadet_calc(i,j,k)) -                             &
-        &      cobalt%rplith*cobalt%f_lithdet(i,j,k) - cobalt%rpsio2*cobalt%f_sidet(i,j,k) )
+        &      cobalt%rplith*cobalt%f_lithdet(i,j,k) -                   &
+        &      cobalt%rpsio2*cobalt%f_sidet(i,j,k) ) * &
+        &                   rmask_local(i,j)
 !RD dev notes : was + cobalt%rpsio2*cobalt%f_sidet(i,j,k) in original code but -
 !in charlie's suppl material (eq (58))
 
@@ -4026,16 +4046,19 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
    !
    ! Bottom flux boundaries passed to the vertical mixing routine
    !
-    cobalt%b_alk(i,j) = - 2.0*(cobalt%fcased_redis(i,j)+                 &
-   &                           cobalt%f_cadet_arag_btf(i,j,1)) -         &
-   &                          (cobalt%f_ndet_btf(i,j,1) -                &
-   &                           cobalt%fndet_burial(i,j)) +               &
-   &                           cobalt%alk_2_n_denit * cobalt%fno3denit_sed(i,j)
+    cobalt%b_alk(i,j) = (- 2.0*(cobalt%fcased_redis(i,j)+                 &
+   &                            cobalt%f_cadet_arag_btf(i,j,1)) -         &
+   &                           (cobalt%f_ndet_btf(i,j,1) -                &
+   &                            cobalt%fndet_burial(i,j)) +               &
+   &                            cobalt%alk_2_n_denit * cobalt%fno3denit_sed(i,j) ) &
+   &                * rmask_local(i,j)
 
 
-    cobalt%b_dic(i,j) =  - cobalt%fcased_redis(i,j) -                    &
-   &                       cobalt%f_cadet_arag_btf(i,j,1) -              &
-   &                      (cobalt%f_ndet_btf(i,j,1) - cobalt%fndet_burial(i,j)) * cobalt%c_2_n
+    cobalt%b_dic(i,j) =  (- cobalt%fcased_redis(i,j) -                    &
+   &                        cobalt%f_cadet_arag_btf(i,j,1) -              &
+   &                       (cobalt%f_ndet_btf(i,j,1) -                    &
+   &                        cobalt%fndet_burial(i,j)) * cobalt%c_2_n ) *  &
+   &                        rmask_local(i,j)
 
 
 ! RD :this somehow has to be passed to bt
@@ -4115,8 +4138,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
          cobalt%f_npp(i,j,k) = cobalt%f_npp(i,j,k) * 1035 * 86400 * cobalt%c_2_n * 12 * 1000
 
-         cobalt%f_mesozoo(i,j,k) = zoo(2)%f_n(i,j,k) + &
-&                                  zoo(3)%f_n(i,j,k)
+         cobalt%f_mesozoo(i,j,k) = (zoo(2)%f_n(i,j,k) + &
+&                                   zoo(3)%f_n(i,j,k)) * rmask_local(i,j)
 
          ! convert from mol/kg to mgC/m2
          ! multiply by 1035 kg/m2 *  C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
@@ -4193,7 +4216,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          ! uptake in mol/kg/s, vertical integration gives mol/kg/s * m, we multiply by 1035 kg/m3 * 86400 s/day *
          ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
          cobalt%juptake_din_100(i,j) = cobalt%juptake_din_100(i,j) +          &
-	                               1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
+                                       1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
                                      ( phyto(SMALL)%juptake_no3(i,j,k) + phyto(SMALL)%juptake_nh4(i,j,k) + &
 #ifdef COASTDIAT
                                        phyto(MEDIUM)%juptake_no3(i,j,k)+ phyto(MEDIUM)%juptake_nh4(i,j,k)+ &
@@ -4203,17 +4226,17 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
                                        phyto(DIAZO)%juptake_nh4(i,j,k) ) * rmask_local(i,j)
 
          cobalt%juptake_no3_n2_100(i,j) = cobalt%juptake_no3_n2_100(i,j) +       &
-	                                  1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
+                                          1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
                                         ( phyto(SMALL)%juptake_no3(i,j,k) +                     &
 #ifdef COASTDIAT
                                           phyto(MEDIUM)%juptake_no3(i,j,k)+                     &
 #endif
                                           phyto(LARGE)%juptake_no3(i,j,k) +                     &
                                           phyto(DIAZO)%juptake_no3(i,j,k) +                     &
-					  phyto(DIAZO)%juptake_n2(i,j,k)  ) * rmask_local(i,j)
+                                          phyto(DIAZO)%juptake_n2(i,j,k)  ) * rmask_local(i,j)
 
          cobalt%jprod_mesozoo_100(i,j) = cobalt%jprod_mesozoo_100(i,j) + &
-	                                 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
+                                         1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
                                        ( zoo(2)%jprod_n(i,j,k) +  &
                                          zoo(3)%jprod_n(i,j,k) ) * Hz(i,j,k) * rmask_local(i,j)
 
@@ -4267,7 +4290,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !     cobalt%z_ratio_100(i,j) = cobalt%jprod_mesozoo_100(i,j) /  cobalt%f_npp_100(i,j)
       cobalt%f_ratio_100(i,j) = 0. ! needs to be computed on daily values
       cobalt%z_ratio_100(i,j) = 0. ! needs to be computed on daily values
-      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * cobalt%f_ndet(i,j,kdi+1) * wsink(ng)
+      cobalt%pe_ratio_100(i,j) = 1035 * 86400 * cobalt%c_2_n * 12 * 1000 *        &
+     &                cobalt%f_ndet(i,j,kdi+1) * wsink(ng) * rmask_local(i,j)
 
       DiaBio2d(i,j,inpp_100)           = Diabio2d(i,j,inpp_100)           + cobalt%f_npp_100(i,j)
       DiaBio2d(i,j,iprod_n_100_sm)     = DiaBio2d(i,j,iprod_n_100_sm)     + phyto(SMALL)%jprod_n_100(i,j)
@@ -4345,9 +4369,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       ! new diag here
 
       DO k=kdi+1,UBk
-         cobalt%f_mesozoo_200(i,j) = cobalt%f_mesozoo_200(i,j) + cobalt%f_mesozoo(i,j,k) * Hz(i,j,k)
-         cobalt%jprod_mesozoo_200(i,j) = cobalt%jprod_mesozoo_200(i,j) + 1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
- &                                     ( zoo(2)%jprod_n(i,j,k) + zoo(3)%jprod_n(i,j,k) ) * Hz(i,j,k)
+         cobalt%f_mesozoo_200(i,j) = cobalt%f_mesozoo_200(i,j) + cobalt%f_mesozoo(i,j,k) * &
+     &                   Hz(i,j,k) * rmask_local(i,j)
+         cobalt%jprod_mesozoo_200(i,j) = cobalt%jprod_mesozoo_200(i,j) +                   &
+     &                1035 * 86400 * cobalt%c_2_n * 12 * 1000 * &
+     &               ( zoo(2)%jprod_n(i,j,k) + zoo(3)%jprod_n(i,j,k) ) * Hz(i,j,k)
          ! new diag here
       ENDDO
 
@@ -4979,7 +5005,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
         DO i=Istr,Iend
           DiaBio3d(i,j,k,ichl)          = DiaBio3d(i,j,k,ichl)      + cobalt%f_chl(i,j,k)
           DiaBio3d(i,j,k,ico3_ion)      = DiaBio3d(i,j,k,ico3_ion)  + cobalt%f_co3_ion(i,j,k)
-          DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)   + cobalt%f_htotal(i,j,k)
+          DiaBio3d(i,j,k,ihtotal)       = DiaBio3d(i,j,k,ihtotal)   + cobalt%f_htotal(i,j,k) * rmask_local(i,j)
           DiaBio3d(i,j,k,iirr_mem)      = DiaBio3d(i,j,k,iirr_mem)  + cobalt%f_irr_mem(i,j,k)
           DiaBio3d(i,j,k,iirr_mix)      = DiaBio3d(i,j,k,iirr_mix)  + cobalt%irr_mix(i,j,k)
           DiaBio3d(i,j,k,iirr_inst)     = DiaBio3d(i,j,k,iirr_inst) + cobalt%irr_inst(i,j,k)
