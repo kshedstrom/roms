@@ -541,9 +541,9 @@
             Vinfo( 3)=Vname(3,ifield)
             Vinfo(14)=Vname(4,ifield)
             Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#   endif
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(ifield), &
@@ -565,9 +565,9 @@
             Vinfo( 3)=Vname(3,ifield)
             Vinfo(14)=Vname(4,ifield)
             Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#   endif
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
             status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(ifield), &
