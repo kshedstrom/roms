@@ -28,6 +28,7 @@
           real(r8), pointer :: wdiv(:,:)
           real(r8), pointer :: tis(:,:)
           real(r8), pointer :: ti(:,:,:)
+          real(r8), pointer :: t2(:,:)
           real(r8), pointer :: enthalpi(:,:,:)
           real(r8), pointer :: hage(:,:,:)
           real(r8), pointer :: utau_iw(:,:)
@@ -43,6 +44,10 @@
           real(r8), pointer :: eta(:,:)
           real(r8), pointer :: tauaiu(:,:)
           real(r8), pointer :: tauaiv(:,:)
+#ifdef ICE_LANDFAST
+          real(r8), pointer :: h_loadu(:,:)
+          real(r8), pointer :: h_loadv(:,:)
+#endif
           real(r8), pointer :: uwater(:,:)
           real(r8), pointer :: vwater(:,:)
           real(r8), pointer :: sealev(:,:)
@@ -52,12 +57,12 @@
           real(r8), pointer :: sig22(:,:,:)
           real(r8), pointer :: sig12(:,:,:)
 
-# if defined ICE_BIO  
+#if defined ICE_BIO  
           real(r8), pointer ::IcePhL(:,:,:)
           real(r8), pointer ::IceNO3(:,:,:)
           real(r8), pointer ::IceNH4(:,:,:)
           integer, pointer ::IceLog(:,:,:)
-# endif
+#endif
 
         END TYPE T_ICE
 
@@ -109,6 +114,7 @@
       allocate ( ICE(ng) % wdiv(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tis(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % ti(LBi:UBi,LBj:UBj,2) )
+      allocate ( ICE(ng) % t2(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % enthalpi(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % hage(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % utau_iw(LBi:UBi,LBj:UBj) )
@@ -124,6 +130,10 @@
       allocate ( ICE(ng) % eta(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tauaiu(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % tauaiv(LBi:UBi,LBj:UBj) )
+#ifdef ICE_LANDFAST
+      allocate ( ICE(ng) % h_loadu(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % h_loadv(LBi:UBi,LBj:UBj) )
+#endif
       allocate ( ICE(ng) % uwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % vwater(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % sealev(LBi:UBi,LBj:UBj) )
@@ -243,6 +253,7 @@
           ICE(ng) % tis(i,j) = IniVal
           ICE(ng) % ti(i,j,1) = IniVal
           ICE(ng) % ti(i,j,2) = IniVal
+          ICE(ng) % t2(i,j) = IniVal
           ICE(ng) % enthalpi(i,j,1) = IniVal
           ICE(ng) % enthalpi(i,j,2) = IniVal
           ICE(ng) % hage(i,j,1) = IniVal
@@ -260,6 +271,10 @@
           ICE(ng) % eta(i,j) = IniVal
           ICE(ng) % tauaiu(i,j) = IniVal
           ICE(ng) % tauaiv(i,j) = IniVal
+#ifdef ICE_LANDFAST
+          ICE(ng) % h_loadu(i,j) = IniVal
+          ICE(ng) % h_loadv(i,j) = IniVal
+#endif
           ICE(ng) % uwater(i,j) = IniVal
           ICE(ng) % vwater(i,j) = IniVal
           ICE(ng) % sealev(i,j) = IniVal
@@ -296,6 +311,7 @@
           real(r8), pointer :: wfr(:,:)
           real(r8), pointer :: ai(:,:)
           real(r8), pointer :: hi(:,:)
+          real(r8), pointer :: tis(:,:)
         END TYPE T_ICE
 
         TYPE (T_ICE), allocatable :: ICE(:)
@@ -318,6 +334,7 @@
       allocate ( ICE(ng) % wfr(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % ai(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % hi(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % tis(LBi:UBi,LBj:UBj) )
 
       RETURN
       END SUBROUTINE allocate_ice
@@ -378,6 +395,7 @@
           ICE(ng) % wfr(i,j) = IniVal
           ICE(ng) % ai(i,j) = IniVal
           ICE(ng) % hi(i,j) = IniVal
+          ICE(ng) % tis(i,j) = IniVal
         END DO
       END DO
 !

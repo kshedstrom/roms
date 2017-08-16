@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -22,6 +22,8 @@
       USE mod_ncparam
       USE mod_netcdf
       USE mod_scalars
+!
+      USE strings_mod, ONLY : FoundError
 !
       implicit none
 !
@@ -43,7 +45,7 @@
 # endif
       real(r8) :: tend
 !
-      SourceFile='obs_initial.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Inquire about the contents of observation NetCDF file:  Inquire about
@@ -55,7 +57,8 @@
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, model, OBS(ng)%name)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !
@@ -183,7 +186,8 @@
 !  Open observations NetCDF file.
 !
         CALL netcdf_open (ng, model, OBS(ng)%name, 1, OBS(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,20) TRIM(OBS(ng)%name)
           RETURN
         END IF
@@ -212,7 +216,7 @@
         END IF
       ELSE
         Ifirst=Nsurvey(ng)
-        tend=(time(ng)+ntend(ng)*dt(ng))*sec2day
+        tend=(time(ng)+ntimes(ng)*dt(ng))*sec2day
         DO i=1,Nsurvey(ng)
           IF ((tdays(ng).le.FOURDVAR(ng)%SurveyTime(i)).and.            &
      &        (FOURDVAR(ng)%SurveyTime(i).le.tend)) THEN
@@ -289,7 +293,7 @@
       DO i=1,Mobs
         NLmodVal(i)=IniVal
         TLmodVal(i)=IniVal
-        ObsScale(i)=IniVal
+        ObsVetting(i)=IniVal
       END DO
 # endif
 !

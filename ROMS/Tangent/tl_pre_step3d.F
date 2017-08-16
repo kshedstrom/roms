@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -62,7 +62,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iTLM, 22)
+      CALL wclock_on (ng, iTLM, 22, __LINE__, __FILE__)
 # endif
       CALL tl_pre_step3d_tile (ng, tile,                                &
      &                         LBi, UBi, LBj, UBj,                      &
@@ -72,6 +72,9 @@
      &                         GRID(ng) % rmask,                        &
      &                         GRID(ng) % umask,                        &
      &                         GRID(ng) % vmask,                        &
+#  if defined SOLAR_SOURCE && defined WET_DRY
+     &                         GRID(ng) % rmask_wet,                    &
+#  endif
 # endif
      &                         GRID(ng) % pm,                           &
      &                         GRID(ng) % pn,                           &
@@ -121,7 +124,7 @@
      &                         OCEAN(ng) % v,                           &
      &                         OCEAN(ng) % tl_v)
 # ifdef PROFILE
-      CALL wclock_off (ng, iTLM, 22)
+      CALL wclock_off (ng, iTLM, 22, __LINE__, __FILE__)
 # endif
 
       RETURN
@@ -134,6 +137,9 @@
      &                               nrhs, nstp, nnew,                  &
 # ifdef MASKING
      &                               rmask, umask, vmask,               &
+#  if defined SOLAR_SOURCE && defined WET_DRY
+     &                               rmask_wet,                         &
+#  endif
 # endif
      &                               pm, pn,                            &
      &                               Hz, tl_Hz,                         &
@@ -187,6 +193,9 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
+#   if defined SOLAR_SOURCE && defined WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#   endif
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
@@ -260,6 +269,9 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
+#   if defined SOLAR_SOURCE && defined WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -315,7 +327,11 @@
 !
 !  Local variable declarations.
 !
+      integer :: Isrc, Jsrc
       integer :: i, ic, indx, is, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -690,25 +706,25 @@
 !  Apply tracers point sources to the horizontal advection terms,
 !  if any.
 !
-          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+          IF (LuvSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
             DO is=1,Nsrc(ng)
-              i=SOURCES(ng)%Isrc(is)
-              j=SOURCES(ng)%Jsrc(is)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
               IF (LtracerSrc(itrc,ng).and.                              &
-     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            ((Jstr.le.Jsrc).and.(Jsrc.le.Jend+1))) THEN
                 IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
-!>                FX(i,j)=Huon(i,j,k)*                                  &
-!>   &                    SOURCES(ng)%Tsrc(is,k,itrc)
+!>                FX(Isrc,Jsrc)=Huon(Isrc,Jsrc,k)*                      &
+!>   &                          SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                  tl_FX(i,j)=tl_Huon(i,j,k)*                            &
-     &                       SOURCES(ng)%Tsrc(is,k,itrc)
+                  tl_FX(Isrc,Jsrc)=tl_Huon(Isrc,Jsrc,k)*                &
+     &                             SOURCES(ng)%Tsrc(is,k,itrc)
                 ELSE
-!>                FE(i,j)=Hvom(i,j,k)*                                  &
-!>   &                    SOURCES(ng)%Tsrc(is,k,itrc)
+!>                FE(Isrc,Jsrc)=Hvom(Isrc,Jsrc,k)*                      &
+!>   &                          SOURCES(ng)%Tsrc(is,k,itrc)
 !>
-                  tl_FE(i,j)=tl_Hvom(i,j,k)*                            &
-     &                       SOURCES(ng)%Tsrc(is,k,itrc)
+                  tl_FE(Isrc,Jsrc)=tl_Hvom(Isrc,Jsrc,k)*                &
+     &                             SOURCES(ng)%Tsrc(is,k,itrc)
                 END IF
               END IF
             END DO
@@ -716,11 +732,11 @@
 !
 !  Time-step horizontal advection (m Tunits).
 !
-#   if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
+#  if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
           IF (iic(ng).eq.ntfirst(ng).and.SOinitial(ng)) THEN
-#   else
+#  else
           IF (iic(ng).eq.ntfirst(ng)) THEN
-#   endif
+#  endif
             cff=0.5_r8*dt(ng)
             cff1=1.0_r8
             cff2=0.0_r8
@@ -750,16 +766,50 @@
           END DO
         END DO K_LOOP
       END DO T_LOOP1
+
+#  if (defined AGE_MEAN && defined T_PASSIVE) && !defined TS_MPDATA
+!
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index).
+!  Implemented and tested by W.G. Zhang and J. Wilkin. (m Tunits)
+!
+      IF (iic(ng).eq.ntfirst(ng)) THEN
+        cff=0.5_r8*dt(ng)
+      ELSE
+        cff=(1.0_r8-Gamma)*dt(ng)
+      END IF
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+!>            t(i,j,k,3,iage)=t(i,j,k,3,iage)+                          &
+!>   &                        cff*Hz(i,j,k)*                            &
+!>   &                        t(i,j,k,nnew,iage)
+!>
+              tl_t(i,j,k,3,iage)=tl_t(i,j,k,3,iage)+                    &
+     &                           cff*                                   &
+     &                           (Hz(i,j,k)*                            &
+     &                            tl_t(i,j,k,nnew,inert(itrc))+         &
+     &                            tl_Hz(i,j,k)*                         &
+     &                            t(i,j,k,nnew,inert(itrc)))
+            END DO
+          END DO
+        END DO
+      END DO
+#  endif
 !
 !  Compute artificial continuity equation (same for all tracers) and
 !  load it into private array DC (1/m). Notice pipelined J-loop.
 !
       J_LOOP1 : DO j=Jstr,Jend
-#   if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
+#  if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
         IF (iic(ng).eq.ntfirst(ng).and.SOinitial(ng)) THEN
-#   else
+#  else
         IF (iic(ng).eq.ntfirst(ng)) THEN
-#   endif
+#  endif
           cff=0.5_r8*dt(ng)
         ELSE
           cff=(1.0_r8-Gamma)*dt(ng)
@@ -906,6 +956,7 @@
             FC(i,N(ng))=0.0_r8
             FC(i,0)=0.0_r8
           END DO
+
 #  elif defined TS_A4VADVECTION_TL
 !
 !  Fourth-order, Akima vertical advective flux.
@@ -1108,6 +1159,29 @@
           END DO
 #  endif
 !
+!  Apply mass point sources (volume vertical influx), if any.
+!  (Notice the j-loop is pipelined above).
+!
+          IF (LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            (j.eq.Jsrc)) THEN
+                DO k=1,N(ng)-1
+!>                FC(Isrc,k)=FC(Isrc,k)+0.5_r8*                         &
+!>   &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+!>   &                        SOURCES(ng)%Tsrc(is,k  ,itrc)+            &
+!>   &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+!>   &                        SOURCES(ng)%Tsrc(is,k+1,itrc))
+!>
+                  tl_FC(Isrc,k)=tl_FC(Isrc,k)+0.0_r8
+                END DO
+              END IF
+            END DO
+          END IF
+!
 ! Time-step vertical advection of tracers (Tunits).
 !
 ! WARNING: t(:,:,:,3,itrc) at this point should be in units of
@@ -1206,9 +1280,19 @@
           IF (itrc.eq.itemp) THEN
             DO k=1,N(ng)-1
               DO i=Istr,Iend
-!>              FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)*swdk(i,j,k)
+!>              FC(i,k)=FC(i,k)+                                        &
+!>   &                  dt(ng)*srflx(i,j)*                              &
+#   ifdef WET_DRY
+!>   &                  rmask_wet(i,j)*                                 &
+#   endif
+!>   &                  swdk(i,j,k)
 !>
-                tl_FC(i,k)=tl_FC(i,k)+dt(ng)*srflx(i,j)*tl_swdk(i,j,k)
+                tl_FC(i,k)=tl_FC(i,k)+                                  &
+     &                     dt(ng)*srflx(i,j)*                           &
+#   ifdef WET_DRY_NOT_YET
+     &                     rmask_wet(i,j)*                              &
+#   endif
+     &                     tl_swdk(i,j,k)
               END DO
             END DO
           END IF

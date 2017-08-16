@@ -3,7 +3,7 @@
 #if defined ICE_MOMENTUM && defined ICE_EVP
 !
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine timesteps the ice momentum equations.
@@ -29,16 +29,13 @@
 #ifdef ICE_SHOREFAST
       USE mod_coupling
 #endif
-#ifdef MICLM_NUDGING
-      USE mod_clima
-#endif
 
       integer, intent(in) :: ng, tile
 !
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 55)
+      CALL wclock_on (ng, iNLM, 78, __LINE__, __FILE__)
 # endif
 !
       CALL ice_elastic_tile (ng, tile,                                  &
@@ -68,13 +65,12 @@
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 # endif
+# ifdef ICE_LANDFAST
+     &                      ICE(ng) % h_loadu,                          &
+     &                      ICE(ng) % h_loadv,                          &
+# endif
 # ifdef FASTICE_CLIMATOLOGY
      &                      FORCES(ng) % fastice_clm,                   &
-# endif
-# ifdef MICLM_NUDGING
-     &                      CLIMA(ng) % uiclm,                          &
-     &                      CLIMA(ng) % viclm,                          &
-     &                      CLIMA(ng) % MInudgcof,                      &
 # endif
      &                      ICE(ng) % ui,                               &
      &                      ICE(ng) % vi,                               &
@@ -93,7 +89,7 @@
      &                      ICE(ng) % chu_iw                            &
      &                      )
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 55)
+      CALL wclock_off (ng, iNLM, 78, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE ice_elastic
@@ -118,18 +114,18 @@
      &                        h,                                        &
      &                        Zt_avg1,                                  &
 # endif
+# ifdef ICE_LANDFAST
+     &                        h_loadu, h_loadv,                         &
+# endif
 # ifdef FASTICE_CLIMATOLOGY
      &                        fastice_clm,                              &
-# endif
-# ifdef MICLM_NUDGING
-     &                        uiclm, viclm, MInudgcof,                  &
 # endif
      &                        ui, vi, uwater, vwater, sealev,           &
      &                        uie, vie,                                 &
      &                        ai, hi,                                   &
      &                        sig11, sig22, sig12,                      &
      &                        tauaiu, tauaiv,                           &
-     &                        chu_iw) 
+     &                        chu_iw)
 !***********************************************************************
 !
 
@@ -143,12 +139,13 @@
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 #endif
+      USE mod_clima
 !
       implicit none
 
 !  Imported variable declarations.
 !
-      integer, intent(in) :: ng, tile                    
+      integer, intent(in) :: ng, tile
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: liold, liuol, liunw, lieol, lienw
@@ -175,13 +172,12 @@
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(in) :: h_loadu(LBi:,LBj:)
+      real(r8), intent(in) :: h_loadv(LBi:,LBj:)
+#  endif
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:,LBj:)
-# endif
-# ifdef MICLM_NUDGING
-      real(r8), intent(in) :: uiclm(LBi:,LBj:)
-      real(r8), intent(in) :: viclm(LBi:,LBj:)
-      real(r8), intent(in) :: MInudgcof(LBi:,LBj:)
 # endif
       real(r8), intent(out) :: ui(LBi:,LBj:,:)
       real(r8), intent(out) :: vi(LBi:,LBj:,:)
@@ -221,13 +217,12 @@
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
+#  ifdef ICE_LANDFAST
+      real(r8), intent(in) :: h_loadu(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: h_loadv(LBi:UBi,LBj:UBj)
+#  endif
 # ifdef FASTICE_CLIMATOLOGY
       real(r8), intent(in) :: fastice_clm(LBi:UBi,LBj:UBj)
-# endif
-# ifdef MICLM_NUDGING
-      real(r8), intent(in) :: uiclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: viclm(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: MInudgcof(LBi:UBi,LBj:UBj)
 # endif
       real(r8), intent(out) :: ui(LBi:UBi,LBj:UBj,2)
       real(r8), intent(out) :: vi(LBi:UBi,LBj:UBj,2)
@@ -248,14 +243,9 @@
 
 ! Local variable definitions
 !
-# ifdef ICE_SHOREFAST
-      real(r8) :: clear
-# endif
       integer :: i, j
 
-# ifdef MICLM_NUDGING
-      real(r8) :: cff
-# endif
+      real(r8) :: cff, cff2, cff3, cff4, udrag, vdrag
       real(r8) :: f1
       real(r8) :: f2
       real(r8) :: s1
@@ -265,7 +255,7 @@
       real(r8) :: vforce
       real(r8) :: alfa
       real(r8) :: masu
-      real(r8) :: masv 
+      real(r8) :: masv
       real(r8) :: chux
       real(r8) :: chuy
       real(r8) :: auf
@@ -286,8 +276,12 @@
       real(r8) :: mfv12
       real(r8) :: mfv22
 # ifdef ICE_SHOREFAST
+      real(r8) :: clear
       real(r8) :: hu
       real(r8) :: hv
+# endif
+# ifdef ICE_LANDFAST
+      real(r8) :: speed, v_u, u_v, tau_bu, tau_bv
 # endif
 
 # include "set_bounds.h"
@@ -296,7 +290,7 @@
 !
       cosstang = COS(deg2rad*stressang(ng))
       sinstang = SIN(deg2rad*stressang(ng))
-! 
+!
 ! Initialize fast-step velocities if beginning of cycle
 
 #ifdef FOOO
@@ -392,9 +386,18 @@
 # endif
       ENDIF
 #endif
+
+#   ifdef lIMIT_ICE_BSTRESS
+!
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.75_r8/dte(ng)
+#   endif
 ! ...................................
 !
-! *** momentum equation 
+! *** momentum equation
 !
 ! u-eqn
 !
@@ -406,13 +409,13 @@
           masu = max(masu,0.1_r8)
           masu = masu*rhoice(ng)
           auf = max(0.5_r8*(ai(i-1,j,liold)+ai(i,j,liold)),0.01_r8)
-          pmu = 0.5_r8*(pm(i,j) + pm(i-1,j)) 
-          pnu = 0.5_r8*(pn(i,j) + pn(i-1,j)) 
+          pmu = 0.5_r8*(pm(i,j) + pm(i-1,j))
+          pnu = 0.5_r8*(pn(i,j) + pn(i-1,j))
 !
-! *** forces from ice rheology x-direction 
-          s1 = (sig11(i,j,lienw)-sig11(i-1,j,lienw))*pmu 
+! *** forces from ice rheology x-direction
+          s1 = (sig11(i,j,lienw)-sig11(i-1,j,lienw))*pmu
 #ifdef MASKING
-          IF (umask(i,j).gt.0.0_r8.and.umask(i,j+1).lt.1.0_r8) THEN 
+          IF (umask(i,j).gt.0.0_r8.and.umask(i,j+1).lt.1.0_r8) THEN
             f1 = 0.5_r8*(sig12(i,j,lienw)+sig12(i-1,j,lienw))
 # ifdef WET_DRY
           ELSE IF (umask_wet(i,j).gt.0.0_r8.and.                        &
@@ -486,16 +489,16 @@
 #endif
 !
            s2 = (f1-f2)*pnu
-           uforce = (s1 + s2)*om_u(i,j)*on_u(i,j)
+           uforce = s1 + s2
 #undef ACTIVE
 #ifdef ACTIVE
 !ACTIVE
 #endif
-! *** wind force 
-           uforce = uforce + rhoice(ng)*tauaiu(i,j)*om_u(i,j)*on_u(i,j)
+! *** wind force
+           uforce = uforce + tauaiu(i,j)
 
-! *** pressure from tilting ocean surface 
-           uforce = uforce - g*(masu)*on_u(i,j)                         &
+! *** pressure from tilting ocean surface
+           uforce = uforce - g*(masu)*pmu                               &
      &            *(sealev(i,j)-sealev(i-1,j))
 
            fakt = 0.0_r8
@@ -566,24 +569,43 @@
      &                      vie(i,j+1,lieol)
 #endif
 ! *** coriolis force u
-          uforce = uforce + fakt*rhoice(ng)*om_u(i,j)*on_u(i,j)*        &
+          uforce = uforce + fakt*rhoice(ng)*                            &
      &                            (mfv11 + mfv21 + mfv12 + mfv22)
 !
-! *** stress from ocean current 
-          uforce = uforce/(om_u(i,j)*on_u(i,j)) +                       &
-     &                         auf*chux*rho0*uwater(i,j)
+! *** stress from ocean current
+          uforce = uforce + auf*chux*rho0*uwater(i,j)
 !
           alfa = masu + dte(ng)*auf*rho0*chux
 !
+#ifdef ICE_LANDFAST
+! *** stress on bottom of keels
+          IF (max(ai(i-1,j,liold),ai(i,j,liold)) > 0.01_r8) THEN
+! Don't have landfast ice in nudging band
+            IF (LnudgeAICLM(ng)) THEN
+              cff4 = CLIMA(ng)%AInudgcof(i,j)
+            ELSE
+              cff4 = 0.0_r8
+            END IF
+            IF (cff4 == 0.0_r8) THEN
+              v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),               &
+     &                  vie(i-1,j,lieol), vie(i-1,j-1,lieol))
+              speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
+              udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
+              alfa = alfa + udrag
+            END IF
+          END IF
+#endif
+!
 !  solving the momentum equation for u
           uie(i,j,lienw) = (masu*uie(i,j,lieol) +                       &
-     &                       dte(ng)*uforce)/alfa 
+     &                       dte(ng)*uforce)/alfa
 !
-# ifdef MICLM_NUDGING
-          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i-1,j))
-          uie(i,j,lienw)=uie(i,j,lienw)+                                &
-     &                  dte(ng)*cff*(uiclm(i,j)-uie(i,j,lienw))
-# endif
+          IF (LnudgeMICLM(ng)) THEN
+            cff2 = 0.5*(CLIMA(ng)%MInudgcof(i,j)+                       &
+     &                     CLIMA(ng)%MInudgcof(i-1,j))
+            uie(i,j,lienw)=uie(i,j,lienw)+                              &
+     &               dte(ng)*cff2*(CLIMA(ng)%uiclm(i,j)-uie(i,j,lienw))
+          END IF
 # ifdef ICE_SHOREFAST
           hu = 0.5_r8*(h(i-1,j)+MIN(Zt_avg1(i-1,j),0.0_r8) +            &
      &         h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
@@ -609,20 +631,20 @@
       END DO
 !
 !
-! *** momentum equation 
+! *** momentum equation
 !
       DO j=JstrP,Jend
         DO i=Istr,Iend
           vforce = 0._r8
           masv = 0.5_r8*(hi(i,j,liold)+hi(i,j-1,liold))
           masv = max(masv,0.1_r8)
-          masv = masv*rhoice(ng) 
+          masv = masv*rhoice(ng)
           avf = max(0.5_r8*(ai(i,j-1,liold)+ai(i,j,liold)),0.01_r8)
           chuy = 0.5_r8*(chu_iw(i,j-1)+chu_iw(i,j))
-          pmv = 0.5_r8*(pm(i,j) + pm(i,j-1)) 
-          pnv = 0.5_r8*(pn(i,j) + pn(i,j-1)) 
+          pmv = 0.5_r8*(pm(i,j) + pm(i,j-1))
+          pnv = 0.5_r8*(pn(i,j) + pn(i,j-1))
 !
-! *** forces from ice rheology y-direction 
+! *** forces from ice rheology y-direction
           s1 = (sig22(i,j,lienw) - sig22(i,j-1,lienw))*pnv
 #ifdef MASKING
           IF (vmask(i,j).gt.0.0_r8.and.vmask(i+1,j).lt.1.0_r8) THEN
@@ -693,16 +715,16 @@
      &           + sig12(i-1,j-1,lienw)+sig12(i,j-1,lienw))
 #endif
 !
-          s2 = (f1-f2)*pmv 
-          vforce = (s1+s2)*om_v(i,j)*on_v(i,j)
+          s2 = (f1-f2)*pmv
+          vforce = s1+s2
 #ifdef ACTIVE
 !ACTIVE
 #endif
 ! *** wind force
-          vforce = vforce + rhoice(ng)*tauaiv(i,j)*om_v(i,j)*on_v(i,j)
+          vforce = vforce + tauaiv(i,j)
 
-! *** pressure from tilting ocean surface 
-          vforce = vforce - g*(masv)*om_v(i,j)                          &
+! *** pressure from tilting ocean surface
+          vforce = vforce - g*(masv)*pnv                                &
      &            *(sealev(i,j)-sealev(i,j-1))
 !
           fakt = 0.0_r8
@@ -774,24 +796,42 @@
 #endif
 
 ! *** coriolis force v
-          vforce = vforce - fakt*rhoice(ng)*om_v(i,j)*on_v(i,j)*        &
+          vforce = vforce - fakt*rhoice(ng)*                            &
      &                            (mfu11 + mfu21 + mfu12 + mfu22)
 !
-! *** stress from ocean current 
-          vforce = vforce/(om_v(i,j)*on_v(i,j)) +                       &
-     &                         avf*chuy*rho0*vwater(i,j)
+! *** stress from ocean current
+          vforce = vforce + avf*chuy*rho0*vwater(i,j)
 !
           alfa = masv + dte(ng)*avf*rho0*chuy
+!
+#ifdef ICE_LANDFAST
+! *** stress on bottom of keels
+          IF (max(ai(i,j-1,liold),ai(i,j,liold)) > 0.01_r8) THEN
+            IF (LnudgeAICLM(ng)) THEN
+              cff4 = CLIMA(ng)%AInudgcof(i,j)
+            ELSE
+              cff4 = 0.0_r8
+            END IF
+            IF (cff4 == 0.0_r8) THEN
+              u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),               &
+     &                  uie(i-1,j,lieol), uie(i-1,j-1,lieol))
+              speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
+              vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
+              alfa = alfa + vdrag
+            END IF
+          END IF
+#endif
 
 !  solving the momentum equation for v
           vie(i,j,lienw) = (masv*vie(i,j,lieol) +                       &
-     &                       dte(ng)*vforce)/alfa 
+     &                       dte(ng)*vforce)/alfa
 !
-# ifdef MICLM_NUDGING
-          cff = 0.5*(MInudgcof(i,j)+MInudgcof(i,j-1))
-          vie(i,j,lienw)=vie(i,j,lienw)+                                &
-     &                  dte(ng)*cff*(viclm(i,j)-vie(i,j,lienw))
-# endif
+          IF (LnudgeMICLM(ng)) THEN
+            cff = 0.5*(CLIMA(ng)%MInudgcof(i,j)+                        &
+     &                  CLIMA(ng)%MInudgcof(i,j-1))
+            vie(i,j,lienw)=vie(i,j,lienw)+                              &
+     &                 dte(ng)*cff*(CLIMA(ng)%viclm(i,j)-vie(i,j,lienw))
+          END IF
 # ifdef ICE_SHOREFAST
           hv = 0.5_r8*(h(i,j-1)+MIN(Zt_avg1(i,j-1),0.0_r8) +            &
      &          h(i,j)+MIN(Zt_avg1(i,j),0.0_r8))
@@ -813,8 +853,8 @@
             vie(i,j,lienw) = 0.0_r8
           ENDIF
 # endif
-        END DO 
-      END DO 
+        END DO
+      END DO
 
       CALL uibc_tile (ng, tile,                                         &
      &                LBi, UBi, LBj, UBj,                               &

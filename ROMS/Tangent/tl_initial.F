@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -32,48 +32,50 @@
       USE mod_stepping
 !
       USE analytical_mod
+      USE dateclock_mod,       ONLY : time_string
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_bcasti
+      USE distribute_mod,      ONLY : mp_bcasti
 # endif
 # ifdef TLM_CHECK
-      USE ini_adjust_mod, ONLY : tl_ini_perturb
+      USE ini_adjust_mod,      ONLY : tl_ini_perturb
 # endif
-      USE ini_hmixcoef_mod, ONLY : ini_hmixcoef
+      USE ini_hmixcoef_mod,    ONLY : ini_hmixcoef
 # ifdef IS4DVAR_SENSITIVITY
-      USE ini_lanczos_mod, ONLY : ini_lanczos
+      USE ini_lanczos_mod,     ONLY : ini_lanczos
 # endif
-      USE metrics_mod, ONLY : metrics
+      USE metrics_mod,         ONLY : metrics
 # ifdef ADJUST_BOUNDARY
-      USE mod_boundary, ONLY : initialize_boundary
+      USE mod_boundary,        ONLY : initialize_boundary
 # endif
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-      USE mod_forces, ONLY : initialize_forces
+      USE mod_forces,          ONLY : initialize_forces
 # endif
+     USE strings_mod,          ONLY : FoundError
 # if defined SENSITIVITY_4DVAR || \
      defined TL_W4DPSAS        || defined TL_W4DVAR  || \
      defined W4DPSAS           || defined W4DVAR
-      USE tl_set_depth_mod, ONLY : tl_bath
+      USE tl_set_depth_mod,    ONLY : tl_bath
 # endif
 # ifdef SOLVE3D
-      USE set_depth_mod, ONLY : set_depth
-      USE tl_set_depth_mod, ONLY : tl_set_depth
-      USE tl_omega_mod, ONLY : tl_omega
-      USE tl_rho_eos_mod, ONLY : tl_rho_eos
+      USE set_depth_mod,       ONLY : set_depth
+      USE tl_set_depth_mod,    ONLY : tl_set_depth
+      USE tl_omega_mod,        ONLY : tl_omega
+      USE tl_rho_eos_mod,      ONLY : tl_rho_eos
       USE tl_set_massflux_mod, ONLY : tl_set_massflux
 # endif
 # ifdef MASKING
-      USE set_masks_mod, ONLY : set_masks
+      USE set_masks_mod,       ONLY : set_masks
 # endif
-      USE stiffness_mod, ONLY : stiffness
-# ifdef WAVES_OCEAN
-      USE ocean_coupler_mod, ONLY : waves_coupling
+      USE stiffness_mod,       ONLY : stiffness
+# if defined WAV_COUPLING_NOT_YET && defined MCT_LIB
+      USE ocean_coupler_mod,   ONLY : ocn2wav_coupling
 # endif
 # ifdef WET_DRY
-      USE wetdry_mod, ONLY : wetdry
+      USE wetdry_mod,          ONLY : wetdry
 # endif
 # if defined PROPAGATOR || \
     (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
-      USE wpoints_mod, ONLY : wpoints
+      USE wpoints_mod,         ONLY : wpoints
 # endif
 !
       implicit none
@@ -144,7 +146,7 @@
       time(ng)=tdays(ng)*day2sec
 !$OMP MASTER
       ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
-      ntend(ng)=ntimes(ng)
+      ntend(ng)=ntstart(ng)+ntimes(ng)-1
       ntfirst(ng)=ntstart(ng)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -166,7 +168,7 @@
 !-----------------------------------------------------------------------
 !
       DO thread=THREAD_RANGE
-        CALL wclock_on (ng, iTLM, 2)
+        CALL wclock_on (ng, iTLM, 2, __LINE__, __FILE__)
       END DO
 !$OMP BARRIER
 # endif
@@ -189,8 +191,6 @@
 !  If variational data assimilation, reset several IO switches and
 !  variables.
 !-----------------------------------------------------------------------
-!
-!$OMP MASTER
 
 #  ifndef IS4DVAR_SENSITIVITY
 #   ifdef IS4DVAR
@@ -203,11 +203,14 @@
       IF ((Nrun.eq.ERstr).and.(inner.eq.0)) THEN
         LdefITL(ng)=.TRUE.
         CALL tl_def_ini (ng)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         CALL tl_wrt_ini (ng, Tindex, 1)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         CALL tl_wrt_ini (ng, Tindex, 2)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #   endif
 #   ifndef WEAK_CONSTRAINT
@@ -259,16 +262,6 @@
 #    endif
 #   endif
 #  endif
-#  ifdef OBSERVATIONS
-!
-!  Open observations NetCDF file and initialize various variables
-!  needed for processing the nonlinear state solution at observation
-!  locations.
-!
-      CALL obs_initial (ng, iTLM, .FALSE.)
-      IF (exit_flag.ne.NoError) RETURN
-#  endif
-!$OMP END MASTER
 !$OMP BARRIER
 # endif
 !
@@ -299,7 +292,8 @@
 #  ifdef DISTRIBUTE
         CALL mp_bcasti (ng, iTLM, exit_flag)
 #  endif
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 
 # ifdef SOLVE3D
@@ -369,7 +363,8 @@
           CALL mp_bcasti (ng, iTLM, exit_flag)
 #  endif
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
 # endif
       END IF
@@ -455,7 +450,8 @@
           CALL tl_wrt_ini (ng, Tindex, wrtRec)
 !$OMP END MASTER
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END IF
 #   endif
@@ -470,7 +466,7 @@
 !-----------------------------------------------------------------------
 !
       DO tile=first_tile(ng),last_tile(ng),+1
-        CALL set_depth (ng, tile)
+        CALL set_depth (ng, tile, iTLM)
       END DO
 !$OMP BARRIER
 # endif
@@ -560,7 +556,8 @@
       CALL get_state (ng, iTLM, 1, ITL(ng)%name, IniRec, Tindex)
 !$OMP END MASTER
 !$OMP BARRIER
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       time(ng)=io_time                       ! needed for shared-memory
 #  else
       IF (nrrec(ng).ne.0) THEN
@@ -568,7 +565,8 @@
         CALL get_state (ng, iTLM, 1, ITL(ng)%name, IniRec, Tindex)
 !$OMP END MASTER
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         time(ng)=io_time                     ! needed for shared-memory
       END IF
 #  endif
@@ -590,13 +588,32 @@
         CALL mp_bcasti (ng, iTLM, exit_flag)
 #  endif
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       ELSE
         DO tile=first_tile(ng),last_tile(ng),+1
           CALL wetdry (ng, tile, Tindex(ng), .TRUE.)
         END DO
 !$OMP BARRIER
       END IF
+# endif
+
+# ifdef OBSERVATIONS
+!
+!-----------------------------------------------------------------------
+!  Open observations NetCDF file and initialize various variables
+!  needed for processing the tangent linear state solution at
+!  observation locations. Need to be done after processing initial
+!  conditions since the correct initial time is needed to determine
+!  the first "ObsTime" to process.
+!-----------------------------------------------------------------------
+!
+!$OMP MASTER
+      CALL obs_initial (ng, iTLM, .FALSE.)
+!$OMP END MASTER
+!$OMP BARRIER
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 # endif
 
 # if defined ANA_PERTURB && defined SANITY_CHECK
@@ -633,7 +650,7 @@
 !!----------------------------------------------------------------------
 !!
 !!    DO tile=first_tile(ng),last_tile(ng),+1
-!!      CALL tl_set_depth (ng, tile)
+!!      CALL tl_set_depth (ng, tile, iTLM)
 !!    END DO
 !!$OMP BARRIER
 !!
@@ -642,7 +659,7 @@
 !!----------------------------------------------------------------------
 !!
 !!    DO tile=first_tile(ng),last_tile(ng),+1
-!!      CALL tl_set_massflux (ng, tile)
+!!      CALL tl_set_massflux (ng, tile, iTLM)
 !!    END DO
 !!$OMP BARRIER
 !!
@@ -654,8 +671,8 @@
 !!----------------------------------------------------------------------
 !!
 !!    DO tile=first_tile(ng),last_tile(ng),+1
-!!      CALL tl_omega (ng, tile)
-!!      CALL tl_rho_eos (ng, tile)
+!!      CALL tl_omega (ng, tile, iTLM)
+!!      CALL tl_rho_eos (ng, tile, iTLM)
 !!    END DO
 !!$OMP BARRIER
 # endif
@@ -691,7 +708,8 @@
       CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
 !$OMP BARRIER
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Read in initial forcing, climatology and assimilation data from
@@ -708,7 +726,8 @@
 # ifdef DISTRIBUTE
       CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef MASKING
 !
@@ -753,7 +772,8 @@
         CALL get_state (ng, 7, 7, TLF(ng)%name, IniRec, 1)
 !$OMP END MASTER
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 # endif
 
@@ -796,14 +816,14 @@
 !$OMP BARRIER
 # endif
 
-# ifdef WAVES_OCEAN_NOT_YET
+# if defined WAV_COUPLING_NOT_YET && defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Read in initial forcing from coupled wave model.
 !-----------------------------------------------------------------------
 !
       DO tile=first_tile(ng),last_tile(ng),+1
-        CALL waves_coupling (ng, tile)
+        CALL ocn2wav_coupling (ng, tile)
       END DO
 !$OMP BARRIER
 # endif
@@ -828,7 +848,7 @@
 !-----------------------------------------------------------------------
 !
       DO thread=THREAD_RANGE
-        CALL wclock_off (ng, iTLM, 2)
+        CALL wclock_off (ng, iTLM, 2, __LINE__, __FILE__)
       END DO
 !$OMP BARRIER
 # endif

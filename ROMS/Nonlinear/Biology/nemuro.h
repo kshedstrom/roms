@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -63,7 +63,7 @@
       END IF
 !
 #ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 15)
+      CALL wclock_on (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
@@ -98,7 +98,7 @@
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 15)
+      CALL wclock_off (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       RETURN
       END SUBROUTINE biology
@@ -135,12 +135,14 @@
       USE mod_param
       USE mod_biology
       USE mod_ncparam
-      USE mod_scalars
 #if defined NEMURO_SAN && defined FISH_FEEDBACK
       USE mod_fish
       USE mod_grid
       USE mod_stepping
       USE mod_floats
+      USE mod_scalars, only: rho0,Cp,sec2day,dt,itemp
+#else
+      USE mod_scalars
 #endif
 !
 !  Imported variable declarations.
@@ -484,7 +486,7 @@
           DO i=Istr,Iend
 !  Set concentration and depth parameters for FeD climatology
 !  Fe concentration in (micromol-Fe/m3, or nM-Fe)
-	    h_max = 200.0_r8
+            h_max = 200.0_r8
             Fe_max = 2.0_r8
 !  Set nudging time scales to 5 days
             Fe_rel = 5.0_r8
@@ -499,7 +501,7 @@
 #endif
 !
 #if defined IRON_LIMIT && defined IRON_RSIN
-!  Variable Si:N ratio for dimatoms based on dissolved iron concentration
+!  Variable Si:N ratio for diatoms based on dissolved iron concentration
 !  Si:N varies between 1:1 (high iron) and 3:1 (low iron)
         DO k=1,N(ng)
           DO i=Istr,Iend
@@ -1144,7 +1146,7 @@
 # ifdef HOLLING_GRAZING
               cff4=1.0_r8/(KZS2ZP(ng)+Bio(i,k,iSzoo)*Bio(i,k,iSzoo))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))
-              cff=fac7*cff3**cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
+              cff=fac7*cff3*cff4*cff5*Bio(i,k,iPzoo)*Bio(i,k,iSzoo)
 # elif defined IVLEV_IMPLICIT
               cff4=1.0_r8-EXP(LamP(ng)*(ZS2ZPstar(ng)-Bio(i,k,iSzoo)))
               cff5=EXP(-PusaiZS(ng)*Bio(i,k,iLzoo))

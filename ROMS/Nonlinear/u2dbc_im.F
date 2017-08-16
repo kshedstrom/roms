@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -140,15 +140,15 @@
               dUdx=ubar(Istr+1,j,kout)-ubar(Istr+2,j,kout)
 
               IF (LBC(iwest,isUbar,ng)%nudging) THEN
-                IF (LnudgeM2CLM(ng)) THEN
-                  obc_out=0.5_r8*                                       &
-     &                    (CLIMA(ng)%M2nudgcof(Istr-1,j)+               &
-     &                     CLIMA(ng)%M2nudgcof(Istr  ,j))
-                  obc_in =obcfac(ng)*obc_out
-                ELSE
+!               IF (LnudgeM2CLM(ng)) THEN
+!                 obc_out=0.5_r8*                                       &
+!    &                    (CLIMA(ng)%M2nudgcof(Istr-1,j)+               &
+!    &                     CLIMA(ng)%M2nudgcof(Istr  ,j))
+!                 obc_in =obcfac(ng)*obc_out
+!               ELSE
                   obc_out=M2obc_out(ng,iwest)
                   obc_in =M2obc_in (ng,iwest)
-                END IF
+!               END IF
                 IF ((dUdt*dUdx).lt.0.0_r8) THEN
                   tau=obc_in
                 ELSE
@@ -157,7 +157,6 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dUdt*dUdx).lt.0.0_r8) dUdt=0.0_r8
               IF ((dUdt*(grad(Istr+1,j  )+                              &
      &                   grad(Istr+1,j+1))).gt.0.0_r8) THEN
                 dUde=grad(Istr+1,j  )
@@ -165,6 +164,7 @@
                 dUde=grad(Istr+1,j+1)
               END IF
               cff=MAX(dUdx*dUdx+dUde*dUde,eps)
+              IF ((dUdt*dUdx).lt.0.0_r8) dUdt=0.0_r8
               Cx=dUdt*dUdx
 #ifdef RADIATION_2D
               Ce=MIN(cff,MAX(dUdt*dUde,-cff))
@@ -282,7 +282,7 @@
             END IF
           END DO
 !
-!  Western edge, Shchepetkin boundary condition (Maison et al., 2010).
+!  Western edge, Shchepetkin boundary condition (Mason et al., 2010).
 !
         ELSE IF (LBC(iwest,isUbar,ng)%Shchepetkin) THEN
           DO j=Jstr,Jend
@@ -501,15 +501,15 @@
               dUdx=ubar(Iend,j,kout)-ubar(Iend-1,j,kout)
 
               IF (LBC(ieast,isUbar,ng)%nudging) THEN
-                IF (LnudgeM2CLM(ng)) THEN
-                  obc_out=0.5_r8*                                       &
-     &                    (CLIMA(ng)%M2nudgcof(Iend  ,j)+               &
-     &                     CLIMA(ng)%M2nudgcof(Iend+1,j))
-                  obc_in =obcfac(ng)*obc_out
-                ELSE
+!               IF (LnudgeM2CLM(ng)) THEN
+!                 obc_out=0.5_r8*                                       &
+!    &                    (CLIMA(ng)%M2nudgcof(Iend  ,j)+               &
+!    &                     CLIMA(ng)%M2nudgcof(Iend+1,j))
+!                 obc_in =obcfac(ng)*obc_out
+!               ELSE
                   obc_out=M2obc_out(ng,ieast)
                   obc_in =M2obc_in (ng,ieast)
-                END IF
+!               END IF
                 IF ((dUdt*dUdx).lt.0.0_r8) THEN
                   tau=obc_in
                 ELSE
@@ -518,7 +518,6 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dUdt*dUdx).lt.0.0_r8) dUdt=0.0_r8
               IF ((dUdt*(grad(Iend,j  )+                                &
      &                   grad(Iend,j+1))).gt.0.0_r8) THEN
                 dUde=grad(Iend,j)
@@ -526,6 +525,7 @@
                 dUde=grad(Iend,j+1)
               END IF
               cff=MAX(dUdx*dUdx+dUde*dUde,eps)
+              IF ((dUdt*dUdx).lt.0.0_r8) dUdt=0.0_r8
               Cx=dUdt*dUdx
 #ifdef RADIATION_2D
               Ce=MIN(cff,MAX(dUdt*dUde,-cff))
@@ -643,7 +643,7 @@
             END IF
           END DO
 !
-!  Eastern edge, Shchepetkin boundary condition (Maison et al., 2010).
+!  Eastern edge, Shchepetkin boundary condition (Mason et al., 2010).
 !
         ELSE IF (LBC(ieast,isUbar,ng)%Shchepetkin) THEN
           DO j=Jstr,Jend
@@ -862,15 +862,15 @@
               dUde=ubar(i,Jstr,kout)-ubar(i,Jstr+1,kout)
 
               IF (LBC(isouth,isUbar,ng)%nudging) THEN
-                IF (LnudgeM2CLM(ng)) THEN
-                  obc_out=0.5_r8*                                       &
-     &                    (CLIMA(ng)%M2nudgcof(i-1,Jstr-1)+             &
-     &                     CLIMA(ng)%M2nudgcof(i  ,Jstr-1))
-                  obc_in =obcfac(ng)*obc_out
-                ELSE
+!               IF (LnudgeM2CLM(ng)) THEN
+!                 obc_out=0.5_r8*                                       &
+!    &                    (CLIMA(ng)%M2nudgcof(i-1,Jstr-1)+             &
+!    &                     CLIMA(ng)%M2nudgcof(i  ,Jstr-1))
+!                 obc_in =obcfac(ng)*obc_out
+!               ELSE
                   obc_out=M2obc_out(ng,isouth)
                   obc_in =M2obc_in (ng,isouth)
-                END IF
+!               END IF
                 IF ((dUdt*dUde).lt.0.0_r8) THEN
                   tau=obc_in
                 ELSE
@@ -879,13 +879,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dUdt*dUde).lt.0.0_r8) dUdt=0.0_r8
               IF ((dUdt*(grad(i-1,Jstr)+                                &
      &                   grad(i  ,Jstr))).gt.0.0_r8) THEN
                 dUdx=grad(i-1,Jstr)
               ELSE
                 dUdx=grad(i  ,Jstr)
               END IF
+              IF ((dUdt*dUde).lt.0.0_r8) dUdt=0.0_r8
               cff=MAX(dUdx*dUdx+dUde*dUde,eps)
 #ifdef RADIATION_2D
               Cx=MIN(cff,MAX(dUdt*dUdx,-cff))
@@ -1019,15 +1019,15 @@
               dUde=ubar(i,Jend,kout)-ubar(i,Jend-1,kout)
 
               IF (LBC(inorth,isUbar,ng)%nudging) THEN
-                IF (LnudgeM2CLM(ng)) THEN
-                  obc_out=0.5_r8*                                       &
-     &                    (CLIMA(ng)%M2nudgcof(i-1,Jend+1)+             &
-     &                     CLIMA(ng)%M2nudgcof(i  ,Jend+1))
-                  obc_in =obcfac(ng)*obc_out
-                ELSE
+!               IF (LnudgeM2CLM(ng)) THEN
+!                 obc_out=0.5_r8*                                       &
+!    &                    (CLIMA(ng)%M2nudgcof(i-1,Jend+1)+             &
+!    &                     CLIMA(ng)%M2nudgcof(i  ,Jend+1))
+!                 obc_in =obcfac(ng)*obc_out
+!               ELSE
                   obc_out=M2obc_out(ng,inorth)
                   obc_in =M2obc_in (ng,inorth)
-                END IF
+!               END IF
                 IF ((dUdt*dUde).lt.0.0_r8) THEN
                   tau=obc_in
                 ELSE
@@ -1036,13 +1036,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dUdt*dUde).lt.0.0_r8) dUdt=0.0_r8
               IF ((dUdt*(grad(i-1,Jend)+                                &
      &                   grad(i  ,Jend))).gt.0.0_r8) THEN
                 dUdx=grad(i-1,Jend)
               ELSE
                 dUdx=grad(i  ,Jend)
               END IF
+              IF ((dUdt*dUde).lt.0.0_r8) dUdt=0.0_r8
               cff=MAX(dUdx*dUdx+dUde*dUde,eps)
 #ifdef RADIATION_2D
               Cx=MIN(cff,MAX(dUdt*dUdx,-cff))

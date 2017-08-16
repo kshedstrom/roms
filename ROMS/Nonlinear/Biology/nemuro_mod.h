@@ -1,7 +1,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -219,7 +219,7 @@
 # ifdef IRON_LIMIT
       integer :: iFeSp                  ! Small phytoplankton iron
       integer :: iFeLp                  ! Large phytoplankton iron
-      integer :: iFeD_                  ! Available disolved iron
+      integer :: iFeD_                  ! Available dissolved iron
 # endif
       integer, parameter :: max_species = 5
       integer, parameter :: max_lstages = 6
@@ -502,6 +502,11 @@
       real(r8), allocatable :: Nmort_A(:,:)
 !      real(r8), allocatable :: Nymort(:,:)
       real(r8), allocatable :: Fymort(:,:)
+      real(r8), allocatable :: DDmort1_J(:,:)
+      real(r8), allocatable :: DDmort2_J(:,:)
+      real(r8), allocatable :: DDmort3_J(:,:)
+      real(r8), allocatable :: DDmort4_J(:,:)
+      real(r8), allocatable :: DDscale_J(:,:)
 # ifdef PREDATOR
       real(r8), allocatable :: Pwwt0(:,:)     ! grams
       real(r8), allocatable :: Pwth0(:,:)     ! worth
@@ -1391,6 +1396,21 @@
       END IF
       IF (.not.allocated(Fymort)) THEN
         allocate( Fymort(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDmort1_J)) THEN
+        allocate( DDmort1_J(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDmort2_J)) THEN
+        allocate( DDmort2_J(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDmort3_J)) THEN
+        allocate( DDmort3_J(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDmort4_J)) THEN
+        allocate( DDmort4_J(max_species, Ngrids))
+      END IF
+      IF (.not.allocated(DDscale_J)) THEN
+        allocate( DDscale_J(max_species, Ngrids))
       END IF
 # ifdef PREDATOR
       IF (.not.allocated(Pwwt0)) THEN

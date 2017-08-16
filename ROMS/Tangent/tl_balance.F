@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -90,9 +90,9 @@
 !
       COUPLING(ng) % Zt_avg1 = 0.0_r8
 
-      CALL set_depth (ng, tile)
+      CALL set_depth (ng, tile, iTLM)
       nrhs(ng)=Lbck
-      CALL rho_eos (ng, tile)
+      CALL rho_eos (ng, tile, iTLM)
 !
 # endif
       CALL tl_balance_tile (ng, tile,                                   &

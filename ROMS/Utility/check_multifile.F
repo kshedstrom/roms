@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -23,6 +23,9 @@
       USE mod_iounits
       USE mod_scalars
 !
+      USE dateclock_mod, ONLY : time_string
+      USE strings_mod,   ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -38,8 +41,10 @@
 
       real(r8) :: Tfinal, Tmax, Tmin, Tscale
 
-      character(len=14 ) :: F_code, I_code, Tmin_code, Tmax_code
+      character(len= 22) :: F_code, I_code, Tmin_code, Tmax_code
       character(len=256) :: ncname
+!
+      SourceFile=__FILE__
 !
 !=======================================================================
 !  If applicable, initialize parameters for input multi-files.
@@ -47,12 +52,12 @@
 !
 !  Get initialization time string.
 !
-      CALL time_string(time(ng), I_code)
+      CALL time_string (time(ng), I_code)
 !
 !  Get final time string for simulation.
 !
       Tfinal=dstart*day2sec+ntimes(ng)*dt(ng)
-      CALL time_string(tfinal, F_code)
+      CALL time_string (tfinal, F_code)
 !
 !-----------------------------------------------------------------------
 !  Input lateral boundary conditions data.
@@ -65,13 +70,16 @@
             ncname=BRY(i,ng)%files(ifile)
             foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
      &                         Lcheck)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             BRY(i,ng)%time_min(ifile)=Tmin
             BRY(i,ng)%time_max(ifile)=Tmax
           END DO
 !
 !  Set the appropriate file counter to use during initialization or
-!  restart.
+!  restart. The EXIT below is removed because when restarting there is
+!  a possibility that the restart time is not included in the first
+!  boundary file in the list to avoid getting an IO error.
 !
           Fcount=0
           IF (Lcheck) THEN
@@ -79,7 +87,7 @@
               Tmin=Tscale*BRY(i,ng)%time_min(ifile)
               IF (time(ng).ge.Tmin) THEN
                 Fcount=ifile
-                EXIT
+!!              EXIT
               END IF
             END DO
           ELSE
@@ -138,13 +146,16 @@
           ncname=FRC(i,ng)%files(ifile)
           foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,     &
      &                       Lcheck)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           FRC(i,ng)%time_min(ifile)=Tmin
           FRC(i,ng)%time_max(ifile)=Tmax
         END DO
 !
 !  Set the appropriate file counter to use during initialization or
-!  restart.
+!  restart. The EXIT below is removed because when restarting there is
+!  a possibility that the restart time is not included in the first
+!  forcing file in the list to avoid getting an IO error.
 !
         Fcount=0
         IF (Lcheck) THEN
@@ -152,7 +163,7 @@
             Tmin=Tscale*FRC(i,ng)%time_min(ifile)
             IF (time(ng).ge.Tmin) THEN
               Fcount=ifile
-              EXIT
+!!            EXIT
             END IF
           END DO
         ELSE
@@ -174,8 +185,8 @@
             DO ifile=1,Nfiles
               Tmin=Tscale*FRC(i,ng)%time_min(ifile)
               Tmax=Tscale*FRC(i,ng)%time_max(ifile)
-              CALL time_string(Tmin, Tmin_code)
-              CALL time_string(Tmax, Tmax_code)
+              CALL time_string (Tmin, Tmin_code)
+              CALL time_string (Tmax, Tmax_code)
               WRITE (stdout,20) Tmin_code, Tmax_code,                   &
      &                          TRIM(FRC(i,ng)%files(ifile))
             END DO
@@ -188,7 +199,7 @@
         IF (Lcheck) THEN
           Tmax=Tscale*FRC(i,ng)%time_max(Nfiles)
           IF (Tfinal.gt.Tmax) THEN
-            CALL time_string(Tmax, Tmax_code)
+            CALL time_string (Tmax, Tmax_code)
             IF (Master) THEN
               WRITE (stdout,30) 'Forcing',                              &
      &                          TRIM(FRC(i,ng)%files(Nfiles)),          &
@@ -211,7 +222,8 @@
             ncname=CLM(i,ng)%files(ifile)
             foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
      &                       Lcheck)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
             CLM(i,ng)%time_min(ifile)=Tmin
             CLM(i,ng)%time_max(ifile)=Tmax
           END DO
@@ -318,6 +330,8 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE strings_mod, ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -338,7 +352,7 @@
 
       character (len=40) :: Tunits, TvarName
 !
-      SourceFile='check_multifile.F, check_file'
+      SourceFile=__FILE__ // ", check_file"
 !
 !------------------------------------------------------------------------
 !  Check if requested time is within the NetCDF file dataset.
@@ -358,7 +372,8 @@
 !  Inquire about all the variables
 !
       CALL netcdf_inq_var (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Search for the time variable: any 1D array variable with the string
 !  'time' in the variable name.
@@ -391,7 +406,8 @@
      &                     VarID = TvarID,                              &
      &                     nVarDim = nvdim,                             &
      &                     nVarAtt = nvatt)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set number of records available and check the 'units' attribute.
 !  Also, set output logical switch 'Lcheck' for the calling to check
@@ -435,13 +451,15 @@
      &                      Tmin,                                       &
      &                      start = (/1/),                              &
      &                      total = (/1/))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
       CALL netcdf_get_fvar (ng, model, ncname, TvarName,                &
      &                      Tmax,                                       &
      &                      start = (/Nrec/),                           &
      &                      total = (/1/))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
  10   FORMAT (/, ' CHECK_FILE - unable to find time variable in input', &
      &        ' NetCDF file:', /, 14x, a, /, 14x,                       &

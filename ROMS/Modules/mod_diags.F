@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,7 +45,7 @@
 
         TYPE T_DIAGS
 
-# if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
+# if defined DIAGNOSTICS_BIO
           real(r8), pointer :: DiaBio2d(:,:,:)
           real(r8), pointer :: DiaBio3d(:,:,:,:)
 # endif
@@ -104,7 +104,7 @@
 !
       IF (ng.eq.1 ) allocate ( DIAGS(Ngrids) )
 !
-# if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
+# if defined DIAGNOSTICS_BIO
       IF (NDbio2d.gt.0) THEN
         allocate ( DIAGS(ng) % DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d) )
       END IF
@@ -209,7 +209,7 @@
 !-----------------------------------------------------------------------
 !
       DO j=Jmin,Jmax
-# if defined DIAGNOSTICS_BIO && defined BIO_FENNEL
+# if defined DIAGNOSTICS_BIO
         IF (NDbio2d.gt.0) THEN
           DO idiag=1,NDbio2d
             DO i=Imin,Imax

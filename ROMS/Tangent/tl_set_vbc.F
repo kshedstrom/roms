@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -47,7 +47,7 @@
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iTLM, 6)
+      CALL wclock_on (ng, iTLM, 6, __LINE__, __FILE__)
 #  endif
       CALL tl_set_vbc_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -102,7 +102,7 @@
      &                      FORCES(ng) % tl_stflx,                      &
      &                      FORCES(ng) % tl_btflx)
 #  ifdef PROFILE
-      CALL wclock_off (ng, iTLM, 6)
+      CALL wclock_off (ng, iTLM, 6, __LINE__, __FILE__)
 #  endif
 
       RETURN
@@ -300,6 +300,43 @@
         END DO
       END DO
 #  endif
+
+#  ifdef LIMIT_STFLX_COOLING
+!
+!-----------------------------------------------------------------------
+!  If net heat flux is cooling and SST is at freezing point or below
+!  then suppress further cooling. Note: stflx sign convention is that
+!  positive means heating the ocean (J Wilkin).
+!-----------------------------------------------------------------------
+!
+!  Below the surface heat flux stflx(:,:,itemp) is ZERO if cooling AND
+!  the SST is cooler that the threshold.  The value is retained if
+!  warming.
+!
+!    cff3 = 0      if SST warmer than threshold (cff1) - change nothing
+!    cff3 = 1      if SST colder than threshold (cff1)
+!
+!    0.5*(cff2-ABS(cff2)) = 0                        if flux is warming
+!                         = stflx(:,:,itemp)         if flux is cooling
+!
+      cff1=-2.0_r8              ! nominal SST threshold to cease cooling
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          cff2=stflx(i,j,itemp)
+          tl_cff2=tl_stflx(i,j,itemp)
+          cff3=0.5_r8*(1.0_r8+SIGN(1.0_r8,cff1-t(i,j,N(ng),nrhs,itemp)))
+!>        tl_cff3=0.5_r8*SIGN(1.0_r8, cff1-t(i,j,N(ng),nrhs,itemp))*0.0
+!>        tl_cff3=0.0_r8
+!>
+!>        stflx(i,j,itemp)=cff2-cff3*0.5_r8*(cff2-ABS(cff2))
+!>
+          tl_stflx(i,j,itemp)=(1.0_r8-                                  &
+     &                         cff3*0.5_r8*(1.0_r8-SIGN(1.0_r8,cff2)))* &
+     &                        tl_cff2
+        END DO
+      END DO
+#  endif
+
 #  ifdef SALINITY
 !
 !-----------------------------------------------------------------------
@@ -311,21 +348,21 @@
         DO i=IstrR,IendR
 #  if defined SCORRECTION
 !>        stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
-!>   &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+!>   &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
           tl_stflx(i,j,isalt)=stflx(i,j,isalt)*                         &
      &                        tl_t(i,j,N(ng),nrhs,isalt)-               &
-     &                        Tnudg(isalt,ng)*                          &
+     &                        Tnudg_SSS(ng)*                            &
      &                        (tl_Hz(i,j,N(ng))*                        &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
      &                         Hz(i,j,N(ng))*                           &
      &                         tl_t(i,j,N(ng),nrhs,isalt))
 #  elif defined SRELAXATION
-!>        stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
+!>        stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
-          tl_stflx(i,j,isalt)=-Tnudg(isalt,ng)*                         &
+          tl_stflx(i,j,isalt)=-Tnudg_SSS(ng)*                           &
      &                        (tl_Hz(i,j,N(ng))*                        &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
      &                         Hz(i,j,N(ng))*                           &
@@ -802,7 +839,7 @@
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iTLM, 6)
+      CALL wclock_on (ng, iTLM, 6, __LINE__, __FILE__)
 #  endif
       CALL tl_set_vbc_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -820,7 +857,7 @@
      &                      FORCES(ng) % tl_bustr,                      &
      &                      FORCES(ng) % tl_bvstr)
 #  ifdef PROFILE
-      CALL wclock_off (ng, iTLM, 6)
+      CALL wclock_off (ng, iTLM, 6, __LINE__, __FILE__)
 #  endif
 
       RETURN

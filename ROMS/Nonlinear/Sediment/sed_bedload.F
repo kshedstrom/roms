@@ -9,7 +9,7 @@
 !
 !svn $Id$
 !==================================================== John C. Warner ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -65,7 +65,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 16)
+      CALL wclock_on (ng, iNLM, 16, __LINE__, __FILE__)
 # endif
       CALL sed_bedload_tile (ng, tile,                                  &
      &                       LBi, UBi, LBj, UBj,                        &
@@ -117,7 +117,7 @@
      &                       SEDBED(ng) % bed_mass,                     &
      &                       SEDBED(ng) % bottom)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 16)
+      CALL wclock_off (ng, iNLM, 16, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE sed_bedload

@@ -10,7 +10,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -52,7 +52,9 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE dateclock_mod,  ONLY : time_string
       USE nf_fread3d_mod, ONLY : nf_fread3d
+      USE strings_mod,    ONLY : FoundError
 !
       implicit none
 !
@@ -82,17 +84,18 @@
 
       real(r8) :: Clength, Fmax, Fmin, Tdelta
       real(r8) :: Tmax, Tmin, Tmono, Tscale
-      real(r8) :: Fval, Tval
+      real(r8) :: Fval, Tsec, Tval
 
-      character (len=14)  :: t_code
+      character (len=22)  :: t_code
 !
-      SourceFile='get_3dfld.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Initialize.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Determine if inquiring about the field to process in input NetCDF
 !  file(s).  This usually happens on first call or when the field
@@ -113,9 +116,10 @@
 !
       IF (Linquire) THEN
         job=3
-        CALL inquire (ng, model, job, Iout, Irec, 1, ifield, ncid,      &
+        CALL inquiry (ng, model, job, Iout, Irec, 1, ifield, ncid,      &
      &                Lmulti, nfiles, S)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Load properties for requested field from information arrays.
@@ -177,7 +181,8 @@
      &                            ncid = ncid,                          &
      &                            start = (/Trec/),                     &
      &                            total = (/1/))
-            IF (exit_flag.ne.NoError) THEN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,40) TRIM(Tname(ifield)), Trec
               RETURN
             END IF
@@ -231,7 +236,8 @@
               Fmin=Fval
               Fmax=Fval
             END IF
-            IF (exit_flag.ne.NoError) THEN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) THEN
                 WRITE (stdout,40) TRIM(Vname(1,ifield)), Trec
               END IF
@@ -239,16 +245,16 @@
             END IF
             IF (Master) THEN
               IF (Irec.gt.1) THEN
-                WRITE (stdout,50) TRIM(Vname(2,ifield)), Fmin, Fmax
+                WRITE (stdout,50) TRIM(Vname(2,ifield)), ng, Fmin, Fmax
               ELSE
                 lstr=SCAN(ncfile,'/',BACK=.TRUE.)+1
                 lend=LEN_TRIM(ncfile)
                 lvar=MIN(43,LEN_TRIM(Vname(2,ifield)))
-                Tval=Tval*day2sec
-                CALL time_string (Tval, t_code)
+                Tsec=Tval*day2sec
+                CALL time_string (Tsec, t_code)
                 WRITE (stdout,60) Vname(2,ifield)(1:lvar), t_code,      &
-     &                            Trec, Tindex, ncfile(lstr:lend),      &
-     &                            Tmin, Tmax, Fmin, Fmax
+     &                            ng, Trec, Tindex, ncfile(lstr:lend),  &
+     &                            Tmin, Tmax, Tval, Fmin, Fmax
               END IF
             END IF
             update=.TRUE.
@@ -271,13 +277,21 @@
         END IF
       END IF
 !
+  10  FORMAT (/,' GET_3DFLD   - unable to find dimension ',a,           &
+     &        /,15x,'for variable: ',a,/,15x,'in file: ',a,             &
+     &        /,15x,'file is not CF compliant...')
+  20  FORMAT (/,' GET_3DFLD   - unable to find requested variable: ',a, &
+     &        /,15x,'in input NetCDF file: ',a)
+  30  FORMAT (/,' GET_3DFLD   - unable to open input NetCDF file: ',a)
   40  FORMAT (/,' GET_3DFLD   - error while reading variable: ',a,2x,   &
      &       ' at TIME index = ',i7)
-  50  FORMAT (3x,' GET_3DFLD   - ',a,/,19x,'(Min = ',1p,e15.8,0p,       &
-     &        ' Max = ',1p,e15.8,0p,')')
-  60  FORMAT (3x,' GET_3DFLD   - ',a,',',t62,'t = ',a,/,19x,            &
-     &        '(Rec=',i5.5,', Index=',i1,', File: ',a,')',/,19x,        &
-     &        '(Tmin= ', f15.4, ' Tmax= ', f15.4,')',/, 19x,            &
+  50  FORMAT (3x,' GET_3DFLD   - ',a,/,19x,'(Grid = ',i2.2,             &
+     &        ', Min = ',1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
+  60  FORMAT (3x,' GET_3DFLD   - ',a,',',t68,a,/,19x,                   &
+     &        '(Grid=',i2.2,', Rec=',i7.7,', Index=',i1,                &
+     &        ', File: ',a,')',/,19x,                                   &
+     &        '(Tmin= ', f15.4, ' Tmax= ', f15.4,')',                   &
+     &        t71, 't = ', f15.4 ,/, 19x,                               &
      &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 
       RETURN

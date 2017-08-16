@@ -23,13 +23,17 @@
 !
       integer :: Npts, Nval
       integer :: iTrcStr, iTrcEnd
-      integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
+      integer :: i, ifield, is, itracer, itrc, ng, nline, status
 
-      integer :: decode_line, load_i, load_l, load_r,load_lbc
+      integer :: decode_line, load_i, load_l, load_lbc, load_r
 
-      integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
+      integer :: igrid
 
       logical, dimension(NBT,Ngrids) :: Ltrc
+# if defined DIAGNOSTICS_BIO
+      logical, dimension(NDbio2d,Ngrids) :: Lbio2d
+      logical, dimension(NDbio3d,Ngrids) :: Lbio3d
+# endif
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
@@ -252,13 +256,29 @@
               Npts=load_r(Nval, Rval, Ngrids, colorFR1)
             CASE ('colorFR2')
               Npts=load_r(Nval, Rval, Ngrids, colorFR2)
-  
+# ifdef IRON_LIMIT
+            CASE ('T_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, T_Fe)
+            CASE ('A_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, A_Fe)
+            CASE ('B_Fe')
+              Npts=load_r(Nval, Rval, Ngrids, B_Fe)
+            CASE ('S1_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S1_FeC)
+            CASE ('S2_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S2_FeC)
+            CASE ('S3_FeC')
+              Npts=load_r(Nval, Rval, Ngrids, S3_FeC)
+            CASE ('FeRR')
+              Npts=load_r(Nval, Rval, Ngrids, FeRR)
+# endif
+
             CASE ('TNU2')
               Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
-                  tnu2(i,ng)=Rbio(itrc,ng)
+                  nl_tnu2(i,ng)=Rbio(itrc,ng)
                 END DO
               END DO
             CASE ('TNU4')
@@ -266,7 +286,41 @@
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
-                  tnu4(i,ng)=Rbio(itrc,ng)
+                  nl_tnu4(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('ad_TNU2')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  ad_tnu2(i,ng)=Rbio(itrc,ng)
+                  tl_tnu2(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('ad_TNU4')
+              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  ad_tnu4(i,ng)=Rbio(itrc,ng)
+                  ad_tnu4(i,ng)=Rbio(itrc,ng)
+                END DO
+              END DO
+            CASE ('LtracerSponge')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerSponge(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('LtracerSponge')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerSponge(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
             CASE ('AKT_BAK')
@@ -285,7 +339,7 @@
                   Tnudg(i,ng)=Rbio(itrc,ng)
                 END DO
               END DO
-            CASE ( 'LBC(isTvar)')
+            CASE ('LBC(isTvar)')
               IF (itracer.lt.NBT) THEN
                 itracer=itracer+1
               ELSE
@@ -295,18 +349,7 @@
               Npts=load_lbc(Nval, Cval, line, nline, ifield, igrid,     &
      &                      idbio(iTrcStr), idbio(iTrcEnd),             &
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
-  
-#ifdef TCLIMATOLOGY
-            CASE ('LtracerCLM')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
-              DO ng=1,Ngrids
-                DO itrc=1,NBT
-                  i=idbio(itrc)
-                  LtracerCLM(i,ng)=Ltrc(itrc,ng)
-                END DO
-              END DO
-#endif
-#ifdef TS_PSOURCE
+
             CASE ('LtracerSrc')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -315,7 +358,22 @@
                   LtracerSrc(i,ng)=Ltrc(itrc,ng)
                 END DO
               END DO
-#endif
+            CASE ('LtracerCLM')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LtracerCLM(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
+            CASE ('LnudgeTCLM')
+              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              DO ng=1,Ngrids
+                DO itrc=1,NBT
+                  i=idbio(itrc)
+                  LnudgeTCLM(i,ng)=Ltrc(itrc,ng)
+                END DO
+              END DO
             CASE ('Hout(idTvar)')
               Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
               DO ng=1,Ngrids
@@ -323,7 +381,7 @@
                   i=idTvar(idbio(itrc))
                   IF (i.eq.0) THEN
                     IF (Master) WRITE (out,120)                           &
-       &                      'idTvar(idbio(', itrc, '))'
+     &                      'idTvar(idbio(', itrc, '))'
                     exit_flag=5
                     RETURN
                   END IF
@@ -337,7 +395,7 @@
                   i=idTsur(idbio(itrc))
                   IF (i.eq.0) THEN
                     IF (Master) WRITE (out,120)                           &
-       &                      'idTsur(idbio(', itrc, '))'
+     &                      'idTsur(idbio(', itrc, '))'
                     exit_flag=5
                     RETURN
                   END IF
@@ -366,6 +424,36 @@
 # ifdef PRIMARY_PROD
             CASE ('Aout(idNPP)')
               Npts=load_l(Nval, Cval, Ngrids, Aout(idNPP,:))
+# endif
+# if defined DIAGNOSTICS_BIO
+            CASE ('Dout(iDbio2)')
+              Npts=load_l(Nval, Cval, NDbio2d*Ngrids, Lbio2d)
+              DO ng=1,Ngrids
+                DO itrc=1,NDbio2d
+                  i=iDbio2(itrc)
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'iDbio2(', itrc, ')'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Dout(i,ng)=Lbio2d(itrc,ng)
+                END DO
+              END DO
+            CASE ('Dout(iDbio3)')
+              Npts=load_l(Nval, Cval, NDbio3d*Ngrids, Lbio3d)
+              DO ng=1,Ngrids
+                DO itrc=1,NDbio3d
+                  i=iDbio3(itrc)
+                  IF (i.eq.0) THEN
+                    IF (Master) WRITE (out,120)                           &
+       &                      'iDbio3(', itrc, ')'
+                    exit_flag=5
+                    RETURN
+                  END IF
+                  Dout(i,ng)=Lbio3d(itrc,ng)
+                END DO
+              END DO
 # endif
           END SELECT
         END IF
@@ -620,6 +708,22 @@
      &            'Color fraction for labile DOC [nondimensional].'
             WRITE (out,100) colorFR2(ng), 'colorFR2',                   &
      &           'Color fraction for semi-labile DOC [nondimensional].'
+#ifdef IRON_LIMIT
+            WRITE (out,70) T_Fe(ng), 'T_Fe',                            &
+     &            'Iron uptake time scale (day-1).'
+            WRITE (out,70) A_Fe(ng), 'A_Fe',                            &
+     &            'Empirical Fe:C power (-).'
+            WRITE (out,70) B_Fe(ng), 'B_Fe',                            &
+     &            'Empirical Fe:C coefficient (1/M-C).'
+            WRITE (out,70) S1_FeC(ng), 'S1_FeC',                        &
+     &            'Small P Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) S2_FeC(ng), 'S2_FeC',                        &
+     &            'Diatoms Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) S3_FeC(ng), 'S3_FeC',                        &
+     &            'Coccolithophores Fe:C at F=0.5 (muM-Fe/M-C).'
+            WRITE (out,70) FeRR(ng), 'FeRR',                            &
+     &            'Fe remineralization rate (day-1).'
+#endif
 #ifdef TS_DIF2
             DO itrc=1,NBT
               i=idbio(itrc)
@@ -648,15 +752,14 @@
      &              'Nudging/relaxation time scale (days)',             &
      &              'for tracer ', i, TRIM(Vname(1,idTvar(i)))
             END DO
-#ifdef TCLIMATOLOGY
             DO itrc=1,NBT
               i=idbio(itrc)
-	      IF (LtracerCLM(i,ng)) THEN
-                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+              IF (LtracerCLM(i,ng)) THEN
+                WRITE (out,140) LtracerCLM(i,ng), 'LtracerCLM', i,      &
      &              'Turning ON processing of climatology tracer ', i,  &
      &              TRIM(Vname(1,idTvar(i)))
               ELSE
-                WRITE (out,110) LtracerCLM(i,ng), 'LtracerCLM', i,      &
+                WRITE (out,140) LtracerCLM(i,ng), 'LtracerCLM', i,      &
       &             'Turning OFF processing of climatology tracer ', i, &
       &             TRIM(Vname(1,idTvar(i)))
               END IF
@@ -664,24 +767,21 @@
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (LnudgeTCLM(i,ng)) THEN
-                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+                WRITE (out,140) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
      &              'Turning ON  nudging of climatology tracer ', i,    &
      &              TRIM(Vname(1,idTvar(i)))
               ELSE
-                WRITE (out,110) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
+                WRITE (out,140) LnudgeTCLM(i,ng), 'LnudgeTCLM', i,      &
      &              'Turning OFF nudging of climatology tracer ', i,    &
      &              TRIM(Vname(1,idTvar(i)))
               END IF
             END DO
-#endif
-#ifdef TS_PSOURCE
             DO itrc=1,NBT
               i=idbio(itrc)
               WRITE (out,150) LtracerSrc(i,ng), 'LtracerSrc',           &
      &              i, 'Processing point sources/Sink on tracer ', i,   &
      &              TRIM(Vname(1,idTvar(i)))
             END DO
-#endif
             DO itrc=1,NBT
               i=idbio(itrc)
               IF (Hout(idTvar(i),ng)) WRITE (out,60)                    &

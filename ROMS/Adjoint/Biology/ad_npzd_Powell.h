@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -49,7 +49,7 @@
       END IF
 !
 #ifdef PROFILE
-      CALL wclock_on (ng, iADM, 15)
+      CALL wclock_on (ng, iADM, 15, __LINE__, __FILE__)
 #endif
       CALL ad_biology_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj, N(ng), NT(ng),          &
@@ -70,7 +70,7 @@
      &                      OCEAN(ng) % ad_t)
 
 #ifdef PROFILE
-      CALL wclock_off (ng, iADM, 15)
+      CALL wclock_off (ng, iADM, 15, __LINE__, __FILE__)
 #endif
       RETURN
       END SUBROUTINE ad_biology
@@ -471,25 +471,15 @@
 !  initial slope of the P-I curve and K_NO3 is the half saturation of
 !  phytoplankton nitrate uptake.
 !
-#ifdef SPITZ
           cff1=dtdays*Vm_NO3(ng)*PhyIS(ng)
           cff2=Vm_NO3(ng)*Vm_NO3(ng)
           cff3=PhyIS(ng)*PhyIS(ng)
-#else
-          cff1=dtdays*Vm_NO3(ng)
-#endif
           DO k=1,N(ng)
             DO i=Istr,Iend
-#ifdef SPITZ
               cff4=1.0_r8/SQRT(cff2+cff3*Light(i,k)*Light(i,k))
               cff=Bio(i,k,iPhyt)*                                       &
      &            cff1*cff4*Light(i,k)/                                 &
      &            (K_NO3(ng)+Bio(i,k,iNO3_))
-#else
-              cff=Bio(i,k,iPhyt)*                                       &
-     &            cff1*Light(i,k)/                                      &
-     &            (K_NO3(ng)+Bio(i,k,iNO3_))
-#endif
               Bio(i,k,iNO3_)=Bio(i,k,iNO3_)/(1.0_r8+cff)
               Bio(i,k,iPhyt)=Bio(i,k,iPhyt)+                            &
      &                       Bio(i,k,iNO3_)*cff
@@ -904,25 +894,15 @@
 !  initial slope of the P-I curve and K_NO3 is the half saturation of
 !  phytoplankton nitrate uptake.
 !
-#ifdef SPITZ
             cff1=dtdays*Vm_NO3(ng)*PhyIS(ng)
             cff2=Vm_NO3(ng)*Vm_NO3(ng)
             cff3=PhyIS(ng)*PhyIS(ng)
-#else
-            cff1=dtdays*Vm_NO3(ng)
-#endif
             DO k=1,N(ng)
               DO i=Istr,Iend
-#ifdef SPITZ
                 cff4=1.0_r8/SQRT(cff2+cff3*Light(i,k)*Light(i,k))
                 cff=Bio(i,k,iPhyt)*                                     &
      &              cff1*cff4*Light(i,k)/                               &
      &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#else
-                cff=Bio(i,k,iPhyt)*                                     &
-     &              cff1*Light(i,k)/                                    &
-     &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#endif
                 Bio(i,k,iNO3_)=Bio(i,k,iNO3_)/(1.0_r8+cff)
                 Bio(i,k,iPhyt)=Bio(i,k,iPhyt)+                          &
      &                         Bio(i,k,iNO3_)*cff
@@ -2084,25 +2064,15 @@
 !  initial slope of the P-I curve and K_NO3 is the half saturation of
 !  phytoplankton nitrate uptake.
 !
-#ifdef SPITZ
             cff1=dtdays*Vm_NO3(ng)*PhyIS(ng)
             cff2=Vm_NO3(ng)*Vm_NO3(ng)
             cff3=PhyIS(ng)*PhyIS(ng)
-#else
-            cff1=dtdays*Vm_NO3(ng)
-#endif
             DO k=1,N(ng)
               DO i=Istr,Iend
-#ifdef SPITZ
                 cff4=1.0_r8/SQRT(cff2+cff3*Light(i,k)*Light(i,k))
                 cff=Bio(i,k,iPhyt)*                                     &
      &              cff1*cff4*Light(i,k)/                               &
      &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#else
-                cff=Bio(i,k,iPhyt)*                                     &
-     &              cff1*Light(i,k)/                                    &
-     &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#endif
                 Bio(i,k,iNO3_)=Bio(i,k,iNO3_)/(1.0_r8+cff)
                 Bio(i,k,iPhyt)=Bio(i,k,iPhyt)+                          &
      &                         Bio(i,k,iNO3_)*cff
@@ -2603,25 +2573,15 @@
 !  initial slope of the P-I curve and K_NO3 is the half saturation of
 !  phytoplankton nitrate uptake.
 !
-#ifdef SPITZ
             cff1=dtdays*Vm_NO3(ng)*PhyIS(ng)
             cff2=Vm_NO3(ng)*Vm_NO3(ng)
             cff3=PhyIS(ng)*PhyIS(ng)
-#else
-            cff1=dtdays*Vm_NO3(ng)
-#endif
             DO k=1,N(ng)
               DO i=Istr,Iend
-#ifdef SPITZ
                 cff4=1.0_r8/SQRT(cff2+cff3*Light(i,k)*Light(i,k))
                 cff=Bio(i,k,iPhyt)*                                     &
      &              cff1*cff4*Light(i,k)/                               &
      &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#else
-                cff=Bio(i,k,iPhyt)*                                     &
-     &              cff1*Light(i,k)/                                    &
-     &              (K_NO3(ng)+Bio(i,k,iNO3_))
-#endif
                 Bio1(i,k,iNO3_)=Bio(i,k,iNO3_)
                 Bio(i,k,iNO3_)=Bio(i,k,iNO3_)/(1.0_r8+cff)
                 Bio1(i,k,iPhyt)=Bio(i,k,iPhyt)
@@ -2888,25 +2848,15 @@
 !  Here, PhyIS is the initial slope of the P-I curve and K_NO3 is the
 !  half saturation of phytoplankton nitrate uptake.
 !
-#ifdef SPITZ
           cff1=dtdays*Vm_NO3(ng)*PhyIS(ng)
           cff2=Vm_NO3(ng)*Vm_NO3(ng)
           cff3=PhyIS(ng)*PhyIS(ng)
-#else
-          cff1=dtdays*Vm_NO3(ng)
-#endif
           DO k=1,N(ng)
             DO i=Istr,Iend
-#ifdef SPITZ
               cff4=1.0_r8/SQRT(cff2+cff3*Light(i,k)*Light(i,k))
               cff=Bio1(i,k,iPhyt)*                                      &
      &            cff1*cff4*Light(i,k)/                                 &
      &            (K_NO3(ng)+Bio1(i,k,iNO3_))
-#else
-              cff=Bio1(i,k,iPhyt)*                                      &
-     &            cff1*Light(i,k)/                                      &
-     &            (K_NO3(ng)+Bio1(i,k,iNO3_))
-#endif
 !>            tl_Bio(i,k,iPhyt)=tl_Bio(i,k,iPhyt)+                      &
 !>   &                          tl_Bio(i,k,iNO3_)*cff+                  &
 !>   &                          Bio(i,k,iNO3_)*tl_cff
@@ -2921,7 +2871,6 @@
               adfac=ad_Bio(i,k,iNO3_)/(1.0_r8+cff)
               ad_cff=ad_cff-Bio(i,k,iNO3_)*adfac
               ad_Bio(i,k,iNO3_)=adfac
-#ifdef SPITZ
 !>            tl_cff=(tl_Bio(i,k,iPhyt)*cff1*cff4*Light(i,k)+           &
 !>   &                Bio1(i,k,iPhyt)*cff1*                             &
 !>   &                (tl_cff4*Light(i,k)+cff4*tl_Light(i,k))-          &
@@ -2944,21 +2893,6 @@
      &                       cff3*Light(i,k)*                           &
      &                       cff4*cff4*cff4*ad_cff4
               ad_cff4=0.0_r8
-#else
-!>            tl_cff=(tl_Bio(i,k,iPhyt)*cff1*Light(i,k)+                &
-!>   &                Bio1(i,k,iPhyt)*cff1*tl_Light(i,k)-               &
-!>   &                tl_Bio(i,k,iNO3_)*cff)/                           &
-!>   &               (K_NO3(ng)+Bio1(i,k,iNO3_))
-!>
-              adfac=ad_cff/(K_NO3(ng)+Bio1(i,k,iNO3_))
-              ad_Bio(i,k,iPhyt)=ad_Bio(i,k,iPhyt)+                      &
-     &                          adfac*cff1*Light(i,k)
-              ad_Light(i,k)=ad_Light(i,k)+                              &
-     &                      adfac*Bio1(i,k,iPhyt)*cff1
-              ad_Bio(i,k,iNO3_)=ad_Bio(i,k,iNO3_)-                      &
-     &                          cff*adfac
-              ad_cff=0.0_r8
-#endif
             END DO
           END DO
 !

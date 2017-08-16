@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -53,7 +53,7 @@
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
-!     ObsScale   Observation screenning flag.                          !
+!     ObsVetting Observation screenning flag, 0: reject or 1: accept.  !
 !     ad_A       Adjoint equations forcing array (2D or 3D).           !
 !     ad_Aobs    Adjoint forcing term at observations locations.       !
 !     Zobs       Observations Z-locations (grid coordinates).          !
@@ -129,7 +129,7 @@
      &                             ifield, Mobs, NobsSTR, NobsEND,      &
      &                             Xmin, Xmax, Ymin, Ymax,              &
      &                             time, dt,                            &
-     &                             ObsType, ObsScale,                   &
+     &                             ObsType, ObsVetting,                 &
      &                             Tobs, Xobs, Yobs,                    &
      &                             ad_A,                                &
 # ifdef MASKING
@@ -156,7 +156,7 @@
 #  ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:,LBj:)
 #  endif
-      real(r8), intent(inout) :: ObsScale(:)
+      real(r8), intent(inout) :: ObsVetting(:)
       real(r8), intent(inout) :: ad_Aobs(:)
       real(r8), intent(inout) :: ad_A(LBi:,LBj:)
 
@@ -169,7 +169,7 @@
 #  ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:UBi,LBj:UBj)
 #  endif
-      real(r8), intent(inout) :: ObsScale(Mobs)
+      real(r8), intent(inout) :: ObsVetting(Mobs)
       real(r8), intent(inout) :: ad_Aobs(Mobs)
       real(r8), intent(inout) :: ad_A(LBi:UBi,LBj:UBj)
 # endif
@@ -246,9 +246,9 @@
           ad_A(i1,j2)=ad_A(i1,j2)+Hmat(4)*ad_Aobs(iobs)
           ad_Aobs(iobs)=0.0_r8
 # ifdef MASKING
-          IF (wsum.gt.0.0_r8) ObsScale(iobs)=1.0_r8
+          IF (wsum.gt.0.0_r8) ObsVetting(iobs)=1.0_r8
 # else
-          ObsScale(iobs)=1.0_r8
+          ObsVetting(iobs)=1.0_r8
 # endif
         END IF
       END DO
@@ -264,7 +264,7 @@
      &                             ifield, Mobs, NobsSTR, NobsEND,      &
      &                             Xmin, Xmax, Ymin, Ymax,              &
      &                             time, dt,                            &
-     &                             ObsType, ObsScale,                   &
+     &                             ObsType, ObsVetting,                 &
      &                             Tobs, Xobs, Yobs, Zobs,              &
      &                             ad_A, Adepth,                        &
 #  ifdef MASKING
@@ -294,7 +294,7 @@
 #   ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:,LBj:)
 #   endif
-      real(r8), intent(inout) :: ObsScale(:)
+      real(r8), intent(inout) :: ObsVetting(:)
       real(r8), intent(inout) :: ad_Aobs(:)
       real(r8), intent(inout) :: Zobs(:)
       real(r8), intent(inout) :: ad_A(LBi:,LBj:,LBk:)
@@ -308,7 +308,7 @@
 #   ifdef MASKING
       real(r8), intent(in) :: Amask(LBi:UBi,LBj:UBj)
 #   endif
-      real(r8), intent(inout) :: ObsScale(Mobs)
+      real(r8), intent(inout) :: ObsVetting(Mobs)
       real(r8), intent(inout) :: ad_Aobs(Mobs)
       real(r8), intent(inout) :: Zobs(Mobs)
       real(r8), intent(inout) :: ad_A(LBi:UBi,LBj:UBj,LBk:UBk)
@@ -363,7 +363,7 @@
           w12=p1*q2
           IF (Zobs(iobs).gt.0.0_r8) THEN
             k1=MAX(1,INT(Zobs(iobs)))          ! Positions in fractional
-            k2=MIN(INT(Zobs(iobs))+1,N(ng))    ! levels
+            k2=MIN(k1+1,N(ng))                 ! levels
             r2=REAL(k2-k1,r8)*(Zobs(iobs)-REAL(k1,r8))
             r1=1.0_r8-r2
           ELSE
@@ -372,11 +372,11 @@
             IF (Zobs(iobs).ge.Ztop) THEN
               r1=0.0_r8                        ! If shallower, ignore.
               r2=0.0_r8
-              ObsScale(iobs)=0.0_r8
+              ObsVetting(iobs)=0.0_r8
             ELSE IF (Zbot.ge.Zobs(iobs)) THEN
               r1=0.0_r8                        ! If deeper, ignore.
               r2=0.0_r8
-              ObsScale(iobs)=0.0_r8
+              ObsVetting(iobs)=0.0_r8
             ELSE
               DO k=N(ng),2,-1                  ! Otherwise, interpolate
                 Ztop=Adepth(i1,j1,k  )         ! to fractional level
@@ -440,9 +440,9 @@
             ad_A(i1,j2,k2)=ad_A(i1,j2,k2)+Hmat(8)*ad_Aobs(iobs)
             ad_Aobs(iobs)=0.0_r8
 #  ifdef MASKING
-            IF (wsum.gt.0.0_r8) ObsScale(iobs)=1.0_r8
+            IF (wsum.gt.0.0_r8) ObsVetting(iobs)=1.0_r8
 #  else
-            ObsScale(iobs)=1.0_r8
+            ObsVetting(iobs)=1.0_r8
 #  endif
           END IF
         END IF

@@ -2,7 +2,7 @@
       SUBROUTINE biology (ng,tile)
 !
 !========================================== Alexander F. Shchepetkin ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the biological sources and sinks and adds     !
@@ -43,7 +43,7 @@
       END IF
 !
 #ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 15)
+      CALL wclock_on (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj,                            &
@@ -96,7 +96,7 @@
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 15)
+      CALL wclock_off (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       RETURN
       END SUBROUTINE biology

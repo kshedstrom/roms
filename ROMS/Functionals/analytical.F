@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -15,6 +15,7 @@
 !                                                                      !
 !! Include Files:                                                      !
 !!                                                                     !
+!! ana_albedo.h        Analytical albedo values                        !
 !! ana_biology.h       Analytical initial conditions for biological    !
 !!                       tracers.                                      !
 !! ana_btflux.h        Analytical kinematic bottom flux of tracer      !
@@ -29,6 +30,8 @@
 !! ana_humid.h         Analytical surface air humidity.                !
 !! ana_initial.h       Analytical initial conditions for momentum,     !
 !!                       free surface and tracers.                     !
+!! ana_lrflux.h        Analytical kinematic surface longwave           !
+!!                       radiation flux.                               !
 !! ana_m2clima.h       Analytical 2D momentum climatology.             !
 !! ana_m2obc.h         Analytical 2D momentum boundary conditions.     !
 !! ana_m3clima.h       Analytical 3D momentum climatology.             !
@@ -43,6 +46,7 @@
 !! ana_psource.h       Analytical mass/tracer point sources/sinks.     !
 !! ana_trc_psource.h   Analytical mass/tracer point sources/sinks.     !
 !! ana_rain.h          Analytical rain fall rate.                      !
+!! ana_respiration.h   Analytical total respiration for hypoxia.       !
 !! ana_scope.h         Analytical adjoint sensitivity spatial scope    !
 !!                       mask.                                         !
 !! ana_sediment.h      Analytical initial conditions for sediment      !
@@ -82,8 +86,16 @@
       CONTAINS
 
 #ifdef ANALYTICAL
+# if defined ANA_AICLIMA && defined ICE_MODEL
+#  include <ana_aiclima.h>
+# endif
+
 # if defined ANA_AIOBC && defined ICE_MODEL
 #  include <ana_aiobc.h>
+# endif
+
+# ifdef ANA_ALBEDO
+#  include <ana_albedo.h>
 # endif
 
 # ifdef SOLVE3D
@@ -156,6 +168,10 @@
 #  include <ana_initial.h>
 # endif
 
+# if defined ANA_LRFLUX && defined SOLVE3D
+#  include <ana_lrflux.h>
+# endif
+
 # ifdef ANA_M2CLIMA
 #  include <ana_m2clima.h>
 # endif
@@ -174,6 +190,10 @@
 
 # if defined ANA_GRID && defined MASKING
 #  include <ana_mask.h>
+# endif
+
+# if defined ANA_MICLIMA && defined ICE_MODEL
+#  include <ana_miclima.h>
 # endif
 
 # if defined ANA_NCEP && defined NCEP_FLUXES
@@ -211,6 +231,12 @@
 #  endif
 # endif
 
+# ifdef SOLVE3D
+#  if defined ANA_RESPIRATION && defined HYPOXIA_SRM
+#   include <ana_respiration.h>
+#  endif
+# endif
+
 # if defined ANA_GRID        && \
    (defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
@@ -226,6 +252,10 @@
 
 # ifdef ANA_SMFLUX
 #  include <ana_smflux.h>
+# endif
+
+# if defined ANA_SNOW
+#  include <ana_snow.h>
 # endif
 
 # ifdef ANA_SPINNING

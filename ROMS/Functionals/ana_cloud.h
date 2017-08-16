@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -49,6 +49,9 @@
       USE mod_param
       USE mod_scalars
 !
+#ifdef PAPA_CLM
+      USE dateclock_mod,   ONLY : caldate
+#endif
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
@@ -68,8 +71,8 @@
 !
 !  Local variable declarations.
 !
-      integer :: iday, i, j, month, year
-      real(r8) :: Cval, hour, yday
+      integer  :: i, j
+      real(r8) :: Cval, yday
 
 #ifdef PAPA_CLM
       real(r8), dimension(14) :: Coktas =                               &
@@ -93,7 +96,7 @@
 
 !  OWS Papa cloud climatology.
 !
-      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate (tdays(ng), yd_r8=yday)
       DO i=1,13
         IF ((yday.ge.Cyday(i)).and.(yday.le.Cyday(i+1))) THEN
           Cval=0.125_r8*(Coktas(i  )*(Cyday(i+1)-yday)+                 &

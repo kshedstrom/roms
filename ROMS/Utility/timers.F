@@ -1,15 +1,24 @@
 #include "cppdefs.h"
-      SUBROUTINE wclock_on (ng, model, region)
+      SUBROUTINE wclock_on (ng, model, region, line, routine)
 !
+
 !svn $Id$
-!=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!================================================== Hernan G. Arango ===
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
-!    See License_ROMS.txt                           Hernan G. Arango   !
-!========================================== Alexander F. Shchepetkin ===
+!    See License_ROMS.txt                                              !
+!=======================================================================
 !                                                                      !
 !  This routine turns on wall clock to meassure the elapsed time in    !
 !  seconds spend by each parallel thread in requested model region.    !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number (integer)                          !
+!     model      Calling model identifier (integer)                    !
+!     region     Profiling reagion number (integer)                    !
+!     line       Calling model routine line (integer)                  !
+!     routine    Calling model routine (string)                        !
 !                                                                      !
 !=======================================================================
 !
@@ -26,11 +35,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) ::  ng, model, region
+      integer, intent(in) :: ng, model, region, line
+
+      character (len=*), intent(in) :: routine
 !
 !  Local variable declarations.
 !
-      integer :: iregion, MyModel
+      integer :: iregion, MyModel, NSUB
 
       integer :: my_getpid
 #ifndef DISTRIBUTE
@@ -45,11 +56,26 @@
 ! Initialize timing for all threads.
 !-----------------------------------------------------------------------
 !
-!  Insure that MyModel is not zero.  Notice that zero value is used to
+!  Set number of subdivisions, same as for global reductions.
+!
+#ifdef MPI
+      NSUB=1
+#else
+      NSUB=numthreads
+#endif
+!
+!  Ensure that MyModel is not zero.  Notice that zero value is used to
 !  indicate restart of the nonlinear model.
 !
       MyModel=MAX(1,model)
+!
+!  Start the wall CPU clock for specified region, model, and grid.
+!
       Cstr(region,MyModel,ng)=my_wtime(wtime)
+!
+!  If region zero, indicating first call from main driver, initialize
+!  time profiling arrays and set process ID.
+!
       IF ((region.eq.0).and.(proc(1,MyModel,ng).eq.0)) THEN
         DO iregion=1,Nregion
           Cend(iregion,MyModel,ng)=0.0_r8
@@ -59,28 +85,39 @@
         proc(0,MyModel,ng)=my_getpid()
 
 !$OMP CRITICAL (START_WCLOCK)
+        IF (ng.eq.1) THEN
 #ifdef DISTRIBUTE
-        CALL mp_barrier (ng)
-        WRITE (stdout,10) ' Node #', MyRank,                            &
-     &                    ' (pid=',proc(0,MyModel,ng),') is active.'
-        CALL my_flush (stdout)
+          CALL mp_barrier (ng, model)
+          WRITE (stdout,10) ' Node #', MyRank,                          &
+     &                      ' (pid=',proc(0,MyModel,ng),') is active.'
+          CALL my_flush (stdout)
 #else
-        WRITE (stdout,10) ' Thread #', MyThread,                        &
-     &                    ' (pid=',proc(0,MyModel,ng),') is active.'
+          WRITE (stdout,10) ' Thread #', MyThread,                      &
+     &                      ' (pid=',proc(0,MyModel,ng),') is active.'
 #endif
+        END IF
  10     FORMAT (a,i3,a,i8,a)
         thread_count=thread_count+1
-        IF (thread_count.eq.numthreads) thread_count=0
+        IF (thread_count.eq.NSUB) thread_count=0
 !$OMP END CRITICAL (START_WCLOCK)
       END IF
       RETURN
       END SUBROUTINE wclock_on
-      SUBROUTINE wclock_off (ng, model, region)
+!
+      SUBROUTINE wclock_off (ng, model, region, line, routine)
 !
 !=======================================================================
 !                                                                      !
 !  This routine turns off wall clock to meassure the elapsed time in   !
 !  seconds spend by each parallel thread in requested model region.    !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number (integer)                          !
+!     model      Calling model identifier (integer)                    !
+!     region     Profiling reagion number (integer)                    !
+!     line       Calling model routine line (integer)                  !
+!     routine    Calling model routine (string)                        !
 !                                                                      !
 !=======================================================================
 !
@@ -97,11 +134,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) ::  ng, model, region
+      integer, intent(in) ::  ng, model, region, line
+
+      character (len=*), intent(in) :: routine
 !
 !  Local variable declarations.
 !
-      integer :: imodel, iregion, MyModel
+      integer :: imodel, iregion, MyModel, NSUB
 
       integer :: my_threadnum
 
@@ -122,19 +161,39 @@
 !  Compute elapsed wall time for all threads.
 !-----------------------------------------------------------------------
 !
-!  Insure that MyModel is not zero.  Notice that zero value is used to
-!  indicate restart of the nonlinear model.
+!  Set number of subdivisions, same as for global reductions.
+!
+#ifdef MPI
+      NSUB=1
+#else
+      NSUB=numthreads
+#endif
+!
+!  Insure that MyModel is not zero.
 !
       MyModel=MAX(1,model)
+!
+!  Compute elapsed CPU time (seconds) for each profile region, except
+!  for region zero which is called by the main driver before the
+!  simulatiom is stopped.
+!
       IF (region.ne.0) THEN
         Cend(region,MyModel,ng)=Cend(region,MyModel,ng)+                &
      &                          (my_wtime(wtime)-                       &
      &                           Cstr(region,MyModel,ng))
       END IF
 !
-!  Report elapsed wall time.
+!-----------------------------------------------------------------------
+!  If simulation is compleated, compute and report elapsed CPU time for
+!  all regions.
+!-----------------------------------------------------------------------
 !
       IF ((region.eq.0).and.(proc(1,MyModel,ng).eq.1)) THEN
+!
+!  Computed elapsed wall time for the driver, region=0.  Since it is
+!  called only once, "MyModel" will have a value and the other models
+!  will be zero.
+!
         Cend(region,MyModel,ng)=Cend(region,MyModel,ng)+                &
      &                          (my_wtime(wtime)-                       &
      &                           Cstr(region,MyModel,ng))
@@ -144,43 +203,39 @@
 
 !$OMP CRITICAL (FINALIZE_WCLOCK)
 !
-!  Report total elapsed time (seconds) for each CPU.
+!  Report elapsed time (seconds) for each CPU.  We get the same time
+!  time for all nested grids.
 !
+        IF (ng.eq.1) THEN
 #ifdef DISTRIBUTE
-        CALL mp_barrier (ng)
-        WRITE (stdout,10) ' Node   #', MyRank, ' CPU:',                 &
-     &                    Cend(region,MyModel,ng)
-        CALL my_flush (stdout)
+          CALL mp_barrier (ng, model)
+          WRITE (stdout,10) ' Node   #', MyRank, ' CPU:',               &
+     &                      Cend(region,MyModel,ng)
+          CALL my_flush (stdout)
 #else
-        WRITE (stdout,10) ' Thread #', MyThread, ' CPU:',               &
-     &                    Cend(region,MyModel,ng)
+          WRITE (stdout,10) ' Thread #', MyThread, ' CPU:',             &
+     &                      Cend(region,MyModel,ng)
 #endif
- 10     FORMAT (a,i3,a,f12.3)
+ 10       FORMAT (a,i3,a,f12.3)
+        END IF
 !
-! Report elapsed time profile for each region of the code.
+!  Sum the elapsed time for each profile region by model.
 !
         thread_count=thread_count+1
         DO imodel=1,4
-          Csum(region,imodel,ng)=Csum(region,imodel,ng)+                &
-     &                           Cend(region,imodel,ng)
-          DO iregion=1,Nregion
+          DO iregion=0,Nregion
             Csum(iregion,imodel,ng)=Csum(iregion,imodel,ng)+            &
      &                              Cend(iregion,imodel,ng)
           END DO
         END DO
-        DO imodel=1,4
-          IF (imodel.ne.MyModel) THEN
-            DO iregion=1,Nregion
-              Csum(region,imodel,ng)=Csum( region,imodel,ng)+           &
-     &                               Csum(iregion,imodel,ng)
-            END DO
-          END IF
-        END DO
-!        IF (thread_count.eq.numthreads) THEN
+!
+!  Compute total elapsed CPU wall time between all parallel threads.
+!
+        IF (thread_count.eq.NSUB) THEN
           thread_count=0
 #ifdef DISTRIBUTE
-          op_handle(0:Nregion)='SUM'
-          DO imodel=1,4
+          op_handle(0:Nregion)='SUM'      ! Gather all values using a
+          DO imodel=1,4                   ! reduced sum between nodes
             DO iregion=0,Nregion
               buffer(iregion)=Csum(iregion,imodel,ng)
             END DO
@@ -192,12 +247,20 @@
           END DO
 #endif
           IF (Master) THEN
-            total=0.0_r8
+            IF (ng.eq.1) THEN             ! Same for all nested grids
+              total_cpu=total_cpu+Csum(region,model,ng)
+            END IF
             DO imodel=1,4
-              total=total+Csum(region,imodel,ng)
+              total_model(imodel)=0.0_r8
+              DO iregion=1,Nregion
+                total_model(imodel)=total_model(imodel)+                &
+     &                              Csum(iregion,imodel,ng)
+              END DO
             END DO
-            WRITE (stdout,20) ' Total:', total
- 20         FORMAT (a,8x,f14.3)
+            IF (ng.eq.1) THEN
+              WRITE (stdout,20) ' Total:', total_cpu
+ 20           FORMAT (a,8x,f14.3)
+            END IF
           END IF
 #ifdef PROFILE
 !
@@ -208,17 +271,17 @@
           label(iRPM)='Representer   '
           label(iADM)='Adjoint       '
           DO imodel=1,4
-            IF (Master.and.(Csum(region,imodel,ng).gt.0.0_r8)) THEN
+            IF (Master.and.(total_model(imodel).gt.0.0_r8)) THEN
               WRITE (stdout,30) TRIM(label(imodel)),                    &
-     &                          ' ocean model elapsed time profile:'
- 30           FORMAT (/,1x,a,a,/)
+     &                    'ocean model elapsed time profile, Grid:',    &
+     &                          ng
+ 30           FORMAT (/,1x,a,1x,a,1x,i2.2/)
             END IF
             sumcpu=0.0_r8
             sumper=0.0_r8
             DO iregion=1,Mregion-1
               IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
-                percent=100.0_r8*Csum(iregion, imodel,ng)/              &
-     &                           Csum( region,MyModel,ng)
+                percent=100.0_r8*Csum(iregion, imodel,ng)/total_cpu
                 IF (Master) WRITE (stdout,40) Pregion(iregion),         &
      &                                        Csum(iregion,imodel,ng),  &
      &                                        percent
@@ -226,8 +289,9 @@
                 sumper=sumper+percent
               END IF
             END DO
+            Ctotal=Ctotal+sumcpu
  40         FORMAT (2x,a,t53,f14.3,2x,'(',f7.4,' %)')
-            IF (Master.and.(Csum(region,imodel,ng).gt.0.0_r8)) THEN
+            IF (Master.and.(total_model(imodel).gt.0.0_r8)) THEN
               WRITE (stdout,50) sumcpu, sumper
  50           FORMAT (t47,'Total:',f14.3,2x,f8.4)
             END IF
@@ -238,17 +302,50 @@
 !
           DO imodel=1,4
             total=0.0_r8
-            DO iregion=Iceregion,Nregion
+            DO iregion=Iceregion,Pertregion-1
               total=total+Csum(iregion,imodel,ng)
             END DO
             IF (Master.and.(total.gt.0.0_r8)) THEN
               WRITE (stdout,30) TRIM(label(imodel)),                    &
-     &                          ' sea-ice model elapsed time profile:'
+     &                'sea-ice model elapsed time profile, Grid:', ng
             END IF
             sumcpu=0.0_r8
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
-              DO iregion=Iceregion,Nregion
+              DO iregion=Iceregion,Pertregion-1
+                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                  percent=100.0_r8*Csum(iregion, imodel,ng)/            &
+     &                             Csum( region,Mymodel,ng)
+                  IF (Master) WRITE (stdout,40) Pregion(iregion),       &
+     &                                          Csum(iregion,imodel,ng),&
+     &                                          percent
+                  sumcpu=sumcpu+Csum(iregion,imodel,ng)
+                  sumper=sumper+percent
+                END IF
+              END DO
+              IF (Master.and.(total.gt.0.0_r8)) THEN
+                WRITE (stdout,50) sumcpu, sumper
+              END IF
+            END IF
+          END DO
+# endif
+# ifdef STOPERTURB
+!
+!  Report elapsed time for message passage communications.
+!
+          DO imodel=1,4
+            total=0.0_r8
+            DO iregion=Pertregion,Nregion
+              total=total+Csum(iregion,imodel,ng)
+            END DO
+            IF (Master.and.(total.gt.0.0_r8)) THEN
+              WRITE (stdout,30) TRIM(label(imodel)),                    &
+     &                'Stoch. perturb elapsed time profile, Grid:', ng
+            END IF
+            sumcpu=0.0_r8
+            sumper=0.0_r8
+            IF (total.gt.0.0_r8) THEN
+              DO iregion=Pertregion,Nregion
                 IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
                   percent=100.0_r8*Csum(iregion, imodel,ng)/            &
      &                             Csum( region,Mymodel,ng)
@@ -276,15 +373,15 @@
             END DO
             IF (Master.and.(total.gt.0.0_r8)) THEN
               WRITE (stdout,30) TRIM(label(imodel)),                    &
-     &                          ' model message Passage profile:'
+     &                          'model message Passage profile, Grid:', &
+     &                          ng
             END IF
             sumcpu=0.0_r8
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
               DO iregion=Mregion,Iceregion-1
-                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
-                  percent=100.0_r8*Csum(iregion, imodel,ng)/            &
-     &                             Csum( region,Mymodel,ng)
+                IF (Master .and. Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                  percent=100.0_r8*Csum(iregion, imodel,ng)/total_cpu
                   IF (Master) WRITE (stdout,40) Pregion(iregion),       &
      &                                          Csum(iregion,imodel,ng),&
      &                                          percent
@@ -298,11 +395,21 @@
             END IF
           END DO
 # endif
-          IF (Master) WRITE (stdout,60) Csum(region,MyModel,ng)
-  60      FORMAT (/,' All percentages are with respect to total time =',&
-     &            5x,f12.3)
+          IF (Master.and.(ng.eq.Ngrids)) THEN
+            percent=100.0_r8*Ctotal/total_cpu
+            WRITE (stdout,60) Ctotal, percent,                          &
+     &                        total_cpu-Ctotal, 100.0_r8-percent
+ 60         FORMAT (/,2x,                                               &
+     &              'Unique code regions profiled .....................'&
+     &               f14.3,2x,f8.4,' %'/,2x,                            &
+     &              'Residual, non-profiled code ......................'&
+     &               f14.3,2x,f8.4,' %'/)
+            WRITE (stdout,70) total_cpu
+ 70         FORMAT (/,' All percentages are with respect to',           &
+     &                ' total time =',5x,f12.3,/)
+          END IF
 #endif
-!        END IF
+        END IF
 !$OMP END CRITICAL (FINALIZE_WCLOCK)
       END IF
       RETURN

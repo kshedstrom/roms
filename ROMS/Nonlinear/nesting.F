@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license           Hernan G. Arango   !
 !    See License_ROMS.txt                             John C. Warner   !
 !=======================================================================
@@ -119,7 +119,9 @@
       PRIVATE :: get_metrics
       PRIVATE :: get_persisted2d
       PRIVATE :: get_refine
+# if defined MASKING || defined WET_DRY
       PRIVATE :: mask_hweights
+# endif
       PRIVATE :: put_composite
       PRIVATE :: put_refine
       PRIVATE :: put_refine2d
@@ -153,11 +155,11 @@
       USE mod_ncparam
       USE mod_nesting
       USE mod_scalars
-
-# ifdef SOLVE3D
 !
+# ifdef SOLVE3D
       USE set_depth_mod, ONLY : set_depth
 # endif
+      USE strings_mod,   ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -167,8 +169,17 @@
 !
       logical :: LputFsur
       integer :: subs, tile, thread
-# ifdef SOLVE3D
       integer :: ngc
+
+# ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn on time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, model, 36, __LINE__, __FILE__)
+# endif
+# ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
 !  Process vertical indices and interpolation weigths associated with
@@ -278,7 +289,8 @@
             CALL fine2coarse (ng, model, r2dvar, tile)
           END DO
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
 #  ifdef SOLVE3D
 !
@@ -286,7 +298,7 @@
 !  adjusted free-surface, Zt_avg1.
 !
           DO tile=first_tile(ngc),last_tile(ngc),+1
-            CALL set_depth (ngc, tile)
+            CALL set_depth (ngc, tile, model)
           END DO
 !$OMP BARRIER
 !
@@ -297,7 +309,8 @@
             CALL fine2coarse (ng, model, r3dvar, tile)
           END DO
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #  endif
 # else
 !
@@ -331,6 +344,15 @@
 !$OMP BARRIER
 
       END IF
+
+# ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn off time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, model, 36, __LINE__, __FILE__)
+# endif
 
       RETURN
       END SUBROUTINE nesting
@@ -380,11 +402,12 @@
       USE mod_parallel
       USE mod_nesting
       USE mod_scalars
-
-# ifdef DISTRIBUTE
 !
+# ifdef DISTRIBUTE
+
       USE distribute_mod, ONLY : mp_assemble
 # endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -537,16 +560,20 @@
 !-----------------------------------------------------------------------
 !
       CALL mp_assemble (dg, model, NptsWE, Fspv, F_west (JLB:))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL mp_assemble (dg, model, NptsWE, Fspv, F_east (JLB:))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL mp_assemble (dg, model, NptsSN, Fspv, F_south(ILB:))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
       CALL mp_assemble (dg, model, NptsSN, Fspv, F_north(ILB:))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 # endif
 
       RETURN
@@ -606,7 +633,7 @@
 # endif
 !
 !-----------------------------------------------------------------------
-!  Check mass and volume conservation durin refinement between coarse
+!  Check mass and volume conservation during refinement between coarse
 !  and fine grids.
 !-----------------------------------------------------------------------
 !
@@ -681,10 +708,11 @@
           Jbc_max=J_top(ngf)-1            ! interior points, no top
 !                                           left corner
 # ifdef NESTING_DEBUG
-          IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (DOMAIN(ngf)%SouthWest_Test(tile)) THEN
             IF (Master) THEN
               WRITE (300,10) 'Western Boundary Mass Fluxes: ',          &
      &                       cr, dg, rg, iif(rg), iic(rg), INT(time(rg))
+              CALL my_flush (300)
             END IF
           END IF
 !
@@ -718,6 +746,7 @@
               END IF
               WRITE (300,30) Jbc, REFINED(cr)%DU_avg2(1,m,tnew),        &
      &                       WestSum, MFratio
+              CALL my_flush (300)
 # endif
             END IF
           END DO
@@ -732,10 +761,11 @@
           Jbc_max=J_top(ngf)-1            ! interior points, no top
 !                                           right corner
 # ifdef NESTING_DEBUG
-          IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (DOMAIN(ngf)%SouthWest_Test(tile)) THEN
             IF (Master) THEN
               WRITE (300,10) 'Eastern Boundary Mass Fluxes: ',          &
      &                       cr, dg, rg, iif(rg), iic(rg), INT(time(rg))
+              CALL my_flush (300)
             END IF
           END IF
 !
@@ -750,7 +780,7 @@
               Jedge=Jo+(Jbc-Jbc_min)*RefineScale(ngf)
               DO jsum=-half,half
                 Jbf=Jedge+jsum
-                EastSum=WestSum+BRY_CONTACT(ieast,cr)%Mflux(Jbf)
+                EastSum=EastSum+BRY_CONTACT(ieast,cr)%Mflux(Jbf)
               END DO
               m=BRY_CONTACT(ieast,cr)%C2Bindex(Jbf)     ! pick last one
 !
@@ -763,12 +793,13 @@
 
 # ifdef NESTING_DEBUG
               IF (EastSum.ne.0) THEN
-                MFratio=REFINED(cr)%DU_avg2(1,m,tnew)/WestSum
+                MFratio=REFINED(cr)%DU_avg2(1,m,tnew)/EastSum
               ELSE
                 MFratio=1.0_r8
               END IF
               WRITE (300,30) Jbc, REFINED(cr)%DU_avg2(1,m,tnew),        &
      &                       EastSum, MFratio
+              CALL my_flush (300)
 # endif
             END IF
           END DO
@@ -783,10 +814,11 @@
           Ibc_max=I_right(ngf)-1          ! interior points, no bottom
 !                                           right corner
 # ifdef NESTING_DEBUG
-          IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (DOMAIN(ngf)%SouthWest_Test(tile)) THEN
             IF (Master) THEN
               WRITE (300,20) 'Southern Boundary Mass Fluxes: ',         &
      &                       cr, dg, rg, iif(rg), iic(rg), INT(time(rg))
+              CALL my_flush (300)
             END IF
           END IF
 !
@@ -814,13 +846,14 @@
               BRY_CONTACT(isouth,cjcr)%Mflux(Ibc)=SouthSum
 
 # ifdef NESTING_DEBUG
-              IF (EastSum.ne.0) THEN
+              IF (SouthSum.ne.0) THEN
                 MFratio=REFINED(cr)%DV_avg2(1,m,tnew)/SouthSum
               ELSE
                 MFratio=1.0_r8
               END IF
               WRITE (300,30) Ibc, REFINED(cr)%DV_avg2(1,m,tnew),        &
      &                       SouthSum, MFratio
+              CALL my_flush (300)
 # endif
             END IF
           END DO
@@ -835,10 +868,11 @@
           Ibc_max=I_right(ngf)-1          ! interior points, no top
 !                                           right corner
 # ifdef NESTING_DEBUG
-          IF (DOMAIN(ng)%SouthWest_Test(tile)) THEN
+          IF (DOMAIN(ngf)%SouthWest_Test(tile)) THEN
             IF (Master) THEN
               WRITE (300,20) 'Northern Boundary Mass Fluxes: ',         &
      &                       cr, dg, rg, iif(rg), iic(rg), INT(time(rg))
+              CALL my_flush (300)
             END IF
           END IF
 !
@@ -856,7 +890,7 @@
                 Ibf=Iedge+isum
                 NorthSum=NorthSum+BRY_CONTACT(inorth,cr)%Mflux(Ibf)
               END DO
-              m=BRY_CONTACT(isouth,cr)%C2Bindex(Ibf)    ! pick last one
+              m=BRY_CONTACT(inorth,cr)%C2Bindex(Ibf)    ! pick last one
 !
 !  Load coarser grid northern boundary mass flux that have been averaged
 !  from finer grid. These values can be compared with the coarser grid
@@ -866,8 +900,8 @@
               BRY_CONTACT(inorth,cjcr)%Mflux(Ibc)=NorthSum
 
 # ifdef NESTING_DEBUG
-              IF (EastSum.ne.0) THEN
-                MFratio=REFINED(cr)%DV_avg2(1,m,tnew)/SouthSum
+              IF (NorthSum.ne.0) THEN
+                MFratio=REFINED(cr)%DV_avg2(1,m,tnew)/NorthSum
               ELSE
                 MFratio=1.0_r8
               END IF
@@ -915,7 +949,7 @@
 
 # ifndef ONE_WAY
 !
-      FUNCTION do_twoway (nl, il, istep, ng) RESULT (doit)
+      FUNCTION do_twoway (nl, il, ng, istep) RESULT (doit)
 !
 !=======================================================================
 !                                                                      !
@@ -932,13 +966,13 @@
 !     nl         Latest time-stepped nested layer index (integer)      !
 !     il         Current nested layer index in the two-way DO loop     !
 !                  call from main2d or main3d (integer)                !
+!     ng         Finer grid number to process in the fine to coarse    !
+!                  feedback (integer)                                  !
 !     istep      Current rime-step counter from STEP_LOOP in main2d    !
 !                  or main3d (integer)                                 !
 !                                                                      !
 !  On Output:                                                          !
 !                                                                      !
-!     ng         Finer grid number to process in the fine to coarse    !
-!                  feedback (integer)                                  !
 !     doit       The value of the result is TRUE/FALSE if the exchage  !
 !                  is required or not (logical)                        !
 !                                                                      !
@@ -950,15 +984,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in) :: nl, il, istep
-
-      integer, intent(out) :: ng
+      integer, intent(in) :: nl, il, ng, istep
 !
 !  Local variable declarations.
 !
       logical :: doit
 
-      integer :: dgc, dgf, ig
+      integer :: dgc, dgf
 !
 !-----------------------------------------------------------------------
 !  Determine if two-way exchage is required at the corrent time-step.
@@ -966,36 +998,30 @@
 !
       doit=.FALSE.
 !
-      DO ig=1,GridsInLayer(il)
-        ng=GridNumber(ig,il)
-!
 !  Chech if ng is a refined grid, RefineScale(ng) > 0.
 !
-        IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
+      IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
 !
 !  If telescoping grid, the sequence of exchanges when all the nested
 !  grid reach the coarser grid (ng=1) time needs to be done in the
 !  correct sequence: finest grid exchage first.
 !
-          IF (Telescoping(ng)) THEN
-            dgc=coarserDonor(ng)                      ! for debbuging
-            dgf=FinerDonor(ng)
-            IF (TwoWayCounter(dgf).eq.RefineSteps(dgf)) THEN
-              doit=.TRUE.
-              EXIT
-            END IF
+        IF (Telescoping(ng)) THEN
+          dgc=coarserDonor(ng)                        ! for debbuging
+          dgf=FinerDonor(ng)
+          IF (TwoWayCounter(dgf).eq.RefineSteps(dgf)) THEN
+            doit=.TRUE.
+          END IF
 !
 !  If not telescoping, the exchange is in terms of the "istep" counter
 !  but also at the right sequence.
 !
-          ELSE
-            IF ((istep.eq.RefineSteps(ng)).and.(il.eq.nl)) THEN
-              doit=.TRUE.
-              EXIT
-            END IF
+        ELSE
+          IF ((istep.eq.RefineSteps(ng)).and.(il.eq.nl)) THEN
+            doit=.TRUE.
           END IF
         END IF
-      END DO
+      END IF
 !
 !  Update two-way exchange counter between fine and coarse grids.
 !
@@ -1158,11 +1184,11 @@
       USE mod_grid
       USE mod_nesting
       USE mod_scalars
-
-#  ifdef DISTRIBUTE
 !
+#  ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_assemble
 #  endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -1421,11 +1447,13 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (dg, model, Lpoints, spv, LW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
 #   ifdef QUADRATIC_WEIGHTS
           CALL mp_assemble (dg, model, Qpoints, spv, QW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #   endif
 !
 !  Load exchanged weights.
@@ -1650,11 +1678,13 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (dg, model, Lpoints, spv, LW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
 #   ifdef QUADRATIC_WEIGHTS
           CALL mp_assemble (dg, model, Qpoints, spv, QW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #   endif
 !
 !  Load exchanged weights.
@@ -1880,11 +1910,13 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (dg, model, Lpoints, spv, LW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
 #   ifdef QUADRATIC_WEIGHTS
           CALL mp_assemble (dg, model, Qpoints, spv, QW)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #   endif
 !
 !  Load exchanged weights.
@@ -2196,11 +2228,11 @@
       USE mod_grid
       USE mod_nesting
       USE mod_scalars
-
-#  ifdef DISTRIBUTE
 !
+#  ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_assemble
 #  endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -2267,10 +2299,12 @@
 !  Exchange data between all nodes.
 !
         CALL mp_assemble (dg, model, NpointsU, spv, REFINED(cr) % on_u)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         CALL mp_assemble (dg, model, NpointsV, spv, REFINED(cr) % om_v)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #  endif
 
       END DO
@@ -2413,12 +2447,21 @@
 !
 !  Extract free-surface.
 !
+# ifdef SOLVE3D
           CALL get_contact2d (dg, model, tile,                          &
      &                        r2dvar, 'Zt_avg1',                        &
      &                        cr, Rcontact(cr)%Npoints, Rcontact,       &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        COUPLING(dg) % Zt_avg1,                   &
      &                        REFINED(cr) % zeta(:,:,tnew))
+# else
+          CALL get_contact2d (dg, model, tile,                          &
+     &                        r2dvar, 'zeta',                           &
+     &                        cr, Rcontact(cr)%Npoints, Rcontact,       &
+     &                        LBi, UBi, LBj, UBj,                       &
+     &                        OCEAN(dg) % zeta(:,:,Tindex2d),           &
+     &                        REFINED(cr) % zeta(:,:,tnew))
+# endif
 !
 !  Extract 2D momentum components (ubar, vbar).
 !
@@ -3143,8 +3186,13 @@
               END DO
             END DO
 !
+!  Zeroth order correction to fine grid time integral (RIL, 2016).
+!
+            TFF=TFF*dt(ngc)/dt(ngf)
+!
 !  Correct coarse grid tracer at the finer grid western boundary.
 !
+            TFF=TFF*dt(ngc)/dt(ngf)
             cff=GRID(ngc)%pm(Ibc-1,Jbc)*                                &
      &          GRID(ngc)%pn(Ibc-1,Jbc)*                                &
      &          Dinv(Ibc-1,Jbc)
@@ -3198,6 +3246,11 @@
                 TFF=TFF+BRY_CONTACT(ieast,dgcr)%Tflux(Jbf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
+!
+!  Zeroth order correction to fine grid time integral (RIL, 2016).
+!
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Correct coarse grid tracer at the finer grid eastern boundary.
 !
@@ -3254,6 +3307,11 @@
                 TFF=TFF+BRY_CONTACT(isouth,dgcr)%Tflux(Ibf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
+!
+!  Zeroth order correction to fine grid time integral (RIL, 2016).
+!
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Correct coarse grid tracer at the finer grid southern boundary.
 !
@@ -3310,6 +3368,11 @@
                 TFF=TFF+BRY_CONTACT(inorth,dgcr)%Tflux(Ibf,k,itrc)
               END DO
             END DO
+            TFF=TFF*dt(ngc)/dt(ngf)
+!
+!  Zeroth order correction to fine grid time integral.
+!
+            TFF=TFF*dt(ngc)/dt(ngf)
 !
 !  Correct coarse grid tracer at the finer grid northern boundary.
 !
@@ -3397,6 +3460,7 @@
       USE mp_exchange_mod, ONLY : mp_exchange3d, mp_exchange4d
 #  endif
 # endif
+      USE strings_mod,     ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -3513,7 +3577,8 @@
      &                          OCEAN(dg)%zeta(:,:,Dindex2d),           &
      &                          OCEAN(rg)%zeta(:,:,Rindex2d))
 # endif
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 !
 !  Process 2D momentum components (ubar,vbar).
 !
@@ -3539,7 +3604,8 @@
 # else
      &                          OCEAN(rg)%ubar(:,:,Rindex2d))
 # endif
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 !
             CALL fine2coarse2d (rg, dg, model, tile,                    &
      &                          v2dvar, Vname(1,idVbar),                &
@@ -3562,7 +3628,8 @@
 # else
      &                          OCEAN(rg)%vbar(:,:,Rindex2d))
 # endif
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -3592,7 +3659,8 @@
 #  endif
      &                            OCEAN(dg)%t(:,:,:,Dindex3d,itrc),     &
      &                            OCEAN(rg)%t(:,:,:,Rindex3d,itrc))
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END DO
 !
 !  Process 3D momentum components (u, v).
@@ -3614,7 +3682,8 @@
 #  endif
      &                          OCEAN(dg)%u(:,:,:,Dindex3d),            &
      &                          OCEAN(rg)%u(:,:,:,Rindex3d))
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 !
             CALL fine2coarse3d (rg, dg, model, tile,                    &
      &                          v3dvar, Vname(1,idVvel),                &
@@ -3632,7 +3701,8 @@
 #  endif
      &                          OCEAN(dg)%v(:,:,:,Dindex3d),            &
      &                          OCEAN(rg)%v(:,:,:,Rindex3d))
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 # endif
           END IF
 !
@@ -3816,11 +3886,11 @@
       USE mod_ncparam
       USE mod_nesting
       USE mod_scalars
-
-# ifdef DISTRIBUTE
 !
+# ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_aggregate2d
 # endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -3938,20 +4008,23 @@
      &                     LBiF, UBiF, LBjF, UBjF,                      &
      &                     LBi,  UBi,  LBj,  UBj,                       &
      &                     A, F)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
       IF (AreaAvg) THEN
         CALL mp_aggregate2d (dg, model, gtype,                          &
      &                       LBiF, UBiF, LBjF, UBjF,                    &
      &                       LBi,  UBi,  LBj,  UBj,                     &
      &                       Adx, dxF)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         CALL mp_aggregate2d (dg, model, gtype,                          &
      &                       LBiF, UBiF, LBjF, UBjF,                    &
      &                       LBi,  UBi,  LBj,  UBj,                     &
      &                       Ady, dyF)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #  ifdef MASKING
 !
@@ -3959,7 +4032,8 @@
      &                     LBiF, UBiF, LBjF, UBjF,                      &
      &                     LBi,  UBi,  LBj,  UBj,                       &
      &                     Amsk, Fmsk)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #  endif
 # endif
 !
@@ -4071,7 +4145,7 @@
         END IF
       END IF
 #  ifdef MASKING
-      IF (allocated(F)) THEN
+      IF (allocated(Fmsk)) THEN
         deallocate (Fmsk)
       END IF
 #  endif
@@ -4173,12 +4247,12 @@
       USE mod_ncparam
       USE mod_nesting
       USE mod_scalars
-
-#  ifdef DISTRIBUTE
 !
+#  ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_aggregate2d
       USE distribute_mod, ONLY : mp_aggregate3d
 #  endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -4295,20 +4369,23 @@
      &                     LBi,  UBi,  LBj,  UBj,                       &
      &                     LBkF, UBkF,                                  &
      &                     A, F)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
       IF (AreaAvg) THEN
         CALL mp_aggregate2d (dg, model, gtype,                          &
      &                       LBiF, UBiF, LBjF, UBjF,                    &
      &                       LBi,  UBi,  LBj,  UBj,                     &
      &                       Adx, dxF)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         CALL mp_aggregate2d (dg, model, gtype,                          &
      &                       LBiF, UBiF, LBjF, UBjF,                    &
      &                       LBi,  UBi,  LBj,  UBj,                     &
      &                       Ady, dyF)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 #   ifdef MASKING
 !
@@ -4316,7 +4393,8 @@
      &                     LBiF, UBiF, LBjF, UBjF,                      &
      &                     LBi,  UBi,  LBj,  UBj,                       &
      &                     Amsk, Fmsk)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #   endif
 #  endif
 !
@@ -4426,7 +4504,7 @@
         END IF
       END IF
 #   ifdef MASKING
-      IF (allocated(F)) THEN
+      IF (allocated(Fmsk)) THEN
         deallocate (Fmsk)
       END IF
 #   endif
@@ -4805,11 +4883,11 @@
       USE mod_ncparam
       USE mod_nesting
       USE mod_scalars
-
-# ifdef DISTRIBUTE
 !
+# ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_assemble
 # endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -4951,7 +5029,8 @@
 !  Gather and broadcast data from all nodes.
 !
       CALL mp_assemble (dg, model, Npts, Aspv, Ac)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 # endif
 
       RETURN
@@ -6017,11 +6096,11 @@
       USE mod_grid
       USE mod_nesting
       USE mod_scalars
-
-#  ifdef DISTRIBUTE
 !
+#  ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_assemble
 #  endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -6152,7 +6231,8 @@
 !  Exchange data between all parallel nodes.
 !
             CALL mp_assemble (dg, model, Nzpts, spv, Zd)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
 !
 !  Determine donor grid vertical indices (Kdg) and weights (Vweight)
@@ -6212,10 +6292,12 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (rg, model, Nkpts, ispv, Rcontact(cr)%Kdg)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           CALL mp_assemble (rg, model, Nwpts, spv, Rcontact(cr)%Vweight)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #  endif
 !
 !  Deallocate local work arrays.
@@ -6321,7 +6403,8 @@
 !  Exchange data between all parallel nodes.
 !
             CALL mp_assemble (dg, model, Nzpts, spv, Zd)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
 !
 !  Determine donor grid vertical indices (Kdg) and weights (Vweight)
@@ -6382,10 +6465,12 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (rg, model, Nkpts, ispv, Ucontact(cr)%Kdg)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           CALL mp_assemble (rg, model, Nwpts, spv, Ucontact(cr)%Vweight)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #  endif
 !
 !  Deallocate local work arrays.
@@ -6487,7 +6572,8 @@
 !  Exchange data between all parallel nodes.
 !
             CALL mp_assemble (dg, model, Nzpts, spv, Zd)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 #  endif
 !
 !  Determine donor grid vertical indices (Kdg) and weights (Vweight)
@@ -6548,10 +6634,12 @@
 !  Exchange data between all parallel nodes.
 !
           CALL mp_assemble (rg, model, Nkpts, ispv, Vcontact(cr)%Kdg)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           CALL mp_assemble (rg, model, Nwpts, spv, Vcontact(cr)%Vweight)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 #  endif
 !
 !  Deallocate local work arrays.

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -55,7 +55,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, model, 2)
+      CALL wclock_on (ng, model, 2, __LINE__, __FILE__)
 # endif
       CALL set_masks_tile (ng, tile, model,                             &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -98,7 +98,7 @@
      &                     GRID(ng) % umask_full,                       &
      &                     GRID(ng) % vmask_full)
 # ifdef PROFILE
-      CALL wclock_off (ng, model, 2)
+      CALL wclock_off (ng, model, 2, __LINE__, __FILE__)
 # endif
 
       RETURN
@@ -306,7 +306,7 @@
       END IF
 #  elif defined ARCTIC
 ! Just off Greenland
-      cff = 0.5_r8
+      cff = 0.05_r8
 ! Old ARCTIC domain
 !      IF (DOMAIN(ng)%Eastern_Edge(tile)) THEN
 !        DO j=MAX(JstrR,Mm(ng)/2),JendR

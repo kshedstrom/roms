@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -68,7 +68,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 28)
+      CALL wclock_on (ng, iNLM, 28, __LINE__, __FILE__)
 # endif
       CALL hmixing_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj,                            &
@@ -107,7 +107,7 @@
      &                   OCEAN(ng) % u,                                 &
      &                   OCEAN(ng) % v)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 28)
+      CALL wclock_off (ng, iNLM, 28, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE hmixing

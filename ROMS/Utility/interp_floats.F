@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -69,7 +69,7 @@
       USE mod_param
       USE mod_ncparam
       USE mod_floats
-      USE mod_scalars
+      USE mod_scalars, only:EWperiodic,NSperiodic
 !
       implicit none
 !

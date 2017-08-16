@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -107,7 +107,7 @@
 !-----------------------------------------------------------------------
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iADM, 21)
+      CALL wclock_on (ng, iADM, 21, __LINE__, __FILE__)
 # endif
       CALL ad_rhs3d_tile (ng, tile,                                     &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -165,7 +165,7 @@
      &                    OCEAN(ng) % ad_ru,                            &
      &                    OCEAN(ng) % ad_rv)
 # ifdef PROFILE
-      CALL wclock_off (ng, iADM, 21)
+      CALL wclock_off (ng, iADM, 21, __LINE__, __FILE__)
 # endif
 # ifdef RPM_RELAXATION
 !

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -51,7 +51,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iRPM, 34)
+      CALL wclock_on (ng, iRPM, 34, __LINE__, __FILE__)
 # endif
       CALL rp_step3d_uv_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
@@ -118,7 +118,7 @@
      &                        GRID(ng) % Hvom,                          &
      &                        GRID(ng) % tl_Hvom)
 # ifdef PROFILE
-      CALL wclock_off (ng, iRPM, 34)
+      CALL wclock_off (ng, iRPM, 34, __LINE__, __FILE__)
 # endif
 
       RETURN
@@ -378,7 +378,7 @@
      &                       Hz(i  ,j,k))
             tl_Hzk(i,k)=0.5_r8*(tl_Hz(i-1,j,k)+                         &
      &                          tl_Hz(i  ,j,k))
-# if defined SPLINES || defined DIAGNOSTICS_UV
+# if defined SPLINES_VVISC || defined DIAGNOSTICS_UV
             oHz(i,k)=1.0_r8/Hzk(i,k)
             tl_oHz(i,k)=-oHz(i,k)*oHz(i,k)*tl_Hzk(i,k)+                 &
 #  ifdef TL_IOMS
@@ -411,7 +411,7 @@
 !>
             tl_u(i,j,k,nnew)=tl_u(i,j,k,nnew)+                          &
      &                       DC(i,0)*tl_ru(i,j,k,nrhs)
-# ifdef SPLINES
+# ifdef SPLINES_VVISC
 !>          u(i,j,k,nnew)=u(i,j,k,nnew)*oHz(i,k)
 !>
             tl_u(i,j,k,nnew)=tl_u(i,j,k,nnew)*oHz(i,k)+                 &
@@ -442,7 +442,7 @@
           END DO
         END DO
 
-# ifdef SPLINES
+# ifdef SPLINES_VVISC
 !
 !  Apply spline algorithim to BASIC STATE "u" which should be
 !  in units of velocity (m/s). DC will be used in the tangent
@@ -941,7 +941,7 @@
      &                         Hz(i,j  ,k))
               tl_Hzk(i,k)=0.5_r8*(tl_Hz(i,j-1,k)+                       &
      &                            tl_Hz(i,j  ,k))
-# if defined SPLINES || defined DIAGNOSTICS_UV
+# if defined SPLINES_VVISC || defined DIAGNOSTICS_UV
               oHz(i,k)=1.0_r8/Hzk(i,k)
               tl_oHz(i,k)=-oHz(i,k)*oHz(i,k)*tl_Hzk(i,k)+               &
 #  ifdef TL_IOMS
@@ -973,7 +973,7 @@
 !>
               tl_v(i,j,k,nnew)=tl_v(i,j,k,nnew)+                        &
      &                         DC(i,0)*tl_rv(i,j,k,nrhs)
-# ifdef SPLINES
+# ifdef SPLINES_VVISC
 !>            v(i,j,k,nnew)=v(i,j,k,nnew)*oHz(i,k)
 !>
               tl_v(i,j,k,nnew)=tl_v(i,j,k,nnew)*oHz(i,k)+               &
@@ -1005,7 +1005,7 @@
             END DO
           END DO
 
-# ifdef SPLINES
+# ifdef SPLINES_VVISC
 !
 !  Apply spline algorithim to BASIC STATE "v" which should be
 !  in units of velocity (m/s). DC will be used in the tangent
@@ -2338,7 +2338,7 @@
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    tl_u(:,:,:,nnew), tl_v(:,:,:,nnew),           &
      &                    tl_Huon, tl_Hvom)
-      CALL mp_exchange3d (ng, tile, iNLM, 2,                            &
+      CALL mp_exchange3d (ng, tile, iRPM, 2,                            &
      &                    LBi, UBi, LBj, UBj, 1, N(ng),                 &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &

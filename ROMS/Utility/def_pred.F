@@ -66,7 +66,8 @@
 !  Set and report file name.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       ncname=PRED(ng)%name
 !
       IF (Master) THEN
@@ -83,7 +84,8 @@
 !
       DEFINE : IF (ldef) THEN
         CALL netcdf_create (ng, iNLM, TRIM(ncname), PRED(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
@@ -97,63 +99,76 @@
 # ifdef SOLVE3D
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 's_rho',        &
      &                 N(ng), DimIDs( 9))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 's_w',          &
      &                 N(ng)+1, DimIDs(10))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'tracer',       &
      &                 NT(ng), DimIDs(11))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 #  ifdef SEDIMENT
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nbed',         &
      &                 Nbed, DimIDs(16))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #  endif
 
 #  ifdef ECOSIM
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nphy',         &
      &                 Nphy, DimIDs(25))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nbac',         &
      &                 Nbac, DimIDs(26))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Ndom',         &
      &                 Ndom, DimIDs(27))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nfec',         &
      &                 Nfec, DimIDs(28))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 #  endif
 # endif
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'drifter' ,     &
      &                 Npred(ng), DimIDs(15))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'species' ,     &
      &                 Npredspecies(ng), DimIDs(32))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'boundary',     &
      &                 4, DimIDs(14))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # ifdef FOUR_DVAR
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname, 'Nstate',       &
      &                 NstateVar(ng), DimIDs(29))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 
         status=def_dim(ng, iNLM, PRED(ng)%ncid, ncname,                 &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         recdim=DimIDs(12)
         preddim=DimIDs(15)
@@ -185,7 +200,8 @@
 !-----------------------------------------------------------------------
 !
         CALL def_info (ng, iNLM, PRED(ng)%ncid, ncname, DimIDs)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Define variables and their attributes.
@@ -212,7 +228,8 @@
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idtime),   &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
      &                 SetParAccess = .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !*********************************************************************
 ! This next batch gets written out, but not as a timeseries, they get
@@ -226,7 +243,8 @@
         Vinfo( 2)='Pred species'
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idPspc),   &
      &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define pred alive
 !
@@ -236,7 +254,8 @@
         Vinfo(10)='Pred dead'
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idPalv),   &
      &                 nf90_int, 1, (/preddim/), Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define pred X-grid locations.
 !
@@ -254,7 +273,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idXgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define pred Y-grid locations.
 !
@@ -272,7 +292,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idYgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -292,7 +313,8 @@
 #  endif
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idZgrd),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # endif
 !
 !  Define pred (lon,lat) or (x,y) locations.
@@ -313,7 +335,8 @@
           Aval(3)=180.0_r8
           status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
           Vinfo( 1)='lat'
           Vinfo( 2)='latitude of pred trajectories'
@@ -330,7 +353,8 @@
           Aval(3)=90.0_r8
           status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
        ELSE
           Vinfo( 1)='x'
           Vinfo( 2)='x-location of pred trajectories'
@@ -343,7 +367,8 @@
 # endif
           status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglon), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
           Vinfo( 1)='y'
           Vinfo( 2)='y-location of pred trajectories'
@@ -356,7 +381,8 @@
 # endif
           status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idglat), &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         END IF
 
 # ifdef SOLVE3D
@@ -374,7 +400,8 @@
 #  endif
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(iddpth),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define density anomaly.
 !
@@ -389,7 +416,8 @@
 #  endif
         status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Vid(idDano),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define tracer type variables.
 !
@@ -412,7 +440,8 @@
 #  endif
           status=def_var(ng, iNLM, PRED(ng)%ncid, PRED(ng)%Tid(itrc),   &
      &                   NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         END DO
 # endif
 !
@@ -429,7 +458,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPwwt),    &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define pred worth
 !
@@ -444,7 +474,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPworth),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define pred P-value
 !
@@ -459,7 +490,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPpval),   &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Pred consumption on species 1
 !
@@ -474,7 +506,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF1),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Pred consumption on species 2
 !
@@ -489,7 +522,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF2),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Pred consumption on species 3
 !
@@ -504,7 +538,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF3),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Pred consumption on species 4
 !
@@ -519,7 +554,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF4),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Define Pred consumption on species 5
 !
@@ -534,7 +570,8 @@
 # endif
         status=def_var(ng, iNLM, PRED(ng)%ncid,PRED(ng)%Vid(idPcsmF5),  &
      &                 NF_FOUT, 2, fgrd, Aval, Vinfo, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize unlimited time record dimension.
 !
@@ -545,14 +582,16 @@
 !-----------------------------------------------------------------------
 !
         CALL netcdf_enddef (ng, iNLM, ncname, PRED(ng)%ncid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Write out time-recordless, information variables.
 !-----------------------------------------------------------------------
 !
         CALL wrt_info (ng, iNLM, PRED(ng)%ncid, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF DEFINE
 !
 !=======================================================================
@@ -566,7 +605,8 @@
 !  Inquire about the dimensions and check for consistency.
 !
         CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Get the size of the drifter dimension.
 !
@@ -580,12 +620,14 @@
 !  Inquire about the variables.
 !
         CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Open pred file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, PRED(ng)%ncid)
-        IF (exit_flag.ne.NoError) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF
@@ -785,7 +827,8 @@
      &                        ncid = PRED(ng)%ncid,                     &
      &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Npred(ng)
           IF ((Tinp(l).gt.REAL(Lm(ng)+1,r8)-0.5_r8).or.                 &
@@ -805,7 +848,8 @@
      &                        ncid = PRED(ng)%ncid,                     &
      &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
         DO l=1,Npred(ng)
           IF ((Tinp(l).gt.REAL(Mm(ng)+1,r8)-0.5_r8).or.                 &
@@ -877,7 +921,8 @@
      &                        start = (/1,PRED(ng)%rindex/),            &
      &                        total = (/Npred(ng),1/))
 
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       END IF QUERY
 !

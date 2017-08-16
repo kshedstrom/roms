@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2015 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2017 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -23,7 +23,7 @@
 # LD             Program to load the objects into an executable
 # LDFLAGS        Flags to the loader
 # RANLIB         Name of ranlib command
-# MDEPFLAGS      Flags for sfmakedepend  (-s if you keep .f files)
+# MDEPFLAGS      Flags for sfmakedepend
 #
 # First the defaults
 #
@@ -44,16 +44,17 @@
              PERL := perl
              TEST := test
 
-        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
+        MDEPFLAGS := --file=- --objdir=$(SCRATCH_DIR)
+#        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
 
 #
 # Library locations, can be overridden by environment variables.
 #
 
 ifdef USE_NETCDF4
-        NC_CONFIG ?= nc-config
-    NETCDF_INCDIR ?= $(shell $(NC_CONFIG) --prefix)/include
-             LIBS := $(shell $(NC_CONFIG) --flibs)
+        NF_CONFIG ?= nf-config
+    NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --prefix)/include
+             LIBS := $(shell $(NF_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
@@ -83,11 +84,11 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -g -fbounds-check
+           FFLAGS += -g -fbounds-check -ffpe-trap=invalid,zero -ffree-line-length-none -fbacktrace
            CFLAGS += -g
          CXXFLAGS += -g
 else
-           FFLAGS += -O3 -ffast-math
+           FFLAGS += -O3 -ffast-math -ffpe-trap=invalid,zero -ffree-line-length-none
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif
@@ -104,15 +105,20 @@ ifdef USE_MPI
 endif
 
 ifdef USE_ESMF
+          ESMF_OS ?= $(OS)
       ESMF_SUBDIR := $(ESMF_OS).$(ESMF_COMPILER).$(ESMF_ABI).$(ESMF_COMM).$(ESMF_SITE)
       ESMF_MK_DIR ?= $(ESMF_DIR)/lib/lib$(ESMF_BOPT)/$(ESMF_SUBDIR)
                      include $(ESMF_MK_DIR)/esmf.mk
            FFLAGS += $(ESMF_F90COMPILEPATHS)
-             LIBS += $(ESMF_F90LINKPATHS) -lesmf -lC
+             LIBS += $(ESMF_F90LINKPATHS) $(ESMF_F90ESMFLINKLIBS)
 endif
 
 ifdef USE_CXX
              LIBS += -lstdc++
+endif
+ifdef USE_FFTW
+           FFLAGS += $(shell pkg-config --cflags fftw3)
+             LIBS += $(shell pkg-config --libs fftw3)
 endif
 
 #
@@ -162,6 +168,12 @@ $(SCRATCH_DIR)/rp_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 endif
 ifdef USE_TANGENT
 $(SCRATCH_DIR)/tl_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
+endif
+ifdef BIO_COBALT
+$(SCRATCH_DIR)/mod_biology.mod: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/mod_biology.o: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/biology_mod.mod: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003
+$(SCRATCH_DIR)/biology.o: FFLAGS += -ffree-form -ffree-line-length-none -std=f2003 -pedantic
 endif
 
 #

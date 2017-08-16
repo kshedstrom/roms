@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -21,6 +21,8 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE strings_mod, ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -31,7 +33,7 @@
 !
       integer :: Fcount, i, j, lstr
 !
-      SourceFile='close_inp, close_io.F'
+      SourceFile=__FILE__ // ", close_io.F"
 !
 !-----------------------------------------------------------------------
 !  If multi-file input fields, close several input files.
@@ -52,7 +54,7 @@
           END DO
           IF (model.eq.iADM) THEN
             DO j=1,FRC(i,ng)%Nfiles
-              IF ((FRC(i,ng)%time_min(j).le.tdays(ng)).and.              &
+              IF ((FRC(i,ng)%time_min(j).le.tdays(ng)).and.             &
      &            (tdays(ng).le.FRC(i,ng)%time_max(j))) THEN
                 Fcount=j
                 EXIT
@@ -67,7 +69,8 @@
           FRC(i,ng)%base=FRC(i,ng)%name(1:lstr-3)
           CALL netcdf_close (ng, model, FRC(i,ng)%ncid,                 &
      &                       FRC(i,ng)%files(i), .FALSE.)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 #endif
@@ -94,7 +97,8 @@
             BRY(i,ng)%base=BRY(i,ng)%name(1:lstr-3)
             CALL netcdf_close (ng, model, BRY(i,ng)%ncid,               &
      &                         BRY(i,ng)%files(i),  .FALSE.)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -106,7 +110,7 @@
           IF ((CLM(i,ng)%Nfiles.gt.1).and.(CLM(i,ng)%ncid.ge.0)) THEN
             IF (model.eq.iADM) THEN
               DO j=1,CLM(i,ng)%Nfiles
-                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.             &
+                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.           &
      &            (tdays(ng).le.CLM(i,ng)%time_max(i))) THEN
                   Fcount=j
                   EXIT
@@ -119,9 +123,10 @@
             CLM(i,ng)%name=TRIM(CLM(i,ng)%files(Fcount))
             lstr=LEN_TRIM(CLM(i,ng)%name)
             CLM(i,ng)%base=CLM(i,ng)%name(1:lstr-3)
-            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,                 &
+            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,               &
      &                     CLM(i,ng)%files(i),  .FALSE.)
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -146,6 +151,9 @@
 #if defined BIOFLUX
       USE mod_biology
 #endif
+      USE strings_mod, ONLY : FoundError
+!
+      USE dateclock_mod, ONLY : get_date
 !
       implicit none
 !
@@ -205,7 +213,7 @@
       END DO
 #endif
 !
-      SourceFile='close_out, close_io.F'
+      SourceFile=__FILE__ // ", close_out"
 !
 !-----------------------------------------------------------------------
 !  Close output NetCDF files. Set file indices to closed state.
@@ -215,6 +223,11 @@
         IF (RST(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iNLM, RST(ng)%ncid)
         END IF
+#if defined FOUR_DVAR || defined ENKF_RESTART
+        IF (DAI(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, DAI(ng)%ncid)
+        END IF
+#endif
 #if defined FORWARD_READ || defined FORWARD_WRITE
         IF ((FWD(ng)%ncid.ne.-1).and.(FWD(ng)%ncid.eq.HIS(ng)%ncid)) THEN
           FWD(ng)%ncid=-1
@@ -225,6 +238,9 @@
 #endif
         IF (HIS(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iNLM, HIS(ng)%ncid)
+        END IF
+        IF (QCK(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, QCK(ng)%ncid)
         END IF
 #ifdef ADJOINT
         IF (ADM(ng)%ncid.ne.-1) THEN
@@ -247,11 +263,6 @@
 #ifdef AVERAGES2
         IF (AVG2(ng)%ncid.ne.-1) THEN
           CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid)
-        END IF
-#endif
-#ifdef HISTORY2
-        IF (HIS2(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, HIS2(ng)%ncid)
         END IF
 #endif
 #ifdef FILTERED_RST
@@ -324,6 +335,15 @@
             END IF
           END IF
 
+#if defined FOUR_DVAR || defined ENKF_RESTART
+          IF (associated(DAI(ng)%Nrec)) THEN
+            Fcount=DAI(ng)%Fcount
+            IF (DAI(ng)%Nrec(Fcount).gt.0) THEN
+              WRITE (stdout,20) 'DA IC  ', DAI(ng)%Nrec(Fcount)
+            END IF
+          END IF
+#endif
+
 #ifdef ADJOINT
           IF (associated(ADM(ng)%Nrec)) THEN
             Fcount=ADM(ng)%Fcount
@@ -358,14 +378,6 @@
             Fcount=AVG2(ng)%Fcount
             IF (AVG2(ng)%Nrec(Fcount).gt.0) THEN
               WRITE (stdout,20) 'AVERAGE2', AVG2(ng)%Nrec(Fcount)
-            END IF
-          END IF
-#endif
-#ifdef HISTORY2
-          IF (associated(HIS2(ng)%Nrec)) THEN
-            Fcount=HIS2(ng)%Fcount
-            IF (HIS2(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'HISTORY2', HIS2(ng)%Nrec(Fcount)
             END IF
           END IF
 #endif
@@ -443,7 +455,8 @@
 !  If applicable, report internal exit errors.
 !-----------------------------------------------------------------------
 !
-      IF (Master.and.(exit_flag.ne.NoError)) THEN
+      IF (Master.and.(FoundError(exit_flag, NoError, __LINE__,          &
+     &               __FILE__))) THEN
         WRITE (stdout,40) Rerror(exit_flag), exit_flag
       END IF
       IF (exit_flag.eq.NoError) THEN

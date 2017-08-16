@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -134,13 +134,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dZdt*dZdx).lt.0.0_r8) dZdt=0.0_r8
               IF ((dZdt*(grad(Istr,j)+grad(Istr,j+1))).gt.0.0_r8) THEN
                 dZde=grad(Istr,j  )
               ELSE
                 dZde=grad(Istr,j+1)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
+              IF ((dZdt*dZdx).lt.0.0_r8) dZdt=0.0_r8
               Cx=dZdt*dZdx
 #ifdef RADIATION_2D
               Ce=MIN(cff,MAX(dZdt*dZde,-cff))
@@ -289,13 +289,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dZdt*dZdx).lt.0.0_r8) dZdt=0.0_r8
               IF ((dZdt*(grad(Iend,j)+grad(Iend,j+1))).gt.0.0_r8) THEN
                 dZde=grad(Iend,j  )
               ELSE
                 dZde=grad(Iend,j+1)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
+              IF ((dZdt*dZdx).lt.0.0_r8) dZdt=0.0_r8
               Cx=dZdt*dZdx
 #ifdef RADIATION_2D
               Ce=MIN(cff,MAX(dZdt*dZde,-cff))
@@ -444,13 +444,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dZdt*dZde).lt.0.0_r8) dZdt=0.0_r8
               IF ((dZdt*(grad(i,Jstr)+grad(i+1,Jstr))).gt.0.0_r8) THEN
                 dZdx=grad(i  ,Jstr)
               ELSE
                 dZdx=grad(i+1,Jstr)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
+              IF ((dZdt*dZde).lt.0.0_r8) dZdt=0.0_r8
 #ifdef RADIATION_2D
               Cx=MIN(cff,MAX(dZdt*dZdx,-cff))
 #else
@@ -599,13 +599,13 @@
                 tau=tau*dt2d
               END IF
 
-              IF ((dZdt*dZde).lt.0.0_r8) dZdt=0.0_r8
               IF ((dZdt*(grad(i,Jend)+grad(i+1,Jend))).gt.0.0_r8) THEN
                 dZdx=grad(i  ,Jend)
               ELSE
                 dZdx=grad(i+1,Jend)
               END IF
               cff=MAX(dZdx*dZdx+dZde*dZde,eps)
+              IF ((dZdt*dZde).lt.0.0_r8) dZdt=0.0_r8
 #ifdef RADIATION_2D
               Cx=MIN(cff,MAX(dZdt*dZdx,-cff))
 #else

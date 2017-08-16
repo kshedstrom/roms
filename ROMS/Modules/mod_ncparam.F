@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -56,6 +56,7 @@
 !               Finfo( 8,*) => minimum value for current data.         !
 !               Finfo( 9,*) => maximum value for current data.         !
 !               Finfo(10,*) => value of scale_factor attribute if any. !
+!               Finfo(11,*) => value of add_offset attribute if any.   !
 !  Fscale     Scale to convert input data to model units.              !
 !  Fpoint     Latest two-time records of input point data.             !
 !  Tintrp     Time (sec) of latest field snapshots used for            !
@@ -71,8 +72,8 @@
 !  Maximum number of variables in a generic NetCDF file (MV) and
 !  maximum number of variables in information arrays (NV).
 !
-        integer, parameter :: MV = 1300
-        integer, parameter :: NV = 1300
+        integer, parameter :: MV = 1400
+        integer, parameter :: NV = 1400
 !
 !  Input/output grid-type variables.
 !
@@ -145,7 +146,7 @@
         logical, allocatable :: Aout2(:,:)    ! average2 file switches
         logical, allocatable :: Dout(:,:)     ! diagnostic file switches
         logical, allocatable :: Hout(:,:)     ! history file switches
-        logical, allocatable :: Hout2(:,:)    ! surface file switches
+        logical, allocatable :: Qout(:,:)     ! quicksave file switches
         logical, allocatable :: Sout(:,:)     ! station file switches
 !
 !  Grid identification indices.
@@ -177,13 +178,18 @@
         integer  :: idAclm        ! 3D Aks (salinity) climatology
         integer  :: idAice        ! fraction of cell covered by ice
         integer  :: idAlbe        ! shortwave albedo
+        integer  :: idAtmCO2      ! atmospheric CO2
         integer  :: idbath        ! bathymetry
+        integer  :: idBgEr        ! Background error at observations
+        integer  :: idBgTh        ! Threshold for BQC check
         integer  :: idCfra        ! cloud fraction
         integer  :: idCosW        ! COS(omega(k)*t)
         integer  :: idCos2        ! COS(omega(k)*t)*COS(omega(l)*t)
         integer  :: idDano        ! density anomaly
         integer  :: idDENITsed    ! Denitrification in sediment
         integer  :: idDiff(2)     ! temperature and salinity diffusion
+        integer  :: idSolubleFe   ! dust deposition to iron
+        integer  :: idMineralFe   ! dust deposition to lith
         integer  :: iddQdT        ! heat flux sensitivity to SST
         integer  :: idEmPf        ! E-P from bulk_flux.F
         integer  :: idevap        ! evaporation rate
@@ -198,6 +204,8 @@
         integer  :: idHice        ! depth of ice cover
         integer  :: idHsbl        ! depth of surface boundary layer
         integer  :: idHsno        ! depth of snow cover
+        integer  :: idIronSed     ! iron from sediments
+        integer  :: idFeCoast     ! iron coastal source
         integer  :: idKhor        ! convolution horizontal diffusion
         integer  :: idKver        ! convolution vertical diffusion
         integer  :: idLdwn        ! downwelling longwave radiation flux
@@ -210,7 +218,7 @@
         integer  :: idMtke        ! turbulent kinetic energy
         integer  :: idMtls        ! turbulent length scale
         integer  :: idM2nc        ! 2D momentum nudging coefficients
-        integer  :: idM3nc        ! 2D momentum nudging coefficients
+        integer  :: idM3nc        ! 3D momentum nudging coefficients
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
@@ -225,6 +233,9 @@
         integer  :: idOerr        ! observations error
         integer  :: idOPALbur     ! buried opal in sediment
         integer  :: idOPALsed     ! opal in sediment
+        integer  :: idOlat        ! observations latitude
+        integer  :: idOlon        ! observations longitude
+        integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
         integer  :: idOvar        ! observations global variance
@@ -236,6 +247,10 @@
         integer  :: idPONbur      ! buried PON in sediment
         integer  :: idPONsed      ! PON in sediment
         integer  :: idPwet        ! wet/dry mask on PSI-points
+        integer  :: idpthR        ! depths of RHO-points
+        integer  :: idpthU        ! depths of U-points
+        integer  :: idpthV        ! depths of V-points
+        integer  :: idpthW        ! depths of W-points
         integer  :: idRdir        ! river runoff direction
         integer  :: idRepo        ! river runoff ETA-positions
         integer  :: idRflg        ! river runoff flag
@@ -251,6 +266,18 @@
         integer  :: idRwet        ! wet/dry mask on RHO-points
         integer  :: idRzet        ! RHS of free-surface
         integer  :: idrain        ! rainfall rate
+#ifdef BIO_COBALT
+        integer  :: idriver_no3
+        integer  :: idriver_ldon
+        integer  :: idriver_sldon
+        integer  :: idriver_srdon
+        integer  :: idriver_ndet
+        integer  :: idriver_po4
+        integer  :: idriver_ldop
+        integer  :: idriver_sldop
+        integer  :: idriver_srdop
+        integer  :: idriver_fed
+#endif
         integer  :: idsnow        ! snowfall rate
         integer  :: idragL        ! bottom linear drag coefficient
         integer  :: idragQ        ! bottom quadratic drag coefficient
@@ -263,6 +290,19 @@
         integer  :: idSSSc        ! SSS climatology
         integer  :: idSSSf        ! SSS flux correction
         integer  :: idSSTc        ! SST climatology
+#ifdef STOPERTURB
+# ifdef FORCE_PERTURB
+        integer  :: idpert_Tair    ! perturbation on Tair
+        integer  :: idpert_Srad    ! perturbation on shortwave radiation
+        integer  :: idpert_Uwind   ! perturbation on zonal wind
+        integer  :: idpert_Vwind   ! perturbation on merid wind
+# endif
+# ifdef EOS_PERTURB
+        integer  :: idpert_dx  ! zonal perturbation on T,S for EOS
+        integer  :: idpert_dy  ! meridional perturbation on T,S for EOS
+        integer  :: idpert_dz  ! vertical perturbation on T,S for EOS
+# endif
+#endif
         integer  :: idShea        ! net sensible heat flux
         integer  :: idSWCW        ! SIN(omega(k)*t)*COS(omega(l)*t)
         integer  :: idsfwf        ! surface freswater flux
@@ -305,6 +345,8 @@
         integer  :: idUice        ! ice U-velocity
         integer  :: idUiceE       ! ice U-velocity
         integer  :: idUsms        ! surface U-momentum stress
+        integer  :: idUsuE        ! model surface eastward velocity
+        integer  :: idUsur        ! surface U-velocity
         integer  :: idUtlf        ! 3D U-velocity impulse forcing
         integer  :: idUvel        ! 3D U-velocity
         integer  :: idUwet        ! wet/dry mask on U-points
@@ -341,6 +383,8 @@
         integer  :: idVmKK        ! Kinetic energy vertical mixing
         integer  :: idVmKP        ! Length scale vertical mixing
         integer  :: idVsms        ! surface V-momentum stress
+        integer  :: idVsuN        ! model surface northward velocity
+        integer  :: idVsur        ! surface V-velocity
         integer  :: idVtlf        ! 3D V-velocity impulse forcing
         integer  :: idVvel        ! 3D V-velocity
         integer  :: idVvis        ! vertical viscosity coefficient
@@ -389,7 +433,9 @@
         integer  :: idUnms         ! surface U-momentum stress (NCEP)
         integer  :: idVnms         ! surface V-momentum stress (NCEP)
 
+! Ice variables
         integer  :: idTimid        ! interior ice temperature
+        integer  :: idT2ice        ! top of ice temperature
         integer  :: idTauiw        ! ice-water friction velocity
         integer  :: idChuiw        ! ice-water momentum transfer coefficient
         integer  :: idS0mk         ! salinity of molecular sub-layer under ice
@@ -418,8 +464,29 @@
         integer  :: idSig12        ! internal ice stress component 12
         integer  :: idAIclm        ! ice concentration climatology
         integer  :: idHIclm        ! ice thickness climatology
+        integer  :: idHSNclm       ! ice thickness climatology
+        integer  :: idS11clm       ! ice sigma11 climatology
+        integer  :: idS12clm       ! ice sigma12 climatology
+        integer  :: idS22clm       ! ice sigma22 climatology
         integer  :: idUIclm        ! ice u-velocity climatology
         integer  :: idVIclm        ! ice v-velocity climatology
+! Ice diagnostics
+        integer  :: idAlbI         ! shortwave albedo of ice
+        integer  :: idLWdn         ! downward longwave
+        integer  :: idSWdn         ! downward shortwave
+        integer  :: idLatI         ! latent heat flux over ice
+        integer  :: idSenI         ! sensible heat flux over ice
+        integer  :: idLWupI        ! upward longwave from ice
+        integer  :: idSWupI        ! upward shortwave from ice
+        integer  :: idSWinI        ! upward shortwave from ice
+        integer  :: idSWthruI      ! shortwave through ice
+        integer  :: idSaltI        ! salt flux from ice
+        integer  :: idSaltL        ! salt flux from leads
+        integer  :: idQao          ! heat flux in leads
+        integer  :: idQai          ! heat flux ice to atmosphere
+        integer  :: idQio          ! heat flux ocean to ice
+        integer  :: idQi2          ! heat flux ocean to ice
+        integer  :: idSnoI         ! snow-ice conversion
 
 ! NEMURO_SAN variables
         integer  :: idFwwt         ! fish wet weight
@@ -492,6 +559,7 @@
         integer  :: idBpnear       ! Boat perceived CPUE
 
         integer, allocatable :: idRtrc(:)    ! river runoff for tracers
+        integer, allocatable :: idsurT(:)    ! model surface tracers
         integer, allocatable :: idTads(:)    ! tracers adjoint sentivity
         integer, allocatable :: idTbot(:)    ! bottom flux for tracers
         integer, allocatable :: idTbry(:,:)  ! tracers boundary
@@ -530,18 +598,18 @@
 !
 !  Ice variable IDs.
 !
-         integer  :: idUibc(4)      ! ice U-velocity boundary conditions
-         integer  :: idVibc(4)      ! ice V-velocity boundary conditions
-         integer  :: idAibc(4)      ! ice concentration boundary conditions
-         integer  :: idHibc(4)      ! ice thickness boundary conditions
-         integer  :: idHsnbc(4)     ! snow thickness boundary conditions
-         integer  :: idTibc(4)      ! ice interior temp. boundary conditions
-         integer  :: idApdbc(4)     ! surface melt water boundary conditions
-         integer  :: idHpdbc(4)     ! surface melt water boundary conditions
-         integer  :: idAgeicebc(4)  ! ice age boundary conditions
-         integer  :: idS11bc(4)     ! ice stress Sig11 boundary conditions
-         integer  :: idS22bc(4)     ! ice stress Sig22 boundary conditions
-         integer  :: idS12bc(4)     ! ice stress Sig12 boundary conditions
+        integer  :: idUibc(4)      ! ice U-velocity boundary conditions
+        integer  :: idVibc(4)      ! ice V-velocity boundary conditions
+        integer  :: idAibc(4)      ! ice concentration boundary conditions
+        integer  :: idHibc(4)      ! ice thickness boundary conditions
+        integer  :: idHsnbc(4)     ! snow thickness boundary conditions
+        integer  :: idTibc(4)      ! ice interior temp. boundary conditions
+        integer  :: idApdbc(4)     ! surface melt water boundary conditions
+        integer  :: idHpdbc(4)     ! surface melt water boundary conditions
+        integer  :: idAgeicebc(4)  ! ice age boundary conditions
+        integer  :: idS11bc(4)     ! ice stress Sig11 boundary conditions
+        integer  :: idS22bc(4)     ! ice stress Sig22 boundary conditions
+        integer  :: idS12bc(4)     ! ice stress Sig12 boundary conditions
 #endif
 #ifdef DIAGNOSTICS
 !
@@ -569,7 +637,7 @@
         integer, allocatable :: idBvar(:)     ! LBC variables indices
         integer, allocatable :: idSvar(:)     ! state vector indices
         integer, allocatable :: idSbry(:)     ! state boundaries indices
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
         integer  :: isUice                    ! ice U-velocity
         integer  :: isVice                    ! ice V-velocity
         integer  :: isAice                    ! ice concentration
@@ -617,7 +685,7 @@
         integer, allocatable :: idefPRED(:)   ! preadator file
         integer, allocatable :: idefFLEET(:)  ! fishing fleet file
         integer, allocatable :: idefHIS(:)    ! history file
-        integer, allocatable :: idefHIS2(:)   ! history2 file
+        integer, allocatable :: idefQCK(:)    ! quicksave file
         integer, allocatable :: idefTLM(:)    ! tangent file
 !
 !  Output NetCDF variables IDs.
@@ -734,10 +802,11 @@
       allocate ( Aout2(NV,Ngrids) )
       allocate ( Dout(NV,Ngrids) )
       allocate ( Hout(NV,Ngrids) )
-      allocate ( Hout2(NV,Ngrids) )
+      allocate ( Qout(NV,Ngrids) )
       allocate ( Sout(NV,Ngrids) )
 
       allocate ( idRtrc(MT) )
+      allocate ( idsurT(MT) )
       allocate ( idTads(MT) )
       allocate ( idTbot(MT) )
       allocate ( idTbry(4,MT) )
@@ -775,12 +844,18 @@
       allocate ( idefAVG2(Ngrids) )
       allocate ( idefDIA(Ngrids) )
 
+#ifdef NEMURO_SAN
       allocate ( idefFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( idefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( idefFLEET(Ngrids) )
+# endif
+#endif
 
       allocate ( idefHIS(Ngrids) )
-      allocate ( idefHIS2(Ngrids) )
+      allocate ( idefQCK(Ngrids) )
       allocate ( idefTLM(Ngrids) )
 
       allocate ( idTvar(MT) )
@@ -791,7 +866,7 @@
 
       allocate ( Iinfo(10,NV,Ngrids) )
 
-      allocate ( Finfo(10,NV,Ngrids) )
+      allocate ( Finfo(11,NV,Ngrids) )
       allocate ( Fpoint(2,NV,Ngrids) )
       allocate ( Fscale(NV,Ngrids) )
       allocate ( Tintrp(2,NV,Ngrids) )
@@ -831,11 +906,14 @@
       logical :: load
 
       integer, parameter :: inp = 10
-      integer :: Lvar, i, ic, ie, is, j, ng
-      integer :: gtype, varid
+#ifdef DISTRIBUTE
+      integer :: Itile, Jtile
+#endif
+      integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
+      integer :: gtype, tile, varid
 
       real(r8), parameter :: spv = 0.0_r8
-      real(r8) :: scale
+      real(r8) :: offset, scale
 
       character (len=120), dimension(7) :: Vinfo
 !
@@ -889,11 +967,17 @@
         idefAVG(ng)=-1
         idefAVG2(ng)=-1
         idefDIA(ng)=-1
+#ifdef NEMURO_SAN
         idefFISH(ng)=-1
+# ifdef PREDATOR
         idefPRED(ng)=-1
+# endif
+# ifdef FISHING_FLEET
         idefFLEET(ng)=-1
+# endif
+#endif
         idefHIS(ng)=-1
-        idefHIS2(ng)=-1
+        idefQCK(ng)=-1
         idefTLM(ng)=-1
       END DO
 !
@@ -940,10 +1024,10 @@
         isTsur(i)=ic
       END DO
 #endif
-#ifdef ICE_MODEL
-#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+#if defined ICE_MODEL || defined CICE_MODEL
+# if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
       ic=ic+1
-#endif
+# endif
       isUice=ic+1
       isVice=ic+2
       isAice=ic+3
@@ -988,7 +1072,7 @@
           Aout2(i,ng)=.FALSE.
           Dout(i,ng)=.FALSE.
           Hout(i,ng)=.FALSE.
-          Hout2(i,ng)=.FALSE.
+          Qout(i,ng)=.FALSE.
           Sout(i,ng)=.FALSE.
           Iinfo(1,i,ng)=0
           Iinfo(2,i,ng)=-1
@@ -997,7 +1081,7 @@
           Iinfo(5,i,ng)=0
           Iinfo(6,i,ng)=0
           Iinfo(7,i,ng)=0
-          Iinfo(8,i,ng)=0
+          Iinfo(8,i,ng)=2
           Iinfo(9,i,ng)=0
           Iinfo(10,i,ng)=0
           Finfo(1,i,ng)=0.0_r8
@@ -1007,6 +1091,7 @@
           Finfo(6,i,ng)=0.0_r8
           Finfo(7,i,ng)=0.0_r8
           Finfo(10,i,ng)=1.0_r8
+          Finfo(11,i,ng)=0.0_r8
           Fscale(i,ng)=1.0_r8
           Fpoint(1,i,ng)=0.0_r8
           Fpoint(2,i,ng)=0.0_r8
@@ -1118,6 +1203,14 @@
               idtime=varid
             CASE ('idbath')
               idbath=varid
+            CASE ('idpthR')
+              idpthR=varid
+            CASE ('idpthU')
+              idpthU=varid
+            CASE ('idpthV')
+              idpthV=varid
+            CASE ('idpthW')
+              idpthW=varid
             CASE ('idFsur')
               idFsur=varid
             CASE ('idRzet')
@@ -1134,12 +1227,20 @@
               idv2dN=varid
             CASE ('idRv2d')
               idRv2d=varid
+            CASE ('idUsur')
+              idUsur=varid
+            CASE ('idUsuE')
+              idUsuE=varid
             CASE ('idUvel')
               idUvel=varid
             CASE ('idu3dE')
               idu3dE=varid
             CASE ('idRu3d')
               idRu3d=varid
+            CASE ('idVsur')
+              idVsur=varid
+            CASE ('idVsuN')
+              idVsuN=varid
             CASE ('idVvel')
               idVvel=varid
             CASE ('idv3dN')
@@ -1152,6 +1253,10 @@
               idOvel=varid
             CASE ('idDano')
               idDano=varid
+            CASE ('idsurT(itemp)')
+              idsurT(itemp)=varid
+            CASE ('idsurT(isalt)')
+              idsurT(isalt)=varid
             CASE ('idTvar(itemp)')
               idTvar(itemp)=varid
             CASE ('idTvar(isalt)')
@@ -1264,6 +1369,16 @@
               idTbry(inorth,isalt)=varid
             CASE ('idAlbe')
               idAlbe=varid
+            CASE ('idAtmCO2')
+              idAtmCO2=varid
+            CASE ('idSolubleFe')
+              idSolubleFe=varid
+            CASE ('idMineralFe')
+              idMineralFe=varid
+            CASE ('idIronSed')
+              idIronSed=varid
+            CASE ('idFeCoast')
+              idFeCoast=varid
             CASE ('idPwet')
               idPwet=varid
             CASE ('idRwet')
@@ -1506,10 +1621,10 @@
             CASE ('idZoBL')
               idZoBL=varid
 #endif
-# ifdef UV_WAVEDRAG
+#ifdef UV_WAVEDRAG
             CASE ('idragW')
               idragW=varid
-# endif
+#endif
             CASE ('idUbot')
               idUbot=varid
             CASE ('idVbot')
@@ -1538,6 +1653,26 @@
               idSSSc=varid
             CASE ('idSSTc')
               idSSTc=varid
+#ifdef STOPERTURB
+# ifdef FORCE_PERTURB
+            CASE ('idpert_Tair')
+              idpert_Tair=varid
+            CASE ('idpert_Srad')
+              idpert_Srad=varid
+            CASE ('idpert_Uwind')
+              idpert_Uwind=varid
+            CASE ('idpert_Vwind')
+              idpert_Vwind=varid
+# endif
+# ifdef EOS_PERTURB
+            CASE ('idpert_dx')
+              idpert_dx=varid
+            CASE ('idpert_dy')
+              idpert_dy=varid
+            CASE ('idpert_dz')
+              idpert_dz=varid
+# endif
+#endif
 #if defined AD_SENSITIVITY   || defined IS4DVAR_SENSITIVITY || \
     defined OPT_OBSERVATIONS || defined SENSITIVITY_4DVAR   || \
     defined SO_SEMI
@@ -1835,6 +1970,10 @@
               idVfx2=varid
 #endif
 #if defined FOUR_DVAR || defined VERIFICATION
+            CASE ('idBgEr')
+              idBgEr=varid
+            CASE ('idBgTh')
+              idBgTh=varid
             CASE ('idNLmi')
               idNLmi=varid
             CASE ('idNLmo')
@@ -1857,6 +1996,12 @@
               idOday=varid
             CASE ('idOerr')
               idOerr=varid
+            CASE ('idOlat')
+              idOlat=varid
+            CASE ('idOlon')
+              idOlon=varid
+            CASE ('idOpro')
+              idOpro=varid
             CASE ('idOtyp')
               idOtyp=varid
             CASE ('idOval')
@@ -1902,7 +2047,7 @@
               CASE ('idVnms')
                 idVnms=varid
 #endif
-#ifdef ICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
               CASE ('idUice')
                 idUice=varid
               CASE ('idVice')
@@ -1921,6 +2066,8 @@
                 idTice=varid
               CASE ('idTimid')
                 idTimid=varid
+              CASE ('idT2ice')
+                idT2ice=varid
               CASE ('idTauiw')
                 idTauiw=varid
               CASE ('idChuiw')
@@ -1959,10 +2106,51 @@
                 idAIclm=varid
               CASE ('idHIclm')
                 idHIclm=varid
+              CASE ('idHSNclm')
+                idHSNclm=varid
+              CASE ('idS11clm')
+                idS11clm=varid
+              CASE ('idS12clm')
+                idS12clm=varid
+              CASE ('idS22clm')
+                idS22clm=varid
               CASE ('idUIclm')
                 idUIclm=varid
               CASE ('idVIclm')
                 idVIclm=varid
+! Ice diagnostics
+              CASE ('idAlbI')
+                idAlbI=varid
+              CASE ('idLWdn')
+                idLWdn=varid
+              CASE ('idSWdn')
+                idSWdn=varid
+              CASE ('idLatI')
+                idLatI=varid
+              CASE ('idSenI')
+                idSenI=varid
+              CASE ('idLWupI')
+                idLWupI=varid
+              CASE ('idSWupI')
+                idSWupI=varid
+              CASE ('idSWinI')
+                idSWinI=varid
+              CASE ('idSWthruI')
+                idSWthruI=varid
+              CASE ('idSaltI')
+                idSaltI=varid
+              CASE ('idSaltL')
+                idSaltL=varid
+              CASE ('idQao')
+                idQao=varid
+              CASE ('idQai')
+                idQai=varid
+              CASE ('idQio')
+                idQio=varid
+              CASE ('idQi2')
+                idQi2=varid
+              CASE ('idSnoI')
+                idSnoI=varid
 #endif
 
 #ifdef BIOLOGY
@@ -1976,6 +2164,8 @@
 #  include <umaine_var.h>
 # elif defined ECOSIM
 #  include <ecosim_var.h>
+# elif defined HYPOXIA_SRM
+#  include <hypoxia_srm_var.h>
 # elif defined NEMURO
 #  include <nemuro_var.h>
 # elif defined NPZD_FRANKS
@@ -1984,6 +2174,10 @@
 #  include <npzd_Powell_var.h>
 # elif defined NPZD_IRON
 #  include <npzd_iron_var.h>
+# elif defined BIO_COBALT
+#  include <cobalt_var.h>
+# elif defined RED_TIDE
+#  include <red_tide_var.h>
 # endif
 # if defined NEMURO_SAN
 #  include <fish_var.h>
@@ -2022,6 +2216,49 @@
               CASE ('idTvar(inert(i))')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
+# ifdef AGE_MEAN
+                  ic=0
+                  DO i=1,NPT,2
+                    varid=varid+1
+                    ic=ic+1
+                    idTvar(inert(i))=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,i2.2)')                   &
+     &                    TRIM(ADJUSTL(Vinfo(1))), ic
+                    WRITE (Vname(2,varid),'(a,a,i2.2)')                 &
+     &                    TRIM(ADJUSTL(Vinfo(2))), ', type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(3)))
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+!
+                  ic=0
+                  DO i=2,NPT,2
+                    varid=varid+1
+                    ic=ic+1
+                    idTvar(inert(i))=varid
+                    DO ng=1,Ngrids
+                      Fscale(varid,ng)=scale
+                      Iinfo(1,varid,ng)=gtype
+                    END DO
+                    WRITE (Vname(1,varid),'(a,i2.2,a)')                 &
+     &                    TRIM(ADJUSTL(Vinfo(1))), ic, '_age'
+                    WRITE (Vname(2,varid),'(a,i2.2)')                   &
+     &                    'age concentraction, type ', ic
+                    WRITE (Vname(3,varid),'(a)')                        &
+     &                    'second kilogram meter-3'
+                    WRITE (Vname(4,varid),'(a,a)')                      &
+     &                    TRIM(Vname(1,varid)), ', scalar, series'
+                    WRITE (Vname(5,varid),'(a)')                        &
+     &                    TRIM(ADJUSTL(Vinfo(5)))
+                  END DO
+# else
                   DO i=1,NPT
                     varid=varid+1
                     idTvar(inert(i))=varid
@@ -2040,6 +2277,7 @@
                     WRITE (Vname(5,varid),'(a)')                        &
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
+# endif
                 END IF
               CASE ('idTbry(iwest,inert(i))')
                 IF (NPT.gt.0) THEN
@@ -2183,40 +2421,6 @@
      &                    TRIM(ADJUSTL(Vinfo(5)))
                   END DO
                 END IF
-            END SELECT
-# if defined AGE_PASSIVE || defined RESIDENCE_TIME
-            SELECT CASE (Vinfo(1))
-#  if defined RESIDENCE_TIME
-              CASE ('river_age_')
-                IF (NPT.gt.0) THEN
-                  varid=varid-1
-                  DO i=1,NPT
-                    varid=varid+1
-                    idRtrc(inert(i))=varid
-                    DO ng=1,Ngrids
-                      Fscale(varid,ng)=scale
-                      Iinfo(1,varid,ng)=gtype
-                    END DO
-                    IF (i.lt.100) THEN
-                      WRITE (Vname(1,varid),'(a,i2.2)')                 &
-     &                     TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i2.2)')               &
-     &                     TRIM(ADJUSTL(Vinfo(2))), ', type ', i
-                    ELSE
-                      WRITE (Vname(1,varid),'(a,i3.3)')                 &
-     &                     TRIM(ADJUSTL(Vinfo(1))), i
-                      WRITE (Vname(2,varid),'(a,a,i3.3)')               &
-     &                     TRIM(ADJUSTL(Vinfo(2))), ', type ', i
-                    END IF
-                    WRITE (Vname(3,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(3)))
-                    WRITE (Vname(4,varid),'(a,a)')                      &
-     &                    TRIM(Vname(1,varid)), ', scalar, series'
-                    WRITE (Vname(5,varid),'(a)')                        &
-     &                    TRIM(ADJUSTL(Vinfo(5)))
-                  END DO
-                END IF
-#  endif
               CASE ('age_west_')
                 IF (NPT.gt.0) THEN
                   varid=varid-1
@@ -2334,7 +2538,6 @@
                   END DO
                 END IF
             END SELECT
-# endif
 #endif
 #ifdef DIAGNOSTICS_TS
 !
@@ -2767,6 +2970,34 @@
         WRITE (Vname(5,varid),'(a)')                                    &
      &        TRIM(ADJUSTL(Vname(5,idTvar(i))))
       END DO
+!
+!-----------------------------------------------------------------------
+!  Set passive model surface tracers metadata. The variable name is the
+!  same as the basic tracer but with the _sflux suffix.
+!-----------------------------------------------------------------------
+!
+      DO i=NAT+1,MT
+        varid=varid+1
+        IF (varid.gt.MV) THEN
+          WRITE (stdout,60) MV, varid
+          STOP
+        END IF
+        idsurT(i)=varid
+        DO ng=1,Ngrids
+          Fscale(varid,ng)=1.0_r8
+          Iinfo(1,varid,ng)=r2dvar
+        END DO
+        WRITE (Vname(1,varid),'(a,a)')                                  &
+     &        TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_sur'
+        WRITE (Vname(2,varid),'(a,1x,a)') 'model surface',              &
+     &        TRIM(ADJUSTL(Vname(2,idTvar(i))))
+        WRITE (Vname(3,varid),'(a)')                                    &
+     &        TRIM(ADJUSTL(Vname(3,idTvar(i))))
+        WRITE (Vname(4,varid),'(a,a)')                                  &
+     &        TRIM(Vname(1,varid)), ', scalar, series'
+        WRITE (Vname(5,varid),'(a)')                                    &
+     &        TRIM(ADJUSTL(Vname(5,idTvar(i))))
+      END DO
 #endif
 #ifdef WEAK_CONSTRAINT
 !
@@ -2821,7 +3052,7 @@
       ic=ic+1
       idBvar(ic)=idMtke
 # endif
-# ifdef ICE_MODEL
+# if defined ICE_MODEL
       ic=ic+11
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice
@@ -2908,6 +3139,10 @@
      &        'variable: ',a,/,15x,'Need CASE construct for: ',a)
   80  FORMAT (/,' MOD_NCPARM - Error while reading information ',       &
      &        'for variable: ',a)
+  90  FORMAT (a,i2.2)
+ 100  FORMAT (a,a,i2.2)
+ 110  FORMAT (a)
+ 120  FORMAT (a,a)
 
       RETURN
       END SUBROUTINE initialize_ncparam

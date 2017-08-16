@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -18,7 +18,7 @@
 !
       USE mod_param
       USE mod_parallel
-# ifdef MODEL_COUPLING
+# if defined MODEL_COUPLING && defined MCT_LIB
       USE mod_coupler
 # endif
       USE mod_iounits
@@ -29,140 +29,154 @@
       USE mod_stepping
 !
 # ifdef ANA_VMIX
-      USE analytical_mod, ONLY : ana_vmix
+      USE analytical_mod,       ONLY : ana_vmix
 # endif
 # ifdef BIOLOGY
-      USE biology_mod, ONLY : biology
+      USE biology_mod,          ONLY : biology
 # endif
 # ifdef BBL_MODEL
-      USE bbl_mod, ONLY : bblm
+      USE bbl_mod,              ONLY : bblm
 # endif
 # ifdef BULK_FLUXES
 #  ifdef CCSM_FLUXES
-      USE ccsm_flux_mod, ONLY : ccsm_flux
+      USE ccsm_flux_mod,        ONLY : ccsm_flux
 #  else
-      USE bulk_flux_mod, ONLY : bulk_flux
+      USE bulk_flux_mod,        ONLY : bulk_flux
 #  endif
 # endif
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
-      USE cawdir_eval_mod, ONLY : cawdir_eval
+      USE cawdir_eval_mod,      ONLY : cawdir_eval
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES
+# if defined ALBEDO && defined SHORTWAVE
+#  if !defined NCEP_FLUXES && !defined ANA_ALBEDO
       USE albedo_mod
+#  elif defined ANA_ALBEDO
+      USE analytical_mod,       ONLY : ana_albedo
+#  endif
 # endif
 # if defined NCEP_FLUXES
-      USE ncep_flux_mod, ONLY : ncep_flux
+      USE ncep_flux_mod,        ONLY : ncep_flux
 # endif
 # ifdef BVF_MIXING
-      USE bvf_mix_mod, ONLY : bvf_mix
+      USE bvf_mix_mod,          ONLY : bvf_mix
 # endif
-      USE diag_mod, ONLY : diag
+      USE dateclock_mod,        ONLY : time_string
+      USE diag_mod,             ONLY : diag
 # ifdef TLM_CHECK
-      USE dotproduct_mod, ONLY : nl_dotproduct
+      USE dotproduct_mod,       ONLY : nl_dotproduct
 # endif
 # if defined W4DPSAS || defined NLM_OUTER || \
      defined W4DPSAS_SENSITIVITY
-      USE forcing_mod, ONLY : forcing
+      USE forcing_mod,          ONLY : forcing
 # endif
 # if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-      USE frc_adjust_mod, ONLY : frc_adjust
+      USE frc_adjust_mod,       ONLY : frc_adjust
 # endif
 # ifdef GLS_MIXING
-      USE gls_corstep_mod, ONLY : gls_corstep
-      USE gls_prestep_mod, ONLY : gls_prestep
+      USE gls_corstep_mod,      ONLY : gls_corstep
+      USE gls_prestep_mod,      ONLY : gls_prestep
 # endif
 # if defined DIFF_3DCOEF || defined VISC_3DCOEF
-      USE hmixing_mod, ONLY : hmixing
+      USE hmixing_mod,          ONLY : hmixing
 # endif
-      USE ini_fields_mod, ONLY : ini_fields, ini_zeta
+      USE ini_fields_mod,       ONLY : ini_fields, ini_zeta
 # ifdef LMD_MIXING
-      USE lmd_vmix_mod, ONLY : lmd_vmix
+      USE lmd_vmix_mod,         ONLY : lmd_vmix
 # endif
 # ifdef MY25_MIXING
-      USE my25_corstep_mod, ONLY : my25_corstep
-      USE my25_prestep_mod, ONLY : my25_prestep
+      USE my25_corstep_mod,     ONLY : my25_corstep
+      USE my25_prestep_mod,     ONLY : my25_prestep
 # endif
 # ifdef NESTING
-      USE nesting_mod, ONLY : nesting
+      USE nesting_mod,          ONLY : nesting
 #  ifndef ONE_WAY
-      USE nesting_mod, ONLY : do_twoway
+      USE nesting_mod,          ONLY : do_twoway
 #  endif
 # endif
 # if defined ADJUST_BOUNDARY
-      USE obc_adjust_mod, ONLY : obc_adjust, load_obc
+      USE obc_adjust_mod,       ONLY : obc_adjust, load_obc
 # endif
-# ifdef AIR_OCEAN
-      USE ocean_coupler_mod, ONLY : ocn2atm_coupling
+# if defined ATM_COUPLING && defined MCT_LIB
+      USE ocean_coupler_mod,    ONLY : ocn2atm_coupling
 # endif
-# ifdef WAVES_OCEAN
-      USE ocean_coupler_mod, ONLY : ocn2wav_coupling
+# if defined WAV_COUPLING && defined MCT_LIB
+      USE ocean_coupler_mod,    ONLY : ocn2wav_coupling
 # endif
-      USE omega_mod, ONLY : omega
+      USE omega_mod,            ONLY : omega
 # ifdef NEARSHORE_MELLOR
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
 # ifndef TS_FIXED
-      USE rho_eos_mod, ONLY : rho_eos
+#  ifdef EOS_PERTURB
+      USE rho_eos_perturb_mod,  ONLY : rho_eos_perturb
+#  else
+      USE rho_eos_mod,          ONLY : rho_eos
+#  endif
 # endif
-      USE rhs3d_mod, ONLY : rhs3d
+      USE rhs3d_mod,            ONLY : rhs3d
 # ifdef SEDIMENT
-      USE sediment_mod, ONLY : sediment
+      USE sediment_mod,         ONLY : sediment
 # endif
 # ifdef AVERAGES
-      USE set_avg_mod, ONLY : set_avg
+      USE set_avg_mod,          ONLY : set_avg
 # endif
 # if defined AVERAGES2 && !defined ADJOINT
-      USE set_avg2_mod, ONLY : set_avg2
+      USE set_avg2_mod,         ONLY : set_avg2
 # endif
 # ifdef CICE_MODEL
-      USE ice_fakecpl, ONLY : cice_fakecpl
+      USE ice_fakecpl,          ONLY : cice_fakecpl
 # endif
-      USE set_depth_mod, ONLY : set_depth
-      USE set_massflux_mod, ONLY : set_massflux
+      USE set_depth_mod,        ONLY : set_depth
+      USE set_massflux_mod,     ONLY : set_massflux
 # if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
-      USE set_tides_mod, ONLY : set_tides
+      USE set_tides_mod,        ONLY : set_tides
 # endif
-      USE set_vbc_mod, ONLY : set_vbc
-      USE set_zeta_mod, ONLY : set_zeta
-      USE step2d_mod, ONLY : step2d
+      USE set_vbc_mod,          ONLY : set_vbc
+      USE set_zeta_mod,         ONLY : set_zeta
+      USE step2d_mod,           ONLY : step2d
 # ifndef TS_FIXED
-      USE step3d_t_mod, ONLY : step3d_t
+      USE step3d_t_mod,         ONLY : step3d_t
 # endif
-      USE step3d_uv_mod, ONLY : step3d_uv
+      USE step3d_uv_mod,        ONLY : step3d_uv
 # ifdef FLOATS
-      USE step_floats_mod, ONLY : step_floats
+      USE step_floats_mod,      ONLY : step_floats
 # endif
 # ifdef NEMURO_SAN
       USE mod_fish
       USE mod_biology
-      USE step_fish_mod, ONLY : step_fish
-      USE new_fish_mod, ONLY : new_fish
-      USE fish_by_cell_mod, ONLY : fish_by_cell
-      USE fish_spawn_mod, ONLY : fish_spawn
-      USE new_year_mod, ONLY : new_year
+      USE step_fish_mod,        ONLY : step_fish
+      USE new_fish_mod,         ONLY : new_fish
+      USE fish_by_cell_mod,     ONLY : fish_by_cell
+      USE fish_spawn_mod,       ONLY : fish_spawn
+      USE new_year_mod,         ONLY : new_year
 #  if defined FISHING_FLEET
-      USE new_year_fleet_mod, ONLY : new_year_fleet
+      USE new_year_fleet_mod,   ONLY : new_year_fleet
 #  endif
 #  ifdef PREDATOR
-      USE step_pred_mod, ONLY : step_pred
-      USE pred_by_cell_mod, ONLY : pred_by_cell
+      USE step_pred_mod,        ONLY : step_pred
+      USE pred_by_cell_mod,     ONLY : pred_by_cell
 #  endif
 #  ifdef EGGS_BISECTION
-      USE eggs_by_cell_mod, ONLY : eggs_by_cell
+      USE eggs_by_cell_mod,     ONLY : eggs_by_cell
 #  endif
 #  ifdef FISHING_FLEET
-      USE step_fleet_mod, ONLY : step_fleet
-      USE new_year_fleet_mod, ONLY : new_year_fleet
+      USE step_fleet_mod,       ONLY : step_fleet
+      USE new_year_fleet_mod,   ONLY : new_year_fleet
 #  endif
 # endif
 # if defined PROPAGATOR || \
     (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
-      USE wpoints_mod, ONLY : wpoints
+      USE wpoints_mod,          ONLY : wpoints
 # endif
-      USE wvelocity_mod, ONLY : wvelocity
+      USE wvelocity_mod,        ONLY : wvelocity
 # if defined ICE_MODEL
       USE ice_flux_mod
 # endif
+# ifdef OPTIC_MANIZZA
+      USE optic_manizza_mod
+# endif
+      USE strings_mod,          ONLY : FoundError
+      USE wvelocity_mod,        ONLY : wvelocity
 !
       implicit none
 !
@@ -213,7 +227,8 @@
 !  step.
 !
           CALL ntimesteps (iNLM, RunInterval, nl, Nsteps, Rsteps)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           IF ((nl.le.0).or.(nl.gt.NestLayers)) EXIT
 !
 !  Time-step governing equations for Nsteps.
@@ -231,7 +246,11 @@
               time(ng)=time(ng)+dt(ng)
               tdays(ng)=time(ng)*sec2day
               CALL time_string (time(ng), time_code(ng))
+# ifdef REGCM_COUPLING
+              IF (MOD(step_counter(ng),Rsteps).eq.0) Time_Step=.FALSE.
+# else
               IF (step_counter(ng).eq.Rsteps) Time_Step=.FALSE.
+# endif
             END DO
 !
 !-----------------------------------------------------------------------
@@ -244,7 +263,8 @@
               CALL get_data (ng)
 !$OMP END MASTER
 !$OMP BARRIER
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END DO
 !
 !-----------------------------------------------------------------------
@@ -259,7 +279,8 @@
               END DO
 !$OMP BARRIER
             END DO
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 
 # if defined W4DPSAS || defined NLM_OUTER || \
      defined W4DPSAS_SENSITIVITY
@@ -277,6 +298,7 @@
               IF (FrequentImpulse(ng)) THEN
                 DO tile=first_tile(ng),last_tile(ng),+1
                   CALL forcing (ng, tile, kstp(ng), nstp(ng))
+                  CALL set_depth (ng, tile, iNLM)
                 END DO
 !$OMP BARRIER
               END IF
@@ -296,7 +318,7 @@
 !
                 DO tile=first_tile(ng),last_tile(ng),+1
                   CALL ini_zeta (ng, tile, iNLM)
-                  CALL set_depth (ng, tile)
+                  CALL set_depth (ng, tile, iNLM)
                 END DO
 !$OMP BARRIER
 !
@@ -327,9 +349,13 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-                CALL set_massflux (ng, tile)
+                CALL set_massflux (ng, tile, iNLM)
 # ifndef TS_FIXED
-                CALL rho_eos (ng, tile)
+#  ifdef EOS_PERTURB
+                CALL rho_eos_perturb (ng, tile)
+#  else
+                CALL rho_eos (ng, tile, iNLM)
+#  endif
 # endif
                 CALL diag (ng, tile)
 # ifdef TLM_CHECK
@@ -338,9 +364,10 @@
               END DO
 !$OMP BARRIER
             END DO
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
 
-# ifdef AIR_OCEAN
+# if defined ATM_COUPLING && defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Couple ocean to atmosphere model every "CoupleSteps(Iatmos)"
@@ -359,7 +386,7 @@
             END DO
 # endif
 
-# ifdef WAVES_OCEAN
+# if defined WAV_COUPLING && defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Couple to ocean to waves model every "CoupleSteps(Iwaves)"
@@ -404,9 +431,12 @@
 # if (defined ALBEDO_CLOUD || defined NCEP_FLUXES) && !defined BENCHMARK
                 CALL cawdir_eval(ng, tile)
 # endif
-# if defined ALBEDO && defined SHORTWAVE && !defined NCEP_FLUXES &&   \
-     !defined ALBEDO_FILE
+# if defined ALBEDO && defined SHORTWAVE
+#  ifdef ANA_ALBEDO
+                CALL ana_albedo(ng, tile, iNLM)
+#  elif !defined NCEP_FLUXES && !defined ALBEDO_FILE
                 CALL albedo_eval(ng, tile)
+#  endif
 # endif
 # ifdef BULK_FLUXES
 #  if defined FOUR_DVAR && defined NL_BULK_FLUXES
@@ -418,7 +448,7 @@
 #  endif
 # endif
 # ifdef NCEP_FLUXES
-            CALL ncep_flux(ng, tile)
+                CALL ncep_flux(ng, tile)
 # endif
 # ifdef BBL_MODEL
                 CALL bblm (ng, tile)
@@ -509,6 +539,21 @@
               END IF
             END DO
 # endif
+#ifdef OPTIC_MANIZZA
+!
+!-----------------------------------------------------------------------
+!  Compute fractional decay for light penetration as a function of
+!  Chlorophyll concentration
+!-----------------------------------------------------------------------
+!
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
+              DO tile=last_tile(ng),first_tile(ng),-1
+                CALL optic_manizza (ng, tile)
+              END DO
+!$OMP BARRIER
+            END DO
+#endif
 !
 !-----------------------------------------------------------------------
 !  Compute time-dependent vertical/horizontal mixing coefficients for
@@ -529,7 +574,7 @@
 # if defined DIFF_3DCOEF || defined VISC_3DCOEF
                 CALL hmixing (ng, tile)
 # endif
-                CALL omega (ng, tile)
+                CALL omega (ng, tile, iNLM)
                 CALL wvelocity (ng, tile, nstp(ng))
               END DO
 !$OMP BARRIER
@@ -574,14 +619,16 @@
               END IF
             END DO
 # endif
+# ifdef NEMURO_SAN
 !
 !  Once a year, we clean out the oldest fish.
 !  Must do this before calling output.
 !
-# ifdef NEMURO_SAN
-        DO ng=1,Ngrids
+        DO ig=1,GridsInLayer(nl)
+          ng=GridNumber(ig,nl)
           ! RD: need control for leap year
-          IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0) THEN
+          !IF (MOD(iic(ng)-1,24*365*steps_per_hour(ng))) THEN ! RD bug
+          IF ((MOD(iic(ng)-1,24*365*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN
 #  ifdef _OPENMP
               chunk_size=(Nfish(ng)+numthreads-1)/numthreads
               Lstr=1+MyThread*chunk_size
@@ -613,7 +660,8 @@
               CALL output (ng)
 !$OMP END MASTER
 !$OMP BARRIER
-              IF ((exit_flag.ne.NoError).or.                            &
+              IF ((FoundError(exit_flag, NoError, __LINE__,             &
+     &                        __FILE__)).or.                            &
      &            ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) THEN
                 RETURN
               END IF
@@ -816,7 +864,7 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=last_tile(ng),first_tile(ng),-1
-                CALL set_depth (ng, tile)
+                CALL set_depth (ng, tile, iNLM)
               END DO
 !$OMP BARRIER
             END DO
@@ -869,7 +917,7 @@
             DO ig=1,GridsInLayer(nl)
               ng=GridNumber(ig,nl)
               DO tile=first_tile(ng),last_tile(ng),+1
-                CALL omega (ng, tile)
+                CALL omega (ng, tile, iNLM)
 # ifdef MY25_MIXING
                 CALL my25_corstep (ng, tile)
 # elif defined GLS_MIXING
@@ -897,7 +945,8 @@
                 CALL step3d_t (ng, tile)
               END DO
 !$OMP BARRIER
-              IF (exit_flag.ne.NoError) RETURN
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__)) RETURN
             END DO
 
 #  ifdef NESTING
@@ -929,9 +978,12 @@
 !-----------------------------------------------------------------------
 !
             DO il=NestLayers,1,-1
-              IF (do_twoway(nl,il,istep,ng)) THEN
-                CALL nesting (ng, iNLM, n2way)
-              END IF
+              DO ig=1,GridsInLayer(il)
+                ng=GridNumber(ig,il)
+                IF (do_twoway(nl,il,ng,istep)) THEN
+                  CALL nesting (ng, iNLM, n2way)
+                END IF
+              END DO
             END DO
 #  endif
 !
@@ -983,7 +1035,8 @@
 !  Compute Lagrangian fish trajectories.
 !-----------------------------------------------------------------------
 !
-            DO ng=1,Ngrids
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
               IF (Lfish(Ng)) THEN
                 IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
                   DO tile=last_tile(ng),first_tile(ng),-1
@@ -1028,7 +1081,8 @@
 #  endif
                   END IF
 !  Make new fish once a day
-                  IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN
+                  !IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN ! RD bug
+                  IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN
                     CALL fish_spawn (ng, tile)
 ! Haven't finished this yet
 #  ifdef EGGS_BISECTION
@@ -1046,7 +1100,8 @@
 # endif
 !
 # if defined FLOATS || defined NEMURO_SAN
-            DO ng=1,Ngrids
+            DO ig=1,GridsInLayer(nl)
+              ng=GridNumber(ig,nl)
 #  ifdef NEMURO_SAN
              IF (MOD(iic(ng)-1,steps_per_hour(ng)).eq.0) THEN
 #  endif

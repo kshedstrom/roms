@@ -1,10 +1,10 @@
 #include "cppdefs.h"
       MODULE albedo_mod
-#if defined ALBEDO && !defined ALBEDO_FILE
+#if defined ALBEDO && !defined ALBEDO_FILE && !defined ANA_ALBEDO
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -41,7 +41,7 @@ contains
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 17)
+      CALL wclock_on (ng, iNLM, 17, __LINE__, __FILE__)
 # endif
       CALL albedo_tile (ng, tile,                                       &
      &                  LBi, UBi, LBj, UBj,                             &
@@ -66,10 +66,13 @@ contains
 #   endif
 #  endif
 # endif
+# ifdef ALBEDO_HACK
+     &                  GRID(ng) % mask_albedo,                         &
+# endif
      &                  FORCES(ng) % albedo                             &
      &                  )
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 17)
+      CALL wclock_off (ng, iNLM, 17, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE albedo_eval
@@ -92,6 +95,9 @@ contains
      &                        apond, hpond,                             &
 #   endif
 #  endif
+# endif
+# ifdef ALBEDO_HACK
+     &                        mask_albedo,                              &
 # endif
      &                        albedo                                    &
      &                        )
@@ -139,6 +145,9 @@ contains
 #    endif
 #   endif
 #  endif
+#  ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: albedo(LBi:,LBj:)
 
 # else
@@ -158,6 +167,9 @@ contains
 #    endif
 #   endif
 #  endif
+#ifdef ALBEDO_HACK
+      real(r8), intent(in) :: mask_albedo(LBi:UBi,LBj:UBj)
+#endif
       real(r8), intent(out) :: albedo(LBi:UBi,LBj:UBj)
 # endif
 !
@@ -169,25 +181,37 @@ contains
       real(r8) :: cff
 # ifdef ICE_BULK_FLUXES
 #  ifdef ALBEDO_CSIM
-      real(r8), parameter :: alb_i_thick=0.54_r8
       real(r8) :: alb_i_dry
       real(r8) :: alb_ice, alb_snow, fh, fsn
-      real(r8), parameter :: alb_s_dry=0.83_r8
-      real(r8), parameter :: alb_s_wet=0.70_r8
+! Was these values
+!     real(r8), parameter :: alb_i_thick=0.54_r8
+!     real(r8), parameter :: alb_s_dry=0.83_r8
+!     real(r8), parameter :: alb_s_wet=0.70_r8
+! Values from Ungermann et al, 2017
+      real(r8), parameter :: alb_i_thick=0.71_r8
+      real(r8), parameter :: alb_s_dry=0.86_r8
+      real(r8), parameter :: alb_s_wet=0.79_r8
 #  else
+#ifdef ICE_BOX
+      real(r8), parameter :: alb_i_dry=0.75_r8
+      real(r8), parameter :: alb_i_wet=0.64_r8
+      real(r8), parameter :: alb_s_dry=0.85_r8
+      real(r8), parameter :: alb_s_wet=0.82_r8
+#else
       real(r8), parameter :: alb_i_dry=0.65_r8
       real(r8), parameter :: alb_i_wet=0.60_r8
       real(r8), parameter :: alb_s_dry=0.85_r8
       real(r8), parameter :: alb_s_wet=0.72_r8
+#endif
 #  endif
-      real(r8), parameter :: alb_w=0.06_r8
       real(r8) :: albs, qlwi, qlh_i, qsh_i
-      real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
+      real(r8) :: le_i, dq_i,fqlat1, slp, Qsati
       real(r8) :: vap_p_i
 #  ifdef ICE_ALB_EC92
       real(r8) :: albi, albsn, thki_n, thksn_n
 #  endif
 # endif
+      real(r8), parameter :: alb_w=0.06_r8
 # if defined ICE_MODEL
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
@@ -218,9 +242,9 @@ contains
 !
 #  ifdef ICE_ALB_EC92
 ! Ice and snow albedo is calculated from Ebert and Curry,1992b
-          albi=0._r8
-          albsn=0._r8
-          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+          albi=0.06_r8
+          albsn=0.06_r8
+          IF (ai(i,j,listp) .ge. min_a(ng)) THEN
             thki_n = ice_thick(i,j)
             thki_n = MAX(thki_n,0.00001_r8)
             thksn_n = snow_thick(i,j)
@@ -253,19 +277,39 @@ contains
           fsn = snow_thick(i,j) / (snow_thick(i,j) + 0.02)
           alb_i_dry = alb_w*(1-fh) + alb_i_thick*fh
           cff1 = alb_s_wet - alb_s_dry
-          cff2 = -0.075      ! alb_i_wet - alb_i_dry
+!         cff2 = -0.075      ! alb_i_wet - alb_i_dry
+!  From Ungermann et al., 2017
+          cff2 = 0.0019
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
-            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-              alb_snow = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+            IF (tis(i,j) .gt. -1.0_r8) THEN
+              alb_snow = cff1*(tis(i,j)+1.0_r8)+alb_s_dry
             ELSE
               alb_snow = alb_s_dry
             ENDIF
-            IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-              alb_ice = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+            IF (tis(i,j) .gt. -1.0_r8) THEN
+              alb_ice = cff2*(tis(i,j)+1.0_r8)+alb_i_dry
             ELSE
               alb_ice = alb_i_dry
             ENDIF
             albedo_ice(i,j) = fsn*alb_snow + (1-fsn)*alb_ice
+          ELSE
+            albedo_ice(i,j)=alb_w
+          ENDIF
+#  elif defined ICE_BOX
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            IF (hsn(i,j,listp).gt.0._r8) THEN
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = alb_s_wet
+              ELSE
+                albedo_ice(i,j) = alb_s_dry
+              ENDIF
+            ELSE
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = alb_i_wet
+              ELSE
+                albedo_ice(i,j) = alb_i_dry
+              ENDIF
+            ENDIF
           ELSE
             albedo_ice(i,j)=alb_w
           ENDIF
@@ -274,14 +318,14 @@ contains
           cff2 = alb_i_wet - alb_i_dry
           IF (ai(i,j,listp) .gt. min_a(ng)) THEN
             IF (hsn(i,j,listp).gt.0._r8) THEN
-              IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo_ice(i,j) = cff1*(sfc_temp-272.16_r8)+alb_s_dry
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff1*(tis(i,j)+1.0_r8)+alb_s_dry
               ELSE
                 albedo_ice(i,j) = alb_s_dry
               ENDIF
             ELSE
-              IF (sfc_temp-273.16_r8.gt. -1._r8) THEN
-                albedo_ice(i,j) = cff2*(sfc_temp-272.16_r8)+alb_i_dry
+              IF (tis(i,j) .gt. -1.0_r8) THEN
+                albedo_ice(i,j) = cff2*(tis(i,j)+1.0_r8)+alb_i_dry
               ELSE
                 albedo_ice(i,j) = alb_i_dry
               ENDIF
@@ -289,6 +333,9 @@ contains
           ELSE
             albedo_ice(i,j)=alb_w
           ENDIF
+#  endif
+#  ifdef ALBEDO_HACK
+          albedo_ice(i,j) = max(albedo_ice(i,j), 0.95*mask_albedo(i,j))
 #  endif
 # endif
 ! Compute ocean albedo
@@ -303,6 +350,9 @@ contains
 #  endif
 # else
           albedo(i,j)=alb_w
+# endif
+# ifdef ALBEDO_HACK
+          albedo(i,j) = max(albedo(i,j), 0.95*mask_albedo(i,j))
 # endif
         END DO
       END DO

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -165,7 +165,8 @@
 !
         DO ng=1,Ngrids
           CALL get_data (ng)
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
 !
 !-----------------------------------------------------------------------
@@ -179,7 +180,8 @@
           END DO
 !$OMP BARRIER
         END DO
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Initialize all time levels and compute other initial fields.
@@ -220,7 +222,8 @@
           END DO
 !$OMP BARRIER
         END DO
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 # ifdef NESTING
         CALL nesting (5)
 # endif
@@ -340,8 +343,9 @@
 !
         DO ng=1,Ngrids
           CALL output (ng)
-          IF ((exit_flag.ne.NoError).or.                                &
-     &        ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) RETURN 
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__) .or.
+     &        ((iic(ng).eq.(ntend(ng)+1)).and.(ng.eq.Ngrids))) RETURN
         END DO
 !
 !-----------------------------------------------------------------------
@@ -428,14 +432,14 @@
 !
         DO ng=1,Ngrids
 #  ifdef _OPENMP
-          chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
-          Lstr=1+MyThread*chunk_size
-          Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
+            chunk_size=(Nfloats(ng)+numthreads-1)/numthreads
+            Lstr=1+MyThread*chunk_size
+            Lend=MIN(Nfloats(ng),Lstr+chunk_size-1)
 #  else
-          Lstr=1
-          Lend=Nfloats(ng)
+            Lstr=1
+            Lend=Nfloats(ng)
 #  endif
-          CALL step_floats (ng, Lstr, Lend)
+            CALL step_floats (ng, Lstr, Lend)
 !$OMP BARRIER
         END DO
 # endif

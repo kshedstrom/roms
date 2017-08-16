@@ -3,7 +3,7 @@
 !!
 !!svn $Id$
 !!================================================= Hernan G. Arango ===
-!! Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !!======================================================================
@@ -23,6 +23,8 @@
 #  include <goanpz_inp.h>
 # elif defined BIO_UMAINE
 #  include <umaine_inp.h>
+# elif defined HYPOXIA_SRM
+#  include <hypoxia_srm_inp.h>
 # elif defined NEMURO
 #  include <nemuro_inp.h>
 # elif defined NPZD_FRANKS
@@ -31,6 +33,10 @@
 #  include <npzd_iron_inp.h>
 # elif defined NPZD_POWELL
 #  include <npzd_Powell_inp.h>
+# elif defined BIO_COBALT
+#  include <cobalt_inp.h>
+# elif defined RED_TIDE
+#  include <red_tide_inp.h>
 # endif
 #else
       SUBROUTINE read_BioPar

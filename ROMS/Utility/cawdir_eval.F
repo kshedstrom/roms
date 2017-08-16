@@ -29,7 +29,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 43)
+      CALL wclock_on (ng, iNLM, 17, __LINE__, __FILE__)
 # endif
       CALL cawdir_eval_tile (ng, tile,                                  &
      &                     LBi, UBi, LBj, UBj,                          &
@@ -46,7 +46,7 @@
 # endif
      &                     FORCES(ng) % cawdir)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 43)
+      CALL wclock_off (ng, iNLM, 17, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE cawdir_eval

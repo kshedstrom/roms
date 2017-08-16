@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -110,15 +110,15 @@
                 dVde=v(i,Jstr+1,k,nout)-v(i,Jstr+2,k,nout)
 
                 IF (LBC(isouth,isVvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(i,Jstr-1,k)+           &
-     &                       CLIMA(ng)%M3nudgcof(i,Jstr  ,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(i,Jstr-1,k)+           &
+!    &                       CLIMA(ng)%M3nudgcof(i,Jstr  ,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,isouth)
                     obc_in =M3obc_in (ng,isouth)
-                  END IF
+!                 END IF
                   IF ((dVdt*dVde).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -127,7 +127,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
                 IF ((dVdt*(grad(i  ,Jstr+1)+                            &
      &                     grad(i+1,Jstr+1))).gt.0.0_r8) THEN
                   dVdx=grad(i  ,Jstr+1)
@@ -135,6 +134,7 @@
                   dVdx=grad(i+1,Jstr+1)
                 END IF
                 cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+                IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
 # ifdef RADIATION_2D
                 Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
 # else
@@ -242,15 +242,15 @@
                 dVde=v(i,Jend,k,nout)-v(i,Jend-1,k,nout)
 
                 IF (LBC(inorth,isVvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(i,Jend  ,k)+           &
-     &                       CLIMA(ng)%M3nudgcof(i,Jend+1,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(i,Jend  ,k)+           &
+!    &                       CLIMA(ng)%M3nudgcof(i,Jend+1,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,inorth)
                     obc_in =M3obc_in (ng,inorth)
-                  END IF
+!                 END IF
                   IF ((dVdt*dVde).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -259,7 +259,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
                 IF ((dVdt*(grad(i  ,Jend)+                              &
      &                     grad(i+1,Jend))).gt.0.0_r8) THEN
                   dVdx=grad(i  ,Jend)
@@ -267,6 +266,7 @@
                   dVdx=grad(i+1,Jend)
                 END IF
                 cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+                IF ((dVdt*dVde).lt.0.0_r8) dVdt=0.0_r8
 # ifdef RADIATION_2D
                 Cx=MIN(cff,MAX(dVdt*dVdx,-cff))
 # else
@@ -374,15 +374,15 @@
                 dVdx=v(Istr,j,k,nout)-v(Istr+1,j,k,nout)
 
                 IF (LBC(iwest,isVvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(Istr-1,j-1,k)+         &
-     &                       CLIMA(ng)%M3nudgcof(Istr-1,j  ,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(Istr-1,j-1,k)+         &
+!    &                       CLIMA(ng)%M3nudgcof(Istr-1,j  ,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,iwest)
                     obc_in =M3obc_in (ng,iwest)
-                  END IF
+!                 END IF
                   IF ((dVdt*dVdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -391,7 +391,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
                 IF ((dVdt*(grad(Istr,j-1)+                              &
      &                     grad(Istr,j  ))).gt.0.0_r8) THEN
                   dVde=grad(Istr,j-1)
@@ -399,6 +398,7 @@
                   dVde=grad(Istr,j  )
                 END IF
                 cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+                IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
                 Cx=dVdt*dVdx
 # ifdef RADIATION_2D
                 Ce=MIN(cff,MAX(dVdt*dVde,-cff))
@@ -522,15 +522,15 @@
                 dVdx=v(Iend,j,k,nout)-v(Iend-1,j,k,nout)
 
                 IF (LBC(ieast,isVvel,ng)%nudging) THEN
-                  IF (LnudgeM3CLM(ng)) THEN
-                    obc_out=0.5_r8*                                     &
-     &                      (CLIMA(ng)%M3nudgcof(Iend+1,j-1,k)+         &
-     &                       CLIMA(ng)%M3nudgcof(Iend+1,j  ,k))
-                    obc_in =obcfac(ng)*obc_out
-                  ELSE
+!                 IF (LnudgeM3CLM(ng)) THEN
+!                   obc_out=0.5_r8*                                     &
+!    &                      (CLIMA(ng)%M3nudgcof(Iend+1,j-1,k)+         &
+!    &                       CLIMA(ng)%M3nudgcof(Iend+1,j  ,k))
+!                   obc_in =obcfac(ng)*obc_out
+!                 ELSE
                     obc_out=M3obc_out(ng,ieast)
                     obc_in =M3obc_in (ng,ieast)
-                  END IF
+!                 END IF
                   IF ((dVdt*dVdx).lt.0.0_r8) THEN
                     tau=obc_in
                   ELSE
@@ -539,7 +539,6 @@
                   tau=tau*dt(ng)
                 END IF
 
-                IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
                 IF ((dVdt*(grad(Iend,j-1)+                              &
      &                     grad(Iend,j  ))).gt.0.0_r8) THEN
                   dVde=grad(Iend,j-1)
@@ -547,6 +546,7 @@
                   dVde=grad(Iend,j  )
                 END IF
                 cff=MAX(dVdx*dVdx+dVde*dVde,eps)
+                IF ((dVdt*dVdx).lt.0.0_r8) dVdt=0.0_r8
                 Cx=dVdt*dVdx
 # ifdef RADIATION_2D
                 Ce=MIN(cff,MAX(dVdt*dVde,-cff))

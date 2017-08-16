@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2017 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -18,6 +18,8 @@
 #define UV_VIS2
 #define MIX_S_UV
 #define DJ_GRADPS
+#define SPLINES_VDIFF
+#define SPLINES_VVISC
 #define TS_U3HADVECTION
 #define TS_C4VADVECTION
 #define TS_DIF2
@@ -25,7 +27,6 @@
 #define SOLVE3D
 #define CURVGRID
 #define AVERAGES
-#define SPLINES
 #define ANA_GRID
 #define ANA_INITIAL
 #define ANA_SMFLUX

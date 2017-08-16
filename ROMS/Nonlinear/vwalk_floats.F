@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -54,7 +54,7 @@
 
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 10)
+      CALL wclock_on (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
       CALL vwalk_floats_tile (ng, Lstr, Lend,                           &
      &                        nfm3(ng), nfm2(ng), nfm1(ng), nf(ng),     &
@@ -66,7 +66,7 @@
      &                        nudg,                                     &
      &                        DRIFTER(ng) % track)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 10)
+      CALL wclock_off (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
 
       RETURN
@@ -178,8 +178,8 @@
       END DO
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifakt, Nfloats(ng),       &
-     &                    isBw3d, w3dvar, Lmask, spval, nudg,           &
+     &                    Lstr, Lend, nfindx, ifakt, isBw3d,            &
+     &                    w3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -190,8 +190,8 @@
      &                    my_thread, bounded, track)
 
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 1, N(ng),             &
-     &                    Lstr, Lend, nfindx, ifdak, Nfloats(ng),       &
-     &                    isBr3d, r3dvar, Lmask, spval, nudg,           &
+     &                    Lstr, Lend, nfindx, ifdak, isBr3d,            &
+     &                    r3dvar, Lmask, spval, nudg,                   &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &
@@ -271,8 +271,8 @@
 !  Interpolate vertical slopes using nudging velocity coefficients.
 !
       CALL interp_floats (ng, LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                    Lstr, Lend, nfindx, izrhs, Nfloats(ng),       &
-     &                    isBw3d, -w3dvar, Lmask, spval, nudg,          &
+     &                    Lstr, Lend, nfindx, izrhs, isBw3d,            &
+     &                    -w3dvar, Lmask, spval, nudg,                  &
      &                    GRID(ng) % pm,                                &
      &                    GRID(ng) % pn,                                &
      &                    GRID(ng) % Hz,                                &

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -16,7 +16,7 @@
         implicit none
 !
 !-----------------------------------------------------------------------
-! Multiple grid structure.
+!  Multiple grid structure.
 !-----------------------------------------------------------------------
 !
 #if defined READ_WATER && defined MASKING && defined DISTRIBUTE
@@ -43,7 +43,6 @@
 !                    vertical W-points.
 !
         TYPE T_SCALARS
-
           logical, pointer :: Fstate(:)
           logical, pointer :: Lstate(:)
 #if defined READ_WATER && defined MASKING && defined DISTRIBUTE
@@ -59,10 +58,63 @@
           real(r8), pointer :: Cs_w(:)
           real(r8), pointer :: sc_r(:)
           real(r8), pointer :: sc_w(:)
-
         END TYPE T_SCALARS
-
+!
         TYPE (T_SCALARS), allocatable :: SCALARS(:)
+!
+!-----------------------------------------------------------------------
+!  Time clock structure.
+!-----------------------------------------------------------------------
+!
+!  Reference time (yyyymmdd.f) used to compute relative time. The
+!  application date clock is measured ad elapsed time interval since
+!  reference-time. This parameter also provides information about the
+!  calendar used:
+!
+!    If TIME_REF = -2, the model time and DSTART are in modified Julian
+!                  days units.  The time "units" attribute is:
+!
+!                  'time-units since 1968-05-23 00:00:00 GMT'
+!
+!    If TIME_REF = -1, the model time and DSTART are in a calendar
+!                  with 360 days in every year (30 days each month).
+!                  The time "units" attribute is:
+!
+!                  'time-units since 0001-01-01 00:00:00'
+!
+!    If TIME_REF = 0, the model time and DSTART are in a common year
+!                  calendar with 365.2524 days.  The "units" attribute
+!                  is:
+!
+!                  'time-units since 0001-01-01 00:00:00'
+!
+!    If TIME_REF > 0, the model time and DSTART are the elapsed time
+!                  units since specified reference time.  For example,
+!                  TIME_REF=20020115.5 will yield the following
+!                  time "units" attribute:
+!
+!                  'time-units since 2002-01-15 12:00:00'
+!
+        real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
+!
+      TYPE T_CLOCK
+        integer :: yday                ! day of the year
+        integer :: year                ! year including century (YYYY)
+        integer :: month               ! month of the year (1,...,12)
+        integer :: day                 ! day of the month
+        integer :: hour                ! hour of the day (1,...,23)
+        integer :: minutes             ! minutes of the hour
+
+        real(r8) :: seconds            ! frational seconds of the minute
+        real(r8) :: base               ! reference date (YYYYMMDD.dd)
+        real(r8) :: Dnumber            ! date number, fractional days
+        real(r8) :: Snumber            ! date number, fractional seconds
+
+        character (len=22) :: string   ! YYYY-MM-DD hh:mm:ss.ss
+        character (len=25) :: calendar ! date calendar
+      END TYPE T_CLOCK
+!
+        TYPE (T_CLOCK) :: Rclock       ! reference/base date
 !
 !-----------------------------------------------------------------------
 !  Tracer identification indices.
@@ -195,27 +247,16 @@
 !    io_time       Current I/O time (s) processed in "get_state".
 !    tdays         Model time clock (days).
 !    time          Model time clock (s).
-!    time_code     Model time clock (string, Day HH:MM:SS)
+!    time_code     Model time clock (string, YYYY-MM-DD hh:mm:ss.ss)
 !    AVGtime       Model time clock for averages output (s).
 !    AVG2time      Model time clock for averages output (s).
 !    DIAtime       Model time clock for diagnostics output (s).
 !    IMPtime       Impulse forcing time (s) to process.
 !    ObsTime       Observation time (s) to process.
 !    FrcTime       Adjoint or tangent linear Impulse forcing time (s).
-!    r_date        Model initialization reference date (vector):
-!                    r_date(1) => reference date (YYYYMMDD.dd).
-!                    r_date(2) => year.
-!                    r_date(3) => year day.
-!                    r_date(4) => month.
-!                    r_date(5) => day.
-!                    r_date(6) => hour.
-!                    r_date(7) => minute.
-!                    r_date(8) => second.
 !    dstart        Time stamp assigned to model initialization (usually
 !                    a Calendar day, like modified Julian Day).
 !    tide_start    Reference time for tidal forcing (days).
-!    time_ref      Reference time for "units" attribute (YYYYMMDD.dd).
-!    r_text        Model initialization reference text (string).
 #ifdef CICE_MODEL
 !    tspy          timesteps per year
 !    tspd          timesteps per day
@@ -256,13 +297,10 @@
         real(r8), allocatable :: dtau(:)              ! seconds
 #endif
 
-        real(r8), dimension(8) :: r_date
         real(r8) :: dstart = 0.0_r8                      ! days
         real(r8) :: io_time = 0.0_r8                     ! seconds
         real(r8) :: run_time = 0.0_r8                    ! seconds
         real(r8) :: tide_start = 0.0_r8                  ! days
-        real(r8) :: time_ref = 0.0_r8                    ! YYYYMMDD.dd
-        real(r8) :: days_year = 365.25_r8                ! days per year
 #ifdef CICE_MODEL
         real(r8), allocatable :: tspy(:)                 ! timesteps
         real(r8), allocatable :: tspd(:)                 ! timesteps
@@ -283,10 +321,8 @@
         real(r8), allocatable :: min_a(:)
 #endif
 
-        character (len=14), allocatable :: time_code(:)  ! DD HH:MM:SS
+        character (len=22), allocatable :: time_code(:)  ! date string
 !$OMP THREADPRIVATE (time_code)
-
-        character (len=19) :: r_text
 
 #if defined POWER_LAW && defined SOLVE3D
 !
@@ -428,7 +464,11 @@
         real(r8) :: Csolar = 1353.0_r8          ! 1360-1380 W/m2
         real(r8) :: Infinity                    ! Infinity = 1.0/0.0
         real(r8) :: Eradius = 6371315.0_r8      ! m
+#ifdef ICE_BOX
+        real(r8) :: StefBo = 5.78E-8_r8         ! Watts/m2/K4 (Match MU)
+#else
         real(r8) :: StefBo = 5.67E-8_r8         ! Watts/m2/K4
+#endif
         real(r8) :: emmiss = 0.97_r8            ! non_dimensional
         real(r8) :: rhow = 1000.0_r8            ! kg/m3
 #ifdef SOLITON
@@ -495,6 +535,9 @@
         logical, allocatable :: Lm2CLM(:)            ! 2D momentum
         logical, allocatable :: Lm3CLM(:)            ! 3D momentum
         logical, allocatable :: LtracerCLM(:,:)      ! tracers
+        logical, allocatable :: LmiCLM(:)            ! ice momentum
+        logical, allocatable :: LaiCLM(:)            ! ice tracers
+        logical, allocatable :: LsiCLM(:)            ! ice tracers
 !
 !  Switched to nudge to climatology fields.
 !
@@ -502,6 +545,9 @@
         logical, allocatable :: LnudgeM2CLM(:)       ! 2D momentum
         logical, allocatable :: LnudgeM3CLM(:)       ! 3D momentum
         logical, allocatable :: LnudgeTCLM(:,:)      ! tracers
+        logical, allocatable :: LnudgeMICLM(:)       ! ice momentum
+        logical, allocatable :: LnudgeAICLM(:)       ! ice tracers
+        logical, allocatable :: LnudgeSICLM(:)       ! ice tracers
 !
 !  Switches to activate point Source/Sinks in an application:
 !    * Horizontal momentum transport (u or v)
@@ -534,13 +580,15 @@
 !
         real(r8), allocatable :: maxspeed(:)
         real(r8), allocatable :: maxrho(:)
+        real(r8), allocatable :: mintemp(:)
 !
 #ifdef NWGOA
         real(r8) :: max_speed = 80.0_r8         ! m/s
 #else
         real(r8) :: max_speed = 20.0_r8         ! m/s
 #endif
-        real(r8) :: max_rho = 200.0_r8          ! kg/m3
+        real(r8) :: max_rho  = 200.0_r8         ! kg/m3
+        real(r8) :: min_temp = -50.0_r8         ! degree C
 #ifdef BIOLOGY
         real(r8), allocatable :: maxbio(:,:)
         real(r8), allocatable :: max_bio(:)
@@ -707,13 +755,14 @@
         real(r8), allocatable :: gamma2(:)
 !
 !  Weighting coefficient for the newest (implicit) time step derivatives
-!  in the Crack-Nicolson implicit scheme (usually, lambda=0.5).
+!  using either a Crack-Nicolson implicit scheme (lambda=0.5) or a
+!  backward implicit scheme (lambda=1.0).
 !
-#ifdef SPLINES
-        real(r8) :: lambda = 1.0_r8             ! backward implicit
+#if defined SPLINES_VDIFF || defined SPLINES_VVISC
+        real(r8) :: lambda = 1.0_r8
 #else
 !!      real(r8) :: lambda = 0.5_r8
-        real(r8) :: lambda = 1.0_r8             ! backward implicit
+        real(r8) :: lambda = 1.0_r8
 #endif
 !
 !  Jerlov water type to assign everywhere, range values: 1 - 5.
@@ -766,12 +815,6 @@
 !
         integer :: Nuser
         real(r8), dimension(25) :: user(25)
-#ifdef CICE_MODEL
-!
-!  Ice initialization date
-!
-        integer :: iROMSdate
-#endif
 !
 !  Weights for the time average of 2D fields.
 !
@@ -811,6 +854,10 @@
 !                    tracers.
 !    Akv_bak       Background vertical mixing coefficient (m2/s) for
 !                    momentum.
+!    Akt_limit     Upper threshold vertical mixing coefficient (m2/s)
+!                    for tracers.
+!    Akv_limit     Upper threshold vertical mixing coefficient (m2/s)
+!                    for momentum.
 !    Kdiff         Isopycnal mixing thickness diffusivity (m2/s) for
 !                    tracers.
 !    ad_visc2      ADM lateral harmonic constant mixing coefficient
@@ -853,6 +900,7 @@
         real(r8), allocatable :: Akk_bak(:)          ! m2/s
         real(r8), allocatable :: Akp_bak(:)          ! m2/s
         real(r8), allocatable :: Akv_bak(:)          ! m2/s
+        real(r8), allocatable :: Akv_limit(:)        ! m2/s
 
         real(r8), allocatable :: ad_visc2(:)         ! m2/s
         real(r8), allocatable :: nl_visc2(:)         ! m2/s
@@ -868,6 +916,7 @@
         real(r8), allocatable :: tkenu4(:)           ! m2 s-1/2
 
         real(r8), allocatable :: Akt_bak(:,:)        ! m2/s
+        real(r8), allocatable :: Akt_limit(:,:)      ! m2/s
         real(r8), allocatable :: Kdiff(:,:)          ! m2/s
 
         real(r8), allocatable :: ad_tnu2(:,:)        ! m2/s
@@ -916,20 +965,22 @@
         logical, allocatable :: LdefADJ(:)       ! Adjoint file
         logical, allocatable :: LdefAVG(:)       ! Average file
         logical, allocatable :: LdefAVG2(:)      ! Average2 file
+        logical, allocatable :: LdefDAI(:)       ! DA initial/restart
         logical, allocatable :: LdefDIA(:)       ! Diagnostics file
         logical, allocatable :: LdefERR(:)       ! 4DVar error file
         logical, allocatable :: LdefFISH(:)      ! Fish file
         logical, allocatable :: LdefFLEET(:)     ! Fishing fleet file
         logical, allocatable :: LdefFLT(:)       ! Floats file
         logical, allocatable :: LdefHIS(:)       ! History file
-        logical, allocatable :: LdefHIS2(:)      ! History2 file
         logical, allocatable :: LdefHSS(:)       ! Hessian file
         logical, allocatable :: LdefINI(:)       ! Initial file
         logical, allocatable :: LdefIRP(:)       ! Initial RPM file
         logical, allocatable :: LdefITL(:)       ! Initial TLM file
-        logical, allocatable :: LdefLCZ(:)       ! Lanczos file
+        logical, allocatable :: LdefLCZ(:)       ! Lanczos Vectors file
+        logical, allocatable :: LdefLZE(:)       ! Evolved Lanczos file
         logical, allocatable :: LdefMOD(:)       ! 4DVAR file
         logical, allocatable :: LdefPRED(:)      ! Predatory fish file
+        logical, allocatable :: LdefQCK(:)       ! Quicksave file
         logical, allocatable :: LdefRST(:)       ! Restart file
         logical, allocatable :: LdefSTA(:)       ! Stations file
         logical, allocatable :: LdefTIDE(:)      ! tide forcing file
@@ -944,8 +995,8 @@
         logical, allocatable :: LwrtPRED(:)      ! Write predator file
         logical, allocatable :: LwrtFLEET(:)     ! Write fishing fleet file
         logical, allocatable :: LwrtHIS(:)       ! Write history file
-        logical, allocatable :: LwrtHIS2(:)      ! Write history2 file
         logical, allocatable :: LwrtPER(:)       ! Write during ensemble
+        logical, allocatable :: LwrtQCK(:)       ! write quicksave file
         logical, allocatable :: LwrtRST(:)       ! Write restart file
         logical, allocatable :: LwrtTLM(:)       ! Write tangent file
         logical, allocatable :: LwrtTLF(:)       ! Write impulse file
@@ -969,6 +1020,14 @@
 !
         logical, allocatable :: Ladjusted(:)
 !
+!  Switch to read input open boundary conditions data.
+!
+        logical, allocatable :: LprocessOBC(:)
+!
+!  Switch to read input tidal forcing data.
+!
+        logical, allocatable :: LprocessTides(:)
+!
 !  Switch to write application set-up information to standard output.
 !
         logical, allocatable :: LwrtInfo(:)
@@ -989,7 +1048,7 @@
         integer, allocatable :: ndefPRED(:)      ! Predator file
         integer, allocatable :: ndefFLEET(:)     ! Fishing fleet file
         integer, allocatable :: ndefHIS(:)       ! History file
-        integer, allocatable :: ndefHIS2(:)      ! History2 file
+        integer, allocatable :: ndefQCK(:)       ! Quicksave file
         integer, allocatable :: ndefTLM(:)       ! Tangent linear file
 !
 !  Starting timestep for accumulation of output.
@@ -1009,7 +1068,7 @@
         integer, allocatable :: nFSH(:)          ! Fish file
         integer, allocatable :: nHIS(:)          ! History file
         integer, allocatable :: nPRE(:)          ! Predator file
-        integer, allocatable :: nHIS2(:)         ! History2 file
+        integer, allocatable :: nQCK(:)          ! Quicksave file
         integer, allocatable :: nRST(:)          ! Restart file
         integer, allocatable :: nSTA(:)          ! Stations file
         integer, allocatable :: nTLM(:)          ! Tangent linear file
@@ -1122,7 +1181,8 @@
         logical, allocatable :: LcycleRST(:)
         logical, allocatable :: LcycleTLM(:)
 
-#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES  && defined AVERAGES_DETIDE && \
+   (defined SSH_TIDES || defined UV_TIDES)
 !
 !  Counter storing the number of accumulated harmonic records used
 !  for detiding.
@@ -1167,6 +1227,29 @@
 !  dimensionalization.
 !
         real(r8), allocatable :: SO_sdev(:,:)
+
+#if defined STOPERTURB
+        integer,  allocatable :: seed_user(:)
+        real(r8), allocatable :: grid_mean_dx(:)
+        real(r8), allocatable :: grid_mean_dy(:)
+# if defined FORCE_PERTURB
+!  Stochastic perturbations on forcing fields (variance)
+        real(r8), allocatable :: var_perturb_swrad(:)
+        real(r8), allocatable :: var_perturb_Tair(:)
+        real(r8), allocatable :: var_perturb_Uwind(:)
+        real(r8), allocatable :: var_perturb_Vwind(:)
+        real(r8), allocatable :: force_pert_rcorr(:)
+        real(r8), allocatable :: force_pert_tcorr(:)
+# endif
+# if defined EOS_PERTURB
+!  Stochastic perturbations on T/S for EOS (variance)
+        real(r8), allocatable :: var_perturb_dx(:)
+        real(r8), allocatable :: var_perturb_dy(:)
+        real(r8), allocatable :: var_perturb_dz(:)
+        real(r8), allocatable :: eos_pert_rcorr(:)
+        real(r8), allocatable :: eos_pert_tcorr(:)
+# endif
+#endif
 
 #if defined FOUR_DVAR || defined VERIFICATION
 !
@@ -1235,6 +1318,11 @@
         real(r8), allocatable :: Hdecay(:,:,:)
 !
 !  Initial conditions, model and surface forcing error covariance
+!  temporal decorrelation scales (second).
+!
+        real(r8), allocatable :: Tdecay(:,:)
+!
+!  Initial conditions, model and surface forcing error covariance
 !  vertical decorrelation scales (m).
 !
         real(r8), allocatable :: Vdecay(:,:,:)
@@ -1248,6 +1336,38 @@
 !  scales (m).
 !
         real(r8), allocatable :: VdecayB(:,:,:)
+!
+!  Method for background quality control of observations, [Ngrids].
+!
+!      [1] Quality control in terms of state variable indices
+!      [2] Quality control in terms of observation provenance
+!
+        integer, allocatable :: bgqc_type(:)
+!
+!  Background quality control standard deviation value for not
+!  rejection of observations.
+!
+        real(r8) :: bgqc_large = 1.0E+5_r8
+!
+!  Number of observation provenances used in background quality control,
+!  [Ngrids]. Only used when bgqc_type(ng)=2.
+!
+        integer, allocatable :: Nprovenance(:)
+!
+!  Observation provenance indices to process during background quality
+!  control of observations, [MAXVAL(Nprovenance),Ngrids].
+!
+        integer, allocatable :: Iprovenance(:,:)
+!
+!  Background quality control threshold standard deviations in terms
+!  of observation provenance indices, [MAXVAL(Nprovenance),Ngrids].
+!
+        real(r8), allocatable :: P_bgqc(:,:)
+!
+!  Background quality control threshold standard deviations in terms
+!  of state variable indices, [MstateVar,Ngrids]
+!
+        real(r8), allocatable :: S_bgqc(:,:)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1305,6 +1425,8 @@
         real(r8), allocatable :: M2nudg(:)         ! 2D momentum
         real(r8), allocatable :: M3nudg(:)         ! 3D momentum
         real(r8), allocatable :: Tnudg(:,:)        ! Tracers
+        real(r8), allocatable :: Tnudg_SSS(:)      ! Sea surface salinity
+        real(r8), allocatable :: sss_mismatch_threshold(:)! Sea surface salinity
 !
 !  Variables used to impose mass flux conservation in open boundary
 !  configurations.
@@ -1778,10 +1900,10 @@
         real(r8) :: spec_heat_air =  1004._r8
         real(r8) :: trans_coeff = 1.75E-3
         real(r8) :: sublim_latent_heat = 2.834E+6
-        real(r8) :: t0deg = 273.15_r8
+        real(r8) :: t0deg = 273.15_r8                     ! [Kelvin]
+        real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
 
         real(r8), allocatable :: dtice(:)
-        real(r8), allocatable :: dtice_eq(:)
         real(r8), allocatable :: dte(:)
         real(r8), allocatable :: rhoice(:)
         real(r8), allocatable :: cdiw(:)
@@ -1800,6 +1922,11 @@
         real(r8), allocatable :: min_a(:)
         real(r8), allocatable :: max_a(:)
         real(r8), allocatable :: stressang(:)
+# ifdef ICE_LANDFAST
+        real(r8), allocatable :: lf_k1(:)
+        real(r8), allocatable :: lf_k2(:)
+        real(r8), allocatable :: lf_u0(:)
+# endif
 #endif
 
       CONTAINS
@@ -1989,11 +2116,17 @@
       allocate ( Lm2CLM(Ngrids) )
       allocate ( Lm3CLM(Ngrids) )
       allocate ( LtracerCLM(MT,Ngrids) )
+      allocate ( LmiCLM(Ngrids) )
+      allocate ( LaiCLM(Ngrids) )
+      allocate ( LsiCLM(Ngrids) )
 
       allocate ( Lnudging(Ngrids) )
       allocate ( LnudgeM2CLM(Ngrids) )
       allocate ( LnudgeM3CLM(Ngrids) )
       allocate ( LnudgeTCLM(MT,Ngrids) )
+      allocate ( LnudgeMICLM(Ngrids) )
+      allocate ( LnudgeAICLM(Ngrids) )
+      allocate ( LnudgeSICLM(Ngrids) )
 
       allocate ( LuvSrc(Ngrids) )
       allocate ( LwSrc(Ngrids) )
@@ -2001,6 +2134,7 @@
 
       allocate ( maxspeed(Ngrids) )
       allocate ( maxrho(Ngrids) )
+      allocate ( mintemp(Ngrids) )
 
       allocate ( levsfrc(Ngrids) )
       allocate ( levbfrc(Ngrids) )
@@ -2070,6 +2204,7 @@
       allocate ( Akk_bak(Ngrids) )
       allocate ( Akp_bak(Ngrids) )
       allocate ( Akv_bak(Ngrids) )
+      allocate ( Akv_limit(Ngrids) )
 
       allocate ( ad_visc2(Ngrids) )
       allocate ( nl_visc2(Ngrids) )
@@ -2085,6 +2220,7 @@
       allocate ( tkenu4(Ngrids) )
 
       allocate ( Akt_bak(MT,Ngrids) )
+      allocate ( Akt_limit(NAT,Ngrids) )
       allocate ( Kdiff(MT,Ngrids) )
 
       allocate ( ad_tnu2(MT,Ngrids) )
@@ -2110,20 +2246,28 @@
       allocate ( LdefADJ(Ngrids) )
       allocate ( LdefAVG(Ngrids) )
       allocate ( LdefAVG2(Ngrids) )
+      allocate ( LdefDAI(Ngrids) )
       allocate ( LdefDIA(Ngrids) )
       allocate ( LdefERR(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( LdefFISH(Ngrids) )
+# ifdef PREDATOR
+      allocate ( LdefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( LdefFLEET(Ngrids) )
+# endif
+#endif
       allocate ( LdefFLT(Ngrids) )
       allocate ( LdefHIS(Ngrids) )
-      allocate ( LdefHIS2(Ngrids) )
       allocate ( LdefHSS(Ngrids) )
       allocate ( LdefINI(Ngrids) )
       allocate ( LdefIRP(Ngrids) )
       allocate ( LdefITL(Ngrids) )
       allocate ( LdefLCZ(Ngrids) )
+      allocate ( LdefLZE(Ngrids) )
       allocate ( LdefMOD(Ngrids) )
-      allocate ( LdefPRED(Ngrids) )
+      allocate ( LdefQCK(Ngrids) )
       allocate ( LdefRST(Ngrids) )
       allocate ( LdefSTA(Ngrids) )
       allocate ( LdefTIDE(Ngrids) )
@@ -2134,12 +2278,18 @@
       allocate ( LwrtAVG(Ngrids) )
       allocate ( LwrtAVG2(Ngrids) )
       allocate ( LwrtDIA(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( LwrtFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( LwrtPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( LwrtFLEET(Ngrids) )
+# endif
+#endif
       allocate ( LwrtHIS(Ngrids) )
-      allocate ( LwrtHIS2(Ngrids) )
       allocate ( LwrtPER(Ngrids) )
+      allocate ( LwrtQCK(Ngrids) )
       allocate ( LwrtRST(Ngrids) )
       allocate ( LwrtTLM(Ngrids) )
       allocate ( LwrtTLF(Ngrids) )
@@ -2157,6 +2307,9 @@
 
       allocate ( Ladjusted(Ngrids) )
 
+      allocate ( LprocessOBC(Ngrids) )
+      allocate ( LprocessTides(Ngrids) )
+
       allocate ( LwrtInfo(Ngrids) )
 
       allocate ( ldefout(Ngrids) )
@@ -2165,11 +2318,17 @@
       allocate ( ndefAVG(Ngrids) )
       allocate ( ndefAVG2(Ngrids) )
       allocate ( ndefDIA(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( ndefFISH(Ngrids) )
+# ifdef PREDATOR
       allocate ( ndefPRED(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
       allocate ( ndefFLEET(Ngrids) )
+# endif
+#endif
       allocate ( ndefHIS(Ngrids) )
-      allocate ( ndefHIS2(Ngrids) )
+      allocate ( ndefQCK(Ngrids) )
       allocate ( ndefTLM(Ngrids) )
 
       allocate ( ntsAVG(Ngrids) )
@@ -2180,12 +2339,18 @@
       allocate ( nAVG(Ngrids) )
       allocate ( nAVG2(Ngrids) )
       allocate ( nDIA(Ngrids) )
-      allocate ( nFLE(Ngrids) )
       allocate ( nFLT(Ngrids) )
+#ifdef NEMURO_SAN
       allocate ( nFSH(Ngrids) )
-      allocate ( nHIS(Ngrids) )
+# ifdef PREDATOR
       allocate ( nPRE(Ngrids) )
-      allocate ( nHIS2(Ngrids) )
+# endif
+# ifdef FISHING_FLEET
+      allocate ( nFLE(Ngrids) )
+# endif
+#endif
+      allocate ( nHIS(Ngrids) )
+      allocate ( nQCK(Ngrids) )
       allocate ( nRST(Ngrids) )
       allocate ( nSTA(Ngrids) )
       allocate ( nTLM(Ngrids) )
@@ -2221,7 +2386,8 @@
       allocate ( LcycleRST(Ngrids) )
       allocate ( LcycleTLM(Ngrids) )
 
-#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES  && defined AVERAGES_DETIDE && \
+   (defined SSH_TIDES || defined UV_TIDES)
       allocate ( Hcount(Ngrids) )
 #endif
 
@@ -2238,6 +2404,27 @@
       allocate ( SO_sdev(7+2*MT,Ngrids) )
 #else
       allocate ( SO_sdev(5,Ngrids) )
+#endif
+
+#if defined STOPERTURB
+      allocate ( grid_mean_dx(Ngrids) )
+      allocate ( grid_mean_dy(Ngrids) )
+      allocate ( seed_user(Ngrids) )
+# if defined FORCE_PERTURB
+      allocate ( var_perturb_swrad(Ngrids) )
+      allocate ( var_perturb_Tair(Ngrids) )
+      allocate ( var_perturb_Uwind(Ngrids) )
+      allocate ( var_perturb_Vwind(Ngrids) )
+      allocate ( force_pert_rcorr(Ngrids) )
+      allocate ( force_pert_tcorr(Ngrids) )
+# endif
+# if defined EOS_PERTURB
+      allocate ( var_perturb_dx(Ngrids) )
+      allocate ( var_perturb_dy(Ngrids) )
+      allocate ( var_perturb_dz(Ngrids) )
+      allocate ( eos_pert_rcorr(Ngrids) )
+      allocate ( eos_pert_tcorr(Ngrids) )
+# endif
 #endif
 
 #if defined FOUR_DVAR || defined VERIFICATION
@@ -2257,8 +2444,14 @@
       allocate ( Hdecay(2,MstateVar,Ngrids) )
       allocate ( Vdecay(2,MstateVar,Ngrids) )
 
+      allocate ( Tdecay(MstateVar,Ngrids) )
+
       allocate ( HdecayB(MstateVar,4,Ngrids) )
       allocate ( VdecayB(MstateVar,4,Ngrids) )
+
+      allocate ( bgqc_type(Ngrids) )
+      allocate ( Nprovenance(Ngrids) )
+      allocate ( S_bgqc(MstateVar,Ngrids) )
 #endif
 
       allocate ( obcfac(Ngrids) )
@@ -2278,6 +2471,8 @@
       allocate ( M2nudg(Ngrids) )
       allocate ( M3nudg(Ngrids) )
       allocate ( Tnudg(MT,Ngrids) )
+      allocate ( Tnudg_SSS(Ngrids) )
+      allocate ( sss_mismatch_threshold(Ngrids) )
 
 #if defined BULK_FLUXES || defined BULK_FLUXES2D
       allocate ( blk_ZQ(Ngrids) )
@@ -2314,7 +2509,6 @@
      allocate ( ievp(Ngrids) )
 
      allocate ( dtice(Ngrids) )
-     allocate ( dtice_eq(Ngrids) )
      allocate ( dte(Ngrids) )
      allocate ( rhoice(Ngrids) )
      allocate ( cdiw(Ngrids) )
@@ -2333,6 +2527,11 @@
      allocate ( min_a(Ngrids) )
      allocate ( max_a(Ngrids) )
      allocate ( stressang(Ngrids) )
+# ifdef ICE_LANDFAST
+     allocate ( lf_k1(Ngrids) )
+     allocate ( lf_k2(Ngrids) )
+     allocate ( lf_u0(Ngrids) )
+# endif
 #endif
 
       RETURN
@@ -2557,7 +2756,8 @@
         gamma2(ng)=-1.0_r8
         Vtransform(ng)=1
         Vstretching(ng)=1
-#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES  && defined AVERAGES_DETIDE && \
+   (defined SSH_TIDES || defined UV_TIDES)
         Hcount(ng)=0
 #endif
 #ifdef ADJUST_BOUNDARY
@@ -2576,10 +2776,16 @@
         Lnudging(ng)=.FALSE.
         LnudgeM2CLM(ng)=.FALSE.
         LnudgeM3CLM(ng)=.FALSE.
+        LnudgeMICLM(ng)=.FALSE.
+        LnudgeAICLM(ng)=.FALSE.
+        LnudgeSICLM(ng)=.FALSE.
         Lclimatology(ng)=.FALSE.
         Lm2CLM(ng)=.FALSE.
         Lm3CLM(ng)=.FALSE.
         LsshCLM(ng)=.FALSE.
+        LmiCLM(ng)=.FALSE.
+        LaiCLM(ng)=.FALSE.
+        LsiCLM(ng)=.FALSE.
         Lsponge(ng)=.FALSE.
         LuvSponge(ng)=.FALSE.
         LuvSrc(ng)=.FALSE.
@@ -2600,6 +2806,10 @@
           tl_tnu4(itrc,ng)=IniVal
           tnu4(itrc,ng)=IniVal
         END DO
+        DO itrc=1,NAT
+          Akt_limit(itrc,ng)=1.0E-3_r8
+        END DO
+        Akv_limit(ng)=1.0E-3_r8
         ad_Akv_fac(ng)=1.0_r8
         tl_Akv_fac(ng)=1.0_r8
         ad_visc2(ng)=IniVal
@@ -2664,6 +2874,7 @@
 
       Cnorm=.FALSE.
       Hdecay=IniVal
+      Tdecay=IniVal
       Vdecay=IniVal
 
       CnormB=.FALSE.
@@ -2682,9 +2893,13 @@
 
         Ladjusted(ng)=.FALSE.
 
+        LprocessOBC(ng)=.FALSE.
+        LprocessTides(ng)=.FALSE.
+
         LdefADJ(ng)=.FALSE.
         LdefAVG(ng)=.TRUE.
         LdefAVG2(ng)=.TRUE.
+        LdefDAI(ng)=.FALSE.
         LdefDIA(ng)=.TRUE.
         LdefERR(ng)=.FALSE.
 #ifdef FLOATS
@@ -2700,16 +2915,19 @@
 # endif
 #endif
         LdefHIS(ng)=.TRUE.
-        LdefHIS2(ng)=.TRUE.
         LdefINI(ng)=.FALSE.
         LdefIRP(ng)=.FALSE.
         LdefITL(ng)=.FALSE.
         LdefMOD(ng)=.FALSE.
+        LdefQCK(ng)=.FALSE.
         LdefRST(ng)=.TRUE.
         LdefSTA(ng)=.TRUE.
         LdefTLM(ng)=.FALSE.
-#if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
+#if defined AVERAGES  && defined AVERAGES_DETIDE && \
+   (defined SSH_TIDES || defined UV_TIDES)
         LdefTIDE(ng)=.TRUE.
+#else
+        LdefTIDE(ng)=.FALSE.
 #endif
         LwrtADJ(ng)=.FALSE.
         LwrtAVG(ng)=.FALSE.
@@ -2725,8 +2943,8 @@
         LwrtFLEET(ng)=.FALSE.
 # endif
         LwrtHIS(ng)=.FALSE.
-        LwrtHIS2(ng)=.FALSE.
         LwrtPER(ng)=.FALSE.
+        LwrtQCK(ng)=.FALSE.
         LwrtRST(ng)=.FALSE.
         LwrtTLM(ng)=.FALSE.
         LwrtInfo(ng)=.TRUE.

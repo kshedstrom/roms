@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -34,39 +34,41 @@
       USE mod_stepping
 !
       USE analytical_mod
+      USE dateclock_mod,     ONLY : time_string
 # ifdef DISTRIBUTE
-      USE distribute_mod, ONLY : mp_bcasti
+      USE distribute_mod,    ONLY : mp_bcasti
 # endif
 #ifdef TLM_CHECK
-      USE ini_adjust_mod, ONLY : ini_perturb
+      USE ini_adjust_mod,    ONLY : ini_perturb
 #endif
-      USE ini_hmixcoef_mod, ONLY : ini_hmixcoef
-      USE metrics_mod, ONLY : metrics
+      USE ini_hmixcoef_mod,  ONLY : ini_hmixcoef
+      USE metrics_mod,       ONLY : metrics
 #ifdef NESTING
-      USE nesting_mod, ONLY : nesting
+      USE nesting_mod,       ONLY : nesting
 #endif
 #ifdef SOLVE3D
-      USE set_depth_mod, ONLY : set_depth
-      USE omega_mod, ONLY : omega
-      USE rho_eos_mod, ONLY : rho_eos
-      USE set_massflux_mod, ONLY : set_massflux
+      USE set_depth_mod,     ONLY : set_depth0, set_depth
+      USE omega_mod,         ONLY : omega
+      USE rho_eos_mod,       ONLY : rho_eos
+      USE set_massflux_mod,  ONLY : set_massflux
 #endif
 #ifdef ICE_STRENGTH_QUAD
       USE ini_strengthcoef_mod, ONLY : ini_strengthcoef
 #endif
 #ifdef MASKING
-      USE set_masks_mod, ONLY : set_masks
+      USE set_masks_mod,     ONLY : set_masks
 #endif
-      USE stiffness_mod, ONLY : stiffness
-#ifdef WAVES_OCEAN
+      USE stiffness_mod,     ONLY : stiffness
+#if defined WAV_COUPLING && defined MCT_LIB
       USE ocean_coupler_mod, ONLY : ocn2wav_coupling
 #endif
+      USE strings_mod,       ONLY : FoundError
 #ifdef WET_DRY
-      USE wetdry_mod, ONLY : wetdry
+      USE wetdry_mod,        ONLY : wetdry
 #endif
 #if defined PROPAGATOR || \
     (defined MASKING    && (defined READ_WATER || defined WRITE_WATER))
-      USE wpoints_mod, ONLY : wpoints
+      USE wpoints_mod,       ONLY : wpoints
 #endif
 #ifdef NEMURO_SAN
       USE mod_fish
@@ -148,7 +150,7 @@
         time(ng)=tdays(ng)*day2sec
 !$OMP MASTER
         ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
-        ntend(ng)=ntimes(ng)
+        ntend(ng)=ntstart(ng)+ntimes(ng)-1
         ntfirst(ng)=ntstart(ng)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -186,7 +188,7 @@
 !
       DO ng=1,Ngrids
         DO thread=THREAD_RANGE
-          CALL wclock_on (ng, iNLM, 2)
+          CALL wclock_on (ng, iNLM, 2, __LINE__, __FILE__)
         END DO
       END DO
 !$OMP BARRIER
@@ -203,7 +205,6 @@
 !  histroy NetCDF files or append (false) to an existing file.  Set
 !  record to read from initial NetCDF file.
 !
-!$OMP MASTER
       IF (First) THEN
         First=.FALSE.
         DO ng=1,Ngrids
@@ -215,7 +216,8 @@
 # ifdef DISTRIBUTE
           CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           IniRec(ng)=nrrec(ng)
           INI(ng)%Rindex=IniRec(ng)
         END DO
@@ -263,23 +265,6 @@
         LwrtRST(ng)=.TRUE.
       END DO
 # endif
-!$OMP END MASTER
-!$OMP BARRIER
-#endif
-#ifdef OBSERVATIONS
-!
-!-----------------------------------------------------------------------
-!  Open observations NetCDF file and initialize various variables
-!  needed for processing the nonlinear state solution at observation
-!  locations.
-!-----------------------------------------------------------------------
-!
-      DO ng=1,Ngrids
-!$OMP MASTER
-        CALL obs_initial (ng, iNLM, .FALSE.)
-        IF (exit_flag.ne.NoError) RETURN
-!$OMP END MASTER
-      END DO
 !$OMP BARRIER
 #endif
 !
@@ -314,7 +299,8 @@
           CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
 #endif
 
@@ -421,7 +407,8 @@
             CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-            IF (exit_flag.ne.NoError) RETURN
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
         END DO
 #endif
@@ -488,7 +475,7 @@
 !
       DO ng=1,Ngrids
         DO tile=first_tile(ng),last_tile(ng),+1
-          CALL set_depth (ng, tile)
+          CALL set_depth (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
       END DO
@@ -507,6 +494,7 @@
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL ana_initial (ng, tile, iNLM)
           END DO
+          io_time = time(ng)
 !$OMP BARRIER
         END IF
       END DO
@@ -569,7 +557,8 @@
         CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         time(ng)=io_time                     ! needed for shared-memory
       END DO
 #else
@@ -579,14 +568,15 @@
       DO ng=1,Ngrids
         IF (nrrec(ng).ne.0) THEN
 !$OMP MASTER
-          CALL get_state (ng, 0, 1, INI(ng)%name,                      &
+          CALL get_state (ng, 0, 1, INI(ng)%name,                       &
      &                    IniRec(ng), Tindex(ng))
 !$OMP END MASTER
 # ifdef DISTRIBUTE
           CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           time(ng)=io_time                   ! needed for shared-memory
         END IF
       END DO
@@ -602,7 +592,8 @@
             CALL ana_ice (ng, TILE, iNLM)
           END DO
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
           time(ng)=io_time                   ! needed for shared-memory
         END IF
       END DO
@@ -625,7 +616,8 @@
           CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         ELSE
           DO tile=first_tile(ng),last_tile(ng),+1
             CALL wetdry (ng, tile, Tindex(ng), .TRUE.)
@@ -633,6 +625,26 @@
 !$OMP BARRIER
         END IF
       END DO
+#endif
+
+#ifdef OBSERVATIONS
+!
+!-----------------------------------------------------------------------
+!  Open observations NetCDF file and initialize various variables
+!  needed for processing the nonlinear state solution at observation
+!  locations. Need to be done after processing initial conditions since
+!  the correct initial time is needed to determine the first "ObsTime"
+!  to process.
+!-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+!$OMP MASTER
+        CALL obs_initial (ng, iNLM, .FALSE.)
+!$OMP END MASTER
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+      END DO
+!$OMP BARRIER
 #endif
 
 #if (defined W4DPSAS || defined TL_W4DPSAS || \
@@ -656,7 +668,8 @@
           CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
       END IF
 #endif
@@ -682,13 +695,14 @@
 #ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
-!  Compute initial unperturbed depths. Notice that during the
-!  initialization "Zt_avg1" is always zero.
+!  Compute time independent (Zt_avg1=0) anf initial time dependent
+!  depths and level thicknesses.
 !-----------------------------------------------------------------------
 !
       DO ng=1,Ngrids
         DO tile=first_tile(ng),last_tile(ng),+1
-          CALL set_depth (ng, tile)
+          CALL set_depth0 (ng, tile, iNLM)
+          CALL set_depth  (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
       END DO
@@ -699,7 +713,7 @@
 !
       DO ng=1,Ngrids
         DO tile=first_tile(ng),last_tile(ng),+1
-          CALL set_massflux (ng, tile)
+          CALL set_massflux (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
       END DO
@@ -713,8 +727,8 @@
 !
       DO ng=1,Ngrids
         DO tile=first_tile(ng),last_tile(ng),+1
-          CALL omega (ng, tile)
-          CALL rho_eos (ng, tile)
+          CALL omega (ng, tile, iNLM)
+          CALL rho_eos (ng, tile, iNLM)
         END DO
 !$OMP BARRIER
       END DO
@@ -796,7 +810,8 @@
         CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END DO
 !
 !  If applicable, read in input data.
@@ -811,7 +826,8 @@
         CALL mp_bcasti (ng, iNLM, exit_flag)
 # endif
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END DO
 #endif
 
@@ -921,7 +937,8 @@
 # ifdef DISTRIBUTE
           CALL mp_bcasti (ng, iTLM, exit_flag)
 # endif
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END IF
       END DO
 #endif
@@ -971,7 +988,7 @@
       END DO
 #endif
 
-# ifdef WAVES_OCEAN
+# if defined WAV_COUPLING && defined MCT_LIB
 !
 !-----------------------------------------------------------------------
 !  Read in initial forcing from coupled wave model.
@@ -1015,7 +1032,7 @@
 !
       DO ng=1,Ngrids
         DO thread=THREAD_RANGE
-          CALL wclock_off (ng, iNLM, 2)
+          CALL wclock_off (ng, iNLM, 2, __LINE__, __FILE__)
         END DO
 !$OMP BARRIER
       END DO

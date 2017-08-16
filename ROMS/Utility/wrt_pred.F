@@ -43,7 +43,8 @@
 !  Write out station data at RHO-points.
 !-----------------------------------------------------------------------
 !
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Set time record index.
 !
@@ -57,7 +58,8 @@
      &                      (/PRED(ng)%Rindex/), (/1/),                 &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idtime))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out pred species.
 !
@@ -67,7 +69,8 @@
      &                      (/1/), (/Npred(ng)/),                       &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPspc))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out pred aliveness.
 !
@@ -77,7 +80,8 @@
      &                      (/1/), (/Npred(ng)/),                       &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPalv))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out pred X-grid locations.
 !
@@ -93,7 +97,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idXgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out pred Y-grid locations.
 !
@@ -109,7 +114,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idYgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -127,7 +133,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idZgrd))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 # endif
 !
 !  Write out pred (lon,lat) or (x,y) locations.
@@ -148,7 +155,8 @@
      &                        ncid = PRED(ng)%ncid,                     &
      &                        varid = PRED(ng)%Vid(idglon))
       END IF
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
       DO l=1,Npred(ng)
         Tout(l)=PREDS(ng)%track(iflat,nf(ng),l)
@@ -166,7 +174,8 @@
      &                        ncid = PRED(ng)%ncid,                     &
      &                        varid = PRED(ng)%Vid(idglat))
       END IF
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 # ifdef SOLVE3D
 !
@@ -184,7 +193,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(iddpth))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out density anomaly.
 !
@@ -200,7 +210,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idDano))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Write out tracer type variables.
 !
@@ -217,7 +228,8 @@
      &                        (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),   &
      &                        ncid = PRED(ng)%ncid,                     &
      &                        varid = PRED(ng)%Tid(itrc))
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END DO
 #  if defined NEMURO_SAN && defined PREDATOR
 !  Write pred wet weight.
@@ -233,7 +245,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPwwt))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write pred worth.
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -247,7 +260,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPworth))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write pred P-value.
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -261,7 +275,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPpval))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Pred consumption on species 1
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -275,7 +290,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPcsmF1))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Pred consumption on species 2
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -289,7 +305,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPcsmF2))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Pred consumption on species 3
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -303,7 +320,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPcsmF3))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Pred consumption on species 4
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -317,7 +335,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPcsmF4))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !  Write Pred consumption on species 5
       DO l=1,Npred(ng)
         IF (PREDS(ng)%bounded(l)) THEN
@@ -331,7 +350,8 @@
      &                      (/1,PRED(ng)%Rindex/), (/Npred(ng),1/),     &
      &                      ncid = PRED(ng)%ncid,                       &
      &                      varid = PRED(ng)%Vid(idPcsmF5))
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #  endif
 # endif
 !

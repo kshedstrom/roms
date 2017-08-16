@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -136,6 +136,10 @@
 !  yv         ETA-coordinates (m) at V-points.                         !
 !  zice       Depth of ice shelf cavity (m, negative) at               !
 !               RHO-points.                                            !
+!  z0_r       Time independent depths (m) at horizontal RHO-points and !
+!               vertical RHO-points.                                   !
+!  z0_w       Time independent depths (m) at horizontal RHO-points and !
+!               vertical W-points.                                     !
 !  z_r        Actual depths (m) at horizontal RHO-points and           !
 !               vertical RHO-points.                                   !
 !  z_w        Actual depths (m) at horizontal RHO-points and           !
@@ -223,10 +227,10 @@
 # endif
           real(r8), pointer :: Huon(:,:,:)
           real(r8), pointer :: Hvom(:,:,:)
+          real(r8), pointer :: z0_r(:,:,:)
+          real(r8), pointer :: z0_w(:,:,:)
           real(r8), pointer :: z_r(:,:,:)
-# if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
           real(r8), pointer :: z_v(:,:,:)
-# endif
           real(r8), pointer :: z_w(:,:,:)
 # ifdef ICESHELF
           real(r8), pointer :: IcePress(:,:)
@@ -238,9 +242,12 @@
           real(r8), pointer :: rmask(:,:)
           real(r8), pointer :: umask(:,:)
           real(r8), pointer :: vmask(:,:)
-#ifdef BERING_STRAIT
+# ifdef BERING_STRAIT
           real(r8), pointer :: mask2(:,:)
-#endif
+# endif
+# ifdef ALBEDO_HACK
+          real(r8), pointer :: mask_albedo(:,:)
+# endif
 
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
@@ -428,10 +435,10 @@
 # endif
       allocate ( GRID(ng) % Huon(LBi:UBi,LBj:UBj,N(ng)) )
       allocate ( GRID(ng) % Hvom(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( GRID(ng) % z0_r(LBi:UBi,LBj:UBj,N(ng)) )
+      allocate ( GRID(ng) % z0_w(LBi:UBi,LBj:UBj,0:N(ng)) )
       allocate ( GRID(ng) % z_r(LBi:UBi,LBj:UBj,N(ng)) )
-# if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
       allocate ( GRID(ng) % z_v(LBi:UBi,LBj:UBj,N(ng)) )
-# endif
       allocate ( GRID(ng) % z_w(LBi:UBi,LBj:UBj,0:N(ng)) )
 
 # ifdef ICESHELF
@@ -448,6 +455,9 @@
       allocate ( GRID(ng) % vmask(LBi:UBi,LBj:UBj) )
 #ifdef BERING_STRAIT
       allocate ( GRID(ng) % mask2(LBi:UBi,LBj:UBj) )
+#endif
+#ifdef ALBEDO_HACK
+      allocate ( GRID(ng) % mask_albedo(LBi:UBi,LBj:UBj) )
 #endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
@@ -609,7 +619,6 @@
 !
 #ifdef NESTING
       IniMetricVal=spval                   ! very large value
-      IniMetricVal=IniVal
 #else
       IniMetricVal=IniVal
 #endif
@@ -708,6 +717,9 @@
 #ifdef BERING_STRAIT
             GRID(ng) % mask2(i,j) = IniVal
 #endif
+#ifdef ALBEDO_HACK
+            GRID(ng) % mask_albedo(i,j) = IniVal
+#endif
 # if defined AVERAGES    || \
     (defined AD_AVERAGES && defined ADJOINT) || \
     (defined RP_AVERAGES && defined TL_IOMS) || \
@@ -769,14 +781,14 @@
               GRID(ng) % Hz(i,j,k) = IniVal
               GRID(ng) % Huon(i,j,k) = IniVal
               GRID(ng) % Hvom(i,j,k) = IniVal
+              GRID(ng) % z0_r(i,j,k) = IniVal
               GRID(ng) % z_r(i,j,k) = IniVal
-# if (defined FOUR_DVAR || defined VERIFICATION) && defined OBSERVATIONS
               GRID(ng) % z_v(i,j,k) = IniVal
-# endif
             END DO
           END DO
           DO k=0,N(ng)
             DO i=Imin,Imax
+              GRID(ng) % z0_w(i,j,k) = IniVal
               GRID(ng) % z_w(i,j,k) = IniVal
             END DO
           END DO

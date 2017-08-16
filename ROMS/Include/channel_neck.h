@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2017 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -32,7 +32,6 @@
 #undef  MIX_GEO_TS
 #define SOLVE3D
 #define MASKING
-#undef  SPLINES
 #undef  ANA_INITIAL
 #define ANA_SMFLUX
 #define ANA_STFLUX

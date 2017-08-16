@@ -1,7 +1,7 @@
 #include "cppdefs.h"
 #if defined NONLINEAR && defined NEMURO_SAN
       SUBROUTINE fish_growth_ijk (ng, Ipos, Jpos, Kpos, nnew, isp, ils, &
-     &                         Fweight, Ftemp, Flength, Uswim, Fgrowth)
+     &                         Fweight, Flength, Ftemp, Uswim, Fgrowth)
 !
 !svn $Id$
 !=================================================== Jerome Fiechter ===

@@ -132,8 +132,8 @@
           hi(i,j,linew) = MAX(hi(i,j,linew),0.0_r8)
           hsn(i,j,linew) = MAX(hsn(i,j,linew),0.0_r8)
           ti(i,j,linew) = MAX(ti(i,j,linew),-70.0_r8)
-          IF (ai(i,j,linew) .le. 0.0_r8 .or. hi(i,j,linew) .le. 0.0_r8) &
-     &       THEN
+          IF (ai(i,j,linew) .le. min_a(ng) .or. hi(i,j,linew) .le.      &
+     &       0.0_r8) THEN
             ai(i,j,linew) = 0.0_r8
             hi(i,j,linew) = 0.0_r8
             hsn(i,j,linew) = 0.0_r8

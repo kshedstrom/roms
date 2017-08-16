@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -28,10 +28,12 @@
       USE mod_tides, ONLY : nstep_hour
 # endif
 !
+      USE dateclock_mod,  ONLY : get_date
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
-      USE ran_state, ONLY: ran_seed
+      USE ran_state,      ONLY : ran_seed
+      USE strings_mod,    ONLY : FoundError
 !
       implicit none
 !
@@ -43,7 +45,7 @@
 !
       logical :: Lwrite
 
-      integer :: Itile, Jtile, Nghost, tile
+      integer :: Itile, Jtile, Nghost, Ntiles, tile
       integer :: Imin, Imax, Jmin, Jmax
       integer :: Uoff, Voff
 #ifdef DISTRIBUTE
@@ -89,8 +91,9 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwrite) WRITE (out,10) version, TRIM(date_str)
- 10   FORMAT (/,' Model Input Parameters:  ROMS/TOMS version ',a,/,     &
-     &       26x,a,/,1x,77('-'))
+ 10   FORMAT (80('-'),/,                                                &
+              ' Model Input Parameters:  ROMS/TOMS version ',a,/,       &
+     &        26x,a,/,1x,80('-'))
 
 #ifdef MODEL_COUPLING
 !
@@ -142,14 +145,16 @@
 #ifdef DISTRIBUTE
       CALL mp_bcasti (1, model, exit_flag)
 #endif
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #ifdef NESTING
 !
 !  Read in nesting contact points NetCDF file and allocate and
 !  initialize several structures and variables.
 !
       CALL set_contact (1, model)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #endif
 !
 !-----------------------------------------------------------------------
@@ -167,6 +172,32 @@
       IF (ANY(CompositeGrid).or.ANY(RefinedGrid)) THEN
         NghostPoints=MAX(3,NghostPoints)
       END IF
+!
+!  Determine the switch to process input open boundary conditions data.
+!
+!  In nesting applications, the lateral boundary conditions data is
+!  is needed only by the main coarser grid (RefineScale(ng)=0).
+!
+      DO ng=1,Ngrids
+        IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+          LprocessOBC(ng)=.TRUE.
+        END IF
+      END DO
+
+#if defined SSH_TIDES || defined UV_TIDES
+!
+!  Determine the switch to process input tidal forcing data.
+!
+!  In nesting applications, the tides are processed only by the main
+!  coarser grid (RefineScale(ng)=0) and the other grids get tidal
+!  forcing from the contact areas.
+!
+      DO ng=1,Ngrids
+        IF (.not.(RefinedGrid(ng).and.RefineScale(ng).gt.0)) THEN
+          LprocessTides(ng)=.TRUE.
+        END IF
+      END DO
+#endif
 !
 !  Set boundary edge I- or J-indices for each variable type.
 !
@@ -629,7 +660,8 @@
 #ifdef DISTRIBUTE
       CALL mp_bcasti (1, model, exit_flag)
 #endif
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Report tile minimum and maximum fractional grid coordinates.
 !
@@ -806,7 +838,8 @@
         END DO
 #endif
       END IF
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Compute various constants.
@@ -822,7 +855,6 @@
           exit_flag=2
         END IF
         steps_per_hour(ng) = 3600/INT(dt(ng))
-        print *, 'steps_per_hour for grid ', ng, steps_per_hour(ng)
 #endif
 #ifdef FILTERED
 !
@@ -936,12 +968,15 @@
 !  Set internal switch for processing climatology data.
 !
 #ifdef SOLVE3D
-# if defined CLIMA_TS_MIX && (defined TS_DIF2 || defined TS_DIF4)
+# if defined TS_MIX_CLIMA && (defined TS_DIF2 || defined TS_DIF4)
         Lclimatology(ng)=.TRUE.
 # endif
-        IF (LsshCLM(ng).or.                                             &
-            Lm2CLM (ng).or.LnudgeM2CLM(ng).or.                          &
-            Lm3CLM (ng).or.LnudgeM3CLM(ng).or.                          &
+        IF (LsshCLM(ng) .or.                                            &
+            Lm2CLM(ng) .or. LnudgeM2CLM(ng) .or.                        &
+            Lm3CLM(ng) .or. LnudgeM3CLM(ng) .or.                        &
+            LmiCLM(ng) .or. LnudgeMICLM(ng) .or.                        &
+            LaiCLM(ng) .or. LnudgeAICLM(ng) .or.                        &
+            LsiCLM(ng) .or. LnudgeSICLM(ng) .or.                        &
             ANY(LtracerCLM(:,ng)).or.ANY(LnudgeTCLM(:,ng))) THEN
           Lclimatology(ng)=.TRUE.
         END IF
@@ -955,8 +990,11 @@
 !  Set internal switch for nudging to climatology fields.
 !
 #ifdef SOLVE3D
-        IF (LnudgeM2CLM(ng).or.                                         &
-     &      LnudgeM3CLM(ng).or.                                         &
+        IF (LnudgeM2CLM(ng) .or.                                        &
+     &      LnudgeM3CLM(ng) .or.                                        &
+     &      LnudgeMICLM(ng) .or.                                        &
+     &      LnudgeAICLM(ng) .or.                                        &
+     &      LnudgeSICLM(ng) .or.                                        &
      &      ANY(LnudgeTCLM(:,ng))) THEN
           Lnudging(ng)=.TRUE.
         END IF
@@ -1137,7 +1175,8 @@
           WRITE (Vname(4,varid),'(a,a)')                                &
      &          TRIM(Vname(1,varid)), ', scalar, series'
           WRITE (Vname(5,varid),'(a,a)')                                &
-     &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
+     &          'ocean_time'
+!RD : ugly fix but this was driving me nuts
         END DO
       END IF
 !
@@ -1190,7 +1229,8 @@
       CALL mp_bcasti (1, model, exit_flag)
       CALL mp_bcasts (1, model, Coptions)
 #endif
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !-----------------------------------------------------------------------
 !  Initialize random number sequence so we can get identical results
@@ -1457,7 +1497,7 @@
 
       integer :: ncid
 !
-      SourceFile='inp_par.F, find_file'
+      SourceFile=__FILE__ // ", find_file"
 !
 !-----------------------------------------------------------------------
 !  Check if the file exit.
@@ -1829,9 +1869,9 @@
       END IF
       load_lbc=ic
 
- 10   FORMAT (/,' LOAD_LBC - illegal lateral boundary condition ',      &
+ 10   FORMAT (/,' INP_PAR - illegal lateral boundary condition ',       &
      &        'keyword: ',a,/,11x,a)
- 20   FORMAT (/,' LOAD_LBC - incorrect continuation symbol in line:',/, &
+ 20   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN
@@ -1900,7 +1940,8 @@
       RETURN
       END FUNCTION load_r
 
-      FUNCTION load_s1d (Nval, Fname, line, label, igrid, Nfiles, S)
+      FUNCTION load_s1d (Nval, Fname, Fdim, line, label, igrid, Nfiles, &
+     &                   S)
 !
 !=======================================================================
 !                                                                      !
@@ -1911,6 +1952,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     igrid      Nested grid counter (integer)                         !
@@ -1935,12 +1977,12 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval
+      integer, intent(in)    :: Nval, Fdim
       integer, intent(inout) :: igrid
       integer, intent(inout) :: Nfiles(Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(Ngrids)
@@ -2101,13 +2143,13 @@
       END IF
       load_s1d=Nval
 
- 10   FORMAT (/,' LOAD_S1D - incorrect continuation symbol in line:',/, &
+ 10   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN
       END FUNCTION load_s1d
 
-      FUNCTION load_s2d (Nval, Fname, line, label, ifile, igrid,        &
+      FUNCTION load_s2d (Nval, Fname, Fdim, line, label, ifile, igrid,  &
      &                   Nfiles, Ncount, idim, S)
 !
 !=======================================================================
@@ -2119,6 +2161,7 @@
 !                                                                      !
 !     Nval       Number of values processed (integer)                  !
 !     Fname      File name(s) processed (string array)                 !
+!     Fdim       File name(s) dimension in calling program (integer)   !
 !     line       Current input line (string)                           !
 !     label      I/O structure label (string)                          !
 !     ifile      File structure counter (integer)                      !
@@ -2147,13 +2190,13 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval, idim
+      integer, intent(in)    :: Nval, Fdim, idim
       integer, intent(in)    :: Nfiles(Ngrids)
       integer, intent(inout) :: ifile, igrid
       integer, intent(inout) :: Ncount(idim,Ngrids)
 
       character (len=*),   intent(in) :: line
-      character (len=256), intent(in) :: Fname(100)
+      character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
       TYPE(T_IO), intent(inout) :: S(idim,Ngrids)
@@ -2335,9 +2378,9 @@
       END IF
       load_s2d=Nval
 
- 10   FORMAT (/,' LOAD_S2D - incorrect continuation symbol in line:',/, &
+ 10   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
      &        11x,a,/,11x,'inner dimension of structure exceeded.')
- 20   FORMAT (/,' LOAD_S2D - incorrect continuation symbol in line:',/, &
+ 20   FORMAT (/,' INP_PAR - incorrect continuation symbol in line:',/,  &
      &        11x,a,/,11x,'number of nested grid values exceeded.')
 
       RETURN

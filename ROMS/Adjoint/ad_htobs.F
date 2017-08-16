@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -14,6 +14,10 @@
 !       transpose(H) * X                                               !
 !                                                                      !
 !  which loads the observation vector into the adjoint forcing arrays. !
+!                                                                      !
+!  The observation screening and quality control variable "ObsScale"   !
+!  is not modified in this routine. Their values are the ones set in   !
+!  obs_write.F during the running of the nonlinear model.              !
 !                                                                      !
 !=======================================================================
 !
@@ -163,7 +167,12 @@
 !  Alternatively, only one tile process such observation and the
 !  ad_mp_exchange*d routine is used to add the contribution to the
 !  correct (i,j) or (i,j,k) point. This is the strategy used here.
+!
 # endif
+!  The processing flag used to reject (ObsVetting=0) or accept
+!  (ObsVetting=1) observations is computed here but it is never
+!  used. The observation screening and quality control variable
+!  (ObsScale) is only computed in routine obs_write.
 !-----------------------------------------------------------------------
 !
       IF (ProcessObs(ng)) THEN
@@ -174,6 +183,24 @@
 !
         Mstr=NstrObs(ng)
         Mend=NendObs(ng)
+!
+!  Initialize observation reject/accept processing flag.
+!
+        DO iobs=Mstr,Mend
+          ObsVetting(iobs)=IniVal
+        END DO
+
+        DO iobs=Mstr,Mend
+          ObsVetting(iobs)=IniVal
+        END DO
+# ifdef BGQC
+!
+!  Reject observation that fail background quality control check.
+!
+        DO iobs=Mstr,Mend
+          ADmodVal(iobs)=ObsScale(iobs)*ADmodVal(iobs)
+        END DO
+# endif
 !
 !  Free-surface.
 !
@@ -190,7 +217,7 @@
      &                           rXmin(ng), rXmax(ng),                  &
      &                           rYmin(ng), rYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_zeta,                                &
 # ifdef MASKING
@@ -221,7 +248,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_ubar,                                &
 # ifdef MASKING
@@ -252,7 +279,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs,                      &
      &                           f_vbar,                                &
 # ifdef MASKING
@@ -294,7 +321,7 @@
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_u, z_v,                              &
 #  ifdef MASKING
@@ -335,7 +362,7 @@
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
-     &                           ObsType, ObsScale,                     &
+     &                           ObsType, ObsVetting,                   &
      &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_v, z_v,                              &
 #  ifdef MASKING
@@ -369,7 +396,7 @@
      &                             rXmin(ng), rXmax(ng),                &
      &                             rYmin(ng), rYmax(ng),                &
      &                             time(ng), dt(ng),                    &
-     &                             ObsType, ObsScale,                   &
+     &                             ObsType, ObsVetting,                 &
      &                             Tobs, Xobs, Yobs, Zobs,              &
      &                             f_t(:,:,:,itrc), z_r,                &
 #  ifdef MASKING
@@ -390,17 +417,19 @@
 # ifdef DISTRIBUTE
 !
 !-----------------------------------------------------------------------
-!  Collect all observations scaling factors.
+!  For debugging purposes, collect all observations reject/accept
+!  processing flag.
 !-----------------------------------------------------------------------
 !
         Ncollect=Mend-Mstr+1
         CALL mp_collect (ng, model, Ncollect, IniVal,                   &
-     &                   ObsScale(Mstr:))
+     &                   ObsVetting(Mstr:))
 # endif
 !
 !-----------------------------------------------------------------------
-!  Set counters for number of rejected observations for each state
-!  variable.
+!  Set counters for the number of rejected observations for each state
+!  variable. Although unnecessary, the counters are recomputed here to
+!  check if "ObsScale" changed from its initial values.
 !-----------------------------------------------------------------------
 !
         DO iobs=Mstr,Mend
@@ -469,7 +498,7 @@
   20        FORMAT (/,10x,'Total',t47,2(1x,i10),                        &
      &              /,10x,'Obs Tally',t47,2(1x,i10),/)
   30        FORMAT (3x,' AD_HTOBS    - Computed adjoint observations ', &
-     &              'forcing,',t62,'t = ',a,/,19x,'(Observation ',      &
+     &              'forcing,',t68,a,/,19x,'(Observation ',      &
      &              'records = ',i7.7,' - ',i7.7,', iic = ',i7.7,')')
           END IF
         END IF

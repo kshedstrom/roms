@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,6 +45,8 @@
 #endif
       USE mod_scalars
 !
+      USE strings_mod, ONLY : FoundError
+!
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, model, Nvar
@@ -62,7 +64,7 @@
 !
       integer :: IDmod, i, itrc
 !
-      SourceFile='checkvars.F'
+      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Determine state variables needed and check if they are available in
@@ -81,13 +83,15 @@
 !  Inquire about the dimensions and check for consistency.
 !
       CALL netcdf_check_dim (ng, IDmod, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
       Nrec=rec_size
 !
 !  Inquire about the variables.
 !
       CALL netcdf_check_var (ng, model, ncname)
-      IF (exit_flag.ne.NoError) RETURN
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !
@@ -101,7 +105,7 @@
 !  Higher values are used to process only boundary condition or
 !  surface forcing in the variational data assimilation algorithms.
 !
-      IF (model.lt.8) THEN
+      IF (model.lt.8.or.model.eq.14) THEN
 #ifdef ANA_INITIAL
         IF (nrrec(ng).ne.0) THEN
           get_var(idFsur)=.TRUE.
@@ -144,6 +148,16 @@
         DO itrc=1,NBT
           get_var(idTvar(idbio(itrc)))=.TRUE.
         END DO
+#   if defined BIO_COBALT
+          DO itrc=1,NOBGC
+           get_var(iDobgc(itrc))=.TRUE.
+          END DO
+#   endif
+#   if defined BENTHIC
+          DO itrc=1,NBeT(ng)
+           get_var(idBeTvar(itrc))=.TRUE.
+          END DO
+#   endif
 #  endif
 # endif
 # if defined T_PASSIVE
@@ -233,16 +247,27 @@
 #  endif
 # endif
 # ifdef NCEP_FLUXES
-        get_var(idWg2d)=.true.
-        get_var(idCdd)=.true.
-        get_var(idChd)=.true.
-        get_var(idCed)=.true.
-        get_var(idWg2m)=.true.
-        get_var(idCdm)=.true.
-        get_var(idChm)=.true.
-        get_var(idCem)=.true.
-        get_var(idRhoa)=.true.
+        get_var(idWg2d)=.TRUE.
+        get_var(idCdd)=.TRUE.
+        get_var(idChd)=.TRUE.
+        get_var(idCed)=.TRUE.
+        get_var(idWg2m)=.TRUE.
+        get_var(idCdm)=.TRUE.
+        get_var(idChm)=.TRUE.
+        get_var(idCem)=.TRUE.
+        get_var(idRhoa)=.TRUE.
 # endif
+#endif
+#if defined FORCE_PERTURB
+        get_var(idpert_Tair)=.TRUE.
+        get_var(idpert_Srad)=.TRUE.
+        get_var(idpert_Uwind)=.TRUE.
+        get_var(idpert_Vwind)=.TRUE.
+#endif
+#if defined EOS_PERTURB
+        get_var(idpert_dx)=.TRUE.
+        get_var(idpert_dy)=.TRUE.
+        get_var(idpert_dz)=.TRUE.
 #endif
 #ifdef PERFECT_RESTART
 !
@@ -275,7 +300,7 @@
       END IF
 #ifdef ADJUST_BOUNDARY
 !
-!  Determine 4DVar surface forcing variables to adjust.
+!  Determine 4DVar boundary variables to adjust.
 !
       IF ((model.eq.iADM).or.(model.eq.iTLM).or.(model.eq.iNLM).or.     &
      &    (model.eq.iRPM).or.(model.eq.8).or.(model.eq.10).or.          &
@@ -321,6 +346,26 @@
 # ifdef ADJUST_WSTRESS
         get_var(idUsms)=.TRUE.
         get_var(idVsms)=.TRUE.
+# endif
+      END IF
+#endif
+#ifdef BNORM
+!
+!  Determine variables for Hessian singular vectors with background
+!  normalization.
+!  (HGA: This is not needed because already accounted above when
+!        model < 8).
+!
+      IF (model.eq.6) THEN
+        get_var(idFsur)=.TRUE.
+        get_var(idUbar)=.TRUE.
+        get_var(idVbar)=.TRUE.
+# ifdef SOLVE3D
+        get_var(idUvel)=.TRUE.
+        get_var(idVvel)=.TRUE.
+        DO itrc=1,NAT
+          get_var(idTvar(itrc))=.TRUE.
+        END DO
 # endif
       END IF
 #endif

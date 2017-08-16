@@ -389,24 +389,102 @@
             IF (yini.lt.330.0_r8) THEN
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
-                xini=107.0_r8
+                xini=115.0_r8
               ELSE IF (isp.eq.if_sardine) THEN
 ! for sardine (offshore)
-                xini=115.0_r8
+                xini=107.0_r8
               END IF
             ELSE
               IF (isp.eq.if_anchovy) THEN
 ! for anchovy (inshore)
-                xini=107.0_r8+(yini-330)*0.57_r8
+                xini=115.0_r8+(yini-330)*0.57_r8
               ELSE IF (isp.eq.if_sardine) THEN
 ! for sardine (offshore)
-                xini=115.0_r8+(yini-330)*0.57_r8
+                xini=107.0_r8+(yini-330)*0.57_r8
               END IF
             END IF
             CALL ran1 (snudg)
             xini=xini-4.0_r8*snudg
             zini=REAL(N(ng),r8)
 # endif
+# ifdef NWPACIFIC
+!--- Shinichi custom fish initial position ---
+            CALL ran1 (snudg)
+            IF (isp.eq.if_sardine) THEN
+! sardines (shinichi) :
+! lowest_point_j=171.
+! lowest_point_i=154.
+! extension_j=100.
+! mid_point1_j=258.
+! mid_point1_i=197.
+! upper_point_j=279
+! upper_point_i=183
+!
+!               yini=171.0_r8+snudg*REAL(100,r8)
+!               IF (yini .lt. 258.) THEN
+!                  xini = 154.0_r8 + (yini - 171.0_r8) * (197.0_r8 - 154.0_r8) / (258.0_r8 - 171.0_r8)
+!               ELSE
+!                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+!               ENDIF
+
+! sardines (takaaki) :
+! make sure sardines are offshore, anchovies inshore
+! lowest_point_j=177.
+! lowest_point_i=162.
+! extension_j=100.
+! mid_point1_j=261.
+! mid_point1_i=203.
+! upper_point_j=282
+! upper_point_i=190
+
+               yini=177.0_r8+snudg*REAL(100,r8)
+               IF (yini .lt. 261.) THEN
+                  xini = 162.0_r8 + (yini - 177.0_r8) * (203.0_r8 - 162.0_r8) / (261.0_r8 - 177.0_r8)
+               ELSE
+                  xini = 203.0_r8 + (yini - 261.0_r8) * (190.0_r8 - 203.0_r8) / (282.0_r8 - 261.0_r8)
+               ENDIF
+
+            ELSEIF (isp.eq.if_anchovy) THEN
+
+! anchovies (shinichi) : 
+! lowest_point_j=166.
+! lowest_point_i=152.
+! extension_j=105.
+! mid_point1_j=258.
+! mid_point1_i=197.
+! upper_point_j=279
+! upper_point_i=183
+!               yini=166.0_r8+snudg*REAL(105,r8)
+!               IF (yini .lt. 258.) THEN
+!                  xini = 152.0_r8 + (yini - 166.0_r8) * (197.0_r8 - 152.0_r8) / (258.0_r8 - 166.0_r8)
+!               ELSE
+!                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
+!               ENDIF
+
+! anchovies (takaaki) : 
+! west_point_j=172.
+! lowest_point_i=160.
+! extension_j=105.
+! mid_point1_j=261.
+! mid_point1_i=203.
+! upper_point_j=282
+! upper_point_i=190
+
+               yini=172.0_r8+snudg*REAL(105,r8)
+               IF (yini .lt. 261.) THEN
+                  xini = 160.0_r8 + (yini - 172.0_r8) * (203.0_r8 - 160.0_r8) / (261.0_r8 - 172.0_r8)
+               ELSE
+                  xini = 203.0_r8 + (yini - 261.0_r8) * (190.0_r8 - 203.0_r8) / (282.0_r8 - 261.0_r8)
+               ENDIF
+
+            ELSE
+              STOP ! no other species
+            ENDIF
+            CALL ran1 (snudg)
+            xini=xini-4.0_r8*snudg
+            zini=REAL(N(ng),r8)
+
+#endif
 
 # ifdef DOUBLE_GYRE
 ! ---- FOR TEST CONFIGURATION ----
@@ -816,6 +894,16 @@
 !            Npts=load_r(Nval, Rval, max_species*Ngrids, Nymort)
           ELSE IF (TRIM(KeyWord).eq.'Fymort') THEN
             Npts=load_r(Nval, Rval, max_species*Ngrids, Fymort)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort1_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort1_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort2_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort2_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort3_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort3_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDmort4_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDmort4_J)
+          ELSE IF (TRIM(KeyWord).eq.'DDscale_J') THEN
+            Npts=load_r(Nval, Rval, max_species*Ngrids, DDscale_J)
           END IF
         END IF
       END DO
@@ -1185,6 +1273,16 @@
 !     &              'Natural mortality'
               WRITE (out,110) Fymort(isp,ng), 'Fymort',                 &
      &              'Fishing mortality'
+              WRITE (out,110) DDmort1_J(isp,ng), 'DDmort1_J',         &
+     &              'Juvenile density-dependent mortality parm 1'
+              WRITE (out,110) DDmort2_J(isp,ng), 'DDmort2_J',         &
+     &              'Juvenile density-dependent mortality parm 2'
+              WRITE (out,110) DDmort3_J(isp,ng), 'DDmort3_J',         &
+     &              'Juvenile density-dependent mortality parm 3'
+              WRITE (out,110) DDmort4_J(isp,ng), 'DDmort4_J',         &
+     &              'Juvenile density-dependent mortality parm 4'
+              WRITE (out,110) DDscale_J(isp,ng), 'DDscale_J',           &
+     &              'Juvenile density-dependent scaling factor'
             END DO
           END IF
         END DO

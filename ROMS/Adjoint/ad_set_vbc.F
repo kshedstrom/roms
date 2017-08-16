@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -46,7 +46,7 @@
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iADM, 6)
+      CALL wclock_on (ng, iADM, 6, __LINE__, __FILE__)
 #  endif
       CALL ad_set_vbc_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -111,7 +111,7 @@
 #  endif
      &                      nrhs(ng))
 #  ifdef PROFILE
-      CALL wclock_off (ng, iADM, 6)
+      CALL wclock_off (ng, iADM, 6, __LINE__, __FILE__)
 #  endif
       RETURN
       END SUBROUTINE ad_set_vbc
@@ -353,6 +353,7 @@
 !
       ad_cff1=0.0_r8
       ad_cff2=0.0_r8
+      ad_cff3=0.0_r8
 
 #  if (!defined BBL_MODEL_NOT_YET || defined ICESHELF) && \
         defined UV_LOGDRAG
@@ -1036,13 +1037,13 @@
 #   if defined SCORRECTION
 !>        tl_stflx(i,j,isalt)=stflx(i,j,isalt)*                         &
 !>   &                        tl_t(i,j,N(ng),nrhs,isalt)-               &
-!>   &                        Tnudg(isalt,ng)*                          &
+!>   &                        Tnudg_SSS(ng)*                            &
 !>   &                        (tl_Hz(i,j,N(ng))*                        &
 !>   &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
 !>   &                         Hz(i,j,N(ng))*                           &
 !>   &                         tl_t(i,j,N(ng),nrhs,isalt))
 !>
-          adfac=Tnudg(isalt,ng)*ad_stflx(i,j,isalt)
+          adfac=Tnudg_SSS(ng)*ad_stflx(i,j,isalt)
           ad_Hz(i,j,N(ng))=ad_Hz(i,j,N(ng))-                            &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))*adfac
           ad_t(i,j,N(ng),nrhs,isalt)=ad_t(i,j,N(ng),nrhs,isalt)-        &
@@ -1056,13 +1057,13 @@
           ad_stflx(i,j,isalt)=0.0_r8
 #    endif
 #   elif defined SRELAXATION
-!>        tl_stflx(i,j,isalt)=-Tnudg(isalt,ng)*                         &
+!>        tl_stflx(i,j,isalt)=-Tnudg_SSS(ng)*                           &
 !>   &                        (tl_Hz(i,j,N(ng))*                        &
 !>   &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j))+      &
 !>   &                         Hz(i,j,N(ng))*                           &
 !>   &                         tl_t(i,j,N(ng),nrhs,isalt))
 !>
-          adfac=-Tnudg(isalt,ng)*ad_stflx(i,j,isalt)
+          adfac=-Tnudg_SSS(ng)*ad_stflx(i,j,isalt)
           ad_Hz(i,j,N(ng))=ad_Hz(i,j,N(ng))+                            &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))*adfac
           ad_t(i,j,N(ng),nrhs,isalt)=ad_t(i,j,N(ng),nrhs,isalt)+        &
@@ -1088,6 +1089,49 @@
         END DO
       END DO
 #  endif
+
+#  ifdef LIMIT_STFLX_COOLING
+!
+!-----------------------------------------------------------------------
+!  If net heat flux is cooling and SST is at freezing point or below
+!  then suppress further cooling. Note: stflx sign convention is that
+!  positive means heating the ocean (J Wilkin).
+!-----------------------------------------------------------------------
+!
+!  Below the surface heat flux stflx(:,:,itemp) is ZERO if cooling AND
+!  the SST is cooler that the threshold.  The value is retained if
+!  warming.
+!
+!    cff3 = 0      if SST warmer than threshold (cff1) - change nothing
+!    cff3 = 1      if SST colder than threshold (cff1)
+!
+!    0.5*(cff2-ABS(cff2)) = 0                        if flux is warming
+!                         = stflx(:,:,itemp)         if flux is cooling
+!
+      cff1=-2.0_r8              ! nominal SST threshold to cease cooling
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          cff2=stflx(i,j,itemp)
+          cff3=0.5_r8*(1.0_r8+SIGN(1.0_r8,cff1-t(i,j,N(ng),nrhs,itemp)))
+!>        tl_stflx(i,j,itemp)=(1.0_r8-                                  &
+!>   &                         cff3*0.5_r8*(1.0_r8-SIGN(1.0_r8,cff2)))* &
+!>   &                        tl_cff2
+!>
+          ad_cff2=ad_cff2+                                              &
+     &            (1.0_r8-cff3*0.5_r8*(1.0_r8-SIGN(1.0_r8,cff2)))*      &
+     &            ad_stfx(i,j,itemp)
+          ad_stflx(i,j,itemp)=0.0_r8
+!>        tl_cff3=0.5_r8*SIGN(1.0_r8, cff1-t(i,j,N(ng),nrhs,itemp))*0.0
+!>        tl_cff3=0.0_r8
+!>
+!>        tl_cff2=tl_stflx(i,j,itemp)
+!>
+          ad_stflx(i,j,itemp)=ad_stflx(i,j,itemp)+ad_cff2
+          ad_cff2=0.0_r8
+        END DO
+      END DO
+#  endif
+
 #  ifdef QCORRECTION
 !
 !-----------------------------------------------------------------------
@@ -1135,7 +1179,7 @@
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iADM, 6)
+      CALL wclock_on (ng, iADM, 6, __LINE__, __FILE__)
 #  endif
       CALL ad_set_vbc_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -1155,7 +1199,7 @@
      &                      FORCES(ng) % ad_bvstr,                      &
      &                      FORCES(ng) % ad_bvstr_sol)
 #  ifdef PROFILE
-      CALL wclock_off (ng, iADM, 6)
+      CALL wclock_off (ng, iADM, 6, __LINE__, __FILE__)
 #  endif
       RETURN
       END SUBROUTINE ad_set_vbc

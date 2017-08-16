@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2015 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2017 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -24,6 +24,8 @@
 #define UV_VIS2
 #define MIX_S_UV
 #define DJ_GRADPS
+#define SPLINES_VDIFF
+#define SPLINES_VVISC
 #define TS_U3HADVECTION
 #define TS_C4VADVECTION
 #define TS_DIF2
@@ -33,13 +35,13 @@
 #define SALINITY
 #define CURVGRID
 #define SOLVE3D
-#define SPLINES
 #define LMD_MIXING
 #ifdef LMD_MIXING
 # define LMD_RIMIX
 # define LMD_CONVEC
 # define LMD_SKPP
 # define LMD_NONLOCAL
+# define RI_SPLINES
 #endif
 #define BULK_FLUXES
 #ifdef BULK_FLUXES

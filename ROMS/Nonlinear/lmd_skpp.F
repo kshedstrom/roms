@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -93,6 +93,9 @@
 #ifdef AKT_3D
      &                    CLIMA(ng) % tclm,                             &
 #endif
+# ifdef OPTIC_MANIZZA
+     &                    OCEAN(ng) % decayW,                           &
+# endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
       RETURN
@@ -122,6 +125,9 @@
 #ifdef AKT_3D
      &                          tclm,                                   &
 #endif
+# ifdef OPTIC_MANIZZA
+     &                          decayW,                                 &
+# endif
      &                          hsbl, ksbl)
 !***********************************************************************
 !
@@ -134,6 +140,15 @@
 # endif
 # ifdef LMD_SHAPIRO
       USE shapiro_mod
+# endif
+# ifdef OPTIC_MANIZZA
+#  ifdef BIO_COBALT
+      USE mod_biology, ONLY: iochl
+#  elif defined BIO_UMAINE
+      USE mod_biology, ONLY: iS1CH, iS2CH, iS3CH
+#  else
+!??? need to define index for cholorphyll in other bio model
+#  endif
 # endif
 !
 !  Imported variable declarations.
@@ -170,6 +185,9 @@
 #ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
 # endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
+#  endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
 #  ifdef LMD_NONLOCAL
@@ -202,6 +220,9 @@
 #ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
 # endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
 #  ifdef LMD_NONLOCAL
@@ -315,6 +336,9 @@
 !  function, swdk. Begin computation of nonlocal transport, "ghats".
 !-----------------------------------------------------------------------
 !
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       DO k=0,N(ng)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -342,6 +366,7 @@
           END DO
         END DO
       END DO
+!# endif
 !
 !=======================================================================
 !  Compute bulk Richardson number "Rib" and then find depth of the
@@ -349,7 +374,7 @@
 !=======================================================================
 !
       DO j=Jstr,Jend
-# ifdef SPLINES
+# ifdef RI_SPLINES
 !
 ! Construct parabolic splines for vertical derivatives of potential
 ! density and velocity components at W-points.  FC is a scratch array.
@@ -663,10 +688,14 @@
 # endif
         END DO
       END DO
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfsfc(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))
@@ -690,7 +719,7 @@
 !
 !  SOGLOBEC mod: If neutral and stable, let depth of surface boundary
 !   layer be set to Niiler-Krauss wind mixing min depth (and then
-!   limited to Ekman depth or Monin-Obukov if that turns out to be 
+!   limited to Ekman depth or Monin-Obukov if that turns out to be
 !   shallower), but only if solar forcing is really weak (1 W/m^2
 !   ~ 1.43e-10).
 !
@@ -733,10 +762,14 @@
      &                     rmask,                                       &
 #  endif
      &                     hsbl)
+!
       DO j=Jstr,Jend
         DO i=Istr,Iend
           hsbl(i,j)=MIN(hsbl(i,j),z_w(i,j,N(ng)))
           hsbl(i,j)=MAX(hsbl(i,j),z_w(i,j,0))
+#  ifdef MASKING
+          hsbl(i,j)=hsbl(i,j)*rmask(i,j)
+#  endif
         END DO
       END DO
 # endif
@@ -779,10 +812,14 @@
 # endif
         END DO
       END DO
+!# ifdef OPTIC_MANIZZA
+! Optic manizza is on but not used in KPP
+!# else
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      -1.0_r8, zgrid, swdk)
+!# endif
       DO j=Jstr,Jend
         DO i=Istr,Iend
           Bfsfc(i,j)=(Bo(i,j)+Bosol(i,j)*(1.0_r8-swdk(i,j)))

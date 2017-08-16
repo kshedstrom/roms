@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -49,7 +49,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 5)
+      CALL wclock_on (ng, iNLM, 5, __LINE__, __FILE__)
 # endif
       CALL set_avg2_tile (ng, tile,                                     &
      &                   LBi, UBi, LBj, UBj,                            &
@@ -71,7 +71,7 @@
 # endif
 
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 5)
+      CALL wclock_off (ng, iNLM, 5, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE set_avg2
@@ -294,7 +294,7 @@
                 AVERAGE2(ng)%avgt(i,j,itrc)=                            &
      &                    OCEAN(ng)%t(i,j,N(ng),Nout,itrc)
 #  ifdef WET_DRY
-                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,it)*  &
+                AVERAGE2(ng)%avgt(i,j,itrc)=AVERAGE2(ng)%avgt(i,j,itrc)*&
      &                                       GRID(ng)%rmask_full(i,j)
 #  endif
               END DO
@@ -1785,7 +1785,6 @@
             END DO
           END DO
         END IF
-
 
         IF (Aout2(idAice,ng)) THEN
           DO j=JstrR,JendR

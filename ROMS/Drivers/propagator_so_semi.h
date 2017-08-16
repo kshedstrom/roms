@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !************************************************** Hernan G. Arango ***
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !***********************************************************************
@@ -33,6 +33,7 @@
 #else
       USE packing_mod, ONLY : so_semi_red
 #endif
+      USE strings_mod, ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -69,7 +70,8 @@
         DO ng=1,Ngrids
           CALL ad_initial (ng)
 !$OMP BARRIER
-          IF (exit_flag.ne.NoError) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
         END DO
 !
 !  Activate adjoint output.
@@ -100,7 +102,8 @@
         CALL ad_main2d (RunInterval)
 #endif
 !$OMP BARRIER
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 
       END IF FIRST_PASS
 !

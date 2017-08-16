@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -58,6 +58,7 @@
 #if !defined PARALLEL_IO  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
+      USE strings_mod,    ONLY : FoundError
 !
       implicit none
 !
@@ -91,7 +92,8 @@
 !
       IF (InpThread) THEN
         status=nf90_get_att(ncid, nf90_global, TRIM(aname), lbc_att)
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           WRITE (stdout,10) TRIM(aname), TRIM(ncname),                  &
      &                      TRIM(SourceFile)
           exit_flag=3

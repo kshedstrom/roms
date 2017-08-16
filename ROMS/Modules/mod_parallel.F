@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -45,14 +45,14 @@
 
 !$OMP THREADPRIVATE (first_tile, last_tile)
 
-#ifdef AIR_OCEAN
+#if defined ATM_COUPLING && defined MCT_LIB
 !
 !  Parallel nodes assined to the atmosphere model.
 !
       integer :: peATM_frst            ! first atmosphere parallel node
       integer :: peATM_last            ! last  atmosphere parallel node
 #endif
-#ifdef WAVES_OCEAN
+#if defined WAV_COUPLING && defined MCT_LIB
 !
 !  Parallel nodes assined to the wave model.
 !
@@ -77,8 +77,12 @@
 !    Cstr          Starting time for program region.
 !    Cend          Ending time for program region.
 !    Csum          Accumulated time for progam region.
+!    Ctotal        Total time profiled
+!    total_cpu     Total elapsed CPU
 !
       integer, allocatable :: proc(:,:,:)
+
+      real(r8) :: Ctotal, total_cpu, total_model(4)
 
       real(r8), allocatable :: Cstr(:,:,:)
       real(r8), allocatable :: Cend(:,:,:)
@@ -170,6 +174,12 @@
 !$OMP END PARALLEL
       allocate ( Csum(0:Nregion,4,Ngrids) )
       Csum(0:Nregion,1:4,1:Ngrids)=0.0_r8
+!
+! Initialize other profiling variables.
+!
+      Ctotal=0.0_r8
+      total_cpu=0.0_r8
+      total_model=0.0_r8
 
 #if defined DISTRIBUTE && defined PROFILE
 !
@@ -244,23 +254,26 @@
 !
 !  Identify master, input and output threads.
 !
-#  ifdef PARALLEL_IO
-      Master=.FALSE.
+#  ifdef PARALLEL_IN
       InpThread=.TRUE.
-      OutThread=.TRUE.
-      IF (MyRank.eq.MyMaster) THEN
-        Master=.TRUE.
-      END IF
 #  else
-      Master=.FALSE.
       InpThread=.FALSE.
+      IF (MyRank.eq.MyMaster) THEN
+        InpThread=.TRUE.
+      END IF
+#  endif
+#  ifdef PARALLEL_OUT
+      OutThread=.TRUE.
+#  else
       OutThread=.FALSE.
       IF (MyRank.eq.MyMaster) THEN
-        Master=.TRUE.
-        InpThread=.TRUE.
         OutThread=.TRUE.
       END IF
 #  endif
+      Master=.FALSE.
+      IF (MyRank.eq.MyMaster) THEN
+        Master=.TRUE.
+      END IF
 # endif
 #endif
 

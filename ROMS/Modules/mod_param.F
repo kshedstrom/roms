@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -414,12 +414,10 @@
 !                                                 |                |
 !                                                 ----W(i,j,k-1)----
 
-#ifdef BEST_NPZ
-# ifdef BENTHIC
-        integer, allocatable :: NBL(:)
-# endif
-#endif
 
+#ifdef BENTHIC
+      integer, allocatable :: NBL(:)
+#endif
       integer, allocatable :: N(:)
 !
 !-----------------------------------------------------------------------
@@ -571,6 +569,14 @@
 !
       integer, allocatable :: Nbico(:)
 #endif
+
+#if defined TIME_CONV && defined WEAK_CONSTRAINT
+!
+!  Number of full state records needed for time convolutions. It is
+!  assign to (ntimes(ng)/nADJ(ng))+1 in "read_phypar.F"
+!
+      integer, allocatable :: NrecTC(:)
+#endif
 !
 !-----------------------------------------------------------------------
 !  Model state parameters.
@@ -673,13 +679,15 @@
 
       allocate ( N(Ngrids) )
 
-#ifdef BEST_NPZ
 # ifdef BENTHIC
       allocate ( NBL(Ngrids) )
 # endif
-#endif
 
       allocate ( NT(Ngrids) )
+
+#if defined TIME_CONV && defined WEAK_CONSTRAINT
+      allocate ( NrecTC(Ngrids) )
+#endif
 
       allocate ( NTCLM(Ngrids) )
 
@@ -966,7 +974,7 @@
 # endif
 # ifdef OFFLINE_FLOATS_LATLON
 ! add 4 variables: x-space, y-space, water depth and Hz 
-        NFV(ng)=NFV(ng)+4
+          NFV(ng)=NFV(ng)+4
 # endif
 #endif
 #ifdef NEMURO_SAN

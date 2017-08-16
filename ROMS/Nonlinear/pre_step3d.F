@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -58,7 +58,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 22)
+      CALL wclock_on (ng, iNLM, 22, __LINE__, __FILE__)
 # endif
       CALL pre_step3d_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
@@ -68,9 +68,9 @@
      &                      GRID(ng) % rmask,                           &
      &                      GRID(ng) % umask,                           &
      &                      GRID(ng) % vmask,                           &
-# endif
-# ifdef WET_DRY
+#  if defined SOLAR_SOURCE && defined WET_DRY
      &                      GRID(ng) % rmask_wet,                       &
+#  endif
 # endif
      &                      GRID(ng) % pm,                              &
      &                      GRID(ng) % pn,                              &
@@ -105,11 +105,14 @@
      &                      DIAGS(ng) % DiaRU,                          &
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                      OCEAN(ng) % decayW,                         &
+# endif
      &                      OCEAN(ng) % t,                              &
      &                      OCEAN(ng) % u,                              &
      &                      OCEAN(ng) % v)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 22)
+      CALL wclock_off (ng, iNLM, 22, __LINE__, __FILE__)
 # endif
 
       RETURN
@@ -122,9 +125,9 @@
      &                            nrhs, nstp, nnew,                     &
 # ifdef MASKING
      &                            rmask, umask, vmask,                  &
-# endif
-# ifdef WET_DRY
+#  if defined SOLAR_SOURCE && defined WET_DRY
      &                            rmask_wet,                            &
+#  endif
 # endif
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
@@ -147,6 +150,9 @@
      &                            DiaU3wrk, DiaV3wrk,                   &
      &                            DiaRU, DiaRV,                         &
 # endif
+# ifdef OPTIC_MANIZZA
+     &                            decayW,                               &
+# endif
      &                            t, u, v)
 !***********************************************************************
 !
@@ -155,7 +161,7 @@
 # ifdef SOGLOBEC
       USE mod_clima
 # endif
-# if defined OFFLINE_BIOLOGY || defined BEST_NPZ
+# if defined OFFLINE_BIOLOGY || defined BEST_NPZ || defined OPTIC_MANIZZA
       USE mod_biology
 # endif
       USE mod_sources
@@ -181,9 +187,9 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
-#  endif
-#  ifdef WET_DRY
+#   if defined SOLAR_SOURCE && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+#   endif
 #  endif
       real(r8), intent(in) :: pm(LBi:,LBj:)
       real(r8), intent(in) :: pn(LBi:,LBj:)
@@ -222,6 +228,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
+#  endif
 #  ifdef SUN
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  else
@@ -236,9 +245,9 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef WET_DRY
+#   if defined SOLAR_SOURCE && defined WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
       real(r8), intent(in) :: pm(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: pn(LBi:UBi,LBj:UBj)
@@ -274,6 +283,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
 #  endif
+#  ifdef OPTIC_MANIZZA
+      real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(inout) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(inout) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -281,7 +293,11 @@
 !
 !  Local variable declarations.
 !
+      integer :: Isrc, Jsrc
       integer :: i, ibt, ic, indx, is, itrc, j, k, ltrc
+# if defined AGE_MEAN && defined T_PASSIVE
+      integer :: iage
+# endif
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
@@ -306,9 +322,6 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: curv
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
-# if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-      integer :: iactrc, iwctrc
-# endif
 # include "set_bounds.h"
 
 # ifndef TS_FIXED
@@ -318,6 +331,20 @@
 !=======================================================================
 
 #  ifdef SOLAR_SOURCE
+#   ifdef OPTIC_MANIZZA
+!
+! Use the fraction of solar shortwave radiation, as computed by optic_manizza,
+! (at vertical W-points) penetrating water column.
+!
+      DO k=0,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+             swdk(i,j,k) = decayW(i,j,k,1)
+          END DO
+        END DO
+      ENDDO
+
+#   else
 !
 !  Compute fraction of the solar shortwave radiation, "swdk"
 !  (at vertical W-points) penetrating water column.
@@ -338,6 +365,7 @@
           END DO
         END DO
       END DO
+#   endif
 #  endif
 !
 !-----------------------------------------------------------------------
@@ -469,6 +497,9 @@
             DO i=Istr,Iend
               FE(i,j)=t(i,j  ,k,nstp,itrc)-                             &
      &                t(i,j-1,k,nstp,itrc)
+#   ifdef MASKING
+              FE(i,j)=FE(i,j)*vmask(i,j)
+#   endif
             END DO
           END DO
           IF (.not.(CompositeGrid(isouth,ng).or.NSperiodic(ng))) THEN
@@ -527,24 +558,28 @@
 !  Apply tracers point sources to the horizontal advection terms,
 !  if any.
 !
-          IF (.not.LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+          IF (LuvSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
             DO is=1,Nsrc(ng)
-              i=SOURCES(ng)%Isrc(is)
-              j=SOURCES(ng)%Jsrc(is)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
               IF (LtracerSrc(itrc,ng).and.                              &
-     &            ((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend+1))) THEN
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            ((Jstr.le.Jsrc).and.(Jsrc.le.Jend+1))) THEN
                 IF (INT(SOURCES(ng)%Dsrc(is)).eq.0) THEN
-                  FX(i,j)=Huon(i,j,k)*                                  &
+                  FX(Isrc,Jsrc)=Huon(Isrc,Jsrc,k)*                      &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
                 ELSE
-                  FE(i,j)=Hvom(i,j,k)*                                  &
+                  FE(Isrc,Jsrc)=Hvom(Isrc,Jsrc,k)*                      &
 #  ifdef ONE_TRACER_SOURCE
      &                    SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+     &                    SOURCES(ng)%Tsrc(is,itrc)
 #  else
      &                    SOURCES(ng)%Tsrc(is,k,itrc)
 #  endif
@@ -575,81 +610,34 @@
           END DO
         END DO K_LOOP
       END DO T_LOOP1
+
+#  if (defined AGE_MEAN && defined T_PASSIVE) && !defined TS_MPDATA
 !
-#   if defined AGE_PASSIVE || defined AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-!  Add water concentration to the right-hand-side of age concentration
-!  equation.
-!------Added by W.G.Zhang
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+!  If inert passive tracer and Mean Age, compute age concentration (even
+!  inert index) forced by the right-hand-side term that is concentration
+!  of an associated conservative passive tracer (odd inert index).
+!  Implemented and tested by W.G. Zhang and J. Wilkin. (m Tunits)
+!
       IF (iic(ng).eq.ntfirst(ng)) THEN
         cff=0.5_r8*dt(ng)
       ELSE
         cff=(1.0_r8-Gamma)*dt(ng)
       END IF
-
-      iactrc=inert(2)
-      iwctrc=inert(1)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-!  Age in years, as in Spall, 2007, JGR, doi:10.1029/2005JC003364.
-!            t(i,j,k,3,inert(3))=t(i,j,k,3,inert(3))+              &
-!     &                           cff*3.168808781402895e-08
-!            t(i,j,k,3,inert(4))=t(i,j,k,3,inert(4))+              &
-!     &                           cff*3.168808781402895e-08
+!
+      DO itrc=1,NPT,2
+        iage=inert(itrc+1)                     ! even inert tracer index
+        DO k=1,N(ng)
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              t(i,j,k,3,iage)=t(i,j,k,3,iage)+                          &
+     &                        cff*Hz(i,j,k)*                            &
+     &                        t(i,j,k,nnew,inert(itrc))
+            END DO
           END DO
         END DO
       END DO
-
-!      iactrc=inert(4)
-!      iwctrc=inert(2)
-!      DO k=1,N(ng)
-!        DO j=Jstr,Jend
-!          DO i=Istr,Iend
-!            t(i,j,k,3,iactrc)=t(i,j,k,3,iactrc)+                        &
-!     &                           cff*Hz(i,j,k)*t(i,j,k,nstp,iwctrc)
-!          END DO
-!        END DO
-!      END DO
-#   endif
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#   ifdef AGE_DISTRIBUTION
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! Time-step the aging term (dc/dtau) in the equation of age
-! concentration distribution function.
-! -----Added by W.G.Zhang to compute the age concentration distribution
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#  endif
 !
-      IF (iic(ng).eq.ntfirst(ng)) THEN
-        cff=0.5_r8*dt(ng)/dtau(ng)
-      ELSE
-        cff=(1.0_r8-Gamma)*dt(ng)/dtau(ng)
-      END IF
-!
-      itrc=inert(3)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-              t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
-     &                        t(i,j,k,nstp,itrc)
-          END DO
-        END DO
-      END DO
-!
-      itrc=inert(4)
-      DO k=1,N(ng)
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-            t(i,j,k,3,itrc)=t(i,j,k,3,itrc)-cff*Hz(i,j,k)*            &
-     &                        (t(i,j,k,nstp,itrc)-t(i,j,k,nstp,itrc-1))
-          END DO
-        END DO
-      END DO
-!
-#   endif
 !----------------------------------------------------------------------
 !  Compute artificial continuity equation (same for all tracers) and
 !  load it into private array DC (1/m). Notice pipelined J-loop.
@@ -845,6 +833,39 @@
           END DO
 #  endif
 !
+!  Apply mass point sources (volume vertical influx), if any.
+!  (Notice the j-loop is pipelined above).
+!
+          IF (LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
+            DO is=1,Nsrc(ng)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
+              IF (LtracerSrc(itrc,ng).and.                              &
+     &            ((Istr.le.Isrc).and.(Isrc.le.Iend+1)).and.            &
+     &            (j.eq.Jsrc)) THEN
+                DO k=1,N(ng)-1
+                  FC(Isrc,k)=FC(Isrc,k)+0.5_r8*                         &
+#  ifdef ONE_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(itrc)+                   &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(itrc))
+#  elif defined TWO_D_TRACER_SOURCE
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc)+                &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(is,itrc))
+#  else
+     &                       (SOURCES(ng)%Qsrc(is,k  )*                 &
+     &                        SOURCES(ng)%Tsrc(is,k  ,itrc)+            &
+     &                        SOURCES(ng)%Qsrc(is,k+1)*                 &
+     &                        SOURCES(ng)%Tsrc(is,k+1,itrc))
+#  endif
+                END DO
+              END IF
+            END DO
+          END IF
+!
 ! Time-step vertical advection of tracers (Tunits).
 !
           IF (iic(ng).eq.ntfirst(ng)) THEN
@@ -914,11 +935,12 @@
           IF (itrc.eq.itemp) THEN
             DO k=1,N(ng)-1
               DO i=Istr,Iend
-                FC(i,k)=FC(i,k)+dt(ng)*srflx(i,j)                       &
+                FC(i,k)=FC(i,k)+                                        &
+     &                  dt(ng)*srflx(i,j)*                              &
 #   ifdef WET_DRY
-     &                *rmask_wet(i,j)                                   &
+     &                  rmask_wet(i,j)*                                 &
 #   endif
-     &               *swdk(i,j,k)
+     &                  swdk(i,j,k)
               END DO
             END DO
           END IF

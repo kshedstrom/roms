@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -83,10 +83,10 @@
       USE mod_netcdf
       USE mod_scalars
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
-!
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
+      USE strings_mod,    ONLY : FoundError
 !
 !  Imported variable declarations.
 !
@@ -116,6 +116,7 @@
 
       integer :: def_var
 
+      character (len=  5) location
       character (len=160) text
 !
 !-----------------------------------------------------------------------
@@ -135,8 +136,9 @@
               status=nf90_def_var(ncid, TRIM(Vinfo(1)), Vtype,          &
      &                            Vdim(1:nVdim), Vid)
             END IF
-            IF (status.ne.nf90_noerr) THEN
-              IF (Master) WRITE (stdout,10) TRIM(Vinfo(1)),             &
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,10) ng, TRIM(Vinfo(1)),         &
      &                                      TRIM(ncname)
               exit_flag=3
               ioerror=status
@@ -157,7 +159,8 @@
             IF ((nVdim.gt.1).and.(Vdim(1).ne.0)) THEN
               status=nf90_def_var_deflate (ncid, Vid, shuffle, deflate, &
      &                                     deflate_level)
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 IF (Master) WRITE (stdout,20) TRIM(Vinfo(1)),           &
      &                                        TRIM(ncname)
                 exit_flag=3
@@ -168,6 +171,186 @@
         END IF
 #endif
 !
+!  Define special attributes for SGRID conventions variable "grid".
+!
+        IF (exit_flag.eq.NoError) THEN
+          IF (TRIM(Vinfo(1)).eq.'grid') THEN
+            status=nf90_put_att(ncid, Vid, 'cf_role',                   &
+     &                          'grid_topology')
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'cf_role',                  &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            status=nf90_put_att(ncid, Vid, 'topology_dimension',        &
+     &                          (/2/))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'topology_dimension',       &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            status=nf90_put_att(ncid, Vid, 'node_dimensions',           &
+     &                          'xi_psi eta_psi')
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'node_dimensions',          &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            text='xi_rho: xi_psi (padding: both) '//                    &
+     &           'eta_rho: eta_psi (padding: both)'
+            status=nf90_put_att(ncid, Vid, 'face_dimensions',           &
+     &                          TRIM(text))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'face_dimensions',          &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            text='xi_u: xi_psi eta_u: eta_psi (padding: both)'
+            status=nf90_put_att(ncid, Vid, 'edge1_dimensions',          &
+     &                          TRIM(text))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'edge1_dimensions',         &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            text='xi_v: xi_psi (padding: both) eta_v: eta_psi'
+            status=nf90_put_att(ncid, Vid, 'edge2_dimensions',          &
+     &                          TRIM(text))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'edge2_dimensions',         &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            IF (spherical) THEN
+              status=nf90_put_att(ncid, Vid, 'node_coordinates',        &
+     &                            'lon_psi lat_psi')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'node_coordinates',       &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'face_coordinates',        &
+     &                            'lon_rho lat_rho')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'face_coordinates',       &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'edge1_coordinates',       &
+     &                            'lon_u lat_u')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'edge1_coordinates',      &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'edge2_coordinates',       &
+     &                            'lon_v lat_v')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'edge2_coordinates',      &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+            ELSE
+              status=nf90_put_att(ncid, Vid, 'node_coordinates',        &
+     &                            'x_psi y_psi')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'node_coordinates',       &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'face_coordinates',        &
+     &                            'x_rho y_rho')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'face_coordinates',       &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'edge1_coordinates',       &
+     &                            'x_u y_u')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'edge1_coordinates',      &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+
+              status=nf90_put_att(ncid, Vid, 'edge2_coordinates',       &
+     &                            'x_v y_v')
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) WRITE (stdout,30) 'edge2_coordinates',      &
+     &                                        TRIM(Vinfo(1)),           &
+     &                                        TRIM(ncname)
+                exit_flag=3
+                ioerror=status
+              END IF
+            END IF
+#ifdef SOLVE3D
+!
+            status=nf90_put_att(ncid, Vid, 'vertical_dimensions',       &
+     &                          's_rho: s_w (padding: none)')
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'vertical_dimensions',      &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+#endif
+          END IF
+        END IF
+
+!
 !  Define "longname" attribute.
 !
         IF (exit_flag.eq.NoError) THEN
@@ -175,7 +358,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'long_name',                 &
      &                          Vinfo(2)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'long_name',                &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -192,7 +376,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'size_class',                &
      &                          Vinfo(19)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'size_class',               &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -210,7 +395,8 @@
             IF (TRIM(Vinfo(3)).ne.'nondimensional') THEN
               status=nf90_put_att(ncid, Vid, 'units',                   &
      &                            Vinfo(3)(1:latt))
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 IF (Master) WRITE (stdout,30) 'units',                  &
      &                                        TRIM(Vinfo(1)),           &
      &                                        TRIM(ncname)
@@ -228,7 +414,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'calendar',                  &
      &                          Vinfo(4)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'calendar',                 &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -255,7 +442,8 @@
               status=nf90_put_att(ncid, Vid, TRIM(Vinfo(5)),            &
      &                            Aval(2))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) TRIM(Vinfo(5)),             &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -283,7 +471,8 @@
               status=nf90_put_att(ncid, Vid, TRIM(Vinfo(6)),            &
      &                            Aval(3))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) TRIM(Vinfo(6)),             &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -309,7 +498,8 @@
               latt=LEN_TRIM(text)
               status=nf90_put_att(ncid, Vid, 'flag_meanings',           &
      &                            text(1:latt))
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 IF (Master) WRITE (stdout,30) 'flag_meanings (T/F)',    &
      &                                        TRIM(Vinfo(1)),           &
      &                                        TRIM(ncname)
@@ -349,7 +539,8 @@
               latt=LEN_TRIM(text)
               status=nf90_put_att(ncid, Vid, 'flag_meanings',           &
      &                            text(1:latt))
-              IF (status.ne.nf90_noerr) THEN
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
                 IF (Master) WRITE (stdout,30) 'flag_meanings',          &
      &                                        TRIM(Vinfo(1)),           &
      &                                        TRIM(ncname)
@@ -373,7 +564,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'negative_value',            &
      &                          Vinfo(11)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'negative_value',           &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -381,7 +573,7 @@
               ioerror=status
             END IF
           END IF
-        END IF!
+        END IF
 !
 !  If applicable, define "positive_value" attribute.
 !
@@ -390,7 +582,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'positive_value',            &
      &                          Vinfo(12)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'positive_value',           &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -407,7 +600,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'positive',                  &
      &                          Vinfo(25)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'positive',                 &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -424,7 +618,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'cycle',                     &
      &                          Vinfo(13)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'cycle',                    &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -441,7 +636,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'positions',                 &
      &                          Vinfo(15)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'positions',                &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -458,7 +654,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'time',                      &
      &                          Vinfo(16)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'time',                     &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -485,7 +682,8 @@
               status=nf90_put_att(ncid, Vid, TRIM(Vinfo(17)),           &
      &                            Aval(4))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) TRIM(Vinfo(17)),            &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -513,7 +711,8 @@
               status=nf90_put_att(ncid, Vid, TRIM(Vinfo(18)),           &
      &                            Aval(1))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) TRIM(Vinfo(18)),            &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -541,7 +740,8 @@
               status=nf90_put_att(ncid, Vid, TRIM(Vinfo(24)),           &
      &                            Aval(6))
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) TRIM(Vinfo(24)),            &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -559,7 +759,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'water_points',              &
      &                          Vinfo(20)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'water_points',             &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -576,7 +777,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'standard_name',             &
      &                          Vinfo(21)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'standard_name',            &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -594,64 +796,113 @@
             IF (spherical) THEN
               IF (INT(Aval(5)).eq.r2dvar) THEN
                 text='lon_rho lat_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.r3dvar) THEN
                 text='lon_rho lat_rho s_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.w3dvar) THEN
                 text='lon_rho lat_rho s_w'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.b3dvar) THEN
                 text='lon_rho lat_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.u2dvar) THEN
                 text='lon_u lat_u'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.u3dvar) THEN
                 text='lon_u lat_u s_rho'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.-u3dvar) THEN
                 text='lon_u lat_u s_w'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.v2dvar) THEN
                 text='lon_v lat_v'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.v3dvar) THEN
                 text='lon_v lat_v s_rho'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.-v3dvar) THEN
                 text='lon_v lat_v s_w'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.p2dvar) THEN
                 text='lon_psi lat_psi'
+                location='node'
               ELSE IF (INT(Aval(5)).eq.p3dvar) THEN
                 text='lon_psi lat_psi s_rho'
+                location='node'
               END IF
             ELSE
               IF (INT(Aval(5)).eq.r2dvar) THEN
                 text='x_rho y_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.r3dvar) THEN
                 text='x_rho y_rho s_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.w3dvar) THEN
                 text='x_rho y_rho s_w'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.b3dvar) THEN
                 text='x_rho y_rho'
+                location='face'
               ELSE IF (INT(Aval(5)).eq.u2dvar) THEN
                 text='x_u y_u'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.u3dvar) THEN
                 text='x_u y_u s_rho'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.-u3dvar) THEN
                 text='x_u y_u s_w'
+                location='edge1'
               ELSE IF (INT(Aval(5)).eq.v2dvar) THEN
                 text='x_v y_v'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.v3dvar) THEN
                 text='x_v y_v s_rho'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.-v3dvar) THEN
                 text='x_v y_v s_w'
+                location='edge2'
               ELSE IF (INT(Aval(5)).eq.p2dvar) THEN
                 text='x_psi y_psi'
+                location='node'
               ELSE IF (INT(Aval(5)).eq.p3dvar) THEN
                 text='x_psi y_psi s_rho'
+                location='node'
               END IF
             END IF
+
+            status=nf90_put_att(ncid, Vid, 'grid',                      &
+     &                          'grid')
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'grid',                     &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
+            status=nf90_put_att(ncid, Vid, 'location',                  &
+     &                          TRIM(location))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) WRITE (stdout,30) 'location',                 &
+     &                                      TRIM(Vinfo(1)),             &
+     &                                      TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+!
             latt=LEN_TRIM(text)
-            IF (nVdim.gt.2) THEN
+            IF (((ABS(INT(Aval(5))).le.4).and.(nVdim.gt.2)).or.         &
+     &          ((ABS(INT(Aval(5))).gt.4).and.(nVdim.gt.3))) THEN
               text=text(1:latt)//' ocean_time'
               latt=LEN_TRIM(text)
             END IF
             status=nf90_put_att(ncid, Vid, TRIM(Vinfo(22)),             &
      &                          text(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'coordinates',              &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -669,7 +920,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'formula_terms',             &
      &                          Vinfo(23)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'formula_terms',            &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -686,7 +938,8 @@
           IF (latt.gt.0) THEN
             status=nf90_put_att(ncid, Vid, 'field',                     &
      &                          Vinfo(14)(1:latt))
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) 'field',                    &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -695,7 +948,6 @@
             END IF
           END IF
         END IF
-      END IF
 
 #if defined MASKING && !defined WRITE_WATER
 !
@@ -722,7 +974,8 @@
      &                            REAL(spval,r4))
 # endif
             END IF
-            IF (status.ne.nf90_noerr) THEN
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
               IF (Master) WRITE (stdout,30) '_FillValue',               &
      &                                      TRIM(Vinfo(1)),             &
      &                                      TRIM(ncname)
@@ -750,7 +1003,8 @@
           ELSE
             status=nf90_var_par_access(ncid, Vid, IO_nontiled_access)
           END IF
-          IF (status.ne.nf90_noerr) THEN
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,40) TRIM(Vinfo(1)),               &
      &                                    TRIM(ncname)
             exit_flag=3
@@ -758,6 +1012,7 @@
           END IF
         END IF
 #endif
+      END IF
 !
 !  Clean information variables.
 !
@@ -774,7 +1029,8 @@
 #endif
       def_var=exit_flag
 !
- 10   FORMAT (/,' DEF_VAR - unable to define variable: ',a,/,           &
+ 10   FORMAT (/,' DEF_VAR - Grid ',i2.2,                                &
+     &          ', unable to define variable: ',a,/,                    &
      &        11x,'in NetCDF file: ',a)
  20   FORMAT (/,' DEF_VAR - error while setting deflate parameters',    &
      &        ' for variable: ',a,/,11x,'in NetCDF file: ',a)

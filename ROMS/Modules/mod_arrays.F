@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -63,6 +63,9 @@
 #if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice, ONLY : allocate_ice, initialize_ice
 #endif
+#ifdef STOPERTURB
+      USE mod_stoperturb, ONLY : allocate_perturb, initialize_perturb
+#endif
 !
       implicit none
 !
@@ -85,12 +88,12 @@
 !  Turn on allocation time wall clock.
 !-----------------------------------------------------------------------
 !
-        DO ng=1,Ngrids
-          DO thread=THREAD_RANGE
-            CALL wclock_on (ng, iNLM, 1)
-          END DO
-!$OMP BARRIER
+      DO ng=1,Ngrids
+        DO thread=THREAD_RANGE
+          CALL wclock_on (ng, iNLM, 1, __LINE__, __FILE__)
         END DO
+!$OMP BARRIER
+      END DO
 #endif
 !
 !-----------------------------------------------------------------------
@@ -167,6 +170,10 @@
 #if defined TRC_PSOURCE
           CALL allocate_trc_sources (ng)
 #endif
+#ifdef STOPERTURB
+          CALL allocate_perturb (ng, LBi, UBi, LBj, UBj)
+#endif
+
 !$OMP END MASTER
 !$OMP BARRIER
         END DO
@@ -236,6 +243,10 @@
 #if defined SSH_TIDES || defined UV_TIDES || defined POT_TIDES
           CALL initialize_tides (ng, tile)
 #endif
+#ifdef STOPERTURB
+          CALL initialize_perturb (ng, tile, model)
+#endif
+
         END DO
 !$OMP BARRIER
       END DO
@@ -248,7 +259,7 @@
 !
       DO ng=1,Ngrids
         DO thread=THREAD_RANGE
-          CALL wclock_off (ng, iNLM, 1)
+          CALL wclock_off (ng, iNLM, 1, __LINE__, __FILE__)
         END DO
 !$OMP BARRIER
       END DO

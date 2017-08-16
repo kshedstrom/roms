@@ -22,6 +22,7 @@
       USE mod_scalars
       USE nf_fread2d_mod, ONLY : nf_fread2d
       USE nf_fread3d_mod, ONLY : nf_fread3d
+      USE strings_mod,    ONLY : FoundError
 !
       implicit none
 !
@@ -71,7 +72,8 @@
       DO ifile = 1,nfile
         ncname=FIL(ifile,ng)%name
         CALL netcdf_open(ng, iNLM, ncname, 0, FIL(ifile,ng)%ncid)
-        IF (exit_flag.ne.nf90_noerr) THEN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,20) TRIM(ncname)
           RETURN
         END IF
@@ -88,7 +90,8 @@
      &                      ncid = FIL(1,ng)%ncid,                      &
      &                      start = (/tindx/),                          &
      &                      total = (/1/))
-      IF (exit_flag.ne.NoError) RETURN 
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 !
 !  Read in free-surface (m).
 !
@@ -96,7 +99,8 @@
       IF (Aout(idFsur,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idFsur),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idFsur), varid, tindx, gtype,             &
@@ -106,7 +110,8 @@
      &                GRID(ng) % rmask,                                 &
 # endif
      &                FILTER(ng) % filzeta(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idFsur)), tindx, TRIM(ncname)
           END IF
@@ -125,7 +130,8 @@
       IF (Aout(idUbar,ng) .or. Aout(idu2dE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbar),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=u2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idUbar), varid, tindx, gtype,             &
@@ -135,7 +141,8 @@
      &                GRID(ng) % umask,                                 &
 # endif
      &                FILTER(ng) % filu2d(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idUbar)), tindx, TRIM(ncname)
           END IF
@@ -154,7 +161,8 @@
       IF (Aout(idVbar,ng) .or. Aout(idv2dN,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbar),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=v2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idVbar), varid, tindx, gtype,             &
@@ -164,7 +172,8 @@
      &                GRID(ng) % vmask,                                 &
 # endif
      &                FILTER(ng) % filv2d(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVbar)), tindx, TRIM(ncname)
           END IF
@@ -185,7 +194,8 @@
       IF (Aout(idUvel,ng) .or. Aout(idu3dE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUvel),       &
      &                       FIL(2,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=u3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(2,ng)%ncid,             &
      &                Vname(1,idUvel), varid, tindx, gtype,             &
@@ -195,7 +205,8 @@
      &                GRID(ng) % umask,                                 &
 #  endif
      &                FILTER(ng) % filu3d(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idUvel)), tindx, TRIM(ncname)
           END IF
@@ -215,7 +226,8 @@
       IF (Aout(idVvel,ng) .or. Aout(idv3dN,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvel),       &
      &                       FIL(3,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=v3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(3,ng)%ncid,             &
      &                Vname(1,idVvel), varid, tindx, gtype,             &
@@ -225,7 +237,8 @@
      &                GRID(ng) % vmask,                                 &
 #  endif
      &                FILTER(ng) % filv3d(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVvel)), tindx, TRIM(ncname)
           END IF
@@ -246,7 +259,8 @@
       IF (Aout(idDano,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idDano),       &
      &                       FIL(7,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(7,ng)%ncid,             &
      &                Vname(1,idDano), varid, tindx, gtype,             &
@@ -256,7 +270,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filrho(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idDano)), tindx, TRIM(ncname)
           END IF
@@ -277,7 +292,8 @@
         IF (Aout(idTvar(itrc),ng)) THEN
           CALL netcdf_inq_varid (ng, iNLM, ncname,                      &
      &                Vname(1,idTvar(itrc)), FIL(8,ng)%ncid, varid)
-          IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
           gtype=r3dvar
           status=nf_fread3d(ng, iNLM, ncname, FIL(8,ng)%ncid,           &
      &                Vname(1,idTvar(itrc)), varid, tindx, gtype,       &
@@ -287,7 +303,8 @@
      &                  GRID(ng) % rmask,                               &
 #   endif
      &                  FILTER(ng) % filt(:,:,:,itrc,tindx))
-          IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
             IF (Master) THEN
               WRITE (stdout,30) TRIM(Vname(1,idTvar(itrc))), tindx,     &
      &                        TRIM(ncname)
@@ -309,7 +326,8 @@
       IF (Aout(idOvel,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idOvel),       &
      &                       FIL(9,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=w3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(9,ng)%ncid,             &
      &                Vname(1,idOvel), varid, tindx, gtype,             &
@@ -319,7 +337,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filomega(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idOvel)), tindx, TRIM(ncname)
           END IF
@@ -339,7 +358,8 @@
       IF (Aout(idWvel,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWvel),       &
      &                       FIL(9,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=w3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(9,ng)%ncid,             &
      &                Vname(1,idWvel), varid, tindx, gtype,             &
@@ -349,7 +369,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filw3d(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWvel)), tindx, TRIM(ncname)
           END IF
@@ -371,7 +392,8 @@
       IF (Aout(idHsbl,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHsbl),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idHsbl), varid, tindx, gtype,             &
@@ -381,7 +403,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsbl(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idHsbl)), tindx, TRIM(ncname)
           END IF
@@ -403,7 +426,8 @@
       IF (Aout(idHbbl,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idHbbl),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idHbbl), varid, tindx, gtype,             &
@@ -413,7 +437,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhbbl(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idHbbl)), tindx, TRIM(ncname)
           END IF
@@ -434,7 +459,8 @@
       IF (Aout(idVvis,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVvis),       &
      &                       FIL(6,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=w3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(6,ng)%ncid,             &
      &                Vname(1,idVvis), varid, tindx, gtype,             &
@@ -444,7 +470,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filAKv(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVvis)), tindx, TRIM(ncname)
           END IF
@@ -464,7 +491,8 @@
       IF (Aout(idTdif,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTdif),       &
      &                       FIL(4,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=w3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(4,ng)%ncid,             &
      &                Vname(1,idTdif), varid, tindx, gtype,             &
@@ -474,7 +502,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filAKt(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTdif)), tindx, TRIM(ncname)
           END IF
@@ -494,7 +523,8 @@
       IF (Aout(idSdif,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSdif),       &
      &                       FIL(5,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=w3dvar
         status=nf_fread3d(ng, iNLM, ncname, FIL(5,ng)%ncid,             &
      &                Vname(1,idSdif), varid, tindx, gtype,             &
@@ -504,7 +534,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filAKs(:,:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idSdif)), tindx, TRIM(ncname)
           END IF
@@ -524,7 +555,8 @@
       IF (Aout(idTsur(itemp),ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(itemp)),&
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idTsur(itemp)), varid, tindx, gtype,      &
@@ -534,7 +566,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filstf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTsur(itemp))), tindx,      &
      &                        TRIM(ncname)
@@ -555,7 +588,8 @@
       IF (Aout(idTsur(isalt),ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idTsur(isalt)),&
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idTsur(isalt)), varid, tindx, gtype,      &
@@ -565,7 +599,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filswf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTsur(isalt))), tindx,      &
        &                      TRIM(ncname)
@@ -587,7 +622,8 @@
       IF (Aout(idLhea,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLhea),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idLhea), varid, tindx, gtype,             &
@@ -597,7 +633,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillhf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idLhea)), tindx, TRIM(ncname)
           END IF
@@ -616,7 +653,8 @@
       IF (Aout(idShea,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idShea),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idShea), varid, tindx, gtype,             &
@@ -626,7 +664,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filshf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idShea)), tindx, TRIM(ncname)
           END IF
@@ -645,7 +684,8 @@
       IF (Aout(idLrad,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLrad),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idLrad), varid, tindx, gtype,             &
@@ -655,7 +695,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % fillrf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idLrad)), tindx, TRIM(ncname)
           END IF
@@ -676,7 +717,8 @@
       IF (Aout(idSrad,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSrad),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=r2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idSrad), varid, tindx, gtype,             &
@@ -686,7 +728,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsrf(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idSrad)), tindx, TRIM(ncname)
           END IF
@@ -708,7 +751,8 @@
       IF (Aout(idUsms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUsms),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=u2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idUsms), varid, tindx, gtype,             &
@@ -718,7 +762,8 @@
      &                GRID(ng) % umask,                                 &
 # endif
      &                FILTER(ng) % filsus(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idUsms)), tindx, TRIM(ncname)
           END IF
@@ -737,7 +782,8 @@
       IF (Aout(idVsms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVsms),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=v2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idVsms), varid, tindx, gtype,             &
@@ -747,7 +793,8 @@
      &                GRID(ng) % vmask,                                 &
 # endif
      &                FILTER(ng) % filsvs(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVsms)), tindx, TRIM(ncname)
           END IF
@@ -767,7 +814,8 @@
       IF (Aout(idUbms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUbms),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=u2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idUbms), varid, tindx, gtype,             &
@@ -777,7 +825,8 @@
      &                GRID(ng) % umask,                                 &
 # endif
      &                FILTER(ng) % filbus(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idUbms)), tindx, TRIM(ncname)
           END IF
@@ -796,7 +845,8 @@
       IF (Aout(idVbms,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idVbms),       &
      &                       FIL(1,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=v2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
      &                Vname(1,idVbms), varid, tindx, gtype,             &
@@ -806,7 +856,8 @@
      &                GRID(ng) % vmask,                                 &
 # endif
      &                FILTER(ng) % filbvs(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVbms)), tindx, TRIM(ncname)
           END IF
@@ -827,7 +878,8 @@
       IF (Aout(idUice,ng) .or. Aout(idUiceE,ng)) THEN
         CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idUice),       &
      &                       FIL(10,ng)%ncid, varid)
-        IF (exit_flag.ne.NoError) RETURN
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
         gtype=u2dvar
         status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
      &                Vname(1,idUice), varid, tindx, gtype,             &
@@ -837,7 +889,8 @@
      &                GRID(ng) % umask,                                 &
 #  endif
      &                FILTER(ng) % filui(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idUice)), tindx, TRIM(ncname)
           END IF
@@ -865,7 +918,8 @@
      &                GRID(ng) % vmask,                                 &
 #   endif
      &                FILTER(ng) % filvi(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idVice)), tindx, TRIM(ncname)
           END IF
@@ -893,7 +947,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filai(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idAice)), tindx, TRIM(ncname)
           END IF
@@ -921,7 +976,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhi(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idHice)), tindx, TRIM(ncname)
           END IF
@@ -949,7 +1005,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhsn(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idHsno)), tindx, TRIM(ncname)
           END IF
@@ -978,7 +1035,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filapond(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idApond)), tindx, TRIM(ncname)
           END IF
@@ -1006,7 +1064,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filhpond(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idHpond)), tindx, TRIM(ncname)
           END IF
@@ -1035,7 +1094,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filtis(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTice)), tindx, TRIM(ncname)
           END IF
@@ -1063,7 +1123,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filti(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTimid)), tindx, TRIM(ncname)
           END IF
@@ -1091,7 +1152,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filAgeice(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idAgeice)), tindx, TRIM(ncname)
           END IF
@@ -1119,7 +1181,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % fils0mk(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idS0mk)), tindx, TRIM(ncname)
           END IF
@@ -1147,7 +1210,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filt0mk(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idT0mk)), tindx, TRIM(ncname)
           END IF
@@ -1175,7 +1239,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWfr(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWfr)), tindx, TRIM(ncname)
           END IF
@@ -1203,7 +1268,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filWai(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWai)), tindx, TRIM(ncname)
           END IF
@@ -1231,7 +1297,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWao(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWao)), tindx, TRIM(ncname)
           END IF
@@ -1259,7 +1326,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filWio(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWio)), tindx, TRIM(ncname)
           END IF
@@ -1287,7 +1355,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filWro(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idWro)), tindx, TRIM(ncname)
           END IF
@@ -1315,7 +1384,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filsig11(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idSig11)), tindx, TRIM(ncname)
           END IF
@@ -1343,7 +1413,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filsig12(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idSig12)), tindx, TRIM(ncname)
           END IF
@@ -1371,7 +1442,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filsig22(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idSig22)), tindx, TRIM(ncname)
           END IF
@@ -1399,7 +1471,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filio_mflux(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idIomflx)), tindx, TRIM(ncname)
           END IF
@@ -1427,7 +1500,8 @@
      &                GRID(ng) % rmask,                                 &
 #   endif
      &                FILTER(ng) % filutau_iw(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idTauiw)), tindx, TRIM(ncname)
           END IF
@@ -1455,7 +1529,8 @@
      &                GRID(ng) % rmask,                                 &
 #  endif
      &                FILTER(ng) % filchu_iw(:,:,tindx))
-        IF (status.ne.nf90_noerr) THEN
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,30) TRIM(Vname(1,idChuiw)), tindx, TRIM(ncname)
           END IF
@@ -1468,6 +1543,472 @@
           END IF
         END IF
       END IF
+!
+!  Read in ice divergence rate.
+!
+      IF (Aout(idWdiv,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idWdiv),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idWdiv), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filWdiv(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idWdiv)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idWdiv)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+#   ifdef ICE_DIAGS
+!
+!  Read in ocean albedo.
+!
+      IF (Aout(idAlbe,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAlbe),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idAlbe), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filAlbe(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idAlbe)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idAlbe)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in ice albedo.
+!
+      IF (Aout(idAlbI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idAlbI),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idAlbI), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filAlbI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idAlbI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idAlbI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in downward longwave.
+!
+      IF (Aout(idLWdn,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLWdn),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idLWdn), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filLWdn(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idLWdn)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idLWdn)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in downward shortwave
+!
+      IF (Aout(idSWdn,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSWdn),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSWdn), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSWdn(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSWdn)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSWdn)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in latent heat over ice.
+!
+      IF (Aout(idLatI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLatI),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idLatI), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filLatI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idLatI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idLatI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in sensible heat over ice.
+!
+      IF (Aout(idSenI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSenI),       &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSenI), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSenI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSenI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSenI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in upward longwave over ice.
+!
+      IF (Aout(idLWupI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idLWupI),      &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idLWupI), varid, tindx, gtype,            &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filLWupI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idLWupI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idLWupI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in upward shortwave over ice.
+!
+      IF (Aout(idSWupI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSWupI),      &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSWupI), varid, tindx, gtype,            &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSWupI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSWupI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSWupI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in shortwave into ice.
+!
+      IF (Aout(idSWinI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSWinI),      &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSWinI), varid, tindx, gtype,            &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSWinI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSWinI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSWinI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in shortwave through ice.
+!
+      IF (Aout(idSWthruI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSWthruI),    &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSWthruI), varid, tindx, gtype,          &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSWthruI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSWthruI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSWthruI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in salt flux from ice.
+!
+      IF (Aout(idSaltI,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSaltI),      &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSaltI), varid, tindx, gtype,            &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSaltI(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSaltI)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSaltI)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in salt flux from leads.
+!
+      IF (Aout(idSaltL,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idSaltL),      &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idSaltL), varid, tindx, gtype,            &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filSaltL(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idSaltL)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idSaltL)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in ocean-air heat flux.
+!
+      IF (Aout(idQao,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idQao),        &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idQao), varid, tindx, gtype,              &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filQao(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idQao)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idQao)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in air-ice heat flux.
+!
+      IF (Aout(idQai,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idQai),        &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idQai), varid, tindx, gtype,              &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filQai(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idQai)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idQai)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in ice-ocean heat flux.
+!
+      IF (Aout(idQio,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,idQio),        &
+     &                       FIL(10,ng)%ncid, varid)
+        gtype=r2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(10,ng)%ncid,            &
+     &                Vname(1,idQio), varid, tindx, gtype,              &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+#  ifdef MASKING
+     &                GRID(ng) % rmask,                                 &
+#  endif
+     &                FILTER(ng) % filQio(:,:,tindx))
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,idQio)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,idQio)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+#   endif
 # endif
 
 !
