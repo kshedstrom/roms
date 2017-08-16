@@ -541,9 +541,9 @@
             Vinfo( 3)=Vname(3,ifield)
             Vinfo(14)=Vname(4,ifield)
             Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#   endif
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(ifield), &
@@ -552,7 +552,6 @@
      &                     __FILE__)) RETURN
           END IF
         END DO
-#  endif
 #  if defined BIO_FENNEL
 !
 !  Define 3D biological diagnostic fields.
@@ -689,7 +688,6 @@
               DIA(ng)%Vid(ifield)=var_id(i)
             END IF
           END DO
-#  endif
 #  if defined BIO_FENNEL
           DO ivar=1,NDbio3d
             ifield=iDbio3(ivar)
@@ -773,7 +771,6 @@
             RETURN
           END IF
         END DO
-#  endif
 #  if defined BIO_FENNEL
         DO ivar=1,NDbio3d
           ifield=iDbio3(ivar)
