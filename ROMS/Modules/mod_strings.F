@@ -113,7 +113,8 @@
 
         integer, parameter :: Mregion = 60
         integer, parameter :: Iceregion = 74
-        integer, parameter :: Nregion = 80
+        integer, parameter :: Pertregion = 81
+        integer, parameter :: Nregion = 82
 
         character (len=48), dimension(12) :: StateMsg =                 &
      &    (/'Reading state initial conditions,               ',         & !01
@@ -208,7 +209,9 @@
      &      'Ice rheology coefficients.........................',       & !77
      &      'Iterative solver of ice dynamics..................',       & !78
      &      'Advection of ice tracers..........................',       & !79
-     &      'Frazil ice........................................'/)
+     &      'Frazil ice........................................',       & !80
+     &      'Computation of forcing perturbations..............',       & !81
+     &      'Computation of perturbations on EOS...............'/)
 
         character (len=80) :: my_os = MY_OS
         character (len=80) :: my_cpu = MY_CPU
