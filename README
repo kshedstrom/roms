@@ -9,5 +9,14 @@ myroms.org for access to the forum where this code is discussed.
 This ice branch can be obtained at:
 https://github.com/kshedstrom/roms
 
+Note: I have created a separate repository for my application files at:
+https://github.com/kshedstrom/Apps
+
+The idea is that this should be a submodule of the ROMS repository.
+
+Of the ocean.in files in the main code, I've been hit or miss on updating
+things to be consistent with changes from my branch. The one to compare
+to is in User/External/ocean.in which should be up to date.
+
 Kate Hedstrom
 kshedstrom@alaska.edu
