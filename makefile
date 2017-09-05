@@ -79,7 +79,7 @@ MY_ANALYTICAL_DIR ?=
 
 # If applicable, where does CICE put its binary files?
 
-MY_CICE_DIR ?= /center/w/kate/CICE/NEP/compile
+MY_CICE_DIR ?= /center1/AKWATERS/kshedstrom/CICE/NEP/compile
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
