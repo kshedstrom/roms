@@ -202,7 +202,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ke2d
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: pe2d
       integer :: ii_max, jj_max, kk_max
-      real(r8) :: uv_max
+      real(r8) :: uv_max, ts_min
 
       character (len=8 ) :: kechar, pechar
       character (len=60) :: frmt
@@ -613,7 +613,7 @@
                 END DO
               END DO
             END DO
-            IF (uv_max.gt.max_speed) THEN
+            IF (uv_max .gt. max_speed) THEN
               print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max, ng
             END IF
 #else
@@ -649,21 +649,21 @@
             ii_max = Istr
             jj_max = Jstr
             kk_max = 1
-            uv_max = t(Istr,Jstr,1,nstp,itemp)
+            ts_min = t(Istr,Jstr,1,nstp,itemp)
             DO j=Jstr,Jend
               DO k=1,N(ng)
                 DO i=Istr,Iend
-                  IF (t(i,j,k,itemp,nstp) > uv_max) THEN
+                  IF (t(i,j,k,itemp,nstp) < ts_min) THEN
                     ii_max = i
                     jj_max = j
                     kk_max = k
-                    uv_max = t(i,j,k,nstp,itemp)
+                    ts_min = t(i,j,k,nstp,itemp)
                   END IF
                 END DO
               END DO
             END DO
-            IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG temp ijk ', uv_max, ii_max, jj_max, kk_max, ng
+            IF (ts_min .lt. min_temp) THEN
+              print *, 'DIAG temp ijk ', ts_min, ii_max, jj_max, kk_max, ng
             END IF
           END IF
 # ifdef BIOLOGY
