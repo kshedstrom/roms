@@ -348,7 +348,7 @@
 !
       logical :: Lcycle, Lperpetual, Lspectral, foundit
 
-      integer :: Nrec, TvarID, i, nvdim, nvatt
+      integer :: Nrec, TvarID, i, ncid, nvdim, nvatt
 
       character (len=40) :: Tunits, TvarName
 !
@@ -369,9 +369,19 @@
       Tmin=0.0_r8
       Tmax=0.0_r8
 !
+!  Open NetCDF file for reading.
+!
+      CALL netcdf_open (ng, model, ncname, 0, ncid)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) THEN
+        WRITE (stdout,10) TRIM(ncname)
+        RETURN
+      END IF
+!
 !  Inquire about all the variables
 !
-      CALL netcdf_inq_var (ng, model, ncname)
+      CALL netcdf_inq_var (ng, model, ncname,                           &
+     &                     ncid = ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
@@ -394,7 +404,7 @@
       END DO
       IF (.not.foundit) THEN
         IF (Master) THEN
-          WRITE (stdout,10) TRIM(ncname)
+          WRITE (stdout,20) TRIM(ncname)
         END IF
         exit_flag=4
       END IF
@@ -402,6 +412,7 @@
 !  Inquire about requested variable.
 !
       CALL netcdf_inq_var (ng, model, ncname,                           &
+     &                     ncid = ncid,                                 &
      &                     MyVarName = TRIM(TvarName),                  &
      &                     VarID = TvarID,                              &
      &                     nVarDim = nvdim,                             &
@@ -449,6 +460,7 @@
 !
       CALL netcdf_get_fvar (ng, model, ncname, TvarName,                &
      &                      Tmin,                                       &
+     &                      ncid = ncid,                                &
      &                      start = (/1/),                              &
      &                      total = (/1/))
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
@@ -456,12 +468,18 @@
 !
       CALL netcdf_get_fvar (ng, model, ncname, TvarName,                &
      &                      Tmax,                                       &
+     &                      ncid = ncid,                                &
      &                      start = (/Nrec/),                           &
      &                      total = (/1/))
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
-
- 10   FORMAT (/, ' CHECK_FILE - unable to find time variable in input', &
+!
+!  Close NetCDF file.
+!
+      CALL netcdf_close (ng, model, ncid, ncname, .FALSE.)
+!
+ 10   FORMAT (/, ' CHECK_FILE - unable to open grid NetCDF file: ',a)
+ 20   FORMAT (/, ' CHECK_FILE - unable to find time variable in input', &
      &        ' NetCDF file:', /, 14x, a, /, 14x,                       &
      &        'variable name does not contains the "time" string.')
 
