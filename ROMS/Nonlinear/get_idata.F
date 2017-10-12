@@ -513,8 +513,8 @@
           time_save=time(ng)
           time(ng)=8640000.0_r8
           tdays(ng)=time(ng)*sec2day
-          CALL get_2dfld (ng, iNLM, idTpam, ncFRCid(idTpam,ng),         &
-     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+          CALL get_2dfld (ng, iNLM, idTpam, TIDE(ng)%ncid,              &
+     &                    1, TIDE(ng), update(1),                       &
      &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
@@ -523,8 +523,8 @@
             IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
 
-          CALL get_2dfld (ng, iNLM, idTpph, ncFRCid(idTpph,ng),         &
-     &                    nFfiles(ng), FRC(1,ng), update(1),            &
+          CALL get_2dfld (ng, iNLM, idTpph, TIDE(ng)%ncid,              &
+     &                    1, TIDE(ng), update(1),                       &
      &                    LBi, UBi, LBj, UBj, MTC, NTC(ng),             &
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
