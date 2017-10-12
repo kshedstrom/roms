@@ -178,6 +178,9 @@
 # ifdef BEST_NPZ
       USE mod_biology
 # endif
+# ifdef BIO_COBALT
+      USE mod_biology
+# endif
 #  if (defined ICE_MODEL && defined ICE_THERMO) || defined CICE_MODEL
       USE ice_frazil_mod, ONLY : ice_frazil
 # endif

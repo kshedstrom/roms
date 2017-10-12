@@ -1959,13 +1959,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' OCLIMATOLOGY,'
 #endif
-#if defined OFFLINE_FLOATS && defined CLIMATOLOGY
+#ifdef OFFLINE_FLOATS
       IF (Master) WRITE (stdout,20) 'OFFLINE_FLOATS',                   &
      &   'Offline run (use model fields from history files).'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' OFFLINE_FLOATS,'
 #endif
-#if defined OFFLINE_BIOLOGY && defined CLIMATOLOGY
+#ifdef OFFLINE_BIOLOGY
       IF (Master) WRITE (stdout,20) 'OFFLINE_BIOLOGY',                  &
      &   'Offline run (use model fields from history files).'
       is=LEN_TRIM(Coptions)+1
