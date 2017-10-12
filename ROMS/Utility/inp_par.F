@@ -1167,7 +1167,9 @@
           WRITE (Vname(4,varid),'(a,a)')                                &
      &          TRIM(Vname(1,varid)), ', scalar, series'
           WRITE (Vname(5,varid),'(a,a)')                                &
-     &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
+     &          'ocean_time'
+!    &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
+!RD : ugly fix but this was driving me nuts
         END DO
       END IF
 !
