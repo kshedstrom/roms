@@ -579,7 +579,7 @@
         Vinfo( 2)='3D equations time level index, nstp'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -587,7 +587,7 @@
         Vinfo( 2)='3D equations time level index, nrhs'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -595,7 +595,7 @@
         Vinfo( 2)='3D equations time level index, nnew'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 # endif
@@ -603,7 +603,7 @@
         Vinfo( 2)='3D equations time level index, kstp'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -611,7 +611,7 @@
         Vinfo( 2)='3D equations time level index, krhs'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -619,7 +619,7 @@
         Vinfo( 2)='3D equations time level index, knew'
         status=def_var(ng, iNLM, RST(ng)%ncid, varid, nf90_int,         &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
 # ifdef ICE_MODEL
@@ -682,7 +682,7 @@
         Vinfo(14)=Vname(4,idtime)
         status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idtime),     &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -2512,18 +2512,6 @@
       QUERY : IF (.not.Ldefine) THEN
         ncname=RST(ng)%name
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open restart file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, RST(ng)%ncid)
@@ -2532,6 +2520,20 @@
           WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = RST(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = RST(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !

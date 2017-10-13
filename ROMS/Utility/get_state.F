@@ -129,6 +129,8 @@
       character (len=15) :: Tstring, attnam, tvarnam
       character (len=22) :: t_code
       character (len=40) :: tunits
+!
+      SourceFile=__FILE__
 
 #ifdef ADJUST_BOUNDARY
 !
@@ -203,13 +205,6 @@
 #endif
       PerfectRST(ng)=Perfect2D.or.Perfect3D
 !
-!  Determine variables to read.
-!
-      CALL checkvars (ng, model, ncname, string, Nrec, NV, tvarnam,     &
-     &                get_var, have_var)
-      IF (FoundError(exit_flag, NoError, __LINE__,                      &
-     &               __FILE__)) RETURN
-!
 !  Set Vsize to zero to deactivate interpolation of input data to model
 !  grid in "nf_fread2d" and "nf_fread3d".
 !
@@ -235,6 +230,13 @@
         IF (Master) WRITE (stdout,10) TRIM(ncname)
         RETURN
       END IF
+!
+!  Determine variables to read.
+!
+      CALL checkvars (ng, model, ncname, ncINPid, string, Nrec, NV,     &
+     &                tvarnam, get_var, have_var)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 
 #if defined DEBUGGING || defined NO_LBC_ATT
 !
@@ -259,6 +261,7 @@
 !  Inquire about the input time variable.
 !
       CALL netcdf_inq_var (ng, IDmod, ncname,                           &
+     &                     ncid = ncINPid,                              &
      &                     MyVarName = TRIM(tvarnam),                   &
      &                     VarID = varid,                               &
      &                     nVarDim =  nvdim,                            &
@@ -272,7 +275,8 @@
 !
       mySize=var_Dsize(1)
       IF (.not.allocated(TimeVar)) allocate (TimeVar(mySize))
-      CALL netcdf_get_fvar (ng, IDmod, ncname, TRIM(tvarnam), TimeVar)
+      CALL netcdf_get_fvar (ng, IDmod, ncname, TRIM(tvarnam), TimeVar,  &
+     &                      ncid = ncINPid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !

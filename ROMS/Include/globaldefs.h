@@ -48,6 +48,17 @@
 #endif
 
 /*
+** Make sure that either "mpi_allgather" or "mpi_allreduce" is used
+** in mp_reduce.  Low-level routines give an error.
+*/
+
+#ifdef DISTRIBUTE
+# if !(defined REDUCE_ALLGATHER || defined REDUCE_ALLREDUCE)
+#  define REDUCE_ALLGATHER
+# endif
+#endif
+
+/*
 ** Turn ON/OFF time profiling.
 */
 
@@ -901,4 +912,12 @@
 #endif
 #if !defined VISC_3DCOEF && defined UV_SMAGORINSKY
 # define VISC_3DCOEF
+#endif
+
+/*
+** When you don't know if it's in or out.
+*/
+
+#if defined PARALLEL_IN || defined PARALLEL_OUT
+# define PARALLEL_IO
 #endif

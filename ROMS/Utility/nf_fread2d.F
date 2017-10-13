@@ -292,7 +292,7 @@
           END IF
           IF (.not.allocated(wrk)) THEN
             allocate ( wrk(Npts) )
-            wrk=0.0_r8
+            wrk=IniVal
           END IF
         ELSE
           IF (.not.allocated(wrk)) THEN
@@ -353,6 +353,22 @@
 !  model array.
 !
           IF (interpolate) THEN
+#ifdef GLOBAL_PERIODIC
+            DO j=Jstr,Jend
+              wrk(0,j) = wrk(Iend,j)
+              wrk(Iend+1,j) = wrk(1,j)
+            END DO
+              cff = 0
+            DO i=Istr,Iend
+              cff = cff + wrk(i,Jend)
+            END DO
+              cff = cff/Jend
+            DO i=0,Iend+1
+              wrk(i,Jend+1) = cff
+            END DO
+            Npts=(Ilen+2)*(Jlen+1)
+#endif
+            CALL mp_collect (ng, model, Npts, IniVal, wrk)
             ic=0
             DO j=Jstr,Jend
               DO i=Istr,Iend
@@ -360,22 +376,6 @@
                 Awrk(i,j)=wrk(ic)
               END DO
             END DO
-#ifdef GLOBAL_PERIODIC
-            DO j=Jstr,Jend
-              Awrk(0,j) = Awrk(Iend,j)
-              Awrk(Iend+1,j) = Awrk(1,j)
-            END DO
-              cff = 0
-            DO i=Istr,Iend
-              cff = cff + Awrk(i,Jend)
-            END DO
-              cff = cff/Jend
-            DO i=0,Iend+1
-              Awrk(i,Jend+1) = cff
-            END DO
-            Npts=(Ilen+2)*(Jlen+1)
-#endif
-            CALL mp_collect (ng, model, Npts, IniVal, Awrk)
           ELSE
             ic=0
             DO j=Jmin,Jmax
