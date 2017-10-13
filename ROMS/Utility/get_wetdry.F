@@ -262,6 +262,7 @@
   20  FORMAT (/,' GET_WETDRY - unable to open grid NetCDF file: ',a)
   30  FORMAT (/,' GET_WETDRY - error while reading variable: ',a,       &
      &        /,12x,'in grid NetCDF file: ',a)
+  50  FORMAT (/,' GET_WETDRY - error while opening restart file: ',a)
 #else
       SUBROUTINE get_wetdry
 #endif
