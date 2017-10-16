@@ -1376,7 +1376,7 @@
         real(r8), allocatable :: blk_ZW(:)        ! (m)
 #endif
 
-#if defined BULK_FLUXES || defined BULK_FLUXES2d || defined ICESHELF
+#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ICESHELF
         real(r8) :: blk_Cpw = 4000.0_r8       ! (J/kg/K)
 #endif
 
