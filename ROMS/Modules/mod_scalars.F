@@ -1363,7 +1363,7 @@
 !    blk_visw      Kinematic viscosity water (m2/s).
 !
         real(r8) :: blk_Cpa = 1004.67_r8      ! (J/kg/K), Businger 1982
-        real(r8) :: blk_Cpw = 4000.0_r8       ! (J/kg/K)
+!        real(r8) :: blk_Cpw = 4000.0_r8       ! (J/kg/K)
         real(r8) :: blk_Rgas = 287.1_r8       ! (J/kg/K)
         real(r8) :: blk_Zabl = 600.0_r8       ! (m)
         real(r8) :: blk_beta = 1.2_r8         ! non-dimensional
@@ -1374,6 +1374,10 @@
         real(r8), allocatable :: blk_ZQ(:)        ! (m)
         real(r8), allocatable :: blk_ZT(:)        ! (m)
         real(r8), allocatable :: blk_ZW(:)        ! (m)
+#endif
+
+#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ICESHELF
+        real(r8) :: blk_Cpw = 4000.0_r8       ! (J/kg/K)
 #endif
 
 #ifdef ICESHELF
