@@ -65,13 +65,6 @@
 # ifdef TLM_CHECK
       USE dotproduct_mod,       ONLY : nl_dotproduct
 # endif
-# if defined W4DPSAS || defined NLM_OUTER || \
-     defined W4DPSAS_SENSITIVITY
-      USE forcing_mod,          ONLY : forcing
-# endif
-# if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-      USE frc_adjust_mod,       ONLY : frc_adjust
-# endif
 # ifdef GLS_MIXING
       USE gls_corstep_mod,      ONLY : gls_corstep
       USE gls_prestep_mod,      ONLY : gls_prestep
@@ -107,17 +100,13 @@
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
 # ifndef TS_FIXED
-#  ifdef EOS_PERTURB
-      USE rho_eos_perturb_mod,  ONLY : rho_eos_perturb
-#  else
       USE rho_eos_mod,          ONLY : rho_eos
-#  endif
 # endif
       USE rhs3d_mod,            ONLY : rhs3d
 # ifdef SEDIMENT
       USE sediment_mod,         ONLY : sediment
 # endif
-# ifdef AVERAGES
+# if defined AVERAGES && !defined ADJOINT
       USE set_avg_mod,          ONLY : set_avg
 # endif
 # if defined AVERAGES2 && !defined ADJOINT
@@ -281,29 +270,6 @@
             END DO
             IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
-
-# if defined W4DPSAS || defined NLM_OUTER || \
-     defined W4DPSAS_SENSITIVITY
-!
-!-----------------------------------------------------------------------
-!  If appropriate, add convolved adjoint solution impulse forcing to
-!  the nonlinear model solution. Notice that the forcing is only needed
-!  after finishing all the inner loops. The forcing is continuous.
-!  That is, it is time interpolated at every time-step from available
-!  snapshots (FrequentImpulse=TRUE).
-!-----------------------------------------------------------------------
-!
-            DO ig=1,GridsInLayer(nl)
-              ng=GridNumber(ig,nl)
-              IF (FrequentImpulse(ng)) THEN
-                DO tile=first_tile(ng),last_tile(ng),+1
-                  CALL forcing (ng, tile, kstp(ng), nstp(ng))
-                  CALL set_depth (ng, tile, iNLM)
-                END DO
-!$OMP BARRIER
-              END IF
-            END DO
-# endif
 !
 !-----------------------------------------------------------------------
 !  Initialize all time levels and compute other initial fields.
@@ -351,11 +317,7 @@
               DO tile=first_tile(ng),last_tile(ng),+1
                 CALL set_massflux (ng, tile, iNLM)
 # ifndef TS_FIXED
-#  ifdef EOS_PERTURB
-                CALL rho_eos_perturb (ng, tile)
-#  else
                 CALL rho_eos (ng, tile, iNLM)
-#  endif
 # endif
                 CALL diag (ng, tile)
               END DO
@@ -437,9 +399,7 @@
 #  endif
 # endif
 # ifdef BULK_FLUXES
-#  if defined FOUR_DVAR && defined NL_BULK_FLUXES
-                IF (Nrun.eq.1) CALL bulk_flux (ng, tile)
-#  elif defined CCSM_FLUXES
+#  ifdef CCSM_FLUXES
                 CALL ccsm_flux (ng, tile)
 #  else
                 CALL bulk_flux (ng, tile)
@@ -498,44 +458,6 @@
             ELSE
               CALL seaice
             END IF
-# endif
-# ifdef ADJUST_BOUNDARY
-!
-!-----------------------------------------------------------------------
-!  Interpolate open boundary increments and adjust open boundary.
-!  Load open boundary into storage arrays. Skip the last output
-!  timestep.
-!-----------------------------------------------------------------------
-!
-            DO ig=1,GridsInLayer(nl)
-              ng=GridNumber(ig,nl)
-              IF (iic(ng).lt.(ntend(ng)+1)) THEN
-                DO tile=first_tile(ng),last_tile(ng),+1
-                  CALL obc_adjust (ng, tile, Lbinp(ng))
-                  CALL load_obc (ng, tile, Lbout(ng))
-                END DO
-!$OMP BARRIER
-              END IF
-            END DO
-# endif
-
-# if defined ADJUST_STFLUX || defined ADJUST_WSTRESS
-!
-!-----------------------------------------------------------------------
-!  Interpolate surface forcing increments and adjust surface forcing.
-!  Load surface forcing into storage arrays. Skip the last output
-!  timestep.
-!-----------------------------------------------------------------------
-!
-            DO ig=1,GridsInLayer(nl)
-              ng=GridNumber(ig,nl)
-              IF (iic(ng).lt.(ntend(ng)+1)) THEN
-                DO tile=first_tile(ng),last_tile(ng),+1
-                  CALL frc_adjust (ng, tile, Lfinp(ng))
-                END DO
-!$OMP BARRIER
-              END IF
-            END DO
 # endif
 #ifdef OPTIC_MANIZZA
 !
@@ -926,7 +848,6 @@
 #  endif
             END DO
 # endif
-
           END DO STEP_LOOP
 
         END DO NEST_LAYER

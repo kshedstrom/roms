@@ -377,7 +377,7 @@
 # ifdef ICESHELF
 
 #  ifdef ICESHELF_3EQ
-      real(r8) :: Hscale, Hlice, uStar, gturb, cff
+      real(r8) :: Hscale, Hlice, uStar, gturb
       real(r8) :: salt_b, temp_b, melt_rate
 #  endif
 
