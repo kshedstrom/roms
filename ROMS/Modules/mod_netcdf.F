@@ -72,7 +72,7 @@
 !
 !  Local dimension parameters.
 !
-      integer, parameter :: Mdims = 50  ! maximum number of dimensions
+      integer, parameter :: Mdims = 500 ! maximum number of dimensions
       integer, parameter :: Mvars = 900 ! maximum number of variables
       integer, parameter :: NvarD = 5   ! number of variable dimensions
       integer, parameter :: NvarA = 50  ! number of variable attributes

@@ -2190,6 +2190,7 @@
             END DO
           END DO
         END DO
+
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
           DO i=1,2
             CALL exchange_u3d_tile (ng, tile,                           &
@@ -2203,7 +2204,7 @@
 #   ifdef DISTRIBUTE
         DO i=1,2
           CALL mp_exchange3d (ng, tile, iNLM, 2,                        &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
+     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        OCEAN(ng)%u(:,:,:,i),OCEAN(ng)%v(:,:,:,i))

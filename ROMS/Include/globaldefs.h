@@ -921,3 +921,11 @@
 #if defined PARALLEL_IN || defined PARALLEL_OUT
 # define PARALLEL_IO
 #endif
+
+/*
+** OFFLINE
+*/
+
+#if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+# define OFFLINE
+#endif
