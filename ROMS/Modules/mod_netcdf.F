@@ -72,7 +72,7 @@
 !
 !  Local dimension parameters.
 !
-      integer, parameter :: Mdims = 500 ! maximum number of dimensions
+      integer, parameter :: Mdims = 50  ! maximum number of dimensions
       integer, parameter :: Mvars = 900 ! maximum number of variables
       integer, parameter :: NvarD = 5   ! number of variable dimensions
       integer, parameter :: NvarA = 50  ! number of variable attributes
@@ -1333,8 +1333,8 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-!
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcastf, mp_bcasts
 #endif
       USE strings_mod,    ONLY : FoundError
@@ -1361,7 +1361,7 @@
       integer :: i, j, status
       integer :: my_Alen, my_Atype, my_id, my_ncid
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(4) :: ibuffer
 #endif
 
@@ -1405,7 +1405,7 @@
       IF (InpThread) THEN
         status=nf90_inquire(my_ncid, n_dim, n_var, n_gatt, rec_id)
         IF ((status.eq.nf90_noerr).and.(n_var.le.Mvars)) THEN
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
           ibuffer(1)=n_dim
           ibuffer(2)=n_var
           ibuffer(3)=n_gatt
@@ -1463,7 +1463,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast dimension to all processors in the group.
 !
@@ -1632,7 +1632,7 @@
             END IF
           END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast requested variable information to all processors in the
 !  group.
@@ -1728,8 +1728,8 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-!
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
       USE strings_mod,    ONLY : FoundError
@@ -1746,7 +1746,7 @@
 !  Local variable declarations.
 !
       integer :: status
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(3) :: ibuffer
 #endif
 !
@@ -1767,7 +1767,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       ibuffer(3)=VarID
@@ -1997,8 +1997,8 @@
       USE mod_parallel
       USE mod_iounits
       USE mod_scalars
-!
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
       USE strings_mod,    ONLY : FoundError
@@ -2020,7 +2020,7 @@
 !
       integer :: i, j, my_natts, my_ncid, nvatts, status
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(20) :: ibuffer
 #endif
 
@@ -2103,7 +2103,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast information to all processors in the group. Pack all
 !  data into a real array for efficient communications.
@@ -6183,8 +6183,8 @@
       USE mod_iounits
       USE mod_ncparam
       USE mod_scalars
-!
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
       USE strings_mod,    ONLY : FoundError
@@ -6208,7 +6208,7 @@
 #ifdef BIOLOGY
       integer :: AttLen, is, ie, lstr
 #endif
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(3) :: ibuffer
 #endif
       character (len=200) :: my_ncname
@@ -6303,7 +6303,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !

@@ -122,6 +122,7 @@
               exit_flag=4
               RETURN
             END IF
+            S(ifile)%ncid = -1
             S(ifile)%Fcount=Fcount
             S(ifile)%name=TRIM(S(ifile)%files(Fcount))
             lstr=LEN_TRIM(S(ifile)%name)
