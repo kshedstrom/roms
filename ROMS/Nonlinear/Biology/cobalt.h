@@ -1496,7 +1496,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    DO j=Jstr,Jend
      DO i=Istr,Iend
        krhoref = MINLOC( FM2(i,j,:),1)
-       krhoref = MAX(krhoref,1)
+       krhoref = MIN(MAX(krhoref,1), UBk)
        rho_ref(i,j) = rho(i,j,krhoref)
        !mxl_blev(i,j) = MINLOC( ABS( rho(i,j,:) - rho_ref(i,j) - rho_crit ) )
      ENDDO
