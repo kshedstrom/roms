@@ -317,7 +317,9 @@
 !
 !  Scan the variable list and read in needed variables.
 !
-      DO it=1,n_var
+      IF (Master) WRITE (stdout,'(1x)')
+!
+      DO i=1,n_var
 
         SELECT CASE (TRIM(ADJUSTL(var_name(it))))
 !
@@ -360,6 +362,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'bathymetry at RHO-points: h',        &
+     &                            ng, TRIM(ncname), hmin(ng), hmax(ng)
+              END IF
             END IF
 # ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -401,6 +408,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'mask on RHO-points: mask_rho',       &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -441,6 +453,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'mask on U-points: mask_u',           &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -481,6 +498,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'mask on V-points: mask_v',           &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -521,6 +543,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'mask on PSI-points: mask_psi',       &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_p2d_tile (ng, tile,                         &
@@ -591,7 +618,7 @@
 # endif
 # ifdef ICESHELF
 !
-!  Read in ice shelf thicknesses.
+!  Read in ice shelf thickness.
 !
           CASE ('zice')
             gtype=r2dvar
@@ -609,6 +636,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'ice shelf thickness: zice',          &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -644,6 +676,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'Jerlov water type: wtype_grid',      &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -679,6 +716,12 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'horizontal viscosity sponge '//    &
+     &                              'factor: visc_factor',              &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
               IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
                 CALL exchange_r2d_tile (ng, tile,                       &
@@ -715,6 +758,12 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'horizontal diffusivity sponge '//  &
+     &                              'factor: diff_factor',              &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
               IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
                 CALL exchange_r2d_tile (ng, tile,                       &
@@ -750,6 +799,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'Coriolis parameter at RHO-points: f',&
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -793,6 +847,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'reciprocal XI-grid spacing: pm',     &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -836,6 +895,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'reciprocal ETA-grid spacing: pn',    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -879,6 +943,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'ETA-derivative of inverse metric '// &
+     &                            'factor pm: dmde',                    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -921,6 +991,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'XI-derivative of inverse metric '//  &
+     &                            'factor pn: dndx',                    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -964,6 +1040,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'x-location of PSI-points: x_psi',    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, model, 1,                     &
@@ -991,6 +1072,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'y-location of PSI-points: y-psi',    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, model, 1,                     &
@@ -1018,6 +1104,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'x-location of RHO-points: x-rho',    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
@@ -1057,6 +1148,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'y-location of RHO-points: y_rho',    &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
@@ -1096,6 +1192,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'x-location of U-points: x_u',        &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
@@ -1135,6 +1236,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'y-location of U-points: y_u',        &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
@@ -1169,6 +1275,17 @@
      &                        GRID(ng) % vmask,                         &
 # endif
      &                        GRID(ng) % xv)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              exit_flag=2
+              ioerror=status
+              EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'x-location of V-points: x_v',        &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
+            END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
               CALL fill_contact(ng, model, tile,                        &
@@ -1181,12 +1298,6 @@
      &                       __FILE__)) RETURN
             END IF
 # endif
-            IF (FoundError(status, nf90_noerr, __LINE__,                &
-     &                     __FILE__)) THEN
-              exit_flag=2
-              ioerror=status
-              EXIT
-            END IF
 # ifdef DISTRIBUTE
             CALL mp_exchange2d (ng, tile, model, 1,                     &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1213,6 +1324,11 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'y-location of V-points: y_v',        &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 # ifdef NESTING
             IF (.not.spherical) THEN
@@ -1253,6 +1369,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'longitude of PSI-points: lon_psi', &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1282,6 +1403,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'latitude of PSI-points lat_psi',   &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef DISTRIBUTE
               CALL mp_exchange2d (ng, tile, model, 1,                   &
@@ -1311,6 +1437,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'longitude of RHO-points: lon_rho', &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1350,6 +1481,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'latitude of RHO-points lat_rho',   &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1389,6 +1525,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'longitude of U-points: lon_u',     &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1428,6 +1569,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'latitude of U-points: lat_u',      &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1467,6 +1613,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'longitude of V-points: lon_v',     &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1506,6 +1657,11 @@
                 exit_flag=2
                 ioerror=status
                 EXIT
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,30) 'latitude of V-points: lat_v',      &
+     &                              ng, TRIM(ncname), Fmin, Fmax
+                END IF
               END IF
 # ifdef NESTING
               CALL fill_contact(ng, model, tile,                        &
@@ -1544,6 +1700,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'angle between XI-axis and EAST: '//  &
+     &                            'angler',                             &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
 #  ifdef NESTING
             CALL fill_contact(ng, model, tile,                          &
@@ -1589,6 +1751,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on RHO-points: scope_rho',     &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             GotScope(1)=.TRUE.
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -1622,6 +1790,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on U-points: scope_u',         &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             GotScope(2)=.TRUE.
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -1655,6 +1829,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on V-points: scope_v',         &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             GotScope(3)=.TRUE.
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -1710,7 +1890,7 @@
       END DO
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
+        IF (Master) WRITE (stdout,40) TRIM(var_name(i)), TRIM(ncname)
         RETURN
       END IF
 
@@ -1731,11 +1911,17 @@
      &                  GRID(ng) % ZoBot)
       IF (FoundError(status, nf90_noerr, __LINE__,                      &
      &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idZoBL)),            &
+        IF (Master) WRITE (stdout,40) TRIM(Vname(1,idZoBL)),            &
      &                                TRIM(ncname)
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,30) 'time invariant, bottom roughness '//       &
+     &                      'length scale: ZoBot',                      &
+     &                      ng, TRIM(ncname), Fmin, Fmax
+        END IF
       END IF
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
@@ -1766,11 +1952,16 @@
      &                  GRID(ng) % rdrag)
       IF (FoundError(status, nf90_noerr, __LINE__,                      &
      &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragL)),            &
+        IF (Master) WRITE (stdout,40) TRIM(Vname(1,idragL)),            &
      &                                TRIM(ncname)
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,30) 'linear bottom drag coefficient: rdrag',    &
+     &                      ng, TRIM(ncname), Fmin, Fmax
+        END IF
       END IF
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
@@ -1801,11 +1992,16 @@
      &                  GRID(ng) % rdrag2)
       IF (FoundError(status, nf90_noerr, __LINE__,                      &
      &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,30) TRIM(Vname(1,idragQ)),            &
+        IF (Master) WRITE (stdout,40) TRIM(Vname(1,idragQ)),            &
      &                                TRIM(ncname)
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,30) 'quadratic bottom drag coefficient: rdrag2',&
+     &                      ng, TRIM(ncname), Fmin, Fmax
+        END IF
       END IF
       IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
         CALL exchange_r2d_tile (ng, tile,                               &
@@ -1887,9 +2083,9 @@
       END IF
       IF (Master) THEN
         IF (GotScope(4)) THEN
-          WRITE (stdout,40) TRIM(ADS(ng)%name)
+          WRITE (stdout,50) TRIM(ADS(ng)%name)
         ELSE
-          WRITE (stdout,40) TRIM(GRD(ng)%name)
+          WRITE (stdout,50) TRIM(GRD(ng)%name)
         END IF
       END IF
 !
@@ -1917,6 +2113,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on RHO-points: scope_rho,      &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_r2d_tile (ng, tile,                         &
@@ -1949,6 +2151,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on U-points: scope_u,          &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_u2d_tile (ng, tile,                         &
@@ -1981,6 +2189,12 @@
               exit_flag=2
               ioerror=status
               EXIT
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
+     &                            'scope on V-points: scope_v,          &
+     &                            ng, TRIM(ncname), Fmin, Fmax
+              END IF
             END IF
             IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
               CALL exchange_v2d_tile (ng, tile,                         &
@@ -1998,7 +2212,7 @@
       END DO
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,30) TRIM(var_name(i)), TRIM(ncname)
+        IF (Master) WRITE (stdout,40) TRIM(var_name(i)), TRIM(ncname)
         RETURN
       END IF
 # endif
@@ -2006,9 +2220,12 @@
   10  FORMAT (/,' GET_GRID - unable to open grid NetCDF file: ',a)
   20  FORMAT (/,' GET_GRID - unable to find grid variable: ',a,         &
      &        /,12x,'in grid NetCDF file: ',a)
-  30  FORMAT (/,' GET_GRID - error while reading variable: ',a,         &
+  30  FORMAT (3x,' GET_GRID    - ',a,/,19x,                             &
+     &        '(Grid = ',i2.2,', File: ',a,')',/,19x,                   &
+     &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
+  40  FORMAT (/,' GET_GRID - error while reading variable: ',a,         &
      &        /,12x,'in grid NetCDF file: ',a)
-  40  FORMAT (/,' GET_GRID - Reading adjoint sensitivity scope arrays', &
+  50  FORMAT (/,' GET_GRID - Reading adjoint sensitivity scope arrays', &
      &        ' from file:',/12x,a)
 #else
       SUBROUTINE get_grid
