@@ -458,6 +458,25 @@
      &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+#ifdef WET_DRY
+!
+!  Define wet/dry mask on rho-points.
+!
+        Vinfo( 1)=Vname(1,idRwet)
+        Vinfo( 2)=Vname(2,idRwet)
+        Vinfo( 3)=Vname(3,idRwet)
+        Vinfo( 9)='land'
+        Vinfo(10)='water'
+        Vinfo(14)=Vname(4,idRwet)
+        Vinfo(16)=Vname(1,idtime)
+        Vinfo(22)='coordinates'
+        Aval(5)=REAL(Iinfo(1,idRwet,ng),r8)
+        status=def_var(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idRwet),     &
+     &                 NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname,      &
+     &                 SetFillVal = .FALSE.)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+#endif
 !
 !  Define free-surface.
 !
@@ -3415,6 +3434,11 @@
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idtime))) THEN
             got_var(idtime)=.TRUE.
             AVG(ng)%Vid(idtime)=var_id(i)
+# ifdef WET_DRY
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRwet))) THEN
+            got_var(idRwet)=.TRUE.
+            AVG(ng)%Vid(idRwet)=var_id(i)
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idFsur))) THEN
             got_var(idFsur)=.TRUE.
             AVG(ng)%Vid(idFsur)=var_id(i)
@@ -3896,12 +3920,14 @@
           exit_flag=3
           RETURN
         END IF
+# ifdef WET_DRY
         IF (.not.got_var(idFsur).and.Aout(idFsur,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idFsur)),          &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN
         END IF
+# endif
         IF (.not.got_var(idUbar).and.Aout(idUbar,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idUbar)),          &
      &                                  TRIM(ncname)
