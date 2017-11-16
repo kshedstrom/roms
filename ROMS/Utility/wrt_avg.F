@@ -101,6 +101,29 @@
      &                      varid = AVG(ng)%Vid(idtime))
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
+# ifdef WET_DRY
+!
+!  Write out wet-dry mask at rho-points.
+!
+      scale=1.0_r8
+      gtype=gfactor*r2dvar
+      status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid, AVG(ng)%Vid(idRwet),   &
+     &                   AVG(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+# ifdef MASKING
+     &                   GRID(ng) % rmask,                              &
+# endif
+     &                   GRID(ng) % rmask_avg)
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+        IF (Master) THEN
+          WRITE (stdout,10) TRIM(Vname(1,idFsur)), AVG(ng)%Rindex
+        END IF
+        exit_flag=3
+        ioerror=status
+        RETURN
+      END IF
+# endif
 !
 !  Write out free-surface (m).
 !
