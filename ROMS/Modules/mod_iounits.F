@@ -207,7 +207,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, lstr, ng
+      integer :: i, lstr, ng, nfile
 
       character (len=1), parameter :: blank = ' '
 !
@@ -320,12 +320,6 @@
 
           BLK(ng)%base(i:i)=blank
           BLK(ng)%name(i:i)=blank
-
-          BRY(ng)%base(i:i)=blank
-          BRY(ng)%name(i:i)=blank
-
-          CLM(ng)%base(i:i)=blank
-          CLM(ng)%name(i:i)=blank
 
           DAI(ng)%base(i:i)=blank
           DAI(ng)%name(i:i)=blank
