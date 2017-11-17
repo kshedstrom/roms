@@ -153,7 +153,7 @@
       integer :: k
 
       real(r8) :: Aweight, Bweight, Cweight, Cbot, Csur, Hscale
-      real(r8) :: ds, exp_bot, exp_sur, sc_r, sc_w
+      real(r8) :: ds, exp_bot, exp_sur, rk, rN, sc_r, sc_w
       real(r8) :: cff, cff1, cff2
       real(r8) :: zhc, z1, z2, z3
 !
@@ -471,26 +471,26 @@
             SCALARS(ng)%Cs_r(k)=Csur
           END IF
         END DO
-!      END IF
 !
 !----------------------------------------------------------------------
-! copy of stretching 4 adapted to the case of a sin or quadratic
-!  aproach for the s-coordinate
+! Stretching 5 case using a quadratic Legendre polynomial function
+! aproach for the s-coordinate to enhance the surface exchange layer.
 !
-! Added by Joao Marcos Souza - SOEST - 05/07/2012
+! J. Souza, B.S. Powell, A.C. Castillo-Trujillo, and P. Flament, 2015:
+!   The Vorticity Balance of the Ocean Surface in Hawaii from a
+!   Regional Reanalysis.'' J. Phys. Oceanogr., 45, 424-440.
 !
+! Added by Joao Marcos Souza - SOEST - 05/07/2012.
 !-----------------------------------------------------------------------
-     ELSE IF (Vstretching(ng).eq.5) THEN
-!        ds=1.0_r8/REAL(N(ng),r8)
 !
+      ELSE IF (Vstretching(ng).eq.5) THEN
         SCALARS(ng)%sc_w(N(ng))=0.0_r8
         SCALARS(ng)%Cs_w(N(ng))=0.0_r8
         DO k=N(ng)-1,1,-1
-!          sc_w=ds*REAL(k-N(ng),r8)
-!          sc_w=(sin(2.0_r8*3.14159265_r8/((N(ng)+1.0_r8)                &
-!               *4.0_r8)*(k)))-1.0_r8
-          sc_w=-(k**2-k*2.0_r8*N(ng)+k+N(ng)**2-N(ng))/(N(ng)**2-N(ng)) &
-               -0.01_r8*(k**2-k*N(ng))/(1-N(ng))
+          rk=REAL(k,r8)
+          rN=REAL(N(ng),r8)
+          sc_w=-(rk*rk - 2.0_r8*rk*rN + rk + rN*rN - rN)/(rN*rN - rN)-  &
+               0.01_r8*(rk*rk - rk*rN)/(1.0_r8 - rN)
           SCALARS(ng)%sc_w(k)=sc_w
           IF (theta_s(ng).gt.0.0_r8) THEN
             Csur=(1.0_r8-COSH(theta_s(ng)*sc_w))/                       &
@@ -510,12 +510,10 @@
         SCALARS(ng)%Cs_w(0)=-1.0_r8
 !
         DO k=1,N(ng)
-!          sc_r=ds*(REAL(k-N(ng),r8)-0.5_r8)
-!          sc_r=(sin(2.0_r8*3.14159265_r8/(N(ng)*4.0_r8)*(k-0.5_r8)))    &
-!               -1.0_r8
-          sc_r=-((k-0.5_r8)**2-2*(k-0.5_r8)*N(ng)+(k-0.5_r8)+N(ng)**2   &
-               -N(ng))/(N(ng)**2-N(ng))-0.01_r8*((k-0.5_r8)**2          &
-               -(k-0.5_r8)*N(ng))/(1-N(ng))
+          rk=REAL(k,r8)-0.5_r8
+          rN=REAL(N(ng),r8)
+          sc_r=-(rk*rk - 2.0_r8*rk*rN + rk + rN*rN - rN)/(rN*rN - rN)-  &
+               0.01_r8*(rk*rk - rk*rN)/(1.0_r8 - rN)
           SCALARS(ng)%sc_r(k)=sc_r
           IF (theta_s(ng).gt.0.0_r8) THEN
             Csur=(1.0_r8-COSH(theta_s(ng)*sc_r))/                       &

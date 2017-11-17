@@ -722,7 +722,6 @@
      (defined BULK_FLUXES  && !defined EMINUSP))     || \
     (!defined ATM_COUPLING && \
       defined SOLAR_SOURCE && !defined ANA_SRFLUX)   || \
-    ( defined SSH_TIDES    || defined UV_TIDES)      || \
     ( defined BBL_MODEL    && (!defined ANA_WWAVE    && \
      !defined WAV_COUPLING))                         || \
     ( defined SEDIMENT     && !defined ANA_SPFLUX)   || \
@@ -732,8 +731,7 @@
 #  define FRC_FILE
 # endif
 #else
-# if(!defined ATM_COUPLING    && !defined ANA_SMFLUX)   || \
-    ( defined  SSH_TIDES   || defined UV_TIDES)
+# if(!defined ATM_COUPLING && !defined ANA_SMFLUX)
 #  define FRC_FILE
 # endif
 #endif

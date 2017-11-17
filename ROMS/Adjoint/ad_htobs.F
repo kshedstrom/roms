@@ -212,7 +212,7 @@
         IF (FOURDVAR(ng)%ObsCount(isFsur).gt.0) THEN
           CALL ad_extract_obs2d (ng, 0, Lm(ng)+1, 0, Mm(ng)+1,          &
      &                           LBi, UBi, LBj, UBj,                    &
-     &                           isFsur,                                &
+     &                           ObsState2Type(isFsur),                 &
      &                           Mobs, Mstr, Mend,                      &
      &                           rXmin(ng), rXmax(ng),                  &
      &                           rYmin(ng), rYmax(ng),                  &
@@ -243,7 +243,7 @@
         IF (FOURDVAR(ng)%ObsCount(isUbar).gt.0) THEN
           CALL ad_extract_obs2d (ng, 1, Lm(ng)+1, 0, Mm(ng)+1,          &
      &                           LBi, UBi, LBj, UBj,                    &
-     &                           isUbar,                                &
+     &                           ObsState2Type(isUbar),                 &
      &                           Mobs, Mstr, Mend,                      &
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
@@ -274,7 +274,7 @@
         IF (FOURDVAR(ng)%ObsCount(isVbar).gt.0) THEN
           CALL ad_extract_obs2d (ng, 0, Lm(ng)+1, 1, Mm(ng)+1,          &
      &                           LBi, UBi, LBj, UBj,                    &
-     &                           isVbar,                                &
+     &                           ObsState2Type(isVbar),                 &
      &                           Mobs, Mstr, Mend,                      &
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
@@ -294,6 +294,7 @@
      &                           f_vbar)
 # endif
         END IF
+
 # ifdef SOLVE3D
 !
 !  3D u-momentum component.
@@ -316,7 +317,7 @@
           END DO
           CALL ad_extract_obs3d (ng, 1, Lm(ng)+1, 0, Mm(ng)+1,          &
      &                           LBi, UBi, LBj, UBj, 1, N(ng),          &
-     &                           isUvel,                                &
+     &                           ObsState2Type(isUvel),                 &
      &                           Mobs, Mstr, Mend,                      &
      &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
@@ -357,7 +358,7 @@
           END DO
           CALL ad_extract_obs3d (ng, 0, Lm(ng)+1, 1, Mm(ng)+1,          &
      &                           LBi, UBi, LBj, UBj, 1, N(ng),          &
-     &                           isVvel,                                &
+     &                           ObsState2Type(isVvel),                 &
      &                           Mobs, Mstr, Mend,                      &
      &                           vXmin(ng), vXmax(ng),                  &
      &                           vYmin(ng), vYmax(ng),                  &
@@ -391,7 +392,7 @@
           IF (FOURDVAR(ng)%ObsCount(isTvar(itrc)).gt.0) THEN
             CALL ad_extract_obs3d (ng, 0, Lm(ng)+1, 0, Mm(ng)+1,        &
      &                             LBi, UBi, LBj, UBj, 1, N(ng),        &
-     &                             isTvar(itrc),                        &
+     &                             ObsState2Type(isTvar(itrc)),         &
      &                             Mobs, Mstr, Mend,                    &
      &                             rXmin(ng), rXmax(ng),                &
      &                             rYmin(ng), rYmax(ng),                &
@@ -434,25 +435,25 @@
 !
         DO iobs=Mstr,Mend
           IF (ObsScale(iobs).lt.1.0) THEN
-            IF  (ObsType(iobs).eq.isFsur) THEN
+            IF  (ObsType(iobs).eq.ObsState2Type(isFsur)) THEN
               FOURDVAR(ng)%ObsReject(isFsur)=                           &
      &                              FOURDVAR(ng)%ObsReject(isFsur)+1
-            ELSE IF (ObsType(iobs).eq.isUbar) THEN
+            ELSE IF (ObsType(iobs).eq.ObsState2Type(isUbar)) THEN
               FOURDVAR(ng)%ObsReject(isUbar)=                           &
      &                              FOURDVAR(ng)%ObsReject(isUbar)+1
-            ELSE IF (ObsType(iobs).eq.isVbar) THEN
+            ELSE IF (ObsType(iobs).eq.ObsState2Type(isVbar)) THEN
               FOURDVAR(ng)%ObsReject(isVbar)=                           &
      &                              FOURDVAR(ng)%ObsReject(isVbar)+1
 # ifdef SOLVE3D
-            ELSE IF (ObsType(iobs).eq.isUvel) THEN
+            ELSE IF (ObsType(iobs).eq.ObsState2Type(isUvel)) THEN
               FOURDVAR(ng)%ObsReject(isUvel)=                           &
      &                              FOURDVAR(ng)%ObsReject(isUvel)+1
-            ELSE IF (ObsType(iobs).eq.isVvel) THEN
+            ELSE IF (ObsType(iobs).eq.ObsState2Type(isVvel)) THEN
               FOURDVAR(ng)%ObsReject(isVvel)=                           &
      &                              FOURDVAR(ng)%ObsReject(isVvel)+1
             ELSE
               DO itrc=1,NT(ng)
-                IF (ObsType(iobs).eq.isTvar(itrc)) THEN
+                IF (ObsType(iobs).eq.ObsState2Type(isTvar(itrc))) THEN
                   i=isTvar(itrc)
                   FOURDVAR(ng)%ObsReject(i)=FOURDVAR(ng)%ObsReject(i)+1
                 END IF
@@ -465,7 +466,7 @@
 !  Load total available and rejected observations into structure
 !  array.
 !
-        DO i=1,NstateVar(ng)
+        DO i=1,NobsVar(ng)
           FOURDVAR(ng)%ObsCount(0)=FOURDVAR(ng)%ObsCount(0)+            &
      &                             FOURDVAR(ng)%ObsCount(i)
           FOURDVAR(ng)%ObsReject(0)=FOURDVAR(ng)%ObsReject(0)+          &
@@ -479,10 +480,10 @@
             ObsSum=0
             ObsVoid=0
             is=NstrObs(ng)
-            DO i=1,NstateVar(ng)
+            DO i=1,NobsVar(ng)
               IF (FOURDVAR(ng)%ObsCount(i).gt.0) THEN
                 ie=is+FOURDVAR(ng)%ObsCount(i)-1
-                WRITE (stdout,10) TRIM(Vname(1,idSvar(i))), is, ie,     &
+                WRITE (stdout,10) TRIM(ObsName(i)), is, ie,             &
      &                            ie-is+1, FOURDVAR(ng)%ObsReject(i)
                 is=ie+1
                 ObsSum=ObsSum+FOURDVAR(ng)%ObsCount(i)
