@@ -319,7 +319,7 @@
 !
       IF (Master) WRITE (stdout,'(1x)')
 !
-      DO i=1,n_var
+      DO it=1,n_var
 
         SELECT CASE (TRIM(ADJUSTL(var_name(it))))
 !
