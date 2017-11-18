@@ -269,6 +269,7 @@
         ADM(ng)%ncid=-1
         ADS(ng)%ncid=-1
         AVG(ng)%ncid=-1
+        AVG2(ng)%ncid=-1
         BLK(ng)%ncid=-1
         DAI(ng)%ncid=-1
         DAV(ng)%ncid=-1
@@ -317,6 +318,9 @@
 
           AVG(ng)%base(i:i)=blank
           AVG(ng)%name(i:i)=blank
+
+          AVG2(ng)%base(i:i)=blank
+          AVG2(ng)%name(i:i)=blank
 
           BLK(ng)%base(i:i)=blank
           BLK(ng)%name(i:i)=blank
