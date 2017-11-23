@@ -68,7 +68,7 @@
           lstr=LEN_TRIM(FRC(i,ng)%name)
           FRC(i,ng)%base=FRC(i,ng)%name(1:lstr-3)
           CALL netcdf_close (ng, model, FRC(i,ng)%ncid,                 &
-     &                       FRC(i,ng)%files(i), .FALSE.)
+     &                       FRC(i,ng)%name, .FALSE.)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF

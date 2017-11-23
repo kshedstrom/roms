@@ -118,7 +118,7 @@
             exit_flag=4
           END IF
 !
-!  Check if there is boundary data to the end of the simulation.
+!  Check if there is boundary data up to the end of the simulation.
 !
           IF (Lcheck) THEN
             Tmax=Tscale*BRY(i,ng)%time_max(Nfiles)
@@ -194,7 +194,7 @@
           exit_flag=4
         END IF
 !
-!  Check if there is focing data to the end of the simulation.
+!  Check if there is forcing data up to the end of the simulation.
 !
         IF (Lcheck) THEN
           Tmax=Tscale*FRC(i,ng)%time_max(Nfiles)
@@ -243,8 +243,7 @@
             Fcount=1
           END IF
 !
-!  Initialize other structure parameters or issue an error if data does
-!  not include initalization time.
+!  Check if there is climatology data up to the end of the simulation.
 !
           IF (Fcount.gt.0) THEN
             CLM(i,ng)%Fcount=Fcount
