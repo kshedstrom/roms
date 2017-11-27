@@ -86,6 +86,7 @@
 #  endif
 # endif
 # if defined OFFLINE
+      USE mod_coupling
       USE mod_stepping
       USE exchange_2d_mod
 #  ifdef SOLVE3D
@@ -2240,8 +2241,7 @@
 # if defined OFFLINE
         DO j=Jstr,Jend
           DO i=Istr,Iend
-            OCEAN(ng)%zeta(i,j,1) = CLIMA(ng)%ssh(i,j)
-            OCEAN(ng)%zeta(i,j,2) = CLIMA(ng)%ssh(i,j)
+            COUPLING(ng)%Zt_avg1(i,j) = CLIMA(ng)%ssh(i,j)
           END DO
         END DO
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
