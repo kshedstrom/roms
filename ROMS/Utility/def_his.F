@@ -5449,9 +5449,13 @@
 !  Set unlimited time record dimension to the appropriate value.
 !
         IF (ndefHIS(ng).gt.0) THEN
-          HIS(ng)%Rindex=((ntstart(ng)-1)-                              &
-     &                    ndefHIS(ng)*((ntstart(ng)-1)/ndefHIS(ng)))/   &
-     &                   nHIS(ng)
+          IF ((ntstart(ng)-1).lt.ndefHIS(ng)) THEN
+            HIS(ng)%Rindex=1+((ntstart(ng)-1)- ndefHIS(ng)*            &
+     &                        ((ntstart(ng)-1)/ndefHIS(ng)))/nHIS(ng)
+          ELSE
+            HIS(ng)%Rindex=  ((ntstart(ng)-1)- ndefHIS(ng)*            &
+     &                        ((ntstart(ng)-1)/ndefHIS(ng)))/nHIS(ng)
+          END IF
         ELSE
           HIS(ng)%Rindex=(ntstart(ng)-1)/nHIS(ng)
         END IF
