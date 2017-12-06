@@ -2116,7 +2116,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on RHO-points: scope_rho,      &
+     &                            'scope on RHO-points: scope_rho',     &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF
@@ -2154,7 +2154,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on U-points: scope_u,          &
+     &                            'scope on U-points: scope_u',         &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF
@@ -2192,7 +2192,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on V-points: scope_v,          &
+     &                            'scope on V-points: scope_v',         &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF

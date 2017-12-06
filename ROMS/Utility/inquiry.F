@@ -132,6 +132,7 @@
      &                     __FILE__)) RETURN
             IF (label(1:3).eq.'FRC') THEN
               FRCids(ifile,ng)=-1
+              S(ifile)%ncid=-1
             END IF
             IF (label(1:3).eq.'BRY') THEN
               BRYids(ifile,ng)=-1
@@ -496,7 +497,7 @@
           IF (Irec.eq.1) THEN
             Tindex=Iout
           ELSE
-            Tindex=1
+            Tindex=Iinfo(8,ifield,ng)
           END IF
           IF (Liocycle) THEN
             IF (Trec.eq.nrec) THEN
