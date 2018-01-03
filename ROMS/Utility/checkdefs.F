@@ -155,6 +155,12 @@
       Coptions(is:is+10)=' AGE_MEAN,'
       idriver=idriver+1
 #endif
+#ifdef AKTCLIMATOLOGY
+      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                     &
+     &   'Processing AKt climatology data.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' AKTCLIMATOLOGY,'
+#endif
 #if defined ALBEDO && defined ANA_SRFLUX
 !
       IF (Master) WRITE (stdout,20) 'ALBEDO',                           &
