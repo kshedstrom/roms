@@ -247,7 +247,7 @@
               END IF
               tstart=Tval(i)
             END DO
-          ELSE IF (LowerBound) THEN
+          ELSE
             Tstr=Tmax
             Tindex=ntime
           END IF
