@@ -225,7 +225,12 @@
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
 #ifdef FILTERED_RST
+# ifdef GLACIER_BAY
+! Not sure what this is all about, but was getting seg faults.
+      allocate ( FIL(10,Ngrids) )
+# else
       allocate ( FIL(nfile,Ngrids) )
+# endif
 #endif
       allocate ( FLT(Ngrids) )
       allocate ( FWD(Ngrids) )

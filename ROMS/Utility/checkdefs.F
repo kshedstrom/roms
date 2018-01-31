@@ -1055,6 +1055,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ENSEMBLE,'
 #endif
+#if defined EVOLVED_LCZ && defined FOUR_DVAR
+!
+      IF (Master) WRITE (stdout,20) 'EVOLVED_LCZ',                      &
+     &   'Compute 4D-Var evolved Hessian singular vectors.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' EVOLVED_LCZ,'
+#endif
 #ifdef FASTICE_CLIMATOLOGY
       IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
      &   'Climatology of landfast ice.'
@@ -1067,12 +1074,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
 #endif
-#if defined EVOLVED_LCZ && defined FOUR_DVAR
-!
-      IF (Master) WRITE (stdout,20) 'EVOLVED_LCZ',                      &
-     &   'Compute 4D-Var evolved Hessian singular vectors.'
+#ifdef FILTERED_RST
+      IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
+     &   'Writing out time-filtered output.'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+13)=' EVOLVED_LCZ,'
+      Coptions(is:is+14)=' FILTERED_RST,'
 #endif
 #ifdef FLOATS
 !
