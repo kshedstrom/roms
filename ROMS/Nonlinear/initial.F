@@ -650,7 +650,7 @@
      defined ADJUST_STFLUX)
 !
 !-----------------------------------------------------------------------
-!  Read in the surface forcing and/or open boundary conditions
+!  Read in the surface forcing and or open boundary conditions
 !  increments for PSAS from record IniRec of the NLM initial NetCDF
 !  file.
 !-----------------------------------------------------------------------
@@ -658,7 +658,7 @@
       IF (Nrun.gt.1) THEN
         DO ng=1,Ngrids
 !$OMP MASTER
-          CALL get_state (ng, 12, 12, INI(ng)%name,                     &
+          CALL get_state (ng, 5, 5, INI(ng)%name,                       &
      &                    IniRec(ng), Tindex(ng))
 !$OMP END MASTER
 # ifdef DISTRIBUTE
