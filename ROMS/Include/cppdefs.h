@@ -174,6 +174,7 @@
 ** EMINUSP_SSH         use if computing changes in SSH due to E-P            **
 ** RUNOFF              use if adding runoff as a second rain field           **
 ** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
+** WIND_MINUS_CURRENT  use if compute effective wind by removing current     **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
