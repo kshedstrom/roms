@@ -5,7 +5,7 @@
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #
-# Include file for GNU Fortran compiler on Linux
+# Include file for CRAY ftn compiler with PrgEnv-gnu
 # -------------------------------------------------------------------------
 #
 # ARPACK_LIBDIR  ARPACK libary directory
@@ -13,11 +13,6 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
-# CC             Name of the C compiler
-# CFLAGS         Flags to the C compiler
-# CXX            Name of the C++ compiler
-# CXXFLAGS       Flags to the C++ compiler
-# CLEAN          Name of cleaning executable after C-preprocessing
 # NF_CONFIG      NetCDF Fortran configuration script
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF library directory
@@ -29,14 +24,10 @@
 #
 # First the defaults
 #
-               FC := gfortran
+               FC := ftn
            FFLAGS := -frepack-arrays
               CPP := /usr/bin/cpp
          CPPFLAGS := -P -traditional
-               CC := gcc
-              CXX := g++
-           CFLAGS :=
-         CXXFLAGS :=
           LDFLAGS :=
                AR := ar
           ARFLAGS := -r
@@ -59,7 +50,7 @@ ifdef USE_NETCDF4
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
-      NETCDF_LIBS ?= -lnetcdf
+      NETCDF_LIBS ?= -lnetcdff
              LIBS := -L$(NETCDF_LIBDIR) $(NETCDF_LIBS)
 endif
 
@@ -74,24 +65,18 @@ endif
 
 ifdef USE_MPI
          CPPFLAGS += -DMPI
- ifdef USE_MPIF90
-               FC := mpif90
- endif
 endif
 
 ifdef USE_OpenMP
          CPPFLAGS += -D_OPENMP
+           FFLAGS += -fopenmp
 endif
 
 ifdef USE_DEBUG
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
-           CFLAGS += -g
-         CXXFLAGS += -g
 else
            FFLAGS += -O3 -ffast-math
-           CFLAGS += -O3
-         CXXFLAGS += -O3
 endif
 
 ifdef USE_MCT
@@ -99,10 +84,6 @@ ifdef USE_MCT
        MCT_LIBDIR ?= /usr/local/mct/lib
            FFLAGS += -I$(MCT_INCDIR)
              LIBS += -L$(MCT_LIBDIR) -lmct -lmpeu
-endif
-
-ifdef USE_MPI
-           FFLAGS += -I/usr/include
 endif
 
 ifdef USE_ESMF
@@ -114,10 +95,6 @@ ifdef USE_ESMF
              LIBS += $(ESMF_F90LINKPATHS) $(ESMF_F90ESMFLINKLIBS)
 endif
 
-ifdef USE_CXX
-             LIBS += -lstdc++
-endif
-
 #
 # Use full path of compiler.
 #
@@ -125,39 +102,13 @@ endif
                LD := $(FC)
 
 #
-# Turn off bounds checking for function def_var, as "dimension(*)"
-# declarations confuse Gnu Fortran 95 bounds-checking code.
-#
-
-$(SCRATCH_DIR)/def_var.o: FFLAGS += -fno-bounds-check
-
-#
-# Allow integer overflow in ran_state.F.  This is not allowed
-# during -O3 optimization. This option should be applied only for
-# Gfortran versions >= 4.2.
-#
-
-FC_TEST := $(findstring $(shell ${FC} --version | head -1 | \
-                              awk '{ sub("Fortran 95", "Fortran"); print }' | \
-                              cut -d " " -f 4 | \
-                              cut -d "." -f 1-2), \
-             4.0 4.1)
-
-#ifeq "${FC_TEST}" ""
-#$(SCRATCH_DIR)/ran_state.o: FFLAGS += -fno-strict-overflow
-#endif
-
-#
 # Set free form format in source files to allow long string for
 # local directory and compilation flags inside the code.
 #
 
-#$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form -ffree-line-length-none
-#$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form -ffree-line-length-none
-#$(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form -ffree-line-length-none
-$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form
-$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form
-$(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form
+$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form -ffree-line-length-none
 $(SCRATCH_DIR)/biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 ifdef USE_ADJOINT
 $(SCRATCH_DIR)/ad_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
