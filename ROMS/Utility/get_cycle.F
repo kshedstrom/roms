@@ -248,8 +248,8 @@
               tstart=Tval(i)
             END DO
           ELSE
-            Tstr=Tmax          ! LowerBound for next multifile or
-            Tindex=ntime       ! time cycling
+            Tstr=Tmax
+            Tindex=ntime
           END IF
         ELSE                   ! backward:  Tval(i) =< mday =< Tval(i+1)
           IF (Linside) THEN
