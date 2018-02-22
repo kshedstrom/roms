@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -239,7 +239,12 @@
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
 #ifdef FILTERED_RST
+# ifdef GLACIER_BAY
+! Not sure what this is all about, but was getting seg faults.
+      allocate ( FIL(10,Ngrids) )
+# else
       allocate ( FIL(nfile,Ngrids) )
+# endif
 #endif
 #ifdef NEMURO_SAN
       allocate ( FISH(Ngrids) )

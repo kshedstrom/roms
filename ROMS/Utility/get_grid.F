@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -2037,7 +2037,7 @@
 !
 !  Open adjoint sensitivity NetCDF file for reading.
 !
-      IF (GotScope(4).and.(ADS(ng)%ncid.eq.-1)) THEN
+      IF (ADS(ng)%ncid.eq.-1) THEN
         CALL netcdf_open (ng, model, ncname, 0, ADS(ng)%ncid)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) THEN
@@ -2116,7 +2116,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on RHO-points: scope_rho,      &
+     &                            'scope on RHO-points: scope_rho',     &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF
@@ -2154,7 +2154,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on U-points: scope_u,          &
+     &                            'scope on U-points: scope_u',         &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF
@@ -2192,7 +2192,7 @@
             ELSE
               IF (Master) THEN
                 WRITE (stdout,30) 'adjoint sensitivity spatial '//      &
-     &                            'scope on V-points: scope_v,          &
+     &                            'scope on V-points: scope_v',         &
      &                            ng, TRIM(ncname), Fmin, Fmax
               END IF
             END IF

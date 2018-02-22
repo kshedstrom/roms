@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !=======================================================================
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                           Hernan G. Arango   !
 !========================================== Alexander F. Shchepetkin ===
@@ -338,7 +338,7 @@
       integer :: dg, cr, rg
 # endif
       integer :: Isrc, Jsrc
-      integer :: i, ibt, ic, is, it, itrc, j, k, ltrc
+      integer :: i, ibt, ic, is, it, itp, itrc, j, k, ltrc
 # if defined AGE_MEAN && defined T_PASSIVE
       integer :: iage
 # endif
@@ -1406,29 +1406,29 @@
 !
 !  Apply tracers point sources to the horizontal advection terms.
 !
-        DO it=1,NPT
-          itrc=inert(it)
-          DO is=1,Nsrcpt
-            i=Isrcpt(is)
-            j=Jsrcpt(is)
-            DO k=1,N(ng)
+      DO itp=1,NPT
+        itrc=inert(itp)
+        DO is=1,Nsrcpt
+          i=Isrcpt(is)
+          j=Jsrcpt(is)
+          DO k=1,N(ng)
 #  ifdef TS_MPDATA
-              IF (((Istr-2.le.i).and.(i.le.Iend+2)).and.                &
-     &            ((Jstr-2.le.j).and.(j.le.Jend+2))) THEN
+            IF (((Istr-2.le.i).and.(i.le.Iend+2)).and.                  &
+     &          ((Jstr-2.le.j).and.(j.le.Jend+2))) THEN
 #  else
-              IF (((Istr.le.i).and.(i.le.Iend+1)).and.                  &
-     &            ((Jstr.le.j).and.(j.le.Jend))) THEN
+            IF (((Istr.le.i).and.(i.le.Iend+1)).and.                    &
+     &          ((Jstr.le.j).and.(j.le.Jend))) THEN
 #  endif
 !
-                IF (Lsrcpt(is,itrc)) THEN
-                  t(i,j,k,3,itrc)=0.
-                  t(i,j,k,nstp,itrc)=Tsrcpt(is,k,itrc)
-                  t(i,j,k,nnew,itrc)=Tsrcpt(is,k,itrc)
-                END IF
+              IF (Lsrcpt(is,itrc)) THEN
+                t(i,j,k,3,itrc)=0.
+                t(i,j,k,nstp,itrc)=Tsrcpt(is,k,itrc)
+                t(i,j,k,nnew,itrc)=Tsrcpt(is,k,itrc)
               END IF
-            END DO
+            END IF
           END DO
         END DO
+      END DO
 # endif
 !-----------------------------------------------------------------------
 !  Apply lateral boundary conditions and, if appropriate, nudge

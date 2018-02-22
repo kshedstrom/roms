@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -154,6 +154,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' AGE_MEAN,'
       idriver=idriver+1
+#endif
+#ifdef AKTCLIMATOLOGY
+      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                     &
+     &   'Processing AKt climatology data.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' AKTCLIMATOLOGY,'
 #endif
 #if defined ALBEDO && defined ANA_SRFLUX
 !
@@ -894,6 +900,13 @@
       Coptions(is:is+17)=' COUPLING_INTERP,'
       iatms=iatms+1
 #endif
+#ifdef DATA_COUPLING
+!
+      IF (Master) WRITE (stdout,20) 'DATA_COUPLING',                     &
+     &   'DATA model included in coupling.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' DATA_COUPLING,'
+#endif
 #if defined DATALESS_LOOPS && defined W4DVAR
 !
       IF (Master) WRITE (stdout,20) 'DATALESS_LOOPS',                   &
@@ -1110,6 +1123,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ENSEMBLE,'
 #endif
+#if defined EVOLVED_LCZ && defined FOUR_DVAR
+!
+      IF (Master) WRITE (stdout,20) 'EVOLVED_LCZ',                      &
+     &   'Compute 4D-Var evolved Hessian singular vectors.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' EVOLVED_LCZ,'
+#endif
 #ifdef FASTICE_CLIMATOLOGY
       IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
      &   'Climatology of landfast ice.'
@@ -1140,6 +1160,12 @@
      &   'Compute 4D-Var evolved Hessian singular vectors.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' EVOLVED_LCZ,'
+#endif
+#ifdef FILTERED_RST
+      IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
+     &   'Writing out time-filtered output.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FILTERED_RST,'
 #endif
 #ifdef FLOATS
 !
@@ -1432,6 +1458,15 @@
      &   'Include 3eq Ice Shelf Thermodynamics.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICESHELF_3EQ,'
+#endif
+#if defined IMPACT_INNER        && defined OBS_IMPACT          && \
+   (defined W4DVAR_SENSITIVITY  || defined W4DPSAS_SENSITIVITY || \
+    defined IS4DVAR_SENSITIVITY)
+!
+      IF (Master) WRITE (stdout,20) 'IMPACT_INNER',                     &
+     &   'Writing observations impacts for each inner loop.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' IMPACT_INNER,'
 #endif
 #if defined IMPLICIT_VCONV && defined FOUR_DVAR && defined VCONVOLUTION
 !
@@ -3302,6 +3337,13 @@
      &   'Wetting and drying activated.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' WET_DRY,'
+#endif
+#ifdef WIND_MINUS_CURRENT && defined BULK_FLUXES && defined SOLVE3D
+!
+      IF (Master) WRITE (stdout,20) 'WIND_MINUS_CURRENT',               &
+     &   'Compute effective wind by removing surface ocean current.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' WIND_MINUS_CURRENT,'
 #endif
 #ifdef WIND_WAVES
 !

@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2017 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
+** Copyright (c) 2002-2018 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -386,11 +386,14 @@
 **
 */
 
+#if defined GLS_MIXING || defined MY25_MIXING || defined NN_MIXING
+# define TKE_MIXING
+#endif
+
 #if !defined FORWARD_MIXING  && \
     (defined TANGENT         || defined TL_IOMS    || \
      defined ADJOINT)        && \
-    (defined LMD_MIXING      || defined GLS_MIXING || \
-     defined MY25_MIXING)
+    (defined LMD_MIXING      || defined TKE_MIXING)
 # define FORWARD_MIXING
 #endif
 
@@ -432,6 +435,12 @@
       defined OBS_IMPACT
 # undef OBS_IMPACT
 #endif
+#if !(defined OBS_IMPACT             && \
+      (defined W4DVAR_SENSITIVITY    || defined W4DPSAS_SENSITIVITY || \
+       defined IS4DVAR_SENSITIVITY))
+# undef IMPACT_INNER
+#endif
+
 
 /*
 ** Activate internal switch to process 4DVAR observations.
@@ -512,7 +521,7 @@
 */
 
 #if defined BVF_MIXING || defined LMD_MIXING  || defined LMD_SKPP    || \
-    defined LMD_BKPP   || defined GLS_MIXING  || defined MY25_MIXING
+    defined LMD_BKPP   || defined TKE_MIXING
 # define BV_FREQUENCY
 #endif
 
@@ -592,7 +601,7 @@
 #endif
 
 #if defined CICE_COUPLING
-  define ICE_COUPLING
+# define ICE_COUPLING
 #endif
 
 #if defined REFDIF_COUPLING || defined SWAN_COUPLING || \
@@ -600,7 +609,7 @@
 # define WAV_COUPLING
 #endif
 
-#if defined ATM_COUPLING || ICE_COUPLING || WAV_COUPLING
+#if defined ATM_COUPLING || defined ICE_COUPLING || defined WAV_COUPLING
 # define MODEL_COUPLING
 #endif
 

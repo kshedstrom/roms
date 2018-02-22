@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -935,7 +935,7 @@
 #  if defined BIOLOGY || defined SEDIMENT || defined T_PASSIVE
 !
 !-----------------------------------------------------------------------
-!  Set kinematic surface and bottom pasive tracer fluxes (T m/s).
+!  Set kinematic surface and bottom passive tracer fluxes (T m/s).
 !-----------------------------------------------------------------------
 !
       DO itrc=NAT+1,NT(ng)
