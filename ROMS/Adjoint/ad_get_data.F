@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1429,6 +1429,18 @@
      &                     GRID(ng) % vmask,                            &
 #   endif
      &                     CLIMA(ng) % v_adsG)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+        IF (SCALARS(ng)%Lstate(isWvel)) THEN
+          CALL get_3dfldr (ng, iADM, idWads, ADS(ng)%ncid,              &
+     &                     1, ADS(ng), update(1),                       &
+     &                     LBi, UBi, LBj, UBj, 0, N(ng), 2, 1,          &
+#     ifdef MASKING
+     &                     GRID(ng) % rmask,                            &
+#     endif
+     &                     CLIMA(ng) % wvel_adsG)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF

@@ -7,7 +7,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -39,7 +39,7 @@
 !  avgt       Tracer type variables (usually, potential temperature    !
 !               and salinity).                                         !
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
 !  avgAKt     Vertical diffusion of temperature (m2/s).                !
 !  avgAKv     Vertical viscosity (m2/s).                               !
 !  avgAKs     Vertical diffusion of Salinity (m2/s).                   !
@@ -214,7 +214,7 @@
 #  ifdef PRIMARY_PROD
           real(r8), pointer :: avgNPP(:,:)
 #  endif
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
           real(r8), pointer :: avgAKv(:,:,:)
           real(r8), pointer :: avgAKt(:,:,:)
           real(r8), pointer :: avgAKs(:,:,:)
@@ -535,7 +535,7 @@
       END IF
 #  endif
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
       IF (Aout(idVvis,ng)) THEN
         allocate ( AVERAGE(ng) % avgAKv(LBi:UBi,LBj:UBj,0:N(ng)) )
       END IF
@@ -1161,7 +1161,7 @@
       END IF
 #  endif
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
       IF (Aout(idVvis,ng)) THEN
         DO k=0,N(ng)
           DO j=Jmin,Jmax

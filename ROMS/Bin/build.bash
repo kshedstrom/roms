@@ -2,7 +2,7 @@
 #
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2017 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2018 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
@@ -31,6 +31,11 @@
 #                                                                       :::
 #    -j [N]      Compile in parallel using N CPUs                       :::
 #                  omit argument for all available CPUs                 :::
+#                                                                       :::
+#    -p macro    Prints any Makefile macro value. For example,          :::
+#                                                                       :::
+#                  build.bash -p FFLAGS                                 :::
+#                                                                       :::
 #    -noclean    Do not clean already compiled objects                  :::
 #                                                                       :::
 # Notice that sometimes the parallel compilation fail to find MPI       :::
@@ -38,8 +43,11 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+which_MPI=openmpi                            # default, overwriten below
+
 parallel=0
 clean=1
+dprint=0
 
 while [ $# -gt 0 ]
 do
@@ -56,6 +64,14 @@ do
       fi
       ;;
 
+    -p )
+      shift
+      clean=0
+      dprint=1
+      debug="print-$1"
+      shift
+      ;;
+
     -noclean )
       shift
       clean=0
@@ -69,6 +85,10 @@ do
       echo ""
       echo "-j [N]      Compile in parallel using N CPUs"
       echo "              omit argument for all avaliable CPUs"
+      echo ""
+      echo "-p macro    Prints any Makefile macro value"
+      echo "              For example:  build.bash -p FFLAGS"
+      echo ""
       echo "-noclean    Do not clean already compiled objects"
       echo ""
       exit 1
@@ -149,8 +169,6 @@ export     MY_PROJECT_DIR=${PWD}
 #export       USE_NETCDF4=on            # compile with NetCDF-4 library
 #export   USE_PARALLEL_IO=on            # Parallel I/O with Netcdf-4/HDF5
 
-#export       USE_MY_LIBS=on            # use my library paths below
-
 # There are several MPI libraries available. Here, we set the desired
 # "mpif90" script to use during compilation. This only works if the make
 # configuration file (say, Linux-pgi.mk) in the "Compilers" directory
@@ -196,6 +214,10 @@ if [ -n "${USE_MPIF90:+1}" ]; then
   esac
 fi
 
+#--------------------------------------------------------------------------
+# Set libraries to compile.
+#--------------------------------------------------------------------------
+
 # If the USE_MY_LIBS is activated above, the path of the libraries
 # required by ROMS can be set here using environmental variables
 # which take precedence to the values specified in the make macro
@@ -223,6 +245,8 @@ fi
 #
 # Recall also that the MPI library comes in several flavors:
 # MPICH, MPICH2, OpenMPI, etc.
+
+#export USE_MY_LIBS=on            # use my library paths below
 
 if [ -n "${USE_MY_LIBS:+1}" ]; then
   case "$FORT" in
@@ -393,6 +417,10 @@ fi
 
  cd ${MY_ROMS_SRC}
 
+#--------------------------------------------------------------------------
+# Compile.
+#--------------------------------------------------------------------------
+
 # Remove build directory.
 
 if [ $clean -eq 1 ]; then
@@ -401,8 +429,12 @@ fi
 
 # Compile (the binary will go to BINDIR set above).
 
-if [ $parallel -eq 1 ]; then
-  make $NCPUS
+if [ $dprint -eq 1 ]; then
+  make $debug
 else
-  make
+  if [ $parallel -eq 1 ]; then
+    make $NCPUS
+  else
+    make
+  fi
 fi

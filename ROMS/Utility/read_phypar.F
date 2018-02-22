@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1098,6 +1098,16 @@
               Npts=load_l(Nval, Cval, Ngrids, Ladsen)
               DO ng=1,Ngrids
                 SCALARS(ng)%Lstate(isVvel)=Ladsen(ng)
+              END DO
+            CASE ('Lstate(isWvel)')
+              IF (isWvel.eq.0) THEN
+                IF (Master) WRITE (out,280) 'isWvel'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+              DO ng=1,Ngrids
+                SCALARS(ng)%Lstate(isWvel)=Ladsen(ng)
               END DO
             CASE ('Lstate(isTvar)')
               IF (MAXVAL(isTvar).eq.0) THEN
@@ -3400,7 +3410,8 @@
             CASE ('FRCNAME')
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ifile,       &
-     &                      igrid, nFfiles, Ncount, max_Ffiles, FRC)
+     &                      igrid, Ngrids, nFfiles, Ncount, max_Ffiles, &
+     &                      FRC)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank
@@ -4696,6 +4707,10 @@
      &       WRITE (out,170) SCALARS(ng)%Lstate(isVvel),                &
      &       'Lstate(isVvel)',                                          &
      &       'Adjoint sensitivity on 3D V-momentum component.'
+          IF (SCALARS(ng)%Lstate(isWvel))                               &
+     &       WRITE (out,170) SCALARS(ng)%Lstate(isWvel),                &
+     &       'Lstate(isWvel)',                                          &
+     &       'Adjoint sensitivity on 3D W-momentum component.'
           DO itrc=1,NT(ng)
             IF (SCALARS(ng)%Lstate(isTvar(itrc)))                       &
      &         WRITE (out,180) SCALARS(ng)%Lstate(isTvar(itrc)),        &
