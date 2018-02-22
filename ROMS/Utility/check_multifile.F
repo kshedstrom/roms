@@ -471,7 +471,6 @@
             IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
           END IF
-        END IF
 !
 !  Check if there is climatology data up to the end of the simulation.
 !

@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE tkebc_mod
-#if defined SOLVE3D && (defined MY25_MIXING || defined GLS_MIXING)
+#if defined SOLVE3D && defined TKE_MIXING
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

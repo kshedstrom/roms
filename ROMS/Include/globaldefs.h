@@ -386,11 +386,14 @@
 **
 */
 
+#if defined GLS_MIXING || defined MY25_MIXING || defined NN_MIXING
+# define TKE_MIXING
+#endif
+
 #if !defined FORWARD_MIXING  && \
     (defined TANGENT         || defined TL_IOMS    || \
      defined ADJOINT)        && \
-    (defined LMD_MIXING      || defined GLS_MIXING || \
-     defined MY25_MIXING)
+    (defined LMD_MIXING      || defined TKE_MIXING)
 # define FORWARD_MIXING
 #endif
 
@@ -518,7 +521,7 @@
 */
 
 #if defined BVF_MIXING || defined LMD_MIXING  || defined LMD_SKPP    || \
-    defined LMD_BKPP   || defined GLS_MIXING  || defined MY25_MIXING
+    defined LMD_BKPP   || defined TKE_MIXING
 # define BV_FREQUENCY
 #endif
 
