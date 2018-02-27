@@ -35,9 +35,11 @@
 !
       integer, intent(in) :: unit
 !
-#if defined CYGWIN
-#elif defined AIX
+#if defined AIX
       CALL flush_ (unit)
+#elif defined G95 || defined GFORTRAN
+! Fortran 2003 FLUSH statement
+      FLUSH (unit)
 #else
       CALL flush (unit)
 #endif

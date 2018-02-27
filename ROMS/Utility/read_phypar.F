@@ -100,6 +100,9 @@
       character (len=50 ) :: label
       character (len=256) :: fname, line
       character (len=256), dimension(200) :: Cval
+#ifndef SVN
+      character (len=80) :: git_msg
+#endif
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -3988,15 +3991,33 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwrite) THEN
+#ifndef SVN
+        IF (git_status.EQ.0) THEN
+          git_msg = 'The working tree is clean'
+        ELSE
+          WRITE (git_msg, '(A,I6,A)')                                   &
+     &      'The working tree is DIRTY with',git_status,' changes'
+        END IF
+#endif
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
+# ifdef SVN
      &                 TRIM(Iname), TRIM(svn_url), TRIM(svn_rev),       &
+# else
+     &                 TRIM(Iname),                                     &
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+# endif
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
+# ifdef SVN
      &                 TRIM(svn_url), TRIM(svn_rev), TRIM(Rdir),        &
+# else
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+     &                 TRIM(Rdir),                                      &
+# endif
      &                 TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #endif
 
@@ -6876,8 +6897,14 @@
      &        /,1x,'Compiler command : ',a,                             &
      &        /,1x,'Compiler flags   : ',a,/,                           &
      &        /,1x,'Input Script  : ',a,/,                              &
+# ifdef SVN
      &        /,1x,'SVN Root URL  : ',a,                                &
      &        /,1x,'SVN Revision  : ',a,/,                              &
+# else
+     &        /,1x,'Git Root URL  : ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
+# endif
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &
@@ -6889,8 +6916,14 @@
      &        /,1x,'Compiler system  : ',a,                             &
      &        /,1x,'Compiler command : ',a,                             &
      &        /,1x,'Compiler flags   : ',a,/,                           &
+# ifdef SVN
      &        /,1x,'SVN Root URL  : ',a,                                &
      &        /,1x,'SVN Revision  : ',a,/,                              &
+# else
+     &        /,1x,'Git Root URL  : ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
+# endif
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &

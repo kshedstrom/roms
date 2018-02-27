@@ -749,10 +749,18 @@
         character (len=256), dimension(4) :: BIONAME
 #endif
 !
+#ifdef SVN
 !  SVN revision and repository root URL.
 !
         character (len=40 ) :: svn_rev
         character (len=256) :: svn_url
+#else
+!  Git revision and repository root URL
+!
+        character (len=256) :: git_url = ''
+        character (len=80 ) :: git_rev = ''
+        integer             :: git_status = 0
+#endif
 !
       CONTAINS
 !
@@ -1133,6 +1141,19 @@
 #ifdef ANALYTICAL_DIR
       Adir=ANALYTICAL_DIR
 #endif
+#ifndef SVN
+!  Set Git repository info
+!
+# ifdef GIT_URL
+          git_url=GIT_URL
+# endif
+# ifdef GIT_REV
+          git_rev=GIT_REV
+# endif
+# ifdef GIT_STATUS
+          git_status=GIT_STATUS
+# endif
+#endif
 !
 !-----------------------------------------------------------------------
 !  Define names of variables for Input/Output NetCDF files.
@@ -1155,18 +1176,23 @@
         READ (inp,*,ERR=30,END=40) Vinfo(1)
         Lvar=LEN_TRIM(Vinfo(1))
 !
-!  Extract SVN Repository Root URL.
+!  Extract SVN/Git Repository Root URL.
 !
         IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
           is=INDEX(Vinfo(1),'https')
           ie=INDEX(Vinfo(1),'/ROMS')-1
+#ifdef SVN
           IF (ie.gt.is) THEN
             svn_url=Vinfo(1)(is:ie)
           ELSE
             svn_url='https:://myroms.org/svn/src'
           END IF
-#ifdef SVN_REV
+# ifdef SVN_REV
           svn_rev=SVN_REV
+# endif
+#else
+!  Ignore the Git repository URL, if any
+          CONTINUE
 #endif
 !
 !  Read in other variable information.

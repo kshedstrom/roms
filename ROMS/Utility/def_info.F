@@ -869,6 +869,7 @@
         END IF
 # endif
 #endif
+#ifdef SVN
 !
 !  SVN repository information.
 !
@@ -883,7 +884,7 @@
           END IF
         END IF
 
-#if !defined DEBUGGING && defined SVN_REV
+# if !defined DEBUGGING && defined SVN_REV
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'svn_rev',             &
      &                        TRIM(svn_rev))
@@ -894,6 +895,31 @@
             ioerror=status
           END IF
         END IF
+# endif
+#else
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'git_url',             &
+     &                        TRIM(git_url))
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'git_url', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+
+# if !defined DEBUGGING && defined GIT_REV
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'git_rev',             &
+     &                        TRIM(git_rev))
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'git_rev', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+# endif
 #endif
 #ifndef DEBUGGING
 !
@@ -3378,6 +3404,8 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
@@ -3457,6 +3485,8 @@
           Vinfo(14)='lon_rho, scalar'
           Vinfo(21)='longitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3474,6 +3504,8 @@
           Vinfo(14)='lat_rho, scalar'
           Vinfo(21)='latitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo,  ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3490,6 +3522,8 @@
           Vinfo( 3)='meter'
           Vinfo(14)='x_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3506,6 +3540,8 @@
           Vinfo( 3)='meter'
           Vinfo(14)='y_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3678,6 +3714,8 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo,  ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
