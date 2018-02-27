@@ -2864,6 +2864,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
                                (0.25*phyto(SMALL)%P_C_max*cobalt%expkT(:,:,:)),0.0)
 #ifdef COASTDIAT
   phyto(MEDIUM)%agg_lim(:,:,:) = max(1.0 - phyto(MEDIUM)%f_mu_mem(:,:,:)/   &
+                               (0.25*phyto(MEDIUM)%P_C_max*cobalt%expkT(:,:,:)),0.0)
 #endif
   DO k=1,UBk
     phyto(DIAZO)%agg_lim(:,:,k) = phyto(DIAZO)%agg_lim(:,:,k) * rmask_local(:,:)
