@@ -3450,7 +3450,8 @@
             CASE ('BRYNAME')
               label='BRY - lateral open boundary conditions'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ibcfile,     &
-     &                      igrid, nBCfiles, NBCcount, nBCfiles, BRY)
+     &                      igrid, ngrids, nBCfiles, NBCcount,          &
+     &                      nBCfiles, BRY)
             CASE ('NCLMFILES')
               Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
               DO ng=1,Ngrids
@@ -3471,7 +3472,8 @@
             CASE ('CLMNAME')
               label='CLM - climatology fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, iclmfile,    &
-     &                      igrid, nCLMfiles, NCLMcount, nCLMfiles, CLM)
+     &                      igrid, ngrids, nCLMfiles, NCLMcount,        &
+     &                      nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
