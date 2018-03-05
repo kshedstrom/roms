@@ -652,7 +652,7 @@
      &                 __FILE__)) RETURN
       END IF
 #  endif
-#  if defined MY25_MIXING || defined GLS_MIXING
+#  if defined TKE_MIXING
 !
 !  Write out turbulent kinetic energy.
 !

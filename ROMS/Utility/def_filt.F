@@ -530,7 +530,7 @@
      &                   __FILE__)) RETURN
           END IF
         END DO
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
 !
 !  Define vertical viscosity coefficient.
 !

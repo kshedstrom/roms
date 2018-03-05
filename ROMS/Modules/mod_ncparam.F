@@ -909,7 +909,7 @@
       END DO
 #endif
 #if defined ICE_MODEL || defined CICE_MODEL
-# if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+# if defined SOLVE3D && defined TKE_MIXING
       ic=ic+1
 # endif
       isUice=ic+1
@@ -941,7 +941,7 @@
       isBu3d=isUvel                           ! 3D U-variables
       isBv3d=isVvel                           ! 3D V-variables
       isBw3d=isTvar(1)                        ! 3D W-variables
-#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+#if defined SOLVE3D && defined TKE_MIXING
       isMtke=isTvar(MT)+1                     ! turbulent variables
 #endif
 !
@@ -2904,7 +2904,7 @@
         idBvar(isTvar(i))=idTvar(i)
         ic=ic+1
       END DO
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       ic=ic+1
       idBvar(ic)=idMtke
 # endif

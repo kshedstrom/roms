@@ -596,7 +596,7 @@
             got_var(idVvel)=.TRUE.
             INI(ng)%Vid(idVvel)=var_id(i)
 #  if defined BVF_MIXING || defined LMD_MIXING || \
-      defined GLS_MIXING || defined MY25_MIXING
+      defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             INI(ng)%Vid(idVvis)=var_id(i)

@@ -1693,7 +1693,7 @@
           END IF
         END DO
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
 !
 !  Define vertical viscosity coefficient.
 !
@@ -3581,7 +3581,7 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVVav))) THEN
             got_var(idVVav)=.TRUE.
             AVG(ng)%Vid(idVVav)=var_id(i)
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             AVG(ng)%Vid(idVvis)=var_id(i)
@@ -4187,7 +4187,7 @@
           exit_flag=3
           RETURN
         END IF
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
         IF (.not.got_var(idVvis).and.Aout(idVvis,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVvis)),          &
      &                                  TRIM(ncname)

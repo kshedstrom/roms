@@ -915,8 +915,8 @@
         END IF
       END DO
 # endif
-# if defined BVF_MIXING  || defined GLS_MIXING || \
-     defined MY25_MIXING || defined LMD_MIXING
+# if defined BVF_MIXING  || defined TKE_MIXING || \
+     defined LMD_MIXING
 !
 !  Write out vertical viscosity coefficient.
 !
@@ -1481,8 +1481,7 @@
       END IF
 # endif
 
-# if defined PERFECT_RESTART && \
-     (defined GLS_MIXING     || defined MY25_MIXING)
+# if defined PERFECT_RESTART && defined TKE_MIXING
 !
 !  Write out turbulent kinetic energy.
 !

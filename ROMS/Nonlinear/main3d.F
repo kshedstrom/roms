@@ -93,6 +93,10 @@
       USE nesting_mod,          ONLY : do_twoway
 #  endif
 # endif
+# ifdef NN_MIXING
+      USE nn_corstep_mod,       ONLY : nn_corstep
+      USE nn_prestep_mod,       ONLY : nn_prestep
+# endif
 # if defined ADJUST_BOUNDARY
       USE obc_adjust_mod,       ONLY : obc_adjust, load_obc
 # endif
@@ -637,6 +641,8 @@
                 CALL my25_prestep (ng, tile)
 # elif defined GLS_MIXING
                 CALL gls_prestep (ng, tile)
+# elif defined NN_MIXING
+                CALL nn_prestep (ng, tile)
 # endif
               END DO
 !$OMP BARRIER
@@ -859,6 +865,8 @@
                 CALL my25_corstep (ng, tile)
 # elif defined GLS_MIXING
                 CALL gls_corstep (ng, tile)
+# elif defined NN_MIXING
+                CALL nn_corstep (ng, tile)
 # endif
 # ifdef BIOLOGY
                 CALL biology (ng, tile)

@@ -41,7 +41,7 @@
 #ifdef FOUR_DVAR
       USE mod_fourdvar
 #endif
-#if defined GLS_MIXING || defined MY25_MIXING || defined LMD_MIXING || \
+#if defined TKE_MIXING || defined LMD_MIXING || \
     defined FOUR_DVAR
       USE mod_mixing
 #endif
@@ -1233,7 +1233,7 @@
         END IF
 #  endif
 
-#  if defined GLS_MIXING || defined MY25_MIXING || defined LMD_MIXING
+#  if defined TKE_MIXING || defined LMD_MIXING
 !
 !  Read in vertical viscosity.
 !
@@ -1459,7 +1459,7 @@
         END IF
       END DO
 #  endif
-#  if defined GLS_MIXING || defined MY25_MIXING
+#  if defined TKE_MIXING
 !
 !  Read in turbulent kinetic energy.
 !

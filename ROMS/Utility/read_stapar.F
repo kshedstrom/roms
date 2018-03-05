@@ -803,7 +803,7 @@
      &          'Sout(idHbbl)',                                         &
      &          'Write out depth of bottom boundary layer.'
 #  endif
-#  if defined GLS_MIXING || defined MY25_MIXING
+#  if defined TKE_MIXING
             IF (Sout(idMtke,ng)) WRITE (out,90) Sout(idMtke,ng),        &
      &          'Sout(idMtke)',                                         &
      &          'Write out turbulent kinetic energy.'

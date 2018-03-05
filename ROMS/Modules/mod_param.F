@@ -998,7 +998,7 @@
 !
 #ifdef SOLVE3D
       nLBCvar=5+MT
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       nLBCvar=nLBCvar+1
 # endif
 # ifdef ICE_MODEL
