@@ -1882,6 +1882,14 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' NLM_OUTER,'
 #endif
+#ifdef NN_MIXING
+!
+      IF (Master) WRITE (stdout,20) 'NN_MIXING',                        &
+     &   'Nakanishi and Niino turbulence closure.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' NN_MIXING,'
+      ivmix=ivmix+1
+#endif
 #ifdef NONLINEAR
 !
       IF (Master) WRITE (stdout,20) 'NONLINEAR',                        &
@@ -2712,6 +2720,13 @@
      &   'Writing out station data.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' STATIONS,'
+#endif
+#ifdef SVN
+!
+      IF (Master) WRITE (stdout,20) 'SVN',                              &
+     &   'Use svn source code control options.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+5)=' SVN,'
 #endif
 #if defined STATIONS_CGRID && defined STATIONS
 !

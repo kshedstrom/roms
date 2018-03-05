@@ -1689,7 +1689,7 @@
      &                   __FILE__)) RETURN
         END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
 !
 !  Define turbulent kinetic energy.
 !
@@ -4054,7 +4054,7 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
             got_var(idSdif)=.TRUE.
             HIS(ng)%Vid(idSdif)=var_id(i)
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtke))) THEN
             got_var(idMtke)=.TRUE.
             HIS(ng)%Vid(idMtke)=var_id(i)
@@ -4727,7 +4727,7 @@
           RETURN
         END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
         IF (.not.got_var(idMtke).and.Hout(idMtke,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idMtke)),          &
      &                                  TRIM(ncname)

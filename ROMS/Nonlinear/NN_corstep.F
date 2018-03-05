@@ -250,7 +250,7 @@
 !   Compute some constants for NN
        cffm1=-9.0_r8*my_A1*my_A2*(1.0_r8-my_C2)
        cffm2=9.0_r8*my_A2*my_A2*(1.0_r8-my_C2)*(1.0_r8-my_C5)
-       cffm3=-12.0_r8*my_A1*my_A2*(1.0_r8-my_C2)        
+       cffm3=-12.0_r8*my_A1*my_A2*(1.0_r8-my_C2)
        cffm4=6.0_r8*my_A1*my_A1
        cffm5=-3.0_r8*my_A2*my_B2*(1.0_r8-my_C3)
        cffm6=1.0_r8/sqrt(2.0_r8)
@@ -750,16 +750,16 @@
               cff=0.5_r8*(Hz(i,j,k)+Hz(i,j,k+1))
               q=sqrt(tke(i,j,k,nnew))
               qint=qint+q*cff
-              qzint=qzint-q*z_r(i,j,k)*cff
+              qzint=qzint-q*(z_r(i,j,k)-z_w(i,j,N(ng)))*cff
             endif
           END DO
           if (tke(i,j,N(ng),nnew).gt.0.0_r8) then
             cff=Hz(i,j,k)
             q=sqrt(tke(i,j,N(ng),nnew))
             qint=qint+q*cff
-            qzint=qzint-q*z_r(i,j,k)*cff
+            qzint=qzint-q*(z_r(i,j,k)-z_w(i,j,N(ng)))*cff
           endif
-          lt(i)=0.23_r8*qzint/qint
+          lt(i)=0.23_r8*qzint/MAX(qint,1.0e-20)
         END DO
         DO k=1,N(ng)
           DO i=Istr,Iend
@@ -775,13 +775,14 @@
             else
               q=0.0_r8
             endif
-            ls=-1.0_r8*vonKar*z_w(i,j,k) 
+            ls=-1.0_r8*vonKar*(z_w(i,j,k)-z_w(i,j,N(ng)))
             if (bvf(i,j,k).gt.0) then
-              lbinv=sqrt(bvf(i,j,k))/q
+              lbinv=sqrt(bvf(i,j,k))/MAX(q,1.0e-20)
             else
               lbinv=0.0_r8
             endif
-            Ls_unlmt=1.0_r8/ls+1.0_r8/lt(i)+lbinv
+            Ls_unlmt=1.0_r8/MAX(ls,1.0e-20)+1.0_r8/MAX(lt(i),1.0e-20)   &
+     &               +lbinv
             dum=Ls_unlmt
             Ls_unlmt=1.0_r8/Ls_unlmt
             Ls_lmt=MIN(Ls_unlmt,                                        &
@@ -791,7 +792,7 @@
 !  Compute Galperin et al. (1988) nondimensional stability function,
 !  Gh.  Then, compute nondimensional stability functions for tracers
 !  (Sh) and momentum (Sm).  The limit on length scale, sets the lower
-!  limit on Gh.  
+!  limit on Gh.
 !
             Gh=MIN(my_Gh0,-buoy2(i,j,k)*Ls_lmt*Ls_lmt/                    &
      &                    tke(i,j,k,nnew))
@@ -807,14 +808,15 @@
             phi4=cff*cffm4*Gm
             phi5=1.0_r8+cff*cffm5*Gh
             phi2=phi5+cff*cffm2*Gh
-            phi3=phi5+cff*cffm3*Gh           
+            phi3=phi5+cff*cffm3*Gh
             cff=1.0_r8/(phi1*phi3+phi2*phi4)
-            Sh=alpha_C*my_A2*(phi1+3.0_r8*my_C1*phi4)*cff 
+            Sh=alpha_C*my_A2*(phi1+3.0_r8*my_C1*phi4)*cff
             Sm=alpha_C*my_A1*(phi2-3.0_r8*my_C1*phi3)*cff
-            Sh=MAX(Sh,0.0_r8) 
-            Sm=MAX(Sm,0.0_r8) 
+            Sh=MAX(Sh,0.0_r8)
+            Sm=MAX(Sm,0.0_r8)
             Sq=3.0*Sm
 # if defined RR_MIXING || defined JK_MIXING
+            Sh=MAX(Sh,1.0e-20_r8)
             SmSh(i,j,k)=Sm/Sh
 # endif
 !
@@ -898,7 +900,7 @@
 !      write (6,*) 'lev',levsmix(ng),levbmix(ng),N(ng)
 !--------------------------------------------------------------------
 !
-!   Replace mid-water column diffusivities with diffusivities based 
+!   Replace mid-water column diffusivities with diffusivities based
 !                        on shear and Ri   - Robertson
 !                   or   shear cubed       - Shear3
 !
@@ -926,7 +928,7 @@
               ENDIF
               strat2=max(strat2,1.0e-4_r8)
               Riinv=max(shear2(i,j,k)*1._r8/strat2,0.0_r8)
-           if ((i.eq.16).and.(j.eq.25)) then            
+           if ((i.eq.16).and.(j.eq.25)) then
             write (6,*) 'Riinv',Riinv,shear2(i,j,k),                    &
      &              shear2(i,j,k)*1._r8/strat2
            endif
@@ -942,7 +944,7 @@
               Akv(i,j,k)=Max(Akv_bak(ng),cff*Riinv*SmSh(i,j,k),         &
      &                                   Akv(i,j,k))
 !              Akv(i,j,k)=Akv_bak(ng)+cff*Riinv
-           if ((i.eq.16).and.(j.eq.25)) then            
+           if ((i.eq.16).and.(j.eq.25)) then
       Akdum(k)=(0.2_r8 * sqrt(abs(shear2(i,j,k)*1.0_r8)))**3
              endif
               DO itrc=1,NAT
@@ -958,7 +960,7 @@
 # elif defined JK_MIXING
 !--------------------------------------------------------------------
 !
-!   Replace mid-water column diffusivities with diffusivities based 
+!   Replace mid-water column diffusivities with diffusivities based
 !                        on overturns   - following Kymak
 !
 !--------------------------------------------------------------------
@@ -1099,7 +1101,7 @@
 # endif
       RETURN
       END SUBROUTINE NN_corstep_tile
-!     Order subroutine  
+!     Order subroutine
       Subroutine Order (p,q)
       real*8, intent(inout) :: p
       real*8, intent(inout) :: q

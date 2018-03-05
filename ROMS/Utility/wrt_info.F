@@ -481,7 +481,7 @@
 # endif
 #endif
 
-#if defined SOLVE3D && (defined MY25_MIXING || defined GLS_MIXING)
+#if defined SOLVE3D && defined TKE_MIXING
 # ifdef TKE_DIF2
       CALL netcdf_put_fvar (ng, model, ncname, 'tkenu2',                &
      &                      tkenu2(ng), (/0/), (/0/),                   &
@@ -531,7 +531,7 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-# if defined MY25_MIXING || defined GLS_MIXING
+# if defined TKE_MIXING
       CALL netcdf_put_fvar (ng, model, ncname, 'Akk_bak',               &
      &                      Akk_bak(ng), (/0/), (/0/),                  &
      &                      ncid = ncid)

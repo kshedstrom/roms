@@ -403,7 +403,7 @@
             CASE ('LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
      &                      0, 0, Vname(1,idVvel), LBC)
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             CASE ('LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
      &                      0, 0, Vname(1,idMtke), LBC)
@@ -470,7 +470,7 @@
             CASE ('ad_LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
      &                      0, 0, Vname(1,idVvel), ad_LBC)
-#  if defined GLS_MIXING || defined MY25_MIXING
+#  if defined TKE_MIXING
             CASE ('ad_LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
      &                      0, 0, Vname(1,idMtke), ad_LBC)
@@ -4359,7 +4359,7 @@
      &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 # if defined LIMIT_VDIFF && \
-    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
+    (defined TKE_MIXING  || defined LMD_MIXING)
           DO itrc=1,NAT
             WRITE (out,190) Akt_limit(itrc,ng), 'Akt_limit', itrc,      &
      &            'Vertical diffusion upper threshold (m2/s)',          &
@@ -4370,12 +4370,12 @@
      &          'Background vertical mixing coefficient (m2/s)',        &
      &          'for momentum.'
 # if defined LIMIT_VVISC && \
-    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
+    (defined TKE_MIXING  || defined LMD_MIXING)
           WRITE (out,210) Akv_limit(ng), 'Akv_limit',                   &
      &          'Vertical viscosity upper threshold (m2/s)',            &
      &          'for momentum.'
 # endif
-# if defined MY25_MIXING || defined GLS_MIXING
+# if defined TKE_MIXING
           WRITE (out,210) Akk_bak(ng), 'Akk_bak',                       &
      &          'Background vertical mixing coefficient (m2/s)',        &
      &          'for turbulent energy.'
@@ -5328,7 +5328,7 @@
      &         'Hout(idHbbl)',                                          &
      &         'Write out depth of bottom boundary layer.'
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             IF (Hout(idMtke,ng)) WRITE (out,170) Hout(idMtke,ng),       &
      &         'Hout(idMtke)',                                          &
      &         'Write out turbulent kinetic energy.'
@@ -5649,7 +5649,7 @@
      &         'Qout(idHbbl)',                                          &
      &         'Write out depth of bottom boundary layer.'
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             IF (Qout(idMtke,ng)) WRITE (out,170) Qout(idMtke,ng),       &
      &         'Qout(idMtke)',                                          &
      &         'Write out turbulent kinetic energy.'
@@ -5836,7 +5836,7 @@
             IF (Aout(idDano,ng)) WRITE (out,170) Aout(idDano,ng),       &
      &         'Aout(idDano)',                                          &
      &         'Write out averaged density anomaly.'
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
             IF (Aout(idVvis,ng)) WRITE (out,170) Aout(idVvis,ng),       &
      &         'Aout(idVvis)',                                          &
      &         'Write out averaged vertical viscosity: AKv.'
@@ -6125,7 +6125,7 @@
           IF (Aout2(idDano,ng)) WRITE (out,170) Aout2(idDano,ng),       &
      &       'Aout2(idDano)',                                           &
      &       'Write out averaged density anomaly.'
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
           IF (Aout2(idVvis,ng)) WRITE (out,170) Aout2(idVvis,ng),       &
      &       'Aout2(idVvis)',                                           &
      &       'Write out averaged vertical viscosity: AKv.'

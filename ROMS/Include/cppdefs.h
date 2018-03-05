@@ -639,6 +639,9 @@
 **                                                                           **
 ** INLINE_2DIO         use if processing 3D IO level by level                **
 **                                                                           **
+** SVN                 use if svn is repository of choice, otherwise         **
+**                     assumes git.                                          **
+**                                                                           **
 ** Sea ice options
 **
 ** ICE_MODEL           use for sea-ice model

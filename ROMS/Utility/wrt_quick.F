@@ -1422,7 +1422,7 @@
         END IF
       END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
 !
 !  Write out turbulent kinetic energy.
 !

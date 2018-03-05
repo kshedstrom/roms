@@ -3064,7 +3064,7 @@
         END IF
       END DO
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
 !
 !  Write out vertical viscosity coefficient.
 !

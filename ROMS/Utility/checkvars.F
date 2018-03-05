@@ -291,7 +291,7 @@
           get_var(idRzet)=.TRUE.
           get_var(idRu2d)=.TRUE.
           get_var(idRv2d)=.TRUE.
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
           get_var(idMtke)=.TRUE.
           get_var(idMtls)=.TRUE.
           get_var(idVmLS)=.TRUE.
@@ -409,7 +409,7 @@
           have_var(idVvel)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRv3d))) THEN
           have_var(idRv3d)=.TRUE.
-# if defined GLS_MIXING || defined MY25_MIXING || defined LMD_MIXING
+# if defined LMD_MIXING || defined TKE_MIXING
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
           have_var(idVvis)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTdif))) THEN
@@ -431,7 +431,7 @@
           have_var(idGhat(isalt))=.TRUE.
 #  endif
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtke))) THEN
           have_var(idMtke)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtls))) THEN
@@ -789,7 +789,7 @@
         END DO
       END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       IF (.not.have_var(idMtke).and.get_var(idMtke)) THEN
         IF (Master) WRITE (stdout,10) string, TRIM(Vname(1,idMtke)),    &
      &                                TRIM(ncname)

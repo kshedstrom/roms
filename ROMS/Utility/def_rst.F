@@ -1159,7 +1159,7 @@
 #  if defined BIO_COBALT
 !------------------------------------------
 !  Define Other BGC tracer type variables.
-!------------------------------------------   
+!------------------------------------------
         DO itrc=1,NOBGC
 
           Vinfo( 1)=Vname(1,iDobgc(itrc))
@@ -1180,7 +1180,7 @@
 #  if defined BENTHIC
 !------------------------------------------
 !  Define benthic tracer type variables.
-!------------------------------------------   
+!------------------------------------------
         DO itrc=1,NBeT(ng)
 
             Vinfo( 1)=Vname(1,idBeTvar(itrc))
@@ -1194,7 +1194,7 @@
      &                     RST(ng)%Vid(idBeTvar(itrc)),NF_FOUT,         &
      &                     nvd3,t2dgrd,Aval,Vinfo,ncname)
 
-!Will need to switch this if have more than one depth level for benthos 
+!Will need to switch this if have more than one depth level for benthos
 !         status=def_var(ncRSTid(ng),hisBid(itrc,ng),NF_FOUT, &
 !    &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
         END DO
@@ -1202,7 +1202,7 @@
 #  if defined FORCE_PERTURB
 !------------------------------------------
 !  Define forcing perturbation
-!------------------------------------------   
+!------------------------------------------
 
           Vinfo( 1)=Vname(1,idpert_Tair)
           Vinfo( 2)=Vname(2,idpert_Tair)
@@ -1252,7 +1252,7 @@
 #  if defined EOS_PERTURB
 !------------------------------------------
 !  Define EOS perturbation
-!------------------------------------------   
+!------------------------------------------
           Vinfo( 1)=Vname(1,idpert_dx)
           Vinfo( 2)=Vname(2,idpert_dx)
           Vinfo( 3)=Vname(3,idpert_dx)
@@ -1291,7 +1291,7 @@
 
 !------------------------------------------
 !  Define ice bio tracer type variables.
-!------------------------------------------  
+!------------------------------------------
 #  if defined ICE_BIO
 # ifdef CLIM_ICE_1D
         DO itrc=1,NIceT(ng)
@@ -1303,12 +1303,12 @@
             Vinfo(14)=Vname(4,idIceBeTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
             Vinfo(22)='coordinates'
-            Aval(5)=REAL(r2dvar,r8)  
+            Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng,iNLM,RST(ng)%ncid,RST(ng)%IceBid(itrc),      &
      &                   NF_FOUT, nvd3,t2dgrd,Aval,Vinfo,ncname)
           END IF
         END DO
-           
+
 #elif defined BERING_10K
 
         Vinfo( 1)=Vname(1,idIcePhL)
@@ -1325,7 +1325,7 @@
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
-       
+
         Vinfo( 1)=Vname(1,idIceNO3)
         Vinfo( 2)=Vname(2,idIceNO3)
         Vinfo( 3)=Vname(3,idIceNO3)
@@ -1340,7 +1340,7 @@
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
-       
+
         Vinfo( 1)=Vname(1,idIceNH4)
         Vinfo( 2)=Vname(2,idIceNH4)
         Vinfo( 3)=Vname(3,idIceNH4)
@@ -1355,7 +1355,7 @@
      &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
-       
+
         Vinfo( 1)=Vname(1,idIceLog)
         Vinfo( 2)=Vname(2,idIceLog)
         Vinfo( 3)=Vname(3,idIceLog)
@@ -1371,7 +1371,7 @@
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
 #  endif
-# endif     
+# endif
 
 !
 !  Define density anomaly.
@@ -1581,7 +1581,7 @@
         END DO
 # endif
 # if defined BVF_MIXING || defined LMD_MIXING || \
-     defined GLS_MIXING || defined MY25_MIXING
+     defined TKE_MIXING
 !
 !  Define vertical viscosity coefficient.
 !
@@ -1631,8 +1631,7 @@
      &                 __FILE__)) RETURN
 #  endif
 # endif
-# if defined PERFECT_RESTART && \
-     (defined GLS_MIXING     || defined MY25_MIXING)
+# if defined PERFECT_RESTART && defined TKE_MIXING
 !
 !  Define turbulent kinetic energy.
 !
@@ -2640,8 +2639,7 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
             got_var(idSdif)=.TRUE.
             RST(ng)%Vid(idSdif)=var_id(i)
-# if defined PERFECT_RESTART && \
-     (defined GLS_MIXING     || defined MY25_MIXING)
+# if defined PERFECT_RESTART && defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtke))) THEN
             got_var(idMtke)=.TRUE.
             RST(ng)%Vid(idMtke)=var_id(i)
@@ -2994,8 +2992,7 @@
           exit_flag=3
           RETURN
         END IF
-# if defined PERFECT_RESTART && \
-     (defined GLS_MIXING     || defined MY25_MIXING)
+# if defined PERFECT_RESTART && defined TKE_MIXING
         IF (.not.got_var(idMtke)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idMtke)),          &
      &                                  TRIM(ncname)

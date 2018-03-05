@@ -537,7 +537,7 @@
         END DO
 #  endif
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
         IF (Aout(idVvis,ng)) THEN
           DO k=0,N(ng)
             DO j=JstrR,JendR
@@ -2304,7 +2304,7 @@
         END DO
 #  endif
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
         IF (Aout(idVvis,ng)) THEN
           DO k=0,N(ng)
             DO j=JstrR,JendR
@@ -4259,7 +4259,7 @@
         END IF
 #  endif
 
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
         IF (Aout(idVvis,ng)) THEN
           DO k=0,N(ng)
             DO j=JstrR,JendR
