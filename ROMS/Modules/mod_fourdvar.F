@@ -5,113 +5,124 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
 !  Variational data assimilation variables:                            !
 !                                                                      !
-!  ADmodVal     Adjoint model values at observation locations.         !
-!  BackCost     Current background cost function misfit (mean squared  !
-!                 difference) between model and background state, Jb.  !
-!  CostFun      Current iteration total cost function (background      !
-!                 plus observations), J.                               !
-!  CostFunOld   Previous iteration total cost function (background     !
-!                 plus observations), J.                               !
-!  CostNorm     Total cost function normalization scales (minimization !
-!                 starting value, Jb+Jo).                              !
-!  Cost0        The total cost function at the beggining of the inner  !
-!                 loop (inner=0) for each outer loop.                  !
-!  DTsizeH      Horizontal diffusion time-step size for spatial        !
-!                 convolutions.                                        !
-!  DTsizeV      Vertical diffusion time-step size for spatial          !
-!                 convolutions.                                        !
-!  GradErr      Upper bound on relatice error of the gradient.         !
-!  HevecErr     Maximum error bound on Hessian eigenvectors.           !
-!  KhMax        Maximum  horizontal diffusion coefficient.             !
-!  KhMin        Minimum  horizontal diffusion coefficient.             !
-!  KvMax        Maximum  vertical diffusion coefficient.               !
-!  KvMin        Minimum  vertical diffusion coefficient.               !
-!  Load_Zobs    Logical switch indicating that input Zobs is negative  !
-!                 and fractional vertical positions are computed in    !
-!                 "extract_obs3d" and written to observation NetCDF    !
-!                 file for latter use.                                 !
-!  LhessianEV   Logical switch to compute Hessian eigenvectors.        !
-!  LhotStart    Logical switch to activate hot start of subsquent      !
-!                 outer loops in the weak-constraint algorithms.       !
-!  Lprecond     Logical switch for conjugate gradient preconditioning. !
-!  Lritz        Logical switch for Ritz limited-memory preconditioning.!
+!  ADmodVal      Adjoint model values at observation locations.        !
+!  BackCost      Current background cost function misfit (mean squared !
+!                  difference) between model and background state, Jb. !
+!  CostFun       Current iteration total cost function (background     !
+!                  plus observations), J.                              !
+!  CostFunOld    Previous iteration total cost function (background    !
+!                  plus observations), J.                              !
+!  CostNorm      Total cost function normalization scales              !
+!                  (minimization starting value, Jb+Jo).               !
+!  Cost0         The total cost function at the beggining of the inner !
+!                  loop (inner=0) for each outer loop.                 !
+!  DTsizeH       Horizontal diffusion time-step size for spatial       !
+!                  convolutions.                                       !
+!  DTsizeV       Vertical diffusion time-step size for spatial         !
+!                  convolutions.                                       !
+!  GradErr       Upper bound on relatice error of the gradient.        !
+!  HevecErr      Maximum error bound on Hessian eigenvectors.          !
+!  KhMax         Maximum  horizontal diffusion coefficient.            !
+!  KhMin         Minimum  horizontal diffusion coefficient.            !
+!  KvMax         Maximum  vertical diffusion coefficient.              !
+!  KvMin         Minimum  vertical diffusion coefficient.              !
+!  Load_Zobs     Logical switch indicating that input Zobs is negative !
+!                  and fractional vertical positions are computed in   !
+!                  "extract_obs3d" and written to observation NetCDF   !
+!                  file for latter use.                                !
+!  LhessianEV    Logical switch to compute Hessian eigenvectors.       !
+!  LhotStart     Logical switch to activate hot start of subsquent     !
+!                  outer loops in the weak-constraint algorithms.      !
+!  Lprecond      Logical switch to activate conjugate gradient         !
+!                  preconditioning.                                    !
+!  Lritz         Logical switch to activw Ritz limited-memory          !
+!                  preconditioning.                                    !
 #ifdef RPCG
-!  LaugWeak     Logical switch for computing augmented model error     !
-!               terms in the routine "error_covariance".               !
+!  LaugWeak      Logical switch for computing augmented model error    !
+!                terms in the routine "error_covariance".              !
 #endif
-!  nConvRitz    Number of converged Ritz eigenvalues.                  !
-!  Nimpact      Outer loop to consider for observations impact and     !
-!                 observations sensitivity.                            !
-!  NLmodVal     Nonlinear model values at observation locations.       !
-!  NHsteps      Full number of horizontal diffusion steps for spatial  !
-!                 convolutions.                                        !
-!  NLobsCost    Current NLM observation cost function misfit (mean     !
-!                 squared difference) between NLM and observations.    !
-!  NpostI       Number of Lanczos iterations used for the posterior    !
-!                 analysis error covariance matrix estimation.         !
-!  NritzEV      If preconditioning, number of eigenpairs to use.       !
-!  NVsteps      Full number of vertical diffusion steps for spatial    !
-!                 convolutions.                                        !
-!  ObsCost      Current observation cost function misfit (mean squared !
-!                 difference) between model and observations, Jo.      !
-!  ObsCount     Current observation counts per state variable.         !
-!  ObsErr       Observation error.                                     !
-!  ObsProv      Observation provenance flags.                          !
-!  ObsReject    Current rejected observation counts per state variable.!
-!  ObsScale     Observation screening and quality control scale,      !
-!                 0: reject 1: accept.                                 !
-!  ObsType      Observation type identifier.                           !
-!  ObsVal       Observation values.                                    !
-!  ObsVar       Global observation variance for each state variable.   !
-!  ObsVetting   Processing flag used to reject (zero) or accept (unity)!
-!                 observations.                                        !
-!  Optimality   normalized, optimal cost function minimum.             !
-!  Ritz         Ritz eigenvalues to compute approximated Hessian.      !
-!  RitzMaxErr   Ritz values maximum error limit.                       !
-!  TLmodVal     Tangent linear model values at observation locations.  !
-!  Vdecay       Covariance vertical decorrelation scale (m).           !
-!  Tobs         Observations time (days).                              !
-!  Xobs         Observations X-locations (grid coordinates).           !
-!  Yobs         Observations Y-locations (grid coordinates).           !
-!  Zobs         Observations Z-locations (grid coordinates).           !
-!  cg_Gnorm     Initial gradient vector normalization factor.          !
-!  cg_Greduc    Reduction in the gradient norm; excess cost function.  !
-!  cg_QG        Lanczos vector normalization factor.                   !
-!  cg_Ritz      Eigenvalues of the Lanczos recurrence term Q(k)T(k).   !
-!  cg_RitzErr   Eigenvalues relative error.                            !
-!  cg_Tmatrix   Lanczos recurrence symmetric, tridiagonal matrix.      !
-!  cg_alpha     Conjugate gradient coefficient.                        !
-!  cg_beta      Conjugate gradient coefficient.                        !
-!  cg_delta     Lanczos algorithm coefficient.                         !
-!  cg_gamma     Lanczos algorithm coefficient.                         !
-!  cg_tau       Conjugate gradient coefficient.                        !
-!  cg_zu        Lanczos tridiagonal matrix, upper diagonal elements.   !
-!  cg_zv        Eigenvectors of Lanczos recurrence term Q(k)T(k).      !
-!  haveADmod    Logical switch indicating that there is representer    !
-!                 coefficients available to process in DAV(ng)%name    !
-!                 file.                                                !
-!  haveNLmod    Logical switch indicating that there is nonlinear      !
-!                 model data available to process in DAV(ng)%name      !
-!                 file.                                                !
-!  haveTLmod    Logical switch indicating that there is tangent        !
-!                 model data available to process in DAV(ng)%name      !
-!                 file.                                                !
+!  nConvRitz     Number of converged Ritz eigenvalues.                 !
+!  Nimpact       Outer loop to consider for observations impact and    !
+!                  observations sensitivity.                           !
+!  NLmodVal      Nonlinear model values at observation locations.      !
+!  NHsteps       Full number of horizontal diffusion steps for spatial !
+!                  convolutions.                                       !
+!  NLobsCost     Current NLM observation cost function misfit (mean    !
+!                  squared difference) between NLM and observations.   !
+!  NpostI        Number of Lanczos iterations used for the posterior   !
+!                  analysis error covariance matrix estimation.        !
+!  NritzEV       If preconditioning, number of eigenpairs to use.      !
+!  NVsteps       Full number of vertical diffusion steps for spatial   !
+!                  convolutions.                                       !
+!  ObsAngler     Observation vector rotation angle at RHO-points.      !
+!  ObsCost       Current observation cost function misfit (mean        !
+!                  squared difference) between model and observations. !
+!  ObsCount      Current observation counts per state variable.        !
+!  ObsErr        Observation error.                                    !
+!  ObsMeta       Observation meta values.                              !
+!  ObsName       String describing the observation types.              !
+!  ObsProv       Observation provenance flags.                         !
+!  ObsReject     Current rejected observation counts per state         !
+!                  variable.                                           !
+!  ObsScale      Observation screening and quality control scale,      !
+!                  0: reject 1: accept.                                !
+!  ObsState2Type Mapping indices from state variable to observation    !
+!                  type.                                               !
+!  ObsType2State Mapping indices from observation type to state        !
+!                  variable.                                           !
+!  ObsType       Observation type identifier.                          !
+!  ObsVal        Observation values.                                   !
+!  ObsVetting    Processing flag used to reject (zero) or accept       !
+!                  (unity) observations.                               !
+!  Optimality    normalized, optimal cost function minimum.            !
+!  Ritz          Ritz eigenvalues to compute approximated Hessian.     !
+!  RitzMaxErr    Ritz values maximum error limit.                      !
+!  TLmodVal      Tangent linear model values at observation locations. !
+!  Vdecay        Covariance vertical decorrelation scale (m).          !
+!  Tobs          Observations time (days).                             !
+!  Xobs          Observations X-locations (grid coordinates).          !
+!  Yobs          Observations Y-locations (grid coordinates).          !
+!  Zobs          Observations Z-locations (grid coordinates).          !
+!  cg_Gnorm      Initial gradient vector normalization factor.         !
+!  cg_Greduc     Reduction in the gradient norm; excess cost function. !
+!  cg_QG         Lanczos vector normalization factor.                  !
+!  cg_Ritz       Eigenvalues of the Lanczos recurrence term Q(k)T(k).  !
+!  cg_RitzErr    Eigenvalues relative error.                           !
+!  cg_Tmatrix    Lanczos recurrence symmetric, tridiagonal matrix.     !
+!  cg_alpha      Conjugate gradient coefficient.                       !
+!  cg_beta       Conjugate gradient coefficient.                       !
+!  cg_delta      Lanczos algorithm coefficient.                        !
+!  cg_gamma      Lanczos algorithm coefficient.                        !
+!  cg_tau        Conjugate gradient coefficient.                       !
+!  cg_zu         Lanczos tridiagonal matrix, upper diagonal elements.  !
+!  cg_zv         Eigenvectors of Lanczos recurrence term Q(k)T(k).     !
+!  haveADmod     Logical switch indicating that there is representer   !
+!                  coefficients available to process in DAV(ng)%name   !
+!                  file.                                               !
+!  haveNLmod     Logical switch indicating that there is nonlinear     !
+!                  model data available to process in DAV(ng)%name     !
+!                  file.                                               !
+!  haveTLmod     Logical switch indicating that there is tangent       !
+!                  model data available to process in DAV(ng)%name     !
+!                  file.                                               !
+!  haveObsMeta   Logical switch indicating loading and processing of   !
+!                  observations meta field.                            !
 # ifdef BGQC
 !                                                                      !
 !  Background quality control of observations:                         !
 !                                                                      !
-!  BgErr        Background error standard deviation values at          !
-!                 observation locations.                               !
-!  BgThresh     Number of standard deviations threshold used in the    !
-!                 background quality control of observations.          !
-!  Jact_S       Saved actual cost function.                            !
+!  BgErr         Background error standard deviation values at         !
+!                  observation locations.                              !
+!  BgThresh      Number of standard deviations threshold used in the   !
+!                  background quality control of observations.         !
+!  Jact_S        Saved actual cost function.                           !
 #endif
 !                                                                      !
 !=======================================================================
@@ -170,7 +181,6 @@
           real(r8), pointer :: ad_zeta_ref(:,:)
 #   endif
 #  endif
-          real(r8), pointer :: ObsVar(:)
           real(r8), pointer :: SurveyTime(:)
 
 #  ifdef RPCG
@@ -186,10 +196,19 @@
 !  Define other module arrays.
 !
         integer,  allocatable :: ObsType(:)
+        integer,  allocatable :: ObsState2Type(:)
+        integer,  allocatable :: ObsType2State(:)
         integer,  allocatable :: ObsProv(:)
 
+#  ifdef CURVGRID
+        real(r8), allocatable :: ObsAngler(:)
+#  endif
         real(r8), allocatable :: ObsErr(:)
+        real(r8), allocatable :: ObsMeta(:)
         real(r8), allocatable :: ObsScale(:)
+#  ifndef WEAK_CONSTRAINT
+        real(r8), allocatable :: ObsScaleGlobal(:)
+#  endif
         real(r8), allocatable :: ObsVetting(:)
         real(r8), allocatable :: ObsVal(:)
         real(r8), allocatable :: Tobs(:)
@@ -238,7 +257,11 @@
         real(r8), allocatable :: ad_zgrad0(:)
         real(r8), allocatable :: ad_cg_innov(:)
         real(r8), allocatable :: ad_cg_pxsave(:)
+#    ifdef IMPACT_INNER
+        real(r8), allocatable :: ad_ObsVal(:,:)
+#    else
         real(r8), allocatable :: ad_ObsVal(:)
+#    endif
 
         real(r8), allocatable :: tl_zcglwk(:,:)
         real(r8), allocatable :: tl_zgrad0(:)
@@ -267,6 +290,29 @@
 !  Number of model state variables to process.
 !
         integer, allocatable :: NstateVar(:)
+!
+!  Number of observation types and names to process. If the observation
+!  operators for a specific application have a 1-to-1 association with
+!  the model state variables,  NobsVar = NstateVar.  However, if more
+!  that one state variable is needed to evaluate a particular type of
+!  observation (HF radials, travel time, pressure, etc.), a new class
+!  name is added to the state variable list to assess and differentiate
+!  its impact.  Then, NobsVar = NstateVar + NextraObs.
+!
+        integer, allocatable :: NobsVar(:)
+
+        character(len=40), allocatable :: ObsName(:)
+!
+! Number of extra-observation classes, extra-observation type indices,
+! and extra-observation type names. It is used in observation operators
+! that require more than one state variable or not directly associated
+! with state variables.
+!
+        integer :: NextraObs = 0
+
+        integer, allocatable :: ExtraIndex(:)
+
+        character(len=40), allocatable :: ExtraName(:)
 !
 !  Number of interpolation weights and (I,J,K) indices offsets.
 !
@@ -432,6 +478,11 @@
         logical, allocatable :: haveADmod(:)
         logical, allocatable :: haveNLmod(:)
         logical, allocatable :: haveTLmod(:)
+!
+!  Switch to indicate whether observations are present that
+!  require the specific meta field be loaded and processed.
+!
+        logical, allocatable :: haveObsMeta(:)
 
 # ifdef BGQC
 !
@@ -780,7 +831,9 @@
       allocate ( Load_Zobs(Ngrids) )
       allocate ( wrote_Zobs(Ngrids) )
 
+
       allocate ( NstateVar(Ngrids) )
+      allocate ( NobsVar(Ngrids) )
       allocate ( Ndatum(Ngrids) )
       allocate ( Nsurvey(Ngrids) )
       allocate ( ObsSurvey(Ngrids) )
@@ -819,6 +872,7 @@
       allocate ( haveADmod(Ngrids) )
       allocate ( haveNLmod(Ngrids) )
       allocate ( haveTLmod(Ngrids) )
+      allocate ( haveObsMeta(Ngrids) )
 
       allocate ( KhMin(Ngrids) )
       allocate ( KhMax(Ngrids) )
@@ -859,10 +913,11 @@
       USE mod_netcdf
 !
       USE strings_mod, ONLY : FoundError
+      USE strings_mod, ONLY : uppercase
 !
 !  Local variable declarations.
 !
-      integer :: my_NstateVar, i, ng
+      integer :: my_NobsVar, i, icount, ng
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
       integer :: LBi, UBi, LBj, UBj
       integer :: tile
@@ -894,7 +949,7 @@
           ELSE IF (TRIM(dim_name(i)).eq.'survey') THEN
             Nsurvey(ng)=dim_size(i)
           ELSE IF (TRIM(dim_name(i)).eq.'state_variable') THEN
-            my_NstateVar=dim_size(i)
+            my_NobsVar=dim_size(i)
           END IF
         END DO
         IF (Ndatum(ng).eq.0) THEN
@@ -940,6 +995,7 @@
 #  ifdef ADJUST_WSTRESS
         NstateVar(ng)=NstateVar(ng)+2
 #  endif
+        NobsVar(ng)=NstateVar(ng)+NextraObs
 
         allocate ( FOURDVAR(ng) % NobsSurvey(Nsurvey(ng)) )
         FOURDVAR(ng) % NobsSurvey = 0
@@ -954,28 +1010,28 @@
         allocate ( FOURDVAR(ng) % Cost0(Nouter) )
         FOURDVAR(ng) % Cost0 = IniVal
 
-        allocate ( FOURDVAR(ng) % CostFun(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % CostFun(0:NobsVar(ng)) )
         FOURDVAR(ng) % CostFun = IniVal
 
-        allocate ( FOURDVAR(ng) % CostFunOld(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % CostFunOld(0:NobsVar(ng)) )
         FOURDVAR(ng) % CostFunOld = IniVal
 
-        allocate ( FOURDVAR(ng) % CostNorm(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % CostNorm(0:NobsVar(ng)) )
         FOURDVAR(ng) % CostNorm = IniVal
 
-        allocate ( FOURDVAR(ng) % ObsCost(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % ObsCost(0:NobsVar(ng)) )
         FOURDVAR(ng) % ObsCost = IniVal
 
-        allocate ( FOURDVAR(ng) % DataPenalty(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % DataPenalty(0:NobsVar(ng)) )
         FOURDVAR(ng) % DataPenalty = IniVal
 
 #   if defined DATALESS_LOOPS || defined TL_W4DPSAS          || \
        defined W4DPSAS        || defined W4DPSAS_SENSITIVITY
-        allocate ( FOURDVAR(ng) % NLPenalty(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % NLPenalty(0:NobsVar(ng)) )
         FOURDVAR(ng) % NLPenalty = IniVal
 #   endif
 
-        allocate ( FOURDVAR(ng) % NLobsCost(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % NLobsCost(0:NobsVar(ng)) )
         FOURDVAR(ng) % NLobsCost = IniVal
 
 #   if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
@@ -1038,13 +1094,10 @@
 #   endif
 #  endif
 
-        allocate ( FOURDVAR(ng) % ObsVar(NstateVar(ng)) )
-        FOURDVAR(ng) % ObsVar = 1.0_r8
-
-        allocate ( FOURDVAR(ng) % ObsCount(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % ObsCount(0:NobsVar(ng)) )
         FOURDVAR(ng) % ObsCount = 0
 
-        allocate ( FOURDVAR(ng) % ObsReject(0:NstateVar(ng)) )
+        allocate ( FOURDVAR(ng) % ObsReject(0:NobsVar(ng)) )
         FOURDVAR(ng) % ObsReject = 0
 
 #  ifdef RPCG
@@ -1102,8 +1155,16 @@
 !  Allocate and initialize model and observation variables.
 !-----------------------------------------------------------------------
 !
+#  ifdef CURVGRID
+      allocate ( ObsAngler(Mobs) )
+      ObsAngler = IniVal
+#  endif
+
       allocate ( ObsType(Mobs) )
       ObsType = 0
+
+      allocate ( ObsState2Type(0:MAXVAL(NobsVar)) )
+      ObsState2Type = 0
 
       allocate ( ObsProv(Mobs) )
       ObsProv = 0
@@ -1111,8 +1172,16 @@
       allocate ( ObsErr(Mobs) )
       ObsErr = IniVal
 
+      allocate ( ObsMeta(Mobs) )
+      ObsMeta = IniVal
+
       allocate ( ObsScale(Mobs) )
       ObsScale = IniVal
+
+#  ifndef WEAK_CONSTRAINT
+      allocate ( ObsScaleGlobal(MAXVAL(Ndatum)) )
+      ObsScaleGlobal = IniVal
+#  endif
 
       allocate ( ObsVetting(Mobs) )
       ObsVetting = IniVal
@@ -1169,6 +1238,64 @@
       Hbk = IniVal
 #   endif
 #  endif
+!
+!  Allocate and initialize observation types names and indices.
+!  Notice that a mapping from state-to-type (ObsState2Type) and its
+!  inverse type-to-state (ObsType2State) indices are needed because
+!  the User is allowed to add extra-observation operators with
+!  nonsequential type enumeration.
+!
+!  Both mapping arrays ObsState2Type and ObsType2State have a zero
+!  array element to allow applications with no extra-observations
+!  to work with their zero associated state index (as initialized
+!  in mod_ncparam.F).  For example, if the index "isRadial" is not
+!  redefined below, the following assignment
+!
+!        ObsState2Type(isRadial)=ObsState2Type(0)=0
+!        ObsType2State(isRadial)=ObsType2State(0)=0
+!
+!  is still legal with isRadial=0. It avoids a Fortran segmentation
+!  violation (i.e., subscript #1 of the array ObsState2Type has
+!  value 0 which is less than the lower bound of 1).  Sorry for
+!  the awkward logic but we need a generic way to specify extra-
+!  observation operators.
+!
+      allocate ( ObsName(MAXVAL(NobsVar)) )
+      icount=MAXVAL(NstateVar)
+      ObsState2Type(0)=0
+      DO i=1,icount                               ! 5+NT
+        ObsState2Type(i)=i
+        ObsName(i)=TRIM(Vname(1,idSvar(i)))
+      END DO
+      IF (NextraObs.gt.0) THEN
+        DO i=1,NextraObs
+          icount=icount+1
+          ObsName(icount)=TRIM(ExtraName(i))
+          SELECT CASE (TRIM(uppercase(ExtraName(i))))
+            CASE ('RADIAL')
+              isRadial=icount
+              ObsState2Type(icount)=ExtraIndex(i)
+          END SELECT
+        END DO
+      END IF
+!
+!  Set inverse mapping type-to-state.
+!
+      allocate ( ObsType2State(0:MAXVAL(ObsState2Type)) )
+      ObsType2State(0)=0
+      ObsType2State(1:MAXVAL(ObsState2Type))=-1
+      DO i=1,MAXVAL(NstateVar)
+       ObsType2State(i)=i
+      END DO
+      IF (NextraObs.gt.0) THEN
+        DO i=1,NextraObs
+          icount=ExtraIndex(i)
+          SELECT CASE (TRIM(uppercase(ExtraName(i))))
+            CASE ('RADIAL')
+              ObsType2State(icount)=isRadial
+          END SELECT
+        END DO
+      END IF
 
 #  ifdef WEAK_CONSTRAINT
 !
@@ -1203,9 +1330,14 @@
       allocate ( tl_ObsVal(Mobs) )
       tl_ObsVal = IniVal
 
+#    ifdef IMPACT_INNER
+      allocate ( ad_ObsVal(Mobs,Ninner) )
+#    else
       allocate ( ad_ObsVal(Mobs) )
+#    endif
       ad_ObsVal = IniVal
 #   endif
+
       allocate ( cg_dla(Ninner,Nouter) )
       cg_dla = IniVal
 
@@ -1507,6 +1639,7 @@
       DO ng=1,Ngrids
         Load_Zobs(ng)=.FALSE.
         ProcessObs(ng)=.FALSE.
+        haveObsMeta(ng)=.FALSE.
         wrote_Zobs(ng)=.FALSE.
         wrtMisfit(ng)=.FALSE.
         wrtNLmod(ng)=.FALSE.
@@ -1537,19 +1670,6 @@
         Optimality(ng)=0.0_r8
 # ifdef WEAK_CONSTRAINT
         ForceTime(ng)=0.0_r8
-# endif
-
-# ifdef OBSERVATIONS
-!
-!  Read in observations global variance.
-!
-        CALL netcdf_get_fvar (ng, iNLM, TRIM(OBS(ng)%name),             &
-     &                        TRIM(Vname(1,idOvar)),                    &
-     &                        FOURDVAR(ng)%ObsVar,                      &
-     &                        start = (/1/),                            &
-     &                        total = (/my_NstateVar/))
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
 # endif
       END DO
 

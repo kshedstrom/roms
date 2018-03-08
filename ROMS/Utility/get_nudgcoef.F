@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -73,15 +73,28 @@
      &               __FILE__)) RETURN
       ncname=NUD(ng)%name
 !
+!  Open grid NetCDF file for reading.
+!
+      IF (NUD(ng)%ncid.eq.-1) THEN
+        CALL netcdf_open (ng, model, ncname, 0, NUD(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
+          WRITE (stdout,10) TRIM(ncname)
+          RETURN
+        END IF
+      END IF
+!
 !  Check grid file dimensions for consitency
 !
-      CALL netcdf_check_dim (ng, model, ncname)
+      CALL netcdf_check_dim (ng, model, ncname,                         &
+     &                       ncid = NUD(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
-      CALL netcdf_inq_var (ng, model, ncname)
+      CALL netcdf_inq_var (ng, model, ncname,                           &
+     &                     ncid = NUD(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
@@ -94,7 +107,7 @@
       IF (LnudgeM2CLM(ng)) THEN
         IF (.not.find_string(var_name,n_var,Vname(1,idM2nc),            &
      &                       NUD(ng)%Vid(idM2nc))) THEN
-          IF (Master) WRITE (stdout,10) TRIM(Vname(1,idM2nc)),          &
+          IF (Master) WRITE (stdout,20) TRIM(Vname(1,idM2nc)),          &
      &                                  TRIM(ncname)
           exit_flag=2
           RETURN
@@ -108,7 +121,7 @@
       IF (LnudgeM3CLM(ng)) THEN
         IF (.not.find_string(var_name,n_var,Vname(1,idM3nc),            &
      &                       NUD(ng)%Vid(idM3nc))) THEN
-          IF (Master) WRITE (stdout,10) TRIM(Vname(1,idM3nc)),          &
+          IF (Master) WRITE (stdout,20) TRIM(Vname(1,idM3nc)),          &
      &                                  TRIM(ncname)
           exit_flag=2
           RETURN
@@ -127,7 +140,7 @@
      &                                     Vname(1,vindex),             &
      &                                     NUD(ng)%Vid(vindex))
             IF (.not.(got_generic.or.got_specific(itrc))) THEN
-              IF (Master) WRITE (stdout,20) TRIM(Vname(1,idgTnc)),      &
+              IF (Master) WRITE (stdout,30) TRIM(Vname(1,idgTnc)),      &
      &                                      TRIM(Vname(1,vindex)),      &
      &                                      TRIM(ncname)
               exit_flag=2
@@ -137,17 +150,6 @@
         END DO
       END IF
 # endif
-!
-!  Open grid NetCDF file for reading.
-!
-      IF (NUD(ng)%ncid.eq.-1) THEN
-        CALL netcdf_open (ng, model, ncname, 0, NUD(ng)%ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) THEN
-          WRITE (stdout,30) TRIM(ncname)
-          RETURN
-        END IF
-      END IF
 !
 !-----------------------------------------------------------------------
 !  Read in nudging coefficients.
@@ -175,12 +177,15 @@
 !  If appropriate, read nudging coefficients for 2D momentum  (inverse
 !  time scales, 1/day).
 !
+      IF (Master) WRITE (stdout,'(1x)')
+!
       IF (LnudgeM2CLM(ng)) THEN
         gtype=r2dvar
         vindex=idM2nc
         Fscl=1.0_r8/day2sec                    ! default units: 1/day
 !
         CALL netcdf_inq_var (ng, model, ncname,                         &
+     &                       ncid = NUD(ng)%ncid,                       &
      &                       MyVarName = TRIM(Vname(1,vindex)),         &
      &                       VarID = NUD(ng)%Vid(vindex),               &
      &                       nVarDim = nvdim,                           &
@@ -212,6 +217,12 @@
           exit_flag=2
           ioerror=status
           RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,vindex))//': '//             &
+     &                        TRIM(Vname(1,vindex)),                    &
+     &                        ng, TRIM(ncname), Fmin, Fmax
+          END IF
         END IF
 !
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -239,6 +250,7 @@
         Fscl=1.0_r8/day2sec                    ! default units: 1/day
 !
         CALL netcdf_inq_var (ng, model, ncname,                         &
+     &                       ncid = NUD(ng)%ncid,                       &
      &                       MyVarName = TRIM(Vname(1,vindex)),         &
      &                       VarID = NUD(ng)%Vid(vindex),               &
      &                       nVarDim = nvdim,                           &
@@ -270,6 +282,12 @@
           exit_flag=2
           ioerror=status
           RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,vindex))//': '//             &
+     &                        TRIM(Vname(1,vindex)),                    &
+     &                        ng, TRIM(ncname), Fmin, Fmax
+          END IF
         END IF
 !
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -306,6 +324,7 @@
           END IF
 !
           CALL netcdf_inq_var (ng, model, ncname,                       &
+     &                         ncid = NUD(ng)%ncid,                     &
      &                         MyVarName = TRIM(Vname(1,vindex)),       &
      &                         VarID = NUD(ng)%Vid(vindex),             &
      &                         nVarDim = nvdim,                         &
@@ -337,6 +356,12 @@
             exit_flag=2
             ioerror=status
             RETURN
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,40) TRIM(Vname(2,vindex))//': '//           &
+     &                          TRIM(Vname(1,vindex)),                  &
+     &                          ng, TRIM(ncname), Fmin, Fmax
+            END IF
           END IF
 !
           IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -357,12 +382,15 @@
 #  endif
 # endif
 !
-  10  FORMAT (/,' GET_NUDGCOEF - unable to find nudging variable: ',a,  &
-     &        /,16x,'in NetCDF file: ',a)
+  10  FORMAT (/,' GET_NUDGCOEF - unable to open nudging NetCDF file: ',a)
   20  FORMAT (/,' GET_NUDGCOEF - unable to find nudging variable: ',a,  &
+     &        /,16x,'in NetCDF file: ',a)
+  30  FORMAT (/,' GET_NUDGCOEF - unable to find nudging variable: ',a,  &
      &        /,16x,            '     or generc nudging variable: ',a,  &
      &        /,16x,'in nudging NetCDF file: ',a)
-  30  FORMAT (/,' GET_NUDGCOEF - unable to open nudging NetCDF file: ',a)
+  40  FORMAT(2x,' GET_NUDGCOEF - ',a,/,19x,                             &
+     &        '(Grid = ',i2.2,', File: ',a,')',/,19x,                   &
+     &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 #else
       SUBROUTINE get_nudgcoef
 #endif

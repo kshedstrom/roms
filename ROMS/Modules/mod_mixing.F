@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -232,7 +232,7 @@
 # ifdef M2TIDE_DIFF
           real(r8), pointer :: m2_amp(:,:)
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
           real(r8), pointer :: tke(:,:,:,:)
           real(r8), pointer :: gls(:,:,:,:)
           real(r8), pointer :: Lscale(:,:,:)
@@ -498,7 +498,7 @@
       allocate ( MIXING(ng) % m2_amp(LBi:UBi,LBj:UBj) )
 # endif
 
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       allocate ( MIXING(ng) % tke(LBi:UBi,LBj:UBj,0:N(ng),3) )
       allocate ( MIXING(ng) % gls(LBi:UBi,LBj:UBj,0:N(ng),3) )
       allocate ( MIXING(ng) % Lscale(LBi:UBi,LBj:UBj,0:N(ng)) )
@@ -699,8 +699,8 @@
 #endif
 
       real(r8), parameter :: IniVal = 0.0_r8
-#  if defined GLS_MIXING || defined MY25_MIXING
-      real(r8) :: cff1, cff2, cff3, cff4
+#if defined TKE_MIXING
+      real(r8) :: cff, cff1, cff2, cff3, cff4
 #endif
 
 #include "set_bounds.h"
@@ -880,7 +880,34 @@
             MIXING(ng) % m2_amp(i,j) = IniVal
           END DO
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
+#  if defined NN_MIXING 
+          cff = 20.0_r8 * 1.0d-20
+          DO k=0,N(ng)
+            DO i=Imin,Imax
+              MIXING(ng) % tke(i,j,k,1) = cff
+              MIXING(ng) % tke(i,j,k,2) = cff
+              MIXING(ng) % tke(i,j,k,3) = cff
+              MIXING(ng) % gls(i,j,k,1) = gls_Pmin(ng)
+              MIXING(ng) % gls(i,j,k,2) = gls_Pmin(ng)
+              MIXING(ng) % gls(i,j,k,3) = gls_Pmin(ng)
+              MIXING(ng) % Lscale(i,j,k) = IniVal
+            END DO
+          END DO
+#  elif defined LR_MIXING
+          cff = 20.0_r8 * 1.0d-20
+          DO k=0,N(ng)
+            DO i=Imin,Imax
+              MIXING(ng) % tke(i,j,k,1) = cff
+              MIXING(ng) % tke(i,j,k,2) = cff
+              MIXING(ng) % tke(i,j,k,3) = cff
+              MIXING(ng) % gls(i,j,k,1) = gls_Pmin(ng)
+              MIXING(ng) % gls(i,j,k,2) = gls_Pmin(ng)
+              MIXING(ng) % gls(i,j,k,3) = gls_Pmin(ng)
+              MIXING(ng) % Lscale(i,j,k) = IniVal
+            END DO
+          END DO
+#  else
           DO k=0,N(ng)
             DO i=Imin,Imax
               MIXING(ng) % tke(i,j,k,1) = gls_Kmin(ng)
@@ -892,6 +919,7 @@
               MIXING(ng) % Lscale(i,j,k) = IniVal
             END DO
           END DO
+#  endif
           DO i=Imin,Imax
             MIXING(ng) % Akk(i,j,0) = IniVal
             MIXING(ng) % Akk(i,j,N(ng)) = IniVal

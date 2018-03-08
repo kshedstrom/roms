@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -88,7 +88,9 @@
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
-
+#ifdef NESTING
+      real(r8), allocatable :: RunTimeDay(:), RunTimeSec(:)
+#endif
       real(r8) :: Rvalue(1)
 
       real(r8), dimension(200) :: Rval
@@ -98,6 +100,9 @@
       character (len=50 ) :: label
       character (len=256) :: fname, line
       character (len=256), dimension(200) :: Cval
+#ifndef SVN
+      character (len=80) :: git_msg
+#endif
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -398,7 +403,7 @@
             CASE ('LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
      &                      0, 0, Vname(1,idVvel), LBC)
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             CASE ('LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
      &                      0, 0, Vname(1,idMtke), LBC)
@@ -465,7 +470,7 @@
             CASE ('ad_LBC(isVvel)')
               Npts=load_lbc(Nval, Cval, line, nline, isVvel, igrid,     &
      &                      0, 0, Vname(1,idVvel), ad_LBC)
-#  if defined GLS_MIXING || defined MY25_MIXING
+#  if defined TKE_MIXING
             CASE ('ad_LBC(isMtke)')
               Npts=load_lbc(Nval, Cval, line, nline, isMtke, igrid,     &
      &                      0, 0, Vname(1,idMtke), ad_LBC)
@@ -1129,6 +1134,16 @@
               Npts=load_l(Nval, Cval, Ngrids, Ladsen)
               DO ng=1,Ngrids
                 SCALARS(ng)%Lstate(isVvel)=Ladsen(ng)
+              END DO
+            CASE ('Lstate(isWvel)')
+              IF (isWvel.eq.0) THEN
+                IF (Master) WRITE (out,280) 'isWvel'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Ladsen)
+              DO ng=1,Ngrids
+                SCALARS(ng)%Lstate(isWvel)=Ladsen(ng)
               END DO
             CASE ('Lstate(isTvar)')
               IF (MAXVAL(isTvar).eq.0) THEN
@@ -3419,7 +3434,7 @@
             CASE ('NBCFILES')
               Npts=load_i(Nval, Rval, Ngrids, nBCfiles)
               DO ng=1,Ngrids
-                IF (nBCfiles(ng).le.0) THEN 
+                IF (nBCfiles(ng).le.0) THEN
                   IF (Master) WRITE (out,260) 'NBCFILES', nBCfiles(ng), &
      &                            'Must be equal or greater than one.'
                   exit_flag=4
@@ -3435,7 +3450,8 @@
             CASE ('BRYNAME')
               label='BRY - lateral open boundary conditions'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ibcfile,     &
-     &                      igrid, nBCfiles, NBCcount, nBCfiles, BRY)
+     &                      igrid, ngrids, nBCfiles, NBCcount,          &
+     &                      nBCfiles, BRY)
             CASE ('NCLMFILES')
               Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
               DO ng=1,Ngrids
@@ -3456,7 +3472,8 @@
             CASE ('CLMNAME')
               label='CLM - climatology fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, iclmfile,    &
-     &                      igrid, nCLMfiles, NCLMcount, nCLMfiles, CLM)
+     &                      igrid, ngrids, nCLMfiles, NCLMcount,        &
+     &                      nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
@@ -3490,7 +3507,8 @@
             CASE ('FRCNAME')
               label='FRC - forcing fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ifile,       &
-     &                      igrid, nFfiles, Ncount, max_Ffiles, FRC)
+     &                      igrid, Ngrids, nFfiles, Ncount, max_Ffiles, &
+     &                      FRC)
             CASE ('APARNAM')
               DO i=1,LEN(aparnam)
                 aparnam(i:i)=blank
@@ -3975,15 +3993,33 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwrite) THEN
+#ifndef SVN
+        IF (git_status.EQ.0) THEN
+          git_msg = 'The working tree is clean'
+        ELSE
+          WRITE (git_msg, '(A,I6,A)')                                   &
+     &      'The working tree is DIRTY with',git_status,' changes'
+        END IF
+#endif
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
+# ifdef SVN
      &                 TRIM(Iname), TRIM(svn_url), TRIM(svn_rev),       &
+# else
+     &                 TRIM(Iname),                                     &
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+# endif
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
+# ifdef SVN
      &                 TRIM(svn_url), TRIM(svn_rev), TRIM(Rdir),        &
+# else
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+     &                 TRIM(Rdir),                                      &
+# endif
      &                 TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #endif
 
@@ -4323,7 +4359,7 @@
      &            'for tracer ', itrc, TRIM(Vname(1,idTvar(itrc)))
           END DO
 # if defined LIMIT_VDIFF && \
-    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
+    (defined TKE_MIXING  || defined LMD_MIXING)
           DO itrc=1,NAT
             WRITE (out,190) Akt_limit(itrc,ng), 'Akt_limit', itrc,      &
      &            'Vertical diffusion upper threshold (m2/s)',          &
@@ -4334,12 +4370,12 @@
      &          'Background vertical mixing coefficient (m2/s)',        &
      &          'for momentum.'
 # if defined LIMIT_VVISC && \
-    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
+    (defined TKE_MIXING  || defined LMD_MIXING)
           WRITE (out,210) Akv_limit(ng), 'Akv_limit',                   &
      &          'Vertical viscosity upper threshold (m2/s)',            &
      &          'for momentum.'
 # endif
-# if defined MY25_MIXING || defined GLS_MIXING
+# if defined TKE_MIXING
           WRITE (out,210) Akk_bak(ng), 'Akk_bak',                       &
      &          'Background vertical mixing coefficient (m2/s)',        &
      &          'for turbulent energy.'
@@ -4845,6 +4881,10 @@
      &       WRITE (out,170) SCALARS(ng)%Lstate(isVvel),                &
      &       'Lstate(isVvel)',                                          &
      &       'Adjoint sensitivity on 3D V-momentum component.'
+          IF (SCALARS(ng)%Lstate(isWvel))                               &
+     &       WRITE (out,170) SCALARS(ng)%Lstate(isWvel),                &
+     &       'Lstate(isWvel)',                                          &
+     &       'Adjoint sensitivity on 3D W-momentum component.'
           DO itrc=1,NT(ng)
             IF (SCALARS(ng)%Lstate(isTvar(itrc)))                       &
      &         WRITE (out,180) SCALARS(ng)%Lstate(isTvar(itrc)),        &
@@ -5288,7 +5328,7 @@
      &         'Hout(idHbbl)',                                          &
      &         'Write out depth of bottom boundary layer.'
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             IF (Hout(idMtke,ng)) WRITE (out,170) Hout(idMtke,ng),       &
      &         'Hout(idMtke)',                                          &
      &         'Write out turbulent kinetic energy.'
@@ -5609,7 +5649,7 @@
      &         'Qout(idHbbl)',                                          &
      &         'Write out depth of bottom boundary layer.'
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
             IF (Qout(idMtke,ng)) WRITE (out,170) Qout(idMtke,ng),       &
      &         'Qout(idMtke)',                                          &
      &         'Write out turbulent kinetic energy.'
@@ -5796,7 +5836,7 @@
             IF (Aout(idDano,ng)) WRITE (out,170) Aout(idDano,ng),       &
      &         'Aout(idDano)',                                          &
      &         'Write out averaged density anomaly.'
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
             IF (Aout(idVvis,ng)) WRITE (out,170) Aout(idVvis,ng),       &
      &         'Aout(idVvis)',                                          &
      &         'Write out averaged vertical viscosity: AKv.'
@@ -6085,7 +6125,7 @@
           IF (Aout2(idDano,ng)) WRITE (out,170) Aout2(idDano,ng),       &
      &       'Aout2(idDano)',                                           &
      &       'Write out averaged density anomaly.'
-#  if defined LMD_MIXING || defined MY25_MIXING || defined GLS_MIXING
+#  if defined LMD_MIXING || defined TKE_MIXING
           IF (Aout2(idVvis,ng)) WRITE (out,170) Aout2(idVvis,ng),       &
      &       'Aout2(idVvis)',                                           &
      &       'Write out averaged vertical viscosity: AKv.'
@@ -6734,9 +6774,17 @@
           fname=varname
           IF (.not.find_file(ng, fname, 'VARNAME')) GO TO 30
           GO TO 40
-  30      IF (Master) WRITE (out,270) ng, TRIM(fname)
+  30      IF (Master) THEN
+            IF (LEN_TRIM(fname).eq.0) THEN
+              WRITE (out,270) ng, 'Oops unassigned file name. '//       &
+     &                            'Check standard input script...'
+            ELSE
+              WRITE (out,270) ng, TRIM(fname)
+            END IF
+          END IF
           exit_flag=4
-          RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
   40      CONTINUE
         END DO
         IF (Nuser.gt.0) THEN
@@ -6776,6 +6824,34 @@
       END IF
 #endif
 
+#ifdef NESTING
+!
+!-----------------------------------------------------------------------
+!  If nesting, make sure that all grids are computing solutions for the
+!  same amount of time (seconds).
+!-----------------------------------------------------------------------
+!
+      IF (.not.allocated(RunTimeDay)) THEN
+        allocate ( RunTimeDay(Ngrids) )
+      END IF
+      IF (.not.allocated(RunTimeSec)) THEN
+        allocate ( RunTimeSec(Ngrids) )
+      END IF
+      DO ng=1,Ngrids
+        RunTimeSec(ng)=REAL(ntimes(ng),r8)*dt(ng)
+        RunTimeDay(ng)=RunTimeSec(ng)*sec2day
+      END DO
+      DO ng=2,Ngrids
+        IF (ABS(RunTimeSec(1)-RunTimeSec(ng)).ne.0.0_r8) THEN
+          IF (Master) THEN
+            WRITE (out,340)  1, RunTimeSec( 1), RunTimeDay( 1),         &
+    &                       ng, RunTimeSec(ng), RunTimeDay(ng)
+          END IF
+          exit_flag=5
+          RETURN
+        END IF
+      END DO
+#endif
 #ifdef SOLVE3D
 !
 !-----------------------------------------------------------------------
@@ -6823,8 +6899,14 @@
      &        /,1x,'Compiler command : ',a,                             &
      &        /,1x,'Compiler flags   : ',a,/,                           &
      &        /,1x,'Input Script  : ',a,/,                              &
+# ifdef SVN
      &        /,1x,'SVN Root URL  : ',a,                                &
      &        /,1x,'SVN Revision  : ',a,/,                              &
+# else
+     &        /,1x,'Git Root URL  : ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
+# endif
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &
@@ -6836,8 +6918,14 @@
      &        /,1x,'Compiler system  : ',a,                             &
      &        /,1x,'Compiler command : ',a,                             &
      &        /,1x,'Compiler flags   : ',a,/,                           &
+# ifdef SVN
      &        /,1x,'SVN Root URL  : ',a,                                &
      &        /,1x,'SVN Revision  : ',a,/,                              &
+# else
+     &        /,1x,'Git Root URL  : ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
+# endif
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &
@@ -6895,6 +6983,11 @@
  320  FORMAT (/,' READ_PHYPAR - Could not find input parameter: ', a,   &
      &        /,15x,'in ROMS standard input script.',/,15x,a)
  330  FORMAT (/,' READ_PHYPAR - Invalid input parameter, ',a,i4,/,15x,a)
+ 340  FORMAT (/,' READ_PHYPAR - Inconsistent time-stepping period:',    &
+     &        /,15x,'Grid ',i2.2,':',f14.1,' (sec)',2x,f14.2,' (days)', &
+     &        /,15x,'Grid ',i2.2,':',f14.1,' (sec)',2x,f14.2,' (days)', &
+     &        /,15x,'Adjust standard input parameter NTIMES in ',       &
+     &              '''ocean.in''.'/)
 
       RETURN
       END SUBROUTINE read_PhyPar

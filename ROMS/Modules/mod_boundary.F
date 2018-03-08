@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -924,7 +924,12 @@
 !
 !  Nonlinear model state.
 !
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(iwest,isFsur,ng)%acquire.or.                           &
+     &    ad_LBC(iwest,isFsur,ng)%acquire) THEN
+#else
       IF (LBC(iwest,isFsur,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % zeta_west(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % zeta_west_C2(LBj:UBj) )
@@ -936,7 +941,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(ieast,isFsur,ng)%acquire.or.                           &
+     &    ad_LBC(ieast,isFsur,ng)%acquire) THEN
+#else
       IF (LBC(ieast,isFsur,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % zeta_east(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % zeta_east_C2(LBj:UBj) )
@@ -948,7 +958,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(isouth,isFsur,ng)%acquire.or.                          &
+     &    ad_LBC(isouth,isFsur,ng)%acquire) THEN
+#else
       IF (LBC(isouth,isFsur,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % zeta_south(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % zeta_south_C2(LBi:UBi) )
@@ -960,7 +975,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(inorth,isFsur,ng)%acquire.or.                          &
+     &    ad_LBC(inorth,isFsur,ng)%acquire) THEN
+#else
       IF (LBC(inorth,isFsur,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % zeta_north(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % zeta_north_C2(LBi:UBi) )
@@ -972,7 +992,12 @@
 #endif
       END IF
 !
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(iwest,isUbar,ng)%acquire.or.                           &
+     &    ad_LBC(iwest,isUbar,ng)%acquire) THEN
+#else
       IF (LBC(iwest,isUbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % ubar_west(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % ubar_west_C2(LBj:UBj) )
@@ -984,7 +1009,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(ieast,isUbar,ng)%acquire.or.                           &
+     &    ad_LBC(ieast,isUbar,ng)%acquire) THEN
+#else
       IF (LBC(ieast,isUbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % ubar_east(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % ubar_east_C2(LBj:UBj) )
@@ -996,7 +1026,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(isouth,isUbar,ng)%acquire.or.                          &
+     &    ad_LBC(isouth,isUbar,ng)%acquire) THEN
+#else
       IF (LBC(isouth,isUbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % ubar_south(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % ubar_south_C2(LBi:UBi) )
@@ -1008,7 +1043,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(inorth,isUbar,ng)%acquire.or.                          &
+     &    ad_LBC(inorth,isUbar,ng)%acquire) THEN
+#else
       IF (LBC(inorth,isUbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % ubar_north(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % ubar_north_C2(LBi:UBi) )
@@ -1020,7 +1060,12 @@
 #endif
       END IF
 !
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(iwest,isVbar,ng)%acquire.or.                           &
+     &    ad_LBC(iwest,isVbar,ng)%acquire) THEN
+#else
       IF (LBC(iwest,isVbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % vbar_west(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % vbar_west_C2(LBj:UBj) )
@@ -1032,7 +1077,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(ieast,isVbar,ng)%acquire.or.                           &
+     &    ad_LBC(ieast,isVbar,ng)%acquire) THEN
+#else
       IF (LBC(ieast,isVbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % vbar_east(LBj:UBj) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % vbar_east_C2(LBj:UBj) )
@@ -1044,7 +1094,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(isouth,isVbar,ng)%acquire.or.                          &
+     &    ad_LBC(isouth,isVbar,ng)%acquire) THEN
+#else
       IF (LBC(isouth,isVbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % vbar_south(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % vbar_south_C2(LBi:UBi) )
@@ -1056,7 +1111,12 @@
 #endif
       END IF
 
+#if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(inorth,isVbar,ng)%acquire.or.                          &
+     &    ad_LBC(inorth,isVbar,ng)%acquire) THEN
+#else
       IF (LBC(inorth,isVbar,ng)%acquire) THEN
+#endif
         allocate ( BOUNDARY(ng) % vbar_north(LBi:UBi) )
 #if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % vbar_north_C2(LBi:UBi) )
@@ -1070,7 +1130,12 @@
 
 #ifdef SOLVE3D
 !
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(iwest,isUvel,ng)%acquire.or.                           &
+     &    ad_LBC(iwest,isUvel,ng)%acquire) THEN
+# else
       IF (LBC(iwest,isUvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % u_west(LBj:UBj,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % u_west_C2(LBj:UBj,N(ng)) )
@@ -1082,7 +1147,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(ieast,isUvel,ng)%acquire.or.                           &
+     &    ad_LBC(ieast,isUvel,ng)%acquire) THEN
+# else
       IF (LBC(ieast,isUvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % u_east(LBj:UBj,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % u_east_C2(LBj:UBj,N(ng)) )
@@ -1094,7 +1164,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(isouth,isUvel,ng)%acquire.or.                          &
+     &    ad_LBC(isouth,isUvel,ng)%acquire) THEN
+# else
       IF (LBC(isouth,isUvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % u_south(LBi:UBi,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % u_south_C2(LBi:UBi,N(ng)) )
@@ -1106,7 +1181,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(inorth,isUvel,ng)%acquire.or.                          &
+     &    ad_LBC(inorth,isUvel,ng)%acquire) THEN
+# else
       IF (LBC(inorth,isUvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % u_north(LBi:UBi,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % u_north_C2(LBi:UBi,N(ng)) )
@@ -1118,7 +1198,12 @@
 # endif
       END IF
 !
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(iwest,isVvel,ng)%acquire.or.                           &
+     &    ad_LBC(iwest,isVvel,ng)%acquire) THEN
+# else
       IF (LBC(iwest,isVvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % v_west(LBj:UBj,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % v_west_C2(LBj:UBj,N(ng)) )
@@ -1130,7 +1215,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(ieast,isVvel,ng)%acquire.or.                           &
+     &    ad_LBC(ieast,isVvel,ng)%acquire) THEN
+# else
       IF (LBC(ieast,isVvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % v_east(LBj:UBj,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % v_east_C2(LBj:UBj,N(ng)) )
@@ -1142,7 +1232,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(isouth,isVvel,ng)%acquire.or.                          &
+     &    ad_LBC(isouth,isVvel,ng)%acquire) THEN
+# else
       IF (LBC(isouth,isVvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % v_south(LBi:UBi,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % v_south_C2(LBi:UBi,N(ng)) )
@@ -1154,7 +1249,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (   LBC(inorth,isVvel,ng)%acquire.or.                          &
+     &    ad_LBC(inorth,isVvel,ng)%acquire) THEN
+# else
       IF (LBC(inorth,isVvel,ng)%acquire) THEN
+# endif
         allocate ( BOUNDARY(ng) % v_north(LBi:UBi,N(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % u_north_C2(LBi:UBi,N(ng)) )
@@ -1166,8 +1266,12 @@
 # endif
       END IF
 !
-
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (ANY(   LBC(iwest,isTvar(:),ng)%acquire).or.                   &
+     &    ANY(ad_LBC(iwest,isTvar(:),ng)%acquire)) THEN
+# else
       IF (ANY(LBC(iwest,isTvar(:),ng)%acquire)) THEN
+# endif
         allocate ( BOUNDARY(ng) % t_west(LBj:UBj,N(ng),NT(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % t_west_C2(LBj:UBj,N(ng),NT(ng)) )
@@ -1179,7 +1283,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (ANY(   LBC(ieast,isTvar(:),ng)%acquire).or.                   &
+     &    ANY(ad_LBC(ieast,isTvar(:),ng)%acquire)) THEN
+# else
       IF (ANY(LBC(ieast,isTvar(:),ng)%acquire)) THEN
+# endif
         allocate ( BOUNDARY(ng) % t_east(LBj:UBj,N(ng),NT(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % t_east_C2(LBj:UBj,N(ng),NT(ng)) )
@@ -1191,7 +1300,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (ANY(   LBC(isouth,isTvar(:),ng)%acquire).or.                  &
+     &    ANY(ad_LBC(isouth,isTvar(:),ng)%acquire)) THEN
+# else
       IF (ANY(LBC(isouth,isTvar(:),ng)%acquire)) THEN
+# endif
         allocate ( BOUNDARY(ng) % t_south(LBi:UBi,N(ng),NT(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % t_south_C2(LBi:UBi,N(ng),NT(ng)) )
@@ -1203,7 +1317,12 @@
 # endif
       END IF
 
+# if defined ADJOINT || defined TANGENT || defined TL_IOMS
+      IF (ANY(   LBC(inorth,isTvar(:),ng)%acquire).or.                  &
+     &    ANY(ad_LBC(inorth,isTvar(:),ng)%acquire)) THEN
+# else
       IF (ANY(LBC(inorth,isTvar(:),ng)%acquire)) THEN
+# endif
         allocate ( BOUNDARY(ng) % t_north(LBi:UBi,N(ng),NT(ng)) )
 # if defined CELERITY_READ || defined CELERITY_WRITE
         allocate ( BOUNDARY(ng) % t_north_C2(LBi:UBi,N(ng),NT(ng)) )

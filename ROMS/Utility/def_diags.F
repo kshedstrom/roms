@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -409,7 +409,7 @@
         Vinfo(14)=Vname(4,idtime)
         status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(idtime),     &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -541,9 +541,9 @@
             Vinfo( 3)=Vname(3,ifield)
             Vinfo(14)=Vname(4,ifield)
             Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#   endif
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r2dvar,r8)
             status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(ifield), &
@@ -565,9 +565,9 @@
             Vinfo( 3)=Vname(3,ifield)
             Vinfo(14)=Vname(4,ifield)
             Vinfo(16)=Vname(1,idtime)
-#   if defined WRITE_WATER && defined MASKING
+#  if defined WRITE_WATER && defined MASKING
             Vinfo(20)='mask_rho'
-#   endif
+#  endif
             Vinfo(22)='coordinates'
             Aval(5)=REAL(r3dvar,r8)
             status=def_var(ng, iNLM, DIA(ng)%ncid, DIA(ng)%Vid(ifield), &
@@ -604,18 +604,6 @@
       QUERY : IF (.not.ldef) THEN
         ncname=DIA(ng)%name
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open diagnostics file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, DIA(ng)%ncid)
@@ -624,6 +612,20 @@
           WRITE (stdout,50) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = DIA(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = DIA(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -82,15 +82,26 @@
      &               __FILE__)) RETURN
       ncname=INI(ng)%name
 !
+!  Open initialization file for read/write.
+!
+      CALL netcdf_open (ng, iNLM, ncname, 1, INI(ng)%ncid)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) THEN
+        IF (Master) WRITE (stdout,10) TRIM(ncname)
+        RETURN
+      END IF
+!
 !  Inquire about the dimensions and check for consistency.
 !
-      CALL netcdf_check_dim (ng, iNLM, ncname)
+      CALL netcdf_check_dim (ng, iNLM, ncname,                          &
+     &                       ncid = INI(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
-      CALL netcdf_inq_var (ng, iNLM, ncname)
+      CALL netcdf_inq_var (ng, iNLM, ncname,                            &
+     &                     ncid = INI(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
@@ -179,15 +190,6 @@
         END IF
       END DO
 #  endif
-!
-!  Open initialization file for read/write.
-!
-      CALL netcdf_open (ng, iNLM, ncname, 1, INI(ng)%ncid)
-      IF (FoundError(exit_flag, NoError, __LINE__,                      &
-     &               __FILE__)) THEN
-        IF (Master) WRITE (stdout,10) TRIM(ncname)
-        RETURN
-      END IF
 !
 !  Put existing file into define mode so new variables can be added.
 !
@@ -540,18 +542,6 @@
 
 # if !(defined ADJUST_STFLUX || defined ADJUST_WSTRESS)
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open initialization file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, INI(ng)%ncid)
@@ -560,6 +550,20 @@
           WRITE (stdout,10) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = INI(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = INI(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !
@@ -592,7 +596,7 @@
             got_var(idVvel)=.TRUE.
             INI(ng)%Vid(idVvel)=var_id(i)
 #  if defined BVF_MIXING || defined LMD_MIXING || \
-      defined GLS_MIXING || defined MY25_MIXING
+      defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
             INI(ng)%Vid(idVvis)=var_id(i)

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -371,6 +371,18 @@
       TYPE (T_LBC), allocatable :: ad_LBC(:,:,:)
       TYPE (T_LBC), allocatable :: tl_LBC(:,:,:)
 #endif
+!
+!-----------------------------------------------------------------------
+!  Field statistics STATS structure.
+!-----------------------------------------------------------------------
+!
+      TYPE T_STATS
+        real(r8) :: count         ! processed values count
+        real(r8) :: min           ! minimum value
+        real(r8) :: max           ! maximum value
+        real(r8) :: avg           ! arithmetic mean
+        real(r8) :: rms           ! root mean square
+      END TYPE T_STATS
 
 #ifdef PROPAGATOR
 !
@@ -444,13 +456,13 @@
 !  (like dyes, etc). This parameter is independent of the number of
 !  biological and/or sediment tracers.
 !
-        integer :: NPT = 0
+      integer :: NPT = 0
 
 #ifdef FILTERED_RST
 # ifdef ICE_MODEL
-        integer, parameter :: nfile = 10
+      integer, parameter :: nfile = 10
 # else
-        integer, parameter :: nfile = 9
+      integer, parameter :: nfile = 9
 # endif
 #endif
 !
@@ -973,7 +985,7 @@
 #  endif
 # endif
 # ifdef OFFLINE_FLOATS_LATLON
-! add 4 variables: x-space, y-space, water depth and Hz 
+! add 4 variables: x-space, y-space, water depth and Hz
           NFV(ng)=NFV(ng)+4
 # endif
 #endif
@@ -1009,7 +1021,7 @@
 !
 #ifdef SOLVE3D
       nLBCvar=5+MT
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       nLBCvar=nLBCvar+1
 # endif
 # ifdef ICE_MODEL

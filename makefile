@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2017 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2018 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -79,7 +79,7 @@ MY_ANALYTICAL_DIR ?=
 
 # If applicable, where does CICE put its binary files?
 
-MY_CICE_DIR ?= /center/w/kate/CICE/NEP/compile
+MY_CICE_DIR ?= /center1/AKWATERS/kshedstrom/CICE/NEP/compile
 
 #  Sometimes it is desirable to activate one or more CPP options to
 #  run different variants of the same application without modifying
@@ -238,21 +238,17 @@ endif
 
 MAKE_MACROS := $(shell echo ${HOME} | sed 's| |\\ |g')/make_macros.mk
 
-ifneq "$(MAKECMDGOALS)" "clean"
- MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
-		$(MAKE_MACROS); $(CLEAN) $(MAKE_MACROS))
+ifneq ($(MAKECMDGOALS),clean)
+  MACROS := $(shell cpp -P $(ROMS_CPPFLAGS) Compilers/make_macros.h > \
+              $(MAKE_MACROS); $(CLEAN) $(MAKE_MACROS))
 
- GET_MACROS := $(wildcard $(SCRATCH_DIR)/make_macros.*)
+  GET_MACROS := $(wildcard $(SCRATCH_DIR)/make_macros.*)
 
- ifdef GET_MACROS
-  include $(SCRATCH_DIR)/make_macros.mk
-  $(if ,, $(warning INCLUDING FILE $(SCRATCH_DIR)/make_macros.mk \
-                    WHICH CONTAINS APPLICATION-DEPENDENT MAKE DEFINITIONS))
- else
-  include $(MAKE_MACROS)
-  $(if ,, $(warning INCLUDING FILE $(MAKE_MACROS) \
-                   WHICH CONTAINS APPLICATION-DEPENDENT MAKE DEFINITIONS))
- endif
+  ifdef GET_MACROS
+    include $(SCRATCH_DIR)/make_macros.mk
+  else
+    include $(MAKE_MACROS)
+  endif
 endif
 
 clean_list += $(MAKE_MACROS)
@@ -384,6 +380,9 @@ OS := $(patsubst sn%,UNICOS-sn,$(OS))
 CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 
 SVNREV ?= $(shell svnversion -n .)
+GITURL ?= $(shell git remote show origin 2> /dev/null | grep "Fetch URL" | tr -s ' ' | cut -d ' ' -f 4)
+GITREV ?= $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null) $(shell git log -1  2> /dev/null | head -n 1)
+GITSTATUS ?= $(shell git status --porcelain 2> /dev/null | wc -l)
 
 ROOTDIR := $(shell pwd)
 
@@ -391,7 +390,7 @@ ifndef FORT
   $(error Variable FORT not set)
 endif
 
-ifneq "$(MAKECMDGOALS)" "clean"
+ifneq ($(MAKECMDGOALS),clean)
   include $(COMPILERS)/$(OS)-$(strip $(FORT)).mk
 endif
 
@@ -433,6 +432,15 @@ ifdef SVNREV
 else
   SVNREV := $(shell grep Revision ./ROMS/Version | sed 's/.* \([0-9]*\) .*/\1/')
   CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
+endif
+ifdef GITURL
+  CPPFLAGS += -D'GIT_URL="$(GITURL)"'
+endif
+ifdef GITREV
+  CPPFLAGS += -D'GIT_REV="$(GITREV)"'
+endif
+ifdef GITSTATUS
+  CPPFLAGS += -D'GIT_STATUS=$(GITSTATUS)'
 endif
 
 #--------------------------------------------------------------------------
@@ -612,7 +620,7 @@ $(SCRATCH_DIR)/MakeDepend: makefile \
                            $(SCRATCH_DIR)/$(NETCDF_MODFILE) \
                            $(SCRATCH_DIR)/$(TYPESIZES_MODFILE) \
                            | $(SCRATCH_DIR)
-	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
+	@ $(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
 	cp -p $(MAKE_MACROS) $(SCRATCH_DIR)
 
 .PHONY: depend
@@ -622,7 +630,7 @@ SFMAKEDEPEND := ./ROMS/Bin/sfmakedepend
 depend: $(SCRATCH_DIR)
 	$(SFMAKEDEPEND) $(MDEPFLAGS) $(sources) > $(SCRATCH_DIR)/MakeDepend
 
-ifneq "$(MAKECMDGOALS)" "clean"
+ifneq ($(MAKECMDGOALS),clean)
   -include $(SCRATCH_DIR)/MakeDepend
 endif
 

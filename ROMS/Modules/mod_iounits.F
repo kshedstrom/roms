@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -221,7 +221,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ng
+      integer :: i, lstr, ng
 
       character (len=1), parameter :: blank = ' '
 !
@@ -239,7 +239,12 @@
       allocate ( DIA(Ngrids) )
       allocate ( ERR(Ngrids) )
 #ifdef FILTERED_RST
+# ifdef GLACIER_BAY
+! Not sure what this is all about, but was getting seg faults.
+      allocate ( FIL(10,Ngrids) )
+# else
       allocate ( FIL(nfile,Ngrids) )
+# endif
 #endif
 #ifdef NEMURO_SAN
       allocate ( FISH(Ngrids) )
@@ -289,6 +294,7 @@
         ADM(ng)%ncid=-1
         ADS(ng)%ncid=-1
         AVG(ng)%ncid=-1
+        AVG2(ng)%ncid=-1
         BLK(ng)%ncid=-1
         DAI(ng)%ncid=-1
         DAV(ng)%ncid=-1
@@ -325,6 +331,110 @@
 !-----------------------------------------------------------------------
 !  Initialize file names to blanks.
 !-----------------------------------------------------------------------
+!
+      DO ng=1,Ngrids
+        lstr=LEN(HIS(ng)%name)
+        DO i=1,lstr
+          ADM(ng)%base(i:i)=blank
+          ADM(ng)%name(i:i)=blank
+
+          ADS(ng)%base(i:i)=blank
+          ADS(ng)%name(i:i)=blank
+
+          AVG(ng)%base(i:i)=blank
+          AVG(ng)%name(i:i)=blank
+
+          AVG2(ng)%base(i:i)=blank
+          AVG2(ng)%name(i:i)=blank
+
+          BLK(ng)%base(i:i)=blank
+          BLK(ng)%name(i:i)=blank
+
+          DAI(ng)%base(i:i)=blank
+          DAI(ng)%name(i:i)=blank
+
+          DAV(ng)%base(i:i)=blank
+          DAV(ng)%name(i:i)=blank
+
+          DIA(ng)%base(i:i)=blank
+          DIA(ng)%name(i:i)=blank
+
+          ERR(ng)%base(i:i)=blank
+          ERR(ng)%name(i:i)=blank
+
+          FLT(ng)%base(i:i)=blank
+          FLT(ng)%name(i:i)=blank
+
+          FWD(ng)%base(i:i)=blank
+          FWD(ng)%name(i:i)=blank
+
+          GRD(ng)%base(i:i)=blank
+          GRD(ng)%name(i:i)=blank
+
+          GST(ng)%base(i:i)=blank
+          GST(ng)%name(i:i)=blank
+
+          HAR(ng)%base(i:i)=blank
+          HAR(ng)%name(i:i)=blank
+
+          HIS(ng)%base(i:i)=blank
+          HIS(ng)%name(i:i)=blank
+
+          HSS(ng)%base(i:i)=blank
+          HSS(ng)%name(i:i)=blank
+
+          IAD(ng)%base(i:i)=blank
+          IAD(ng)%name(i:i)=blank
+
+          INI(ng)%base(i:i)=blank
+          INI(ng)%name(i:i)=blank
+
+          IRP(ng)%base(i:i)=blank
+          IRP(ng)%name(i:i)=blank
+
+          ITL(ng)%base(i:i)=blank
+          ITL(ng)%name(i:i)=blank
+
+          LCZ(ng)%base(i:i)=blank
+          LCZ(ng)%name(i:i)=blank
+
+          LZE(ng)%base(i:i)=blank
+          LZE(ng)%name(i:i)=blank
+
+          NUD(ng)%base(i:i)=blank
+          NUD(ng)%name(i:i)=blank
+
+          OBS(ng)%base(i:i)=blank
+          OBS(ng)%name(i:i)=blank
+
+          QCK(ng)%base(i:i)=blank
+          QCK(ng)%name(i:i)=blank
+
+          RST(ng)%base(i:i)=blank
+          RST(ng)%name(i:i)=blank
+
+          SSF(ng)%base(i:i)=blank
+          SSF(ng)%name(i:i)=blank
+
+          STA(ng)%base(i:i)=blank
+          STA(ng)%name(i:i)=blank
+
+          TLF(ng)%base(i:i)=blank
+          TLF(ng)%name(i:i)=blank
+
+          TLM(ng)%base(i:i)=blank
+          TLM(ng)%name(i:i)=blank
+
+          TIDE(ng)%base(i:i)=blank
+          TIDE(ng)%name(i:i)=blank
+
+          NRM(1:4,ng)%base(i:i)=blank
+          NRM(1:4,ng)%name(i:i)=blank
+
+          STD(1:4,ng)%base(i:i)=blank
+          STD(1:4,ng)%name(i:i)=blank
+        END DO
+      END DO
 !
       DO i=1,LEN(Iname)
         Wname(i:i)=blank

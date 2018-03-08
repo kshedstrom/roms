@@ -1,11 +1,11 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2017 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2018 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #
-# Include file for UNICOS FTN compiler on CRAY X1
+# Include file for CRAY ftn compiler with PrgEnv-gnu
 # -------------------------------------------------------------------------
 #
 # ARPACK_LIBDIR  ARPACK libary directory
@@ -13,13 +13,10 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
-# CC             Name of the C compiler
-# CFLAGS         Flags to the C compiler
-# CXX            Name of the C++ compiler
-# CXXFLAGS       Flags to the C++ compiler
-# CLEAN          Name of cleaning executable after C-preprocessing
+# NF_CONFIG      NetCDF Fortran configuration script
 # NETCDF_INCDIR  NetCDF include directory
-# NETCDF_LIBDIR  NetCDF libary directory
+# NETCDF_LIBDIR  NetCDF library directory
+# NETCDF_LIBS    NetCDF library switches
 # LD             Program to load the objects into an executable
 # LDFLAGS        Flags to the loader
 # RANLIB         Name of ranlib command
@@ -28,19 +25,15 @@
 # First the defaults
 #
                FC := ftn
-           FFLAGS := -e I -e m
-              CPP := $(HOME)/bin/cpp
-         CPPFLAGS := -P
-               CC := gcc
-              CXX := g++
-           CFLAGS :=
-         CXXFLAGS :=
+           FFLAGS := -frepack-arrays
+              CPP := /usr/bin/cpp
+         CPPFLAGS := -P -traditional
           LDFLAGS :=
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
                RM := rm -f
-           RANLIB := touch
+           RANLIB := ranlib
              PERL := perl
              TEST := test
 
@@ -52,20 +45,21 @@
 
 ifdef USE_NETCDF4
         NF_CONFIG ?= nf-config
-    NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --prefix)/include
+    NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --includedir)
              LIBS := $(shell $(NF_CONFIG) --flibs)
 else
     NETCDF_INCDIR ?= /usr/local/include
     NETCDF_LIBDIR ?= /usr/local/lib
-             LIBS := -L$(NETCDF_LIBDIR) -lnetcdf
+      NETCDF_LIBS ?= -lnetcdff
+             LIBS := -L$(NETCDF_LIBDIR) $(NETCDF_LIBS)
 endif
 
 ifdef USE_ARPACK
  ifdef USE_MPI
-   PARPACK_LIBDIR ?= /usr/local/lib
+   PARPACK_LIBDIR ?= /opt/gfortransoft/PARPACK
              LIBS += -L$(PARPACK_LIBDIR) -lparpack
  endif
-    ARPACK_LIBDIR ?= /usr/local/lib
+    ARPACK_LIBDIR ?= /opt/gfortransoft/PARPACK
              LIBS += -L$(ARPACK_LIBDIR) -larpack
 endif
 
@@ -75,21 +69,19 @@ endif
 
 ifdef USE_OpenMP
          CPPFLAGS += -D_OPENMP
+           FFLAGS += -fopenmp
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -G 0
-           CFLAGS += -g
-         CXXFLAGS += -g
+           FFLAGS += -g -fbounds-check -fbacktrace
+           FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
 else
-           FFLAGS += -O 3,aggress
-           CFLAGS += -O3
-         CXXFLAGS += -O3
+           FFLAGS += -O3 -ffast-math
 endif
 
 ifdef USE_MCT
-       MCT_INCDIR ?= /usr/local/pkg/mct/include
-       MCT_LIBDIR ?= /usr/local/pkg/mct/lib
+       MCT_INCDIR ?= /usr/local/mct/include
+       MCT_LIBDIR ?= /usr/local/mct/lib
            FFLAGS += -I$(MCT_INCDIR)
              LIBS += -L$(MCT_LIBDIR) -lmct -lmpeu
 endif
@@ -103,10 +95,6 @@ ifdef USE_ESMF
              LIBS += $(ESMF_F90LINKPATHS) $(ESMF_F90ESMFLINKLIBS)
 endif
 
-ifdef USE_CXX
-             LIBS += -lstdc++
-endif
-
 #
 # Use full path of compiler.
 #
@@ -118,18 +106,18 @@ endif
 # local directory and compilation flags inside the code.
 #
 
-$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/analytical.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/biology.o: FFLAGS += -free-form
+$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/analytical.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 ifdef USE_ADJOINT
-$(SCRATCH_DIR)/ad_biology.o: FFLAGS += -free-form
+$(SCRATCH_DIR)/ad_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 endif
 ifdef USE_REPRESENTER
-$(SCRATCH_DIR)/rp_biology.o: FFLAGS += -free-form
+$(SCRATCH_DIR)/rp_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 endif
 ifdef USE_TANGENT
-$(SCRATCH_DIR)/tl_biology.o: FFLAGS += -free-form
+$(SCRATCH_DIR)/tl_biology.o: FFLAGS += -ffree-form -ffree-line-length-none
 endif
 
 #
@@ -139,26 +127,26 @@ endif
 
 ifdef USE_SWAN
 
-$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/ocpids.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swancom1.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swancom2.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swancom3.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swancom4.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swancom5.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanmain.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanout1.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanout2.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanparll.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swanser.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swmod1.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/swmod2.o: FFLAGS += -fixed-form
-$(SCRATCH_DIR)/m_constants.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -free-form
-$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -free-form
+$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/ocpids.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swancom1.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swancom2.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swancom3.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swancom4.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swancom5.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanmain.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanout1.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanout2.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanparll.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swanser.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swmod1.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/swmod2.o: FFLAGS += -ffixed-form
+$(SCRATCH_DIR)/m_constants.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -ffree-form -ffree-line-length-none
+$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -ffree-form -ffree-line-length-none
 
 endif

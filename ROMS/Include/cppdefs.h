@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2017 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -174,6 +174,7 @@
 ** EMINUSP_SSH         use if computing changes in SSH due to E-P            **
 ** RUNOFF              use if adding runoff as a second rain field           **
 ** RUNOFF_SSH          use if adjusting zeta based on runoff field           **
+** WIND_MINUS_CURRENT  use if compute effective wind by removing current     **
 **                                                                           **
 ** OPTIONS for wave roughness formulation in bulk fluxes:                    **
 **                                                                           **
@@ -473,6 +474,7 @@
 ** FORWARD_WRITE       use if writing out forward solution, basic state      **
 ** FORWARD_READ        use if reading in  forward solution, basic state      **
 ** FORWARD_RHS         use if processing forward right-hand-side terms       **
+** IMPACT_INNER        use to write observations impacts for each inner loop **
 ** IMPLICIT_VCONV      use if implicit vertical convolution algorithm        **
 ** IMPULSE             use if processing adjoint impulse forcing             **
 ** MINRES              use if Minimal Residual Method for 4DVar minimization **
@@ -581,6 +583,34 @@
 ** NEARSHORE_MELLOR05  use to activate radiation stress terms (Mellor 2005). **
 ** NEARSHORE_MELLOR08  use to activate radiation stress terms (Mellor 2008). **
 **                                                                           **
+** MPI communication OPTIONS:  The routines "mp_assemble" (used in nesting), **
+**                             "mp_collect" (used in NetCDF I/O and 4D-Var), **
+** and "mp_reduce" (used in global reductions) are coded in "distribution.F" **
+** by either using low-level ("mpi_isend" and "mpi_irecv") or high-level     **
+** ("mpi_allgather" and "mpi_allreduce") MPI calls. The default is to use    **
+** the low-level MPI  calls. The options for routine "mp_boundary" (used to  **
+** process lateral open boundary conditions is either "mpi_allgather" or     **
+** "mpi_allreduce" (default).                                                **
+**                                                                           **
+** The user needs to be aware that the choice of these MPI communication     **
+** routines it will affect performance issue. In some computers, the         **
+** low-level are either slower or faster than the high-level MPI library     **
+** calls. It depends on the computer (cluster) set-up. Some vendors provide  **
+** native MPI libraries fine-tuned for the computer architecture. The        **
+** user needs to find which function option performs better by carrying on   **
+** benchmarks. We provides the following choices:                            **
+**                                                                           **
+** ASSEMBLE_ALLGATHER  use "mpi_allgather" in "mp_assemble"                  **
+** ASSEMBLE_ALLREDUCE  use "mpi_allreduce" in "mp_assemble"                  **
+**                                                                           **
+** BOUNDARY_ALLGATHER  use "mpi_allgather" in "mp_boundary"                  **
+**                                                                           **
+** COLLECT_ALLGATHER   use "mpi_allgather" in "mp_collect"                   **
+** COLLECT_ALLREDUCE   use "mpi_allreduce" in "mp_collect"                   **
+**                                                                           **
+** REDUCE_ALLGATHER    use "mpi_allgather" in "mp_reduce"                    **
+** REDUCE_ALLREDUCE    use "mpi_allreduce" in "mp_reduce"                    **
+**                                                                           **
 ** NetCDF input/output OPTIONS:                                              **
 **                                                                           **
 ** DEFLATE             use to set compression NetCDF-4/HDF5 format files     **
@@ -608,6 +638,9 @@
 ** problems on nodes with limited memory.                                    **
 **                                                                           **
 ** INLINE_2DIO         use if processing 3D IO level by level                **
+**                                                                           **
+** SVN                 use if svn is repository of choice, otherwise         **
+**                     assumes git.                                          **
 **                                                                           **
 ** Sea ice options
 **

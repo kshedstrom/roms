@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -207,7 +207,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 6, 6, STD(1,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 10, 10, STD(1,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -219,7 +219,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 8, 8, STD(3,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 12, 12, STD(3,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -231,7 +231,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 9, 9, STD(4,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 13, 13, STD(4,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -476,17 +476,17 @@
               LwrtNRM(1:4,ng)=.FALSE.
             ELSE
               NRMrec=1
-              CALL get_state (ng, 5, 5, NRM(1,ng)%name, NRMrec, 1)
+              CALL get_state (ng, 14, 14, NRM(1,ng)%name, NRMrec, 1)
               IF (FoundError(exit_flag, NoError, __LINE__,              &
      &                       __FILE__)) RETURN
 
 #ifdef ADJUST_BOUNDARY
-              CALL get_state (ng, 10, 10, NRM(3,ng)%name, NRMrec, 1)
+              CALL get_state (ng, 16, 16, NRM(3,ng)%name, NRMrec, 1)
               IF (FoundError(exit_flag, NoError, __LINE__,              &
      &                       __FILE__)) RETURN
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-              CALL get_state (ng, 11, 11, NRM(4,ng)%name, NRMrec, 1)
+              CALL get_state (ng, 17, 17, NRM(4,ng)%name, NRMrec, 1)
               IF (FoundError(exit_flag, NoError, __LINE__,              &
      &                       __FILE__)) RETURN
 #endif
@@ -579,7 +579,7 @@
           CALL netcdf_put_fvar (ng, iNLM, DAV(ng)%name,                 &
      &                          'NLcost_function',                      &
      &                          FOURDVAR(ng)%NLobsCost(0:),             &
-     &                          (/1,outer/), (/NstateVar(ng)+1,1/),     &
+     &                          (/1,outer/), (/NobsVar(ng)+1,1/),       &
      &                          ncid = DAV(ng)%ncid)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
@@ -854,12 +854,12 @@
 !
           DO ng=1,Ngrids
             IF (Nrun.eq.1) THEN
-              DO i=0,NstateVar(ng)
+              DO i=0,NobsVar(ng)
                 FOURDVAR(ng)%CostFunOld(i)=FOURDVAR(ng)%CostNorm(i)
                 FOURDVAR(ng)%CostFun(i)=FOURDVAR(ng)%CostNorm(i)
               END DO
             ELSE
-              DO i=0,NstateVar(ng)
+              DO i=0,NobsVar(ng)
                 FOURDVAR(ng)%CostFunOld(i)=FOURDVAR(ng)%CostFun(i)
               END DO
             END IF
@@ -906,14 +906,14 @@
 !
           DO ng=1,Ngrids
             IF (Nrun.eq.1) THEN
-              DO i=0,NstateVar(ng)
+              DO i=0,NobsVar(ng)
                 FOURDVAR(ng)%CostNorm(i)=FOURDVAR(ng)%CostNorm(i)+      &
      &                                   FOURDVAR(ng)%BackCost(i)
                 FOURDVAR(ng)%CostFunOld(i)=FOURDVAR(ng)%CostNorm(i)
                 FOURDVAR(ng)%CostFun(i)=FOURDVAR(ng)%CostNorm(i)
               END DO
             ELSE
-              DO i=0,NstateVar(ng)
+              DO i=0,NobsVar(ng)
                 FOURDVAR(ng)%CostFunOld(i)=FOURDVAR(ng)%CostFun(i)
               END DO
             END IF
@@ -966,7 +966,7 @@
      &                          FOURDVAR(ng)%CostNorm(0),               &
      &                          rate
               IF (inner.eq.0) THEN
-                DO i=0,NstateVar(ng)
+                DO i=0,NobsVar(ng)
                   IF (FOURDVAR(ng)%NLobsCost(i).ne.0.0_r8) THEN
                     IF (i.eq.0) THEN
                       WRITE (stdout,40) outer, inner,                   &
@@ -976,7 +976,7 @@
                       WRITE (stdout,50) outer, inner,                   &
      &                                  FOURDVAR(ng)%NLobsCost(i)/      &
      &                                  FOURDVAR(ng)%CostNorm(i),       &
-     &                                  TRIM(Vname(1,idSvar(i)))
+     &                                  TRIM(ObsName(i))
                     END IF
                   END IF
                   FOURDVAR(ng)%NLobsCost(i)=0.0
@@ -1303,7 +1303,7 @@
 ! Clear NLobsCost.
 !
       DO ng=1,Ngrids
-        DO i=0,NstateVar(ng)
+        DO i=0,NobsVar(ng)
           FOURDVAR(ng)%NLobsCost(i)=0.0_r8
         END DO
       END DO
@@ -1345,7 +1345,7 @@
       DO ng=1,Ngrids
         CALL netcdf_put_fvar (ng, iNLM, DAV(ng)%name, 'NLcost_function',&
      &                        FOURDVAR(ng)%NLobsCost(0:),               &
-     &                        (/1,Nouter+1/), (/NstateVar(ng)+1,1/),    &
+     &                        (/1,Nouter+1/), (/NobsVar(ng)+1,1/),      &
      &                        ncid = DAV(ng)%ncid)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
@@ -1355,7 +1355,7 @@
 !
       IF (Master) THEN
         DO ng=1,Ngrids
-          DO i=0,NstateVar(ng)
+          DO i=0,NobsVar(ng)
             IF (FOURDVAR(ng)%NLobsCost(i).ne.0.0_r8) THEN
               IF (i.eq.0) THEN
                 WRITE (stdout,40) outer, inner,                         &
@@ -1365,7 +1365,7 @@
                 WRITE (stdout,50) outer, inner,                         &
      &                            FOURDVAR(ng)%NLobsCost(i)/            &
      &                            FOURDVAR(ng)%CostNorm(i),             &
-     &                            TRIM(Vname(1,idSvar(i)))
+     &                            TRIM(ObsName(i))
               END IF
             END IF
           END DO

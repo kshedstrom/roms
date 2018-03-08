@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -1176,6 +1176,7 @@
      &          TRIM(Vname(1,varid)), ', scalar, series'
           WRITE (Vname(5,varid),'(a,a)')                                &
      &          'ocean_time'
+!    &          TRIM(ADJUSTL(Vname(1,idTvar(i)))), '_time'
 !RD : ugly fix but this was driving me nuts
         END DO
       END IF
@@ -1247,7 +1248,16 @@
 !
 !=======================================================================
 !                                                                      !
-!  This function decodes lines of text from input script files.        !
+!  This function decodes lines of text from input script files. It is  !
+!  to evaluate ROMS unique namelist parameters.                        !
+!                                                                      !
+!  Arguments:                                                          !
+!                                                                      !
+!    line_text      Input scripts lines as text (string)               !
+!    KeyWord        Input parameter keyword (string)                   !
+!    Nval           Number of values processed (integer)               !
+!    Cval           Input values as characters (string array)          !
+!    Rval           Input values as mumbers (real array)               !
 !                                                                      !
 !=======================================================================
 !
@@ -1482,6 +1492,8 @@
       USE mod_netcdf
       USE mod_scalars
 !
+      USE strings_mod,   ONLY : FoundError
+!
       implicit none
 !
 !  Imported variable declarations.
@@ -1495,7 +1507,7 @@
 !
       logical :: foundit, isURL
 
-      integer :: ncid
+      integer :: lstr, ncid
 !
       SourceFile=__FILE__ // ", find_file"
 !
@@ -1507,13 +1519,16 @@
 !
 !  Check for empty file name string.
 !
-      IF (LEN_TRIM(fname).eq.0) THEN
+      lstr=LEN_TRIM(fname)
+      IF (lstr.eq.0) THEN
         IF (Master) THEN
           WRITE (stdout,10) TRIM(KeyWord)
- 10       FORMAT (/,' INP_PAR - empty file name string for ',           &
-     &            'input script KeyWord: ',a)
+ 10       FORMAT (/,' INP_PAR:FIND_FILE - empty file name string ',     &
+     &            'for standard input script KeyWord: ',a)
         END IF
         exit_flag=5
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
       END IF
 !
 !  Check if provided file is a URL.  This implies the file is a NetCDF
@@ -2150,12 +2165,13 @@
       END FUNCTION load_s1d
 
       FUNCTION load_s2d (Nval, Fname, Fdim, line, label, ifile, igrid,  &
-     &                   Nfiles, Ncount, idim, S)
+     &                   Mgrids, Nfiles, Ncount, idim, S)
 !
 !=======================================================================
 !                                                                      !
 !  This function loads input values into requested 2D structure        !
-!  containing information about input forcing files.                   !
+!  containing information about input forcing files. Notice that       !
+!  Mgrids is passed for flexibility in coupling algorithms.            !
 !                                                                      !
 !  On Input:                                                           !
 !                                                                      !
@@ -2166,6 +2182,7 @@
 !     label      I/O structure label (string)                          !
 !     ifile      File structure counter (integer)                      !
 !     igrid      Nested grid counter (integer)                         !
+!     Mgrids     Number of nested grids (integer)                      !
 !     Nfiles     Number of input files per grid (integer vector)       !
 !     Ncount     Number of files per grid counter (integer array)      !
 !     idim       Size of structure inner dimension (integer)           !
@@ -2190,22 +2207,22 @@
 !
 !  Imported variable declarations.
 !
-      integer, intent(in)    :: Nval, Fdim, idim
-      integer, intent(in)    :: Nfiles(Ngrids)
+      integer, intent(in)    :: Mgrids, Nval, Fdim, idim
+      integer, intent(in)    :: Nfiles(Mgrids)
       integer, intent(inout) :: ifile, igrid
-      integer, intent(inout) :: Ncount(idim,Ngrids)
+      integer, intent(inout) :: Ncount(idim,Mgrids)
 
       character (len=*),   intent(in) :: line
       character (len=256), intent(in) :: Fname(Fdim)
       character (len=*),   intent(inout) :: label
 
-      TYPE(T_IO), intent(inout) :: S(idim,Ngrids)
+      TYPE(T_IO), intent(inout) :: S(idim,Mgrids)
 !
 !  Local variable declarations.
 !
       logical :: load, persist
 
-      integer :: Icont, Ipipe, i, j, k, lstr, my_Ngrids, ng
+      integer :: Icont, Ipipe, i, j, k, lstr, my_Mgrids, ng
       integer :: load_s2d
 
       character (len=1 ), parameter :: blank = ' '
@@ -2250,7 +2267,7 @@
         exit_flag=2
         RETURN
       END IF
-      IF (igrid.gt.Ngrids) THEN
+      IF (igrid.gt.Mgrids) THEN
         IF (Master) THEN
           WRITE (stdout,20) TRIM(line)
         END IF
@@ -2264,20 +2281,20 @@
 !
       IF (load) THEN
 !
-!  If nesting and the number of file name entries is less than Ngrids,
+!  If nesting and the number of file name entries is less than Mgrids,
 !  persist the last values provided.  This is the case when not enough
 !  entries are provided by "==" plural symbol after the KEYWORD.
 !
-        IF (igrid.lt.Ngrids) THEN
-          DO j=igrid+1,Ngrids
+        IF (igrid.lt.Mgrids) THEN
+          DO j=igrid+1,Mgrids
             DO i=1,idim
               Ncount(i,j)=Ncount(i,igrid)
             END DO
           END DO
-          my_Ngrids=igrid
+          my_Mgrids=igrid
           persist=.TRUE.
         ELSE
-          my_Ngrids=Ngrids
+          my_Mgrids=Mgrids
           persist=.FALSE.
         END IF
 
@@ -2285,7 +2302,7 @@
 !  Allocate various fields in structure, if not continuation or pipe
 !  symbol is found which indicates end of input data.
 !
-        DO ng=1,Ngrids
+        DO ng=1,Mgrids
           DO i=1,idim
             allocate ( S(i,ng)%Nrec(Ncount(i,ng)) )
             allocate ( S(i,ng)%time_min(Ncount(i,ng)) )
@@ -2298,7 +2315,7 @@
 !
 !  Intialize strings to blank to facilitate processing.
 !
-        DO ng=1,Ngrids
+        DO ng=1,Mgrids
           DO i=1,idim
             lstr=LEN(S(i,ng)%name)
             DO j=1,lstr
@@ -2316,7 +2333,7 @@
 !  Initialize and load fields into structure.
 !
         k=0
-        DO ng=1,my_Ngrids
+        DO ng=1,my_Mgrids
           DO i=1,Nfiles(ng)
             S(i,ng)%Nfiles=Ncount(i,ng)         ! number of multi-files
             S(i,ng)%Fcount=1                    ! multi-file counter
@@ -2341,7 +2358,7 @@
 !  If appropriate, persist last value(s).
 !
         IF (persist) THEN
-          DO ng=igrid+1,Ngrids
+          DO ng=igrid+1,Mgrids
             DO i=1,Nfiles(ng)
               S(i,ng)%Nfiles=S(i,igrid)%Nfiles
               S(i,ng)%Fcount=1
@@ -2367,7 +2384,7 @@
 !
         igrid=1
         ifile=1
-        DO ng=1,Ngrids
+        DO ng=1,Mgrids
           DO i=1,idim
             Ncount(i,ng)=0
           END DO

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -33,6 +33,7 @@
 # endif
       USE strings_mod,    ONLY : find_string
       USE strings_mod,    ONLY : FoundError
+      USE strings_mod,    ONLY : uppercase
 !
       implicit none
 !
@@ -69,7 +70,7 @@
       real(r8) :: Aval(6)
 
       character (len=40 )  :: Aname, AttName(2)
-      character (len=80 )  :: type
+      character (len=80 )  :: string
       character (len=120)  :: Vinfo(Natt)
       character (len=256)  :: ncname
       character (len=2048) :: AttValue(2)
@@ -114,7 +115,8 @@
 !
 !  Inquire about input observations variables.
 !
-      CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid)
+      CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                      &
+     &                     ncid = OBSncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
@@ -168,12 +170,12 @@
      &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, DAV(ng)%ncid, ncname, 'state_var',     &
-     &                 NstateVar(ng), stateDim)
+     &                 NobsVar(ng), stateDim)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
         status=def_dim(ng, iNLM, DAV(ng)%ncid, ncname, 'cost_var',      &
-     &                 NstateVar(ng)+1, stateDimp)
+     &                 NobsVar(ng)+1, stateDimp)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -239,9 +241,45 @@
 !  File type.
 !
           IF (exit_flag.eq.NoError) THEN
-            type='ROMS/TOMS 4DVAR output observation processing file'
+            string='ROMS/TOMS 4DVAR output observation processing file'
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'type', TRIM(type))
+     &                          'type', TRIM(string))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              WRITE (stdout,50) 'type', TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
+!
+!  Algorithm.
+!
+          IF (exit_flag.eq.NoError) THEN
+# if defined ARRAY_MODES
+            string=uppercase('array_modes')
+# elif defined IS4DVAR
+            string=uppercase('is4dvar')
+# elif defined IS4DVAR_SENSITIVITY
+            string=uppercase('is4dvar_sensitivity')
+# elif defined TL_W4DPSAS
+            string=uppercase('tl_w4dpsas')
+# elif defined TL_W4DVAR
+            string=uppercase('tl_w4dvar')
+# elif defined VERIFICATION
+            string=uppercase('verification')
+# elif defined W4DPSAS
+            string=uppercase('w4dpsas')
+# elif defined W4DPSAS_SENSITIVITY
+            string=uppercase('w4dpsas_sensitivity')
+# elif defined W4DVAR
+            string=uppercase('w4dvar')
+# elif defined W4DVAR_SENSITIVITY
+            string=uppercase('w4dvar_sensitivity')
+# else
+            string=uppercase('four_dvar')
+# endif
+            status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
+     &                          'Algorithm', TRIM(string))
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
               WRITE (stdout,50) 'type', TRIM(ncname)
@@ -300,6 +338,7 @@
      &                       __FILE__)) RETURN
             END IF
           END IF
+# ifdef SVN
 !
 !  SVN repository information.
 !
@@ -313,9 +352,27 @@
               ioerror=status
             END IF
           END IF
+# else
+#  if !defined DEBUGGING && defined GIT_URL
+!
+!  Git repository information.
+!
+          IF (exit_flag.eq.NoError) THEN
+            status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
+     &                          'git_url', TRIM(git_url))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              WRITE (stdout,50) 'git_url', TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
+#  endif
+# endif
 
 # ifndef DEBUGGING
-#  ifdef SVN_REV
+#  ifdef SVN
+#   ifdef SVN_REV
           IF (exit_flag.eq.NoError) THEN
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
      &                          'svn_rev', TRIM(svn_rev))
@@ -326,6 +383,20 @@
               ioerror=status
             END IF
           END IF
+#   endif
+#  else
+#   ifdef GIT_REV
+          IF (exit_flag.eq.NoError) THEN
+            status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
+     &                          'git_rev', TRIM(git_rev))
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              WRITE (stdout,50) 'git_rev', TRIM(ncname)
+              exit_flag=3
+              ioerror=status
+            END IF
+          END IF
+#   endif
 #  endif
 
 #  ifdef ROOT_DIR
@@ -1035,7 +1106,8 @@
 !  Observations survey time.
 !
         IF (find_string(var_name,n_var,Vname(1,idOday),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOday)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1060,7 +1132,8 @@
 !  Observation type.
 !
         IF (find_string(var_name,n_var,Vname(1,idOtyp),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOTyp)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1103,7 +1176,8 @@
 !  Observations provenance.
 !
         IF (find_string(var_name,n_var,Vname(1,idOpro),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOpro)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1148,7 +1222,8 @@
 !  Observations time.
 !
         IF (find_string(var_name,n_var,Vname(1,idObsT),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idObsT)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1174,6 +1249,7 @@
 !
         IF (find_string(var_name,n_var,Vname(1,idOlon),vindex)) THEN
           CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOlon)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1197,6 +1273,7 @@
 !
         IF (find_string(var_name,n_var,Vname(1,idOlat),vindex)) THEN
           CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOlat)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1220,6 +1297,7 @@
 !
         IF (find_string(var_name,n_var,Vname(1,idObsD),vindex)) THEN
           CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idObsD)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1246,7 +1324,8 @@
 !  Observations X-fractional coordinate.
 !
         IF (find_string(var_name,n_var,Vname(1,idObsX),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idObsX)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1267,7 +1346,8 @@
 !  Observations Y-fractional coordinate.
 !
         IF (find_string(var_name,n_var,Vname(1,idObsY),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idObsY)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1288,7 +1368,8 @@
 !  Observations Z-fractional coordinate.
 !
         IF (find_string(var_name,n_var,Vname(1,idObsZ),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idObsZ)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1309,7 +1390,8 @@
 !  Observations total error (instrument + sampling + representation).
 !
         IF (find_string(var_name,n_var,Vname(1,idOerr),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOerr)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1330,7 +1412,8 @@
 !  Observations value.
 !
         IF (find_string(var_name,n_var,Vname(1,idOval),vindex)) THEN
-          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name, OBSncid,         &
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
      &                         MyVarName = TRIM(Vname(1,idOval)),       &
      &                         nVarDim = nvdim,                         &
      &                         nVarAtt = nvatt)
@@ -1343,6 +1426,28 @@
             END IF
           END DO
           status=def_var(ng, iNLM, DAV(ng)%ncid, DAV(ng)%Vid(idOval),   &
+     &                   NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Observations meta value.
+!
+        IF (find_string(var_name,n_var,Vname(1,idOmet),vindex)) THEN
+          CALL netcdf_inq_var (ng, iNLM, OBS(ng)%name,                  &
+     &                         ncid = OBSncid,                          &
+     &                         MyVarName = TRIM(Vname(1,idOmet)),       &
+     &                         nVarDim = nvdim,                         &
+     &                         nVarAtt = nvatt)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+          Vinfo(1)=TRIM(Vname(1,idOmet))
+          DO i=1,nvatt
+            IF (TRIM(var_Aname(i)).eq.'long_name') THEN
+              Vinfo(2)=TRIM(var_Achar(i))
+            END IF
+          END DO
+          status=def_var(ng, iNLM, DAV(ng)%ncid, DAV(ng)%Vid(idOmet),   &
      &                   NF_FRST, 1, (/datumDim/), Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
@@ -1480,7 +1585,7 @@
         Vinfo( 2)='tangent linear model misfit cost function'
         status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
      &                 1, (/iterDim/), Aval, Vinfo, ncname,             &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 # endif
@@ -1492,7 +1597,7 @@
         Vinfo( 2)='model minus background misfit cost function'
         status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
      &                 1, (/iterDim/), Aval, Vinfo, ncname,             &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 # endif
@@ -1505,7 +1610,7 @@
         Vinfo( 2)='normalized, optimal cost function minimum'
         status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
      &                 1, (/iterDim/), Aval, Vinfo, ncname,             &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 # endif
@@ -1641,6 +1746,18 @@
 !
 !  Define total observations impact.
 !
+#   ifdef IMPACT_INNER
+        Vinfo( 1)='ObsImpact_total'
+        Vinfo( 2)='total observation impact'
+        vardim(1)=datumDim
+        vardim(2)=NinnerDim
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+        status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
+     &                 2, vardim, Aval, Vinfo, ncname)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+#   else
         Vinfo( 1)='ObsImpact_total'
         Vinfo( 2)='total observation impact'
         vardim(1)=datumDim
@@ -1650,6 +1767,7 @@
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+#   endif
 #  else
 !
 !  Define total observation sensitivity.
@@ -1671,6 +1789,18 @@
 !
 !  Define observation impact due to initial condition increments.
 !
+#  ifdef IMPACT_INNER
+        Vinfo( 1)='ObsImpact_IC'
+        Vinfo( 2)='observation impact due to initial conditions'
+        vardim(1)=datumDim
+        vardim(2)=NinnerDim
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+        status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
+     &                 2, vardim, Aval, Vinfo, ncname)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+#  else
         Vinfo( 1)='ObsImpact_IC'
         Vinfo( 2)='observation impact due to initial conditions'
         vardim(1)=datumDim
@@ -1680,11 +1810,25 @@
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+#  endif
 
 #  if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
 !
 !  Define observation impact due to surface forcing increments.
 !
+#   ifdef IMPACT_INNER
+
+        Vinfo( 1)='ObsImpact_FC'
+        Vinfo( 2)='observation impact due to surface forcing'
+        vardim(1)=datumDim
+        vardim(2)=NinnerDim
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+        status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
+     &                 2, vardim, Aval, Vinfo, ncname)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+#   else
         Vinfo( 1)='ObsImpact_FC'
         Vinfo( 2)='observation impact due to surface forcing'
         vardim(1)=datumDim
@@ -1694,11 +1838,24 @@
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+#   endif
 #  endif
 #  if defined ADJUST_BOUNDARY
 !
 !  Define observation impact due to boundary condition increments.
 !
+#   ifdef IMPACT_INNER
+        Vinfo( 1)='ObsImpact_BC'
+        Vinfo( 2)='observation impact due to open boundary conditions'
+        vardim(1)=datumDim
+        vardim(2)=NinnerDim
+        Vinfo(24)='_FillValue'
+        Aval(6)=spval
+        status=def_var(ng, iNLM, DAV(ng)%ncid, varid, nf90_double,      &
+     &                 2, vardim, Aval, Vinfo, ncname)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+#   else
         Vinfo( 1)='ObsImpact_BC'
         Vinfo( 2)='observation impact due to open boundary conditions'
         vardim(1)=datumDim
@@ -1708,6 +1865,7 @@
      &                 1, vardim, Aval, Vinfo, ncname)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+#   endif
 #  endif
 # endif
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
@@ -1747,18 +1905,6 @@
       QUERY : IF (.not.LdefMOD(ng)) THEN
         ncname=DAV(ng)%name
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open model/observation for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, DAV(ng)%ncid)
@@ -1767,6 +1913,20 @@
           WRITE (stdout,30) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = DAV(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = DAV(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !

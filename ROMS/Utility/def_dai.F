@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -356,7 +356,7 @@
         Vinfo(14)=Vname(4,idtime)
         status=def_var(ng, iNLM, DAI(ng)%ncid, DAI(ng)%Vid(idtime),     &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 !
@@ -535,18 +535,6 @@
       QUERY : IF (.not.LdefDAI(ng)) THEN
         ncname=DAI(ng)%name
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open restart file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, DAI(ng)%ncid)
@@ -555,6 +543,20 @@
           WRITE (stdout,60) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = DAI(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = DAI(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !
@@ -681,9 +683,9 @@
         DAI(ng)%Rindex=rec_size
       END IF QUERY
 !
-  10  FORMAT (6x,'DEF_DAI     - creating  DA INI/RST', t43,             &
+  10  FORMAT (/,6x,'DEF_DAI   - creating  DA INI/RST', t43,             &
      &        ' file, Grid ',i2.2,': ', a)
-  20  FORMAT (6x,'DEF_DAI     - inquiring DA INI/RST', t43,             &
+  20  FORMAT (/,6x,'DEF_DAI   - inquiring DA INI/RST', t43,             &
      &        ' file, Grid ',i2.2,': ', a)
   30  FORMAT (/,' DEF_DAI - unable to create DA initial/restart',       &
      &        ' NetCDF file: ',a)

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -377,7 +377,7 @@
 # ifdef ICESHELF
 
 #  ifdef ICESHELF_3EQ
-      real(r8) :: Hscale, Hlice, uStar, gturb, cff
+      real(r8) :: Hscale, Hlice, uStar, gturb
       real(r8) :: salt_b, temp_b, melt_rate
 #  endif
 
@@ -522,7 +522,7 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt)
 #     else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*MAX(0.0_r8,t(i,j,N(ng),nrhs,isalt))
 #     endif
 #     ifdef WET_DRY
           stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)

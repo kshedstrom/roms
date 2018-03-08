@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -28,8 +28,12 @@
 !               Linfo(2,*)  => switch indicating time cycling.         !
 !               Linfo(3,*)  => switch indicating only one-time         !
 !                              record available.                       !
-!               Linfo(4,*)  => switch indication special record        !
+!               Linfo(4,*)  => switch indicating special record        !
 !                              processing (like tides)                 !
+!               Linfo(5,*)  => switch to indicate processing the first !
+!                              record of a file or multi-file.         !
+!               Linfo(6,*)  => switch to indicate processing the last  !
+!                              record of a file or multi-file.         !
 !                                                                      !
 !  Iinfo      Input/output fields integer information:                 !
 !               Iinfo( 1,*) => variable grid type.                     !
@@ -235,6 +239,7 @@
         integer  :: idOPALsed     ! opal in sediment
         integer  :: idOlat        ! observations latitude
         integer  :: idOlon        ! observations longitude
+        integer  :: idOmet        ! observations meta value
         integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
@@ -403,6 +408,7 @@
         integer  :: idW3yy        ! 3D radiation stress, Syy-component
         integer  :: idW3zx        ! 3D radiation stress, Szx-component
         integer  :: idW3zy        ! 3D radiation stress, Szy-component
+        integer  :: idWads        ! 3D W-velocity adjoint sensitivity
         integer  :: idWamp        ! wind-induced wave amplitude
         integer  :: idWbrk        ! wind-induced wave breaking
         integer  :: idWdis        ! wind-induced wave dissipation
@@ -622,13 +628,17 @@
         integer, allocatable :: idDv3d(:)     ! 3D v-momentum terms
 #endif
 !
-!  State variables indices (order is important).
+!  State variables indices (order is important). Notice that current
+!  extra-observations index (isRadial) needs to be initialized to zero
+!  here and reset elsewhere to the value provided by the user.
 !
         integer  :: isFsur = 1                ! free-surface
         integer  :: isUbar = 2                ! 2D U-velocity
         integer  :: isVbar = 3                ! 2D V-velocity
         integer  :: isUvel = 4                ! 3D U-velocity
         integer  :: isVvel = 5                ! 3D V-velocity
+        integer  :: isWvel                    ! 3D W-velocity
+        integer  :: isRadial = 0              ! HF radial-velocity
         integer  :: isUstr                    ! surface u-stress
         integer  :: isVstr                    ! surface v-stress
         integer  :: isMtke                    ! turbulent kinetic energy
@@ -739,10 +749,18 @@
         character (len=256), dimension(4) :: BIONAME
 #endif
 !
+#ifdef SVN
 !  SVN revision and repository root URL.
 !
         character (len=40 ) :: svn_rev
         character (len=256) :: svn_url
+#else
+!  Git revision and repository root URL
+!
+        character (len=256) :: git_url = ''
+        character (len=80 ) :: git_rev = ''
+        integer             :: git_status = 0
+#endif
 !
       CONTAINS
 !
@@ -862,7 +880,7 @@
       allocate ( idTrcD(NAT) )
       allocate ( idTrcH(NAT) )
 
-      allocate ( Linfo(4,NV,Ngrids) )
+      allocate ( Linfo(6,NV,Ngrids) )
 
       allocate ( Iinfo(10,NV,Ngrids) )
 
@@ -1025,7 +1043,7 @@
       END DO
 #endif
 #if defined ICE_MODEL || defined CICE_MODEL
-# if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+# if defined SOLVE3D && defined TKE_MIXING
       ic=ic+1
 # endif
       isUice=ic+1
@@ -1041,6 +1059,7 @@
       isSig22=ic+11
       ic=ic+11
 #endif
+      isWvel=ic+1
 !
 !  Set generic lateral boundary indices for LBC structure.  Use the same
 !  values of the state variables at the same C-grid location.  Generic
@@ -1056,7 +1075,7 @@
       isBu3d=isUvel                           ! 3D U-variables
       isBv3d=isVvel                           ! 3D V-variables
       isBw3d=isTvar(1)                        ! 3D W-variables
-#if defined SOLVE3D && (defined GLS_MIXING || defined MY25_MIXING)
+#if defined SOLVE3D && defined TKE_MIXING
       isMtke=isTvar(MT)+1                     ! turbulent variables
 #endif
 !
@@ -1068,6 +1087,8 @@
           Linfo(2,i,ng)=.FALSE.
           Linfo(3,i,ng)=.FALSE.
           Linfo(4,i,ng)=.FALSE.
+          Linfo(5,i,ng)=.FALSE.
+          Linfo(6,i,ng)=.FALSE.
           Aout(i,ng)=.FALSE.
           Aout2(i,ng)=.FALSE.
           Dout(i,ng)=.FALSE.
@@ -1120,6 +1141,19 @@
 #ifdef ANALYTICAL_DIR
       Adir=ANALYTICAL_DIR
 #endif
+#ifndef SVN
+!  Set Git repository info
+!
+# ifdef GIT_URL
+          git_url=GIT_URL
+# endif
+# ifdef GIT_REV
+          git_rev=GIT_REV
+# endif
+# ifdef GIT_STATUS
+          git_status=GIT_STATUS
+# endif
+#endif
 !
 !-----------------------------------------------------------------------
 !  Define names of variables for Input/Output NetCDF files.
@@ -1142,18 +1176,23 @@
         READ (inp,*,ERR=30,END=40) Vinfo(1)
         Lvar=LEN_TRIM(Vinfo(1))
 !
-!  Extract SVN Repository Root URL.
+!  Extract SVN/Git Repository Root URL.
 !
         IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
           is=INDEX(Vinfo(1),'https')
           ie=INDEX(Vinfo(1),'/ROMS')-1
+#ifdef SVN
           IF (ie.gt.is) THEN
             svn_url=Vinfo(1)(is:ie)
           ELSE
             svn_url='https:://myroms.org/svn/src'
           END IF
-#ifdef SVN_REV
+# ifdef SVN_REV
           svn_rev=SVN_REV
+# endif
+#else
+!  Ignore the Git repository URL, if any
+          CONTINUE
 #endif
 !
 !  Read in other variable information.
@@ -1690,6 +1729,8 @@
               idTads(itemp)=varid
             CASE ('idTads(isalt)')
               idTads(isalt)=varid
+            CASE ('idWads')
+              idWads=varid
 #endif
 #ifdef WEAK_CONSTRAINT
             CASE ('idZtlf')
@@ -2000,6 +2041,8 @@
               idOlat=varid
             CASE ('idOlon')
               idOlon=varid
+            CASE ('idOmet')
+              idOmet=varid
             CASE ('idOpro')
               idOpro=varid
             CASE ('idOtyp')
@@ -3048,7 +3091,7 @@
         idBvar(isTvar(i))=idTvar(i)
         ic=ic+1
       END DO
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
       ic=ic+1
       idBvar(ic)=idMtke
 # endif

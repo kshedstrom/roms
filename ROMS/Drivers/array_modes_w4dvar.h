@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !=================================================== Andrew M. Moore ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group      Hernan G. Arango   !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group      Hernan G. Arango   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -280,7 +280,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 6, 6, STD(1,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 10, 10, STD(1,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -292,7 +292,7 @@
       Tindex=2
       IF (NSA.eq.2) THEN
         DO ng=1,Ngrids
-          CALL get_state (ng, 6, 6, STD(2,ng)%name, STDrec, Tindex)
+          CALL get_state (ng, 11, 11, STD(2,ng)%name, STDrec, Tindex)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END DO
@@ -305,7 +305,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 8, 8, STD(3,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 12, 12, STD(3,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -317,7 +317,7 @@
       STDrec=1
       Tindex=1
       DO ng=1,Ngrids
-        CALL get_state (ng, 9, 9, STD(4,ng)%name, STDrec, Tindex)
+        CALL get_state (ng, 13, 13, STD(4,ng)%name, STDrec, Tindex)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END DO
@@ -509,22 +509,22 @@
           LwrtNRM(1:4,ng)=.FALSE.
         ELSE
           NRMrec=1
-          CALL get_state (ng, 5, 5, NRM(1,ng)%name, NRMrec, 1)
+          CALL get_state (ng, 14, 14, NRM(1,ng)%name, NRMrec, 1)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
 
           IF (NSA.eq.2) THEN
-            CALL get_state (ng, 5, 5, NRM(2,ng)%name, NRMrec, 2)
+            CALL get_state (ng, 15, 15, NRM(2,ng)%name, NRMrec, 2)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
      &                     __FILE__)) RETURN
           END IF
 #ifdef ADJUST_BOUNDARY
-          CALL get_state (ng, 10, 10, NRM(3,ng)%name, NRMrec, 1)
+          CALL get_state (ng, 16, 16, NRM(3,ng)%name, NRMrec, 1)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
 #endif
 #if defined ADJUST_WSTRESS || defined ADJUST_STFLUX
-          CALL get_state (ng, 11, 11, NRM(4,ng)%name, NRMrec, 1)
+          CALL get_state (ng, 17, 17, NRM(4,ng)%name, NRMrec, 1)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
 #endif
@@ -737,11 +737,11 @@
 !
         DO ng=1,Ngrids
           IF (Master) THEN
-            DO i=0,NstateVar(ng)
+            DO i=0,NobsVar(ng)
               IF (i.eq.0) THEN
                 string='Total'
               ELSE
-                string=Vname(1,idSvar(i))
+                string=ObsName(i)
               END IF
               IF (FOURDVAR(ng)%DataPenalty(i).ne.0.0_r8) THEN
                 WRITE (stdout,30) outer, inner, 'RPM',                  &
@@ -757,7 +757,7 @@
           CALL netcdf_put_fvar (ng, iRPM, DAV(ng)%name,                 &
      &                          'RP_iDataPenalty',                      &
      &                          FOURDVAR(ng)%DataPenalty(0:),           &
-     &                          (/1,outer/), (/NstateVar(ng)+1,1/),     &
+     &                          (/1,outer/), (/NobsVar(ng)+1,1/),     &
      &                          ncid = DAV(ng)%ncid)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
@@ -1231,11 +1231,11 @@
 !
         DO ng=1,Ngrids
           IF (Master) THEN
-            DO i=0,NstateVar(ng)
+            DO i=0,NobsVar(ng)
               IF (i.eq.0) THEN
                 string='Total'
               ELSE
-                string=Vname(1,idSvar(i))
+                string=ObsName(i)
               END IF
               IF (FOURDVAR(ng)%DataPenalty(i).ne.0.0_r8) THEN
                 WRITE (stdout,30) outer, inner, 'RPM',                  &
@@ -1258,7 +1258,7 @@
           CALL netcdf_put_fvar (ng, iRPM, DAV(ng)%name,                 &
      &                          'RP_fDataPenalty',                      &
      &                          FOURDVAR(ng)%DataPenalty(0:),           &
-     &                          (/1,outer/), (/NstateVar(ng)+1,1/),     &
+     &                          (/1,outer/), (/NobsVar(ng)+1,1/),       &
      &                          ncid = DAV(ng)%ncid)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN

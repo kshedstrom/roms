@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -35,9 +35,11 @@
 !
       integer, intent(in) :: unit
 !
-#if defined CYGWIN
-#elif defined AIX
+#if defined AIX
       CALL flush_ (unit)
+#elif defined G95 || defined GFORTRAN
+! Fortran 2003 FLUSH statement
+      FLUSH (unit)
 #else
       CALL flush (unit)
 #endif

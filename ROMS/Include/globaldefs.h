@@ -3,7 +3,7 @@
 **
 ** svn $Id$
 ********************************************************** Hernan G. Arango ***
-** Copyright (c) 2002-2017 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
+** Copyright (c) 2002-2018 The ROMS/TOMS Group     Alexander F. Shchepetkin  **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -45,6 +45,17 @@
 
 #if defined MPI
 # define DISTRIBUTE
+#endif
+
+/*
+** Make sure that either "mpi_allgather" or "mpi_allreduce" is used
+** in mp_reduce.  Low-level routines give an error.
+*/
+
+#ifdef DISTRIBUTE
+# if !(defined REDUCE_ALLGATHER || defined REDUCE_ALLREDUCE)
+#  define REDUCE_ALLGATHER
+# endif
 #endif
 
 /*
@@ -375,11 +386,14 @@
 **
 */
 
+#if defined GLS_MIXING || defined MY25_MIXING || defined NN_MIXING
+# define TKE_MIXING
+#endif
+
 #if !defined FORWARD_MIXING  && \
     (defined TANGENT         || defined TL_IOMS    || \
      defined ADJOINT)        && \
-    (defined LMD_MIXING      || defined GLS_MIXING || \
-     defined MY25_MIXING)
+    (defined LMD_MIXING      || defined TKE_MIXING)
 # define FORWARD_MIXING
 #endif
 
@@ -421,6 +435,12 @@
       defined OBS_IMPACT
 # undef OBS_IMPACT
 #endif
+#if !(defined OBS_IMPACT             && \
+      (defined W4DVAR_SENSITIVITY    || defined W4DPSAS_SENSITIVITY || \
+       defined IS4DVAR_SENSITIVITY))
+# undef IMPACT_INNER
+#endif
+
 
 /*
 ** Activate internal switch to process 4DVAR observations.
@@ -501,7 +521,7 @@
 */
 
 #if defined BVF_MIXING || defined LMD_MIXING  || defined LMD_SKPP    || \
-    defined LMD_BKPP   || defined GLS_MIXING  || defined MY25_MIXING
+    defined LMD_BKPP   || defined TKE_MIXING
 # define BV_FREQUENCY
 #endif
 
@@ -544,8 +564,8 @@
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined HYPOXIA_SRM || defined NEMURO      || \
     defined NPZD_FRANKS || defined NPZD_IRON   || \
-    defined NPZD_POWELL || defined RED_TIDE
-    defined BIO_GOANPZ  || \
+    defined NPZD_POWELL || defined RED_TIDE    || \
+    defined BIO_GOANPZ  || defined BIO_COBALT  || \
     defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY
 #endif
@@ -581,7 +601,7 @@
 #endif
 
 #if defined CICE_COUPLING
-  define ICE_COUPLING
+# define ICE_COUPLING
 #endif
 
 #if defined REFDIF_COUPLING || defined SWAN_COUPLING || \
@@ -589,7 +609,7 @@
 # define WAV_COUPLING
 #endif
 
-#if defined ATM_COUPLING || ICE_COUPLING || WAV_COUPLING
+#if defined ATM_COUPLING || defined ICE_COUPLING || defined WAV_COUPLING
 # define MODEL_COUPLING
 #endif
 
@@ -711,7 +731,6 @@
      (defined BULK_FLUXES  && !defined EMINUSP))     || \
     (!defined ATM_COUPLING && \
       defined SOLAR_SOURCE && !defined ANA_SRFLUX)   || \
-    ( defined SSH_TIDES    || defined UV_TIDES)      || \
     ( defined BBL_MODEL    && (!defined ANA_WWAVE    && \
      !defined WAV_COUPLING))                         || \
     ( defined SEDIMENT     && !defined ANA_SPFLUX)   || \
@@ -721,8 +740,7 @@
 #  define FRC_FILE
 # endif
 #else
-# if(!defined ATM_COUPLING    && !defined ANA_SMFLUX)   || \
-    ( defined  SSH_TIDES   || defined UV_TIDES)
+# if(!defined ATM_COUPLING && !defined ANA_SMFLUX)
 #  define FRC_FILE
 # endif
 #endif
@@ -901,4 +919,20 @@
 #endif
 #if !defined VISC_3DCOEF && defined UV_SMAGORINSKY
 # define VISC_3DCOEF
+#endif
+
+/*
+** When you don't know if it's in or out.
+*/
+
+#if defined PARALLEL_IN || defined PARALLEL_OUT
+# define PARALLEL_IO
+#endif
+
+/*
+** OFFLINE
+*/
+
+#if defined OFFLINE_FLOATS || defined OFFLINE_BIOLOGY
+# define OFFLINE
 #endif

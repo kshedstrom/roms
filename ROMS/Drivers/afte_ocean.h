@@ -2,7 +2,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group       Andrew M. Moore   !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group       Andrew M. Moore   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -581,7 +581,7 @@
                       nullify (ad_state(ng)%vector)
                     END IF
                     state(ng)%vector => STORAGE(ng)%Rvector(Is:Ie,i)
-                    ad_state(ng)%vector => STORAGE(ng)%SworkD(Is:Ie)
+                    ad_state(ng)%vector => SworkR(Is:Ie)
                   END DO
 
 !$OMP PARALLEL
@@ -610,7 +610,7 @@
                       nullify (ad_state(ng)%vector)
                     END IF
                     state(ng)%vector => STORAGE(ng)%Rvector(Is:Ie,i+1)
-                    ad_state(ng)%vector => STORAGE(ng)%SworkD(Is:Ie)
+                    ad_state(ng)%vector => SworkR(Is:Ie)
                   END DO
 
 !$OMP PARALLEL

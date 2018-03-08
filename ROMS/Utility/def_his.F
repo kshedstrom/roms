@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -449,7 +449,7 @@
         Vinfo(14)=Vname(4,idtime)
         status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idtime),     &
      &                 NF_TYPE, 1, (/recdim/), Aval, Vinfo, ncname,     &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -461,7 +461,7 @@
         Vinfo( 2)='real Ritz eigenvalues'
         status=def_var(ng, iNLM, HIS(ng)%ncid, varid, NF_TYPE,          &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
@@ -469,7 +469,7 @@
         Vinfo( 2)='Ritz eigenvectors Euclidean norm'
         status=def_var(ng, iNLM, HIS(ng)%ncid, varid, NF_TYPE,          &
      &                 1, (/recdim/), Aval, Vinfo, ncname,              &
-     &                 SetParAccess = .FALSE.)
+     &                 SetParAccess = .TRUE.)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 #endif
@@ -1689,7 +1689,7 @@
      &                   __FILE__)) RETURN
         END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
 !
 !  Define turbulent kinetic energy.
 !
@@ -3837,18 +3837,6 @@
       QUERY : IF (.not.ldef) THEN
         ncname=HIS(ng)%name
 !
-!  Inquire about the dimensions and check for consistency.
-!
-        CALL netcdf_check_dim (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
-!  Inquire about the variables.
-!
-        CALL netcdf_inq_var (ng, iNLM, ncname)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-!
 !  Open history file for read/write.
 !
         CALL netcdf_open (ng, iNLM, ncname, 1, HIS(ng)%ncid)
@@ -3857,6 +3845,20 @@
           WRITE (stdout,60) TRIM(ncname)
           RETURN
         END IF
+!
+!  Inquire about the dimensions and check for consistency.
+!
+        CALL netcdf_check_dim (ng, iNLM, ncname,                        &
+     &                         ncid = HIS(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+!
+!  Inquire about the variables.
+!
+        CALL netcdf_inq_var (ng, iNLM, ncname,                          &
+     &                       ncid = HIS(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
 !
 !  Initialize logical switches.
 !
@@ -4052,7 +4054,7 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSdif))) THEN
             got_var(idSdif)=.TRUE.
             HIS(ng)%Vid(idSdif)=var_id(i)
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idMtke))) THEN
             got_var(idMtke)=.TRUE.
             HIS(ng)%Vid(idMtke)=var_id(i)
@@ -4725,7 +4727,7 @@
           RETURN
         END IF
 # endif
-# if defined GLS_MIXING || defined MY25_MIXING
+# if defined TKE_MIXING
         IF (.not.got_var(idMtke).and.Hout(idMtke,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idMtke)),          &
      &                                  TRIM(ncname)
@@ -5448,9 +5450,13 @@
 !  Set unlimited time record dimension to the appropriate value.
 !
         IF (ndefHIS(ng).gt.0) THEN
-          HIS(ng)%Rindex=((ntstart(ng)-1)-                              &
-     &                    ndefHIS(ng)*((ntstart(ng)-1)/ndefHIS(ng)))/   &
-     &                   nHIS(ng)
+          IF ((ntstart(ng)-1).lt.ndefHIS(ng)) THEN
+            HIS(ng)%Rindex=1+((ntstart(ng)-1)- ndefHIS(ng)*            &
+     &                        ((ntstart(ng)-1)/ndefHIS(ng)))/nHIS(ng)
+          ELSE
+            HIS(ng)%Rindex=  ((ntstart(ng)-1)- ndefHIS(ng)*            &
+     &                        ((ntstart(ng)-1)/ndefHIS(ng)))/nHIS(ng)
+          END IF
         ELSE
           HIS(ng)%Rindex=(ntstart(ng)-1)/nHIS(ng)
         END IF

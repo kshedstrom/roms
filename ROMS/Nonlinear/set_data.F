@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -86,6 +86,7 @@
 #  endif
 # endif
 # if defined OFFLINE
+      USE mod_coupling
       USE mod_stepping
       USE exchange_2d_mod
 #  ifdef SOLVE3D
@@ -515,8 +516,6 @@
 #  endif
 
 #  ifdef CLOUDS
-=======
->>>>>>> kate_svn
 !
 #   ifdef CLOUDS
 !-----------------------------------------------------------------------
@@ -936,7 +935,7 @@
 #  if defined BIOLOGY || defined SEDIMENT || defined T_PASSIVE
 !
 !-----------------------------------------------------------------------
-!  Set kinematic surface and bottom pasive tracer fluxes (T m/s).
+!  Set kinematic surface and bottom passive tracer fluxes (T m/s).
 !-----------------------------------------------------------------------
 !
       DO itrc=NAT+1,NT(ng)
@@ -2240,8 +2239,7 @@
 # if defined OFFLINE
         DO j=Jstr,Jend
           DO i=Istr,Iend
-            OCEAN(ng)%zeta(i,j,1) = CLIMA(ng)%ssh(i,j)
-            OCEAN(ng)%zeta(i,j,2) = CLIMA(ng)%ssh(i,j)
+            COUPLING(ng)%Zt_avg1(i,j) = CLIMA(ng)%ssh(i,j)
           END DO
         END DO
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
@@ -2346,6 +2344,7 @@
             END DO
           END DO
         END DO
+
         IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
           DO i=1,2
             CALL exchange_u3d_tile (ng, tile,                           &
@@ -2359,7 +2358,7 @@
 #   ifdef DISTRIBUTE
         DO i=1,2
           CALL mp_exchange3d (ng, tile, iNLM, 2,                        &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
+     &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        NghostPoints,                             &
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        OCEAN(ng)%u(:,:,:,i),OCEAN(ng)%v(:,:,:,i))

@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -251,8 +251,8 @@
         END IF
       END DO
 
-#  if defined BVF_MIXING  || defined GLS_MIXING || \
-      defined MY25_MIXING || defined LMD_MIXING
+#  if defined BVF_MIXING  || defined TKE_MIXING || \
+      defined LMD_MIXING
 !
 !  If defined, write out vertical viscosity coefficient.
 !

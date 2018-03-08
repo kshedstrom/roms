@@ -1798,7 +1798,7 @@
 #ifdef COASTDIAT
       integer, parameter :: NUM_PHYTO  = 4
       integer, parameter :: DIAZO      = 1
-      integer, parameter :: LARGE      = 2
+      integer, parameter :: LARGE_     = 2
       integer, parameter :: MEDIUM     = 3
       integer, parameter :: SMALL      = 4
       integer, parameter :: NUM_PREY   = 9
@@ -1810,7 +1810,7 @@
 ! are only cabable of nitrgen uptake by NH4 and NO3 uptake
 !
       integer, parameter :: DIAZO      = 1
-      integer, parameter :: LARGE      = 2
+      integer, parameter :: LARGE_     = 2
       integer, parameter :: SMALL      = 3
       integer, parameter :: NUM_PREY   = 8
 #endif
@@ -3147,10 +3147,10 @@
 !
 ! allocate and initialize array elements of only one phytoplankton group
 !
-     allocate(phyto(DIAZO)%juptake_n2(IminS:ImaxS,JminS:JmaxS,UBk))   ; phyto(DIAZO)%juptake_n2   = 0.0
-     allocate(phyto(DIAZO)%o2lim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(DIAZO)%o2lim        = 0.0
-     allocate(phyto(LARGE)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(LARGE)%juptake_sio4 = 0.0
-     allocate(phyto(LARGE)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(LARGE)%silim        = 0.0
+     allocate(phyto(DIAZO)%juptake_n2(IminS:ImaxS,JminS:JmaxS,UBk))    ; phyto(DIAZO)%juptake_n2   = 0.0
+     allocate(phyto(DIAZO)%o2lim(IminS:ImaxS,JminS:JmaxS,UBk))         ; phyto(DIAZO)%o2lim        = 0.0
+     allocate(phyto(LARGE_)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(LARGE_)%juptake_sio4 = 0.0
+     allocate(phyto(LARGE_)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(LARGE_)%silim        = 0.0
 #ifdef COASTDIAT
      allocate(phyto(MEDIUM)%silim(IminS:ImaxS,JminS:JmaxS,UBk))        ; phyto(MEDIUM)%silim        = 0.0
      allocate(phyto(MEDIUM)%juptake_sio4(IminS:ImaxS,JminS:JmaxS,UBk)) ; phyto(MEDIUM)%juptake_sio4 = 0.0
@@ -3409,15 +3409,15 @@
 !     allocate(phyto(SMALL)%jvirloss_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jvirloss_n_100 = 0.0
 
      allocate(phyto(SMALL)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(SMALL)%jprod_n_100    = 0.0
-     allocate(phyto(LARGE)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(LARGE)%jprod_n_100    = 0.0
+     allocate(phyto(LARGE_)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(LARGE_)%jprod_n_100   = 0.0
      allocate(phyto(DIAZO)%jprod_n_100(IminS:ImaxS,JminS:JmaxS))      ; phyto(DIAZO)%jprod_n_100    = 0.0
 
-     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(SMALL)%jaggloss_n_100 = 0.0
-     allocate(phyto(LARGE)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(LARGE)%jaggloss_n_100 = 0.0
-     allocate(phyto(DIAZO)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(DIAZO)%jaggloss_n_100 = 0.0
+     allocate(phyto(SMALL)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(SMALL)%jaggloss_n_100  = 0.0
+     allocate(phyto(LARGE_)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))  ; phyto(LARGE_)%jaggloss_n_100 = 0.0
+     allocate(phyto(DIAZO)%jaggloss_n_100(IminS:ImaxS,JminS:JmaxS))   ; phyto(DIAZO)%jaggloss_n_100  = 0.0
 
      allocate(phyto(SMALL)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(SMALL)%jzloss_n_100   = 0.0
-     allocate(phyto(LARGE)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(LARGE)%jzloss_n_100   = 0.0
+     allocate(phyto(LARGE_)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))    ; phyto(LARGE_)%jzloss_n_100  = 0.0
      allocate(phyto(DIAZO)%jzloss_n_100(IminS:ImaxS,JminS:JmaxS))     ; phyto(DIAZO)%jzloss_n_100   = 0.0
 
 #ifdef COASTDIAT
@@ -3528,39 +3528,39 @@
       cobalt%o2_2_nitrif     = o2_2_nitrif(ng)
       cobalt%o2_2_no3        = o2_2_no3(ng)
       phyto(DIAZO)%k_fed     = k_fed_Di(ng)
-      phyto(LARGE)%k_fed     = k_fed_Lg(ng)
+      phyto(LARGE_)%k_fed    = k_fed_Lg(ng)
       phyto(SMALL)%k_fed     = k_fed_Sm(ng)
-      phyto(LARGE)%k_nh4     = k_nh4_Lg(ng)
+      phyto(LARGE_)%k_nh4    = k_nh4_Lg(ng)
       phyto(SMALL)%k_nh4     = k_nh4_Sm(ng)
       phyto(DIAZO)%k_nh4     = k_nh4_Di(ng)
-      phyto(LARGE)%k_no3     = k_no3_Lg(ng)
+      phyto(LARGE_)%k_no3    = k_no3_Lg(ng)
       phyto(SMALL)%k_no3     = k_no3_Sm(ng)
       phyto(DIAZO)%k_no3     = k_no3_Di(ng)
       phyto(DIAZO)%k_po4     = k_po4_Di(ng)
-      phyto(LARGE)%k_po4     = k_po4_Lg(ng)
+      phyto(LARGE_)%k_po4    = k_po4_Lg(ng)
       phyto(SMALL)%k_po4     = k_po4_Sm(ng)
-      phyto(LARGE)%k_sio4    = k_sio4_Lg(ng)
+      phyto(LARGE_)%k_sio4   = k_sio4_Lg(ng)
       phyto(DIAZO)%k_fe_2_n  = k_fe_2_n_Di(ng)
-      phyto(LARGE)%k_fe_2_n  = k_fe_2_n_Lg(ng)
+      phyto(LARGE_)%k_fe_2_n = k_fe_2_n_Lg(ng)
       phyto(SMALL)%k_fe_2_n  = k_fe_2_n_Sm(ng)
 
       phyto(SMALL)%fe_2_n_max = fe_2_n_max_Sm(ng)
-      phyto(LARGE)%fe_2_n_max = fe_2_n_max_Lg(ng)
+      phyto(LARGE_)%fe_2_n_max = fe_2_n_max_Lg(ng)
       phyto(DIAZO)%fe_2_n_max = fe_2_n_max_Di(ng)
 
       cobalt%fe_2_n_upt_fac  = fe_2_n_upt_fac(ng)
       phyto(DIAZO)%alpha     = alpha_Di(ng)
-      phyto(LARGE)%alpha     = alpha_Lg(ng)
+      phyto(LARGE_)%alpha    = alpha_Lg(ng)
       phyto(SMALL)%alpha     = alpha_Sm(ng)
       cobalt%kappa_eppley    = kappa_eppley(ng)
       phyto(DIAZO)%P_C_max   = P_C_max_Di(ng)
-      phyto(LARGE)%P_C_max   = P_C_max_Lg(ng)
+      phyto(LARGE_)%P_C_max  = P_C_max_Lg(ng)
       phyto(SMALL)%P_C_max   = P_C_max_Sm(ng)
       phyto(DIAZO)%thetamax  = thetamax_Di(ng)
-      phyto(LARGE)%thetamax  = thetamax_Lg(ng)
+      phyto(LARGE_)%thetamax = thetamax_Lg(ng)
       phyto(SMALL)%thetamax  = thetamax_Sm(ng)
       phyto(DIAZO)%bresp     = bresp_Di(ng)
-      phyto(LARGE)%bresp     = bresp_Lg(ng)
+      phyto(LARGE_)%bresp    = bresp_Lg(ng)
       phyto(SMALL)%bresp     = bresp_Sm(ng)
       cobalt%thetamin        = thetamin(ng)
       cobalt%thetamin_nolim  = thetamin_nolim(ng)
@@ -3580,11 +3580,11 @@
       cobalt%c_2_n           = c_2_n(ng)
       cobalt%alk_2_n_denit   = alk_2_n_denit(ng)
 
-      phyto(DIAZO)%p_2_n_static  = p_2_n_static_Di(ng)
-      phyto(LARGE)%p_2_n_static  = p_2_n_static_Lg(ng)
-      phyto(SMALL)%p_2_n_static  = p_2_n_static_Sm(ng)
-      phyto(LARGE)%si_2_n_static = si_2_n_static_Lg(ng)
-      phyto(LARGE)%si_2_n_max    = si_2_n_max_Lg(ng)
+      phyto(DIAZO)%p_2_n_static   = p_2_n_static_Di(ng)
+      phyto(LARGE_)%p_2_n_static  = p_2_n_static_Lg(ng)
+      phyto(SMALL)%p_2_n_static   = p_2_n_static_Sm(ng)
+      phyto(LARGE_)%si_2_n_static = si_2_n_static_Lg(ng)
+      phyto(LARGE_)%si_2_n_max    = si_2_n_max_Lg(ng)
 
       cobalt%ca_2_n_arag   = ca_2_n_arag(ng)
       cobalt%ca_2_n_calc   = ca_2_n_calc(ng)
@@ -3595,15 +3595,15 @@
       bact(1)%q_p_2_n      = q_p_2_n_bact(ng)
       phyto(SMALL)%agg     = agg_Sm(ng)
       phyto(DIAZO)%agg     = agg_Di(ng)
-      phyto(LARGE)%agg     = agg_Lg(ng)
+      phyto(LARGE_)%agg    = agg_Lg(ng)
       phyto(SMALL)%vir     = vir_Sm(ng)
       phyto(DIAZO)%vir     = vir_Di(ng)
-      phyto(LARGE)%vir     = vir_Lg(ng)
+      phyto(LARGE_)%vir    = vir_Lg(ng)
       bact(1)%vir          = vir_Bact(ng)
       cobalt%vir_ktemp     = ktemp_vir(ng)
       phyto(SMALL)%exu     = exu_Sm(ng)
       phyto(DIAZO)%exu     = exu_Di(ng)
-      phyto(LARGE)%exu     = exu_Lg(ng)
+      phyto(LARGE_)%exu    = exu_Lg(ng)
       zoo(1)%imax          = imax_smz(ng)
       zoo(2)%imax          = imax_mdz(ng)
       zoo(3)%imax          = imax_lgz(ng)

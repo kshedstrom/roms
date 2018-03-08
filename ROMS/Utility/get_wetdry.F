@@ -4,13 +4,13 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-!  This subroutine reads wetting and drying masks from restart NetCDF  !
-!  file.
+!  If restart, reads wetting and drying masks from restart (initial)   !
+!  NetCDF file.
 !                                                                      !
 !=======================================================================
 !
@@ -60,15 +60,28 @@
      &               __FILE__)) RETURN
       ncname=INI(ng)%name
 !
+!  Open restart (initial) NetCDF for read/write.
+!
+      IF (INI(ng)%ncid.eq.-1) THEN
+        CALL netcdf_open (ng, model, ncname, 1, INI(ng)%ncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
+          WRITE (stdout,10) TRIM(ncname)
+          RETURN
+        END IF
+      END IF
+!
 !  Check grid file dimensions for consitency
 !
-      CALL netcdf_check_dim (ng, model, ncname)
+      CALL netcdf_check_dim (ng, model, ncname,                         &
+     &                       ncid = INI(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
 !  Inquire about the variables.
 !
-      CALL netcdf_inq_var (ng, model, ncname)
+      CALL netcdf_inq_var (ng, model, ncname,                           &
+     &                     ncid = INI(ng)%ncid)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
@@ -78,42 +91,31 @@
 !
       IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idPwet)),        &
      &                     varid_pmask)) THEN
-        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idPwet)),            &
+        IF (Master) WRITE (stdout,20) TRIM(Vname(1,idPwet)),            &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
       IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idRwet)),        &
      &                     varid_rmask)) THEN
-        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idRwet)),            &
+        IF (Master) WRITE (stdout,20) TRIM(Vname(1,idRwet)),            &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
       IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idUwet)),        &
      &                     varid_umask)) THEN
-        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idUwet)),            &
+        IF (Master) WRITE (stdout,20) TRIM(Vname(1,idUwet)),            &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
       IF (.not.find_string(var_name,n_var,TRIM(Vname(1,idVwet)),        &
      &                     varid_vmask)) THEN
-        IF (Master) WRITE (stdout,10) TRIM(Vname(1,idVwet)),            &
+        IF (Master) WRITE (stdout,20) TRIM(Vname(1,idVwet)),            &
      &                                TRIM(ncname)
         exit_flag=2
         RETURN
-      END IF
-!
-!  Open grid NetCDF file for reading.
-!
-      IF (INI(ng)%ncid.eq.-1) THEN
-        CALL netcdf_open (ng, model, ncname, 0, INI(ng)%ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) THEN
-          WRITE (stdout,20) TRIM(ncname)
-          RETURN
-        END IF
       END IF
 !
 !-----------------------------------------------------------------------
@@ -156,6 +158,11 @@
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,40) TRIM(Vname(2,idPwet)), ng, TRIM(ncname),    &
+     &                      Fmin, Fmax
+        END IF
       END IF
 !
 !  Read in wet/dry mask at RHO-points.
@@ -175,6 +182,11 @@
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,40) TRIM(Vname(2,idRwet)), ng, TRIM(ncname),    &
+     &                      Fmin, Fmax
+        END IF
       END IF
 !
 !  Read in wet/dry mask at U-points.
@@ -194,6 +206,11 @@
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,40) TRIM(Vname(2,idUwet)), ng, TRIM(ncname),    &
+     &                      Fmin, Fmax
+        END IF
       END IF
 !
 !  Read in wet/dry mask at V-points.
@@ -213,6 +230,11 @@
         exit_flag=2
         ioerror=status
         RETURN
+      ELSE
+        IF (Master) THEN
+          WRITE (stdout,40) TRIM(Vname(2,idVwet)), ng, TRIM(ncname),    &
+     &                      Fmin, Fmax
+        END IF
       END IF
 !
 !  Exchange boundary data.
@@ -244,11 +266,14 @@
      &                    GRID(ng) % vmask_wet)
 # endif
 !
-  10  FORMAT (/,' GET_WETDRY - unable to find grid variable: ',a,       &
+  10  FORMAT (/,' GET_WETDRY - unable to open grid NetCDF file: ',a)
+  20  FORMAT (/,' GET_WETDRY - unable to find grid variable: ',a,       &
      &        /,14x,'in grid NetCDF file: ',a)
-  20  FORMAT (/,' GET_WETDRY - unable to open grid NetCDF file: ',a)
   30  FORMAT (/,' GET_WETDRY - error while reading variable: ',a,       &
      &        /,12x,'in grid NetCDF file: ',a)
+  40  FORMAT (3x,' GET_WETDRY  - ',a,/,19x,                             &
+     &        '(Grid = ',i2.2,', File: ',a,')',/,19x,                   &
+     &        '(Min = ', 1p,e15.8,0p,' Max = ',1p,e15.8,0p,')')
 #else
       SUBROUTINE get_wetdry
 #endif

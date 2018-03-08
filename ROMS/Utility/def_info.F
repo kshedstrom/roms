@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -869,6 +869,7 @@
         END IF
 # endif
 #endif
+#ifdef SVN
 !
 !  SVN repository information.
 !
@@ -883,7 +884,7 @@
           END IF
         END IF
 
-#if !defined DEBUGGING && defined SVN_REV
+# if !defined DEBUGGING && defined SVN_REV
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'svn_rev',             &
      &                        TRIM(svn_rev))
@@ -894,6 +895,31 @@
             ioerror=status
           END IF
         END IF
+# endif
+#else
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'git_url',             &
+     &                        TRIM(git_url))
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'git_url', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+
+# if !defined DEBUGGING && defined GIT_REV
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_put_att(ncid, nf90_global, 'git_rev',             &
+     &                        TRIM(git_rev))
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'git_rev', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+# endif
 #endif
 #ifndef DEBUGGING
 !
@@ -1609,7 +1635,7 @@
 # endif
 #endif
 
-#if defined SOLVE3D && (defined MY25_MIXING || defined GLS_MIXING)
+#if defined SOLVE3D && defined TKE_MIXING
 # ifdef TKE_DIF2
       Vinfo( 1)='tkenu2'
       Vinfo( 2)='harmonic mixing coefficient for turbulent energy'
@@ -1675,7 +1701,7 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-# if defined MY25_MIXING || defined GLS_MIXING
+# if defined TKE_MIXING
       Vinfo( 1)='Akk_bak'
       Vinfo( 2)=                                                        &
      &   'background vertical mixing coefficient for turbulent energy'
@@ -3378,6 +3404,8 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
@@ -3457,6 +3485,8 @@
           Vinfo(14)='lon_rho, scalar'
           Vinfo(21)='longitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3474,6 +3504,8 @@
           Vinfo(14)='lat_rho, scalar'
           Vinfo(21)='latitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo,  ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3490,6 +3522,8 @@
           Vinfo( 3)='meter'
           Vinfo(14)='x_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3506,6 +3540,8 @@
           Vinfo( 3)='meter'
           Vinfo(14)='y_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
+            Vinfo(24)='_FillValue'
+            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3678,6 +3714,8 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
+          Vinfo(24)='_FillValue'
+          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo,  ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &

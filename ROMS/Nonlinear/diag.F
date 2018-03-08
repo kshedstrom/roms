@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -202,7 +202,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ke2d
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: pe2d
       integer :: ii_max, jj_max, kk_max
-      real(r8) :: uv_max
+      real(r8) :: uv_max, ts_min
 
       character (len=8 ) :: kechar, pechar
       character (len=60) :: frmt
@@ -235,7 +235,7 @@
         my_max_Ck=0
         my_maxspeed=0.0_r8
 #ifdef SOLVE3D
-        my_maxrho=-1.0E+20_r8
+        my_maxrho=-spval
         my_mintemp=1.0E+20_r8
 # ifdef BIOLOGY
         DO ibt=1,NBT
@@ -381,11 +381,11 @@
         END IF
 #endif
 !$OMP CRITICAL (NL_DIAGNOSTICS)
-        IF (tile_count.eq.0) THEN
-          volume=my_volume
-          avgke=my_avgke
-          avgpe=my_avgpe
-          maxspeed(ng)=my_maxspeed
+!!      IF (tile_count.eq.0) THEN
+!!        volume=0.0_r8
+!!        avgke=0.0_r8
+!!        avgpe=0.0_r8
+!!        maxspeed(ng)=0.0_r8
 #ifdef SOLVE3D
           maxrho(ng)=my_maxrho
           mintemp(ng)=my_mintemp
@@ -395,6 +395,38 @@
           END DO
 # endif
 #endif
+!!        max_C =0.0_r8
+!!        max_Cu=0.0_r8
+!!        max_Cv=0.0_r8
+#ifdef SOLVE3D
+!!        max_Cw=0.0_r8
+#endif
+!!        max_Ci=0
+!!        max_Cj=0
+#ifdef SOLVE3D
+!!        max_Ck=0
+#endif
+!!      END IF
+        volume=volume+my_volume
+        avgke=avgke+my_avgke
+        avgpe=avgpe+my_avgpe
+        maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
+#ifdef SOLVE3D
+        maxrho(ng)=MAX(maxrho(ng),my_maxrho)
+        mintemp(ng)=MIN(mintemp(ng),my_mintemp)
+# ifdef BIOLOGY
+        DO ibt=1,NBT
+          maxbio(ibt,ng)=MAX(maxbio(ibt,ng),my_maxbio(ibt))
+        END DO
+# endif
+#endif
+        IF (my_max_C.eq.max_C) THEN
+          max_Ci=MIN(max_Ci,my_max_Ci)
+          max_Cj=MIN(max_Cj,my_max_Cj)
+#ifdef SOLVE3D
+          max_Ck=MIN(max_Ck,my_max_Ck)
+#endif
+        ELSE IF (my_max_C.gt.max_C) THEN
           max_C =my_max_C
           max_Cu=my_max_Cu
           max_Cv=my_max_Cv
@@ -406,39 +438,6 @@
 #ifdef SOLVE3D
           max_Ck=my_max_Ck
 #endif
-        ELSE
-          volume=volume+my_volume
-          avgke=avgke+my_avgke
-          avgpe=avgpe+my_avgpe
-          maxspeed(ng)=MAX(maxspeed(ng),my_maxspeed)
-#ifdef SOLVE3D
-          maxrho(ng)=MAX(maxrho(ng),my_maxrho)
-          mintemp(ng)=MIN(mintemp(ng),my_mintemp)
-# ifdef BIOLOGY
-          DO ibt=1,NBT
-            maxbio(ibt,ng)=MAX(maxbio(ibt,ng),my_maxbio(ibt))
-          END DO
-# endif
-#endif
-          IF (my_max_C.eq.max_C) THEN
-            max_Ci=MIN(max_Ci,my_max_Ci)
-            max_Cj=MIN(max_Cj,my_max_Cj)
-#ifdef SOLVE3D
-            max_Ck=MIN(max_Ck,my_max_Ck)
-#endif
-          ELSE IF (my_max_C.gt.max_C) THEN
-            max_C =my_max_C
-            max_Cu=my_max_Cu
-            max_Cv=my_max_Cv
-#ifdef SOLVE3D
-            max_Cw=my_max_Cw
-#endif
-            max_Ci=my_max_Ci
-            max_Cj=my_max_Cj
-#ifdef SOLVE3D
-            max_Ck=my_max_Ck
-#endif
-          END IF
         END IF
         tile_count=tile_count+1
         IF (tile_count.eq.NSUB) THEN
@@ -613,7 +612,7 @@
                 END DO
               END DO
             END DO
-            IF (uv_max.gt.max_speed) THEN
+            IF (uv_max .gt. max_speed) THEN
               print *, 'DIAG speed ijk ', uv_max, ii_max, jj_max, kk_max, ng
             END IF
 #else
@@ -649,21 +648,21 @@
             ii_max = Istr
             jj_max = Jstr
             kk_max = 1
-            uv_max = t(Istr,Jstr,1,nstp,itemp)
+            ts_min = t(Istr,Jstr,1,nstp,itemp)
             DO j=Jstr,Jend
               DO k=1,N(ng)
                 DO i=Istr,Iend
-                  IF (t(i,j,k,itemp,nstp) > uv_max) THEN
+                  IF (t(i,j,k,itemp,nstp) < ts_min) THEN
                     ii_max = i
                     jj_max = j
                     kk_max = k
-                    uv_max = t(i,j,k,nstp,itemp)
+                    ts_min = t(i,j,k,nstp,itemp)
                   END IF
                 END DO
               END DO
             END DO
-            IF (uv_max.gt.max_speed) THEN
-              print *, 'DIAG temp ijk ', uv_max, ii_max, jj_max, kk_max, ng
+            IF (ts_min .lt. min_temp) THEN
+              print *, 'DIAG temp ijk ', ts_min, ii_max, jj_max, kk_max, ng
             END IF
           END IF
 # ifdef BIOLOGY
@@ -683,7 +682,27 @@
           END DO
 # endif
 #endif
-
+!
+!  Reset global reduction variables for the next call.
+!
+          volume=0.0_r8
+          avgke=0.0_r8
+          avgpe=0.0_r8
+          maxspeed(ng)=-Large
+#ifdef SOLVE3D
+          maxrho(ng)=-Large
+#endif
+          max_C =0.0_r8
+          max_Cu=0.0_r8
+          max_Cv=0.0_r8
+#ifdef SOLVE3D
+          max_Cw=0.0_r8
+#endif
+          max_Ci=0
+          max_Cj=0
+#ifdef SOLVE3D
+          max_Ck=0
+#endif
         END IF
 !$OMP END CRITICAL (NL_DIAGNOSTICS)
       END IF

@@ -1,11 +1,11 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# Copyright (c) 2002-2017 The ROMS/TOMS Group                           :::
+# Copyright (c) 2002-2018 The ROMS/TOMS Group                           :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #
-# Include file for OSF1 F90 compiler on the Alpha
+# Include file for CRAY FTN cross-compiler with Linux
 # -------------------------------------------------------------------------
 #
 # ARPACK_LIBDIR  ARPACK libary directory
@@ -13,10 +13,6 @@
 # FFLAGS         Flags to the fortran compiler
 # CPP            Name of the C-preprocessor
 # CPPFLAGS       Flags to the C-preprocessor
-# CC             Name of the C compiler
-# CFLAGS         Flags to the C compiler
-# CXX            Name of the C++ compiler
-# CXXFLAGS       Flags to the C++ compiler
 # CLEAN          Name of cleaning executable after C-preprocessing
 # NETCDF_INCDIR  NetCDF include directory
 # NETCDF_LIBDIR  NetCDF libary directory
@@ -27,20 +23,16 @@
 #
 # First the defaults
 #
-               FC := f90
-           FFLAGS :=
-              CPP := /lib/cpp
-         CPPFLAGS := -P
-               CC := gcc
-              CXX := g++
-           CFLAGS :=
-         CXXFLAGS :=
+               FC := ftn
+           FFLAGS := -e I -e m
+              CPP := /usr/bin/cpp
+         CPPFLAGS := -P -traditional
           LDFLAGS :=
                AR := ar
           ARFLAGS := -r
             MKDIR := mkdir -p
                RM := rm -f
-           RANLIB := ranlib
+           RANLIB := touch
              PERL := perl
              TEST := test
 
@@ -71,29 +63,16 @@ endif
 
 ifdef USE_MPI
          CPPFLAGS += -DMPI
- ifdef USE_MPIF90
-               FC := mpif90
- else
-       MPI_INCDIR := /usr/include
-       MPI_LIBDIR := /usr/lib
-             LIBS += -L$(MPI_LIBDIR) -lmpi
-         CPPFLAGS += -I$(MPI_INCDIR)
- endif
 endif
 
 ifdef USE_OpenMP
          CPPFLAGS += -D_OPENMP
-           FFLAGS += -omp
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -g
-           CFLAGS += -g
-         CXXFLAGS += -g
+           FFLAGS += -G 0
 else
-           FFLAGS += -fast
-           CFLAGS += -O3
-         CXXFLAGS += -O3
+           FFLAGS += -O 3,aggress
 endif
 
 ifdef USE_MCT
@@ -112,10 +91,6 @@ ifdef USE_ESMF
              LIBS += $(ESMF_F90LINKPATHS) $(ESMF_F90ESMFLINKLIBS)
 endif
 
-ifdef USE_CXX
-             LIBS += -lstdc++
-endif
-
 #
 # Use full path of compiler.
 #
@@ -127,18 +102,18 @@ endif
 # local directory and compilation flags inside the code.
 #
 
-$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/analytical.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/biology.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/mod_ncparam.o: FFLAGS += -f free
+$(SCRATCH_DIR)/mod_strings.o: FFLAGS += -f free
+$(SCRATCH_DIR)/analytical.o: FFLAGS += -f free
+$(SCRATCH_DIR)/biology.o: FFLAGS += -f free
 ifdef USE_ADJOINT
-$(SCRATCH_DIR)/ad_biology.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/ad_biology.o: FFLAGS += -f free
 endif
 ifdef USE_REPRESENTER
-$(SCRATCH_DIR)/rp_biology.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/rp_biology.o: FFLAGS += -f free
 endif
 ifdef USE_TANGENT
-$(SCRATCH_DIR)/tl_biology.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/tl_biology.o: FFLAGS += -f free
 endif
 
 #
@@ -148,26 +123,26 @@ endif
 
 ifdef USE_SWAN
 
-$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/ocpids.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swancom1.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swancom2.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swancom3.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swancom4.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swancom5.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanmain.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanout1.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanout2.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanparll.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swanser.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swmod1.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/swmod2.o: FFLAGS += -fixedform
-$(SCRATCH_DIR)/m_constants.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -freeform
-$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -freeform
+$(SCRATCH_DIR)/ocpcre.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/ocpids.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/ocpmix.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swancom1.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swancom2.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swancom3.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swancom4.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swancom5.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanmain.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanout1.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanout2.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanparll.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanpre1.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanpre2.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swanser.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swmod1.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/swmod2.o: FFLAGS += -f fixed
+$(SCRATCH_DIR)/m_constants.o: FFLAGS += -f free
+$(SCRATCH_DIR)/m_fileio.o: FFLAGS += -f free
+$(SCRATCH_DIR)/mod_xnl4v5.o: FFLAGS += -f free
+$(SCRATCH_DIR)/serv_xnl4v5.o: FFLAGS += -f free
 
 endif

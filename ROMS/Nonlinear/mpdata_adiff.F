@@ -6,7 +6,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group        John C. Warner   !
+!  Copyright (c) 2002-2018 The ROMS/TOMS Group        John C. Warner   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -122,7 +122,6 @@
 !
       integer :: i, is, j, k
 
-      real(r8), parameter :: Large = 1.0E+20_r8
       real(r8), parameter :: eps  = 1.0E-18_r8
       real(r8), parameter :: eps2 = 1.0E-10_r8
 
