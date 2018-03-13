@@ -1521,6 +1521,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' LCZ_FINAL,'
 #endif
+#if defined LI_FOX_KEMPER && defined LMD_MIXING
+!
+      IF (Master) WRITE (stdout,20) 'LI_FOX_KEMPER',                    &
+     &   'Enhanced mixing due to Langmuir circulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LI_FOX_KEMPER,'
+#endif
 #if defined LIMIT_VDIFF && \
    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
 !
