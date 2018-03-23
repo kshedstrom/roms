@@ -204,6 +204,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_ALBEDO,'
 #endif
+#if defined ANA_ALK_DIC && defined BIO_COBALT
+      IF (Master) WRITE (stdout,20) 'ANA_ALK_DIC',                      &
+     &   'Analytical DIC and Alkalinity BC/CLM.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ANA_ALK_DIC,'
+#endif
 #if defined BIOLOGY && defined ANA_BIOLOGY
 !
       IF (Master) WRITE (stdout,20) 'ANA_BIOLOGY',                      &

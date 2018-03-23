@@ -47,6 +47,9 @@
 #if defined HYPOXIA_SRM || defined RED_TIDE
       USE mod_biology
 #endif
+#if defined ANA_ALK_DIC && defined BIO_COBALT
+      USE mod_biology
+#endif
       USE mod_boundary
 # ifdef BEST_NPZ
       USE mod_biology
@@ -1726,6 +1729,69 @@
           END DO
         END IF
 #  endif
+#  if defined ANA_ALK_DIC && defined BIO_COBALT
+! From Evans, W., J. T. Mathis, P. Winsor, H. Statscewich, and T. E. Whitledge
+!   (2013), A regression modeling approach for studying carbonate system
+!   variability in the northern Gulf of Alaska, J. Geophys. Res. Oceans, 118,
+!   476–489, doi:10.1029/2012JC008246.
+
+        IF (LBC(iwest,isTvar(ialk),ng)%acquire .and. Istr==1) THEN
+          DO k=1,N(ng)
+            DO j=Jstr,Jend
+              BOUNDARY(ng)%t_west(j,k,ialk) = 1.e-6_r8*(2179_r8 +       &
+     &          50.32_r8*(BOUNDARY(ng)%t_west(j,k,isalt) - 30.77_r8) +  &
+     &          2.34_r8*(BOUNDARY(ng)%t_west(j,k,itemp) - 3.97_r8) +    &
+     &          0.1_r8*(min(500.,-GRID(ng)%z_r(0,j,k)) - 250.1_r8))
+              BOUNDARY(ng)%t_west(j,k,idic) = 1.e-6_r8*(2046_r8 +       &
+     &          4.33_r8*(1.e6*BOUNDARY(ng)%t_west(j,k,ino3) - 25.27_r8) + &
+     &          37.87_r8*(BOUNDARY(ng)%t_west(j,k,isalt) - 30.77_r8) +  &
+     &          0.17_r8*(min(500.,-GRID(ng)%z_r(0,j,k)) - 250.1_r8))
+            END DO
+          END DO
+        END IF
+        IF (LBC(ieast,isTvar(ialk),ng)%acquire .and. Iend==Lm(ng)) THEN
+          DO k=1,N(ng)
+            DO j=Jstr,Jend
+              BOUNDARY(ng)%t_east(j,k,ialk) = 1.e-6_r8*(2179_r8 +       &
+     &          50.32_r8*(BOUNDARY(ng)%t_east(j,k,isalt) - 30.77_r8) +  &
+     &          2.34_r8*(BOUNDARY(ng)%t_east(j,k,itemp) - 3.97_r8) +    &
+     &          0.1_r8*(min(500.,-GRID(ng)%z_r(Lm(ng)+1,j,k)) - 250.1_r8))
+              BOUNDARY(ng)%t_east(j,k,idic) = 1.e-6_r8*(2046_r8 +       &
+     &          4.33_r8*(1.e6*BOUNDARY(ng)%t_east(j,k,ino3) - 25.27_r8) + &
+     &          37.87_r8*(BOUNDARY(ng)%t_east(j,k,isalt) - 30.77_r8) +  &
+     &          0.17_r8*(min(500.,-GRID(ng)%z_r(Lm(ng)+1,j,k)) - 250.1_r8))
+            END DO
+          END DO
+        END IF
+        IF (LBC(inorth,isTvar(ialk),ng)%acquire .and. Jend==Mm(ng)) THEN
+          DO k=1,N(ng)
+            DO i=Istr,Iend
+              BOUNDARY(ng)%t_north(i,k,ialk) = 1.e-6_r8*(2179_r8 +       &
+     &          50.32_r8*(BOUNDARY(ng)%t_north(i,k,isalt) - 30.77_r8) +  &
+     &          2.34_r8*(BOUNDARY(ng)%t_north(i,k,itemp) - 3.97_r8) +    &
+     &          0.1_r8*(min(500.,-GRID(ng)%z_r(Mm(ng)+1,j,k)) - 250.1_r8))
+              BOUNDARY(ng)%t_north(i,k,idic) = 1.e-6_r8*(2046_r8 +       &
+     &          4.33_r8*(1.e6*BOUNDARY(ng)%t_north(i,k,ino3) - 25.27_r8) + &
+     &          37.87_r8*(BOUNDARY(ng)%t_north(i,k,isalt) - 30.77_r8) +  &
+     &          0.17_r8*(min(500.,-GRID(ng)%z_r(Mm(ng)+1,j,k)) - 250.1_r8))
+            END DO
+          END DO
+        END IF
+        IF (LBC(isouth,isTvar(ialk),ng)%acquire .and. Jstr==1) THEN
+          DO k=1,N(ng)
+            DO i=Istr,Iend
+              BOUNDARY(ng)%t_south(i,k,ialk) = 1.e-6_r8*(2179_r8 +       &
+     &          50.32_r8*(BOUNDARY(ng)%t_south(i,k,isalt) - 30.77_r8) +  &
+     &          2.34_r8*(BOUNDARY(ng)%t_south(i,k,itemp) - 3.97_r8) +    &
+     &          0.1_r8*(min(500.,-GRID(ng)%z_r(0,j,k)) - 250.1_r8))
+              BOUNDARY(ng)%t_south(i,k,idic) = 1.e-6_r8*(2046_r8 +       &
+     &          4.33_r8*(1.e6*BOUNDARY(ng)%t_south(i,k,ino3) - 25.27_r8) + &
+     &          37.87_r8*(BOUNDARY(ng)%t_south(i,k,isalt) - 30.77_r8) +  &
+     &          0.17_r8*(min(500.,-GRID(ng)%z_r(0,j,k)) - 250.1_r8))
+            END DO
+          END DO
+        END IF
+#  endif
       END IF
 # endif
 
@@ -2391,20 +2457,21 @@
         END IF
       END DO
 #  endif
-#  if defined BCLIMATOLOGY
-! This is all redundant with new code
-!! FC & GH BIO TRACER
-!      DO itrc=NAT+1,NT(ng)
-!        IF (itrc==iFeD_ .OR. itrc==iNO3_ .OR. itrc==iSiOH) THEN
-!          CALL set_3dfld_tile (ng, tile, iNLM, idTclm(itrc),            &
-!     &                         LBi, UBi, LBj, UBj, 1, N(ng),            &
-!     &                         CLIMA(ng)%tclmG(:,:,:,:,itrc),           &
-!     &                         CLIMA(ng)%tclm (:,:,:,itrc),             &
-!     &                         update)
-!          IF (FoundError(exit_flag, NoError, __LINE__,                  &
-!    &               __FILE__)) RETURN
-!        END IF
-!      END DO
+#  if defined ANA_ALK_DIC && defined BIO_COBALT
+      DO k=1,N(ng)
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+            CLIMA(ng)%tclm(i,j,k,ialk) = 1.e-6_r8*(2179_r8 +            &
+     &          50.32_r8*(CLIMA(ng)%tclm(i,j,k,isalt) - 30.77_r8) +     &
+     &          2.34_r8*(CLIMA(ng)%tclm(i,j,k,itemp) - 3.97_r8) +       &
+     &          0.1_r8*(min(500.,-GRID(ng)%z_r(i,j,k)) - 250.1_r8))
+            CLIMA(ng)%tclm(i,j,k,idic) = 1.e-6_r8*(2046_r8 +            &
+     &          4.33_r8*(1.e6*CLIMA(ng)%tclm(i,j,k,ino3) - 25.27_r8) +   &
+     &          37.87_r8*(CLIMA(ng)%tclm(i,j,k,isalt) - 30.77_r8) +     &
+     &          0.17_r8*(min(500.,-GRID(ng)%z_r(i,j,k)) - 250.1_r8))
+          END DO
+        END DO
+      END DO
 #  endif
 
 #  ifdef AKT_3D /* use 3dAkt for 1D SEBS model  index was iFe+2 */
