@@ -353,7 +353,6 @@
 
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: twodim_int_diag
 
-    real(8), dimension(IminS:ImaxS,JminS:JmaxS,1:N(ng)) :: rmask3d
     real(8), dimension(IminS:ImaxS,JminS:JmaxS) :: rmask_local
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: FM, FM2, swdk3, chl_conc
     real(8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng),4) :: DK
@@ -507,28 +506,6 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
 #endif
 !----------------------------------------------------------------------------
 !
-!  Create a 3D-mask to avoid loops in tracer update
-!
-!----------------------------------------------------------------------------
-
-  rmask3d = 0.
-
-  DO k=1,UBk
-   DO j=Jstr,Jend
-    DO i=Istr,Iend
-#ifdef MASKING
-# ifdef WET_DRY
-     rmask3d(i,j,k) = rmask_full(i,j)
-# else
-     rmask3d(i,j,k) = rmask(i,j)
-# endif
-#else
-     rmask3d(i,j,k) = 1.0_r8
-#endif
-    ENDDO
-   ENDDO
-  ENDDO
-
   rmask_local = 0.
 
   DO j=Jstr,Jend
@@ -699,7 +676,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =
 #endif
 
 
-  CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask3d(:,:,k), &
+  CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask_local,    &
  &       cobalt%f_temp(:,:,k),                         &
  &       cobalt%f_salt(:,:,k),                         &
  &       cobalt%f_dic(:,:,k),                          &
@@ -900,9 +877,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
       cobalt%htotallo(:,:) = cobalt%htotal_scale_lo * cobalt%f_htotal(:,:,k)
       cobalt%htotalhi(:,:) = cobalt%htotal_scale_hi * cobalt%f_htotal(:,:,k)
 
-  ! RD needs cleaning : I don't like having LBi:UBi,LBj:UBj in t array
-
-      CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask3d(:,:,k), &
+      CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask_local,    &
      &       cobalt%f_temp(:,:,k),                         &
      &       cobalt%f_salt(:,:,k),                         &
      &       cobalt%f_dic(:,:,k),                          &
@@ -1007,14 +982,12 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
     ENDDO
   ENDDO
 #endif
-#ifdef COBALT_CARBON
+#ifndef COBALT_CARBON
  DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
-      ! Oxygen, Carbon and Alkalinity
+      ! Oxygen used outside carbon chemistry
       cobalt%f_o2(i,j,k)         = max( t(i,j,k,nstp,io2),  0.0d0 )
-      cobalt%f_dic(i,j,k)        = max( t(i,j,k,nstp,idic), 0.0d0 )
-      cobalt%f_alk(i,j,k)        = max( t(i,j,k,nstp,ialk), 0.0d0 )
       ENDDO
     ENDDO
   ENDDO
