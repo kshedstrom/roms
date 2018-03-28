@@ -483,6 +483,16 @@
       ELSE IF (exit_flag.eq.9) THEN
         IF (Master) WRITE (stdout,140)
       END IF
+
+#ifdef ROMS_STDOUT
+!
+!-----------------------------------------------------------------------
+!  Close ROMS standard outpu file.
+!-----------------------------------------------------------------------
+!
+      CALL my_flush (stdout)
+      CLOSE (stdout)
+#endif
 !
  10   FORMAT (/,' ROMS/TOMS - Output NetCDF summary for Grid ',         &
      &        i2.2,':')

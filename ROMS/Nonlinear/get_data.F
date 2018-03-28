@@ -296,7 +296,7 @@
 
 #endif
 
-#if !(defined ANA_WINDS   || defined ATM_COUPLING) && \
+#if !(defined ANA_WINDS   || defined FRC_COUPLING) && \
      (defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM)
 !
 !-----------------------------------------------------------------------
@@ -352,7 +352,7 @@
 # endif
 #endif
 
-#if !(defined ANA_SMFLUX || defined ATM_COUPLING || defined BULK_FLUXES || \
+#if !(defined ANA_SMFLUX || defined FRC_COUPLING || defined BULK_FLUXES || \
       defined ANA_NCEP   || defined NCEP_FLUXES  || defined BULK_FLUXES2D)
 !
 !-----------------------------------------------------------------------
@@ -437,7 +437,7 @@
 # endif
 #endif
 
-#if !(defined ANA_PAIR    || defined ATM_COUPLING) && \
+#if !(defined ANA_PAIR    || defined FRC_COUPLING) && \
      (defined BULK_FLUXES || defined ECOSIM        || defined ATM_PRESS || \
       defined CCSM_FLUXES2D)
 !
@@ -559,7 +559,7 @@
 # endif
 #endif
 
-# if !(defined ANA_TAIR   || defined ATM_COUPLING) && \
+# if !(defined ANA_TAIR   || defined FRC_COUPLING) && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
      (defined SHORTWAVE   && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 !
@@ -592,7 +592,7 @@
 # endif
 #endif
 
-#if !(defined ANA_HUMIDITY || defined ATM_COUPLING) && \
+#if !(defined ANA_HUMIDITY || defined FRC_COUPLING) && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 
@@ -824,7 +824,7 @@
 ! END OF BIO_COBALT
 # endif
 
-# if !(defined ANA_CLOUD || defined ATM_COUPLING) && defined CLOUDS
+# if !(defined ANA_CLOUD || defined FRC_COUPLING) && defined CLOUDS
 !
 !-----------------------------------------------------------------------
 !  Cloud fraction.
@@ -841,7 +841,7 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !(defined ANA_SRFLUX || defined ATM_COUPLING || defined ANA_NCEP) && \
+# if !(defined ANA_SRFLUX || defined FRC_COUPLING || defined ANA_NCEP) && \
        defined SHORTWAVE
 !
 !-----------------------------------------------------------------------
@@ -891,7 +891,7 @@
 # endif
 
 # if defined BULK_FLUXES  && \
-   !(defined ATM_COUPLING || defined LONGWAVE || defined LONGWAVE_OUT || \
+   !(defined FRC_COUPLING || defined LONGWAVE || defined LONGWAVE_OUT || \
      defined ANA_LRFLUX)
 !
 !-----------------------------------------------------------------------
@@ -910,7 +910,7 @@
 # endif
 
 # if defined BULK_FLUXES  && defined LONGWAVE_OUT && \
-    !(defined ATM_COUPLING || defined ANA_LRFLUX)
+    !(defined FRC_COUPLING || defined ANA_LRFLUX)
 !
 !-----------------------------------------------------------------------
 !  Surface downwelling longwave radiation.
@@ -927,7 +927,9 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !(defined ANA_RAIN   || defined ATM_COUPLING) && defined BULK_FLUXES
+# if !(defined ANA_TAIR   || defined FRC_COUPLING) && \
+    ( defined BULK_FLUXES || defined ECOSIM        || \
+     (defined SHORTWAVE   && defined ANA_SRFLUX    && defined ALBEDO) )
 !
 !-----------------------------------------------------------------------
 !  Rain fall rate.  Snow fall rate.
@@ -972,7 +974,7 @@
      &               __FILE__)) RETURN
 # endif
 
-# if !(defined ANA_STFLUX  || defined ATM_COUPLING || \
+# if !(defined ANA_STFLUX  || defined FRC_COUPLING || \
        defined BULK_FLUXES || defined NCEP_FLUXES)
 !
 !-----------------------------------------------------------------------
@@ -1082,7 +1084,7 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
-#  elif !(defined ANA_SSFLUX || defined ATM_COUPLING || \
+#  elif !(defined ANA_SSFLUX || defined FRC_COUPLING || \
           defined EMINUSP    || defined SRELAXATION)
 !
 !-----------------------------------------------------------------------

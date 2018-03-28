@@ -204,6 +204,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_ALBEDO,'
 #endif
+#if defined ANA_ALK_DIC && defined BIO_COBALT
+      IF (Master) WRITE (stdout,20) 'ANA_ALK_DIC',                      &
+     &   'Analytical DIC and Alkalinity BC/CLM.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ANA_ALK_DIC,'
+#endif
 #if defined BIOLOGY && defined ANA_BIOLOGY
 !
       IF (Master) WRITE (stdout,20) 'ANA_BIOLOGY',                      &
@@ -892,14 +898,6 @@
       Coptions(is:is+13)=' CORRELATION,'
       idriver=idriver+1
 #endif
-#if defined COUPLING_INTERP && defined MODEL_COUPLING
-!
-      IF (Master) WRITE (stdout,20) 'COUPLING_INTERP',                  &
-     &   'Time interpolation from coupling snapshots arrays.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+17)=' COUPLING_INTERP,'
-      iatms=iatms+1
-#endif
 #ifdef DATA_COUPLING
 !
       IF (Master) WRITE (stdout,20) 'DATA_COUPLING',                     &
@@ -1237,6 +1235,13 @@
      &   'Write out Forward solution for Tangent/Adjoint.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' FORWARD_WRITE,'
+#endif
+#if defined FRC_COUPLING && defined MODEL_COUPLING
+!
+      IF (Master) WRITE (stdout,20) 'FRC_COUPLING',                     &
+     &   'Atmospheric forcing fields are from ESM coupling.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FRC_COUPLING,'
 #endif
 #ifdef FSOBC_REDUCED
 !
@@ -1600,6 +1605,13 @@
      &   'Compute 4D-Var Hessian singular vectors.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' LCZ_FINAL,'
+#endif
+#if defined LI_FOX_KEMPER && defined LMD_MIXING
+!
+      IF (Master) WRITE (stdout,20) 'LI_FOX_KEMPER',                    &
+     &   'Enhanced mixing due to Langmuir circulation.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LI_FOX_KEMPER,'
 #endif
 #if defined LIMIT_VDIFF && \
    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)
@@ -2374,6 +2386,13 @@
       Coptions(is:is+10)=' RED_TIDE,'
       ibiology=ibiology+1
 #endif
+#ifdef ROMS_STDOUT
+!
+      IF (Master) WRITE (stdout,20) 'ROMS_STDOUT',                      &
+     &   'Red tide biological model.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' ROMS_STDOUT,'
+#endif
 #ifdef R_SYMMETRY
 !
       IF (Master) WRITE (stdout,20) 'REP_MATRIX',                       &
@@ -2804,6 +2823,13 @@
      &   'Weak-constraint 4D-Var time convolution.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' TIME_CONV,'
+#endif
+#if defined TIME_INTERP && defined MODEL_COUPLING
+!
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP',                  &
+     &   'Time interpolation from coupling snapshots arrays.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' TIME_INTERP,'
 #endif
 #if defined TIME_INTERP_FLUX && defined NESTING && defined SOLVE3D
 !
@@ -3770,7 +3796,7 @@
 #endif
 #ifdef ATM_COUPLING
 !
-!  Stop if more than one vertical closure scheme is selected.
+!  Stop if more than one atmosphere model is selected for coupling.
 !
       IF (Master.and.(iatms.gt.1)) THEN
         WRITE (stdout,270)

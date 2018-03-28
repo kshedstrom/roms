@@ -31,6 +31,16 @@
 !    and model with a nonlocal boundary layer parameterization,        !
 !    Reviews of Geophysics, 32,363-403.                                !
 !                                                                      !
+# ifdef LI_FOX_KEMPER
+!                                                                      !
+!  Li, Q. and B. Fox-Kemper, 2017: Assessing the effects of Langmuir   !
+!    turbulence on the entrainment buoyancy flux in the ocean surface  !
+!    boundary layer, JPO, DOI: 10.1175/JPO-D-17-0085.1                 !
+!                                                                      !
+!  Li, Q., B. Fox-Kemper, Ø. Breivik, and  Adrean Webb, 2017:          !
+!    Statistical models of global Langmuir mixing, Ocean Modelling,    !
+!    DOI: 10.1016/j.ocemod.2017.03.016                                 !
+# endif
 !=======================================================================
 !
       implicit none
@@ -90,11 +100,15 @@
 # endif
      &                    MIXING(ng) % Akt,                             &
      &                    MIXING(ng) % Akv,                             &
-#ifdef AKT_3D
+# ifdef AKT_3D
      &                    CLIMA(ng) % tclm,                             &
-#endif
+# endif
 # ifdef OPTIC_MANIZZA
      &                    OCEAN(ng) % decayW,                           &
+# endif
+# ifdef LI_FOX_KEMPER
+     &                    FORCES(ng) % Uwind,                           &
+     &                    FORCES(ng) % Vwind,                           &
 # endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
@@ -127,6 +141,9 @@
 #endif
 # ifdef OPTIC_MANIZZA
      &                          decayW,                                 &
+# endif
+# ifdef LI_FOX_KEMPER
+     &                          Uwind, Vwind,                           &
 # endif
      &                          hsbl, ksbl)
 !***********************************************************************
@@ -182,11 +199,15 @@
       real(r8), intent(in) :: bvf(LBi:,LBj:,0:)
       real(r8), intent(inout) :: Akt(LBi:,LBj:,0:,:)
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
-#ifdef AKT_3D
+#  ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
-# endif
+#  endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
+#  endif
+#  ifdef LI_FOX_KEMPER
+      real(r8), intent(in) :: Uwind(LBi:,LBj:)
+      real(r8), intent(in) :: Vwind(LBi:,LBj:)
 #  endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
@@ -222,6 +243,10 @@
 # endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
+#  endif
+#  ifdef LI_FOX_KEMPER
+      real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
@@ -275,6 +300,22 @@
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: wm
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: ws
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: zgrid
+# ifdef LI_FOX_KEMPER
+      real(r8), dimension (IminS:ImaxS) :: wspd10
+      real(r8), dimension (IminS:ImaxS) :: Wstar
+      real(r8), dimension (IminS:ImaxS) :: VS
+      real(r8), dimension (IminS:ImaxS) :: HSL
+      real(r8), dimension (IminS:ImaxS) :: uS0
+      real(r8), dimension (IminS:ImaxS) :: uSSL
+      real(r8), dimension (IminS:ImaxS) :: LaSL
+      real(r8), dimension (IminS:ImaxS) :: T1kp
+      real(r8), dimension (IminS:ImaxS) :: T1kps
+      real(r8), dimension (IminS:ImaxS) :: T2kp
+      real(r8), dimension (IminS:ImaxS) :: T2kps
+      real(r8), dimension (IminS:ImaxS) :: kp
+      real(r8), dimension (IminS:ImaxS) :: kps
+      real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: eps_Li
+# endif
 
 # include "set_bounds.h"
 !
@@ -282,8 +323,12 @@
 !  Initialize relevant parameters.
 !-----------------------------------------------------------------------
 !
+# ifdef LI_FOX_KEMPER
+      Vtc=lmd_Cv/lmd_Ric
+# else
       Vtc=lmd_Cv*SQRT(-lmd_betaT)/(SQRT(lmd_cs*lmd_epsilon)*            &
      &                             lmd_Ric*vonKar*vonKar)
+# endif
 !
 !-----------------------------------------------------------------------
 !  Get approximation of surface layer depth using "lmd_eps" and
@@ -479,6 +524,38 @@
      &            Hz(i,j,N(ng))*(cff1*dV(i,N(ng))+cff2*dV(i,N(ng)-1))
         END DO
 !
+# ifdef LI_FOX_KEMPER
+!  Estimate Langmuir number from winds
+!
+        DO i=Istr,Iend
+          wspd10(i) = sqrt(Uwind(i,j)**2 + Vwind(i,j)**2)
+          Wstar(i) = abs(Bo(i,j)*(z_w(i,j,N(ng))-hsbl(i,j)))**1/3
+          uS0(i) = 0.016_r8 * wspd10(i)
+          VS(i) = 2.67e-5_r8 * g * wspd10(i)**3
+          kp(i) = 0.176_r8 * uS0(i)/VS(i)
+          kps(i) = 2.56_r8 * kp(i)
+          HSL(i) = 2.0_r8 * sl_dpth(i,j)
+          T1kp(i) = exp(-2*kp(i)*HSL(i))
+          T1kps(i) = exp(-2*kps(i)*HSL(i))
+          T2kp(i) = sqrt(2*pi*kp(i)*abs(HSL(i))) *                      &
+     &              erfc(sqrt(2*kp(i)*abs(HSL(i))))
+          T2kps(i) = sqrt(2*pi*kps(i)*abs(HSL(i))) *                    &
+     &               erfc(sqrt(2*kps(i)*abs(HSL(i))))
+          uSSL(i) = uS0(i) *                                            &
+     &            (0.715_r8 +                                           &
+     &             +(0.151_r8 / (kp(i)*HSL(i)) - 0.84_r8)               &
+     &               * (1.0_r8 - T1kp(i))                               &
+     &             -(0.84_r8 + 0.0591_r8 /(kp(i)*HSL(i)))*T2kp(i)       &
+     &             +(0.0632_r8 /(kps(i)*HSL(i)) + 0.125_r8)             &
+     &               * (1.0_r8 - T1kps(i))                              &
+     &             +(0.125_r8 + 0.0946_r8 / (kps(i)*HSL(i)))            &
+     &              * T2kps(i) )
+         LaSL(i) = sqrt(Ustar(i,j)/uSSL(i))
+         eps_Li(i,j) = sqrt(1 + (max(1.5*LaSL(i),1.e-20))**-2 +         &
+     &                      (max(5.4*LaSL(i),1.e-20))**-4)
+        END DO
+# endif
+!
 !  Compute turbulent velocity scales for momentum (wm) and tracers (ws).
 !  Then, compute critical function (FC) for bulk Richardson number.
 !
@@ -498,12 +575,22 @@
               wm(i,j)=vonKar*Ustar(i,j)/(1.0_r8+5.0_r8*zetapar)
               ws(i,j)=wm(i,j)
             ELSE                                              ! unstable
+# ifdef LI_FOX_KEMPER
+              IF (zetapar.gt.lmd_zetam) THEN
+                wm(i,j)=vonKar*Ustar(i,j)*                              &
+     &                  (1.0_r8-16.0_r8*zetapar)**0.25_r8 * eps_Li(i,j)
+              ELSE
+                wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3 *     &
+     &                  eps_Li(i,j)
+              END IF
+# else
               IF (zetapar.gt.lmd_zetam) THEN
                 wm(i,j)=vonKar*Ustar(i,j)*                              &
      &                  (1.0_r8-16.0_r8*zetapar)**0.25_r8
               ELSE
                 wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3
               END IF
+# endif
               IF (zetapar.gt.lmd_zetas) THEN
                 ws(i,j)=vonKar*Ustar(i,j)*                              &
      &                  (1.0_r8-16.0_r8*zetapar)**0.5_r8
@@ -521,7 +608,13 @@
 !
             Ritop=-gorho0*(Rref(i)-Rk)*depth
             Ribot=(Uref(i)-Uk)**2+(Vref(i)-Vk)**2+                      &
+# ifdef LI_FOX_KEMPER
+     &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1))) *           &
+     &            sqrt((0.15_r8*Wstar(i)**3 + 0.17_r8*Ustar(i,j)**3 *   &
+     &              (1.0_r8 + 0.49_r8*LaSL(i)**-2)) / ws(i,j)**3)
+# else
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1)))
+# endif
 # ifdef SASHA
             FC(i,k-1)=Ritop-lmd_Ric*Ribot
 # else
@@ -852,12 +945,22 @@
             wm(i,j)=vonKar*Ustar(i,j)/(1.0_r8+5.0_r8*zetapar)
             ws(i,j)=wm(i,j)
           ELSE                                                ! unstable
+# ifdef LI_FOX_KEMPER
+            IF (zetapar.gt.lmd_zetam) THEN
+              wm(i,j)=vonKar*Ustar(i,j)*                                &
+     &                (1.0_r8-16.0_r8*zetapar)**0.25_r8 * eps_Li(i,j)
+            ELSE
+              wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3 *       &
+     &                eps_Li(i,j)
+            END IF
+# else
             IF (zetapar.gt.lmd_zetam) THEN
               wm(i,j)=vonKar*Ustar(i,j)*                                &
      &                (1.0_r8-16.0_r8*zetapar)**0.25_r8
             ELSE
               wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3
             END IF
+# endif
             IF (zetapar.gt.lmd_zetas) THEN
               ws(i,j)=vonKar*Ustar(i,j)*                                &
      &                (1.0_r8-16.0_r8*zetapar)**0.5_r8
