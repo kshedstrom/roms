@@ -6594,6 +6594,10 @@
           WRITE (out,230) '            Output Floats File:  ',          &
      &                    TRIM(FLT(ng)%name)
 # endif
+# ifdef MODEL_COUPLING
+          WRITE (out,230) '      Physical parameters File:  ',          &
+     &                    TRIM(Iname)
+# endif
 # ifdef NEMURO_SAN
           IF (ndefFISh(ng).eq.0) THEN
             WRITE (out,230) '            Output Fish File:  ',          &
@@ -6620,9 +6624,6 @@
      &                    TRIM(FLEET(ng)%base)
           END IF
 #  endif
-# endif
-          WRITE (out,230) '      Physical parameters File:  ',          &
-     &                    TRIM(Iname)
 # endif
 #endif
 #ifndef ANA_GRID
