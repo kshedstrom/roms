@@ -2614,7 +2614,6 @@
 #endif
 
 
-
 #  ifdef ICE_MODEL
         read_ice = .true.
 #   ifdef ANA_ICE
@@ -2667,16 +2666,16 @@
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idUice)), Fmin, Fmax
               END IF
-            ELSE
-              IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),        &
-     &                            TRIM(ncname)
-              END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
-     &                       __FILE__)) THEN
-                RETURN
-              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),        &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                     __FILE__)) THEN
+              RETURN
             END IF
           END IF
 !
@@ -2784,16 +2783,16 @@
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idAice)), Fmin, Fmax
               END IF
-            ELSE
-              IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idAice)),        &
-     &                            TRIM(ncname)
-              END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
-     &                       __FILE__)) THEN
-                RETURN
-              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idAice)),        &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                     __FILE__)) THEN
+              RETURN
             END IF
           END IF
 !
@@ -2840,16 +2839,16 @@
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idHice)), Fmin, Fmax
               END IF
-            ELSE
-              IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idHice)),        &
-     &                            TRIM(ncname)
-              END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
-     &                       __FILE__)) THEN
-                RETURN
-              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idHice)),        &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                     __FILE__)) THEN
+              RETURN
             END IF
           END IF
 #ifdef INI_GLORYS_ICE
@@ -2942,16 +2941,16 @@
             IF (Master) THEN
               WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
             END IF
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idTice)),          &
-     &                          TRIM(ncname)
-            END IF
-            exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                     __FILE__)) THEN
-              RETURN
-            END IF
+          END IF
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,80) string, TRIM(Vname(1,idTice)),          &
+     &                        TRIM(ncname)
+          END IF
+          exit_flag=4
+          IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                   __FILE__)) THEN
+            RETURN
           END IF
         END IF
 #ifdef INI_GLORYS_ICE
