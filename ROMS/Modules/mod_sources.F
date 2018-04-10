@@ -112,7 +112,7 @@
 !
 !  Imported variable declarations.
 !
-      integer :: ng
+      integer :: i, ng
 !
 !  Local variable declarations.
 !
@@ -142,19 +142,21 @@
         DO mg=1,Ngrids
           foundit=.FALSE.
           IF (LuvSrc(mg).or.LwSrc(mg).or.ANY(LtracerSrc(:,mg))) THEN
-            CALL netcdf_inq_var (ng, iNLM, SSF(mg)%name,                &
-     &                           MyVarName = TRIM(Vname(1,idRxpo)),     &
-     &                           SearchVar = foundit,                   &
-     &                           VarID = Vid,                           &
-     &                           nVardim = nvdim,                       &
-     &                           nVarAtt = nvatt)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__//", allocate_sources")) RETURN
+            DO i=1,nSSFfiles(ng)
+              CALL netcdf_inq_var (ng, iNLM, SSF(i,mg)%name,            &
+     &                             MyVarName = TRIM(Vname(1,idRxpo)),   &
+     &                             SearchVar = foundit,                 &
+     &                             VarID = Vid,                         &
+     &                             nVardim = nvdim,                     &
+     &                             nVarAtt = nvatt)
+              IF (FoundError(exit_flag, NoError, __LINE__,              &
+     &                       __FILE__//", allocate_sources")) RETURN
 
-            IF (foundit) THEN
-              Nsrc(mg)=var_Dsize(1)         ! first dimension
-              Msrc(mg)=Nsrc(mg)
-            END IF
+              IF (foundit) THEN
+                Nsrc(mg)=var_Dsize(1)         ! first dimension
+                Msrc(mg)=Nsrc(mg)
+              END IF
+            END DO
           END IF
         END DO
       END IF

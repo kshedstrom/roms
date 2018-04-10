@@ -222,7 +222,7 @@ ad_VolCons(north) ==  F                            ! northern boundary
 
        NRREC == 0
    LcycleRST == T
-        NRST == 30 
+        NRST == 30
         NSTA == 1
         NFLT == 1
        NINFO == 1
@@ -230,27 +230,27 @@ ad_VolCons(north) ==  F                            ! northern boundary
 ! Output history, quicksave, average, and diagnostic files parameters.
 
      LDEFOUT == T
-        NHIS == 30 
+        NHIS == 30
      NDEFHIS == 0
         NQCK == 0
      NDEFQCK == 0
       NTSAVG == 1
-        NAVG == 30 
+        NAVG == 30
      NDEFAVG == 0
       NTSDIA == 1
-        NDIA == 30 
+        NDIA == 30
      NDEFDIA == 0
 
 ! Output tangent linear and adjoint models parameters.
 
    LcycleTLM == F
-        NTLM == 30 
+        NTLM == 30
      NDEFTLM == 0
    LcycleADJ == F
-        NADJ == 30 
+        NADJ == 30
      NDEFADJ == 0
-        NSFF == 30 
-        NOBC == 30 
+        NSFF == 30
+        NOBC == 30
 
 ! GST output and check pointing restart parameters.
 
@@ -920,6 +920,7 @@ Dout(iTvdif) == 2*T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
+     NSSFFILES == 1
      SSFNAME == dogbone_rivers.nc
 
 ! Input tidal forcing file name.

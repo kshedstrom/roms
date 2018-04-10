@@ -93,8 +93,8 @@
 !  Point Source/Sink vertically integrated mass transport.
 !
       IF (LuvSrc(ng).or.LwSrc(ng)) THEN
-        CALL get_ngfld (ng, iNLM, idRtra, SSF(ng)%ncid,                 &
-     &                  1, SSF(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idRtra, ncSSFid(idRtra,ng),           &
+     &                  nSSFfiles, SSF(1,ng), update(1),                &
      &                  1, Nsrc(ng), 1, 2, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % QbarG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
@@ -107,8 +107,8 @@
 !
       DO i=1,NT(ng)
         IF (LtracerSrc(i,ng)) THEN
-          CALL get_ngfld (ng, iNLM, idRtrc(i), SSF(ng)%ncid,            &
-     &                    1, SSF(ng), update(1),                        &
+          CALL get_ngfld (ng, iNLM, idRtrc(i), ncSSFid(idRtrc(i),ng),   &
+     &                    nSSFfiles, SSF(1,ng), update(1),              &
 #  ifdef ONE_TRACER_SOURCE
      &                    1, 1, 1, 2, 1, 1, 1,                          &
      &                    SOURCES(ng) % TsrcG(:,i))

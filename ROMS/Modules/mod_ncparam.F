@@ -585,6 +585,10 @@
 !
         integer, allocatable :: ncFRCid(:,:)
 !
+!  Input river NetCDF files IDs.
+!
+        integer, allocatable :: ncSSFid(:,:)
+!
 !  Flags to create output files.
 !
         integer, allocatable :: idefADJ(:)    ! adjoint file
@@ -745,6 +749,7 @@
       allocate ( ncBRYid(NV,Ngrids) )
       allocate ( ncCLMid(NV,Ngrids) )
       allocate ( ncFRCid(NV,Ngrids) )
+      allocate ( ncSSFid(NV,Ngrids) )
 
       allocate ( idefADJ(Ngrids) )
       allocate ( idefAVG(Ngrids) )
@@ -989,6 +994,7 @@
           ncBRYid(i,ng)=-1
           ncCLMid(i,ng)=-1
           ncFRCid(i,ng)=-1
+          ncSSFid(i,ng)=-1
         END DO
       END DO
 !

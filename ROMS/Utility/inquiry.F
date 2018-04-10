@@ -141,6 +141,9 @@
             IF (label(1:3).eq.'CLM') THEN
               CLMids(ifile,ng)=-1
             END IF
+            IF (label(1:3).eq.'SSF') THEN
+              SSFids(ifile,ng)=-1
+            END IF
             EXIT
           ELSE                       ! S(ifile)%name and Fcount already
             Fcount=S(ifile)%Fcount   ! updated in first field processed
@@ -448,6 +451,20 @@
         END DO
       END IF
 !
+!  If processing model river (multiple files allowed), check if file
+!  for requested field (based on ncid) has been already opened and get
+!  its ID from the association table (SSFids).
+!
+      IF (label(1:3).eq.'SSF') THEN
+        DO ifile=1,nfiles
+          IF ((TRIM(ncfile).eq.TRIM(S(ifile)%name)).and.                &
+     &        (ncid.ne.SSFids(ifile,ng))) THEN
+            ncid=SSFids(ifile,ng)
+            EXIT
+          END IF
+        END DO
+      END IF
+!
 !  If processing model forcing (multiple files allowed), check if file
 !  for requested field (based on ncid) has been already opened and get
 !  its ID from the association table (FRCids).
@@ -489,6 +506,17 @@
           DO ifile=1,nfiles
             IF (TRIM(ncfile).eq.TRIM(S(ifile)%name)) THEN
               CLMids(ifile,ng)=ncid
+              S(ifile)%ncid=ncid
+              EXIT
+            END IF
+          END DO
+!
+!  If processing river files, load ID into association table (SSFids).
+!
+        ELSE IF (label(1:3).eq.'SSF') THEN
+          DO ifile=1,nfiles
+            IF (TRIM(ncfile).eq.TRIM(S(ifile)%name)) THEN
+              SSFids(ifile,ng)=ncid
               S(ifile)%ncid=ncid
               EXIT
             END IF
