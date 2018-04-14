@@ -301,20 +301,25 @@
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: ws
       real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: zgrid
 # ifdef LI_FOX_KEMPER
-      real(r8), dimension (IminS:ImaxS) :: wspd10
+      real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: enhance_M
+      real(r8), dimension (IminS:ImaxS) :: LA
       real(r8), dimension (IminS:ImaxS) :: Wstar
-      real(r8), dimension (IminS:ImaxS) :: VS
-      real(r8), dimension (IminS:ImaxS) :: HSL
-      real(r8), dimension (IminS:ImaxS) :: uS0
-      real(r8), dimension (IminS:ImaxS) :: uSSL
-      real(r8), dimension (IminS:ImaxS) :: LaSL
-      real(r8), dimension (IminS:ImaxS) :: T1kp
-      real(r8), dimension (IminS:ImaxS) :: T1kps
-      real(r8), dimension (IminS:ImaxS) :: T2kp
-      real(r8), dimension (IminS:ImaxS) :: T2kps
-      real(r8), dimension (IminS:ImaxS) :: kp
-      real(r8), dimension (IminS:ImaxS) :: kps
-      real(r8), dimension (IminS:ImaxS,JminS:JmaxS) :: eps_Li
+! Local variables
+     ! parameters
+     real(r8), parameter :: &
+       ! ratio of U19.5 to U10 (Holthuijsen, 2007)
+       u19p5_to_u10 = 1.075, &
+       ! ratio of mean frequency to peak frequency for
+       ! Pierson-Moskowitz spectrum (Webb, 2011)
+       fm_to_fp = 1.296, &
+       ! ratio of surface Stokes drift to U10
+       us_to_u10 = 0.0162, &
+       ! loss ratio of Stokes transport
+       r_loss = 0.667
+     real(r8) :: us, hm0, fm, fp, vstokes, kphil, kstar
+     real(r8) :: z0, z0i, rr1, rr2, rr3, rr4, tmp, us_sl, lasl_sqr_i
+     real(r8) :: u10
+     real(r8) :: LaDepthRatio=0.04  ! The ratio of OBL depth to average Stokes drift over
 # endif
 
 # include "set_bounds.h"
@@ -528,31 +533,62 @@
 !  Estimate Langmuir number from winds
 !
         DO i=Istr,Iend
-          wspd10(i) = sqrt(Uwind(i,j)**2 + Vwind(i,j)**2)
+          IF (rmask(i,j) > 0.0) THEN
+            u10 = sqrt(Uwind(i,j)**2 + Vwind(i,j)**2)
+            ! surface Stokes drift
+            us = us_to_u10*u10
+            !
+            ! significant wave height from Pierson-Moskowitz
+            ! spectrum (Bouws, 1998)
+            hm0 = 0.0246 *u10**2
+            !
+            ! peak frequency (PM, Bouws, 1998)
+            tmp = 2.0 * PI * u19p5_to_u10 * u10
+            fp = 0.877 * g / tmp
+            !
+            ! mean frequency
+            fm = fm_to_fp * fp
+            !
+            ! total Stokes transport (a factor r_loss is applied to account
+            !  for the effect of directional spreading, multidirectional waves
+            !  and the use of PM peak frequency and PM significant wave height
+            !  on estimating the Stokes transport)
+            vstokes = 0.125 * PI * r_loss * fm * hm0**2
+            !
+            ! the general peak wavenumber for Phillips' spectrum
+            ! (Breivik et al., 2016) with correction of directional spreading
+            kphil = 0.176 * us / vstokes
+            !
+            ! surface layer averaged Stokes dirft with Stokes drift profile
+            ! estimated from Phillips' spectrum (Breivik et al., 2016)
+            ! the directional spreading effect from Webb and Fox-Kemper, 2015
+            ! is also included
+            kstar = kphil * 2.56
+            ! surface layer
+            !z0 = 0.2 * abs(hbl)
+            !BGR hbl now adjusted by averaging ratio before function call.
+            z0 = abs(LaDepthRatio * (z_w(i,j,N(ng))-hsbl(i,j)))
+            z0i = 1.0 / z0
+            ! term 1 to 4
+            rr1 = ( 0.151 / kphil * z0i -0.84 ) &
+                 * ( 1.0 - exp(-2.0 * kphil * z0) )
+            rr2 = -( 0.84 + 0.0591 / kphil * z0i ) &
+                 *sqrt( 2.0 * PI * kphil * z0 ) &
+                 *erfc( sqrt( 2.0 * kphil * z0 ) )
+            rr3 = ( 0.0632 / kstar * z0i + 0.125 ) &
+                 * (1.0 - exp(-2.0 * kstar * z0) )
+            rr4 = ( 0.125 + 0.0946 / kstar * z0i ) &
+                 *sqrt( 2.0 * PI *kstar * z0) &
+                 *erfc( sqrt( 2.0 * kstar * z0 ) )
+            us_sl = us * (0.715 + rr1 + rr2 + rr3 + rr4)
+            !
+            LA(i) = sqrt(Ustar(i,j) / us_sl)
+          ELSE
+            LA(i) = 1.0e8_r8
+          ENDIF
+          ! Original w'/ust scaling w/ Van Roekel's scaling
+          enhance_M(i,j) = (1+(1.4*LA(i))**(-2)+(5.4*LA(i))**(-4))**(1.5)
           Wstar(i) = abs(Bo(i,j)*(z_w(i,j,N(ng))-hsbl(i,j)))**1/3
-          uS0(i) = 0.016_r8 * wspd10(i)
-          VS(i) = 2.67e-5_r8 * g * wspd10(i)**3
-          kp(i) = 0.176_r8 * uS0(i)/VS(i)
-          kps(i) = 2.56_r8 * kp(i)
-          HSL(i) = 2.0_r8 * sl_dpth(i,j)
-          T1kp(i) = exp(-2*kp(i)*HSL(i))
-          T1kps(i) = exp(-2*kps(i)*HSL(i))
-          T2kp(i) = sqrt(2*pi*kp(i)*abs(HSL(i))) *                      &
-     &              erfc(sqrt(2*kp(i)*abs(HSL(i))))
-          T2kps(i) = sqrt(2*pi*kps(i)*abs(HSL(i))) *                    &
-     &               erfc(sqrt(2*kps(i)*abs(HSL(i))))
-          uSSL(i) = uS0(i) *                                            &
-     &            (0.715_r8 +                                           &
-     &             +(0.151_r8 / (kp(i)*HSL(i)) - 0.84_r8)               &
-     &               * (1.0_r8 - T1kp(i))                               &
-     &             -(0.84_r8 + 0.0591_r8 /(kp(i)*HSL(i)))*T2kp(i)       &
-     &             +(0.0632_r8 /(kps(i)*HSL(i)) + 0.125_r8)             &
-     &               * (1.0_r8 - T1kps(i))                              &
-     &             +(0.125_r8 + 0.0946_r8 / (kps(i)*HSL(i)))            &
-     &              * T2kps(i) )
-         LaSL(i) = sqrt(Ustar(i,j)/uSSL(i))
-         eps_Li(i,j) = sqrt(1 + (max(1.5*LaSL(i),1.e-20))**-2 +         &
-     &                      (max(5.4*LaSL(i),1.e-20))**-4)
         END DO
 # endif
 !
@@ -578,10 +614,10 @@
 # ifdef LI_FOX_KEMPER
               IF (zetapar.gt.lmd_zetam) THEN
                 wm(i,j)=vonKar*Ustar(i,j)*                              &
-     &                  (1.0_r8-16.0_r8*zetapar)**0.25_r8 * eps_Li(i,j)
+     &               (1.0_r8-16.0_r8*zetapar)**0.25_r8 * enhance_M(i,j)
               ELSE
                 wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3 *     &
-     &                  eps_Li(i,j)
+     &               enhance_M(i,j)
               END IF
 # else
               IF (zetapar.gt.lmd_zetam) THEN
@@ -611,7 +647,7 @@
 # ifdef LI_FOX_KEMPER
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1))) *           &
      &            sqrt((0.15_r8*Wstar(i)**3 + 0.17_r8*Ustar(i,j)**3 *   &
-     &              (1.0_r8 + 0.49_r8*LaSL(i)**-2)) / ws(i,j)**3)
+     &              (1.0_r8 + 0.49_r8*LA(i)**-2)) / ws(i,j)**3)
 # else
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1)))
 # endif
@@ -948,10 +984,10 @@
 # ifdef LI_FOX_KEMPER
             IF (zetapar.gt.lmd_zetam) THEN
               wm(i,j)=vonKar*Ustar(i,j)*                                &
-     &                (1.0_r8-16.0_r8*zetapar)**0.25_r8 * eps_Li(i,j)
+     &                (1.0_r8-16.0_r8*zetapar)**0.25_r8 * enhance_M(i,j)
             ELSE
               wm(i,j)=vonKar*(lmd_am*Ustar3-lmd_cm*zetahat)**r3 *       &
-     &                eps_Li(i,j)
+     &                enhance_M(i,j)
             END IF
 # else
             IF (zetapar.gt.lmd_zetam) THEN

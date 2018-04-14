@@ -237,7 +237,8 @@
 ! Not sure what this is all about, but was getting seg faults.
       allocate ( FIL(10,Ngrids) )
 # else
-      allocate ( FIL(nfile,Ngrids) )
+! Ditto
+      allocate ( FIL(10,Ngrids) )
 # endif
 #endif
       allocate ( FLT(Ngrids) )

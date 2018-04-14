@@ -99,7 +99,7 @@
       real(r8) :: Ce, Cx, Ze
       real(r8) :: bry_pgr, bry_cor, bry_str, bry_val
       real(r8) :: cff, cff1, cff2, cff3, dt2d, dVde, dVdt, dVdx
-      real(r8) :: obc_in, obc_out, tau
+      real(r8) :: obc_in, obc_out, tau, gamma_2
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -155,7 +155,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dVdt*(grad(i  ,Jstr+1)+                              &
@@ -184,9 +185,9 @@
      &                          (cff+Ce)
 
               IF (LBC(isouth,isVbar,ng)%nudging) THEN
-                vbar(i,Jstr,kout)=vbar(i,Jstr,kout)+                    &
-     &                            tau*(BOUNDARY(ng)%vbar_south(i)-      &
-     &                                 vbar(i,Jstr,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                vbar(i,Jstr,kout) = (1._r8-gamma_2)*vbar(i,Jstr,kout)+  &
+     &                            gamma_2*BOUNDARY(ng)%vbar_south(i)
               END IF
 #ifdef MASKING
               vbar(i,Jstr,kout)=vbar(i,Jstr,kout)*                      &
@@ -516,7 +517,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dVdt*(grad(i  ,Jend)+                                &
@@ -545,9 +547,10 @@
      &                            (cff+Ce)
 
               IF (LBC(inorth,isVbar,ng)%nudging) THEN
-                vbar(i,Jend+1,kout)=vbar(i,Jend+1,kout)+                &
-     &                              tau*(BOUNDARY(ng)%vbar_north(i)-    &
-     &                                   vbar(i,Jend+1,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                vbar(i,Jend+1,kout) = (1._r8-gamma_2)*                  &
+     &                              vbar(i,Jend+1,kout)+                &
+     &                              gamma_2*BOUNDARY(ng)%vbar_north(i)
               END IF
 #ifdef MASKING
               vbar(i,Jend+1,kout)=vbar(i,Jend+1,kout)*                  &
@@ -877,7 +880,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dVdt*(grad(Istr,j-1)+                                &
@@ -906,9 +910,10 @@
      &                            (cff+Cx)
 
               IF (LBC(iwest,isVbar,ng)%nudging) THEN
-                vbar(Istr-1,j,kout)=vbar(Istr-1,j,kout)+                &
-     &                              tau*(BOUNDARY(ng)%vbar_west(j)-     &
-     &                                   vbar(Istr-1,j,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                vbar(Istr-1,j,kout) = (1._r8-gamma_2)*                  &
+     &                              vbar(Istr-1,j,kout)+                &
+     &                              gamma_2*BOUNDARY(ng)%vbar_west(j)
               END IF
 #ifdef MASKING
               vbar(Istr-1,j,kout)=vbar(Istr-1,j,kout)*                  &
