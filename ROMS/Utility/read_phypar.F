@@ -74,7 +74,7 @@
 
       integer :: Npts, Nval, i, itrc, ivar, k, ng, nl, status
       integer :: ifield, ifile, igrid, itracer, nline, max_Ffiles
-      integer :: ibcfile, iclmfile
+      integer :: ibcfile, iclmfile, issffile
       integer :: Cdim, Clen, Rdim
       integer :: Ivalue(1)
 
@@ -85,6 +85,7 @@
       integer, allocatable :: Ncount(:,:)
       integer, allocatable :: NBCcount(:,:)
       integer, allocatable :: NCLMcount(:,:)
+      integer, allocatable :: NSSFcount(:,:)
 
       real(r8), allocatable :: Rtracer(:,:)
       real(r8), allocatable :: tracer(:,:)
@@ -111,6 +112,7 @@
       ifile=1                            ! multiple file counter
       ibcfile=1                          ! multiple BC file counter
       iclmfile=1                          ! multiple BC file counter
+      issffile=1                          ! multiple BC file counter
       igrid=1                            ! nested grid counter
       itracer=0                          ! LBC tracer counter
       nline=0                            ! LBC multi-line counter
@@ -3453,7 +3455,7 @@
             CASE ('BRYNAME')
               label='BRY - lateral open boundary conditions'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ibcfile,     &
-     &                      igrid, ngrids, nBCfiles, NBCcount,          &
+     &                      igrid, Ngrids, nBCfiles, NBCcount,          &
      &                      nBCfiles, BRY)
             CASE ('NCLMFILES')
               Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
@@ -3475,16 +3477,34 @@
             CASE ('CLMNAME')
               label='CLM - climatology fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, iclmfile,    &
-     &                      igrid, ngrids, nCLMfiles, NCLMcount,        &
+     &                      igrid, Ngrids, nCLMfiles, NCLMcount,        &
      &                      nCLMfiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
      &                      Nfiles, NUD)
+            CASE ('NSSFFILES')
+              Npts=load_i(Nval, Rval, Ngrids, nSSFfiles)
+              DO ng=1,Ngrids
+                IF (nSSFfiles(ng).le.0) THEN
+                  IF (Master) WRITE (out,260) 'NSSFFILES',              &
+     &               nSSFfiles(ng),                                     &
+     &              'Must be equal or greater than one.'
+                  exit_flag=4
+                  RETURN
+                END IF
+              END DO
+              max_Ffiles=MAXVAL(nSSFfiles)
+              allocate ( SSF(max_Ffiles,Ngrids) )
+              allocate ( SSFids(max_Ffiles,Ngrids) )
+              allocate ( NSSFcount(max_Ffiles,Ngrids) )
+              SSFids(1:max_Ffiles,1:Ngrids)=-1
+              NSSFcount(1:max_Ffiles,1:Ngrids)=0
             CASE ('SSFNAME')
               label='SSF - Sources/Sinks forcing fields'
-              Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, SSF)
+              Npts=load_s2d(Nval, Cval, Cdim, line, label, issffile,    &
+     &                      igrid, Ngrids, nSSFfiles, NSSFcount,        &
+     &                      nSSFfiles, SSF)
 # if defined SSH_TIDES || defined UV_TIDES
             CASE ('TIDENAME')
               label='TIDE - Tidal forcing fields'
@@ -6682,10 +6702,18 @@
 #if !defined CORRELATION
 # ifndef ANA_PSOURCE
           IF (LuvSrc(ng).or.LwSrc(ng).or.(ANY(LtracerSrc(:,ng)))) THEN
-            fname=SSF(ng)%name
-            IF (.not.find_file(ng, fname, 'SSFNAME')) GO TO 30
-            WRITE (out,230) '      Input Sources/Sinks File:  ',        &
-     &                      TRIM(fname)
+            DO i=1,nSSFfiles(ng)
+              DO ifile=1,SSF(i,ng)%Nfiles
+                fname=SSF(i,ng)%files(ifile)
+                IF (.not.find_file(ng, fname, 'SSFNAME')) GO TO 30
+                IF (ifile.eq.1) THEN
+                  WRITE (out,230) ' Input Sources/Sinks File:  ',       &
+     &                        TRIM(fname)
+                ELSE
+                  WRITE (out,'(35x,a)') TRIM(fname)
+                END IF
+              END DO
+            END DO
           END IF
 # endif
 # if defined SSH_TIDES || defined UV_TIDES

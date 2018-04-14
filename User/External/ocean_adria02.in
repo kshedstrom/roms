@@ -911,6 +911,7 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 
 ! Input Sources/Sinks forcing (like river runoff) file name.
 
+     NSSFFILES == 1
      SSFNAME == adria48_rivers_sed.nc
 
 ! Input tidal forcing file name.

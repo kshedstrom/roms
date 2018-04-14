@@ -2330,6 +2330,10 @@
 # endif
 #if defined BENTHIC
 !
+
+#  endif
+#if defined BEST_NPZ && defined BERING_10K
+
 !  Read in benthic initial conditions.
         DO itrc=1,NBeT(ng)
           IF (get_var(idBeTvar(itrc))) THEN
@@ -2669,11 +2673,11 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),        &
+              WRITE (stdout,80) string, TRIM(Vname(1,idUice)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
      &                     __FILE__)) THEN
               RETURN
             END IF
@@ -2690,30 +2694,30 @@
               gtype=var_flag(varid)*v2dvar
             END IF
             IF (Perfect2D) THEN
-              status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
-     &                          Vname(1,idVice), varid,                   &
-     &                          InpRec, gtype, Vsize,                     &
-     &                          LBi, UBi, LBj, UBj, 1, 2,                 &
-     &                          Fscl, Fmin, Fmax,                         &
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idVice), varid,                 &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, 2,               &
+     &                          Fscl, Fmin, Fmax,                       &
 # ifdef MASKING
-     &                          GRID(ng) % rmask,                         &
+     &                          GRID(ng) % rmask,                       &
 # endif
      &                          ICE(ng) % vi)
             ELSE
               gtype=var_flag(varid)*v2dvar
-              status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
-     &                          Vname(1,idVice), varid, InpRec, gtype,    &
-     &                          Vsize, LBi, UBi, LBj, UBj,                &
-     &                          Fscl, Fmin, Fmax,                         &
+              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idVice), varid, InpRec, gtype,  &
+     &                          Vsize, LBi, UBi, LBj, UBj,              &
+     &                          Fscl, Fmin, Fmax,                       &
 #   ifdef MASKING
-     &                          GRID(ng) % vmask,                         &
+     &                          GRID(ng) % vmask,                       &
 #   endif
      &                          ICE(ng) % vi(:,:,Tindex))
             END IF
-            IF (FoundError(status, nf90_noerr, __LINE__,                  &
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
               IF (Master) THEN
-                WRITE (stdout,60) string, TRIM(Vname(1,idVice)),            &
+                WRITE (stdout,60) string, TRIM(Vname(1,idVice)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -2726,7 +2730,7 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),          &
+              WRITE (stdout,80) string, TRIM(Vname(1,idVice)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
@@ -2786,11 +2790,11 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idAice)),        &
+              WRITE (stdout,80) string, TRIM(Vname(1,idAice)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
      &                     __FILE__)) THEN
               RETURN
             END IF
@@ -2842,11 +2846,11 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idHice)),        &
+              WRITE (stdout,80) string, TRIM(Vname(1,idHice)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
      &                     __FILE__)) THEN
               RETURN
             END IF
@@ -2944,11 +2948,11 @@
           END IF
         ELSE
           IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idTice)),          &
+            WRITE (stdout,80) string, TRIM(Vname(1,idTice)),            &
      &                        TRIM(ncname)
           END IF
           exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+          IF (FoundError(exit_flag, nf90_noerr, __LINE__,               &
      &                   __FILE__)) THEN
             RETURN
           END IF
@@ -3003,7 +3007,7 @@
             END IF
         ELSE
           IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),            &
+            WRITE (stdout,80) string, TRIM(Vname(1,idApond)),           &
      &                        TRIM(ncname)
           END IF
           exit_flag=4
@@ -3060,7 +3064,7 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),          &
+              WRITE (stdout,80) string, TRIM(Vname(1,idHpond)),         &
      &                          TRIM(ncname)
             END IF
             exit_flag=4

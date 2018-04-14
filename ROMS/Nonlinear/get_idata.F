@@ -549,30 +549,30 @@
 !
       IF ((iic(ng).eq.0).and.                                           &
      &    (LuvSrc(ng).or.LwSrc(ng).or.ANY(LtracerSrc(:,ng)))) THEN
-        CALL get_ngfld (ng, iNLM, idRxpo, SSF(ng)%ncid,                 &
-     &                  1, SSF(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idRxpo, ncSSFid(idRxpo,ng),           &
+     &                  1, SSF(1,ng), update(1),                        &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Xsrc)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
-        CALL get_ngfld (ng, iNLM, idRepo, SSF(ng)%ncid,                 &
-     &                  1, SSF(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idRepo, ncSSFid(idRepo,ng),           &
+     &                  1, SSF(1,ng), update(1),                        &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Ysrc)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
-        CALL get_ngfld (ng, iNLM, idRdir, SSF(ng)%ncid,                 &
-     &                  1, SSF(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idRdir, ncSSFid(idRdir,ng),           &
+     &                  1, SSF(1,ng), update(1),                        &
      &                  1, Nsrc(ng), 1, 1, 1, Nsrc(ng), 1,              &
      &                  SOURCES(ng) % Dsrc)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
 # ifdef SOLVE3D
-        CALL get_ngfld (ng, iNLM, idRvsh, SSF(ng)%ncid,                 &
-     &                  1, SSF(ng), update(1),                          &
+        CALL get_ngfld (ng, iNLM, idRvsh, ncSSFid(idRvsh,ng),           &
+     &                  1, SSF(1,ng), update(1),                        &
      &                  1, Nsrc(ng), N(ng), 1, 1, Nsrc(ng), N(ng),      &
      &                  SOURCES(ng) % Qshape)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
