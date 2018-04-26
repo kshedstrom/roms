@@ -638,7 +638,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
        DO k=1,UBk
          DO j=Jstr,Jend
            DO i=Istr,Iend
-              cobalt%f_htotal(i,j,k)  = max( obgc(i,j,k,nstp,iohtotal) , 0.0d0 )
+              cobalt%f_htotal(i,j,k)  = max( obgc(i,j,k,nstp,iohtotal) , 1.0d-30 )
               cobalt%f_co3_ion(i,j,k) = max( obgc(i,j,k,nstp,ioco3_ion) , 0.0d0 )
            ENDDO
          ENDDO

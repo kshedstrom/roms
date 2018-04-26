@@ -84,6 +84,7 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
+         CPPFLAGS += -DUSE_DEBUG
 #          FFLAGS += -g -check bounds -traceback
 #          FFLAGS += -g -check bounds -traceback -check uninit -warn interfaces,nouncalled -gen-interfaces
            FFLAGS += -g -check uninit -ftrapuv -traceback -check bounds -fpe0

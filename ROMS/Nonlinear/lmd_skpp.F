@@ -77,6 +77,9 @@
 # ifdef MASKING
      &                    GRID(ng) % rmask,                             &
 # endif
+# ifdef WET_DRY
+     &                    GRID(ng) % rmask_wet,                         &
+# endif
      &                    GRID(ng) % f,                                 &
      &                    GRID(ng) % Hz,                                &
      &                    GRID(ng) % z_r,                               &
@@ -122,6 +125,9 @@
      &                          nstp,                                   &
 # ifdef MASKING
      &                          rmask,                                  &
+# endif
+# ifdef WET_DRY
+     &                          rmask_wet,                              &
 # endif
      &                          f, Hz, z_r, z_w,                        &
      &                          u, v, pden,                             &
@@ -179,6 +185,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: f(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
@@ -218,6 +227,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
+# ifdef WET_DRY
+      real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
+# endif
       real(r8), intent(in) :: f(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
@@ -568,7 +580,7 @@
             !z0 = 0.2 * abs(hbl)
             !BGR hbl now adjusted by averaging ratio before function call.
             z0 = abs(LaDepthRatio * (z_w(i,j,N(ng))-hsbl(i,j)))
-            z0i = 1.0 / z0
+            z0i = 1.0 / max(z0, 1.e-10_r8)
             ! term 1 to 4
             rr1 = ( 0.151 / kphil * z0i -0.84 ) &
                  * ( 1.0 - exp(-2.0 * kphil * z0) )
@@ -582,7 +594,7 @@
                  *erfc( sqrt( 2.0 * kstar * z0 ) )
             us_sl = us * (0.715 + rr1 + rr2 + rr3 + rr4)
             !
-            LA(i) = sqrt(Ustar(i,j) / us_sl)
+            LA(i) = max(sqrt(Ustar(i,j) / us_sl), 1.e-10_r8)
           ELSE
             LA(i) = 1.0e8_r8
           ENDIF
@@ -647,7 +659,7 @@
 # ifdef LI_FOX_KEMPER
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1))) *           &
      &            sqrt((0.15_r8*Wstar(i)**3 + 0.17_r8*Ustar(i,j)**3 *   &
-     &              (1.0_r8 + 0.49_r8*LA(i)**-2)) / ws(i,j)**3)
+     &            (1.0_r8 + 0.49_r8*LA(i)**-2)) / max(ws(i,j),1e-10)**3)
 # else
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1)))
 # endif
