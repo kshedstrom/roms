@@ -826,8 +826,11 @@
      &              +(1._r8-ai(i,j,linew))*wao(i,j)
 
             s0mk(i,j) =                                                 &
-     &            (chs(i,j)*salt_top(i,j)+(wro(i,j)-wio(i,j))*sice(i,j))&
-     &                /(chs(i,j)+wro(i,j)-wio(i,j))
+     &            (chs(i,j)*salt_top(i,j)+                              &
+     &                     (ai(i,j,linew)*wro(i,j)-xtot)*sice(i,j))     &
+     &                /(chs(i,j)+ai(i,j,linew)*wro(i,j)-xtot -          &
+     &                  (1._r8-ai(i,j,linew))*stflx(i,j,isalt))
+	    if (s0mk(i,j) < 0.0) s0mk(i,j) = salt_top(i,j)
             s0mk(i,j) = max(s0mk(i,j),0._r8)
             s0mk(i,j) = min(s0mk(i,j),40._r8)
 
