@@ -209,98 +209,100 @@
 !-----------------------------------------------------------------------
 !
       IF (LuvSrc(ng).or.LwSrc(ng)) THEN
-        Nfiles=SSF(ng)%Nfiles
-        DO ifile=1,Nfiles
-          ncname=SSF(ng)%files(ifile)
-          foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,     &
-     &                       Lcheck)
-          IF (FoundError(exit_flag, NoError, __LINE__,                  &
-     &                   __FILE__)) RETURN
-          SSF(ng)%time_min(ifile)=Tmin
-          SSF(ng)%time_max(ifile)=Tmax
-        END DO
+        DO i=1,nSSFfiles(ng)
+          Nfiles=SSF(i,ng)%Nfiles
+          DO ifile=1,Nfiles
+            ncname=SSF(i,ng)%files(ifile)
+            foundit=check_file(ng, model, ncname, Tmin, Tmax, Tscale,   &
+     &                         Lcheck)
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+            SSF(i,ng)%time_min(ifile)=Tmin
+            SSF(i,ng)%time_max(ifile)=Tmax
+          END DO
 !
 !  Set the appropriate file counter to use during initialization or
 !  restart.
 !
-        Fcount=0
-        IF (Lcheck) THEN
-          IF (model.eq.iADM) THEN
-            DO ifile=Nfiles,1,-1
-              Tmax=Tscale*SSF(ng)%time_max(ifile)
-              IF (time(ng).le.Tmax) THEN
-                Fcount=ifile
-              END IF
-            END DO
+          Fcount=0
+          IF (Lcheck) THEN
+            IF (model.eq.iADM) THEN
+              DO ifile=Nfiles,1,-1
+                Tmax=Tscale*SSF(i,ng)%time_max(ifile)
+                IF (time(ng).le.Tmax) THEN
+                  Fcount=ifile
+                END IF
+              END DO
+            ELSE
+              DO ifile=1,Nfiles
+                Tmin=Tscale*SSF(i,ng)%time_min(ifile)
+                IF (time(ng).ge.Tmin) THEN
+                  Fcount=ifile
+                END IF
+              END DO
+            END IF
           ELSE
-            DO ifile=1,Nfiles
-              Tmin=Tscale*SSF(ng)%time_min(ifile)
-              IF (time(ng).ge.Tmin) THEN
-                Fcount=ifile
-              END IF
-            END DO
+            Fcount=1
           END IF
-        ELSE
-          Fcount=1
-        END IF
 !
 !  Initialize other structure parameters or issue an error if data does
 !  not include initalization time.
 !
-        IF (Fcount.gt.0) THEN
-          SSF(ng)%Fcount=Fcount
-          ncname=SSF(ng)%files(Fcount)
-          lstr=LEN_TRIM(ncname)
-          SSF(ng)%name=TRIM(ncname)
-          SSF(ng)%base=ncname(1:lstr-3)
-        ELSE
-          IF (Master.and.Lcheck) THEN
-            WRITE (stdout,10) 'Sources/Sinks Data', I_code
-            DO ifile=1,Nfiles
-              Tmin=Tscale*SSF(ng)%time_min(ifile)
-              Tmax=Tscale*SSF(ng)%time_max(ifile)
-              CALL time_string (Tmin, Tmin_code)
-              CALL time_string (Tmax, Tmax_code)
-              WRITE (stdout,20) Tmin_code, Tmax_code,                   &
-     &                          TRIM(SSF(ng)%files(ifile))
-            END DO
+          IF (Fcount.gt.0) THEN
+            SSF(i,ng)%Fcount=Fcount
+            ncname=SSF(i,ng)%files(Fcount)
+            lstr=LEN_TRIM(ncname)
+            SSF(i,ng)%name=TRIM(ncname)
+            SSF(i,ng)%base=ncname(1:lstr-3)
+          ELSE
+            IF (Master.and.Lcheck) THEN
+              WRITE (stdout,10) 'Sources/Sinks Data', I_code
+              DO ifile=1,Nfiles
+                Tmin=Tscale*SSF(i,ng)%time_min(ifile)
+                Tmax=Tscale*SSF(i,ng)%time_max(ifile)
+                CALL time_string (Tmin, Tmin_code)
+                CALL time_string (Tmax, Tmax_code)
+                WRITE (stdout,20) Tmin_code, Tmax_code,                 &
+     &                            TRIM(SSF(i,ng)%files(ifile))
+              END DO
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
           END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, NoError, __LINE__,                  &
-     &                   __FILE__)) RETURN
-        END IF
 !
 !  Check if there is Sources/Sinks data up to the end of the simulation.
 !
-        IF (Lcheck) THEN
-          IF (model.eq.iADM) THEN
-            Tmin=Tscale*SSF(ng)%time_min(1)
-            IF (Tfinal.lt.Tmin) THEN
-              CALL time_string (Tmin, Tmin_code)
-              IF (Master) THEN
-                WRITE (stdout,30) 'Sources/Sinks Data (adjoint)',       &
-     &                            TRIM(SSF(ng)%files(1)),               &
-     &                            'first ', Tmin_code, F_code
+          IF (Lcheck) THEN
+            IF (model.eq.iADM) THEN
+              Tmin=Tscale*SSF(i,ng)%time_min(1)
+              IF (Tfinal.lt.Tmin) THEN
+                CALL time_string (Tmin, Tmin_code)
+                IF (Master) THEN
+                  WRITE (stdout,30) 'Sources/Sinks Data (adjoint)',     &
+     &                              TRIM(SSF(i,ng)%files(1)),           &
+     &                              'first ', Tmin_code, F_code
+                END IF
+                exit_flag=4
+                IF (FoundError(exit_flag, NoError, __LINE__,            &
+     &                         __FILE__)) RETURN
               END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
-            END IF
-          ELSE
-            Tmax=Tscale*SSF(ng)%time_max(Nfiles)
-            IF (Tfinal.gt.Tmax) THEN
-              CALL time_string (Tmax, Tmax_code)
-              IF (Master) THEN
-                WRITE (stdout,30) 'Sources/Sinks Data',                 &
-     &                            TRIM(SSF(ng)%files(Nfiles)),          &
-     &                            'last  ', Tmax_code, F_code
+            ELSE
+              Tmax=Tscale*SSF(i,ng)%time_max(Nfiles)
+              IF (Tfinal.gt.Tmax) THEN
+                CALL time_string (Tmax, Tmax_code)
+                IF (Master) THEN
+                  WRITE (stdout,30) 'Sources/Sinks Data',               &
+     &                              TRIM(SSF(i,ng)%files(Nfiles)),      &
+     &                              'last  ', Tmax_code, F_code
+                END IF
+                exit_flag=4
+                IF (FoundError(exit_flag, NoError, __LINE__,            &
+     &                         __FILE__)) RETURN
               END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, NoError, __LINE__,              &
-     &                       __FILE__)) RETURN
             END IF
           END IF
-        END IF
+        END DO
       END IF
 
 #ifdef FRC_FILE

@@ -577,7 +577,10 @@
 #ifdef FILTERED
 # define AVERAGES
 # undef  FILTRIM            /* define for fewer time-filtered fields */
-# ifndef ARCTIC
+# if !defined ARCTIC && !defined USE_DEBUG
+#  define FILTERED_RST       /* define if use restart files for time-filtering */
+# endif
+# if defined ARCTIC && defined BIO_COBALT
 #  define FILTERED_RST       /* define if use restart files for time-filtering */
 # endif
 #endif
@@ -615,6 +618,10 @@
 #if defined ATM_COUPLING || defined DATA_COUPLING || \
     defined ICE_COUPLING || defined WAV_COUPLING
 # define MODEL_COUPLING
+#endif
+
+#if defined MODEL_COUPLING && defined ESMF_LIB
+# define REGRESS_STARTCLOCK
 #endif
 
 /*

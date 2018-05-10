@@ -85,6 +85,7 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
+         CPPFLAGS += -DUSE_DEBUG
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
            CFLAGS += -g

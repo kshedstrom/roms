@@ -98,7 +98,7 @@
       real(r8) :: Ce, Cx, Zx
       real(r8) :: bry_pgr, bry_cor, bry_str, bry_val
       real(r8) :: cff, cff1, cff2, cff3, dt2d, dUde, dUdt, dUdx
-      real(r8) :: obc_in, obc_out, tau
+      real(r8) :: obc_in, obc_out, tau, gamma_2
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -154,7 +154,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dUdt*(grad(Istr+1,j  )+                              &
@@ -183,9 +184,9 @@
      &                          (cff+Cx)
 
               IF (LBC(iwest,isUbar,ng)%nudging) THEN
-                ubar(Istr,j,kout)=ubar(Istr,j,kout)+                    &
-     &                            tau*(BOUNDARY(ng)%ubar_west(j)-       &
-     &                                 ubar(Istr,j,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                ubar(Istr,j,kout) = (1._r8-gamma_2)*ubar(Istr,j,kout)+  &
+     &                            gamma_2*BOUNDARY(ng)%ubar_west(j)
               END IF
 #ifdef MASKING
               ubar(Istr,j,kout)=ubar(Istr,j,kout)*                      &
@@ -515,7 +516,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dUdt*(grad(Iend,j  )+                                &
@@ -544,9 +546,10 @@
      &                            (cff+Cx)
 
               IF (LBC(ieast,isUbar,ng)%nudging) THEN
-                ubar(Iend+1,j,kout)=ubar(Iend+1,j,kout)+                &
-     &                              tau*(BOUNDARY(ng)%ubar_east(j)-     &
-     &                                   ubar(Iend+1,j,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                ubar(Iend+1,j,kout) = (1._r8-gamma_2)*                  &
+     &                              ubar(Iend+1,j,kout)+                &
+     &                              gamma_2*BOUNDARY(ng)%ubar_east(j)
               END IF
 #ifdef MASKING
               ubar(Iend+1,j,kout)=ubar(Iend+1,j,kout)*                  &
@@ -876,7 +879,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dUdt*(grad(i-1,Jstr)+                                &
@@ -905,9 +909,10 @@
      &                            (cff+Ce)
 
               IF (LBC(isouth,isUbar,ng)%nudging) THEN
-                ubar(i,Jstr-1,kout)=ubar(i,Jstr-1,kout)+                &
-     &                              tau*(BOUNDARY(ng)%ubar_south(i)-    &
-     &                                   ubar(i,Jstr-1,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                ubar(i,Jstr-1,kout) = (1._r8-gamma_2)*                  &
+     &                              ubar(i,Jstr-1,kout)+                &
+     &                              gamma_2*BOUNDARY(ng)%ubar_south(i)
               END IF
 #ifdef MASKING
               ubar(i,Jstr-1,kout)=ubar(i,Jstr-1,kout)*                  &
@@ -1033,7 +1038,8 @@
                 ELSE
                   tau=obc_out
                 END IF
-                tau=tau*dt2d
+!               tau=tau*dt2d
+                IF (tau > 0.0) tau = 1._r8 / tau
               END IF
 
               IF ((dUdt*(grad(i-1,Jend)+                                &
@@ -1062,9 +1068,10 @@
      &                            (cff+Ce)
 
               IF (LBC(inorth,isUbar,ng)%nudging) THEN
-                ubar(i,Jend+1,kout)=ubar(i,Jend+1,kout)+                &
-     &                              tau*(BOUNDARY(ng)%ubar_north(i)-    &
-     &                                   ubar(i,Jend+1,know))
+                gamma_2 = dt(ng) / (tau + dt(ng))
+                ubar(i,Jend+1,kout) = (1._r8-gamma_2)*                  &
+     &                              ubar(i,Jend+1,kout)+                &
+     &                              gamma_2*BOUNDARY(ng)%ubar_north(i)
               END IF
 #ifdef MASKING
               ubar(i,Jend+1,kout)=ubar(i,Jend+1,kout)*                  &

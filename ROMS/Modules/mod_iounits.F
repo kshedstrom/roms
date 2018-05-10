@@ -88,6 +88,7 @@
 !  BRYids      NetCDF file ID associated with each boundary field.     !
 !  CLMids      NetCDF file ID associated with each climatology field.  !
 !  FRCids      NetCDF file ID associated with each forcing field.      !
+!  SSFids      NetCDF file ID associated with each river source field. !
 !  Rerror      Running error messages.                                 !
 !  SourceFile  Current executed file name. It is used for IO error     !
 !                purposes.                                             !
@@ -140,7 +141,6 @@
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
       TYPE(T_IO), allocatable :: QCK(:)     ! quicksave fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
-      TYPE(T_IO), allocatable :: SSF(:)     ! Sources/Sinks forcing
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
       TYPE(T_IO), allocatable :: STD(:,:)   ! standard deviation
       TYPE(T_IO), allocatable :: TIDE(:)    ! tidal forcing
@@ -168,6 +168,13 @@
       integer, allocatable :: FRCids(:,:)
 
       TYPE(T_IO), allocatable :: FRC(:,:)
+!
+!  Input river source data.
+!
+      integer, allocatable :: nSSFfiles(:)
+      integer, allocatable :: SSFids(:,:)
+
+      TYPE(T_IO), allocatable :: SSF(:,:)
 !
 !  Error messages.
 !
@@ -244,7 +251,8 @@
 ! Not sure what this is all about, but was getting seg faults.
       allocate ( FIL(10,Ngrids) )
 # else
-      allocate ( FIL(nfile,Ngrids) )
+! Ditto
+      allocate ( FIL(10,Ngrids) )
 # endif
 #endif
 #ifdef NEMURO_SAN
@@ -269,7 +277,6 @@
       allocate ( OBS(Ngrids) )
       allocate ( QCK(Ngrids) )
       allocate ( RST(Ngrids) )
-      allocate ( SSF(Ngrids) )
       allocate ( STA(Ngrids) )
       allocate ( TIDE(Ngrids) )
       allocate ( TLF(Ngrids) )
@@ -286,6 +293,7 @@
       allocate ( nBCfiles(Ngrids) )
       allocate ( nCLMfiles(Ngrids) )
       allocate ( nFfiles(Ngrids) )
+      allocate ( nSSFfiles(Ngrids) )
 !
 !-----------------------------------------------------------------------
 !  Initialize I/O NetCDF files ID to close state.
@@ -318,7 +326,6 @@
         OBS(ng)%ncid=-1
         QCK(ng)%ncid=-1
         RST(ng)%ncid=-1
-        SSF(ng)%ncid=-1
         STA(ng)%ncid=-1
         TLF(ng)%ncid=-1
         TLM(ng)%ncid=-1
@@ -413,9 +420,6 @@
 
           RST(ng)%base(i:i)=blank
           RST(ng)%name(i:i)=blank
-
-          SSF(ng)%base(i:i)=blank
-          SSF(ng)%name(i:i)=blank
 
           STA(ng)%base(i:i)=blank
           STA(ng)%name(i:i)=blank
