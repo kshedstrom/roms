@@ -82,7 +82,7 @@
       real(r8), parameter :: eps = 1.0E-20_r8
 
       real(r8) :: Ce, Cx, cff, dUde, dUdt, dUdx
-      real(r8) :: obc_in, obc_out, tau, gamma_2
+      real(r8) :: obc_in, obc_out, phi, tau
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -124,8 +124,11 @@
                   ELSE
                     tau=obc_out
                   END IF
-!                 tau=tau*dt(ng)
-                  IF (tau > 0.0) tau = 1._r8 / tau
+# ifdef IMPLICIT_NUDGING
+                  IF (tau.gt.0.0_r8) tau=1.0_r8/tau
+# else
+                  tau=tau*dt(ng)
+# endif
                 END IF
 
                 IF ((dUdt*(grad(Istr+1,j  )+                            &
@@ -154,9 +157,15 @@
      &                           (cff+Cx)
 
                 IF (LBC(iwest,isUvel,ng)%nudging) THEN
-                  gamma_2 = dt(ng) / (tau + dt(ng))
-                  u(Istr,j,k,nout) = (1._r8-gamma_2)*u(Istr,j,k,nout) + &
-     &                             gamma_2*BOUNDARY(ng)%u_west(j,k)
+# ifdef IMPLICIT_NUDGING
+                  phi=dt(ng)/(tau+dt(ng))
+                  u(Istr,j,k,nout)=(1.0_r8-phi)*u(Istr,j,k,nout)+       &
+     &                             phi*BOUNDARY(ng)%u_west(j,k)
+# else
+                  u(Istr,j,k,nout)=u(Istr,j,k,nout)+                    &
+     &                             tau*(BOUNDARY(ng)%u_west(j,k)-       &
+     &                                  u(Istr,j,k,nstp))
+# endif
                 END IF
 # ifdef MASKING
                 u(Istr,j,k,nout)=u(Istr,j,k,nout)*                      &
@@ -257,8 +266,11 @@
                   ELSE
                     tau=obc_out
                   END IF
-!                 tau=tau*dt(ng)
-                  IF (tau > 0.0) tau = 1._r8 / tau
+# ifdef IMPLICIT_NUDGING
+                  IF (tau.gt.0.0_r8) tau=1.0_r8/tau
+# else
+                  tau=tau*dt(ng)
+# endif
                 END IF
 
                 IF ((dUdt*(grad(Iend,j  )+                              &
@@ -287,10 +299,15 @@
      &                             (cff+Cx)
 
                 IF (LBC(ieast,isUvel,ng)%nudging) THEN
-                  gamma_2 = dt(ng) / (tau + dt(ng))
-                  u(Iend+1,j,k,nout) = (1._r8-gamma_2)*                 &
-     &                               u(Iend+1,j,k,nout)+                &
-     &                               gamma_2*BOUNDARY(ng)%u_east(j,k)
+# ifdef IMPLICIT_NUDGING
+                  phi=dt(ng)/(tau+dt(ng))
+                  u(Iend+1,j,k,nout)=(1.0_r8-phi)*u(Iend+1,j,k,nout)+   &
+     &                               phi*BOUNDARY(ng)%u_east(j,k)
+# else
+                  u(Iend+1,j,k,nout)=u(Iend+1,j,k,nout)+                &
+     &                               tau*(BOUNDARY(ng)%u_east(j,k)-     &
+     &                                    u(Iend+1,j,k,nstp))
+# endif
                 END IF
 # ifdef MASKING
                 u(Iend+1,j,k,nout)=u(Iend+1,j,k,nout)*                  &
@@ -391,8 +408,11 @@
                   ELSE
                     tau=obc_out
                   END IF
-!                 tau=tau*dt(ng)
-                  IF (tau > 0.0) tau = 1._r8 / tau
+# ifdef IMPLICIT_NUDGING
+                  IF (tau.gt.0.0_r8) tau=1.0_r8/tau
+# else
+                  tau=tau*dt(ng)
+# endif
                 END IF
 
                 IF ((dUdt*(grad(i-1,Jstr)+                              &
@@ -421,10 +441,15 @@
      &                             (cff+Ce)
 
                 IF (LBC(isouth,isUvel,ng)%nudging) THEN
-                  gamma_2 = dt(ng) / (tau + dt(ng))
-                  u(i,Jstr-1,k,nout) = (1._r8 - gamma_2)*               &
-     &                               u(i,Jstr-1,k,nout)+                &
-     &                               gamma_2*BOUNDARY(ng)%u_south(i,k)
+# ifdef IMPLICIT_NUDGING
+                  phi=dt(ng)/(tau+dt(ng))
+                  u(i,Jstr-1,k,nout)=(1.0_r8-phi)*u(i,Jstr-1,k,nout)+   &
+     &                               phi*BOUNDARY(ng)%u_south(i,k)
+# else
+                  u(i,Jstr-1,k,nout)=u(i,Jstr-1,k,nout)+                &
+     &                               tau*(BOUNDARY(ng)%u_south(i,k)-    &
+     &                                    u(i,Jstr-1,k,nstp))
+# endif
                 END IF
 # ifdef MASKING
                 u(i,Jstr-1,k,nout)=u(i,Jstr-1,k,nout)*                  &
@@ -541,8 +566,11 @@
                   ELSE
                     tau=obc_out
                   END IF
-!                 tau=tau*dt(ng)
-                  IF (tau > 0.0) tau = 1._r8 / tau
+# ifdef IMPLICIT_NUDGING
+                  IF (tau.gt.0.0_r8) tau=1.0_r8/tau
+# else
+                  tau=tau*dt(ng)
+# endif
                 END IF
 
                 IF ((dUdt*(grad(i-1,Jend)+                              &
@@ -571,10 +599,15 @@
      &                             (cff+Ce)
 
                 IF (LBC(inorth,isUvel,ng)%nudging) THEN
-                  gamma_2 = dt(ng) / (tau + dt(ng))
-                  u(i,Jend+1,k,nout) = (1._r8 - gamma_2)*               &
-     &                               u(i,Jend+1,k,nout)+                &
-     &                               gamma_2*BOUNDARY(ng)%u_north(i,k)
+# ifdef IMPLICIT_NUDGING
+                  phi=dt(ng)/(tau+dt(ng))
+                  u(i,Jend+1,k,nout)=(1.0_r8-phi)*u(i,Jend+1,k,nout)+   &
+     &                               phi*BOUNDARY(ng)%u_north(i,k)
+# else
+                  u(i,Jend+1,k,nout)=u(i,Jend+1,k,nout)+                &
+     &                               tau*(BOUNDARY(ng)%u_north(i,k)-    &
+     &                                    u(i,Jend+1,k,nstp))
+# endif
                 END IF
 # ifdef MASKING
                 u(i,Jend+1,k,nout)=u(i,Jend+1,k,nout)*                  &

@@ -1440,7 +1440,8 @@
               ELSE
                 IF (Master) THEN
                   WRITE (stdout,30) 'longitude of RHO-points: lon_rho', &
-     &                              ng, TRIM(ncname), Fmin, Fmax
+     &                              ng, TRIM(ncname),                   &
+     &                              LonMin(ng), LonMax(ng)
                 END IF
               END IF
 # ifdef NESTING
@@ -1484,7 +1485,8 @@
               ELSE
                 IF (Master) THEN
                   WRITE (stdout,30) 'latitude of RHO-points lat_rho',   &
-     &                              ng, TRIM(ncname), Fmin, Fmax
+     &                              ng, TRIM(ncname),                   &
+     &                              LatMin(ng), LatMax(ng)
                 END IF
               END IF
 # ifdef NESTING
