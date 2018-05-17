@@ -489,7 +489,7 @@
                   gamma_2 = dt(ng) / (tau + dt(ng))
                   t(i,Jstr-1,k,nout,itrc) =                             &
      &                       (1._r8-gamma_2)*t(i,Jstr-1,k,nout,itrc)+   &
-     &                         gamma_2*BOUNDARY(ng)%t_south(j,k,itrc)
+     &                         gamma_2*BOUNDARY(ng)%t_south(i,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(i,Jstr-1,k,nout,itrc)=t(i,Jstr-1,k,nout,itrc)*        &
@@ -637,7 +637,7 @@
                   gamma_2 = dt(ng) / (tau + dt(ng))
                   t(i,Jend+1,k,nout,itrc) =                             &
      &                       (1._r8-gamma_2)*t(i,Jend+1,k,nout,itrc)+   &
-     &                         gamma_2*BOUNDARY(ng)%t_north(j,k,itrc)
+     &                         gamma_2*BOUNDARY(ng)%t_north(i,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)*        &
