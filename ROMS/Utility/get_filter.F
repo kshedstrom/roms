@@ -870,6 +870,134 @@
           END IF
         END IF
       END IF
+!
+!  Read in 2d potential vorticity
+!
+      ncname=FIL(1,ng)%name
+      IF (Aout(id2dPV,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,id2dPV),       &
+     &                       FIL(1,ng)%ncid, varid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+        gtype=p2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
+     &                Vname(1,id2dPV), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+# ifdef MASKING
+     &                GRID(ng) % pmask,                                 &
+# endif
+     &                FILTER(ng) % filpotvor_bar(:,:,tindx))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,id2dPV)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,id2dPV)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in 2d relative vorticity
+!
+      ncname=FIL(1,ng)%name
+      IF (Aout(id2dRV,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,id2dRV),       &
+     &                       FIL(1,ng)%ncid, varid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+        gtype=p2dvar
+        status=nf_fread2d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
+     &                Vname(1,id2dRV), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj,                        &
+     &                Fscl, Fmin, Fmax,                                 &
+# ifdef MASKING
+     &                GRID(ng) % pmask,                                 &
+# endif
+     &                FILTER(ng) % filrelvor_bar(:,:,tindx))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,id2dRV)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,id2dRV)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in 3d potential vorticity
+!
+      ncname=FIL(1,ng)%name
+      IF (Aout(id3dPV,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,id3dPV),       &
+     &                       FIL(1,ng)%ncid, varid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+        gtype=p3dvar
+        status=nf_fread3d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
+     &                Vname(1,id3dPV), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                Fscl, Fmin, Fmax,                                 &
+# ifdef MASKING
+     &                GRID(ng) % pmask,                                 &
+# endif
+     &                FILTER(ng) % filpotvor(:,:,:,tindx))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,id3dPV)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,id3dPV)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
+!
+!  Read in 3d relative vorticity
+!
+      ncname=FIL(1,ng)%name
+      IF (Aout(id3dRV,ng)) THEN
+        CALL netcdf_inq_varid (ng, iNLM, ncname, Vname(1,id3dRV),       &
+     &                       FIL(1,ng)%ncid, varid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) RETURN
+        gtype=p3dvar
+        status=nf_fread3d(ng, iNLM, ncname, FIL(1,ng)%ncid,             &
+     &                Vname(1,id3dRV), varid, tindx, gtype,             &
+     &                Vsize, LBi, UBi, LBj, UBj, 1, N(ng),              &
+     &                Fscl, Fmin, Fmax,                                 &
+# ifdef MASKING
+     &                GRID(ng) % pmask,                                 &
+# endif
+     &                FILTER(ng) % filrelvor(:,:,:,tindx))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,30) TRIM(Vname(1,id3dRV)), tindx, TRIM(ncname)
+          END IF
+          exit_flag=2
+          ioerror=status
+          RETURN
+        ELSE
+          IF (Master) THEN
+            WRITE (stdout,40) TRIM(Vname(2,id3dRV)), Fmin, Fmax
+          END IF
+        END IF
+      END IF
 # ifdef ICE_MODEL
 !
 !  Read in ice u-velocity

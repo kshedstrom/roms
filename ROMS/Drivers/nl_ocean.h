@@ -370,6 +370,7 @@
 !
 !  If cycling restart records, write solution into the next record.
 !
+      print *, 'exit_flag from ROMS_finalize', exit_flag
       IF (exit_flag==1 .or. exit_flag==9) THEN
         DO ng=1,Ngrids
           IF (LwrtRST(ng)) THEN

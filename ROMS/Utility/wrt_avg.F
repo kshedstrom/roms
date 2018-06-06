@@ -138,7 +138,7 @@
 # endif
      &                     AVERAGE(ng) % avgzeta)
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
-    &                  __FILE__)) THEN
+     &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idFsur)), AVG(ng)%Rindex
           END IF
@@ -1682,7 +1682,7 @@
 !
       IF (Aout(idUiceE,ng)) THEN
         scale=1.0_r8
-        gtype=gfactor*u2dvar
+        gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
      &                     AVG(ng)%Vid(idUiceE),                        &
      &                     AVG(ng)%Rindex, gtype,                       &
@@ -1705,7 +1705,7 @@
 !
       IF (Aout(idViceN,ng)) THEN
         scale=1.0_r8
-        gtype=gfactor*v2dvar
+        gtype=gfactor*r2dvar
         status=nf_fwrite2d(ng, iNLM, AVG(ng)%ncid,                      &
      &                     AVG(ng)%Vid(idViceN),                        &
      &                     AVG(ng)%Rindex, gtype,                       &

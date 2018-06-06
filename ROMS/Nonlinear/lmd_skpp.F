@@ -659,7 +659,8 @@
 # ifdef LI_FOX_KEMPER
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1))) *           &
      &            sqrt((0.15_r8*Wstar(i)**3 + 0.17_r8*Ustar(i,j)**3 *   &
-     &            (1.0_r8 + 0.49_r8*LA(i)**-2)) / max(ws(i,j),1e-10)**3)
+     &            (1.0_r8 + 0.49_r8*LA(i)**(-2))) /                     &
+     &            max(ws(i,j),1e-10)**3)
 # else
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1)))
 # endif
