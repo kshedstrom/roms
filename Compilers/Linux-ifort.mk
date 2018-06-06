@@ -93,14 +93,14 @@ ifdef USE_DEBUG
 #          FFLAGS += -fp-stack-check
            FFLAGS += -traceback
            FFLAGS += -warn interfaces,nouncalled -gen-interfaces
-           FFLAGS += -Wl,-no_compact_unwind
-           FFLAGS += -Wl,-stack_size,0x64000000
+#          FFLAGS += -Wl,-no_compact_unwind
+#          FFLAGS += -Wl,-stack_size,0x64000000
            FFLAGS += -ftrapuv -fpe0
            CFLAGS += -g
          CXXFLAGS += -g
 else
            FFLAGS += -ip -O3
-           FFLAGS += -Wl,-stack_size,0x64000000
+#          FFLAGS += -Wl,-stack_size,0x64000000
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

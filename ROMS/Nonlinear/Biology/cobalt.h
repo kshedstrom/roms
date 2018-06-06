@@ -3390,25 +3390,43 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !
 ! 4.2: Calculate the production rate of aragonite and calcite detritus
 !
-
+  ! CAS: updated to ESM4 formulation, 5/21/18, update parameters to
+  ! call g_tracer_add_param('ca_2_n_arag', cobalt%ca_2_n_arag, 0.030 * 106.0 / 16.0)        ! mol Ca mol N-1
+  ! call g_tracer_add_param('ca_2_n_calc', cobalt%ca_2_n_calc, 0.013 * 106.0 / 16.0)        ! mol Ca mol N-1
+  ! call g_tracer_add_param('caco3_sat_max', cobalt%caco3_sat_max,10.0)                     ! dimensionless
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
-        cobalt%jprod_cadet_arag(i,j,k) = ( zoo(2)%jzloss_n(i,j,k) +      &
-      &                                    zoo(3)%jzloss_n(i,j,k) +      &
-      &                                    zoo(2)%jhploss_n(i,j,k) +     &
-      &                                    zoo(3)%jhploss_n(i,j,k) ) *   &
-      & cobalt%ca_2_n_arag * min( cobalt%caco3_sat_max,                  &
-      & max(0.0d0,cobalt%omega_arag(i,j,k) - 1.0d0) ) +                  &
-      & epsln
-
-        cobalt%jprod_cadet_calc(i,j,k) = (zoo(1)%jzloss_n(i,j,k) +       &
-      &              phyto(SMALL)%jaggloss_n(i,j,k))*cobalt%ca_2_n_calc* &
-      &              min(cobalt%caco3_sat_max, max(0.0d0, cobalt%omega_calc(i,j,k) - 1.0d0)) + epsln
+        cobalt%jprod_cadet_arag(i,j,k) = (zoo(2)%jzloss_n(i,j,k)*zoo(3)%phi_det + &
+                       (zoo(2)%jhploss_n(i,j,k) + zoo(3)%jhploss_n(i,j,k))*cobalt%hp_phi_det)* &
+                       cobalt%ca_2_n_arag*min(cobalt%caco3_sat_max, max(0.0,cobalt%omega_arag(i,j,k) - 1.0)) + epsln
+        cobalt%jprod_cadet_calc(i,j,k) = (zoo(1)%jzloss_n(i,j,k)*zoo(2)%phi_det + &
+                       phyto(SMALL)%jzloss_n(i,j,k)*zoo(1)%phi_det + phyto(LARGE_)%jzloss_n(i,j,k)*zoo(3)%phi_det + &
+                       phyto(SMALL)%jaggloss_n(i,j,k) + phyto(LARGE_)%jaggloss_n(i,j,k))*cobalt%ca_2_n_calc* &
+                       min(cobalt%caco3_sat_max, max(0.0, cobalt%omega_calc(i,j,k) - 1.0)) + epsln
       ENDDO
     ENDDO
   ENDDO
   i=overflow ; j=overflow ; k=overflow
+
+!  DO k=1,UBk
+!    DO j=Jstr,Jend
+!      DO i=Istr,Iend
+!        cobalt%jprod_cadet_arag(i,j,k) = ( zoo(2)%jzloss_n(i,j,k) +      &
+!      &                                    zoo(3)%jzloss_n(i,j,k) +      &
+!      &                                    zoo(2)%jhploss_n(i,j,k) +     &
+!      &                                    zoo(3)%jhploss_n(i,j,k) ) *   &
+!      & cobalt%ca_2_n_arag * min( cobalt%caco3_sat_max,                  &
+!      & max(0.0d0,cobalt%omega_arag(i,j,k) - 1.0d0) ) +                  &
+!      & epsln
+!
+!        cobalt%jprod_cadet_calc(i,j,k) = (zoo(1)%jzloss_n(i,j,k) +       &
+!      &              phyto(SMALL)%jaggloss_n(i,j,k))*cobalt%ca_2_n_calc* &
+!      &              min(cobalt%caco3_sat_max, max(0.0d0, cobalt%omega_calc(i,j,k) - 1.0d0)) + epsln
+!      ENDDO
+!    ENDDO
+!  ENDDO
+!  i=overflow ; j=overflow ; k=overflow
 
 !
 ! 4.3: Lithogenic detritus production (repackaged from f_lith during filter feeding)
@@ -3999,8 +4017,8 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     ! simpler bottom flux
     cobalt%fcased_redis(i,j)=cobalt%f_cadet_calc_btf(i,j,1)
 
-    cobalt%fcased_burial(i,j) = max(0.0, cobalt%f_cadet_calc_btf(i,j,1)* &
-  &                             cobalt%f_cased(i,j,1) / 8.1e3)
+!    cobalt%fcased_burial(i,j) = max(0.0, cobalt%f_cadet_calc_btf(i,j,1)* &
+!  &                             cobalt%f_cased(i,j,1) / 8.1e3)
 
 
 
@@ -4023,7 +4041,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     cobalt%b_alk(i,j) = (- 2.0*(cobalt%fcased_redis(i,j)+                 &
    &                            cobalt%f_cadet_arag_btf(i,j,1)) -         &
    &                           (cobalt%f_ndet_btf(i,j,1) -                &
-   &                            cobalt%fndet_burial(i,j)) +               &
+   &                            cobalt%fndet_burial(i,j)) -               &
    &                            cobalt%alk_2_n_denit * cobalt%fno3denit_sed(i,j) ) &
    &                * rmask_local(i,j)
 
