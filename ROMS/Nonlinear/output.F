@@ -441,8 +441,9 @@
 !  Write out data into time-averaged NetCDF file.
 !
       IF (LwrtAVG2(ng)) THEN
-        IF ((iic(ng).gt.ntstart(ng)).and.                               &
-     &      (MOD(iic(ng)-1,nAVG2(ng)).eq.0)) THEN
+        IF (((iic(ng).gt.ntstart(ng)).and.                              &
+     &       (MOD(iic(ng)-1,nAVG2(ng)).eq.0)).or.                       &
+     &      ((iic(ng).ge.ntsAVG2(ng)).and.(nAVG2(ng).eq.1))) THEN
           CALL wrt_avg2 (ng)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                     __FILE__)) RETURN

@@ -92,7 +92,7 @@
 !
       DEFINE : IF (ldef) THEN
         CALL netcdf_create (ng, model, TRIM(ncname), AVG2(ng)%ncid)
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) WRITE (stdout,30) TRIM(ncname)
           RETURN
