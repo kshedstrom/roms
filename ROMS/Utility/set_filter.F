@@ -750,16 +750,16 @@
               END DO
             END IF
             IF (Aout(id2dPV,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
                   FILTER(ng)%filpotvor_bar(i,j,f) = potvor_bar(i,j)*    &
      &                          fw(iw)
                 END DO
               END DO
             END IF
             IF (Aout(id2dRV,ng)) THEN
-              DO j=JstrR,JendR
-                DO i=IstrR,IendR
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
                   FILTER(ng)%filrelvor_bar(i,j,f) = relvor_bar(i,j)*    &
      &                          fw(iw)
                 END DO
@@ -767,8 +767,8 @@
             END IF
             IF (Aout(id3dPV,ng)) THEN
               DO k=1,N(ng)
-                DO j=JstrR,JendR
-                  DO i=IstrR,IendR
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
                     FILTER(ng)%filpotvor(i,j,k,f) = potvor(i,j,k)*      &
      &                            fw(iw)
                   END DO
@@ -777,8 +777,8 @@
             END IF
             IF (Aout(id3dRV,ng)) THEN
               DO k=1,N(ng)
-                DO j=JstrR,JendR
-                  DO i=IstrR,IendR
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
                     FILTER(ng)%filrelvor(i,j,k,f) = relvor(i,j,k)*      &
      &                            fw(iw)
                   END DO
@@ -1376,7 +1376,7 @@
                 END DO
               END IF
               IF (Aout(id2dPV,ng)) THEN
-                DO j=JstrR,JendR
+                DO j=Jstr,JendR
                   DO i=Istr,IendR
                     FILTER(ng)%filpotvor_bar(i,j,f)=                    &
      &                         FILTER(ng)%filpotvor_bar(i,j,f)+         &
@@ -1385,7 +1385,7 @@
                 END DO
               END IF
               IF (Aout(id2dRV,ng)) THEN
-                DO j=JstrR,JendR
+                DO j=Jstr,JendR
                   DO i=Istr,IendR
                     FILTER(ng)%filrelvor_bar(i,j,f)=                    &
      &                         FILTER(ng)%filrelvor_bar(i,j,f)+         &
@@ -1395,7 +1395,7 @@
               END IF
               IF (Aout(id3dPV,ng)) THEN
                 DO k=1,N(ng)
-                  DO j=JstrR,JendR
+                  DO j=Jstr,JendR
                     DO i=Istr,IendR
                       FILTER(ng)%filpotvor(i,j,k,f)=                    &
      &                           FILTER(ng)%filpotvor(i,j,k,f)+         &
@@ -1406,7 +1406,7 @@
               END IF
               IF (Aout(id3dRV,ng)) THEN
                 DO k=1,N(ng)
-                  DO j=JstrR,JendR
+                  DO j=Jstr,JendR
                     DO i=Istr,IendR
                       FILTER(ng)%filrelvor(i,j,k,f)=                    &
      &                           FILTER(ng)%filrelvor(i,j,k,f)+         &
@@ -2037,7 +2037,7 @@
               END DO
             END IF
             IF (Aout(id2dPV,ng)) THEN
-              DO j=JstrR,JendR
+              DO j=Jstr,JendR
                 DO i=Istr,IendR
                   AVERAGE(ng)%avgpvor2d(i,j)=                           &
      &                        FILTER(ng)%filpotvor_bar(i,j,f)
@@ -2045,7 +2045,7 @@
               END DO
             END IF
             IF (Aout(id2dRV,ng)) THEN
-              DO j=JstrR,JendR
+              DO j=Jstr,JendR
                 DO i=Istr,IendR
                   AVERAGE(ng)%avgrvor2d(i,j)=                           &
      &                        FILTER(ng)%filrelvor_bar(i,j,f)
@@ -2054,7 +2054,7 @@
             END IF
             IF (Aout(id3dPV,ng)) THEN
               DO k=1,N(ng)
-                DO j=JstrR,JendR
+                DO j=Jstr,JendR
                   DO i=Istr,IendR
                     AVERAGE(ng)%avgpvor3d(i,j,k)=                       &
      &                          FILTER(ng)%filpotvor(i,j,k,f)
@@ -2064,7 +2064,7 @@
             END IF
             IF (Aout(id3dRV,ng)) THEN
               DO k=1,N(ng)
-                DO j=JstrR,JendR
+                DO j=Jstr,JendR
                   DO i=Istr,IendR
                     AVERAGE(ng)%avgrvor3d(i,j,k)=                       &
      &                          FILTER(ng)%filrelvor(i,j,k,f)

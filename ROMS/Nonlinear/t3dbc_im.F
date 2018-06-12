@@ -338,8 +338,8 @@
 
                 IF (LBC(ieast,isTvar(itrc),ng)%nudging) THEN
                   phi = dt(ng) / (tau + dt(ng))
-                  t(Istr+1,j,k,nout,itrc) =                             &
-     &                       (1._r8-phi)*t(Istr+1,j,k,nout,itrc)+       &
+                  t(Iend+1,j,k,nout,itrc) =                             &
+     &                       (1._r8-phi)*t(Iend+1,j,k,nout,itrc)+       &
      &                         phi*BOUNDARY(ng)%t_east(j,k,itrc)
                 END IF
 #  ifdef MASKING

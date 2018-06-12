@@ -488,7 +488,7 @@
 # endif
      &                      FORCES(ng) % Uwind,                         &
      &                      FORCES(ng) % Vwind,                         &
-     &                      AVERAGE2(ng)%avgUwindE,                      &
+     &                      AVERAGE2(ng)%avgUwindE,                     &
      &                      AVERAGE2(ng)%avgVwindN)
         END IF
 #  endif
@@ -498,7 +498,7 @@
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgstf(i,j)=FORCES(ng)%stflx(i,j,itemp)
 #  ifdef WET_DRY
-              AVERAGE2(ng)%avgstf(i,j)=AVERAGE2(ng)%avgstf(i,j)*          &
+              AVERAGE2(ng)%avgstf(i,j)=AVERAGE2(ng)%avgstf(i,j)*        &
      &                                GRID(ng)%rmask_full(i,j)
 #  endif
             END DO
@@ -509,7 +509,7 @@
             DO i=IstrR,IendR
               AVERAGE2(ng)%avgswf(i,j)=FORCES(ng)%stflx(i,j,isalt)
 #  ifdef WET_DRY
-              AVERAGE2(ng)%avgswf(i,j)=AVERAGE2(ng)%avgswf(i,j)*          &
+              AVERAGE2(ng)%avgswf(i,j)=AVERAGE2(ng)%avgswf(i,j)*        &
      &                                GRID(ng)%rmask_full(i,j)
 #  endif
             END DO
@@ -1085,8 +1085,8 @@
 !  Initialize vorticity fields.
 !
         IF (Aout2(id2dPV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgpvor2d(i,j)=potvor_bar(i,j)
 # ifdef WET_DRY
               AVERAGE2(ng)%avgpvor2d(i,j)=AVERAGE2(ng)%avgpvor2d(i,j)*  &
@@ -1096,8 +1096,8 @@
           END DO
         END IF
         IF (Aout2(id2dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor2d(i,j)=relvor_bar(i,j)
 # ifdef WET_DRY
               AVERAGE2(ng)%avgrvor2d(i,j)=AVERAGE2(ng)%avgrvor2d(i,j)*  &
@@ -1108,8 +1108,8 @@
         END IF
 # ifdef SOLVE3D
         IF (Aout2(id3dPV,ng)) THEN
-            DO j=Jstr,Jend
-              DO i=Istr,Iend
+            DO j=Jstr,JendR
+              DO i=Istr,IendR
                 AVERAGE2(ng)%avgpvor3d(i,j)=potvor(i,j,N(ng))
 #  ifdef WET_DRY
                 AVERAGE2(ng)%avgpvor3d(i,j)=AVERAGE2(ng)%avgpvor3d(i,j)*&
@@ -1119,8 +1119,8 @@
           END DO
         END IF
         IF (Aout2(id3dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor3d(i,j)=relvor(i,j,N(ng))
 #  ifdef WET_DRY
               AVERAGE2(ng)%avgrvor3d(i,j)=AVERAGE2(ng)%avgrvor3d(i,j)*&
@@ -2028,8 +2028,8 @@
 !  Accumulate vorticity fields.
 !
         IF (Aout2(id2dPV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgpvor2d(i,j)=AVERAGE2(ng)%avgpvor2d(i,j)+  &
 # ifdef WET_DRY
      &                                    GRID(ng)%pmask_full(i,j)*     &
@@ -2039,8 +2039,8 @@
           END DO
         END IF
         IF (Aout2(id2dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor2d(i,j)=AVERAGE2(ng)%avgrvor2d(i,j)+  &
 # ifdef WET_DRY
      &                                    GRID(ng)%pmask_full(i,j)*     &
@@ -2051,8 +2051,8 @@
         END IF
 # ifdef SOLVE3D
         IF (Aout2(id3dPV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgpvor3d(i,j)=AVERAGE2(ng)%avgpvor3d(i,j)+  &
 #  ifdef WET_DRY
      &                                    GRID(ng)%pmask_full(i,j)*     &
@@ -2062,8 +2062,8 @@
           END DO
         END IF
         IF (Aout2(id3dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor3d(i,j)=AVERAGE2(ng)%avgrvor3d(i,j)+  &
 #  ifdef WET_DRY
      &                                    GRID(ng)%pmask_full(i,j)*     &
@@ -2806,8 +2806,8 @@
 !  Process vorticity fields.
 !
         IF (Aout2(id2dPV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgpvor2d(i,j)=pfac(i,j)*                    &
      &                                   AVERAGE2(ng)%avgpvor2d(i,j)
             END DO
@@ -2815,8 +2815,8 @@
         END IF
 
         IF (Aout2(id2dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor2d(i,j)=pfac(i,j)*                    &
      &                                   AVERAGE2(ng)%avgrvor2d(i,j)
             END DO
@@ -2825,8 +2825,8 @@
 
 # ifdef SOLVE3D
         IF (Aout2(id3dPV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgpvor3d(i,j)=pfac(i,j)*                    &
      &                                      AVERAGE2(ng)%avgpvor3d(i,j)
             END DO
@@ -2834,8 +2834,8 @@
         END IF
 
         IF (Aout2(id3dRV,ng)) THEN
-          DO j=Jstr,Jend
-            DO i=Istr,Iend
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
               AVERAGE2(ng)%avgrvor3d(i,j)=pfac(i,j)*                    &
      &                                      AVERAGE2(ng)%avgrvor3d(i,j)
             END DO

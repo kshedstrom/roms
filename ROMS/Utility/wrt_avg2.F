@@ -1686,6 +1686,54 @@
           RETURN
         END IF
       END IF
+!
+!  Write out 2D Eastward surface wind (m/s) at RHO-points.
+!
+      IF (Aout2(idUairE,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idUairE),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_avg2,                       &
+#   endif
+     &                     AVERAGE2(ng) % avguwindE)
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idUairE)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2D Northward surface wind (m/s) at RHO-points.
+!
+      IF (Aout2(idVairN,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*r2dvar
+        status=nf_fwrite2d(ng, iNLM, AVG2(ng)%ncid,                     &
+     &                     AVG2(ng)%Vid(idVairN),                       &
+     &                     AVG2(ng)%Rindex, gtype,                      &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+#   ifdef MASKING
+     &                     GRID(ng) % rmask_avg2,                       &
+#   endif
+     &                     AVERAGE2(ng) % avgvwindN)
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idVairN)), AVG2(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
 #  endif
 !
 !  Write out surface net heat flux.
