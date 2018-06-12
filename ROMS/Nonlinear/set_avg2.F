@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE set_avg2_mod
-#ifdef AVERAGES
+#ifdef AVERAGES2
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
