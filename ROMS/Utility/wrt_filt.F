@@ -817,14 +817,14 @@
       IF (Aout(id3dPV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p3dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+        status=nf_fwrite3d(ng, iNLM, FIL(1,ng)%ncid,                    &
      &                 FIL(1,ng)%Vid(id3dPV),                           &
      &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
 # ifdef MASKING
      &                 GRID(ng) % pmask,                                &
 # endif
-     &                 FILTER(ng) % filbus(:,:,FIL(1,ng)%Rindex))
+     &                 FILTER(ng) % filpotvor(:,:,:,FIL(1,ng)%Rindex))
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) THEN
@@ -842,14 +842,14 @@
       IF (Aout(id3dRV,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*p3dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+        status=nf_fwrite3d(ng, iNLM, FIL(1,ng)%ncid,                    &
      &                 FIL(1,ng)%Vid(id3dRV),                           &
      &                 FIL(1,ng)%Rindex, gtype,                         &
      &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
 # ifdef MASKING
      &                 GRID(ng) % pmask,                                &
 # endif
-     &                 FILTER(ng) % filbus(:,:,FIL(1,ng)%Rindex))
+     &                 FILTER(ng) % filrelvor(:,:,:,FIL(1,ng)%Rindex))
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) THEN
