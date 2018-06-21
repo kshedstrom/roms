@@ -83,6 +83,7 @@
 # ifdef SOLVE3D
       USE uv_rotate_mod, ONLY : uv_rotate3d
 # endif
+      USE vorticity_mod, ONLY : vorticity_tile
 !
       implicit none
 !
@@ -101,6 +102,12 @@
       integer  :: i, itrc, j, k, iw, f
       real(r8) :: fac
       real(r8) :: rfac(IminS:ImaxS,JminS:JmaxS)
+# ifdef SOLVE3D
+      real(r8) :: potvor(LBi:UBi,LBj:UBj,N(ng))
+      real(r8) :: relvor(LBi:UBi,LBj:UBj,N(ng))
+# endif
+      real(r8) :: potvor_bar(LBi:UBi,LBj:UBj)
+      real(r8) :: relvor_bar(LBi:UBi,LBj:UBj)
 
 # include "set_bounds.h"
 
@@ -463,6 +470,41 @@
 !       print *, 'SET_FILTER  iic-1:',iic-1
 !       print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
 !     END IF
+      IF (Aout(id2dPV,ng).or.Aout(id2dRV,ng).or.                        &
+     &    Aout(id3dPV,ng).or.Aout(id3dRV,ng)) THEN
+        CALL vorticity_tile (ng, tile,                                  &
+     &                       LBi, UBi, LBj, UBj,                        &
+     &                       IminS, ImaxS, JminS, JmaxS,                &
+# ifdef SOLVE3D
+     &                       Kout, Nout,                                &
+# else
+     &                       Kout,                                      &
+# endif
+# ifdef MASKING
+     &                       GRID(ng) % pmask,                          &
+     &                       GRID(ng) % umask,                          &
+     &                       GRID(ng) % vmask,                          &
+# endif
+     &                       GRID(ng) % fomn,                           &
+     &                       GRID(ng) % h,                              &
+     &                       GRID(ng) % om_u,                           &
+     &                       GRID(ng) % on_v,                           &
+     &                       GRID(ng) % pm,                             &
+     &                       GRID(ng) % pn,                             &
+# ifdef SOLVE3D
+     &                       GRID(ng) % z_r,                            &
+     &                       OCEAN(ng) % pden,                          &
+     &                       OCEAN(ng) % u,                             &
+     &                       OCEAN(ng) % v,                             &
+# endif
+     &                       OCEAN(ng) % ubar,                          &
+     &                       OCEAN(ng) % vbar,                          &
+     &                       OCEAN(ng) % zeta,                          &
+# ifdef SOLVE3D
+     &                       potvor, relvor,                            &
+# endif
+     &                       potvor_bar, relvor_bar)
+        END IF
       IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
      &     (MOD(iic(ng)-ntstart(ng),nfil/nw).eq.0).and.                 &
      &    ((iic(ng).ne.ntstart(ng)))) THEN
@@ -704,6 +746,42 @@
                 DO i=IstrR,IendR
                   FILTER(ng)%filbvs(i,j,f) = FORCES(ng)%bvstr(i,j)*     &
      &                          fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id2dPV,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
+                  FILTER(ng)%filpotvor_bar(i,j,f) = potvor_bar(i,j)*    &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id2dRV,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
+                  FILTER(ng)%filrelvor_bar(i,j,f) = relvor_bar(i,j)*    &
+     &                          fw(iw)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id3dPV,ng)) THEN
+              DO k=1,N(ng)
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filpotvor(i,j,k,f) = potvor(i,j,k)*      &
+     &                            fw(iw)
+                  END DO
+                END DO
+              END DO
+            END IF
+            IF (Aout(id3dRV,ng)) THEN
+              DO k=1,N(ng)
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filrelvor(i,j,k,f) = relvor(i,j,k)*      &
+     &                            fw(iw)
+                  END DO
                 END DO
               END DO
             END IF
@@ -1294,6 +1372,46 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filbvs(i,j,f)=FILTER(ng)%filbvs(i,j,f)+  &
      &                                      FORCES(ng)%bvstr(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(id2dPV,ng)) THEN
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filpotvor_bar(i,j,f)=                    &
+     &                         FILTER(ng)%filpotvor_bar(i,j,f)+         &
+     &                         potvor_bar(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(id2dRV,ng)) THEN
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    FILTER(ng)%filrelvor_bar(i,j,f)=                    &
+     &                         FILTER(ng)%filrelvor_bar(i,j,f)+         &
+     &                         relvor_bar(i,j)*fw(iw)
+                  END DO
+                END DO
+              END IF
+              IF (Aout(id3dPV,ng)) THEN
+                DO k=1,N(ng)
+                  DO j=Jstr,JendR
+                    DO i=Istr,IendR
+                      FILTER(ng)%filpotvor(i,j,k,f)=                    &
+     &                           FILTER(ng)%filpotvor(i,j,k,f)+         &
+     &                           potvor(i,j,k)*fw(iw)
+                    END DO
+                  END DO
+                END DO
+              END IF
+              IF (Aout(id3dRV,ng)) THEN
+                DO k=1,N(ng)
+                  DO j=Jstr,JendR
+                    DO i=Istr,IendR
+                      FILTER(ng)%filrelvor(i,j,k,f)=                    &
+     &                           FILTER(ng)%filrelvor(i,j,k,f)+         &
+     &                           relvor(i,j,k)*fw(iw)
+                    END DO
                   END DO
                 END DO
               END IF
@@ -1915,6 +2033,42 @@
               DO j=Jstr,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgbvs(i,j)=FILTER(ng)%filbvs(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id2dPV,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
+                  AVERAGE(ng)%avgpvor2d(i,j)=                           &
+     &                        FILTER(ng)%filpotvor_bar(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id2dRV,ng)) THEN
+              DO j=Jstr,JendR
+                DO i=Istr,IendR
+                  AVERAGE(ng)%avgrvor2d(i,j)=                           &
+     &                        FILTER(ng)%filrelvor_bar(i,j,f)
+                END DO
+              END DO
+            END IF
+            IF (Aout(id3dPV,ng)) THEN
+              DO k=1,N(ng)
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    AVERAGE(ng)%avgpvor3d(i,j,k)=                       &
+     &                          FILTER(ng)%filpotvor(i,j,k,f)
+                  END DO
+                END DO
+              END DO
+            END IF
+            IF (Aout(id3dRV,ng)) THEN
+              DO k=1,N(ng)
+                DO j=Jstr,JendR
+                  DO i=Istr,IendR
+                    AVERAGE(ng)%avgrvor3d(i,j,k)=                       &
+     &                          FILTER(ng)%filrelvor(i,j,k,f)
+                  END DO
                 END DO
               END DO
             END IF

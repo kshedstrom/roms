@@ -2622,9 +2622,9 @@
               RETURN
             END IF
           END IF
-#ifdef INI_GLORYS_ICE
-        END IF
-#endif
+!#ifdef INI_GLORYS_ICE
+!        END IF
+!#endif
 !
 !  Read in ice/snow surface temperature.
 !
@@ -2665,9 +2665,9 @@
             RETURN
           END IF
         END IF
-#ifdef INI_GLORYS_ICE
-      IF (read_ice) THEN
-#endif
+!#ifdef INI_GLORYS_ICE
+!      IF (read_ice) THEN
+!#endif
 #ifdef MELT_PONDS
 !
 !  Read in surface water fraction (on ice).

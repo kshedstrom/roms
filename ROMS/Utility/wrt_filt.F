@@ -717,12 +717,12 @@
       IF (Aout(idUbms,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*u2dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid, &
-     &                 FIL(1,ng)%Vid(idUbms), &
-     &                 FIL(1,ng)%Rindex, gtype, &
-     &                 LBi, UBi, LBj, UBj, scale, &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idUbms),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
-     &                 GRID(ng) % umask, &
+     &                 GRID(ng) % umask,                                &
 # endif
      &                 FILTER(ng) % filbus(:,:,FIL(1,ng)%Rindex))
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
@@ -742,18 +742,118 @@
       IF (Aout(idVbms,ng)) THEN
         scale=1.0_r8
         gtype=gfactor*v2dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid, &
-     &                 FIL(1,ng)%Vid(idVbms), &
-     &                 FIL(1,ng)%Rindex, gtype, &
-     &                 LBi, UBi, LBj, UBj, scale, &
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(idVbms),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
 # ifdef MASKING
-     &                 GRID(ng) % vmask, &
+     &                 GRID(ng) % vmask,                                &
 # endif
      &                 FILTER(ng) % filbvs(:,:,FIL(1,ng)%Rindex))
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) THEN
             WRITE (stdout,10) TRIM(Vname(1,idVbms)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2d potential vorticity.
+!
+      IF (Aout(id2dPV,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*p2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(id2dPV),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+# ifdef MASKING
+     &                 GRID(ng) % pmask,                                &
+# endif
+     &                 FILTER(ng) % filpotvor_bar(:,:,FIL(1,ng)%Rindex))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,id2dPV)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 2d relative vorticity.
+!
+      IF (Aout(id2dRV,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*p2dvar
+        status=nf_fwrite2d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(id2dRV),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, scale,                       &
+# ifdef MASKING
+     &                 GRID(ng) % pmask,                                &
+# endif
+     &                 FILTER(ng) % filrelvor_bar(:,:,FIL(1,ng)%Rindex))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,id2dRV)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 3d potential vorticity.
+!
+      IF (Aout(id3dPV,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*p3dvar
+        status=nf_fwrite3d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(id3dPV),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
+# ifdef MASKING
+     &                 GRID(ng) % pmask,                                &
+# endif
+     &                 FILTER(ng) % filpotvor(:,:,:,FIL(1,ng)%Rindex))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,id3dPV)), FIL(1,ng)%Rindex
+            PRINT *, trim(nf90_strerror(status))
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!
+!  Write out 3d relative vorticity.
+!
+      IF (Aout(id3dRV,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*p3dvar
+        status=nf_fwrite3d(ng, iNLM, FIL(1,ng)%ncid,                    &
+     &                 FIL(1,ng)%Vid(id3dRV),                           &
+     &                 FIL(1,ng)%Rindex, gtype,                         &
+     &                 LBi, UBi, LBj, UBj, 1, N(ng), scale,             &
+# ifdef MASKING
+     &                 GRID(ng) % pmask,                                &
+# endif
+     &                 FILTER(ng) % filrelvor(:,:,:,FIL(1,ng)%Rindex))
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,id3dRV)), FIL(1,ng)%Rindex
             PRINT *, trim(nf90_strerror(status))
           END IF
           exit_flag=3

@@ -3149,13 +3149,6 @@
      &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
-=======
-          Aval(5)=REAL(v2dvar,r8)
-          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idV2rs),  &
-     &                   NF_FOUT, nvd3, v2dgrd, Aval, Vinfo, ncname)
-          IF (FoundError(exit_flag, NoError, __LINE__,                  &
-     &                   __FILE__)) RETURN
->>>>>>> 2af9d9e... src:ticket:737
         END IF
 !
 !  Define 2D u-stokes velocity.

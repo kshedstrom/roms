@@ -124,7 +124,11 @@
           real(r8), pointer :: filSnoI(:,:,:)
 #   endif
 #  endif
+          real(r8), pointer :: filpotvor(:,:,:,:)
+          real(r8), pointer :: filrelvor(:,:,:,:)
 # endif
+          real(r8), pointer :: filpotvor_bar(:,:,:)
+          real(r8), pointer :: filrelvor_bar(:,:,:)
           real(r8), pointer :: filsus(:,:,:)
           real(r8), pointer :: filsvs(:,:,:)
           real(r8), pointer :: filbus(:,:,:)
@@ -297,7 +301,19 @@
       IF (Aout(idVbms,ng)) THEN
         allocate ( FILTER(ng) % filbvs(LBi:UBi,LBj:UBj,FILN) )
       END IF
+      IF (Aout(id2dPV,ng)) THEN
+        allocate ( FILTER(ng) % filpotvor_bar(LBi:UBi,LBj:UBj,FILN) )
+      END IF
+      IF (Aout(id2dRV,ng)) THEN
+        allocate ( FILTER(ng) % filrelvor_bar(LBi:UBi,LBj:UBj,FILN) )
+      END IF
 # ifdef SOLVE3D
+      IF (Aout(id3dPV,ng)) THEN
+        allocate ( FILTER(ng) % filpotvor(LBi:UBi,LBj:UBj,N(ng),FILN) )
+      END IF
+      IF (Aout(id3dRV,ng)) THEN
+        allocate ( FILTER(ng) % filrelvor(LBi:UBi,LBj:UBj,N(ng),FILN) )
+      END IF
       IF (Aout(idTsur(itemp),ng)) THEN
         allocate ( FILTER(ng) % filstf(LBi:UBi,LBj:UBj,FILN) )
       END IF
@@ -722,8 +738,48 @@
           END DO
         END DO
       END IF
+      IF (Aout(id2dPV,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filpotvor_bar(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(id2dRV,ng)) THEN
+        DO if=1,FILN
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              FILTER(ng) % filrelvor_bar(i,j,if) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
 
 # ifdef SOLVE3D
+      IF (Aout(id3dPV,ng)) THEN
+        DO if=1,FILN
+          DO k=1,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                FILTER(ng) % filpotvor(i,j,k,if) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
+      IF (Aout(id3dRV,ng)) THEN
+        DO if=1,FILN
+          DO k=1,N(ng)
+            DO j=Jmin,Jmax
+              DO i=Imin,Imax
+                FILTER(ng) % filrelvor(i,j,k,if) = IniVal
+              END DO
+            END DO
+          END DO
+        END DO
+      END IF
       IF (Aout(idTsur(itemp),ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax

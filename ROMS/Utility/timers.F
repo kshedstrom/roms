@@ -312,12 +312,11 @@
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
               DO iregion=Iceregion,Nregion
-                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                IF (Csum(iregion,imodel,ng).gt.0.0_r8 .and. Master) THEN
                   percent=100.0_r8*Csum(iregion, imodel,ng)/            &
      &                             Csum( region,Mymodel,ng)
-                  IF (Master) WRITE (stdout,40) Pregion(iregion),       &
-     &                                          Csum(iregion,imodel,ng),&
-     &                                          percent
+                  WRITE (stdout,40) Pregion(iregion),                   &
+     &                              Csum(iregion,imodel,ng), percent
                   sumcpu=sumcpu+Csum(iregion,imodel,ng)
                   sumper=sumper+percent
                 END IF
@@ -346,7 +345,7 @@
             sumper=0.0_r8
             IF (total.gt.0.0_r8) THEN
               DO iregion=Mregion,Iceregion-1
-                IF (Csum(iregion,imodel,ng).gt.0.0_r8) THEN
+                IF (Csum(iregion,imodel,ng).gt.0.0_r8 .and. Master) THEN
                   percent=100.0_r8*Csum(iregion, imodel,ng)/total_cpu
                   WRITE (stdout,40) Pregion(iregion),                   &
      &                              Csum(iregion,imodel,ng), percent

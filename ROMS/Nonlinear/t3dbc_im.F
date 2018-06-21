@@ -96,7 +96,7 @@
       real(r8), parameter :: eps =1.0E-20_r8
 
       real(r8) :: Ce, Cx, cff, dTde, dTdt, dTdx
-      real(r8) :: obc_in, obc_out, tau
+      real(r8) :: obc_in, obc_out, phi, tau
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
 
@@ -189,11 +189,10 @@
      &                                  (cff+Cx)
 
                 IF (LBC(iwest,isTvar(itrc),ng)%nudging) THEN
-                  t(Istr-1,j,k,nout,itrc)=t(Istr-1,j,k,nout,itrc)+      &
-     &                                    tau*                          &
-     &                                    (BOUNDARY(ng)%t_west(j,k,     &
-     &                                                         itrc)-   &
-     &                                     t(Istr-1,j,k,nstp,itrc))
+                  phi = dt(ng) / (tau + dt(ng))
+                  t(Istr-1,j,k,nout,itrc) =                             &
+     &                       (1._r8-phi)*t(Istr-1,j,k,nout,itrc)+       &
+     &                         phi*BOUNDARY(ng)%t_west(j,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(Istr-1,j,k,nout,itrc)=t(Istr-1,j,k,nout,itrc)*        &
@@ -338,11 +337,10 @@
      &                                  (cff+Cx)
 
                 IF (LBC(ieast,isTvar(itrc),ng)%nudging) THEN
-                  t(Iend+1,j,k,nout,itrc)=t(Iend+1,j,k,nout,itrc)+      &
-     &                                    tau*                          &
-     &                                    (BOUNDARY(ng)%t_east(j,k,     &
-     &                                                         itrc)-   &
-     &                                     t(Iend+1,j,k,nstp,itrc))
+                  phi = dt(ng) / (tau + dt(ng))
+                  t(Iend+1,j,k,nout,itrc) =                             &
+     &                       (1._r8-phi)*t(Iend+1,j,k,nout,itrc)+       &
+     &                         phi*BOUNDARY(ng)%t_east(j,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(Iend+1,j,k,nout,itrc)=t(Iend+1,j,k,nout,itrc)*        &
@@ -488,11 +486,10 @@
      &                                  (cff+Ce)
 
                 IF (LBC(isouth,isTvar(itrc),ng)%nudging) THEN
-                  t(i,Jstr-1,k,nout,itrc)=t(i,Jstr-1,k,nout,itrc)+      &
-     &                                    tau*                          &
-     &                                    (BOUNDARY(ng)%t_south(i,k,    &
-     &                                                          itrc)-  &
-     &                                     t(i,Jstr-1,k,nstp,itrc))
+                  phi = dt(ng) / (tau + dt(ng))
+                  t(i,Jstr-1,k,nout,itrc) =                             &
+     &                       (1._r8-phi)*t(i,Jstr-1,k,nout,itrc)+       &
+     &                         phi*BOUNDARY(ng)%t_south(i,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(i,Jstr-1,k,nout,itrc)=t(i,Jstr-1,k,nout,itrc)*        &
@@ -637,11 +634,10 @@
      &                                  (cff+Ce)
 
                 IF (LBC(inorth,isTvar(itrc),ng)%nudging) THEN
-                  t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)+      &
-     &                                    tau*                          &
-     &                                    (BOUNDARY(ng)%t_north(i,k,    &
-     &                                                          itrc)-  &
-     &                                     t(i,Jend+1,k,nstp,itrc))
+                  phi = dt(ng) / (tau + dt(ng))
+                  t(i,Jend+1,k,nout,itrc) =                             &
+     &                       (1._r8-phi)*t(i,Jend+1,k,nout,itrc)+       &
+     &                         phi*BOUNDARY(ng)%t_north(i,k,itrc)
                 END IF
 #  ifdef MASKING
                 t(i,Jend+1,k,nout,itrc)=t(i,Jend+1,k,nout,itrc)*        &

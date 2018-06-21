@@ -2438,10 +2438,6 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idUvel,:))
             CASE ('Aout2(idVvel)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idVvel,:))
-            CASE ('Aout2(idWvel)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idWvel,:))
-            CASE ('Aout2(idOvel)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idOvel,:))
             CASE ('Aout2(idUbar)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbar,:))
             CASE ('Aout2(idVbar)')
@@ -2472,39 +2468,11 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbms,:))
             CASE ('Aout2(idVbms)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idVbms,:))
-            CASE ('Aout2(idW2xx)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2xx,:))
-            CASE ('Aout2(idW2xy)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2xy,:))
-            CASE ('Aout2(idW2yy)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW2yy,:))
-            CASE ('Aout2(idU2rs)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2rs,:))
-            CASE ('Aout2(idV2rs)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2rs,:))
-            CASE ('Aout2(idU2Sd)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2Sd,:))
-            CASE ('Aout2(idV2Sd)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2Sd,:))
-            CASE ('Aout2(idW3xx)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3xx,:))
-            CASE ('Aout2(idW3xy)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3xy,:))
-            CASE ('Aout2(idW3yy)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3yy,:))
-            CASE ('Aout2(idW3zx)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3zx,:))
-            CASE ('Aout2(idW3zy)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idW3zy,:))
-            CASE ('Aout2(idU3rs)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU3rs,:))
-            CASE ('Aout2(idV3rs)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV3rs,:))
-            CASE ('Aout2(idU3Sd)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU3Sd,:))
-            CASE ('Aout2(idV3Sd)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV3Sd,:))
 # ifdef SOLVE3D
+#  if defined RUNOFF
+            CASE ('Aout2(idRunoff)')
+              Npts=load_l(Nval, Cval, Ngrids, Aout2(idRunoff,:))
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Aout2(idPair)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idPair,:))
@@ -2542,221 +2510,18 @@
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idrain,:))
             CASE ('Aout2(idDano)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idDano,:))
-            CASE ('Aout2(idVvis)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVvis,:))
-            CASE ('Aout2(idTdif)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idTdif,:))
-            CASE ('Aout2(idSdif)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSdif,:))
             CASE ('Aout2(idHsbl)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idHsbl,:))
             CASE ('Aout2(idHbbl)')
               Npts=load_l(Nval, Cval, Ngrids, Aout2(idHbbl,:))
             CASE ('Aout2(id2dRV)')
-              IF (id2dRV.eq.0) THEN
-                IF (Master) WRITE (out,280) 'id2dRV'
-                exit_flag=5
-                RETURN
-              END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dRV,:))
             CASE ('Aout2(id3dRV)')
-              IF (id3dRV.eq.0) THEN
-                IF (Master) WRITE (out,280) 'id3dRV'
-                exit_flag=5
-                RETURN
-              END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dRV,:))
             CASE ('Aout2(id2dPV)')
-              IF (id2dPV.eq.0) THEN
-                IF (Master) WRITE (out,280) 'id2dPV'
-                exit_flag=5
-                RETURN
-              END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dPV,:))
             CASE ('Aout2(id3dPV)')
-              IF (id3dPV.eq.0) THEN
-                IF (Master) WRITE (out,280) 'id3dPV'
-                exit_flag=5
-                RETURN
-              END IF
               Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dPV,:))
-# if defined AVERAGES_DETIDE && (defined SSH_TIDES || defined UV_TIDES)
-            CASE ('Aout2(idFsuD)')
-              IF (idFsuD.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idFsuD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idFsuD,:))
-            CASE ('Aout2(idu2dD)')
-              IF (idu2dD.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idu2dD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu2dD,:))
-            CASE ('Aout2(idv2dD)')
-              IF (idv2dD.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idv2dD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv2dD,:))
-#  ifdef SOLVE3D
-            CASE ('Aout2(idu3dD)')
-              IF (idu3dD.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idu3dD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu3dD,:))
-            CASE ('Aout2(idv3dD)')
-              IF (idv3dD.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idv3dD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv3dD,:))
-            CASE ('Aout2(idTrcD)')
-              IF (MAXVAL(idTrcD).eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTrcD'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=idTrcD(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-#  endif
-# endif
-# ifdef SOLVE3D
-            CASE ('Aout2(idHUav)')
-              IF (idHUav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHUav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHUav,:))
-            CASE ('Aout2(idHVav)')
-              IF (idHVav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idHVav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHVav,:))
-            CASE ('Aout2(idUUav)')
-              IF (idUUav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUUav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUUav,:))
-            CASE ('Aout2(idUVav)')
-              IF (idUVav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUVav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUVav,:))
-            CASE ('Aout2(idVVav)')
-              IF (idVVav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idVVav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVVav,:))
-# endif
-            CASE ('Aout2(idU2av)')
-              IF (idU2av.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idU2av'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idU2av,:))
-            CASE ('Aout2(idV2av)')
-              IF (idV2av.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idV2av'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idV2av,:))
-            CASE ('Aout2(idZZav)')
-              IF (idZZav.eq.0) THEN
-                IF (Master) WRITE (out,280) 'idZZav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idZZav,:))
-# ifdef SOLVE3D
-            CASE ('Aout2(idTTav)')
-              IF (MAXVAL(idTTav).eq.0) THEN
-                IF (Master) WRITE (out,280) 'idTTav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=idTTav(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout2(idUTav)')
-              IF (MAXVAL(idUTav).eq.0) THEN
-                IF (Master) WRITE (out,280) 'idUTav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=idUTav(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout2(idVTav)')
-              IF (MAXVAL(idVTav).eq.0) THEN
-                IF (Master) WRITE (out,280) 'idVTav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=idVTav(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout2(iHUTav)')
-              IF (MAXVAL(iHUTav).eq.0) THEN
-                IF (Master) WRITE (out,280) 'iHUTav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=iHUTav(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-            CASE ('Aout2(iHVTav)')
-              IF (MAXVAL(iHVTav).eq.0) THEN
-                IF (Master) WRITE (out,280) 'iHVTav'
-                exit_flag=5
-                RETURN
-              END IF
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
-              DO ng=1,Ngrids
-                DO itrc=1,NAT
-                  i=iHVTav(itrc)
-                  Aout2(i,ng)=Ltracer(itrc,ng)
-                END DO
-              END DO
-# endif
 # if defined SOLVE3D && defined T_PASSIVE
             CASE ('Aout2(inert)')
               Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
@@ -3361,7 +3126,7 @@
               label='BRY - lateral open boundary conditions'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, ibcfile,     &
      &                      igrid, Ngrids, nBCfiles, NBCcount,          &
-     &                      nBCfiles, BRY)
+     &                      max_Ffiles, BRY)
             CASE ('NCLMFILES')
               Npts=load_i(Nval, Rval, Ngrids, nCLMfiles)
               DO ng=1,Ngrids
@@ -3383,7 +3148,7 @@
               label='CLM - climatology fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, iclmfile,    &
      &                      igrid, Ngrids, nCLMfiles, NCLMcount,        &
-     &                      nCLMfiles, CLM)
+     &                      max_Ffiles, CLM)
             CASE ('NUDNAME')
               label='NUD - nudging coefficients'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
@@ -3409,7 +3174,7 @@
               label='SSF - Sources/Sinks forcing fields'
               Npts=load_s2d(Nval, Cval, Cdim, line, label, issffile,    &
      &                      igrid, Ngrids, nSSFfiles, NSSFcount,        &
-     &                      nSSFfiles, SSF)
+     &                      max_Ffiles, SSF)
 # if defined SSH_TIDES || defined UV_TIDES
             CASE ('TIDENAME')
               label='TIDE - Tidal forcing fields'

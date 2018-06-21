@@ -106,9 +106,6 @@
 # ifdef AKT_3D
      &                    CLIMA(ng) % tclm,                             &
 # endif
-# ifdef OPTIC_MANIZZA
-     &                    OCEAN(ng) % decayW,                           &
-# endif
 # ifdef LI_FOX_KEMPER
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
@@ -145,9 +142,6 @@
 #ifdef AKT_3D
      &                          tclm,                                   &
 #endif
-# ifdef OPTIC_MANIZZA
-     &                          decayW,                                 &
-# endif
 # ifdef LI_FOX_KEMPER
      &                          Uwind, Vwind,                           &
 # endif
@@ -163,15 +157,6 @@
 # endif
 # ifdef LMD_SHAPIRO
       USE shapiro_mod
-# endif
-# ifdef OPTIC_MANIZZA
-#  ifdef BIO_COBALT
-      USE mod_biology, ONLY: iochl
-#  elif defined BIO_UMAINE
-      USE mod_biology, ONLY: iS1CH, iS2CH, iS3CH
-#  else
-!??? need to define index for cholorphyll in other bio model
-#  endif
 # endif
 !
 !  Imported variable declarations.
@@ -210,9 +195,6 @@
       real(r8), intent(inout) :: Akv(LBi:,LBj:,0:)
 #  ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:,LBj:,:,:)
-#  endif
-#  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
 #  endif
 #  ifdef LI_FOX_KEMPER
       real(r8), intent(in) :: Uwind(LBi:,LBj:)
@@ -253,9 +235,6 @@
 #ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
 # endif
-#  ifdef OPTIC_MANIZZA
-      real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
-#  endif
 #  ifdef LI_FOX_KEMPER
       real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
@@ -659,7 +638,8 @@
 # ifdef LI_FOX_KEMPER
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1))) *           &
      &            sqrt((0.15_r8*Wstar(i)**3 + 0.17_r8*Ustar(i,j)**3 *   &
-     &            (1.0_r8 + 0.49_r8*LA(i)**-2)) / max(ws(i,j),1e-10)**3)
+     &            (1.0_r8 + 0.49_r8*LA(i)**(-2))) /                     &
+     &            max(ws(i,j),1e-10)**3)
 # else
      &            Vtc*depth*ws(i,j)*SQRT(ABS(bvf(i,j,k-1)))
 # endif
