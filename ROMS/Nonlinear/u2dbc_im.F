@@ -154,8 +154,6 @@
                 ELSE
                   tau=obc_out
                 END IF
-!               tau=tau*dt2d
-                IF (tau > 0.0) tau = 1._r8 / tau
 #ifdef IMPLICIT_NUDGING
                 IF (tau.gt.0.0_r8) tau=1.0_r8/tau
 #else

@@ -85,7 +85,9 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
-           FFLAGS += -g -check bounds
+           FFLAGS += -g
+#          FFLAGS += -check all
+           FFLAGS += -check bounds
            FFLAGS += -check uninit
 #          FFLAGS += -fp-stack-check
            FFLAGS += -traceback

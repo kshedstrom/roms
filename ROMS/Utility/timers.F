@@ -280,9 +280,8 @@
             sumcpu=0.0_r8
             sumper=0.0_r8
             DO iregion=1,Mregion-1
-              IF (Csum(iregion,imodel,ng).gt.0.0_r8 .and. Master) THEN
-                percent=100.0_r8*Csum(iregion, imodel,ng)/              &
-     &                              total_cpu
+              IF (Master.and.(Csum(iregion,imodel,ng).gt.0.0_r8)) THEN
+                percent=100.0_r8*Csum(iregion, imodel,ng)/total_cpu
                 WRITE (stdout,40) Pregion(iregion),                     &
      &                            Csum(iregion,imodel,ng), percent
                 sumcpu=sumcpu+Csum(iregion,imodel,ng)
