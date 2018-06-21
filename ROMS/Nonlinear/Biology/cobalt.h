@@ -32,7 +32,7 @@
 #include "tile.h"
 !
 #ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 15)
+      CALL wclock_on (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       CALL biology_tile (ng, tile,                                      &
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
@@ -99,7 +99,7 @@
      &                   OCEAN(ng) % t)
 
 #ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 15)
+      CALL wclock_off (ng, iNLM, 15, __LINE__, __FILE__)
 #endif
       RETURN
       END SUBROUTINE biology
@@ -674,7 +674,6 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(htotal)  =', MINVAL(cobalt%f_htotal(:,:,k)),  MAXVAL(cobalt%f_htotal(:,:,k))
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =', MINVAL(cobalt%f_co3_ion(:,:,k)), MAXVAL(cobalt%f_co3_ion(:,:,k))
 #endif
-
 
   CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask_local,    &
  &       cobalt%f_temp(:,:,k),                         &

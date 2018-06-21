@@ -95,7 +95,7 @@ ifdef USE_DEBUG
            FFLAGS += -warn interfaces,nouncalled -gen-interfaces
 #          FFLAGS += -Wl,-no_compact_unwind
 #          FFLAGS += -Wl,-stack_size,0x64000000
-           FFLAGS += -ftrapuv -fpe0
+#           FFLAGS += -ftrapuv -fpe0
            CFLAGS += -g
          CXXFLAGS += -g
 else
