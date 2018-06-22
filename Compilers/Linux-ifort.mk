@@ -90,7 +90,7 @@ ifdef USE_DEBUG
 #          FFLAGS += -check all
            FFLAGS += -check bounds
            FFLAGS += -check uninit
-#          FFLAGS += -fp-stack-check
+##         FFLAGS += -fp-stack-check
            FFLAGS += -traceback
            FFLAGS += -warn interfaces,nouncalled -gen-interfaces
 #          FFLAGS += -Wl,-no_compact_unwind
