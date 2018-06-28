@@ -84,6 +84,7 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
+#          FFLAGS += -fcheck=all -fsanitize=address -fsanitize=undefined
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
            CFLAGS += -g
