@@ -1908,52 +1908,6 @@
 # endif
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                   __FILE__)) RETURN
-# ifdef MELT_PONDS
-!
-!  Define surface water fraction (on ice).
-!
-        Vinfo( 1)=Vname(1,idApond)
-        Vinfo( 2)=Vname(2,idApond)
-        Vinfo( 3)=Vname(3,idApond)
-        Vinfo(14)=Vname(4,idApond)
-        Vinfo(16)=Vname(1,idtime)
-#if defined WRITE_WATER && defined MASKING
-        Vinfo(20)='mask_rho'
-#endif
-        Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idApond,ng),r8)
-# ifdef PERFECT_RESTART
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idApond),    &
-     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
-# else
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idApond),    &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
-# endif
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                   __FILE__)) RETURN
-!
-!  Define surface water thickness (on ice).
-!
-        Vinfo( 1)=Vname(1,idHpond)
-        Vinfo( 2)=Vname(2,idHpond)
-        Vinfo( 3)=Vname(3,idHpond)
-        Vinfo(14)=Vname(4,idHpond)
-        Vinfo(16)=Vname(1,idtime)
-#if defined WRITE_WATER && defined MASKING
-        Vinfo(20)='mask_rho'
-#endif
-        Vinfo(22)='coordinates'
-        Aval(5)=REAL(Iinfo(1,idHpond,ng),r8)
-# ifdef PERFECT_RESTART
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHpond),    &
-     &                 NF_FRST, nvd4, r2dgrd, Aval, Vinfo, ncname)
-# else
-        status=def_var(ng, iNLM, RST(ng)%ncid, RST(ng)%Vid(idHpond),    &
-     &                 NF_FRST, nvd3, t2dgrd, Aval, Vinfo, ncname)
-# endif
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                   __FILE__)) RETURN
-#endif
 !
 !  Define ice age.
 !
@@ -2683,14 +2637,6 @@
             got_var(idIceLog)=.TRUE.
             RST(ng)%Vid(idIceLog)=var_id(i)
 # endif
-# ifdef MELT_PONDS
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idApond))) THEN
-            got_var(idApond)=.TRUE.
-            RST(ng)%Vid(idApond)=var_id(i)
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHpond))) THEN
-            got_var(idHpond)=.TRUE.
-            RST(ng)%Vid(idHpond)=var_id(i)
-# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
             got_var(idAgeice)=.TRUE.
             RST(ng)%Vid(idAgeice)=var_id(i)
@@ -3083,20 +3029,6 @@
         END IF
         IF (.not.got_var(idIceLog)) THEN
           IF (Master) WRITE (stdout,40) TRIM(Vname(1,idIceLog)),        &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-# endif
-# ifdef MELT_PONDS
-        IF (.not.got_var(idApond)) THEN
-          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idApond)),         &
-     &                                  TRIM(ncname)
-          exit_flag=3
-          RETURN
-        END IF
-        IF (.not.got_var(idHpond)) THEN
-          IF (Master) WRITE (stdout,40) TRIM(Vname(1,idHpond)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

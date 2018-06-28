@@ -82,10 +82,6 @@
           real(r8), pointer :: filai(:,:,:)
           real(r8), pointer :: filhi(:,:,:)
           real(r8), pointer :: filhsn(:,:,:)
-#   ifdef MELT_PONDS
-          real(r8), pointer :: filapond(:,:,:)
-          real(r8), pointer :: filhpond(:,:,:)
-#   endif
           real(r8), pointer :: filtis(:,:,:)
           real(r8), pointer :: filti(:,:,:)
           real(r8), pointer :: filt2(:,:,:)
@@ -369,14 +365,6 @@
       IF (Aout(idHsno,ng)) THEN
         allocate ( FILTER(NG) % filhsn(LBi:UBi,LBj:UBj,FILN) )
       END IF
-#   ifdef MELT_PONDS
-      IF (Aout(idApond,ng)) THEN
-        allocate ( FILTER(NG) % filapond(LBi:UBi,LBj:UBj,FILN) )
-      END IF
-      IF (Aout(idHpond,ng)) THEN
-        allocate ( FILTER(NG) % filhpond(LBi:UBi,LBj:UBj,FILN) )
-      END IF
-#   endif
       IF (Aout(idIomflx,ng)) THEN
         allocate ( FILTER(NG) % filio_mflux(LBi:UBi,LBj:UBj,FILN) )
       END IF
@@ -906,26 +894,6 @@
           END DO
         END DO
       END IF
-#   ifdef MELT_PONDS
-      IF (Aout(idApond,ng)) THEN
-        DO if=1,FILN
-          DO j=Jmin,Jmax
-            DO i=Imin,Imax
-              FILTER(ng) % filapond(i,j,if) = IniVal
-            END DO
-          END DO
-        END DO
-      END IF
-      IF (Aout(idHpond,ng)) THEN
-        DO if=1,FILN
-          DO j=Jmin,Jmax
-            DO i=Imin,Imax
-              FILTER(ng) % filhpond(i,j,if) = IniVal
-            END DO
-          END DO
-        END DO
-      END IF
-#   endif
       IF (Aout(idIomflx,ng)) THEN
         DO if=1,FILN
           DO j=Jmin,Jmax

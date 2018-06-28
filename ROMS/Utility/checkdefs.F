@@ -1684,12 +1684,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' MCT_LIB,'
 #endif
-#ifdef MELT_PONDS
-      IF (Master) WRITE (stdout,20) 'MELT_PONDS',                       &
-     &   'Melt ponds on ice.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' MELT_PONDS,'
-#endif
 #if defined MINRES && defined FOUR_DVAR
 !
       IF (Master) WRITE (stdout,20) 'MINRES',                           &

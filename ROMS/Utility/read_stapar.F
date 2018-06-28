@@ -359,14 +359,6 @@
             CASE ('Sout(idT2ice)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Sout(idT2ice,1:Ngrids)=Lswitch(1:Ngrids)
-#ifdef MELT_PONDS
-            CASE ('Sout(idApond)')
-              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
-              Sout(idApond,1:Ngrids)=Lswitch(1:Ngrids)
-            CASE ('Sout(idHpond)')
-              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
-              Sout(idHpond,1:Ngrids)=Lswitch(1:Ngrids)
-#endif
             CASE ('Sout(idAgeice)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Sout(idAgeice,1:Ngrids)=Lswitch(1:Ngrids)
@@ -972,14 +964,6 @@
           IF (Sout(idT2ice,ng)) WRITE (out,90) Sout(idT2ice,ng),        &
      &       'Sout(idT2ice)',                                           &
      &       'Write out top of ice temperature.'
-#ifdef MELT_PONDS
-          IF (Sout(idApond,ng)) WRITE (out,90) Sout(idApond,ng),        &
-     &       'Sout(idApond)',                                           &
-     &       'Write out surface water (on ice) fraction.'
-          IF (Sout(idHpond,ng)) WRITE (out,90) Sout(idHpond,ng),        &
-     &       'Sout(idHpond)',                                           &
-     &       'Write out surface water (on ice) thickness.'
-#endif
           IF (Sout(idAgeice,ng)) WRITE (out,90) Sout(idAgeice,ng),      &
      &       'Sout(idAgeice)',                                          &
      &       'Write out surface water (on ice) thickness.'

@@ -218,10 +218,6 @@
         get_var(idHice)=.true.
         get_var(idTice)=.true.
         get_var(idHsno)=.true.
-#  ifdef MELT_PONDS
-        get_var(idApond)=.true.
-        get_var(idHpond)=.true.
-#  endif
         get_var(idAgeice)=.true.
         get_var(idTimid)=.true.
         get_var(idSig11)=.true.
@@ -506,12 +502,6 @@
           have_var(idTice)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
           have_var(idHsno)=.true.
-#  ifdef MELT_PONDS
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idApond))) THEN
-          have_var(idApond)=.true.
-        ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHpond))) THEN
-          have_var(idHpond)=.true.
-#  endif
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
           have_var(idAgeice)=.true.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
@@ -909,22 +899,6 @@
         exit_flag=2
         RETURN
       END IF
-#  ifdef MELT_PONDS
-      IF (.not.have_var(idApond)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idApond)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-      IF (.not.have_var(idHpond)) THEN
-        IF (Master) WRITE (stdout,10) string,                           &
-     &                                TRIM(Vname(1,idHpond)),           &
-     &                                TRIM(ncname)
-        exit_flag=2
-        RETURN
-      END IF
-#  endif
       IF (.not.have_var(idAgeice)) THEN
         IF (Master) WRITE (stdout,10) string,                           &
      &                                TRIM(Vname(1,idAgeice)),          &
