@@ -1434,10 +1434,10 @@
 !
           DO i=1,MIN(Matts,n_gatt)
             att_id=i
-            status=nf90_inq_attname(ncid, nf90_global, att_id,          &
+            status=nf90_inq_attname(my_ncid, nf90_global, att_id,       &
       &                             att_name(i))
             IF (status.eq.nf90_noerr) THEN
-              status=nf90_inquire_attribute(ncid, nf90_global,          &
+              status=nf90_inquire_attribute(my_ncid, nf90_global,       &
       &                                     TRIM(att_name(i)),          &
       &                                     xtype = att_kind(i),        &
       &                                     attnum = att_id)
@@ -1905,7 +1905,7 @@
         foundit(i)=.FALSE.
         AttValue(i)=0.0_r8
       END DO
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       IF (.not.allocated(buffer)) THEN
         allocate ( buffer(2*natts+1) )
       END IF
@@ -1966,7 +1966,7 @@
               EXIT
             END IF
           END DO
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
           buffer=0.0_r8
           DO i=1,natts
@@ -2096,7 +2096,7 @@
         foundit(i)=.FALSE.
         AttValue(i)=' '
       END DO
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       IF (.not.allocated(ibuffer)) THEN
         allocate ( ibuffer(natts+1) )
       END IF
@@ -2156,7 +2156,7 @@
               EXIT
             END IF
           END DO
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
           ibuffer=0
           DO i=1,natts
