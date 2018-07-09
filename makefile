@@ -359,7 +359,9 @@ OS := $(patsubst sn%,UNICOS-sn,$(OS))
 
 CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 
-SVNREV ?= $(shell svnversion -n .)
+GITURL ?= $(shell git remote show origin | grep "Fetch URL" | tr -s ' ' | cut -d ' ' -f 4)
+GITREV ?= $(shell git rev-parse --abbrev-ref HEAD) $(shell git log -1 | head -n 1)
+GITSTATUS ?= $(shell git status --porcelain | wc -l)
 
 ROOTDIR := $(shell pwd)
 
@@ -404,11 +406,14 @@ ifdef MY_ANALYTICAL
   CPPFLAGS += -D'MY_ANALYTICAL="$(MY_ANALYTICAL)"'
 endif
 
-ifdef SVNREV
-  CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
-else
-  SVNREV := $(shell grep Revision ./ROMS/Version | sed 's/.* \([0-9]*\) .*/\1/')
-  CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
+ifdef GITURL
+  CPPFLAGS += -D'GIT_URL="$(GITURL)"'
+endif
+ifdef GITREV
+  CPPFLAGS += -D'GIT_REV="$(GITREV)"'
+endif
+ifdef GITSTATUS
+  CPPFLAGS += -D'GIT_STATUS=$(GITSTATUS)'
 endif
 
 #--------------------------------------------------------------------------
