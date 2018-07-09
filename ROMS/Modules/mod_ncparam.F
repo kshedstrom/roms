@@ -652,8 +652,9 @@
 !
 !  Git revision and repository root URL
 !
-        character (len=256) :: git_url = 'unknown'
-        character (len=80 ) :: git_rev = 'unknown'
+        character (len=256) :: git_url = ''
+        character (len=80 ) :: git_rev = ''
+        integer             :: git_status = 0
 
 !
       CONTAINS
