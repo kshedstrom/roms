@@ -70,7 +70,7 @@
       logical, allocatable :: Ladsen(:)
 #endif
 
-      integer :: Npts, Nval, i, itrc, ivar, k, ng, nl, status
+      integer :: Npts, Nval, i, itrc, ivar, k, lstr, ng, nl, status
       integer :: ifield, ifile, igrid, itracer, nline, max_Ffiles
       integer :: ibcfile, iclmfile, issffile
       integer :: Cdim, Clen, Rdim
@@ -99,7 +99,7 @@
       character (len=50 ) :: label
       character (len=256) :: fname, line
       character (len=256), dimension(200) :: Cval
-      
+
       character (len=80) :: git_msg
 !
 !-----------------------------------------------------------------------
@@ -3864,17 +3864,18 @@
           WRITE (git_msg, '(A,I6,A)')                                   &
      &      'The working tree is DIRTY with',git_status,' changes'
         END IF
+        lstr=INDEX(my_fflags, 'free')-2
+        IF (lstr.le.0) lstr=LEN_TRIM(my_fflags)
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
-     &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
-     &                 TRIM(Iname),                                     &
-     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+     &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
+     &                 TRIM(Iname), TRIM(svn_url), TRIM(svn_rev),       &
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
-     &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
-     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
-     &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
+     &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
+     &                 TRIM(svn_url), TRIM(svn_rev), TRIM(Rdir),        &
+     &                 TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #endif
 
         DO ng=1,Ngrids
