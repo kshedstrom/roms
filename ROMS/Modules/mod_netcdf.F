@@ -2216,7 +2216,7 @@
       END SUBROUTINE netcdf_get_satt
 !
       SUBROUTINE netcdf_get_fvar_0d (ng, model, ncname, myVarName, A,   &
-     &                               ncid, start, total,                &
+     &                               ncid, start, total, broadcast,     &
      &                               min_val, max_val)
 !
 !=======================================================================
@@ -2236,6 +2236,10 @@
 !                    OPTIONAL)                                         !
 !     total        Number of data values to be read along each         !
 !                    dimension (integer, OPTIONAL)                     !
+!     broadcast    Switch to broadcast read values from root to all    !
+!                    members of the communicator in distributed-       !
+!                    memory applications (logical, OPTIONAL,           !
+!                    default=TRUE)                                     !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
@@ -2262,6 +2266,8 @@
 !
 !  Imported variable declarations.
 !
+      logical, intent(in), optional :: broadcast
+
       integer, intent(in) :: ng, model
 
       integer, intent(in), optional :: ncid
@@ -2278,6 +2284,10 @@
 !
 !  Local variable declarations.
 !
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+      logical :: DoBroadcast
+#endif
+
       integer :: my_ncid, status, varid
 
 #if !defined PARALLEL_IN  && defined DISTRIBUTE
@@ -2299,6 +2309,18 @@
       ELSE
         my_ncid=ncid
       END IF
+
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+!
+!  Determine if the read data is only needed and allocated by the master
+!  node ins distribute-memory applications.
+!
+      IF (.not.PRESENT(broadcast)) THEN
+        DoBroadcast=.TRUE.
+      ELSE
+        DoBroadcast=broadcast
+      END IF
+#endif
 !
 !  Read in variable.
 !
@@ -2338,7 +2360,7 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
-      IF (exit_flag.eq.NoError) THEN
+      IF (DoBroadcast.and.(exit_flag.eq.NoError)) THEN
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
@@ -2370,7 +2392,7 @@
       END SUBROUTINE netcdf_get_fvar_0d
 !
       SUBROUTINE netcdf_get_fvar_1d (ng, model, ncname, myVarName, A,   &
-     &                               ncid, start, total,                &
+     &                               ncid, start, total, broadcast,     &
      &                               min_val, max_val)
 !
 !=======================================================================
@@ -2390,6 +2412,10 @@
 !                    OPTIONAL)                                         !
 !     total        Number of data values to be read along each         !
 !                    dimension (integer, OPTIONAL)                     !
+!     broadcast    Switch to broadcast read values from root to all    !
+!                    members of the communicator in distributed-       !
+!                    memory applications (logical, OPTIONAL,           !
+!                    default=TRUE)                                     !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
@@ -2417,6 +2443,8 @@
 !
 !  Imported variable declarations.
 !
+      logical, intent(in), optional :: broadcast
+
       integer, intent(in) :: ng, model
 
       integer, intent(in), optional :: ncid
@@ -2433,6 +2461,9 @@
 !
 !  Local variable declarations.
 !
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+      logical :: DoBroadcast
+#endif
       logical, dimension(3) :: foundit
 
       integer :: i, my_ncid, status, varid
@@ -2472,6 +2503,18 @@
       ELSE
         my_ncid=ncid
       END IF
+
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+!
+!  Determine if the read data is only needed and allocated by the master
+!  node ins distribute-memory applications.
+!
+      IF (.not.PRESENT(broadcast)) THEN
+        DoBroadcast=.TRUE.
+      ELSE
+        Dobroadcast=broadcast
+      END IF
+#endif
 !
 !  Read in variable.
 !
@@ -2509,7 +2552,7 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
-      IF (exit_flag.eq.NoError) THEN
+      IF (DoBroadcast.and.(exit_flag.eq.NoError)) THEN
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
@@ -2599,7 +2642,7 @@
       END SUBROUTINE netcdf_get_fvar_1d
 !
       SUBROUTINE netcdf_get_fvar_2d (ng, model, ncname, myVarName, A,   &
-     &                               ncid, start, total,                &
+     &                               ncid, start, total, broadcast,     &
      &                               min_val, max_val)
 !
 !=======================================================================
@@ -2619,6 +2662,10 @@
 !                    OPTIONAL)                                         !
 !     total        Number of data values to be read along each         !
 !                    dimension (integer, OPTIONAL)                     !
+!     broadcast    Switch to broadcast read values from root to all    !
+!                    members of the communicator in distributed-       !
+!                    memory applications (logical, OPTIONAL,           !
+!                    default=TRUE)                                     !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
@@ -2647,6 +2694,8 @@
 !
 !  Imported variable declarations.
 !
+      logical, intent(in), optional :: broadcast
+
       integer, intent(in) :: ng, model
 
       integer, intent(in), optional :: ncid
@@ -2663,6 +2712,9 @@
 !
 !  Local variable declarations.
 !
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+      logical :: Dobroadcast
+#endif
       logical, dimension(3) :: foundit
 
       integer :: i, j, my_ncid, status, varid
@@ -2702,6 +2754,18 @@
       ELSE
         my_ncid=ncid
       END IF
+
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+!
+!  Determine if the read data is only needed and allocated by the master
+!  node ins distribute-memory applications.
+!
+      IF (.not.PRESENT(broadcast)) THEN
+        DoBroadcast=.TRUE.
+      ELSE
+        DoBroadcast=broadcast
+      END IF
+#endif
 !
 !  Read in variable.
 !
@@ -2738,7 +2802,7 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
-      IF (exit_flag.eq.NoError) THEN
+      IF (DoBroadcast.and.(exit_flag.eq.NoError)) THEN
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
@@ -2834,7 +2898,7 @@
       END SUBROUTINE netcdf_get_fvar_2d
 !
       SUBROUTINE netcdf_get_fvar_3d (ng, model, ncname, myVarName, A,   &
-     &                               ncid, start, total,                &
+     &                               ncid, start, total, broadcast,     &
      &                               min_val, max_val)
 !
 !=======================================================================
@@ -2854,6 +2918,10 @@
 !                    OPTIONAL)                                         !
 !     total        Number of data values to be read along each         !
 !                    dimension (integer, OPTIONAL)                     !
+!     broadcast    Switch to broadcast read values from root to all    !
+!                    members of the communicator in distributed-       !
+!                    memory applications (logical, OPTIONAL,           !
+!                    default=TRUE)                                     !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
@@ -2879,6 +2947,8 @@
 !
 !  Imported variable declarations.
 !
+      logical, intent(in), optional :: broadcast
+
       integer, intent(in) :: ng, model
 
       integer, intent(in), optional :: ncid
@@ -2895,6 +2965,9 @@
 !
 !  Local variable declarations.
 !
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+      logical :: DoBroadcast
+#endif
       logical, dimension(3) :: foundit
 
       integer :: i, j, k, my_ncid, status, varid
@@ -2936,6 +3009,18 @@
       ELSE
         my_ncid=ncid
       END IF
+
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+!
+!  Determine if the read data is only needed and allocated by the master
+!  node ins distribute-memory applications.
+!
+      IF (.not.PRESENT(broadcast)) THEN
+        DoBroadcast=.TRUE.
+      ELSE
+        DoBroadcast=broadcast
+      END IF
+#endif
 !
 !  Read in variable.
 !
@@ -2973,7 +3058,7 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
-      IF (exit_flag.eq.NoError) THEN
+      IF (DoBroadcast.and.(exit_flag.eq.NoError)) THEN
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
@@ -3077,7 +3162,7 @@
       END SUBROUTINE netcdf_get_fvar_3d
 !
       SUBROUTINE netcdf_get_fvar_4d (ng, model, ncname, myVarName, A,   &
-     &                               ncid, start, total,                &
+     &                               ncid, start, total, broadcast,     &
      &                               min_val, max_val)
 !
 !=======================================================================
@@ -3097,6 +3182,10 @@
 !                    OPTIONAL)                                         !
 !     total        Number of data values to be read along each         !
 !                    dimension (integer, OPTIONAL)                     !
+!     broadcast    Switch to broadcast read values from root to all    !
+!                    members of the communicator in distributed-       !
+!                    memory applications (logical, OPTIONAL,           !
+!                    default=TRUE)                                     !
 !                                                                      !
 !  On Ouput:                                                           !
 !                                                                      !
@@ -3122,6 +3211,8 @@
 !
 !  Imported variable declarations.
 !
+      logical, intent(in), optional :: broadcast
+
       integer, intent(in) :: ng, model
 
       integer, intent(in), optional :: ncid
@@ -3138,6 +3229,9 @@
 !
 !  Local variable declarations.
 !
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+      logical :: DoBroadcast
+#endif
       logical, dimension(3) :: foundit
 
       integer :: i, j, k, l, my_ncid, status, varid
@@ -3181,6 +3275,18 @@
       ELSE
         my_ncid=ncid
       END IF
+
+#if !defined PARALLEL_IO  && defined DISTRIBUTE
+!
+!  Determine if the read data is only needed and allocated by the master
+!  node ins distribute-memory applications.
+!
+      IF (.not.PRESENT(broadcast)) THEN
+        DoBroadcast=.TRUE.
+      ELSE
+        DoBroadcast=broadcast
+      END IF
+#endif
 !
 !  Read in variable.
 !
@@ -3218,7 +3324,7 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
-      IF (exit_flag.eq.NoError) THEN
+      IF (DoBroadcast.and.(exit_flag.eq.NoError)) THEN
         CALL mp_bcastf (ng, model, A)
       END IF
 #endif
@@ -7620,6 +7726,7 @@
 !  Local variable declarations.
 !
       integer :: my_cmode, status
+      integer :: OldFillMode
 #if !defined PARALLEL_OUT && defined DISTRIBUTE
       integer :: ibuffer(3)
 #endif
@@ -7650,6 +7757,19 @@
         exit_flag=3
         ioerror=status
       END IF
+!
+!  Set NOFILL mode to enhance performance.
+!
+      IF (exit_flag.eq.NoError) THEN
+        status=nf90_set_fill(ncid, nf90_nofill, OldFillMode)
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__ //                                      &
+     &                 ", netcdf_create")) THEN
+          IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+          exit_flag=3
+          ioerror=status
+        END IF
+      END IF
 #else
       my_cmode=IOR(nf90_clobber, CMODE)
       IF (OutThread) THEN
@@ -7661,6 +7781,19 @@
           PRINT *, trim(nf90_strerror(status))
           exit_flag=3
           ioerror=status
+        END IF
+!
+!  Set NOFILL mode to enhance performance.
+!
+        IF (exit_flag.eq.NoError) THEN
+          status=nf90_set_fill(ncid, nf90_nofill, OldFillMode)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__ //                                    &
+     &                   ", netcdf_create")) THEN
+            IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
+            exit_flag=3
+            ioerror=status
+          END IF
         END IF
       END IF
 # ifdef DISTRIBUTE
