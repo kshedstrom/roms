@@ -702,30 +702,6 @@
             END DO
           END DO
         END IF
-#  ifdef MELT_PONDS
-        IF (Aout2(idApond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              AVERAGE2(ng)%avgapond(i,j)=ICE(ng)%apond(i,j,Iout)
-#   ifdef WET_DRY
-              AVERAGE2(ng)%avgapond(i,j)=AVERAGE2(ng)%avgapond(i,j)*    &
-     &                                  GRID(ng)%rmask_full(i,j)
-#   endif
-            END DO
-          END DO
-        END IF
-        IF (Aout2(idHpond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              AVERAGE2(ng)%avghpond(i,j)=ICE(ng)%hpond(i,j,Iout)
-#   ifdef WET_DRY
-              AVERAGE2(ng)%avghpond(i,j)=AVERAGE2(ng)%avghpond(i,j)*    &
-     &                                  GRID(ng)%rmask_full(i,j)
-#   endif
-            END DO
-          END DO
-        END IF
-#  endif
         IF (Aout2(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1645,30 +1621,6 @@
             END DO
           END DO
         END IF
-#  ifdef MELT_PONDS
-        IF (Aout2(idApond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=Istr,IendR
-              AVERAGE2(ng)%avgapond(i,j)=AVERAGE2(ng)%avgapond(i,j)+      &
-#   ifdef WET_DRY
-     &                                 GRID(ng)%rmask_full(i,j)*        &
-#   endif
-     &                                 ICE(ng)%apond(i,j,Iout)
-            END DO
-          END DO
-        END IF
-        IF (Aout2(idHpond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=Istr,IendR
-              AVERAGE2(ng)%avghpond(i,j)=AVERAGE2(ng)%avghpond(i,j)+      &
-#   ifdef WET_DRY
-     &                                 GRID(ng)%rmask_full(i,j)*        &
-#   endif
-     &                                 ICE(ng)%hpond(i,j,Iout)
-            END DO
-          END DO
-        END IF
-#  endif
         IF (Aout2(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -2490,24 +2442,6 @@
             END DO
           END DO
         END IF
-#  ifdef MELT_PONDS
-        IF (Aout2(idApond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              AVERAGE2(ng)%avgapond(i,j)=rfac(i,j)*                      &
-     &                   AVERAGE2(ng)%avgapond(i,j)
-            END DO
-          END DO
-        END IF
-        IF (Aout2(idHpond,ng)) THEN
-          DO j=JstrR,JendR
-            DO i=IstrR,IendR
-              AVERAGE2(ng)%avghpond(i,j)=rfac(i,j)*                      &
-     &                   AVERAGE2(ng)%avghpond(i,j)
-            END DO
-          END DO
-        END IF
-#  endif
         IF (Aout2(idAgeice,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR

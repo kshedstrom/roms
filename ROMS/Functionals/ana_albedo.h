@@ -67,6 +67,7 @@
 !
       USE mod_param
       USE mod_scalars
+      USE dateclock_mod,   ONLY : caldate
 !
       USE exchange_2d_mod, ONLY : exchange_r2d_tile
 #ifdef DISTRIBUTE
@@ -106,8 +107,7 @@
 !  Local variable declarations.
 !
       integer :: i, j
-      integer :: iday, month, year
-      real(r8) :: hour, yday
+      integer :: month
       real(r8), parameter :: alb(12) =                                &
      &           (/ .85, .85, .83, .81, .82, .78,                     &
      &              .64, .69, .84, .85, .85, .85 /)
@@ -119,7 +119,7 @@
 !  Set analytical surface albedo.
 !-----------------------------------------------------------------------
 !
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), mm_i=month)
       DO j=JstrT,JendT
         DO i=IstrT,IendT
 #ifdef ICE_MODEL

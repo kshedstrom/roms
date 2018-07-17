@@ -988,58 +988,6 @@
           RETURN
         END IF
       END IF
-#ifdef MELT_PONDS
-!
-!  Write out surface water
-!
-      IF (Aout(idApond,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
-     &                 FIL(10,ng)%Vid(idApond),                         &
-     &                 FIL(10,ng)%Rindex, gtype,                        &
-     &                 LBi, UBi, LBj, UBj, scale,                       &
-#  ifdef MASKING
-     &                 GRID(ng) % rmask,                                &
-#  endif
-     &                 FILTER(ng) % filapond(:,:,FIL(10,ng)%Rindex))
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
-     &                 __FILE__)) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idApond)), FIL(10,ng)%Rindex
-            PRINT *, trim(nf90_strerror(status))
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-!
-!  Write out surface water
-!
-      IF (Aout(idHpond,ng)) THEN
-        scale=1.0_r8
-        gtype=gfactor*r2dvar
-        status=nf_fwrite2d(ng, iNLM, FIL(10,ng)%ncid,                   &
-     &                 FIL(10,ng)%Vid(idHpond),                         &
-     &                 FIL(10,ng)%Rindex, gtype,                        &
-     &                 LBi, UBi, LBj, UBj, scale,                       &
-#  ifdef MASKING
-     &                 GRID(ng) % rmask,                                &
-#  endif
-     &                 FILTER(ng) % filhpond(:,:,FIL(10,ng)%Rindex))
-        IF (FoundError(status, nf90_noerr, __LINE__,                    &
-     &                 __FILE__)) THEN
-          IF (Master) THEN
-            WRITE (stdout,10) TRIM(Vname(1,idHpond)), FIL(10,ng)%Rindex
-            PRINT *, trim(nf90_strerror(status))
-          END IF
-          exit_flag=3
-          ioerror=status
-          RETURN
-        END IF
-      END IF
-#endif
 !
 !  Write out surface ice temperature
 !

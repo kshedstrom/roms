@@ -14,10 +14,6 @@
           real(r8), pointer :: ai(:,:,:)
           real(r8), pointer :: hi(:,:,:)
           real(r8), pointer :: hsn(:,:,:)
-# ifdef MELT_PONDS
-          real(r8), pointer :: apond(:,:,:)
-          real(r8), pointer :: hpond(:,:,:)
-# endif
           real(r8), pointer :: ageice(:,:,:)
           real(r8), pointer :: io_mflux(:,:)
           real(r8), pointer :: wfr(:,:)
@@ -100,10 +96,6 @@
       allocate ( ICE(ng) % ai(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % hi(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % hsn(LBi:UBi,LBj:UBj,2) )
-# ifdef MELT_PONDS
-      allocate ( ICE(ng) % apond(LBi:UBi,LBj:UBj,2) )
-      allocate ( ICE(ng) % hpond(LBi:UBi,LBj:UBj,2) )
-# endif
       allocate ( ICE(ng) % ageice(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % io_mflux(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % wfr(LBi:UBi,LBj:UBj) )
@@ -235,12 +227,6 @@
 # endif
           ICE(ng) % hsn(i,j,1) = IniVal
           ICE(ng) % hsn(i,j,2) = IniVal
-# ifdef MELT_PONDS
-          ICE(ng) % apond(i,j,1) = IniVal
-          ICE(ng) % apond(i,j,2) = IniVal
-          ICE(ng) % hpond(i,j,1) = IniVal
-          ICE(ng) % hpond(i,j,2) = IniVal
-# endif
           ICE(ng) % ageice(i,j,1) = IniVal
           ICE(ng) % ageice(i,j,2) = IniVal
           ICE(ng) % io_mflux(i,j) = IniVal

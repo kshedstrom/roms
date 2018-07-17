@@ -224,10 +224,36 @@
      &      'Computation of forcing perturbations..............',       & !81
      &      'Computation of perturbations on EOS...............'/)
 
-        character (len=80) :: my_os = MY_OS
-        character (len=80) :: my_cpu = MY_CPU
-        character (len=80) :: my_fort = MY_FORT
-        character (len=256) :: my_fc = MY_FC
+!  The following variables are assigned during C-preprocessing.  They
+!  have information about operating sytem, CPU hardware, compiling
+!  system, compiler command, compiler flags, analytical directory,
+!  header directory, application header file, and root directory.
+!
+        character (len=80)  :: my_os = MY_OS
+        character (len=80)  :: my_cpu = MY_CPU
+        character (len=80)  :: my_fort = MY_FORT
+        character (len=80)  :: my_fc = MY_FC
         character (len=512) :: my_fflags = MY_FFLAGS
-
+!
+#ifdef ANALYTICAL_DIR
+        character (len=256) :: Adir = ANALYTICAL_DIR
+#else
+        character (len=256) :: Adir = "NONE"
+#endif
+#ifdef HEADER_DIR
+        character (len=256) :: Hdir = HEADER_DIR
+#else
+        character (len=256) :: Hdir = "NONE"
+#endif
+#ifdef ROMS_HEADER
+        character (len=256) :: Hfile = HEADER
+#else
+        character (len=256) :: Hfile = "NONE"
+#endif
+#ifdef ROOT_DIR
+        character (len=256) :: Rdir = ROOT_DIR
+#else
+        character (len=256) :: Rdir = "NONE"
+#endif
+!
       END MODULE mod_strings

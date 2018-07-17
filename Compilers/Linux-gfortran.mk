@@ -86,6 +86,7 @@ endif
 
 ifdef USE_DEBUG
          CPPFLAGS += -DUSE_DEBUG
+#          FFLAGS += -fcheck=all -fsanitize=address -fsanitize=undefined
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
            CFLAGS += -g

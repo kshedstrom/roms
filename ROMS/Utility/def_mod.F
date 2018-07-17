@@ -59,7 +59,7 @@
 # if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
       integer :: RetaDim, RxiDim
 # endif
-      integer :: i, j, nvatt, nvdim, status, varid, vindex
+      integer :: i, j, lstr, nvatt, nvdim, status, varid, vindex
       integer :: OBSncid
       integer :: Vsize(4), vardim(3)
 # ifdef DISTRIBUTE
@@ -340,23 +340,10 @@
           END IF
 # ifdef SVN
 !
-!  SVN repository information.
-!
-          IF (exit_flag.eq.NoError) THEN
-            status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'svn_url', TRIM(svn_url))
-            IF (FoundError(status, nf90_noerr, __LINE__,                &
-     &                     __FILE__)) THEN
-              WRITE (stdout,50) 'svn_url', TRIM(ncname)
-              exit_flag=3
-              ioerror=status
-            END IF
-          END IF
-# else
-#  if !defined DEBUGGING && defined GIT_URL
-!
 !  Git repository information.
 !
+# ifndef DEBUGGING
+#  ifdef GIT_URL
           IF (exit_flag.eq.NoError) THEN
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
      &                          'git_url', TRIM(git_url))
@@ -368,17 +355,14 @@
             END IF
           END IF
 #  endif
-# endif
 
-# ifndef DEBUGGING
-#  ifdef SVN
-#   ifdef SVN_REV
+#  ifdef GIT_REV
           IF (exit_flag.eq.NoError) THEN
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'svn_rev', TRIM(svn_rev))
+     &                          'git_rev', TRIM(git_rev))
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
-              WRITE (stdout,50) 'svn_rev', TRIM(ncname)
+              WRITE (stdout,50) 'git_rev', TRIM(ncname)
               exit_flag=3
               ioerror=status
             END IF
@@ -485,8 +469,10 @@
           END IF
 
           IF (exit_flag.eq.NoError) THEN
+            lstr=INDEX(my_fflags, 'free')-2
+            IF (lstr.le.0) lstr=LEN_TRIM(my_fflags)
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'compiler_flags', TRIM(my_fflags))
+     &                          'compiler_flags', my_fflags(1:lstr))
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
               WRITE (stdout,50) 'compiler_flags', TRIM(ncname)

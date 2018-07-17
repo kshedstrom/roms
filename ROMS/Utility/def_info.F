@@ -871,26 +871,28 @@
 #endif
 #ifdef SVN
 !
-!  SVN repository information.
+!  Git repository information.
 !
+#if !defined DEBUGGING && defined GIT_URL
         IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'svn_url',             &
-     &                        TRIM(svn_url))
+          status=nf90_put_att(ncid, nf90_global, 'git_url',             &
+     &                        TRIM(git_url))
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
-            IF (Master) WRITE (stdout,20) 'svn_url', TRIM(ncname)
+            IF (Master) WRITE (stdout,20) 'git_url', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF
         END IF
+#endif
 
-# if !defined DEBUGGING && defined SVN_REV
+#if !defined DEBUGGING && defined GIT_REV
         IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'svn_rev',             &
-     &                        TRIM(svn_rev))
+          status=nf90_put_att(ncid, nf90_global, 'git_rev',             &
+     &                        TRIM(git_rev))
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
-            IF (Master) WRITE (stdout,20) 'svn_rev', TRIM(ncname)
+            IF (Master) WRITE (stdout,20) 'git_rev', TRIM(ncname)
             exit_flag=3
             ioerror=status
           END IF
@@ -1016,8 +1018,10 @@
         END IF
 
         IF (exit_flag.eq.NoError) THEN
+          lstr=INDEX(my_fflags, 'free')-2
+          IF (lstr.le.0) lstr=LEN_TRIM(my_fflags)
           status=nf90_put_att(ncid, nf90_global, 'compiler_flags',      &
-     &                        TRIM(my_fflags))
+     &                        my_fflags(1:lstr))
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
             IF (Master) WRITE (stdout,20) 'compiler_flags', TRIM(ncname)

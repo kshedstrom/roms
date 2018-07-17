@@ -1911,42 +1911,6 @@
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
       END IF
-#ifdef MELT_PONDS
-!
-!  Write out surface water fraction (on ice)
-!
-      IF (Sout(idApond,ng)) THEN
-        scale=1.0_r8
-        CALL extract_sta2d (ng, iNLM, Cgrid, idApond, r2dvar,           &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, ICE(ng)%apond(:,:,IOUT),             &
-     &                      Nstation(ng), Xpos, Ypos, psta)
-        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
-     &                        TRIM(Vname(1,idApond)), psta,             &
-     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
-     &                        ncid = STA(ng)%ncid,                      &
-     &                        varid = STA(ng)%Vid(idApond))
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-      END IF
-!
-!  Write out surface water thickness (on ice)
-!
-      IF (Sout(idHpond,ng)) THEN
-        scale=1.0_r8
-        CALL extract_sta2d (ng, iNLM, Cgrid, idHpond, r2dvar,           &
-     &                      LBi, UBi, LBj, UBj,                         &
-     &                      scale, ICE(ng)%hpond(:,:,IOUT),             &
-     &                      Nstation(ng), Xpos, Ypos, psta)
-        CALL netcdf_put_fvar (ng, iNLM, STA(ng)%name,                   &
-     &                        TRIM(Vname(1,idHpond)), psta,             &
-     &                        (/1,STA(ng)%Rindex/), (/Nstation(ng),1/), &
-     &                        ncid = STA(ng)%ncid,                      &
-     &                        varid = STA(ng)%Vid(idHpond))
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-      END IF
-#endif
 !
 !  Write out ice age.
 !
