@@ -369,8 +369,8 @@
 !
 
       integer :: i, j
-      integer :: iday, month, year
-      real(r8) :: hour, yday, cff
+      integer :: iday
+      real(r8) :: hour, cff
 
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: b2d
 
@@ -446,8 +446,7 @@
 
 #include "set_bounds.h"
 
-      CALL caldate(tdays(ng), yy_i=year, yd_r8=yday, mm_i=month,        &
-     &             dd_i=iday, h_r8=hour)
+      CALL caldate(tdays(ng), dd_i=iday, h_r8=hour)
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)

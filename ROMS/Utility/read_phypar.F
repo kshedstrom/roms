@@ -99,6 +99,8 @@
       character (len=50 ) :: label
       character (len=256) :: fname, line
       character (len=256), dimension(200) :: Cval
+
+      character (len=80) :: git_msg
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -2342,7 +2344,8 @@
 # ifdef SOLVE3D
 #  if defined RUNOFF
             CASE ('Aout(idRunoff)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout(idRunoff,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout(idRunoff,1:Ngrids)=Lswitch(1:Ngrids)
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Aout(idPair)')
@@ -2644,23 +2647,32 @@
 #endif
 #if defined AVERAGES2
             CASE ('Aout2(idUvel)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUvel,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUvel,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVvel)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVvel,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVvel,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idUbar)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbar,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUbar,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVbar)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVbar,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVbar,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idFsur)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idFsur,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idFsur,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idu2dE)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu2dE,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idu2dE,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idv2dN)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv2dN,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idv2dN,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idu3dE)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idu3dE,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idu3dE,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idv3dN)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idv3dN,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idv3dN,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idTvar)')
               Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
               DO ng=1,Ngrids
@@ -2670,31 +2682,41 @@
                 END DO
               END DO
             CASE ('Aout2(idUsms)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUsms,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUsms,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVsms)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVsms,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVsms,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idUbms)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUbms,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUbms,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVbms)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVbms,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVbms,1:Ngrids)=Lswitch(1:Ngrids)
 # ifdef SOLVE3D
 #  if defined RUNOFF
             CASE ('Aout2(idRunoff)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idRunoff,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idRunoff,1:Ngrids)=Lswitch(1:Ngrids)
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM || defined ATM_PRESS
             CASE ('Aout2(idPair)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idPair,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idPair,1:Ngrids)=Lswitch(1:Ngrids)
 #  endif
 #  if defined BULK_FLUXES || defined ECOSIM
             CASE ('Aout2(idUair)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUair,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUair,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVair)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVair,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVair,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idUairE)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idUairE,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idUairE,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idVairN)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idVairN,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idVairN,1:Ngrids)=Lswitch(1:Ngrids)
 #  endif
 # endif
             CASE ('Aout2(idTsur)')
@@ -2706,31 +2728,44 @@
                 END DO
               END DO
             CASE ('Aout2(idLhea)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idLhea,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idLhea,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idShea)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idShea,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idShea,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idLrad)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idLrad,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idLrad,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idSrad)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idSrad,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idSrad,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idevap)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idevap,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idevap,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idrain)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idrain,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idrain,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idDano)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idDano,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idDano,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idHsbl)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHsbl,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idHsbl,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idHbbl)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(idHbbl,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(idHbbl,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(id2dRV)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dRV,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(id2dRV,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(id3dRV)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dRV,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(id3dRV,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(id2dPV)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(id2dPV,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(id2dPV,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(id3dPV)')
-              Npts=load_l(Nval, Cval, Ngrids, Aout2(id3dPV,:))
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout2(id3dPV,1:Ngrids)=Lswitch(1:Ngrids)
 # if defined SOLVE3D && defined T_PASSIVE
             CASE ('Aout2(inert)')
               Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
@@ -3863,19 +3898,25 @@
 !-----------------------------------------------------------------------
 !
       IF (Lwrite) THEN
+        IF (git_status.EQ.0) THEN
+          git_msg = 'The working tree is clean'
+        ELSE
+          WRITE (git_msg, '(A,I6,A)')                                   &
+     &      'The working tree is DIRTY with',git_status,' changes'
+        END IF
         lstr=INDEX(my_fflags, 'free')-2
         IF (lstr.le.0) lstr=LEN_TRIM(my_fflags)
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
      &                 OCN_COMM_WORLD, numthreads,                      &
-     &                 TRIM(Iname), TRIM(svn_url), TRIM(svn_rev),       &
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else
-        WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
+        WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu), &
      &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
-     &                 TRIM(svn_url), TRIM(svn_rev), TRIM(Rdir),        &
-     &                 TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
+     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
+     &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #endif
 
         DO ng=1,Ngrids
@@ -6704,8 +6745,9 @@
      &        /,1x,'Compiler flags   : ',a,                             &
      &        /,1x,'MPI Communicator : ',i0,2x,'PET size = ',i0,/,      &
      &        /,1x,'Input Script  : ',a,/,                              &
-     &        /,1x,'SVN Root URL  : ',a,                                &
-     &        /,1x,'SVN Revision  : ',a,/,                              &
+     &        /,1x,'Git Root URL  : ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &
@@ -6717,8 +6759,9 @@
      &        /,1x,'Compiler system  : ',a,                             &
      &        /,1x,'Compiler command : ',a,                             &
      &        /,1x,'Compiler flags   : ',a,/,                           &
-     &        /,1x,'SVN Root URL  : ',a,                                &
-     &        /,1x,'SVN Revision  : ',a,/,                              &
+     &        /,1x,'Git Origin URL: ',a,                                &
+     &        /,1x,'Git Revision  : ',a,                                &
+     &        /,1x,'Git Status    : ',a,/,                              &
      &        /,1x,'Local Root    : ',a,                                &
      &        /,1x,'Header Dir    : ',a,                                &
      &        /,1x,'Header file   : ',a,                                &

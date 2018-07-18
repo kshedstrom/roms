@@ -339,27 +339,29 @@
             END IF
           END IF
 !
-!  SVN repository information.
+!  Git repository information.
 !
+# ifndef DEBUGGING
+#  ifdef GIT_URL
           IF (exit_flag.eq.NoError) THEN
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'svn_url', TRIM(svn_url))
+     &                          'git_url', TRIM(git_url))
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
-              WRITE (stdout,50) 'svn_url', TRIM(ncname)
+              WRITE (stdout,50) 'git_url', TRIM(ncname)
               exit_flag=3
               ioerror=status
             END IF
           END IF
+#  endif
 
-# ifndef DEBUGGING
-#  ifdef SVN_REV
+#  ifdef GIT_REV
           IF (exit_flag.eq.NoError) THEN
             status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'svn_rev', TRIM(svn_rev))
+     &                          'git_rev', TRIM(git_rev))
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
-              WRITE (stdout,50) 'svn_rev', TRIM(ncname)
+              WRITE (stdout,50) 'git_rev', TRIM(ncname)
               exit_flag=3
               ioerror=status
             END IF

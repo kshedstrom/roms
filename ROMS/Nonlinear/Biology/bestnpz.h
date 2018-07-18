@@ -156,6 +156,7 @@
       USE mod_ocean
       USE mod_grid
       USE mod_biology
+      USE dateclock_mod,   ONLY : caldate
 #if defined CLIM_ICE_1D
       USE mod_clima
 #endif
@@ -278,13 +279,12 @@
       integer :: ibioBI
 #endif
       integer :: Iter,is
-      integer :: iday, month, year
 
       real(r8) :: cff1, cff2, cff3,cff4
       real(r8) :: Drate, Pmax, NOup, NHup
       real(r8) :: dtdays
       real(r8) :: LightLim, NOLim, NHLim, IronLim
-      real(r8) :: hour, yday, lat, k_phy, Dl, Par1
+      real(r8) :: yday, lat, k_phy, Dl, Par1
       real(r8) :: Sal1, Temp1
 !      , TmaxPhS, KtBm_PhS, TmaxPhL, KtBm_PhL,TmaxMZS,KtBm_MZS,TmaxMZL,KtBm_MZL
       real(r8) :: ParMax,BasalMet
@@ -361,7 +361,7 @@
 !----------------------
 #include "set_bounds.h"
 !
-      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), yd_r8=yday)
       dtdays = dt(ng)*sec2day/REAL(BioIter(ng),r8)
       k_phy = k_chl / ccr
 !
