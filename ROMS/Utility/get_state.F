@@ -1722,56 +1722,56 @@
 !
 !  Read in Ghats
 !
-      DO itrc=1,NAT
-        IF (have_var(idGhat(itrc))) THEN
-          foundit=find_string(var_name, n_var,                          &
-     &                        TRIM(Vname(1,idGhat(itrc))), varid)
-          IF (foundit) THEN
-            gtype=var_flag(varid)*w3dvar
-            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
-     &                        Vname(1,idGhat(itrc)), varid,             &
-     &                        InpRec, gtype, Vsize,                     &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        Fscl, Fmin,Fmax,                          &
+        DO itrc=1,NAT
+          IF (have_var(idGhat(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,idGhat(itrc))), varid)
+            IF (foundit) THEN
+              gtype=var_flag(varid)*w3dvar
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idGhat(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 0, N(ng),           &
+     &                          Fscl, Fmin,Fmax,                        &
 #   ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
+     &                          GRID(ng) % rmask,                       &
 #   endif
-     &                        MIXING(ng) % Ghats(:,:,:,itrc))
-            IF (FoundError(status, nf90_noerr, __LINE__,                &
-     &                     __FILE__)) THEN
-              IF (Master) THEN
-                WRITE (stdout,60) string, TRIM(Vname(1,idGhat(itrc))),  &
-     &                            InpRec, TRIM(ncname)
+     &                          MIXING(ng) % Ghats(:,:,:,itrc))
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) THEN
+                  WRITE (stdout,60) string, TRIM(Vname(1,idGhat(itrc))),&
+     &                              InpRec, TRIM(ncname)
+                END IF
+                exit_flag=2
+                ioerror=status
+                RETURN
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),        &
+     &                              Fmin, Fmax
+                END IF
               END IF
-              exit_flag=2
-              ioerror=status
-              RETURN
             ELSE
               IF (Master) THEN
-                WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),          &
-     &                            Fmin, Fmax
+                WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),  &
+     &                            TRIM(ncname)
+              END IF
+              exit_flag=4
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                       __FILE__)) THEN
+                RETURN
               END IF
             END IF
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),    &
-     &                          TRIM(ncname)
-            END IF
-            exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                     __FILE__)) THEN
-              RETURN
-            END IF
-          END IF
 #   ifdef DISTRIBUTE
-          CALL mp_exchange3d (ng, MyRank, IDmod, 1,                     &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        EWperiodic(ng), NSperiodic(ng),           &
-     &                        MIXING(ng) % Ghats(:,:,:,itrc))
+            CALL mp_exchange3d (ng, MyRank, IDmod, 1,                   &
+     &                          LBi, UBi, LBj, UBj, 0, N(ng),           &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          MIXING(ng) % Ghats(:,:,:,itrc))
 #   endif
-        END IF
-      END DO
+          END IF
+        END DO
 #  endif
 #  if defined TKE_MIXING
 !
