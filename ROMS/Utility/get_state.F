@@ -1754,17 +1754,17 @@
                 RETURN
               ELSE
                 IF (Master) THEN
-                  WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),          &
+                  WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),        &
      &                              Fmin, Fmax
                 END IF
               END IF
             ELSE
               IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),    &
+                WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),  &
      &                            TRIM(ncname)
               END IF
               exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
      &                       __FILE__)) THEN
                 RETURN
               END IF

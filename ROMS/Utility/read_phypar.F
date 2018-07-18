@@ -3878,11 +3878,18 @@
 #endif
 #if defined IS4DVAR || defined W4DPSAS || defined W4DVAR
 !
-!  Insure that restart file is written only at the end.  In sequential
-!  data assimilation the restart file is used as the first guess for
-!  the next assimilation cycle.
+!  Ensure that restart file is written only at least at the end.  In
+!  sequential data assimilation the restart file can be used as the
+!  first guess for the next assimilation cycle.  Notice that we can
+!  also use the DAINAME file for such purpose. However, in lagged
+!  data assimilation windows, "nRST" can be set to a value less than
+!  "ntimes" (say, daily) and "LcycleRST" is set to false. So, there
+!  are several initialization record possibilities for the next
+!  assimilation cycle.
 !
-        nRST(ng)=ntimes(ng)
+        IF (nRST(ng).gt.ntimes(ng)) THEN
+          nRST(ng)=ntimes(ng)
+        END IF
 #endif
 #if defined STOCHASTIC_OPT && !defined STOCH_OPT_WHITE
 !
@@ -4033,7 +4040,7 @@
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
-     &                 TRIM(Iname),                                     &
+     &                 OCN_COMM_WORLD, numthreads,                      &
      &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else
@@ -6947,7 +6954,8 @@
      &        /,1x,'CPU/hardware     : ',a,                             &
      &        /,1x,'Compiler system  : ',a,                             &
      &        /,1x,'Compiler command : ',a,                             &
-     &        /,1x,'Compiler flags   : ',a,/,                           &
+     &        /,1x,'Compiler flags   : ',a,                             &
+     &        /,1x,'MPI Communicator : ',i0,2x,'PET size = ',i0,/,      &
      &        /,1x,'Input Script  : ',a,/,                              &
      &        /,1x,'Git Root URL  : ',a,                                &
      &        /,1x,'Git Revision  : ',a,                                &
