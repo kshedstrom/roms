@@ -4028,28 +4028,6 @@
           WRITE (git_msg, '(A,I6,A)')                                   &
      &      'The working tree is DIRTY with',git_status,' changes'
         END IF
-#endif
-#ifdef DISTRIBUTE
-        WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
-     &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
-# ifdef SVN
-     &                 TRIM(Iname), TRIM(svn_url), TRIM(svn_rev),       &
-# else
-     &                 TRIM(Iname),                                     &
-     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
-# endif
-     &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
-#else
-        WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
-     &                 TRIM(my_fort), TRIM(my_fc), TRIM(my_fflags),     &
-# ifdef SVN
-     &                 TRIM(svn_url), TRIM(svn_rev), TRIM(Rdir),        &
-# else
-     &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
-     &                 TRIM(Rdir),                                      &
-# endif
-     &                 TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
-=======
         lstr=INDEX(my_fflags, 'free')-2
         IF (lstr.le.0) lstr=LEN_TRIM(my_fflags)
 #ifdef DISTRIBUTE
@@ -4063,7 +4041,6 @@
      &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
      &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
->>>>>>> kate_svn
 #endif
 
         DO ng=1,Ngrids
