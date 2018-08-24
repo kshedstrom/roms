@@ -4801,7 +4801,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-      USE dateclock_mod,  ONLY : datenum, datestr
+      USE dateclock_mod,  ONLY : datenum, datestr, time_units
 #if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -4834,12 +4834,12 @@
       logical, dimension(2) :: foundit
 
       integer :: ind, lstr, my_ncid, status, varid
-      integer :: year, month, day, hour, minutes, seconds
+      integer :: year, month, day, hour, minutes
 
 #if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, my_Rdate(2)
+      real(r8) :: Afactor, Aoffset, my_Rdate(2), seconds
       real(r8) :: dnum_old, dnum_new
 
       real(r8), dimension(1) :: my_A
@@ -4966,10 +4966,10 @@
           lstr=LEN_TRIM(Units)
           ind=INDEX(Units,'since')
           IF (ind.gt.0) THEN
-            READ (Units(ind+6:lstr),30) year, month, day,               &
-     &                                  hour, minutes, seconds
+            CALL time_units (TRIM(Units), year, month, day, hour,       &
+     &                       minutes, seconds)
             CALL datenum (my_Rdate, year, month, day, hour, minutes,    &
-     &                    REAL(seconds,r8))
+     &                    seconds)
             IF (Rdate(1).ne.my_Rdate(1)) THEN
               Ustring=Units(1:ind-2)
               SELECT CASE (TRIM(Ustring))
@@ -5037,7 +5037,6 @@
   20  FORMAT (/,' NETCDF_GET_TIME_0D - error while inquiring ID for ',  &
      &        'variable:',2x,a,/,22x,'in input file:',2x,a,/,22x,       &
      &        'call from:',2x,a)
-  30  FORMAT (i4.4,1x,i2.2,1x,i2.2,1x,i2.2,1x,i2.2,1x,i2.2)
 
       RETURN
       END SUBROUTINE netcdf_get_time_0d
@@ -5090,7 +5089,7 @@
       USE mod_iounits
       USE mod_scalars
 !
-      USE dateclock_mod,  ONLY : datenum, datestr
+      USE dateclock_mod,  ONLY : datenum, datestr, time_units
 #if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcastf, mp_bcasti
 #endif
@@ -5123,13 +5122,13 @@
       logical, dimension(2) :: foundit
 
       integer :: i, ind, lstr, my_ncid, status, varid
-      integer :: year, month, day, hour, minutes, seconds
+      integer :: year, month, day, hour, minutes
 
       integer, dimension(1) :: Asize
 #if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
-      real(r8) :: Afactor, Aoffset, my_Rdate(2)
+      real(r8) :: Afactor, Aoffset, my_Rdate(2), seconds
       real(r8) :: dnum_old, dnum_new
 
       real(r8), dimension(2) :: AttValue
@@ -5265,10 +5264,10 @@
           lstr=LEN_TRIM(Units)
           ind=INDEX(Units,'since')
           IF (ind.gt.0) THEN
-            READ (Units(ind+6:lstr),30) year, month, day,               &
-     &                                  hour, minutes, seconds
+            CALL time_units (TRIM(Units), year, month, day, hour,       &
+     &                       minutes, seconds)
             CALL datenum (my_Rdate, year, month, day, hour, minutes,    &
-     &                    REAL(seconds,r8))
+     &                    seconds)
             IF (Rdate(1).ne.my_Rdate(1)) THEN
               Ustring=Units(1:ind-2)
               SELECT CASE (TRIM(Ustring))
@@ -5342,7 +5341,6 @@
   20  FORMAT (/,' NETCDF_GET_TIME_1D - error while inquiring ID for ',  &
      &        'variable:',2x,a,/,22x,'in input file:',2x,a,/,22x,       &
      &        'call from:',2x,a)
-  30  FORMAT (i4.4,1x,i2.2,1x,i2.2,1x,i2.2,1x,i2.2,1x,i2.2)
 
       RETURN
       END SUBROUTINE netcdf_get_time_1d
