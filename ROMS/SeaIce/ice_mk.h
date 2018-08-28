@@ -720,8 +720,10 @@
 
           hfus1(i,j) = hfus*(1.0_r8-brnfr(i,j))+t0mk(i,j)*cpw           &
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
-          IF (temp_top(i,j) .le. tfz)                                   &
-     &             wao(i,j) = qao_n(i,j)/(hfus1(i,j)*rhosw)
+! This should only happen if salt_top clipping is in play
+!         IF (temp_top(i,j) .le. tfz)                                   &
+!    &             wao(i,j) = qao_n(i,j)/(hfus1(i,j)*rhosw)
+          IF (temp_top(i,j) .le. tfz) temp_top(i,j) = tfz
           IF (ai(i,j,linew) .le. min_a(ng) .or.                         &
      &        hi(i,j,linew) .le. min_h(ng)) THEN
             s0mk(i,j) = salt_top(i,j)
@@ -931,7 +933,7 @@
 
 #undef DIAG_WPB
 #ifdef DIAG_WPB
-      IF (i.eq.1.and.j.eq.1) THEN
+      IF (i.eq.549.and.j.eq.533) THEN
          write(*,*) tdays,wio(i,j),wai(i,j),wao(i,j),wfr(i,j),          &
      &              ai(i,j,linew),hi(i,j,linew),tis(i,j),               &
      &              temp_top(i,j),t0mk(i,j),stflx(i,j,itemp),           &
