@@ -1722,56 +1722,56 @@
 !
 !  Read in Ghats
 !
-      DO itrc=1,NAT
-        IF (have_var(idGhat(itrc))) THEN
-          foundit=find_string(var_name, n_var,                          &
-     &                        TRIM(Vname(1,idGhat(itrc))), varid)
-          IF (foundit) THEN
-            gtype=var_flag(varid)*w3dvar
-            status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
-     &                        Vname(1,idGhat(itrc)), varid,             &
-     &                        InpRec, gtype, Vsize,                     &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        Fscl, Fmin,Fmax,                          &
+        DO itrc=1,NAT
+          IF (have_var(idGhat(itrc))) THEN
+            foundit=find_string(var_name, n_var,                        &
+     &                          TRIM(Vname(1,idGhat(itrc))), varid)
+            IF (foundit) THEN
+              gtype=var_flag(varid)*w3dvar
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,idGhat(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 0, N(ng),           &
+     &                          Fscl, Fmin,Fmax,                        &
 #   ifdef MASKING
-     &                        GRID(ng) % rmask,                         &
+     &                          GRID(ng) % rmask,                       &
 #   endif
-     &                        MIXING(ng) % Ghats(:,:,:,itrc))
-            IF (FoundError(status, nf90_noerr, __LINE__,                &
-     &                     __FILE__)) THEN
-              IF (Master) THEN
-                WRITE (stdout,60) string, TRIM(Vname(1,idGhat(itrc))),  &
-     &                            InpRec, TRIM(ncname)
+     &                          MIXING(ng) % Ghats(:,:,:,itrc))
+              IF (FoundError(status, nf90_noerr, __LINE__,              &
+     &                       __FILE__)) THEN
+                IF (Master) THEN
+                  WRITE (stdout,60) string, TRIM(Vname(1,idGhat(itrc))),&
+     &                              InpRec, TRIM(ncname)
+                END IF
+                exit_flag=2
+                ioerror=status
+                RETURN
+              ELSE
+                IF (Master) THEN
+                  WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),        &
+     &                              Fmin, Fmax
+                END IF
               END IF
-              exit_flag=2
-              ioerror=status
-              RETURN
             ELSE
               IF (Master) THEN
-                WRITE (stdout,70) TRIM(Vname(2,idGhat(itrc))),          &
-     &                            Fmin, Fmax
+                WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),  &
+     &                            TRIM(ncname)
+              END IF
+              exit_flag=4
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                       __FILE__)) THEN
+                RETURN
               END IF
             END IF
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idGhat(itrc))),    &
-     &                          TRIM(ncname)
-            END IF
-            exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                     __FILE__)) THEN
-              RETURN
-            END IF
-          END IF
 #   ifdef DISTRIBUTE
-          CALL mp_exchange3d (ng, MyRank, IDmod, 1,                     &
-     &                        LBi, UBi, LBj, UBj, 0, N(ng),             &
-     &                        NghostPoints,                             &
-     &                        EWperiodic(ng), NSperiodic(ng),           &
-     &                        MIXING(ng) % Ghats(:,:,:,itrc))
+            CALL mp_exchange3d (ng, MyRank, IDmod, 1,                   &
+     &                          LBi, UBi, LBj, UBj, 0, N(ng),           &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          MIXING(ng) % Ghats(:,:,:,itrc))
 #   endif
-        END IF
-      END DO
+          END IF
+        END DO
 #  endif
 #  if defined TKE_MIXING
 !
@@ -1842,7 +1842,7 @@
               END IF
               exit_flag=2
               ioerror=status
-             RETURN
+              RETURN
             ELSE
               IF (Master) THEN
                 WRITE (stdout,70) TRIM(Vname(2,idMtls)), Fmin, Fmax
@@ -2265,9 +2265,8 @@
           END IF
         END DO
 !
-
 #  endif
-#if defined BEST_NPZ && defined BERING_10K
+#  if defined BEST_NPZ && defined BERING_10K
 
 !  Read in benthic initial conditions.
         DO itrc=1,1 !,NBeT(ng)
@@ -2623,50 +2622,50 @@
             END IF
           END IF
 !#ifdef INI_GLORYS_ICE
-!        END IF
+!       END IF
 !#endif
 !
 !  Read in ice/snow surface temperature.
 !
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idTice)),     &
-     &                        varid)
-        IF (foundit) THEN
-          gtype=var_flag(varid)*r2dvar
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                  Vname(1,idTice), varid, InpRec, gtype,          &
-     &                  Vsize, LBi, UBi, LBj, UBj,                      &
-     &                  Fscl, Fmin, Fmax,                               &
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idTice)),   &
+     &                          varid)
+          IF (foundit) THEN
+            gtype=var_flag(varid)*r2dvar
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idTice), varid, InpRec, gtype,    &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
 #   ifdef MASKING
-     &                  GRID(ng) % rmask,                               &
+     &                        GRID(ng) % rmask,                         &
 #   endif
-     &                  ICE(ng) % tis)
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) THEN
-              WRITE (stdout,60) string, TRIM(Vname(1,idTice)),          &
-     &                          InpRec, TRIM(ncname)
+     &                        ICE(ng) % tis)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idTice)),        &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
+              END IF
             END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
           ELSE
             IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idTice)), Fmin, Fmax
+              WRITE (stdout,80) string, TRIM(Vname(1,idTice)),          &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
             END IF
           END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idTice)),            &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,               &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
 !#ifdef INI_GLORYS_ICE
-!      IF (read_ice) THEN
+!       IF (read_ice) THEN
 !#endif
 !
 !  Read in ice age.
@@ -2952,252 +2951,35 @@
 !
 !  Read in ice-water friction velocity.
 !
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idTauiw)),    &
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idTauiw)),  &
      &                        varid)
-        IF (foundit) THEN
-          gtype=var_flag(varid)*r2dvar
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idTauiw), varid, InpRec, gtype,     &
-     &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
+          IF (foundit) THEN
+            gtype=var_flag(varid)*r2dvar
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idTauiw), varid, InpRec, gtype,   &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
 #   ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
+     &                        GRID(ng) % rmask,                         &
 #   endif
-     &                      ICE(ng) % utau_iw)
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) THEN
-              WRITE (stdout,60) string, TRIM(Vname(1,idTauiw)),         &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idTauiw)), Fmin, Fmax
-            END IF
-          END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),          &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
-!
-!  Read in ice-water momentum transfer coefficient.
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),    &
-     &                        varid)
-        IF (foundit) THEN
-          gtype=var_flag(varid)*r2dvar
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idChuiw), varid, InpRec, gtype,     &
-     &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
-#   ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
-#   endif
-     &                      ICE(ng) % chu_iw)
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) THEN
-              WRITE (stdout,60) string, TRIM(Vname(1,idChuiw)),         &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idChuiw)), Fmin, Fmax
-            END IF
-          END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idChuiw)),         &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
-#endif
-!
-!  Read in salinity of molecular sub-layer under ice
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idS0mk)),     &
-     &                        varid)
-        IF (foundit) THEN
-          gtype=var_flag(varid)*r2dvar
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idS0mk), varid, InpRec, gtype,      &
-     &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
-#   ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
-#   endif
-     &                      ICE(ng) % s0mk)
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) THEN
-              WRITE (stdout,60) string, TRIM(Vname(1,idS0mk)),          &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idS0mk)), Fmin, Fmax
-            END IF
-          END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idS0mk)),            &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,               &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
-!
-!  Read in temperature of molecular sub-layer under ice
-!
-        foundit=find_string(var_name, n_var, TRIM(Vname(1,idT0mk)),     &
-     &                        varid)
-        IF (foundit) THEN
-          gtype=var_flag(varid)*r2dvar
-          status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                      Vname(1,idT0mk), varid, InpRec, gtype,      &
-     &                      Vsize, LBi, UBi, LBj, UBj,                  &
-     &                      Fscl, Fmin, Fmax,                           &
-#   ifdef MASKING
-     &                      GRID(ng) % rmask,                           &
-#   endif
-     &                      ICE(ng) % t0mk)
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) THEN
-              WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),          &
-     &                          InpRec, TRIM(ncname)
-            END IF
-            exit_flag=2
-            ioerror=status
-            RETURN
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,70) TRIM(Vname(2,idT0mk)), Fmin, Fmax
-            END IF
-          END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idT0mk)),          &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
-
-#   ifdef PERFECT_RESTART
-!
-!  Read in surface tracers flux.
-!
-        IF (Perfect2D) THEN
-          DO itrc=1,NAT
-            IF (get_var(idTsur(itrc))) THEN
-              foundit=find_string(var_name, n_var,                      &
-     &                          TRIM(Vname(1,idTsur(itrc))), varid)
-              IF (foundit) THEN
-                gtype=var_flag(varid)*r2dvar
-                scale=1.0_r8
-                status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
-     &                            Vname(1,idTsur(itrc)), varid,         &
-     &                            InpRec, gtype, Vsize,                 &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            scale, Fmin, Fmax,                    &
-#   ifdef MASKING
-     &                            GRID(ng) % rmask,                     &
-#   endif
-     &                            FORCES(ng)% stflx_save(:,:,itrc))
-                IF (FoundError(status, nf90_noerr, __LINE__,            &
-     &                         __FILE__)) THEN
-                  IF (Master) THEN
-                    WRITE (stdout,60) string,                           &
-     &                                TRIM(Vname(1,idTsur(itrc))),      &
-     &                                InpRec, TRIM(ncname)
-                  END IF
-                  exit_flag=2
-                  ioerror=status
-                  RETURN
-                ELSE
-                  IF (Master) THEN
-                    WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//     &
-     &                                 ', saved stflx', Fmin, Fmax
-                  END IF
-                END IF
+     &                        ICE(ng) % utau_iw)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idTauiw)),       &
+     &                            InpRec, TRIM(ncname)
               END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
             ELSE
               IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idTsur(itrc))),  &
-     &                            TRIM(ncname)
-              END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
-     &                       __FILE__)) THEN
-                RETURN
-              END IF
-            END IF
-          END DO
-!
-!  Read in surface U-momentum stress.
-!
-          IF (get_var(idUsms)) THEN
-            foundit=find_string(var_name, n_var, TRIM(Vname(1,idUsms)), &
-     &                          varid)
-            IF (foundit) THEN
-              gtype=var_flag(varid)*u2dvar
-              scale=1.0_r8
-              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
-     &                          Vname(1,idUsms), varid,                 &
-     &                          InpRec, gtype, Vsize,                   &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          scale, Fmin, Fmax,                      &
-#  ifdef MASKING
-     &                          GRID(ng) % umask,                       &
-#  endif
-     &                          FORCES(ng) % sustr_save)
-              IF (FoundError(status, nf90_noerr, __LINE__,              &
-     &                       __FILE__)) THEN
-                IF (Master) THEN
-                  WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),      &
-     &                              InpRec, TRIM(ncname)
-                END IF
-                exit_flag=2
-                ioerror=status
-                RETURN
-              ELSE
-                IF (Master) THEN
-                  WRITE (stdout,70) TRIM(Vname(2,idUsms))//             &
-     &                              ', saved sustr', Fmin, Fmax
-                END IF
+                WRITE (stdout,70) TRIM(Vname(2,idTauiw)), Fmin, Fmax
               END IF
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),          &
+              WRITE (stdout,80) string, TRIM(Vname(1,idFsur)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
@@ -3207,53 +2989,270 @@
             END IF
           END IF
 !
-!  Read in surface V-momentum stress.
+!  Read in ice-water momentum transfer coefficient.
 !
-          IF (get_var(idVsms)) THEN
-            foundit=find_string(var_name, n_var, TRIM(Vname(1,idVsms)), &
-     &                          varid)
-            IF (foundit) THEN
-              gtype=var_flag(varid)*v2dvar
-              scale=1.0_r8
-              status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
-     &                          Vname(1,idVsms), varid,                 &
-     &                          InpRec, gtype, Vsize,                   &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          scale, Fmin, Fmax,                      &
-#  ifdef MASKING
-     &                          GRID(ng) % vmask,                       &
-#  endif
-     &                          FORCES(ng) % svstr_save)
-              IF (FoundError(status, nf90_noerr, __LINE__,              &
-     &                       __FILE__)) THEN
-                IF (Master) THEN
-                  WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),      &
-     &                              InpRec, TRIM(ncname)
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),  &
+     &                        varid)
+          IF (foundit) THEN
+            gtype=var_flag(varid)*r2dvar
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idChuiw), varid, InpRec, gtype,   &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
+#   ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#   endif
+     &                        ICE(ng) % chu_iw)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idChuiw)),       &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,idChuiw)), Fmin, Fmax
+              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idChuiw)),         &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
+            END IF
+          END IF
+#endif
+!
+!  Read in salinity of molecular sub-layer under ice
+!
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idS0mk)),   &
+     &                        varid)
+          IF (foundit) THEN
+            gtype=var_flag(varid)*r2dvar
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idS0mk), varid, InpRec, gtype,    &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
+#   ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#   endif
+     &                        ICE(ng) % s0mk)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idS0mk)),        &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,idS0mk)), Fmin, Fmax
+              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idS0mk)),          &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
+            END IF
+          END IF
+!
+!  Read in temperature of molecular sub-layer under ice
+!
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idT0mk)),   &
+     &                        varid)
+          IF (foundit) THEN
+            gtype=var_flag(varid)*r2dvar
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idT0mk), varid, InpRec, gtype,    &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
+#   ifdef MASKING
+     &                        GRID(ng) % rmask,                         &
+#   endif
+     &                        ICE(ng) % t0mk)
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
+     &                     __FILE__)) THEN
+              IF (Master) THEN
+                WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),        &
+     &                            InpRec, TRIM(ncname)
+              END IF
+              exit_flag=2
+              ioerror=status
+              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,70) TRIM(Vname(2,idT0mk)), Fmin, Fmax
+              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idT0mk)),          &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
+            END IF
+          END IF
+
+#   ifdef PERFECT_RESTART
+!
+!  Read in surface tracers flux.
+!
+          IF (Perfect2D) THEN
+            DO itrc=1,NAT
+              IF (get_var(idTsur(itrc))) THEN
+                foundit=find_string(var_name, n_var,                    &
+     &                              TRIM(Vname(1,idTsur(itrc))), varid)
+                IF (foundit) THEN
+                  gtype=var_flag(varid)*r2dvar
+                  scale=1.0_r8
+                  status=nf_fread2d(ng, IDmod, ncname, ncINPid,         &
+     &                              Vname(1,idTsur(itrc)), varid,       &
+     &                              InpRec, gtype, Vsize,               &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              scale, Fmin, Fmax,                  &
+#   ifdef MASKING
+     &                              GRID(ng) % rmask,                   &
+#   endif
+     &                              FORCES(ng)% stflx_save(:,:,itrc))
+                  IF (FoundError(status, nf90_noerr, __LINE__,          &
+     &                           __FILE__)) THEN
+                    IF (Master) THEN
+                      WRITE (stdout,60) string,                         &
+     &                                  TRIM(Vname(1,idTsur(itrc))),    &
+     &                                  InpRec, TRIM(ncname)
+                    END IF
+                    exit_flag=2
+                    ioerror=status
+                    RETURN
+                  ELSE
+                    IF (Master) THEN
+                      WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//   &
+     &                                   ', saved stflx', Fmin, Fmax
+                    END IF
+                  END IF
                 END IF
-                exit_flag=2
-                ioerror=status
-                RETURN
               ELSE
                 IF (Master) THEN
-                  WRITE (stdout,70) TRIM(Vname(2,idVsms))//             &
-     &                               ', saved svstr', Fmin, Fmax
+                  WRITE (stdout,80) string, TRIM(Vname(1,idTsur(itrc))),&
+     &                              TRIM(ncname)
+                END IF
+                exit_flag=4
+                IF (FoundError(exit_flag, nf90_noerr, __LINE__,         &
+     &                         __FILE__)) THEN
+                  RETURN
+                END IF
+              END IF
+            END DO
+!
+!  Read in surface U-momentum stress.
+!
+            IF (get_var(idUsms)) THEN
+              foundit=find_string(var_name, n_var,                      &
+     &                            TRIM(Vname(1,idUsms)), varid)
+              IF (foundit) THEN
+                gtype=var_flag(varid)*u2dvar
+                scale=1.0_r8
+                status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
+     &                            Vname(1,idUsms), varid,               &
+     &                            InpRec, gtype, Vsize,                 &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            scale, Fmin, Fmax,                    &
+#  ifdef MASKING
+     &                            GRID(ng) % umask,                     &
+#  endif
+     &                            FORCES(ng) % sustr_save)
+                IF (FoundError(status, nf90_noerr, __LINE__,            &
+     &                         __FILE__)) THEN
+                  IF (Master) THEN
+                    WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),    &
+     &                                InpRec, TRIM(ncname)
+                  END IF
+                  exit_flag=2
+                  ioerror=status
+                  RETURN
+                ELSE
+                  IF (Master) THEN
+                    WRITE (stdout,70) TRIM(Vname(2,idUsms))//           &
+     &                                ', saved sustr', Fmin, Fmax
+                  END IF
+                END IF
+              END IF
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),        &
+     &                            TRIM(ncname)
+              END IF
+              exit_flag=4
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+     &                       __FILE__)) THEN
+                RETURN
+              END IF
+            END IF
+!
+!  Read in surface V-momentum stress.
+!
+            IF (get_var(idVsms)) THEN
+              foundit=find_string(var_name, n_var,                      &
+     &                            TRIM(Vname(1,idVsms)), varid)
+              IF (foundit) THEN
+                gtype=var_flag(varid)*v2dvar
+                scale=1.0_r8
+                status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
+     &                            Vname(1,idVsms), varid,               &
+     &                            InpRec, gtype, Vsize,                 &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            scale, Fmin, Fmax,                    &
+#  ifdef MASKING
+     &                            GRID(ng) % vmask,                     &
+#  endif
+     &                            FORCES(ng) % svstr_save)
+                IF (FoundError(status, nf90_noerr, __LINE__,            &
+     &                         __FILE__)) THEN
+                  IF (Master) THEN
+                    WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),    &
+     &                                InpRec, TRIM(ncname)
+                  END IF
+                  exit_flag=2
+                  ioerror=status
+                  RETURN
+                ELSE
+                  IF (Master) THEN
+                    WRITE (stdout,70) TRIM(Vname(2,idVsms))//           &
+     &                                 ', saved svstr', Fmin, Fmax
+                  END IF
                 END IF
               END IF
             END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),          &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
+            END IF
           END IF
-        ELSE
-          IF (Master) THEN
-            WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),            &
-     &                        TRIM(ncname)
-          END IF
-          exit_flag=4
-          IF (FoundError(exit_flag, nf90_noerr, __LINE__,               &
-     &                   __FILE__)) THEN
-            RETURN
-          END IF
-        END IF
 #   endif
-      END IF
+        END IF
 !
 #  elif defined CICE_MODEL && defined INI_GLORYS_ICE
         IF (nrrec(ng).eq.0) THEN
@@ -3315,10 +3314,10 @@
 # endif
      &                        ICE(ng) % hi)
             IF (FoundError(status, nf90_noerr, __LINE__,                &
-       &                   __FILE__)) THEN
+     &                     __FILE__)) THEN
               IF (Master) THEN
                 WRITE (stdout,60) string, TRIM(Vname(1,idHice)),        &
-       &                          InpRec, TRIM(ncname)
+     &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
               ioerror=status
@@ -4423,7 +4422,7 @@
 !
         DO itrc=1,NT(ng)
           IF (get_var(idTsur(itrc)).and.get_adjust.and.                 &
-    &        Lstflux(itrc,ng)) THEN
+     &        Lstflux(itrc,ng)) THEN
             foundit=find_string(var_name, n_var,                        &
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
