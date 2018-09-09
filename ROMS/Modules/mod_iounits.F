@@ -238,12 +238,6 @@
       IF (.not.allocated(BLK)) THEN
         allocate ( BLK(Ngrids) )
       END IF
-      IF (.not.allocated(BRY)) THEN
-        allocate ( BRY(Ngrids) )
-      END IF
-      IF (.not.allocated(CLM)) THEN
-        allocate ( CLM(Ngrids) )
-      END IF
       IF (.not.allocated(DAI)) THEN
         allocate ( DAI(Ngrids) )
       END IF
@@ -315,9 +309,6 @@
       END IF
       IF (.not.allocated(RST)) THEN
         allocate ( RST(Ngrids) )
-      END IF
-      IF (.not.allocated(SSF)) THEN
-        allocate ( SSF(Ngrids) )
       END IF
       IF (.not.allocated(STA)) THEN
         allocate ( STA(Ngrids) )

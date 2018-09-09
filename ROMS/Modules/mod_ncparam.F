@@ -862,9 +862,9 @@
         allocate ( idSbry(MAXVAL(NSV)+1) )
       END IF
 
-      IF (.not. allocated(ncBRYid) allocate ( ncBRYid(NV,Ngrids) )
-      IF (.not. allocated(ncCLMid) allocate ( ncCLMid(NV,Ngrids) )
-      IF (.not. allocated(ncSSFid) allocate ( ncSSFid(NV,Ngrids) )
+      IF (.not. allocated(ncBRYid)) allocate ( ncBRYid(NV,Ngrids) )
+      IF (.not. allocated(ncCLMid)) allocate ( ncCLMid(NV,Ngrids) )
+      IF (.not. allocated(ncSSFid)) allocate ( ncSSFid(NV,Ngrids) )
       IF (.not.allocated(ncFRCid)) THEN
         allocate ( ncFRCid(NV,Ngrids) )
       END IF
