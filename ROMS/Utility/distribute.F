@@ -1470,6 +1470,11 @@
 !  unpacking.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
+!
 !  Initialize buffer to the full range so unpacking is correct with
 !  summation.  This also allows even exchange of segments with
 !  communication routine "mpi_allgather".
@@ -1634,6 +1639,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 !
       MyNpts=UBOUND(A, DIM=1)
       IF (Npts.ne.MyNpts) THEN
@@ -1859,6 +1872,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
 !
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
@@ -2100,6 +2121,14 @@
 !  Check input parameters.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
+!
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
       Asize(3)=UBOUND(A, DIM=3)
@@ -2337,6 +2366,14 @@
 !  Check input parameters.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
+!
       MyNpts=UBOUND(A, DIM=1)
       IF (Npts.ne.MyNpts) THEN
         IF (Master) THEN
@@ -2560,6 +2597,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
 !
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
@@ -2796,6 +2841,14 @@
 !-----------------------------------------------------------------------
 !  Collect data from all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined COLLECT_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 
 # if defined COLLECT_ALLGATHER
 !
@@ -2991,6 +3044,14 @@
 !-----------------------------------------------------------------------
 !  Collect data from all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined COLLECT_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 
 # if defined COLLECT_ALLGATHER
 !
@@ -3396,6 +3457,11 @@
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
+!
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
 !  counter.
@@ -3726,6 +3792,11 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
 !
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
@@ -4308,6 +4379,10 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Asend)*KIND(A),r8))
+!
 !  Deallocate send buffer.
 !
       IF (allocated(Asend).and.(MyRank.eq.MyMaster)) THEN
@@ -4533,6 +4608,10 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Asend)*KIND(A),r8))
+!
 !  Deallocate send buffer.
 !
       IF (allocated(Asend).and.(MyRank.eq.MyMaster)) THEN
@@ -4751,6 +4830,10 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Deallocate receive buffer.
 !
@@ -4982,6 +5065,10 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Deallocate receive buffer.
 !
@@ -5264,6 +5351,11 @@
 !  Collect and reduce requested scalar variables.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Arecv)+                   &
+     &                                   2*Asize)*KIND(A),r8))
+!
 !  Pack data to reduce.
 !
       DO i=1,Asize
@@ -5458,6 +5550,11 @@
 !  Reduce requested variables and qualifiers.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Areduce)+                 &
+     &                                   SIZE(Asend))*KIND(A),r8))
+!
 !  Pack and reduce.
 !
       DO j=1,Jsize
@@ -5600,6 +5697,10 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
@@ -5872,6 +5973,10 @@
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+!
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
 !  counter.
@@ -6079,7 +6184,7 @@
 !     model      Calling model identifier.                             !
 !     Mstr       Threaded array lower bound.                           !
 !     Mend       Threaded array upper bound.                           !
-!     Asize      Size of the .                                         !
+!     Asize      Size of array A.                                      !
 !     A          Threaded 1D array process.                            !
 !                                                                      !
 !  On Output:                                                          !
@@ -6132,6 +6237,10 @@
 !-----------------------------------------------------------------------
 !  Collect data blocks from all nodes and scatter the data to all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Asize*KIND(A),r8))
 !
 !  All nodes have distinct pieces of the data and zero everywhere else.
 !  So the strategy here is for the master node to receive the data from
@@ -6427,6 +6536,12 @@
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Aglobal)+                 &
+     &                                   SIZE(Arecv))*KIND(Asend),r8))
+!
 !  Number of nodes in the group.
 !
       Nnodes=NtileI(ng)*NtileJ(ng)-1
@@ -6633,6 +6748,12 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Aglobal)+                 &
+     &                                   SIZE(Arecv))*KIND(Asend),r8))
 !
 !  Number of nodes in the group.
 !
