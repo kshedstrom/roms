@@ -82,9 +82,11 @@
       integer :: i, job, lend, lstr, lvar, status
       integer :: Vsize(4)
 
-      real(r8) :: Clength, Fmax, Fmin, Tdelta
-      real(r8) :: Tmax, Tmin, Tmono, Tscale
-      real(r8) :: Fval, Tsec, Tval
+      real(r8) :: Fmax, Fmin, Fval
+
+      real(dp) :: Clength,  Tdelta
+      real(dp) :: Tmax, Tmin, Tmono, Tscale
+      real(dp) :: Tsec, Tval
 
       character (len=22)  :: t_code
 !

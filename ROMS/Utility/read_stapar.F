@@ -22,6 +22,8 @@
 # endif
       USE mod_scalars
 !
+      USE inp_decode_mod
+!
       implicit none
 !
 !  Imported variable declarations
@@ -43,11 +45,11 @@
 
       integer, dimension(Ngrids) :: is
 
-      real(r8), dimension(200) :: Rval
+      real(dp), dimension(nRval) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(200) :: Cval
+      character (len=256), dimension(nCval) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Read in stations parameters.
@@ -103,7 +105,7 @@
               Npts=load_l(Nval, Cval, Ngrids, Sout(idNPP,:))
 # endif
             CASE ('Sout(idTvar)')
-              Npts=load_l(Nval, Cval, MT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, MT, Ngrids, Ltracer)
               DO ng=1,Ngrids
                 DO itrc=1,NT(ng)
                   Sout(idTvar(itrc),ng)=Ltracer(itrc,ng)
@@ -249,7 +251,7 @@
               Sout(idVairN,1:Ngrids)=Lswitch(1:Ngrids)
 #  endif
             CASE ('Sout(idTsur)')
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, NAT, Ngrids, Ltracer)
               DO ng=1,Ngrids
                 DO itrc=1,NAT
                   Sout(idTsur(itrc),ng)=Ltracer(itrc,ng)
