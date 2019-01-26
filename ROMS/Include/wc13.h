@@ -9,7 +9,7 @@
 ** Options for the California Current System, 1/3 degree resolution.
 **
 ** Application flag:   WC13
-** Input script:       ocean_wc13.in
+** Input script:       roms_wc13.in
 **                     s4dvar.in
 **
 ** Available Drivers options: choose only one and activate it in the
