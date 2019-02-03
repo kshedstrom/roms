@@ -1061,6 +1061,14 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' EVOLVED_LCZ,'
 #endif
+# if defined EXCLUDE_SPONGE &&  defined MODEL_COUPLING && \
+    (defined DATA_COUPLING  && !defined ANA_SPONGE)
+!
+      IF (Master) WRITE (stdout,20) 'EXCLUDE_SPONGE',                   &
+     &   'Exclude sponge points in export fields druing coupling.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' EXCLUDE_SPONGE,'
+#endif
 #ifdef FASTICE_CLIMATOLOGY
       IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
      &   'Climatology of landfast ice.'
@@ -2307,7 +2315,7 @@
 #ifdef ROMS_STDOUT
 !
       IF (Master) WRITE (stdout,20) 'ROMS_STDOUT',                      &
-     &   'Red tide biological model.'
+     &   'ROMS standard output is written into file ''log.roms''.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ROMS_STDOUT,'
 #endif
@@ -3331,6 +3339,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' WRF_COUPLING,'
       iatms=iatms+1
+# ifdef WRF_TIMEAVG
+!
+      IF (Master) WRITE (stdout,20) 'WRF_TIMEAVG',                     &
+     &   'WRF Exports time-averaged fields over the coupling interval.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' WRF_TIMEAVG,'
+# endif
 #endif
 #if defined WTYPE_GRID && \
    (defined LMD_SKPP   || defined SOLAR_SOURCE) && \
