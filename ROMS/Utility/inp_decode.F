@@ -993,7 +993,7 @@
       integer :: Nval
 !
 !-----------------------------------------------------------------------
-!  Load scalar foating-point variable with input value.
+!  Load scalar floating-point variable with input value.
 !-----------------------------------------------------------------------
 !
       ic=1
@@ -1036,7 +1036,7 @@
       integer :: Nval
 !
 !-----------------------------------------------------------------------
-!  Load 1D foating-point variable with input values.
+!  Load 1D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -1099,7 +1099,7 @@
       real(dp), dimension(Iout*Jout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 2D foating-point variable with input values.
+!  Load 2D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -1107,7 +1107,7 @@
 !
       ic=0
       Nout=Iout*Jout
-      IF (Ninp.le.) THEN
+      IF (Ninp.le.Nout) THEN
         DO i=1,Ninp
           ic=ic+1
           Vwrk(i)=Vinp(i)
@@ -1166,7 +1166,7 @@
       real(dp), dimension(Iout*Jout*Kout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 3D foating-point variable with input values.
+!  Load 3D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -1351,7 +1351,7 @@
       real(r8), dimension(Iout*Jout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 2D foating-point variable with input values.
+!  Load 2D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -1430,7 +1430,7 @@
       real(r8), dimension(Iout*Jout*Kout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 3D foating-point variable with input values.
+!  Load 3D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
