@@ -988,6 +988,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonu,                               &
      &                   GRID(ng) % latu,                               &
      &                   A)
