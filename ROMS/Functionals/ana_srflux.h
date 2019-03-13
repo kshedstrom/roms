@@ -110,6 +110,8 @@
 #endif
       real(r8) :: cff
 
+      real(r8), parameter :: alb_w=0.06_r8
+
 #include "set_bounds.h"
 
 #if defined ALBEDO_CLOUD || defined DIURNAL_SRFLUX
@@ -158,8 +160,9 @@
       DO j=JstrT,JendT
         DO i=IstrT,IendT
 !
-!  Local daylight is a function of the declination (Dangle) and hour
-!  angle adjusted for the local meridian (Hangle-lonr(i,j)).
+!  Local daylight, GMT time zone, is a function of the declination
+!  (Dangle) and hour angle adjusted for the local meridian
+!  (Hangle-lonr(i,j)*deg2rad).
 !
           LatRad=latr(i,j)*deg2rad
           cff1=SIN(LatRad)*SIN(Dangle)
@@ -168,11 +171,16 @@
 !
 !  Estimate variation in optical thickness of the atmosphere over
 !  the course of a day under cloudless skies (Zillman, 1972). To
-!  obtain net incoming shortwave radiation multiply by (1.0-0.6*c**3),
+!  obtain incoming shortwave radiation multiply by (1.0-0.6*c**3),
 !  where c is the fractional cloud cover.
 !
 !  The equation for saturation vapor pressure is from Gill (Atmosphere-
 !  Ocean Dynamics, pp 606).
+!!
+!! If specific humidity in kg/kg.
+!!
+!!        vap_p=Pair(i,j)*Hair(i,j)/(0.62197_r8+0.378_r8*Hair(i,j))
+!!
 !
           srflx(i,j)=0.0_r8
           zenith=cff1+cff2*COS(Hangle-lonr(i,j)*deg2rad)
@@ -191,6 +199,13 @@
      &                 ((zenith+2.7_r8)*vap_p*1.0E-3_r8+                &
      &                  1.085_r8*zenith+0.1_r8)
           END IF
+!
+!  Add correction for ocean albedo. Notice that the correction is not
+!  needed below because it is assumed that the input (>=24h-average)
+!  and 'srflx' is NET downward shortwave radiation.
+!
+          srflx(i,j)=(1.0_r8-alb_w)*srflx(i,j)
+
 # elif defined DIURNAL_SRFLUX
 !
 !  SRFLX is reset on each time step in subroutine SET_DATA which
