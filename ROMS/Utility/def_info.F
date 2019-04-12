@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -297,7 +297,7 @@
         ELSE IF (ncid.eq.STA(ng)%ncid) THEN
           type='ROMS/TOMS station file'
         ELSE IF (ncid.eq.TMS(ng)%ncid) THEN
-          type='ROMS/TOMS timeserie file'
+          type='ROMS/TOMS timeseries file'
         ELSE IF (ncid.eq.TLF(ng)%ncid) THEN
           type='ROMS/TOMS tangent linear impulse forcing file'
         ELSE IF (ncid.eq.TLM(ng)%ncid) THEN
