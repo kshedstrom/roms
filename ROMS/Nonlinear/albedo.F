@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -173,9 +173,13 @@ contains
 !     real(r8), parameter :: alb_s_dry=0.83_r8
 !     real(r8), parameter :: alb_s_wet=0.70_r8
 ! Values from Ungermann et al, 2017
-      real(r8), parameter :: alb_i_thick=0.71_r8
+!     real(r8), parameter :: alb_i_thick=0.71_r8
+!     real(r8), parameter :: alb_s_dry=0.86_r8
+!     real(r8), parameter :: alb_s_wet=0.79_r8
+! Try something intermediate
+      real(r8), parameter :: alb_i_thick=0.65_r8
       real(r8), parameter :: alb_s_dry=0.86_r8
-      real(r8), parameter :: alb_s_wet=0.79_r8
+      real(r8), parameter :: alb_s_wet=0.72_r8
 #  else
 #ifdef ICE_BOX
       real(r8), parameter :: alb_i_dry=0.75_r8

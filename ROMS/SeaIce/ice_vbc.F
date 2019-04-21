@@ -290,13 +290,13 @@
           utauiw(i,j) = sqrt(chu_iw(i,j)*spd)
           utauiw(i,j) = max(utauiw(i,j),1.E-04_r8)
           chuiw(i,j) = kappa*utauiw(i,j)/log(zdz0)
-#   ifdef ICE_SHOREFAST
+#  endif
+#  ifdef ICE_SHOREFAST
           hh = h(i,j)+MIN(Zt_avg1(i,j),0.0_r8)
           clear = hh-0.9_r8*hi(i,j,liold)
           clear = MAX(clear,0.0_r8)
           IF (clear.lt.5.0_r8) chuiw(i,j) =                             &
      &       (MAX(clear-1.0_r8,0.0_r8)/4.0_r8)*chuiw(i,j)
-#   endif
 #  endif
         END DO
       END DO

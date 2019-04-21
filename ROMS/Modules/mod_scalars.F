@@ -1851,7 +1851,7 @@
         real(r8), parameter :: my_C1 = 0.08_r8
         real(r8), parameter :: my_C2 = 0.7_r8
         real(r8), parameter :: my_C3 = 0.2_r8
-# elif defined  NN_MIXING 
+# elif defined  NN_MIXING
         real(r8), parameter :: my_A1 = 1.18_r8
         real(r8), parameter :: my_A2 = 0.665_r8
         real(r8), parameter :: my_B1 = 24.0_r8
@@ -1930,7 +1930,8 @@
         real(r8) :: trans_coeff = 1.75E-3
         real(r8) :: sublim_latent_heat = 2.834E+6
         real(r8) :: t0deg = 273.15_r8                     ! [Kelvin]
-        real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
+!       real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
+        real(r8), parameter :: sice_ref = 7.0_r8          ! [psu]
 
         real(r8), allocatable :: dtice(:)
         real(r8), allocatable :: dte(:)
