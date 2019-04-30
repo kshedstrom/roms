@@ -203,6 +203,8 @@
           END IF
         END DO
       END IF
+
+#ifndef ANA_PSOURCE
 !
 !-----------------------------------------------------------------------
 !  Input Source/Sink data (river runoff).
@@ -304,7 +306,7 @@
           END IF
         END DO
       END IF
-
+#endif
 #ifdef FRC_FILE
 !
 !-----------------------------------------------------------------------
