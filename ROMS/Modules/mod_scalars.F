@@ -1748,7 +1748,7 @@
         real(r8), parameter :: my_C1 = 0.08_r8
         real(r8), parameter :: my_C2 = 0.7_r8
         real(r8), parameter :: my_C3 = 0.2_r8
-# elif defined  NN_MIXING 
+# elif defined  NN_MIXING
         real(r8), parameter :: my_A1 = 1.18_r8
         real(r8), parameter :: my_A2 = 0.665_r8
         real(r8), parameter :: my_B1 = 24.0_r8

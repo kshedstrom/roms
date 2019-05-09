@@ -564,7 +564,7 @@
 #if defined BIO_FENNEL  || defined ECOSIM      || \
     defined HYPOXIA_SRM || defined NEMURO      || \
     defined NPZD_FRANKS || defined NPZD_IRON   || \
-    defined NPZD_POWELL || defined RED_TIDE
+    defined NPZD_POWELL || defined RED_TIDE    || \
     defined BIO_GOANPZ  || \
     defined BIO_UMAINE  || defined BEST_NPZ
 # define BIOLOGY

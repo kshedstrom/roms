@@ -928,9 +928,9 @@
         Dmem(1)=Dmem(1)+REAL(MAXVAL(NSV)+1,r8)
       END IF
 
-      IF (.not. allocated(ncBRYid) allocate ( ncBRYid(NV,Ngrids) )
-      IF (.not. allocated(ncCLMid) allocate ( ncCLMid(NV,Ngrids) )
-      IF (.not. allocated(ncSSFid) allocate ( ncSSFid(NV,Ngrids) )
+      IF (.not. allocated(ncBRYid)) allocate ( ncBRYid(NV,Ngrids) )
+      IF (.not. allocated(ncCLMid)) allocate ( ncCLMid(NV,Ngrids) )
+      IF (.not. allocated(ncSSFid)) allocate ( ncSSFid(NV,Ngrids) )
       IF (.not.allocated(ncFRCid)) THEN
         allocate ( ncFRCid(NV,Ngrids) )
         Dmem(1)=Dmem(1)+REAL(NV*Ngrids,r8)

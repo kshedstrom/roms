@@ -1493,8 +1493,8 @@
           END DO
         END DO
 # endif
-# define SALT_CLAMP
-# ifdef SALT_CLAMP
+# define SALT_LIMIT
+# ifdef SALT_LIMIT
 !
 !  Apply clamp to salt
 !
