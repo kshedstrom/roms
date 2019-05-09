@@ -849,8 +849,9 @@
 #   undef DIAGNOSTICS_TS
 # endif
 #endif
-#if defined DIAGNOSTICS_BIO &&       \
-   !(defined BIO_FENNEL || defined HYPOXIA_SRM || defined BIO_COBALT)
+#if defined DIAGNOSTICS_BIO && \
+  !(defined BIO_FENNEL      || defined HYPOXIA_SRM || defined ECOSIM || \
+    defined BIO_COBALT)
 #  undef DIAGNOSTICS_BIO
 #endif
 #if defined DIAGNOSTICS_BIO || defined DIAGNOSTICS_TS || \
