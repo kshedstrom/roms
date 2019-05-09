@@ -496,11 +496,11 @@
       real(r8), intent(in) :: Pair(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Tair(LBi:UBi,LBj:UBj)
 #  ifdef WIND_MINUS_CURRENT
-      real(r8), intent(inout) :: Uwind(LBi:,LBj:)
-      real(r8), intent(inout) :: Vwind(LBi:,LBj:)
+      real(r8), intent(inout) :: Uwind(LBi:UBi,LBj:UBj)
+      real(r8), intent(inout) :: Vwind(LBi:UBi,LBj:UBj)
 #  else
-      real(r8), intent(in) :: Uwind(LBi:,LBj:)
-      real(r8), intent(in) :: Vwind(LBi:,LBj:)
+      real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef CLOUDS
       real(r8), intent(in) :: cloud(LBi:UBi,LBj:UBj)

@@ -46,8 +46,8 @@
              PERL := perl
              TEST := test
 
-        MDEPFLAGS := --file=- --objdir=$(SCRATCH_DIR)
-#        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
+        MDEPFLAGS := --cpp --fext=f90 --file=- --objdir=$(SCRATCH_DIR)
+#       MDEPFLAGS := --file=- --objdir=$(SCRATCH_DIR)
 
 #
 # Library locations, can be overridden by environment variables.
@@ -89,10 +89,13 @@ ifdef USE_DEBUG
 #          FFLAGS += -fcheck=all -fsanitize=address -fsanitize=undefined
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
+           FFLAGS += -ffree-line-length-none
            CFLAGS += -g
          CXXFLAGS += -g
 else
-           FFLAGS += -O3 -ffast-math -ffpe-trap=invalid,zero -ffree-line-length-none
+           FFLAGS += -O3 -ffast-math -ffree-line-length-none
+           FFLAGS += -finit-real=nan
+#          FFLAGS += -ffpe-trap=invalid,zero,overflow
            CFLAGS += -O3
          CXXFLAGS += -O3
 endif

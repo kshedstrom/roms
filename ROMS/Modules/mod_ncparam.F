@@ -747,8 +747,8 @@
 !
 !  Git revision and repository root URL
 !
-        character (len=256) :: git_url = ''
-        character (len=80 ) :: git_rev = ''
+        character (len=256) :: git_url = 'unknown'
+        character (len=80 ) :: git_rev = 'unknown'
         integer             :: git_status = 0
 
       CONTAINS
@@ -1120,26 +1120,13 @@
 !  Set Git repository info
 !
 #ifdef GIT_URL
-          git_url=GIT_URL
+      git_url=GIT_URL
 #endif
 #ifdef GIT_REV
-          git_rev=GIT_REV
+      git_rev=GIT_REV
 #endif
 #ifdef GIT_STATUS
-          git_status=GIT_STATUS
-#endif
-#ifndef SVN
-!  Set Git repository info
-!
-# ifdef GIT_URL
-          git_url=GIT_URL
-# endif
-# ifdef GIT_REV
-          git_rev=GIT_REV
-# endif
-# ifdef GIT_STATUS
-          git_status=GIT_STATUS
-# endif
+      git_status=GIT_STATUS
 #endif
 !
 !-----------------------------------------------------------------------

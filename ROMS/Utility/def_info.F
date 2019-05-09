@@ -869,7 +869,6 @@
         END IF
 # endif
 #endif
-#ifdef SVN
 !
 !  Git repository information.
 !
@@ -897,8 +896,7 @@
             ioerror=status
           END IF
         END IF
-# endif
-#else
+
         IF (exit_flag.eq.NoError) THEN
           status=nf90_put_att(ncid, nf90_global, 'git_url',             &
      &                        TRIM(git_url))
@@ -909,19 +907,6 @@
             ioerror=status
           END IF
         END IF
-
-# if !defined DEBUGGING && defined GIT_REV
-        IF (exit_flag.eq.NoError) THEN
-          status=nf90_put_att(ncid, nf90_global, 'git_rev',             &
-     &                        TRIM(git_rev))
-          IF (FoundError(status, nf90_noerr, __LINE__,                  &
-     &                   __FILE__)) THEN
-            IF (Master) WRITE (stdout,20) 'git_rev', TRIM(ncname)
-            exit_flag=3
-            ioerror=status
-          END IF
-        END IF
-# endif
 #endif
 #ifndef DEBUGGING
 !

@@ -797,6 +797,39 @@
             END DO
           END DO
 # endif
+!
+!  Apply mass point sources (volume vertical influx), if any.
+!
+          IF (LwSrc(ng)) THEN
+            DO is=1,Nsrc(ng)
+              Isrc=SOURCES(ng)%Isrc(is)
+              Jsrc=SOURCES(ng)%Jsrc(is)
+              IF (                                                      &
+     &            ((IstrR.le.Isrc).and.(Isrc.le.IendR)).and.            &
+     &            ((JstrR.le.Jsrc).and.(Jsrc.le.JendR))) THEN
+                cff=dt(ng)*pm(Isrc,Jsrc)*pn(Isrc,Jsrc)
+                IF (LtracerSrc(itrc,ng)) THEN
+#  ifdef ONE_TRACER_SOURCE
+                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
+     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
+     &                           SOURCES(ng)%Tsrc(itrc)
+#  elif defined TWO_D_TRACER_SOURCE
+                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
+     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
+     &                           SOURCES(ng)%Tsrc(is,itrc)
+#  else
+                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
+     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
+     &                           SOURCES(ng)%Tsrc(is,k,itrc)
+#  endif
+                ELSE
+                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
+     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
+     &                           t(Isrc,Jsrc,k,3,itrc)
+                END IF
+              END IF
+            END DO
+          END IF
         END DO K_LOOP
       END DO T_LOOP
 !
@@ -988,44 +1021,6 @@
           DO i=I_RANGE
             CF(i,0)=dt(ng)*pm(i,j)*pn(i,j)
           END DO
-!
-!  Apply mass point sources (volume vertical influx), if any.
-!
-          IF (LwSrc(ng).and.ANY(LtracerSrc(:,ng))) THEN
-            DO is=1,Nsrc(ng)
-              Isrc=SOURCES(ng)%Isrc(is)
-              Jsrc=SOURCES(ng)%Jsrc(is)
-              IF (LtracerSrc(itrc,ng).and.                              &
-# ifdef TS_MPDATA
-     &            ((IstrUm2.le.Isrc).and.(Isrc.le.Iendp2i)).and.        &
-# else
-     &            ((IstrR.le.Isrc).and.(Isrc.le.IendR)).and.            &
-# endif
-     &            (j.eq.Jsrc)) THEN
-                DO k=1,N(ng)-1
-#  ifdef ONE_TRACER_SOURCE
-                  FC(i,k)=FC(i,k)+0.5_r8*                               &
-     &                    (SOURCES(ng)%Qsrc(is,k  )*                    &
-     &                     SOURCES(ng)%Tsrc(itrc)+                      &
-     &                     SOURCES(ng)%Qsrc(is,k+1)*                    &
-     &                     SOURCES(ng)%Tsrc(itrc) )
-#  elif defined TWO_D_TRACER_SOURCE
-                  FC(i,k)=FC(i,k)+0.5_r8*                               &
-     &                    (SOURCES(ng)%Qsrc(is,k  )*                    &
-     &                     SOURCES(ng)%Tsrc(is,itrc)+                   &
-     &                     SOURCES(ng)%Qsrc(is,k+1)*                    &
-     &                     SOURCES(ng)%Tsrc(is,itrc) )
-#  else
-                  FC(i,k)=FC(i,k)+0.5_r8*                               &
-     &                    (SOURCES(ng)%Qsrc(is,k  )*                    &
-     &                     SOURCES(ng)%Tsrc(is,k  ,itrc)+               &
-     &                     SOURCES(ng)%Qsrc(is,k+1)*                    &
-     &                     SOURCES(ng)%Tsrc(is,k+1,itrc))
-#  endif
-                END DO
-              END IF
-            END DO
-          END IF
 !
           DO k=1,N(ng)
             DO i=I_RANGE
@@ -1496,13 +1491,15 @@
           END DO
         END DO
 # endif
-# define SALT_CLAMP
-# ifdef SALT_CLAMP
+# ifndef TS_MPDATA
+#  define SALT_LIMIT
+# endif
+# ifdef SALT_LIMIT
 !
-!  Apply clamp to salt
+!  Apply limiter to salt - and maybe other tracers
 !
-#  ifdef SOGLOBEC
-      IF (itrc .ge. isalt) THEN
+#  if defined SOGLOBEC || defined CHUKCHI
+      IF (itrc >= isalt) THEN
 #  else
       IF (itrc == isalt) THEN
 #  endif
@@ -1515,11 +1512,11 @@
         END DO
       END IF
 # endif
-# ifdef TEMP_CLAMP
+# ifdef TEMP_LIMIT
 !
-!  Apply clamp to temperature
+!  Apply limiter to temperature
 !
-      IF (itrc .ge. itemp) THEN
+      IF (itrc >= itemp) THEN
         DO k=1,N(ng)
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1601,7 +1598,7 @@
 #  endif
 # endif
 
-! RD : need to choose wether to update here or in cobalt
+! RD : need to choose whether to update here or in cobalt
 ! and be declared at beginning of subroutine !!!
 !# ifdef BIO_COBALT
 !      DO i=IstrR,IendR

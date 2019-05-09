@@ -176,13 +176,13 @@
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
-     &   'Albedo computed according to CSIM3.'
+     &   'Ice albedo computed according to CSIM3.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_CSIM,'
 #endif
 #if defined ALBEDO_CURVE
       IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
-     &   'Shortwave radiation adjusted by albedo curve.'
+     &   'Ocean shortwave radiation adjusted by albedo curve.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
 #endif
@@ -956,7 +956,7 @@
 #endif
 #ifdef CORE_FORCING
       IF (Master) WRITE (stdout,20) 'CORE_FORCING',                      &
-     &   'Humidity from CORE forcing files.'
+     &   'Specific humidity as in CORE forcing files.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' CORE_FORCING,'
 #endif
@@ -1140,6 +1140,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
 #endif
+#ifdef FILTERED_RST
+      IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
+     &   'Reading and writing time-filtered restart files.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+14)=' FILTERED_RST,'
+#endif
 #if defined FISH_FEEDBACK && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                    &
      &   'Fish model feedback to NPZ model.'
@@ -1158,12 +1164,6 @@
      &   'Compute 4D-Var evolved Hessian singular vectors.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' EVOLVED_LCZ,'
-#endif
-#ifdef FILTERED_RST
-      IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
-     &   'Writing out time-filtered output.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' FILTERED_RST,'
 #endif
 #ifdef FLOATS
 !
@@ -1501,34 +1501,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' INI_GLORYS_ICE,'
 #endif
-#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
-!
-      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BSTRESS,'
-#endif
-#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-!
-      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
-#endif
-#if defined NPZD_IRON && defined IRON_LIMIT
-!
-      IF (Master) WRITE (stdout,20) 'IRON_LIMIT',                       &
-     &   'Include dissolved iron limitation on phytoplankton growth.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' IRON_LIMIT,'
-#endif
-#if defined NPZD_IRON && defined IRON_LIMIT && defined IRON_RELAX
-!
-      IF (Master) WRITE (stdout,20) 'IRON_RELAX',                       &
-     &   'Nudge dissolved iron over the shelf, h <= FeHmin.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+12)=' IRON_RELAX,'
-#endif
 #ifdef IMPULSE
 !
       IF (Master) WRITE (stdout,20) 'IMPULSE',                          &
@@ -1601,18 +1573,6 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' KANTHA_CLAYSON,'
 #endif
-#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
-      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BSTRESS,'
-#endif
-#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
-#endif
 #if defined LCZ_FINAL && defined FOUR_DVAR
 !
       IF (Master) WRITE (stdout,20) 'LCZ_FINAL',                        &
@@ -1626,6 +1586,26 @@
      &   'Enhanced mixing due to Langmuir circulation.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LI_FOX_KEMPER,'
+#endif
+#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
+!
+      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
+     &   'Limit bottom stress to maintain bottom velocity direction.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' LIMIT_BSTRESS,'
+#endif
+#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
+!
+      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
+     &   'Suppress further cooling if SST is at freezing point.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
+#endif
+#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
+      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
+     &   'Suppress further cooling if SST is at freezing point.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
 #endif
 #if defined LIMIT_VDIFF && \
    (defined GLS_MIXING  || defined LMD_MIXING || defined MY25_MIXING)

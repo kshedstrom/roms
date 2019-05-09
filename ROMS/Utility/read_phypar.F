@@ -4040,7 +4040,7 @@
 #ifdef DISTRIBUTE
         WRITE (out,60) TRIM(title), TRIM(my_os), TRIM(my_cpu),          &
      &                 TRIM(my_fort), TRIM(my_fc), my_fflags(1:lstr),   &
-     &                 OCN_COMM_WORLD, numthreads,                      &
+     &                 OCN_COMM_WORLD, numthreads, TRIM(Iname),         &
      &                 TRIM(git_url), TRIM(git_rev), TRIM(git_msg),     &
      &                 TRIM(Rdir), TRIM(Hdir), TRIM(Hfile), TRIM(Adir)
 #else

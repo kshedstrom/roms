@@ -338,7 +338,6 @@
      &                       __FILE__)) RETURN
             END IF
           END IF
-# ifdef SVN
 !
 !  Git repository information.
 !
@@ -367,20 +366,6 @@
               ioerror=status
             END IF
           END IF
-#   endif
-#  else
-#   ifdef GIT_REV
-          IF (exit_flag.eq.NoError) THEN
-            status=nf90_put_att(DAV(ng)%ncid, nf90_global,              &
-     &                          'git_rev', TRIM(git_rev))
-            IF (FoundError(status, nf90_noerr, __LINE__,                &
-     &                     __FILE__)) THEN
-              WRITE (stdout,50) 'git_rev', TRIM(ncname)
-              exit_flag=3
-              ioerror=status
-            END IF
-          END IF
-#   endif
 #  endif
 
 #  ifdef ROOT_DIR
