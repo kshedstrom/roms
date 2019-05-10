@@ -362,7 +362,7 @@
 !
 !  Set horizontal array size.
 !
-      size2d=REAL((UBi-LBi)*(UBj-LBj),r8)
+      size2d=REAL((UBi-LBi+1)*(UBj-LBj+1),r8)
 !
 !  Nonlinear model state.
 !
@@ -611,9 +611,13 @@
 # endif
 # if defined AVERAGES2
       allocate ( GRID(ng) % pmask_avg2(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( GRID(ng) % rmask_avg2(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( GRID(ng) % umask_avg2(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( GRID(ng) % vmask_avg2(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 # endif
 # ifdef DIAGNOSTICS
       allocate ( GRID(ng) % pmask_dia(LBi:UBi,LBj:UBj) )
@@ -643,6 +647,7 @@
 
 #ifdef OUTFLOW_MASK
       allocate ( GRID(ng) % mask_outflow(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 #endif
 #ifdef WET_DRY
       allocate ( GRID(ng) % pmask_wet(LBi:UBi,LBj:UBj) )

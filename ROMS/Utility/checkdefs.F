@@ -1014,7 +1014,7 @@
 #ifdef DOUBLE_PRECISION
 !
       IF (Master) WRITE (stdout,20) 'DOUBLE_PRECISION',                 &
-     &   'Double precision arithmetic.'
+     &   'Double precision arithmetic numerical kernel.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' DOUBLE_PRECISION,'
 #endif
@@ -1788,6 +1788,13 @@
      &   'Nesting grids: Composite and Refinement.'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' NESTING,'
+# ifdef NESTING_DEBUG
+!
+      IF (Master) WRITE (stdout,20) 'NESTING_DEBUG',                    &
+     &   'Checking mass fluxes conservation in refinement.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+15)=' NESTING_DEBUG,'
+# endif
 #endif
 #if defined NL_BULK_FLUXES
 !
@@ -2472,6 +2479,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' SG_LOGINT,'
 # endif
+#endif
+#ifdef SINGLE_PRECISION
+!
+      IF (Master) WRITE (stdout,20) 'SINGLE_PRECISION',                 &
+     &   'Single precision arithmetic numerical kernel.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' SINGLE_PRECISION,'
 #endif
 #if defined SKIP_NLM && defined SENSITIVITY_4DVAR
 !

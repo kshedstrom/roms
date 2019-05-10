@@ -221,10 +221,13 @@
 !
       IF (.not.Ldrifter) THEN
         allocate ( Fprint(Ngrids) )
+        Dmem(ng)=Dmem(ng)+REAL(Ngrids,r8)
         allocate ( frrec(Ngrids) )
+        Dmem(ng)=Dmem(ng)+REAL(Ngrids,r8)
 
 # ifdef SOLVE3D
         allocate ( ifTvar(MT) )
+        Dmem(ng)=Dmem(ng)+REAL(MT,r8)
 # endif
       END IF
 !

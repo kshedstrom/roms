@@ -1661,7 +1661,8 @@
 !
 !  Imported variable declarations.
 !
-      real(r8), intent(in) :: ZoL, pi
+      real(dp), intent(in) :: pi
+      real(r8), intent(in) :: ZoL
 !
 !  Local variable declarations.
 !
@@ -1725,7 +1726,8 @@
 !
 !  Imported variable declarations.
 !
-      real(r8), intent(in) :: ZoL, pi
+      real(dp), intent(in) :: pi
+      real(r8), intent(in) :: ZoL
 !
 !  Local variable declarations.
 !

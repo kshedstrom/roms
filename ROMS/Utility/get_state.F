@@ -113,11 +113,12 @@
       integer :: Nrec, mySize, ncINPid, nvatts, nvdim, status, varid
       integer :: Vsize(4)
 
-      real(r8), parameter :: Fscl = 1.0_r8
+      real(dp), parameter :: Fscl = 1.0_r8
 
-      real(r8) :: Fmax, Fmin, INPtime, Tmax, scale, time_scale
+      real(dp) :: INPtime, Tmax, scale, time_scale
+      real(r8) :: Fmax, Fmin
 
-      real(r8), allocatable :: TimeVar(:)
+      real(dp), allocatable :: TimeVar(:)
 
       character (len=6 ) :: string
       character (len=15) :: Tstring, attnam, tvarnam
@@ -318,13 +319,13 @@
 !
 !  Set input time scale by looking at the "units" attribute.
 !
-      time_scale=0.0_r8
+      time_scale=0.0_dp
       DO i=1,nvatts
         IF (TRIM(var_Aname(i)).eq.'units') THEN
           IF (INDEX(TRIM(var_Achar(i)),'day').ne.0) THEN
             time_scale=day2sec
           ELSE IF (INDEX(TRIM(var_Achar(i)),'second').ne.0) THEN
-            time_scale=1.0_r8
+            time_scale=1.0_dp
           END IF
         END IF
       END DO
@@ -4065,7 +4066,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -4110,7 +4111,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -4427,7 +4428,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
@@ -5022,7 +5023,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -5067,7 +5068,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -5382,7 +5383,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
@@ -6859,7 +6860,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u2dvar
-            scale=1.0_r8/rho0                   ! N/m2 (Pa) to m2/s2
+            scale=1.0_dp/rho0                   ! N/m2 (Pa) to m2/s2
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -6910,7 +6911,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v2dvar
-            scale=1.0_r8/rho0                   ! N/m2 (Pa) to m2/s2
+            scale=1.0_dp/rho0                   ! N/m2 (Pa) to m2/s2
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -6966,9 +6967,9 @@
             IF (foundit) THEN
               gtype=var_flag(varid)*r2dvar
               IF (itrc.eq.itemp) THEN
-                scale=1.0_r8/(rho0*Cp)        ! W/m2 to Celsius m/s
+                scale=1.0_dp/(rho0*Cp)        ! W/m2 to Celsius m/s
               ELSE
-                scale=1.0_r8
+                scale=1.0_dp
               END IF
               status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
@@ -7592,7 +7593,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7637,7 +7638,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7686,7 +7687,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &

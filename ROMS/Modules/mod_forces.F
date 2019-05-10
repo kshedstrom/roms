@@ -609,66 +609,119 @@
 !
 !  Set horizontal array size.
 !
-      size2d=REAL((UBi-LBi)*(UBj-LBj),r8)
+      size2d=REAL((UBi-LBi+1)*(UBj-LBj+1),r8)
 !
 !  Nonlinear model state
 !
 #ifdef NCEP_FLUXES
       allocate ( FORCES(ng) % sustr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % svstr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % nustr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % nvstr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % nustrG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % nvstrG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % bustr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % bvstr(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % stflx(LBi:UBi,LBj:UBj,NT(ng)) )
+      Dmem(ng)=Dmem(ng)+size2dNT(ng)
       allocate ( FORCES(ng) % btflx(LBi:UBi,LBj:UBj,NT(ng)) )
+      Dmem(ng)=Dmem(ng)+size2d*NT(ng)
       allocate ( FORCES(ng) % srflx(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % srflxG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % cloud(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % cloudG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % lhflx(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % lhflxG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % lrflx(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % lrflxG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % shflx(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % shflxG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % Pair(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % rain(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % rainG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 # ifdef RUNOFF
       allocate ( FORCES(ng) % runoff(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % runoffG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 # endif
       allocate ( FORCES(ng) % skt(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % sktG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % icec(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % icecG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % wg2_d(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % cd_d(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ch_d(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ce_d(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % wg2_m(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % cd_m(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ch_m(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ce_m(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % rhoa_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % snow_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % p_e_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % qao_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % qio_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % qi2_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % qai_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % qswi_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % tau_awx_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % tau_awy_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % tau_aix_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % tau_aiy_n(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % sustr_aw(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % svstr_aw(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 #else
       allocate ( FORCES(ng) % sustr(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d

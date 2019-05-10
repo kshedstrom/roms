@@ -413,7 +413,7 @@
 !
 !  Set horizontal array size.
 !
-      size2d=REAL((UBi-LBi)*(UBj-LBj),r8)
+      size2d=REAL((UBi-LBi+1)*(UBj-LBj+1),r8)
 !
 !  Nonlinear model state.
 !
@@ -558,6 +558,7 @@
 
 # ifdef M2TIDE_DIFF
       allocate ( MIXING(ng) % m2_amp(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 # endif
 
 # if defined TKE_MIXING

@@ -770,21 +770,27 @@
 #ifdef IRON_LIMIT
       IF (.not.allocated(T_Fe)) THEN
         allocate ( T_Fe(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(A_Fe)) THEN
         allocate ( A_Fe(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(B_Fe)) THEN
         allocate ( B_Fe(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(SK_FeC)) THEN
         allocate ( SK_FeC(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(LK_FeC)) THEN
         allocate ( LK_FeC(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(FeRR)) THEN
         allocate ( FeRR(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 #endif
 !
