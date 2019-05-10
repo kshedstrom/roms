@@ -808,6 +808,7 @@
       END IF
       IF (.not.allocated(Aout2)) THEN
         allocate ( Aout2(NV,Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(NV*Ngrids,r8)
       END IF
       IF (.not.allocated(Dout)) THEN
         allocate ( Dout(NV,Ngrids) )

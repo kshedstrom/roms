@@ -239,7 +239,7 @@
 !
 !  Set horizontal array size.
 !
-      size2d=REAL((UBi-LBi)*(UBj-LBj),r8)
+      size2d=REAL((UBi-LBi+1)*(UBj-LBj+1),r8)
 !
 !  Allocate tidal forcing variables.
 !
@@ -270,23 +270,35 @@
 
 # if defined POT_TIDES
       allocate ( TIDES(ng) % POT_Tamp(LBi:UBi,LBj:UBj,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)*size2d
       allocate ( TIDES(ng) % POT_Tphase(LBi:UBi,LBj:UBj,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)*size2d
       allocate ( TIDES(ng) % Ptide(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 # endif
 
 # ifdef TIDES_ASTRO
       allocate( TIDES(ng) % Vu_sat(LBi:UBi,LBj:UBj,MTC))
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)*size2d
       allocate( TIDES(ng) % f_sat(LBi:UBi,LBj:UBj,MTC))
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)*size2d
 # endif
 
 # if defined TIDES_ASTRO
-       allocate ( doodson(6,MTC) )
-       allocate ( phase_corr(MTC) )
-       allocate ( num_sat(MTC) )
-       allocate ( sat_doodson(3,MAX_SAT,MTC) )
-       allocate ( sat_phase_corr(MAX_SAT,MTC) )
-       allocate ( sat_amp(MAX_SAT,MTC) )
-       allocate ( sat_flag(MAX_SAT,MTC) )
+      allocate ( doodson(6,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MTC*6,r8)
+      allocate ( phase_corr(MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)
+      allocate ( num_sat(MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MTC,r8)
+      allocate ( sat_doodson(3,MAX_SAT,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(3*MAX_SAT*MTC,r8)
+      allocate ( sat_phase_corr(MAX_SAT,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MAX_SAT*MTC,r8)
+      allocate ( sat_amp(MAX_SAT,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MAX_SAT*MTC,r8)
+      allocate ( sat_flag(MAX_SAT,MTC) )
+      Dmem(ng)=Dmem(ng)+REAL(MAX_SAT*MTC,r8)
 # endif
 
 # if defined AVERAGES && defined AVERAGES_DETIDE
@@ -372,9 +384,13 @@
 # endif
 # ifdef UV_WAVEDRAG
       allocate ( TIDES(ng) % sum_ubot(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( TIDES(ng) % sum_vbot(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( TIDES(ng) % filt_ubot(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( TIDES(ng) % filt_vbot(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
 # endif
 
       RETURN

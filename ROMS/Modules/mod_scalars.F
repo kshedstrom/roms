@@ -12,7 +12,7 @@
 #ifdef NO_4BYTE_REALS
         USE netcdf
 #endif
-!        implicit none
+        implicit none
 !
 !-----------------------------------------------------------------------
 !  Multiple grid structure.
@@ -2027,17 +2027,34 @@
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 #ifdef TIDES_ASTRO
-      IF (.not. allocated(FIRST_TIDES_ASTRO)) &
-          allocate ( FIRST_TIDES_ASTRO(Ngrids) )
+      IF (.not. allocated(FIRST_TIDES_ASTRO)) THEN
+        allocate ( FIRST_TIDES_ASTRO(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 #endif
 #ifdef AGE_DISTRIBUTION
-      IF (.not. allocated(dtau)) allocate ( dtau(Ngrids) )
+      IF (.not. allocated(dtau)) THEN
+        allocate ( dtau(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 #endif
 #ifdef CICE_MODEL
-      IF (.not. allocated(tspy)) allocate ( tspy(Ngrids) )
-      IF (.not. allocated(tspd)) allocate ( tspd(Ngrids) )
-      IF (.not. allocated(rhoice)) allocate ( rhoice(Ngrids) )
-      IF (.not. allocated(min_a)) allocate ( min_a(Ngrids) )
+      IF (.not. allocated(tspy)) THEN
+        allocate ( tspy(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(tspd)) THEN
+        allocate ( tspd(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(rhoice)) THEN
+        allocate ( rhoice(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(min_a)) THEN
+        allocate ( min_a(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 #endif
 
       IF (.not.allocated(ntimes)) THEN
@@ -2198,9 +2215,19 @@
         allocate ( LtracerCLM(MT,Ngrids) )
         Dmem(1)=Dmem(1)+REAL(MT*Ngrids,r8)
       END IF
-      IF (.not. allocated(LmiCLM)) allocate ( LmiCLM(Ngrids) )
-      IF (.not. allocated(LaiCLM)) allocate ( LaiCLM(Ngrids) )
-      IF (.not. allocated(LsiCLM)) allocate ( LsiCLM(Ngrids) )
+
+      IF (.not. allocated(LmiCLM)) THEN
+        allocate ( LmiCLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(LaiCLM)) THEN
+        allocate ( LaiCLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(LsiCLM)) THEN
+        allocate ( LsiCLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
       IF (.not.allocated(Lnudging)) THEN
         allocate ( Lnudging(Ngrids) )
@@ -2218,9 +2245,19 @@
         allocate ( LnudgeTCLM(MT,Ngrids) )
         Dmem(1)=Dmem(1)+REAL(MT*Ngrids,r8)
       END IF
-      IF (.not. allocated(LnudgeMICLM)) allocate ( LnudgeMICLM(Ngrids) )
-      IF (.not. allocated(LnudgeAICLM)) allocate ( LnudgeAICLM(Ngrids) )
-      IF (.not. allocated(LnudgeSICLM)) allocate ( LnudgeSICLM(Ngrids) )
+
+      IF (.not. allocated(LnudgeMICLM)) THEN
+        allocate ( LnudgeMICLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(LnudgeAICLM)) THEN
+        allocate ( LnudgeAICLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(LnudgeSICLM)) THEN
+        allocate ( LnudgeSICLM(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
       IF (.not.allocated(LuvSrc)) THEN
         allocate ( LuvSrc(Ngrids) )
@@ -2256,8 +2293,14 @@
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 # if defined RR_MIXING || defined JK_MIXING
-      IF (.not. allocated(levsmix)) allocate ( levsmix(Ngrids) )
-      IF (.not. allocated(levbmix)) allocate ( levbmix(Ngrids) )
+      IF (.not. allocated(levsmix)) THEN
+        allocate ( levsmix(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(levbmix)) THEN
+        allocate ( levbmix(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 
       IF (.not.allocated(Vtransform)) THEN
@@ -3225,33 +3268,108 @@
       END IF
 
 #ifdef ICE_MODEL
-     IF (.not. allocated(nstrs)) allocate ( nstrs(Ngrids) )
-     IF (.not. allocated(nevp)) allocate ( nevp(Ngrids) )
-     IF (.not. allocated(ievp)) allocate ( ievp(Ngrids) )
+      IF (.not. allocated(nstrs)) THEN
+        allocate ( nstrs(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(nevp)) THEN
+        allocate ( nevp(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(ievp)) THEN
+        allocate ( ievp(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
-     IF (.not. allocated(dtice)) allocate ( dtice(Ngrids) )
-     IF (.not. allocated(dte)) allocate ( dte(Ngrids) )
-     IF (.not. allocated(rhoice)) allocate ( rhoice(Ngrids) )
-     IF (.not. allocated(cdiw)) allocate ( cdiw(Ngrids) )
-     IF (.not. allocated(cdai)) allocate ( cdai(Ngrids) )
-     IF (.not. allocated(rho_air)) allocate ( rho_air(Ngrids) )
-     IF (.not. allocated(rhosnow_dry)) allocate ( rhosnow_dry(Ngrids) )
-     IF (.not. allocated(rhosnow_wet)) allocate ( rhosnow_wet(Ngrids) )
-     IF (.not. allocated(pstar)) allocate ( pstar(Ngrids) )
-     IF (.not. allocated(pstar_e)) allocate ( pstar_e(Ngrids) )
-     IF (.not. allocated(zetamax)) allocate ( zetamax(Ngrids) )
-     IF (.not. allocated(zetamin)) allocate ( zetamin(Ngrids) )
-     IF (.not. allocated(ellip_sq)) allocate ( ellip_sq(Ngrids) )
-     IF (.not. allocated(astren)) allocate ( astren(Ngrids) )
-     IF (.not. allocated(alphai)) allocate ( alphai(Ngrids) )
-     IF (.not. allocated(min_h)) allocate ( min_h(Ngrids) )
-     IF (.not. allocated(min_a)) allocate ( min_a(Ngrids) )
-     IF (.not. allocated(max_a)) allocate ( max_a(Ngrids) )
-     IF (.not. allocated(stressang)) allocate ( stressang(Ngrids) )
+      IF (.not. allocated(dtice)) THEN
+        allocate ( dtice(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(dte)) THEN
+        allocate ( dte(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(rhoice)) THEN
+        allocate ( rhoice(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(cdiw)) THEN
+        allocate ( cdiw(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(cdai)) THEN
+        allocate ( cdai(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(rho_air)) THEN
+        allocate ( rho_air(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(rhosnow_dry)) THEN
+        allocate ( rhosnow_dry(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(rhosnow_wet)) THEN
+        allocate ( rhosnow_wet(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(pstar)) THEN
+        allocate ( pstar(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(pstar_e)) THEN
+        allocate ( pstar_e(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(zetamax)) THEN
+        allocate ( zetamax(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(zetamin)) THEN
+        allocate ( zetamin(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(ellip_sq)) THEN
+        allocate ( ellip_sq(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(astren)) THEN
+        allocate ( astren(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(alphai)) THEN
+        allocate ( alphai(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(min_h)) THEN
+        allocate ( min_h(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(min_a)) THEN
+        allocate ( min_a(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(max_a)) THEN
+        allocate ( max_a(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(stressang)) THEN
+        allocate ( stressang(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # ifdef ICE_LANDFAST
-     IF (.not. allocated(lf_k1)) allocate ( lf_k1(Ngrids) )
-     IF (.not. allocated(lf_k2)) allocate ( lf_k2(Ngrids) )
-     IF (.not. allocated(lf_u0)) allocate ( lf_u0(Ngrids) )
+      IF (.not. allocated(lf_k1)) THEN
+        allocate ( lf_k1(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(lf_k2)) THEN
+        allocate ( lf_k2(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(lf_u0)) THEN
+        allocate ( lf_u0(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 #endif
 
