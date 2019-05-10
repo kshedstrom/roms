@@ -175,7 +175,7 @@
           real(r8), pointer :: avgbt(:,:,:,:)
 #   endif
 #   ifdef ICE_BIO
-#     ifdef CLIM_ICE_1D   
+#     ifdef CLIM_ICE_1D
           real(r8), pointer :: avgit(:,:,:)
 #     elif defined BERING_10K
           real(r8), pointer :: avgIPhL(:,:)
@@ -475,7 +475,6 @@
 #    ifdef CLIM_ICE_1D
       allocate ( AVERAGE(ng) % avgit(LBi:UBi,LBj:UBj,NIceT(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(NIceT(ng),r8)*size2d
-#   endif
 #    elif defined BERING_10K
       IF (Aout(idIceNO3,ng)) THEN
         allocate ( AVERAGE(ng) % avgINO3(LBi:UBi,LBj:UBj) )
@@ -1867,7 +1866,7 @@
             AVERAGE(ng) % avgit(i,j,itrc) = IniVal
           END DO
         END DO
-#  elif defined BERING_10K       
+#  elif defined BERING_10K
       IF (Aout(idIceNO3,ng)) THEN
         DO j=Jmin,Jmax
           DO i=Imin,Imax

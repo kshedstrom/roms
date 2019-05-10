@@ -3130,6 +3130,10 @@
       END IF
       IF (.not.allocated(Tnudg)) THEN
         allocate ( Tnudg(MT,Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(MT*Ngrids,r8)
+      END IF
+      IF (.not.allocated(Tnudg_SSS)) THEN
+        allocate ( Tnudg_SSS(Ngrids) )
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not. allocated(sss_mismatch_threshold)) &
