@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -391,7 +391,7 @@
 !    Eradius       Earth equatorial radius (m).
 !    Infinity      Value resulting when dividing by zero.
 !    StefBo        Stefan-Boltzmann constant (W/m2/K4).
-!    emmiss        Infrared emmissivity.
+!    emmiss        Infrared emissivity.
 !    g             Acceleration due to gravity (m/s2).
 !    gorho0        gravity divided by mean density anomaly.
 !    rhow          fresh water density (kg/m3).
@@ -1485,7 +1485,7 @@
 !
         real(r8), dimension(9) :: lmd_mu1 =                             &
      &            (/ 0.35_r8, 0.6_r8,  1.0_r8,  1.5_r8, 1.4_r8,         &
-     &               0.42_r8, 0.37_r8, 0.33_r8, 0.0_r8 /)
+     &               0.42_r8, 0.37_r8, 0.33_r8, 0.00468592_r8 /)
 
         real(r8), dimension(9) :: lmd_mu2 =                             &
      &            (/ 23.0_r8,  20.0_r8,  17.0_r8,  14.0_r8, 7.9_r8,     &

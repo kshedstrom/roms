@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for One-Dimensional (vertical) Sediment Toy.
 **
 ** Application flag:   SED_TOY
-** Input scripts:      ocean_sed_toy.in
+** Input scripts:      roms_sed_toy.in
 **                     sediment_sed_toy.in
 */
 

@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for Inlet Test Case, waves-ocean (SWAN/ROMS) two-way coupling.
 **
 ** Application flag:   INLET_TEST
-** Input script:       ocean_inlet_test.in
+** Input script:       roms_inlet_test.in
 **                     coupling_inlet_test.in
 **                     sediment_inlet_test.in
 */

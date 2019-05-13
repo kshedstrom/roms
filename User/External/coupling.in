@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -80,7 +80,7 @@ Nthreads(atmos) = 1
 ! Coupled model standard input file name, [1:Nmodels] KEYWORD entries are
 ! expected with the label code in parenthesis.
 
- INPname(ocean) = ocean.in
+ INPname(ocean) = roms.in
  INPname(waves) = waves.in
  INPname(atmos) = atmos.in
 

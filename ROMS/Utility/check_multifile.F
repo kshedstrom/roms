@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -554,7 +554,7 @@
       USE mod_netcdf
       USE mod_scalars
 !
-      USE strings_mod, ONLY : FoundError
+      USE strings_mod, ONLY : FoundError, lowercase
 !
       implicit none
 !
@@ -613,7 +613,7 @@
 !  'time' in the variable name.
 !
       DO i=1,n_var
-        IF ((INDEX(TRIM(var_name(i)),'time').ne.0).and.                 &
+        IF ((INDEX(TRIM(lowercase(var_name(i))),'time').ne.0).and.      &
      &            (var_ndim(i).eq.1)) THEN
           TvarName=TRIM(var_name(i))
           foundit=.TRUE.

@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -431,7 +431,7 @@
 !  Fractional date number (units=second).
 !
       DateNumber(2)=REAL(MyDay,dp)*86400.0_dp+                          &
-     &              REAL(MyHour,dp)*360.0_dp+                           &
+     &              REAL(MyHour,dp)*3600.0_dp+                          &
      &              REAL(MyMinutes,dp)*60.0_dp+                         &
      &              MySeconds
 

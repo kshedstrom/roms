@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for Estuary with Sediment Transport Test.
 **
 ** Application flag:   ESTUARY_TEST
-** Input script:       ocean_estuary_test.in
+** Input script:       roms_estuary_test.in
 **                     sediment_estuary_test.in
 */
 

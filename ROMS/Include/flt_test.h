@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for Floats Tracking Test.
 **
 ** Application flag:   FLT_TEST
-** Input script:       ocean_flt_test2d.in,  ocean_flt_test3d.in
+** Input script:       roms_flt_test2d.in,   roms_flt_test3d.in
 **                     floats_flt_test2d.in, floats_flt_test3d.in
 */
 

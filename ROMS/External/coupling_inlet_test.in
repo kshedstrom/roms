@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !========================================================= Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                                !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                                !
 !    Licensed under a MIT/X style license                                     !
 !    See License_ROMS.txt                                                     !
 !==============================================================================
@@ -78,7 +78,7 @@ Nthreads(waves) = 1
 ! Coupled model standard input file name, [1:Nmodels] KEYWORD entries are
 ! expected with the label code in parenthesis.
 
- INPname(ocean) = ROMS/External/ocean_inlet_test.in
+ INPname(ocean) = ROMS/External/roms_inlet_test.in
  INPname(waves) = Waves/SWAN/External/swan_inlet_test.in
 
 ! Coupled models variables information file name.

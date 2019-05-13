@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -40,12 +40,14 @@
       implicit none
 !
       INTERFACE load_i
+        MODULE PROCEDURE load_0d_i       ! scalar integer
         MODULE PROCEDURE load_1d_i       ! 1D integer array
         MODULE PROCEDURE load_2d_i       ! 2D integer array
         MODULE PROCEDURE load_3d_i       ! 3D integer array
       END INTERFACE load_i
 
       INTERFACE load_l
+        MODULE PROCEDURE load_0d_l       ! scalar logical
         MODULE PROCEDURE load_1d_l       ! 1D logical array
         MODULE PROCEDURE load_2d_l       ! 2D logical array
         MODULE PROCEDURE load_3d_l       ! 3D logical array
@@ -53,10 +55,12 @@
 
       INTERFACE load_r
 #ifdef SINGLE_PRECISION
+        MODULE PROCEDURE load_0d_dp      ! scalar real(dp)
         MODULE PROCEDURE load_1d_dp      ! 1D real(dp) array
         MODULE PROCEDURE load_2d_dp      ! 2D real(dp) array
         MODULE PROCEDURE load_3d_dp      ! 3D real(dp) array
 #endif
+        MODULE PROCEDURE load_0d_r8      ! scalar real(r8)
         MODULE PROCEDURE load_1d_r8      ! 1D real(r8) array
         MODULE PROCEDURE load_2d_r8      ! 2D real(r8) array
         MODULE PROCEDURE load_3d_r8      ! 3D real(r8) array
@@ -443,6 +447,49 @@
       RETURN
       END FUNCTION find_file
 !
+      FUNCTION load_0d_i (Ninp, Vinp, Nout, Vout) RESULT (Nval)
+!
+!***********************************************************************
+!                                                                      !
+!  It loads input values into a requested model scalar integer         !
+!  variable.                                                           !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     Ninp       Number of input elements to process in Vinp (integer) !
+!     Vinp       Input values (1D real(dp) array)                      !
+!     Nout       Size of output integer variable dimension (not used)  !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     Vout       Output scalar integer variable                        !
+!     Nval       Number of output values processed                     !
+!                                                                      !
+!***********************************************************************
+!
+!  Imported variable declarations.
+!
+      integer,  intent(in) :: Ninp, Nout
+      real(dp), intent(in) :: Vinp(:)
+!
+      integer, intent(out) :: Vout
+!
+!  Local variable declarations.
+!
+      integer :: ic
+      integer :: Nval
+!
+!-----------------------------------------------------------------------
+!  Load scalar integer variable with input value.
+!-----------------------------------------------------------------------
+!
+      ic=1
+      Vout=INT(Vinp(ic))
+      Nval=ic
+
+      RETURN
+      END FUNCTION load_0d_i
+!
       FUNCTION load_1d_i (Ninp, Vinp, Nout, Vout) RESULT (Nval)
 !
 !***********************************************************************
@@ -483,13 +530,13 @@
 !
       ic=0
       IF (Ninp.le.Nout) THEN
-        DO i=1,Nout
+        DO i=1,Ninp
           ic=ic+1
-          IF (ic.le.Ninp) THEN
-            Vout(i)=INT(Vinp(ic))
-          ELSE
-            Vout(i)=INT(Vinp(Ninp))
-          END IF
+          Vout(i)=INT(Vinp(i))
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vout(i)=INT(Vinp(Ninp))
         END DO
       ELSE
         DO i=1,Nout
@@ -531,8 +578,10 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      integer, dimension(Iout*Jout) :: Vwrk
 !
 !-----------------------------------------------------------------------
 !  Load 2D integer variable with input values.
@@ -542,25 +591,23 @@
 !  for the rest of the 2D array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout)) THEN
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            IF (ic.le.Ninp) THEN
-              Vout(i,j)=INT(Vinp(ic))
-            ELSE
-              Vout(i,j)=INT(Vinp(Ninp))
-            END IF
-          END DO
+      Nout=Iout*Jout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(i))
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(Ninp))
         END DO
       ELSE
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            Vout(i,j)=INT(Vinp(ic))
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(i))
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout/))
       Nval=ic
 !
       RETURN
@@ -597,8 +644,10 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j, k
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      integer, dimension(Iout*Jout*Kout) :: Vwrk
 !
 !-----------------------------------------------------------------------
 !  Load 3D integer variable with input values.
@@ -608,33 +657,75 @@
 !  for the rest of the 3D array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout*Kout)) THEN
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              IF (ic.le.Ninp) THEN
-                Vout(i,j,k)=INT(Vinp(ic))
-              ELSE
-                Vout(i,j,k)=INT(Vinp(Ninp))
-              END IF
-            END DO
-          END DO
+      Nout=Iout*Jout*Kout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(i))
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(Ninp))
         END DO
       ELSE
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              Vout(i,j,k)=INT(Vinp(ic))
-            END DO
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          Vwrk(i)=INT(Vinp(i))
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout,Kout/))
       Nval=ic
 !
       RETURN
       END FUNCTION load_3d_i
+!
+      FUNCTION load_0d_l (Ninp, Vinp, Nout, Vout) RESULT (Nval)
+!
+!***********************************************************************
+!                                                                      !
+!  It loads input values into a requested model scalar logical         !
+!  variable.                                                           !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     Ninp       Number of input elements to process in Vinp (integer) !
+!     Vinp       Input values (character 1D array)                     !
+!     Nout       Size of output logical variable dimension (not used)  !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     Vout       Output scalar logical variable                        !
+!     Nval       Number of output values processed                     !
+!                                                                      !
+!***********************************************************************
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: Ninp, Nout
+      character (len=*), intent(in) :: Vinp(:)
+!
+      logical, intent(out) :: Vout
+!
+!  Local variable declarations.
+!
+      integer :: ic
+      integer :: Nval
+!
+!-----------------------------------------------------------------------
+!  Load scalar logical variable with input value.
+!-----------------------------------------------------------------------
+!
+      ic=1
+      IF ((Vinp(ic)(1:1).eq.'T').or.                                    &
+     &    (Vinp(ic)(1:1).eq.'t')) THEN
+        Vout=.TRUE.
+      ELSE
+        Vout=.FALSE.
+      END IF
+      Nval=ic
+!
+      RETURN
+      END FUNCTION load_0d_l
 !
       FUNCTION load_1d_l (Ninp, Vinp, Nout, Vout) RESULT (Nval)
 !
@@ -645,7 +736,7 @@
 !  On Input:                                                           !
 !                                                                      !
 !     Ninp       Number of input elements to process in Vinp (integer) !
-!     Vinp       Input values (charact 1D array)                       !
+!     Vinp       Input values (character 1D array)                     !
 !     Nout       Size of output logical variable dimension             !
 !                                                                      !
 !  On Output:                                                          !
@@ -670,7 +761,7 @@
       integer :: Nval
 !
 !-----------------------------------------------------------------------
-!  Load integer variable with input values.
+!  Load logical variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -679,19 +770,19 @@
       ic=0
       LastValue=.FALSE.
       IF (Ninp.le.Nout) THEN
-        DO i=1,Nout
+        DO i=1,Ninp
           ic=ic+1
-          IF (ic.le.Ninp) THEN
-            IF ((Vinp(ic)(1:1).eq.'T').or.                              &
-     &          (Vinp(ic)(1:1).eq.'t')) THEN
-              Vout(i)=.TRUE.
-            ELSE
-              Vout(i)=.FALSE.
-            END IF
-            LastValue=Vout(i)
+          IF ((Vinp(i)(1:1).eq.'T').or.                                 &
+     &        (Vinp(i)(1:1).eq.'t')) THEN
+            Vout(i)=.TRUE.
           ELSE
-            Vout(i)=LastValue
+            Vout(i)=.FALSE.
           END IF
+          LastValue=Vout(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vout(i)=LastValue
         END DO
       ELSE
         DO i=1,Nout
@@ -739,9 +830,11 @@
 !  Local variable declarations.
 !
       logical :: LastValue
-
-      integer :: i, ic, j
-      integer :: Nval
+!
+      logical, dimension(Iout*Jout) :: Vwrk
+!
+      integer :: i, ic
+      integer :: Nout, Nval
 !
 !-----------------------------------------------------------------------
 !  Load 2D logical variable with input values.
@@ -751,37 +844,35 @@
 !  for the rest of the array.
 !
       ic=0
+      Nout=Iout*Jout
       LastValue=.FALSE.
-      IF (Ninp.le.(Iout*Jout)) THEN
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            IF (ic.le.Ninp) THEN
-              IF ((Vinp(ic)(1:1).eq.'T').or.                            &
-     &            (Vinp(ic)(1:1).eq.'t')) THEN
-                Vout(i,j)=.TRUE.
-              ELSE
-                Vout(i,j)=.FALSE.
-              END IF
-              LastValue=Vout(i,j)
-            ELSE
-              Vout(i,j)=LastValue
-            END IF
-          END DO
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          IF ((Vinp(i)(1:1).eq.'T').or.                                 &
+     &        (Vinp(i)(1:1).eq.'t')) THEN
+            Vwrk(i)=.TRUE.
+          ELSE
+            Vwrk(i)=.FALSE.
+          END IF
+          LastValue=Vwrk(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=LastValue
         END DO
       ELSE
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            IF ((Vinp(ic)(1:1).eq.'T').or.                              &
-     &          (Vinp(ic)(1:1).eq.'t')) THEN
-              Vout(i,j)=.TRUE.
-            ELSE
-              Vout(i,j)=.FALSE.
-            END IF
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          IF ((Vinp(i)(1:1).eq.'T').or.                                 &
+     &        (Vinp(i)(1:1).eq.'t')) THEN
+            Vwrk(i)=.TRUE.
+          ELSE
+            Vwrk(i)=.FALSE.
+          END IF
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout/))
       Nval=ic
 !
       RETURN
@@ -819,9 +910,11 @@
 !  Local variable declarations.
 !
       logical :: LastValue
-
-      integer :: i, ic, j, k
-      integer :: Nval
+!
+      logical, dimension(Iout*Jout*Kout) :: Vwrk
+!
+      integer :: i, ic
+      integer :: Nout, Nval
 !
 !-----------------------------------------------------------------------
 !  Load 3D logical variable with input values.
@@ -831,47 +924,84 @@
 !  for the rest of the array.
 !
       ic=0
+      Nout=Iout*Jout*Kout
       LastValue=.FALSE.
-      IF (Ninp.le.(Iout*Jout*Kout)) THEN
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              IF (ic.le.Ninp) THEN
-                IF ((Vinp(ic)(1:1).eq.'T').or.                          &
-     &              (Vinp(ic)(1:1).eq.'t')) THEN
-                  Vout(i,j,k)=.TRUE.
-                ELSE
-                  Vout(i,j,k)=.FALSE.
-                END IF
-                LastValue=Vout(i,j,k)
-              ELSE
-                Vout(i,j,k)=LastValue
-              END IF
-            END DO
-          END DO
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          IF ((Vinp(i)(1:1).eq.'T').or.                                 &
+     &        (Vinp(i)(1:1).eq.'t')) THEN
+            Vwrk(i)=.TRUE.
+          ELSE
+            Vwrk(i)=.FALSE.
+          END IF
+          LastValue=Vwrk(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=LastValue
         END DO
       ELSE
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              IF ((Vinp(ic)(1:1).eq.'T').or.                            &
-     &            (Vinp(ic)(1:1).eq.'t')) THEN
-                Vout(i,j,k)=.TRUE.
-              ELSE
-                Vout(i,j,k)=.FALSE.
-              END IF
-            END DO
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          IF ((Vinp(i)(1:1).eq.'T').or.                                 &
+     &        (Vinp(i)(1:1).eq.'t')) THEN
+            Vwrk(i)=.TRUE.
+          ELSE
+            Vwrk(i)=.FALSE.
+          END IF
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout,Kout/))
       Nval=ic
 !
       RETURN
       END FUNCTION load_3d_l
 
 #ifdef SINGLE_PRECISION
+!
+      FUNCTION load_0d_dp (Ninp, Vinp, Nout, Vout) RESULT (Nval)
+!
+!***********************************************************************
+!                                                                      !
+!  It loads input values into a requested model scalar double          !
+!  precision variable when numerical kernel is in single precision.    !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     Ninp       Number of input elements to process in Vinp (integer) !
+!     Vinp       Input values (1D real(dp) array)                      !
+!     Nout       Size of output integer variable dimension (not used)  !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     Vout       Output scalar variable (real, KIND=dp)                !
+!     Nval       Number of output values processed                     !
+!                                                                      !
+!=======================================================================
+!
+!  Imported variable declarations.
+!
+      integer,  intent(in) :: Ninp, Nout
+      real(dp), intent(in) :: Vinp(:)
+!
+      real(dp), intent(out) :: Vout
+!
+!  Local variable declarations.
+!
+      integer :: ic
+      integer :: Nval
+!
+!-----------------------------------------------------------------------
+!  Load scalar floating-point variable with input value.
+!-----------------------------------------------------------------------
+!
+      ic=1
+      Vout=Vinp(ic)
+      Nval=ic
+!
+      RETURN
+      END FUNCTION load_0d_dp
 !
       FUNCTION load_1d_dp (Ninp, Vinp, Nout, Vout) RESULT (Nval)
 !
@@ -906,7 +1036,7 @@
       integer :: Nval
 !
 !-----------------------------------------------------------------------
-!  Load 1D foating-point variable with input values.
+!  Load 1D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
@@ -914,13 +1044,13 @@
 !
       ic=0
       IF (Ninp.le.Nout) THEN
-        DO i=1,Nout
+        DO i=1,Ninp
           ic=ic+1
-          IF (ic.le.Ninp) THEN
-            Vout(i)=Vinp(ic)
-          ELSE
-            Vout(i)=Vinp(Ninp)
-          END IF
+          Vout(i)=Vinp(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vout(i)=Vinp(Ninp)
         END DO
       ELSE
         DO i=1,Nout
@@ -963,36 +1093,36 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      real(dp), dimension(Iout*Jout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 2D foating-point variable with input values.
+!  Load 2D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
 !  for the rest of the array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout)) THEN
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            IF (ic.le.Ninp) THEN
-              Vout(i,j)=Vinp(ic)
-            ELSE
-              Vout(i,j)=Vinp(Ninp)
-            END IF
-          END DO
+      Nout=Iout*Jout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          Vwrk(i)=Vinp(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=Vinp(Ninp)
         END DO
       ELSE
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            Vout(i,j)=Vinp(ic)
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          Vwrk(i)=Vinp(i)
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout/))
       Nval=ic
 !
       RETURN
@@ -1030,45 +1160,88 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j, k
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      real(dp), dimension(Iout*Jout*Kout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 3D foating-point variable with input values.
+!  Load 3D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
 !  for the rest of the array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout*Kout)) THEN
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              IF (ic.le.Ninp) THEN
-                Vout(i,j,k)=Vinp(ic)
-              ELSE
-                Vout(i,j,k)=Vinp(Ninp)
-              END IF
-            END DO
-          END DO
+      Nout=Iout*Jout*Kout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
+          Vwrk(i)=Vinp(i)
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
+          Vwrk(i)=Vinp(Ninp)
         END DO
       ELSE
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              Vout(i,j,k)=Vinp(ic)
-            END DO
-          END DO
+        DO i=1,Nout
+          ic=ic+1
+          Vwrk(i)=Vinp(i)
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout,Kout/))
       Nval=ic
 !
       RETURN
       END FUNCTION load_3d_dp
 #endif
+!
+      FUNCTION load_0d_r8 (Ninp, Vinp, Nout, Vout) RESULT (Nval)
+!
+!=======================================================================
+!                                                                      !
+!  It loads input values into a requested model scalar floating-point  !
+!  variable (KIND=r8).                                                 !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     Ninp       Number of input elements to process in Vinp (integer) !
+!     Vinp       Input values (1D real(dp) array)                      !
+!     Nout       Size of output integer variable dimension (not used)  !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     Vout       Output scalar variable (real, KIND=r8)                !
+!     Nval       Number of output values processed                     !
+!                                                                      !
+!=======================================================================
+!
+!  Imported variable declarations.
+!
+      integer,  intent(in) :: Ninp, Nout
+      real(dp), intent(in) :: Vinp(:)
+!
+      real(r8), intent(out) :: Vout
+!
+!  Local variable declarations.
+!
+      integer :: ic
+      integer :: Nval
+!
+!-----------------------------------------------------------------------
+!  Load scalar floating-point variable with input value.
+!-----------------------------------------------------------------------
+!
+      ic=1
+#ifdef SINGLE_PRECISION
+      Vout=REAL(Vinp(ic),r8)
+#else
+      Vout=Vinp(ic)
+#endif
+      Nval=ic
+!
+      RETURN
+      END FUNCTION load_0d_r8
 !
       FUNCTION load_1d_r8 (Ninp, Vinp, Nout, Vout) RESULT (Nval)
 !
@@ -1113,19 +1286,19 @@
       IF (Ninp.le.Nout) THEN
         DO i=1,Ninp
           ic=ic+1
-          IF (ic.le.Ninp) THEN
 #ifdef SINGLE_PRECISION
-            Vout(i)=REAL(Vinp(ic),r8)
+          Vout(i)=REAL(Vinp(i),r8)
 #else
-            Vout(i)=Vinp(i)
+          Vout(i)=Vinp(i)
 #endif
-          ELSE
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-            Vout(i)=REAL(Vinp(Ninp),r8)
+          Vout(i)=REAL(Vinp(Ninp),r8)
 #else
-            Vout(i)=Vinp(Ninp)
+          Vout(i)=Vinp(Ninp)
 #endif
-          END IF
         END DO
       ELSE
         DO i=1,Nout
@@ -1172,48 +1345,48 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      real(r8), dimension(Iout*Jout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 2D foating-point variable with input values.
+!  Load 2D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
 !  for the rest of the array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout)) THEN
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
-            IF (ic.le.Ninp) THEN
+      Nout=Iout*Jout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-              Vout(i,j)=REAL(Vinp(ic),r8)
+          Vwrk(i)=REAL(Vinp(i),r8)
 #else
-              Vout(i,j)=Vinp(i)
+          Vwrk(i)=Vinp(i)
 #endif
-            ELSE
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-              Vout(i,j)=REAL(Vinp(Ninp),r8)
+          Vwrk(i)=REAL(Vinp(Ninp),r8)
 #else
-              Vout(i,j)=Vinp(Ninp)
+          Vwrk(i)=Vinp(Ninp)
 #endif
-            END IF
-          END DO
         END DO
       ELSE
-        DO j=1,Jout
-          DO i=1,Iout
-            ic=i+(j-1)*Iout
+        DO i=1,Nout
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-            Vout(i,j)=REAL(Vinp(ic),r8)
+          Vwrk(i)=REAL(Vinp(i),r8)
 #else
-            Vout(i,j)=Vinp(ic)
+          Vwrk(i)=Vinp(i)
 #endif
-          END DO
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout/))
       Nval=ic
 !
       RETURN
@@ -1251,52 +1424,48 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, ic, j, k
-      integer :: Nval
+      integer :: i, ic
+      integer :: Nout, Nval
+!
+      real(r8), dimension(Iout*Jout*Kout) :: Vwrk
 !
 !-----------------------------------------------------------------------
-!  Load 3D foating-point variable with input values.
+!  Load 3D floating-point variable with input values.
 !-----------------------------------------------------------------------
 !
 !  If not all values are provided for variable, assume the last value
 !  for the rest of the array.
 !
       ic=0
-      IF (Ninp.le.(Iout*Jout*Kout)) THEN
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
-              IF (ic.le.Ninp) THEN
+      Nout=Iout*Jout*Kout
+      IF (Ninp.le.Nout) THEN
+        DO i=1,Ninp
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-                Vout(i,j,k)=REAL(Vinp(ic),r8)
+          Vwrk(i)=REAL(Vinp(i),r8)
 #else
-                Vout(i,j,k)=Vinp(i)
+          Vwrk(i)=Vinp(i)
 #endif
-              ELSE
+        END DO
+        DO i=Ninp+1,Nout
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-                Vout(i,j,k)=REAL(Vinp(Ninp),r8)
+          Vwrk(i)=REAL(Vinp(Ninp),r8)
 #else
-                Vout(i,j,k)=Vinp(Ninp)
+          Vwrk(i)=Vinp(Ninp)
 #endif
-              END IF
-            END DO
-          END DO
         END DO
       ELSE
-        DO k=1,Kout
-          DO j=1,Jout
-            DO i=1,Iout
-              ic=i+(j-1)*Iout+(k-1)*Iout*Jout
+        DO i=1,Nout
+          ic=ic+1
 #ifdef SINGLE_PRECISION
-              Vout(i,j,k)=REAL(Vinp(ic),r8)
+          Vwrk(i)=REAL(Vinp(i),r8)
 #else
-              Vout(i,j,k)=Vinp(ic)
+          Vwrk(i)=Vinp(i)
 #endif
-            END DO
-          END DO
         END DO
       END IF
+      Vout=RESHAPE(Vwrk,(/Iout,Jout,Kout/))
       Nval=ic
 !
       RETURN

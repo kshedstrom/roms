@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for periodic uniform channel
 **
 ** Application flag:   CHANNEL
-** Input script:       ocean_channel.in
+** Input script:       roms_channel.in
 **
 **
 ** Available Driver options:  choose only one and activate it in the

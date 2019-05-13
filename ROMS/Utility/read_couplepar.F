@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -145,15 +145,18 @@
               END DO
             CASE ('Nthreads(ocean)')
               IF ((0.lt.Iocean).and.(Iocean.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nthreads(Iocean))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nthreads(Iocean)=Ivalue(1)
               END IF
             CASE ('Nthreads(waves)')
               IF ((0.lt.Iwaves).and.(Iwaves.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nthreads(Iwaves))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nthreads(Iwaves)=Ivalue(1)
               END IF
             CASE ('Nthreads(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nthreads(Iatmos))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nthreads(Iatmos)=Ivalue(1)
               END IF
             CASE ('TimeInterval')
               Npts=load_r(Nval, Rval, Nmodels, MyRval)
@@ -184,15 +187,18 @@
               CPLname=TRIM(ADJUSTL(Cval(Nval)))
             CASE ('Nexport(ocean)')
               IF ((0.lt.Iocean).and.(Iocean.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nexport(Iocean))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nexport(Iocean)=Ivalue(1)
               END IF
             CASE ('Nexport(waves)')
               IF ((0.lt.Iwaves).and.(Iwaves.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nexport(Iwaves))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nexport(Iwaves)=Ivalue(1)
               END IF
             CASE ('Nexport(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nexport(Iatmos))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nexport(Iatmos)=Ivalue(1)
               END IF
             CASE ('Export(ocean)')
               IF (.not.allocated(Export)) THEN
@@ -235,15 +241,18 @@
               END IF
             CASE ('Nimport(ocean)')
               IF ((0.lt.Iocean).and.(Iocean.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nimport(Iocean))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nimport(Iocean)=Ivalue(1)
               END IF
             CASE ('Nimport(waves)')
               IF ((0.lt.Iwaves).and.(Iwaves.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nimport(Iwaves))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nimport(Iwaves)=Ivalue(1)
               END IF
             CASE ('Nimport(atmos)')
               IF ((0.lt.Iatmos).and.(Iatmos.le.Nmodels)) THEN
-                Npts=load_i(Nval, Rval, 1, Nimport(Iatmos))
+                Npts=load_i(Nval, Rval, 1, Ivalue)
+                Nimport(Iatmos)=Ivalue(1)
               END IF
             CASE ('Import(ocean)')
               IF (.not.allocated(Import)) THEN

@@ -2,7 +2,7 @@
 !
 !! svn $Id$
 !!======================================================================
-!! Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!! Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !!   Licensed under a MIT/X style license                              !
 !!   See License_ROMS.txt                                              !
 !=======================================================================
@@ -133,7 +133,7 @@
 !  If initialization, set point Sources and/or Sinks locations.
 !-----------------------------------------------------------------------
 !
-      IF (iic(ng).eq.ntstart(ng) .or. (iic(ng).eq.0)) THEN
+      IF ((iic(ng).eq.ntstart(ng)).or.(iic(ng).eq.0)) THEN
 !
 !  Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and
 !  J-grid locations (Isrc,Jsrc). Currently, the direction can be along

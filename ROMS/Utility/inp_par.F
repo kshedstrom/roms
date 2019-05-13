@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -149,8 +149,8 @@
      &        /,11x,'routine GETARG is used to get script file name.',  &
      &        /,11x,'For example, in MPI applications make sure that',  &
      &        /,11x,'command line is something like:',/,                &
-     &        /,11x,'mpirun -np 4 ocean ocean.in',/,/,11x,'and not',/,  &
-     &        /,11x,'mpirun -np 4 ocean < ocean.in',/)
+     &        /,11x,'mpirun -np 4 romsM roms.in',/,/,11x,'and not',/,   &
+     &        /,11x,'mpirun -np 4 romsM < roms.in',/)
  40   CONTINUE
 # endif
 #endif

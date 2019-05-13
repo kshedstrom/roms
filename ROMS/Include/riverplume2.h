@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -10,7 +10,7 @@
 ** http://smig.usgs.gov/SMIG/features_0300/plumes_inline.html
 **
 ** Application flag:   RIVERPLUME2
-** Input script:       ocean_riverplume2.in
+** Input script:       roms_riverplume2.in
 */
 
 #define UV_ADV

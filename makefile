@@ -1,6 +1,6 @@
 # svn $Id$
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
-# Copyright (c) 2002-2018 The ROMS/TOMS Group             Kate Hedstrom :::
+# Copyright (c) 2002-2019 The ROMS/TOMS Group             Kate Hedstrom :::
 #   Licensed under a MIT/X style license                                :::
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -325,15 +325,15 @@ endef
 #  Set ROMS/TOMS executable file name.
 #--------------------------------------------------------------------------
 
-BIN := $(BINDIR)/oceanS
+BIN := $(BINDIR)/romsS
 ifdef USE_DEBUG
-  BIN := $(BINDIR)/oceanG
+  BIN := $(BINDIR)/romsG
 else
  ifdef USE_MPI
-   BIN := $(BINDIR)/oceanM
+   BIN := $(BINDIR)/romsM
  endif
  ifdef USE_OpenMP
-   BIN := $(BINDIR)/oceanO
+   BIN := $(BINDIR)/romsO
  endif
 endif
 
@@ -436,6 +436,9 @@ ifdef USE_REPRESENTER
  modules  +=	ROMS/Representer \
 		ROMS/Representer/Biology
 endif
+ifdef USE_SEAICE
+ modules  +=	ROMS/Nonlinear/SeaIce
+endif
 ifdef USE_TANGENT
  modules  +=	ROMS/Tangent \
 		ROMS/Tangent/Biology
@@ -467,7 +470,7 @@ ifdef USE_REPRESENTER
 		ROMS/Representer/Biology
 endif
 ifdef USE_SEAICE
- includes +=	ROMS/SeaIce
+ includes +=	ROMS/Nonlinear/SeaIce
 endif
 ifdef USE_TANGENT
  includes +=	ROMS/Tangent \
@@ -483,9 +486,21 @@ ifdef MY_HEADER_DIR
  includes +=	$(MY_HEADER_DIR)
 endif
 
+ifdef USE_COAMPS
+ includes +=	$(COAMPS_LIB_DIR)
+endif
+
 ifdef USE_SWAN
  modules  +=	Waves/SWAN/Src
  includes +=	Waves/SWAN/Src
+endif
+
+ifdef USE_WRF
+ ifeq "$(strip $(WRF_LIB_DIR))" "$(WRF_SRC_DIR)"
+  includes +=	$(addprefix $(WRF_LIB_DIR)/,$(WRF_MOD_DIRS))
+ else
+  includes +=	$(WRF_LIB_DIR)
+ endif
 endif
 
  modules  +=	Master
@@ -513,20 +528,6 @@ $(SCRATCH_DIR):
 	$(shell $(TEST) -d $(SCRATCH_DIR) || $(MKDIR) $(SCRATCH_DIR) )
 
 #--------------------------------------------------------------------------
-#  Add profiling.
-#--------------------------------------------------------------------------
-
-# FFLAGS += -check bounds                 # ifort
-# FFLAGS += -C                            # pgi
-# FFLAGS += -xpg                          # Sun
-# FFLAGS += -pg                           # g95
-# FFLAGS += -qp                           # ifort
-# FFLAGS += -Mprof=func,lines             # pgi
-# FFLAGS += -Mprof=mpi,lines              # pgi
-# FFLAGS += -Mprof=mpi,hwcts              # pgi
-# FFLAGS += -Mprof=func                   # pgi
-
-#--------------------------------------------------------------------------
 #  Special CPP macros for mod_strings.F
 #--------------------------------------------------------------------------
 
@@ -538,7 +539,7 @@ $(SCRATCH_DIR)/mod_strings.f90: CPPFLAGS += -DMY_OS='"$(OS)"' \
 #  ROMS/TOMS libraries.
 #--------------------------------------------------------------------------
 
-MYLIB := libocean.a
+MYLIB := libroms.a
 
 .PHONY: libraries
 
@@ -607,17 +608,17 @@ endif
 .PHONY: tarfile
 
 tarfile:
-		tar --exclude=".svn" -cvf roms-3_0.tar *
+		tar --exclude=".svn" -cvf roms-3_7.tar *
 
 .PHONY: zipfile
 
 zipfile:
-		zip -r roms-3_0.zip *
+		zip -r roms-3_7.zip *
 
 .PHONY: gzipfile
 
 gzipfile:
-		gzip -v roms-3_0.gzip *
+		gzip -v roms-3_7.gzip *
 
 #--------------------------------------------------------------------------
 #  Cleaning targets.

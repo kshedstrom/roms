@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -266,7 +266,7 @@
 #  include <ana_sponge.h>
 # endif
 
-# if (defined ANA_SRFLUX && defined SOLVE3D) || defined DIURNAL_SRFLUX
+# if (defined ANA_SRFLUX || defined DIURNAL_SRFLUX) && defined SOLVE3D
 #  include <ana_srflux.h>
 # endif
 

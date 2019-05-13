@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2018 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -9,7 +9,7 @@
 ** Options for Atmosphere-Ocean Two-Way Coupling Test (WRF/ROMS).
 **
 ** Application flag:   COUPLING_TEST
-** Input script:       ocean_coupling_test.in
+** Input script:       roms_coupling_test.in
 */
 
 #define UV_ADV

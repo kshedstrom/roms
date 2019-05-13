@@ -3,7 +3,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2018 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -561,7 +561,7 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,ibath)),           &
+              WRITE (stdout,80) string, TRIM(Vname(1,idbath)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
