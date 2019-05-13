@@ -11,6 +11,7 @@
       USE mod_biology
       USE mod_ncparam
       USE mod_scalars
+      USE inp_decode_mod
 !
       implicit none
 !
@@ -25,17 +26,15 @@
       integer :: iTrcStr, iTrcEnd
       integer :: i, ifield, igrid, is, itracer, itrc, ng, nline, status
 
-      integer :: decode_line, load_i, load_l, load_r
-
       logical, dimension(NBT,Ngrids) :: Ltrc
 
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
-      real(r8), dimension(200) :: Rval
+      real(r8), dimension(nRval) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(200) :: Cval
+      character (len=256), dimension(nCval) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -66,8 +65,8 @@
 !----------------------------------
 !  Vertical mixing tuning parameter
 !----------------------------------
-          ELSE IF (TRIM(KeyWord).eq.'VertMixIncr') THEN 
-            Npts=load_r(Nval, Rval, 1, VertMixIncr)         
+          ELSE IF (TRIM(KeyWord).eq.'VertMixIncr') THEN
+            Npts=load_r(Nval, Rval, 1, VertMixIncr)
 !------------------
 !  Bio- conversions
 !------------------
@@ -75,7 +74,7 @@
             Npts=load_r(Nval, Rval, 1, xi)
           ELSE IF (TRIM(KeyWord).eq.'ccr') THEN
             Npts=load_r(Nval, Rval, 1, ccr)
-          ELSE IF (TRIM(KeyWord).eq.'ccrPhL') THEN 
+          ELSE IF (TRIM(KeyWord).eq.'ccrPhL') THEN
             Npts=load_r(Nval, Rval, 1, ccrPhL)
 !-------------------------
 !  extinction coefficients

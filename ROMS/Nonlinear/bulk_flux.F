@@ -70,6 +70,7 @@
       USE mod_ocean
 # ifdef ICE_MODEL
       USE mod_ice
+      USE dateclock_mod,   ONLY : caldate
 # endif
 # ifdef EVAP_SHALLOW
       USE mod_coupling
@@ -571,8 +572,7 @@
 !  Local variable declarations.
 !
       integer :: Iter, i, j, k, listp
-      integer :: iday, month, year
-      real(r8) :: hour, yday
+      integer :: month
       integer, parameter :: IterMax = 3
 
       real(r8), parameter :: eps = 1.0E-20_r8
@@ -724,7 +724,7 @@
 #endif
 
 #ifdef ICE_BOX
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), mmi=month)
 #endif
 
       DO j=Jstr-1,JendR
@@ -1197,7 +1197,7 @@
           qsh_i = sensible_MU(month)
           RHS_Ice(i,j) = RHS_Ice(i,j) + qsh_i
 #   else
-          qsh_i = rhoAir(i)*blk_Cpa*Ch_i*delW(i)*                         &
+          qsh_i = rhoAir(i)*blk_Cpa*Ch_i*delW(i)*                       &
      &            (TairK(i)+0.0098*blk_ZT(ng)-sfc_temp)
           Coef_Ice(i,j) = Coef_Ice(i,j) +                               &
      &          rhoAir(i)*blk_Cpa*Ch_i*delW(i)

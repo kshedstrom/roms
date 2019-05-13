@@ -158,7 +158,7 @@
 !----------------------
 #include "set_bounds.h"
 !
-      CALL caldate(tdays(ng), yd_r8=yday)
+      CALL caldate(tdays(ng), yd_dp=yday)
       dtdays = dt(ng)*sec2day/REAL(BioIter(ng),r8)
       k_phy = k_chl / ccr
 !

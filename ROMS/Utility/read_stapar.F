@@ -36,8 +36,6 @@
       integer :: Npts, Nval
       integer :: flag, i, igrid, itrc, ng, status
 
-      integer :: decode_line, load_i, load_l
-
       real(r8) :: Xpos, Ypos
 
       logical, dimension(Ngrids) :: Lswitch

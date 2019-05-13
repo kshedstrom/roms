@@ -40,8 +40,6 @@
       integer :: Npts, Nval, i, ic, j, inp, ng, out, status
       integer :: Ivalue(1)
 
-      integer :: decode_line, load_i, load_l, load_r
-
       real(r8), dimension(nRval) :: Rval
 
       real(r8), allocatable :: MyRval(:)
