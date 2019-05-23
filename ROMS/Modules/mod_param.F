@@ -85,6 +85,12 @@
 !  NDM3d      Number of diagnostic 3D momentum fields.                 !
 !  NDrhs      Number of diagnostic 3D right-hand-side fields.          !
 !                                                                      !
+!  Estimated Dynamic and automatic memory parameters:                  !
+!                                                                      !
+!  BmemMax    Maximum automatic memory for distributed-memory buffers  !
+!               (bytes).                                               !
+!  Dmem       Dynamic memory requirements (array elements)             !
+!                                                                      !
 !=======================================================================
 !
       USE mod_kinds
@@ -113,6 +119,16 @@
 !
       integer, allocatable :: GridNumber(:,:)   ! [Ngrids,NestLayers]
 !
+!  Maximum automatic memory (bytes) required in distributed-memory
+!  buffers due to parallel exchanges.
+!
+      real(r8), allocatable :: BmemMax(:)       ! [Ngrids]
+!
+!  Estimated dynamic memory requirement (number of array elements) for
+!  a particular application per nested grid.
+!
+      real(r8), allocatable :: Dmem(:)          ! [Ngrids]
+!
 !-----------------------------------------------------------------------
 !  Define derived type structure, T_IO, used to store information about
 !  the input and output files.
@@ -130,8 +146,8 @@
         integer,  pointer :: Nrec(:)             ! NetCDF record size
         integer,  pointer :: Vid(:)              ! NetCDF variables IDs
         integer,  pointer :: Tid(:)              ! NetCDF tracers IDs
-        real(r8), pointer :: time_min(:)         ! starting time
-        real(r8), pointer :: time_max(:)         ! ending time
+        real(dp), pointer :: time_min(:)         ! starting time
+        real(dp), pointer :: time_max(:)         ! ending time
         character (len=50 ) :: label             ! structure label
         character (len=256) :: base              ! base file name
         character (len=256) :: name              ! current name
@@ -683,56 +699,118 @@
 !  Allocate dimension parameters.
 !-----------------------------------------------------------------------
 !
-      allocate ( Lm(Ngrids) )
-      allocate ( Mm(Ngrids) )
+      IF (.not.allocated(Lm)) THEN
+        allocate ( Lm(Ngrids) )
+      END IF
+      IF (.not.allocated(Mm)) THEN
+        allocate ( Mm(Ngrids) )
+      END IF
 
-      allocate ( Im(Ngrids) )
-      allocate ( Jm(Ngrids) )
+      IF (.not.allocated(Im)) THEN
+        allocate ( Im(Ngrids) )
+      END IF
+      IF (.not.allocated(Jm)) THEN
+        allocate ( Jm(Ngrids) )
+      END IF
 
-      allocate ( N(Ngrids) )
+      IF (.not.allocated(N)) THEN
+        allocate ( N(Ngrids) )
+      END IF
 
 # ifdef BENTHIC
-      allocate ( NBL(Ngrids) )
+      IF (.not. allocated(NBL)) allocate ( NBL(Ngrids) )
 # endif
 
-      allocate ( NT(Ngrids) )
+      IF (.not.allocated(NT)) THEN
+        allocate ( NT(Ngrids) )
+      END IF
 
 #if defined TIME_CONV && defined WEAK_CONSTRAINT
-      allocate ( NrecTC(Ngrids) )
+      IF (.not.allocated(NrecTC)) THEN
+        allocate ( NrecTC(Ngrids) )
+      END IF
 #endif
 
-      allocate ( NTCLM(Ngrids) )
+      IF (.not.allocated(NTCLM)) THEN
+        allocate ( NTCLM(Ngrids) )
+      END IF
 
-      allocate ( NSV(Ngrids) )
+      IF (.not.allocated(NSV)) THEN
+        allocate ( NSV(Ngrids) )
+      END IF
 
-      allocate ( NtileI(Ngrids) )
-      allocate ( NtileJ(Ngrids) )
+      IF (.not.allocated(NtileI)) THEN
+        allocate ( NtileI(Ngrids) )
+      END IF
+      IF (.not.allocated(NtileJ)) THEN
+        allocate ( NtileJ(Ngrids) )
+      END IF
 
-      allocate ( NtileX(Ngrids) )
-      allocate ( NtileE(Ngrids) )
+      IF (.not.allocated(NtileX)) THEN
+        allocate ( NtileX(Ngrids) )
+      END IF
+      IF (.not.allocated(NtileE)) THEN
+        allocate ( NtileE(Ngrids) )
+      END IF
 
-      allocate ( HaloBry(Ngrids) )
+      IF (.not.allocated(HaloBry)) THEN
+        allocate ( HaloBry(Ngrids) )
+      END IF
 
-      allocate ( HaloSizeI(Ngrids) )
-      allocate ( HaloSizeJ(Ngrids) )
+      IF (.not.allocated(HaloSizeI)) THEN
+        allocate ( HaloSizeI(Ngrids) )
+      END IF
+      IF (.not.allocated(HaloSizeJ)) THEN
+        allocate ( HaloSizeJ(Ngrids) )
+      END IF
 
-      allocate ( TileSide(Ngrids) )
-      allocate ( TileSize(Ngrids) )
+      IF (.not.allocated(TileSide)) THEN
+        allocate ( TileSide(Ngrids) )
+      END IF
+      IF (.not.allocated(TileSize)) THEN
+        allocate ( TileSize(Ngrids) )
+      END IF
+
+      IF (.not.allocated(BmemMax)) THEN
+        allocate ( BmemMax(Ngrids) )
+        BmemMax=0.0_r8
+      END IF
+
+      IF (.not.allocated(Dmem)) THEN
+        allocate ( Dmem(Ngrids) )
+        Dmem=0.0_r8
+      END IF
 
 #ifdef PROPAGATOR
-      allocate ( Mstate(Ngrids) )
-      allocate ( Nstate(Ngrids) )
-      allocate ( Nstr(Ngrids) )
-      allocate ( Nend(Ngrids) )
-      allocate ( Nsize(Ngrids) )
+      IF (.not.allocated(Mstate)) THEN
+        allocate ( Mstate(Ngrids) )
+      END IF
+      IF (.not.allocated(Nstate)) THEN
+        allocate ( Nstate(Ngrids) )
+      END IF
+      IF (.not.allocated(Nstr)) THEN
+        allocate ( Nstr(Ngrids) )
+      END IF
+      IF (.not.allocated(Nend)) THEN
+        allocate ( Nend(Ngrids) )
+      END IF
+      IF (.not.allocated(Nsize)) THEN
+        allocate ( Nsize(Ngrids) )
+      END IF
 # ifdef SO_SEMI
-      allocate ( Nsemi(Ngrids) )
+      IF (.not.allocated(Nsemi)) THEN
+        allocate ( Nsemi(Ngrids) )
+      END IF
 # endif
 #endif
 
 #if defined FLOATS || defined NEMURO_SAN
-      allocate ( Nfloats(Ngrids) )
-      allocate ( NFV(Ngrids) )
+      IF (.not.allocated(Nfloats)) THEN
+        allocate ( Nfloats(Ngrids) )
+      END IF
+      IF (.not.allocated(NFV)) THEN
+        allocate ( NFV(Ngrids) )
+      END IF
 #endif
 #ifdef NEMURO_SAN
       allocate ( NFishV(Ngrids) )
@@ -745,11 +823,15 @@
 #endif
 
 #ifdef STATIONS
-      allocate ( Nstation(Ngrids) )
+      IF (.not.allocated(Nstation)) THEN
+        allocate ( Nstation(Ngrids) )
+      END IF
 #endif
 
 #if defined BALANCE_OPERATOR && defined ZETA_ELLIPTIC
-      allocate ( Nbico(Ngrids) )
+      IF (.not.allocated(Nbico)) THEN
+        allocate ( Nbico(Ngrids) )
+      END IF
 #endif
 
       RETURN
@@ -890,7 +972,9 @@
 !
 !  Allocate lower and upper bounds structure for I/O NetCDF files.
 !
-      allocate ( IOBOUNDS(Ngrids) )
+      IF (.not.allocated(IOBOUNDS)) THEN
+        allocate ( IOBOUNDS(Ngrids) )
+      END IF
 
 #ifdef DIAGNOSTICS
 !

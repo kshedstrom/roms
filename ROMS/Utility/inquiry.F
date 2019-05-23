@@ -48,7 +48,7 @@
       USE mod_netcdf
       USE mod_scalars
 !
-      USE strings_mod, ONLY : FoundError
+      USE strings_mod, ONLY : FoundError, lowercase
 !
       implicit none
 !
@@ -71,8 +71,8 @@
       integer :: i, ifile, lstr, my_ncid, nvatt, nvdim
       integer :: Vsize(4)
 
-      real(r8) :: Clength, Tend, Tmax, Tmin, Tmono, Tscale, Tstr, Tval
-      real(r8) :: scale
+      real(dp) :: Clength, Tend, Tmax, Tmin, Tmono, Tscale, Tstr, Tval
+      real(dp) :: scale
 
       character (len=1  ), parameter :: blank = ' '
       character (len=3  ) :: label
@@ -301,7 +301,7 @@
 !
           IF (got_time.and.(Nrec.eq.0)) THEN
             DO i=1,n_vdim
-              IF (INDEX(TRIM(var_Dname(i)),'time').ne.0) THEN
+              IF (INDEX(TRIM(lowercase(var_Dname(i))),'time').ne.0) THEN
                 Nrec=var_Dsize(i)
               END IF
             END DO

@@ -57,6 +57,10 @@
       END INTERFACE mp_assemble
 !
       INTERFACE mp_bcastf
+# ifdef SINGLE_PRECISION
+        MODULE PROCEDURE mp_bcastf_0dp   ! double-precision exchanges
+        MODULE PROCEDURE mp_bcastf_1dp   ! double-precision exchanges
+# endif
         MODULE PROCEDURE mp_bcastf_0d
         MODULE PROCEDURE mp_bcastf_1d
         MODULE PROCEDURE mp_bcastf_2d
@@ -90,6 +94,10 @@
       END INTERFACE mp_collect
 !
       INTERFACE mp_reduce
+# ifdef SINGLE_PRECISION
+        MODULE PROCEDURE mp_reduce_0dp   ! double-precision reduction
+        MODULE PROCEDURE mp_reduce_1dp   ! double-precision reduction
+# endif
         MODULE PROCEDURE mp_reduce_0d
         MODULE PROCEDURE mp_reduce_1d
       END INTERFACE mp_reduce
@@ -147,6 +155,171 @@
 
       RETURN
       END SUBROUTINE mp_barrier
+
+# ifdef SINGLE_PRECISION
+!
+      SUBROUTINE mp_bcastf_0dp (ng, model, A)
+!
+!***********************************************************************
+!                                                                      !
+!  This routine broadcasts a double-precision floating-point scalar    !
+!  variable to all processors the in group. It is called by all the    !
+!  members in the group.                                               !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number.                                   !
+!     model      Calling model identifier.                             !
+!     A          Variable to broadcast (real).                         !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     A          Broadcasted variable.                                 !
+!                                                                      !
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_iounits
+      USE mod_scalars
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model
+
+      real(dp), intent(inout) :: A
+!
+!  Local variable declarations
+!
+      integer :: Lstr, MyError, Npts, Serror
+
+      character (len=MPI_MAX_ERROR_STRING) :: string
+
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn on time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
+#  endif
+!
+!-----------------------------------------------------------------------
+!  Broadcast requested variable.
+!-----------------------------------------------------------------------
+!
+      Npts=1
+#  ifdef MPI
+      CALL mpi_bcast (A, Npts, MP_DOUBLE, MyMaster, OCN_COMM_WORLD,     &
+     &                MyError)
+      IF (MyError.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_BCAST', MyRank, MyError, string(1:Lstr)
+ 10     FORMAT (/,' MP_BCASTF_0DP - error during ',a,' call, Node = ',  &
+     &          i3.3,' Error = ',i3,/,13x,a)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn off time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
+#  endif
+
+      RETURN
+      END SUBROUTINE mp_bcastf_0dp
+!
+      SUBROUTINE mp_bcastf_1dp (ng, model, A)
+!
+!***********************************************************************
+!                                                                      !
+!  This routine broadcasts a 1D double precission floating-point,      !
+!  nontiled, array to all processors processors in the group.  It      !
+!  is called by all the members in the group.                          !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number.                                   !
+!     model      Calling model identifier.                             !
+!     A          1D array to broadcast (real).                         !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     A          Broadcasted 1D array.                                 !
+!                                                                      !
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_iounits
+      USE mod_scalars
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model
+
+      real(dp), intent(inout) :: A(:)
+!
+!  Local variable declarations
+!
+      integer :: Lstr, MyError, Npts, Serror
+
+      character (len=MPI_MAX_ERROR_STRING) :: string
+
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn on time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, model, 64, __LINE__,                          &
+     &                __FILE__//":mp_bcastf")
+
+#  endif
+!
+!-----------------------------------------------------------------------
+!  Broadcast requested variable.
+!-----------------------------------------------------------------------
+!
+      Npts=UBOUND(A, DIM=1)
+
+#  ifdef MPI
+      CALL mpi_bcast (A, Npts, MP_DOUBLE, MyMaster, OCN_COMM_WORLD,     &
+     &                MyError)
+      IF (MyError.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_BCAST', MyRank, MyError, string(1:Lstr)
+ 10     FORMAT (/,' MP_BCASTF_1DP - error during ',a,' call, Node = ',  &
+     &          i3.3,' Error = ',i3,/,13x,a)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn off time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, model, 64, __LINE__,                         &
+     &                 __FILE__//":mp_bcastf")
+#  endif
+
+      RETURN
+      END SUBROUTINE mp_bcastf_1dp
+# endif
 !
       SUBROUTINE mp_bcastf_0d (ng, model, A)
 !
@@ -1470,6 +1643,11 @@
 !  unpacking.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
+!
 !  Initialize buffer to the full range so unpacking is correct with
 !  summation.  This also allows even exchange of segments with
 !  communication routine "mpi_allgather".
@@ -1634,6 +1812,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 !
       MyNpts=UBOUND(A, DIM=1)
       IF (Npts.ne.MyNpts) THEN
@@ -1859,6 +2045,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
 !
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
@@ -2100,6 +2294,14 @@
 !  Check input parameters.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
+!
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
       Asize(3)=UBOUND(A, DIM=3)
@@ -2337,6 +2539,14 @@
 !  Check input parameters.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
+!
       MyNpts=UBOUND(A, DIM=1)
       IF (Npts.ne.MyNpts) THEN
         IF (Master) THEN
@@ -2560,6 +2770,14 @@
 !-----------------------------------------------------------------------
 !  Check input parameters.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined ASSEMBLE_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((Npts+SIZE(Arecv))*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(2*Npts*KIND(A),r8))
+# endif
 !
       Asize(1)=UBOUND(A, DIM=1)
       Asize(2)=UBOUND(A, DIM=2)
@@ -2796,6 +3014,14 @@
 !-----------------------------------------------------------------------
 !  Collect data from all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined COLLECT_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 
 # if defined COLLECT_ALLGATHER
 !
@@ -2991,6 +3217,14 @@
 !-----------------------------------------------------------------------
 !  Collect data from all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+# if defined COLLECT_ALLGATHER
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+# else
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Npts*KIND(A),r8))
+# endif
 
 # if defined COLLECT_ALLGATHER
 !
@@ -3396,6 +3630,11 @@
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
+!
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
 !  counter.
@@ -3726,6 +3965,11 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Arecv))*KIND(A),r8))
 !
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
@@ -4308,6 +4552,10 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Asend)*KIND(A),r8))
+!
 !  Deallocate send buffer.
 !
       IF (allocated(Asend).and.(MyRank.eq.MyMaster)) THEN
@@ -4533,6 +4781,10 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Asend)*KIND(A),r8))
+!
 !  Deallocate send buffer.
 !
       IF (allocated(Asend).and.(MyRank.eq.MyMaster)) THEN
@@ -4751,6 +5003,10 @@
       CALL mp_bcasti (ng, model, ibuffer)
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Deallocate receive buffer.
 !
@@ -4983,6 +5239,10 @@
       exit_flag=ibuffer(1)
       ioerror=ibuffer(2)
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
+!
 !  Deallocate receive buffer.
 !
       IF (allocated(Arecv).and.(MyRank.eq.MyMaster)) THEN
@@ -5009,6 +5269,397 @@
       RETURN
       END FUNCTION mp_ncwrite2d
 
+# ifdef SINGLE_PRECISION
+!
+      SUBROUTINE mp_reduce_0dp (ng, model, Asize, A, op_handle)
+!
+!***********************************************************************
+!                                                                      !
+!  This routine collects and reduces requested double precision        !
+!  variables from all nodes in the group.  Then, it broadcasts         !
+!  reduced variables to all nodes in the group.                        !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number.                                   !
+!     model      Calling model identifier.                             !
+!     Asize      Number of scalar variables to reduce.                 !
+!     A          Vector of scalar variables to reduce.                 !
+!     op_handle  Reduction operation handle (string).  The following   !
+!                  reduction operations are supported:                 !
+!                  'MIN', 'MAX', 'SUM'                                 !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     A          Vector of reduced scalar variables.                   !
+!                                                                      !
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_iounits
+      USE mod_scalars
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model, Asize
+
+      character (len=*), intent(in) :: op_handle
+
+      real(dp), intent(inout) :: A
+!
+!  Local variable declarations.
+!
+      integer :: Lstr, MyError, Npts, Serror
+      integer :: handle, i, rank, request
+
+      integer, dimension(0:NtileI(ng)*NtileJ(ng)-1) :: Rrequest
+
+      integer, dimension(MPI_STATUS_SIZE) :: Rstatus
+      integer, dimension(MPI_STATUS_SIZE) :: Sstatus
+
+      real(dp) :: Areduce
+      real(dp) :: Asend
+      real(dp), dimension(0:NtileI(ng)*NtileJ(ng)-1) :: Arecv
+
+      character (len=MPI_MAX_ERROR_STRING) :: string
+
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn on time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, model, 65, __LINE__,                          &
+     &                __FILE__//":mp_reduce")
+#  endif
+!
+!-----------------------------------------------------------------------
+!  Collect and reduce requested scalar variables.
+!-----------------------------------------------------------------------
+!
+!  Pack data to reduce.
+!
+      Asend=A
+      Npts=1
+!
+!  Collect and reduce.
+!
+#  if defined REDUCE_ALLREDUCE
+      IF (op_handle(1:3).eq.'MIN') THEN
+        handle=MPI_MIN
+      ELSE IF (op_handle(1:3).eq.'MAX') THEN
+        handle=MPI_MAX
+      ELSE IF (op_handle(1:3).eq.'SUM') THEN
+        handle=MPI_SUM
+      END IF
+      CALL mpi_allreduce (Asend, Areduce, Npts, MP_DOUBLE, handle,      &
+     &                    OCN_COMM_WORLD, MyError)
+      IF (MyError.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_ALLREDUCE', MyRank, MyError,             &
+     &                    string(1:Lstr)
+        exit_flag=2
+        RETURN
+      END IF
+#  elif defined REDUCE_ALLGATHER
+      CALL mpi_allgather (Asend, Npts, MP_DOUBLE,                       &
+     &                    Arecv, Npts, MP_DOUBLE,                       &
+     &                    OCN_COMM_WORLD, MyError)
+      IF (MyError.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_ALLGATHER', MyRank, MyError,             &
+     &                    string(1:Lstr)
+        exit_flag=2
+        RETURN
+      END IF
+      Areduce=Arecv(0)
+      DO rank=1,NtileI(ng)*NtileJ(ng)-1
+        IF (op_handle(1:3).eq.'MIN') THEN
+          Areduce=MIN(Areduce,Arecv(rank))
+        ELSE IF (op_handle(1:3).eq.'MAX') THEN
+          Areduce=MAX(Areduce,Arecv(rank))
+        ELSE IF (op_handle(1:3).eq.'SUM') THEN
+          Areduce=Areduce+Arecv(rank)
+        END IF
+      END DO
+#  else
+      IF (MyRank.eq.MyMaster) THEN
+        DO rank=1,NtileI(ng)*NtileJ(ng)-1
+          CALL mpi_irecv (Arecv(rank), Npts, MP_DOUBLE, rank,           &
+     &                    rank+500, OCN_COMM_WORLD, Rrequest(rank),     &
+     &                    MyError)
+        END DO
+        Areduce=Asend
+        DO rank=1,NtileI(ng)*NtileJ(ng)-1
+          CALL mpi_wait (Rrequest(rank), Rstatus, MyError)
+          IF (MyError.ne.MPI_SUCCESS) THEN
+            CALL mpi_error_string (MyError, string, Lstr, Serror)
+            Lstr=LEN_TRIM(string)
+            WRITE (stdout,10) 'MPI_IRECV', rank, Rerror, string(1:Lstr)
+            exit_flag=2
+            RETURN
+          END IF
+          IF (op_handle(1:3).eq.'MIN') THEN
+            Areduce=MIN(Areduce,Arecv(rank))
+          ELSE IF (op_handle(1:3).eq.'MAX') THEN
+            Areduce=MAX(Areduce,Arecv(rank))
+          ELSE IF (op_handle(1:3).eq.'SUM') THEN
+            Areduce=Areduce+Arecv(rank)
+          END IF
+        END DO
+      ELSE
+        CALL mpi_isend (Asend, npts, MP_DOUBLE, MyMaster, MyRank+500,   &
+     &                  OCN_COMM_WORLD, request, MyError)
+        CALL mpi_wait (request, Sstatus, MyError)
+        IF (Serror.ne.MPI_SUCCESS) THEN
+          CALL mpi_error_string (MyError, string, Lstr, Serror)
+          Lstr=LEN_TRIM(string)
+          WRITE (stdout,10) 'MPI_ISEND', MyRank, Serror, string(1:Lstr)
+          exit_flag=2
+          RETURN
+        END IF
+      END IF
+!
+!  Broadcast reduced variables from process to all processes in the
+!  group.
+!
+      CALL mpi_bcast (Areduce, Npts, MP_DOUBLE, MyMaster,               &
+     &                OCN_COMM_WORLD, MyError)
+      IF (Serror.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_BCAST', MyRank, MyError, string(1:Lstr)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+ 10   FORMAT (/,' MP_REDUCE_0DP - error during ',a,' call, Node = ',    &
+     &        i3.3,' Error = ',i3,/,16x,a)
+!
+!  Unpack.
+!
+      A=Areduce
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn off time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, model, 65, __LINE__,                         &
+     &                 __FILE__//":mp_reduce")
+#  endif
+
+      RETURN
+      END SUBROUTINE mp_reduce_0dp
+!
+      SUBROUTINE mp_reduce_1dp (ng, model, Asize, A, op_handle)
+!
+!***********************************************************************
+!                                                                      !
+!  This routine collects and reduces requested double precision        !
+!  variables from all nodes in the group.  Then, it broadcasts         !
+!  reduced variables to all nodes in the group.                        !
+!                                                                      !
+!  On Input:                                                           !
+!                                                                      !
+!     ng         Nested grid number.                                   !
+!     model      Calling model identifier.                             !
+!     Asize      Number of scalar variables to reduce.                 !
+!     A          Vector of scalar variables to reduce.                 !
+!     op_handle  Reduction operation handle (string).  The following   !
+!                  reduction operations are supported:                 !
+!                  'MIN', 'MAX', 'SUM'                                 !
+!                                                                      !
+!  On Output:                                                          !
+!                                                                      !
+!     A          Vector of reduced scalar variables.                   !
+!                                                                      !
+!***********************************************************************
+!
+      USE mod_param
+      USE mod_parallel
+      USE mod_iounits
+      USE mod_scalars
+!
+      implicit none
+!
+!  Imported variable declarations.
+!
+      integer, intent(in) :: ng, model, Asize
+
+      character (len=*), intent(in) :: op_handle(Asize)
+
+      real(dp), intent(inout) :: A(Asize)
+!
+!  Local variable declarations.
+!
+      integer :: Lstr, MyError, Serror
+      integer :: handle, i, rank, request
+
+      integer, dimension(0:NtileI(ng)*NtileJ(ng)-1) :: Rrequest
+
+      integer, dimension(MPI_STATUS_SIZE) :: Rstatus
+      integer, dimension(MPI_STATUS_SIZE) :: Sstatus
+
+      real(dp), dimension(Asize,0:NtileI(ng)*NtileJ(ng)-1) :: Arecv
+      real(dp), dimension(Asize) :: Areduce
+      real(dp), dimension(Asize) :: Asend
+
+      character (len=MPI_MAX_ERROR_STRING) :: string
+
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn on time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_on (ng, model, 65, __LINE__,                          &
+     &                __FILE__//":mp_reduce")
+#  endif
+!
+!-----------------------------------------------------------------------
+!  Collect and reduce requested scalar variables.
+!-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Arecv)+                   &
+     &                                   2*Asize)*KIND(A),r8))
+!
+!  Pack data to reduce.
+!
+      DO i=1,Asize
+        Asend(i)=A(i)
+      END DO
+!
+!  Collect and reduce.
+!
+#  if defined REDUCE_ALLREDUCE
+      DO i=1,Asize
+        IF (op_handle(i)(1:3).eq.'MIN') THEN
+          handle=MPI_MIN
+        ELSE IF (op_handle(i)(1:3).eq.'MAX') THEN
+          handle=MPI_MAX
+        ELSE IF (op_handle(i)(1:3).eq.'SUM') THEN
+          handle=MPI_SUM
+        END IF
+        CALL mpi_allreduce (Asend(i), Areduce(i), 1, MP_DOUBLE, handle, &
+     &                      OCN_COMM_WORLD, MyError)
+        IF (MyError.ne.MPI_SUCCESS) THEN
+          CALL mpi_error_string (MyError, string, Lstr, Serror)
+          Lstr=LEN_TRIM(string)
+          WRITE (stdout,10) 'MPI_ALLREDUCE', MyRank, MyError,           &
+     &                      string(1:Lstr)
+          exit_flag=2
+          RETURN
+        END IF
+      END DO
+#  elif defined REDUCE_ALLGATHER
+      CALL mpi_allgather (Asend, Asize, MP_DOUBLE,                      &
+     &                    Arecv, Asize, MP_DOUBLE,                      &
+     &                    OCN_COMM_WORLD, MyError)
+      IF (MyError.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_ALLGATHER', MyRank, MyError,             &
+     &                    string(1:Lstr)
+        exit_flag=2
+        RETURN
+      END IF
+      DO i=1,Asize
+        Areduce(i)=Arecv(i,0)
+        DO rank=1,NtileI(ng)*NtileJ(ng)-1
+          IF (op_handle(i)(1:3).eq.'MIN') THEN
+            Areduce(i)=MIN(Areduce(i),Arecv(i,rank))
+          ELSE IF (op_handle(i)(1:3).eq.'MAX') THEN
+            Areduce(i)=MAX(Areduce(i),Arecv(i,rank))
+          ELSE IF (op_handle(i)(1:3).eq.'SUM') THEN
+            Areduce(i)=Areduce(i)+Arecv(i,rank)
+          END IF
+        END DO
+      END DO
+#  else
+      IF (MyRank.eq.MyMaster) THEN
+        DO rank=1,NtileI(ng)*NtileJ(ng)-1
+          CALL mpi_irecv (Arecv(1,rank), Asize, MP_DOUBLE, rank,        &
+     &                    rank+500, OCN_COMM_WORLD, Rrequest(rank),     &
+     &                    MyError)
+        END DO
+        DO i=1,Asize
+          Areduce(i)=Asend(i)
+        END DO
+        DO rank=1,NtileI(ng)*NtileJ(ng)-1
+          CALL mpi_wait (Rrequest(rank), Rstatus, MyError)
+          IF (MyError.ne.MPI_SUCCESS) THEN
+            CALL mpi_error_string (MyError, string, Lstr, Serror)
+            Lstr=LEN_TRIM(string)
+            WRITE (stdout,10) 'MPI_IRECV', rank, Rerror, string(1:Lstr)
+            exit_flag=2
+            RETURN
+          END IF
+          DO i=1,Asize
+            IF (op_handle(i)(1:3).eq.'MIN') THEN
+              Areduce(i)=MIN(Areduce(i),Arecv(i,rank))
+            ELSE IF (op_handle(i)(1:3).eq.'MAX') THEN
+              Areduce(i)=MAX(Areduce(i),Arecv(i,rank))
+            ELSE IF (op_handle(i)(1:3).eq.'SUM') THEN
+              Areduce(i)=Areduce(i)+Arecv(i,rank)
+            END IF
+          END DO
+        END DO
+      ELSE
+        CALL mpi_isend (Asend, Asize, MP_DOUBLE, MyMaster, MyRank+500,  &
+     &                  OCN_COMM_WORLD, request, MyError)
+        CALL mpi_wait (request, Sstatus, MyError)
+        IF (Serror.ne.MPI_SUCCESS) THEN
+          CALL mpi_error_string (MyError, string, Lstr, Serror)
+          Lstr=LEN_TRIM(string)
+          WRITE (stdout,10) 'MPI_ISEND', MyRank, Serror, string(1:Lstr)
+          exit_flag=2
+          RETURN
+        END IF
+      END IF
+!
+!  Broadcast reduced variables from process to all processes in the
+!  group.
+!
+      CALL mpi_bcast (Areduce, Asize, MP_DOUBLE, MyMaster,              &
+     &                OCN_COMM_WORLD, MyError)
+      IF (Serror.ne.MPI_SUCCESS) THEN
+        CALL mpi_error_string (MyError, string, Lstr, Serror)
+        Lstr=LEN_TRIM(string)
+        WRITE (stdout,10) 'MPI_BCAST', MyRank, MyError, string(1:Lstr)
+        exit_flag=2
+        RETURN
+      END IF
+#  endif
+ 10   FORMAT (/,' MP_REDUCE_1DP - error during ',a,' call, Node = ',    &
+     &        i3.3,' Error = ',i3,/,16x,a)
+!
+!  Unpack.
+!
+      DO i=1,Asize
+        A(i)=Areduce(i)
+      END DO
+#  ifdef PROFILE
+!
+!-----------------------------------------------------------------------
+!  Turn off time clocks.
+!-----------------------------------------------------------------------
+!
+      CALL wclock_off (ng, model, 65, __LINE__,                         &
+     &                 __FILE__//":mp_reduce")
+#  endif
+
+      RETURN
+      END SUBROUTINE mp_reduce_1dp
+# endif
+!
       SUBROUTINE mp_reduce_0d (ng, model, Asize, A, op_handle)
 !
 !***********************************************************************
@@ -5264,6 +5915,11 @@
 !  Collect and reduce requested scalar variables.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Arecv)+                   &
+     &                                   2*Asize)*KIND(A),r8))
+!
 !  Pack data to reduce.
 !
       DO i=1,Asize
@@ -5458,6 +6114,11 @@
 !  Reduce requested variables and qualifiers.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Areduce)+                 &
+     &                                   SIZE(Asend))*KIND(A),r8))
+!
 !  Pack and reduce.
 !
       DO j=1,Jsize
@@ -5519,7 +6180,7 @@
 !***********************************************************************
 !                                                                      !
 !  This routine broadcasts input global data, packed as 1D real array, !
-!  to each spawned MPI node.  Because this routine is also used by the !
+!  to each spawned mpi node.  Because this routine is also used by the !
 !  adjoint model,  the ghost-points in the halo region are NOT updated !
 !  in the ouput tile array (Awrk).  It is used by the  master node  to !
 !  scatter input global data to each tiled node.                       !
@@ -5600,6 +6261,10 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
@@ -5788,7 +6453,7 @@
 !***********************************************************************
 !                                                                      !
 !  This routine broadcasts input global data, packed as 1D real array, !
-!  to each spawned MPI node.  Because this routine is also used by the !
+!  to each spawned mpi node.  Because this routine is also used by the !
 !  adjoint model,  the ghost-points in the halo region are NOT updated !
 !  in the ouput tile array (Awrk).  It is used by the  master node  to !
 !  scatter input global data to each tiled node.                       !
@@ -5871,6 +6536,10 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(SIZE(Arecv)*KIND(A),r8))
 !
 !  Set full grid first and last point according to staggered C-grid
 !  classification. Notice that the offsets are for the private array
@@ -6079,7 +6748,7 @@
 !     model      Calling model identifier.                             !
 !     Mstr       Threaded array lower bound.                           !
 !     Mend       Threaded array upper bound.                           !
-!     Asize      Size of the .                                         !
+!     Asize      Size of array A.                                      !
 !     A          Threaded 1D array process.                            !
 !                                                                      !
 !  On Output:                                                          !
@@ -6132,6 +6801,10 @@
 !-----------------------------------------------------------------------
 !  Collect data blocks from all nodes and scatter the data to all nodes.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL(Asize*KIND(A),r8))
 !
 !  All nodes have distinct pieces of the data and zero everywhere else.
 !  So the strategy here is for the master node to receive the data from
@@ -6427,6 +7100,12 @@
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
 !
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Aglobal)+                 &
+     &                                   SIZE(Arecv))*KIND(Asend),r8))
+!
 !  Number of nodes in the group.
 !
       Nnodes=NtileI(ng)*NtileJ(ng)-1
@@ -6633,6 +7312,12 @@
 !  Set horizontal starting and ending indices for parallel domain
 !  partitions in the XI- and ETA-directions.
 !-----------------------------------------------------------------------
+!
+!  Maximum automatic buffer memory size in bytes.
+!
+      BmemMax(ng)=MAX(BmemMax(ng), REAL((SIZE(Asend)+                   &
+     &                                   SIZE(Aglobal)+                 &
+     &                                   SIZE(Arecv))*KIND(Asend),r8))
 !
 !  Number of nodes in the group.
 !

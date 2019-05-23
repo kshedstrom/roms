@@ -446,7 +446,7 @@
 
 #include "set_bounds.h"
 
-      CALL caldate(tdays(ng), dd_i=iday, h_r8=hour)
+      CALL caldate(tdays(ng), dd_i=iday, h_dp=hour)
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)
@@ -722,8 +722,7 @@
 
           hfus1(i,j) = hfus*(1.0_r8-brnfr(i,j))+t0mk(i,j)*cpw           &
      &         -((1.0_r8-brnfr(i,j))*cpi+brnfr(i,j)*cpw)*ti(i,j,linew)
-! This should only happen if salt_top clipping is in play:
-! Try clipping temp_top too.
+! This should only happen if salt_top clipping is in play
 !         IF (temp_top(i,j) .le. tfz)                                   &
 !    &             wao(i,j) = qao_n(i,j)/(hfus1(i,j)*rhosw)
           IF (temp_top(i,j) .le. tfz) temp_top(i,j) = tfz

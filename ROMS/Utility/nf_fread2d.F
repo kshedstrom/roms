@@ -79,7 +79,7 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: Vsize(4)
 
-      real(r8), intent(in)  :: Ascl
+      real(dp), intent(in)  :: Ascl
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -515,6 +515,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonp,                               &
      &                   GRID(ng) % latp,                               &
      &                   A)
@@ -524,6 +525,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonr,                               &
      &                   GRID(ng) % latr,                               &
      &                   A)
@@ -533,6 +535,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonu,                               &
      &                   GRID(ng) % latu,                               &
      &                   A)
@@ -542,6 +545,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonv,                               &
      &                   GRID(ng) % latv,                               &
      &                   A)
@@ -552,6 +556,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonr,                               &
      &                   GRID(ng) % latr,                               &
      &                   A)
@@ -619,7 +624,7 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: Vsize(4)
 
-      real(r8), intent(in)  :: Ascl
+      real(dp), intent(in)  :: Ascl
       real(r8), intent(out) :: Amin
       real(r8), intent(out) :: Amax
 
@@ -963,6 +968,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonp,                               &
      &                   GRID(ng) % latp,                               &
      &                   A)
@@ -972,6 +978,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonr,                               &
      &                   GRID(ng) % latr,                               &
      &                   A)
@@ -981,6 +988,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonu,                               &
      &                   GRID(ng) % latu,                               &
      &                   A)
@@ -990,6 +998,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonv,                               &
      &                   GRID(ng) % latv,                               &
      &                   A)
@@ -1000,6 +1009,7 @@
      &                   Ilen, Jlen, Awrk, Amin, Amax,                  &
      &                   LBi, UBi, LBj, UBj,                            &
      &                   Imin, Imax, Jmin, Jmax,                        &
+     &                   GRID(ng) % MyLon,                              &
      &                   GRID(ng) % lonr,                               &
      &                   GRID(ng) % latr,                               &
      &                   A)

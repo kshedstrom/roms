@@ -286,6 +286,9 @@ contains
 # if defined BEST_NPZ && defined CLIM_ICE_1D
       USE mod_clima
 # endif
+# ifdef ICE_BOX
+      USE dateclock_mod,   ONLY : caldate
+# endif
 
       USE exchange_2d_mod
 # ifdef DISTRIBUTE
@@ -546,8 +549,7 @@ contains
 !  Local variable declarations.
 !
       integer :: i, j, listp
-      integer :: iday, month, year
-      real(r8) :: hour, yday
+      integer :: month
 
       real(r8), parameter :: eps = 1.0E-20_r8
       real(r8), parameter :: r3 = 1.0_r8/3.0_r8
@@ -795,7 +797,7 @@ contains
 #endif
 
 #ifdef ICE_BOX
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), mmi=month)
 #endif
 
       Hscale = rho0*Cp

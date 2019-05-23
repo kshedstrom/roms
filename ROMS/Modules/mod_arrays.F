@@ -43,9 +43,6 @@
 #ifdef NESTING
       USE mod_nesting, ONLY : allocate_nesting, initialize_nesting
 #endif
-#if defined ASSIMILATION || defined NUDGING
-      USE mod_obs, ONLY : allocate_obs, initialize_obs
-#endif
       USE mod_ocean, ONLY : allocate_ocean, initialize_ocean
 #if defined SEDIMENT || defined BBL_MODEL
       USE mod_sedbed, ONLY : allocate_sedbed, initialize_sedbed
@@ -76,10 +73,11 @@
 !  Local variable declarations.
 !
       logical :: LallocateClima
-
+!
       integer :: ng, thread, tile
+      integer :: IminS, ImaxS, JminS, JmaxS
       integer :: LBi, UBi, LBj, UBj, LBij, UBij
-
+!
       integer, parameter :: model = 0
 
 #ifdef PROFILE
@@ -154,9 +152,6 @@
           CALL allocate_forces (ng, LBi, UBi, LBj, UBj)
           CALL allocate_grid (ng, LBi, UBi, LBj, UBj, LBij, UBij)
           CALL allocate_mixing (ng, LBi, UBi, LBj, UBj)
-#if defined ASSIMILATION || defined NUDGING
-          CALL allocate_obs (ng, LBi, UBi, LBj, UBj)
-#endif
           CALL allocate_ocean (ng, LBi, UBi, LBj, UBj)
 #if defined SEDIMENT || defined BBL_MODEL
           CALL allocate_sedbed (ng, LBi, UBi, LBj, UBj)
@@ -233,9 +228,6 @@
           CALL initialize_forces (ng, tile, model)
           CALL initialize_grid (ng, tile, model)
           CALL initialize_mixing (ng, tile, model)
-#if defined ASSIMILATION || defined NUDGING
-          CALL initialize_obs (ng, tile)
-#endif
           CALL initialize_ocean (ng, tile, model)
 #if defined SEDIMENT || defined BBL_MODEL
           CALL initialize_sedbed (ng, tile, model)
@@ -264,6 +256,6 @@
 !$OMP BARRIER
       END DO
 #endif
-
+!
       RETURN
       END SUBROUTINE mod_arrays

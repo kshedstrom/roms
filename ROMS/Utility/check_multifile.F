@@ -40,7 +40,7 @@
 
       integer :: Fcount, Nfiles, i, ifile, lstr
 
-      real(r8) :: Tfinal, Tmax, Tmin, Tscale
+      real(dp) :: Tfinal, Tmax, Tmin, Tscale
 
       character (len=1), parameter :: blank = ' '
       character (len= 22) :: F_code, I_code, Tmin_code, Tmax_code
@@ -554,7 +554,7 @@
       USE mod_netcdf
       USE mod_scalars
 !
-      USE strings_mod, ONLY : FoundError
+      USE strings_mod, ONLY : FoundError, lowercase
 !
       implicit none
 !
@@ -566,7 +566,7 @@
 
       character (*), intent(in) :: ncname
 
-      real(r8), intent(out) :: Tmin, Tmax, Tscale
+      real(dp), intent(out) :: Tmin, Tmax, Tscale
 !
 !  Local variable declarations.
 !
@@ -613,7 +613,7 @@
 !  'time' in the variable name.
 !
       DO i=1,n_var
-        IF ((INDEX(TRIM(var_name(i)),'time').ne.0).and.                 &
+        IF ((INDEX(TRIM(lowercase(var_name(i))),'time').ne.0).and.      &
      &            (var_ndim(i).eq.1)) THEN
           TvarName=TRIM(var_name(i))
           foundit=.TRUE.

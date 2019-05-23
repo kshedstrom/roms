@@ -481,7 +481,9 @@
 # ifdef MASKING
                 bry_val=bry_val*GRID(ng)%umask(Istr,j)
 # endif
-                BRY_CONTACT(ieast,cr)%Mflux(j)=cff*bry_val
+# ifdef NESTING_DEBUG
+                BRY_CONTACT(iwest,cr)%Mflux(j)=cff*bry_val
+# endif
                 ubar(Istr,j,kout)=bry_val
               END DO
             END IF
@@ -852,7 +854,9 @@
 # ifdef MASKING
                 bry_val=bry_val*GRID(ng)%umask(Iend+1,j)
 # endif
+# ifdef NESTING_DEBUG
                 BRY_CONTACT(ieast,cr)%Mflux(j)=cff*bry_val
+# endif
                 ubar(Iend+1,j,kout)=bry_val
               END DO
             END IF

@@ -2,7 +2,7 @@
       SUBROUTINE biology (ng,tile)
 !
 !========================================== Alexander F. Shchepetkin ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the biological sources and sinks and adds     !
@@ -361,7 +361,7 @@
 !----------------------
 #include "set_bounds.h"
 !
-      CALL caldate(tdays(ng), yd_r8=yday)
+      CALL caldate(tdays(ng), yd_dp=yday)
       dtdays = dt(ng)*sec2day/REAL(BioIter(ng),r8)
       k_phy = k_chl / ccr
 !

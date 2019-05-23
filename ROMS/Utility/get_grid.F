@@ -61,7 +61,7 @@
 #endif
       integer :: Vsize(4)
 
-      real(r8), parameter :: Fscl = 1.0_r8
+      real(dp), parameter :: Fscl = 1.0_dp
 
       real(r8) :: Fmax, Fmin
 
@@ -349,7 +349,7 @@
      &                        var_name(it), var_id(it),                 &
      &                        0, gtype, Vsize,                          &
      &                        LBi, UBi, LBj, UBj,                       &
-     &                        Fscl, hmin(ng), hmax(ng),                 &
+     &                        Fscl, Fmin, Fmax,                         &
 # ifdef MASKING
      &                        GRID(ng) % rmask,                         &
 # endif
@@ -363,6 +363,13 @@
               ioerror=status
               EXIT
             ELSE
+# ifdef SINGLE_PRECISION
+              Hmin(ng)=REAL(Fmin,dp)
+              Hmax(ng)=REAL(Fmax,dp)
+# else
+              Hmin(ng)=Fmin
+              Hmax(ng)=Fmax
+# endif
               IF (Master) THEN
                 WRITE (stdout,30) 'bathymetry at RHO-points: h',        &
      &                            ng, TRIM(ncname), hmin(ng), hmax(ng)

@@ -70,6 +70,7 @@
       USE mod_ocean
 # ifdef ICE_MODEL
       USE mod_ice
+      USE dateclock_mod,   ONLY : caldate
 # endif
 # ifdef EVAP_SHALLOW
       USE mod_coupling
@@ -608,8 +609,7 @@
 !  Local variable declarations.
 !
       integer :: Iter, i, j, k, listp
-      integer :: iday, month, year
-      real(r8) :: hour, yday
+      integer :: month
       integer, parameter :: IterMax = 3
 
       real(r8), parameter :: eps = 1.0E-20_r8
@@ -764,7 +764,7 @@
 #endif
 
 #ifdef ICE_BOX
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), mmi=month)
 #endif
 
       DO j=Jstr-1,JendR
@@ -1781,7 +1781,8 @@
 !
 !  Imported variable declarations.
 !
-      real(r8), intent(in) :: ZoL, pi
+      real(dp), intent(in) :: pi
+      real(r8), intent(in) :: ZoL
 !
 !  Local variable declarations.
 !
@@ -1845,7 +1846,8 @@
 !
 !  Imported variable declarations.
 !
-      real(r8), intent(in) :: ZoL, pi
+      real(dp), intent(in) :: pi
+      real(r8), intent(in) :: ZoL
 !
 !  Local variable declarations.
 !

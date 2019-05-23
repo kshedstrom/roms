@@ -237,63 +237,132 @@
 !  Allocate I/O files management, derived type structures.
 !-----------------------------------------------------------------------
 !
-      allocate ( ADM(Ngrids) )
-      allocate ( ADS(Ngrids) )
-      allocate ( AVG(Ngrids) )
-      allocate ( AVG2(Ngrids) )
-      allocate ( BLK(Ngrids) )
-      allocate ( DAI(Ngrids) )
-      allocate ( DAV(Ngrids) )
-      allocate ( DIA(Ngrids) )
-      allocate ( ERR(Ngrids) )
+      IF (.not.allocated(ADM)) THEN
+        allocate ( ADM(Ngrids) )
+      END IF
+      IF (.not.allocated(ADS)) THEN
+        allocate ( ADS(Ngrids) )
+      END IF
+      IF (.not.allocated(AVG)) THEN
+        allocate ( AVG(Ngrids) )
+      END IF
+      IF (.not.allocated(AVG2)) THEN
+        allocate ( AVG2(Ngrids) )
+      END IF
+      IF (.not.allocated(BLK)) THEN
+        allocate ( BLK(Ngrids) )
+      END IF
+      IF (.not.allocated(DAI)) THEN
+        allocate ( DAI(Ngrids) )
+      END IF
+      IF (.not.allocated(DAV)) THEN
+        allocate ( DAV(Ngrids) )
+      END IF
+      IF (.not.allocated(DIA)) THEN
+        allocate ( DIA(Ngrids) )
+      END IF
+      IF (.not.allocated(ERR)) THEN
+        allocate ( ERR(Ngrids) )
+      END IF
 #ifdef FILTERED_RST
 # ifdef GLACIER_BAY
 ! Not sure what this is all about, but was getting seg faults.
-      allocate ( FIL(10,Ngrids) )
+      IF (.not. allocated(FIL)) allocate ( FIL(10,Ngrids) )
 # else
 ! Ditto
-      allocate ( FIL(10,Ngrids) )
+      IF (.not. allocated(FIL)) allocate ( FIL(10,Ngrids) )
 # endif
 #endif
 #ifdef NEMURO_SAN
-      allocate ( FISH(Ngrids) )
-      allocate ( FLEET(Ngrids) )
-      allocate ( PRED(Ngrids) )
+      IF (.not.allocated(FISH)) THEN
+        allocate ( FISH(Ngrids) )
+      END IF
+      IF (.not.allocated(FLEET)) THEN
+        allocate ( FLEET(Ngrids) )
+      END IF
+      IF (.not.allocated(PRED)) THEN
+        allocate ( PRED(Ngrids) )
+      END IF
 #endif
-      allocate ( FLT(Ngrids) )
-      allocate ( FWD(Ngrids) )
-      allocate ( GRD(Ngrids) )
-      allocate ( GST(Ngrids) )
-      allocate ( HAR(Ngrids) )
-      allocate ( HIS(Ngrids) )
-      allocate ( HSS(Ngrids) )
-      allocate ( IAD(Ngrids) )
-      allocate ( INI(Ngrids) )
-      allocate ( IRP(Ngrids) )
-      allocate ( ITL(Ngrids) )
-      allocate ( LCZ(Ngrids) )
-      allocate ( LZE(Ngrids) )
-      allocate ( NUD(Ngrids) )
-      allocate ( OBS(Ngrids) )
-      allocate ( QCK(Ngrids) )
-      allocate ( RST(Ngrids) )
-      allocate ( STA(Ngrids) )
-      allocate ( TIDE(Ngrids) )
-      allocate ( TLF(Ngrids) )
-      allocate ( TLM(Ngrids) )
-      allocate ( TMS(Ngrids) )
+      IF (.not.allocated(FLT)) THEN
+        allocate ( FLT(Ngrids) )
+      END IF
+      IF (.not.allocated(FWD)) THEN
+        allocate ( FWD(Ngrids) )
+      END IF
+      IF (.not.allocated(GRD)) THEN
+        allocate ( GRD(Ngrids) )
+      END IF
+      IF (.not.allocated(GST)) THEN
+        allocate ( GST(Ngrids) )
+      END IF
+      IF (.not.allocated(HAR)) THEN
+        allocate ( HAR(Ngrids) )
+      END IF
+      IF (.not.allocated(HIS)) THEN
+        allocate ( HIS(Ngrids) )
+      END IF
+      IF (.not.allocated(HSS)) THEN
+        allocate ( HSS(Ngrids) )
+      END IF
+      IF (.not.allocated(IAD)) THEN
+        allocate ( IAD(Ngrids) )
+      END IF
+      IF (.not.allocated(INI)) THEN
+        allocate ( INI(Ngrids) )
+      END IF
+      IF (.not.allocated(IRP)) THEN
+        allocate ( IRP(Ngrids) )
+      END IF
+      IF (.not.allocated(ITL)) THEN
+        allocate ( ITL(Ngrids) )
+      END IF
+      IF (.not.allocated(LCZ)) THEN
+        allocate ( LCZ(Ngrids) )
+      END IF
+      IF (.not.allocated(LZE)) THEN
+        allocate ( LZE(Ngrids) )
+      END IF
+      IF (.not.allocated(NUD)) THEN
+        allocate ( NUD(Ngrids) )
+      END IF
+      IF (.not.allocated(OBS)) THEN
+        allocate ( OBS(Ngrids) )
+      END IF
+      IF (.not.allocated(QCK)) THEN
+        allocate ( QCK(Ngrids) )
+      END IF
+      IF (.not.allocated(RST)) THEN
+        allocate ( RST(Ngrids) )
+      END IF
+      IF (.not.allocated(STA)) THEN
+        allocate ( STA(Ngrids) )
+      END IF
+      IF (.not.allocated(TIDE)) THEN
+        allocate ( TIDE(Ngrids) )
+      END IF
+      IF (.not.allocated(TLF)) THEN
+        allocate ( TLF(Ngrids) )
+      END IF
+      IF (.not.allocated(TLM)) THEN
+        allocate ( TLM(Ngrids) )
+      END IF
 
-      allocate ( NRM(4,Ngrids) )
-      allocate ( STD(4,Ngrids) )
+      IF (.not.allocated(NRM)) THEN
+        allocate ( NRM(4,Ngrids) )
+      END IF
+      IF (.not.allocated(STD)) THEN
+        allocate ( STD(4,Ngrids) )
+      END IF
 !
 !-----------------------------------------------------------------------
 !  Allocate variables.
 !-----------------------------------------------------------------------
 !
-      allocate ( nBCfiles(Ngrids) )
-      allocate ( nCLMfiles(Ngrids) )
-      allocate ( nFfiles(Ngrids) )
-      allocate ( nSSFfiles(Ngrids) )
+      IF (.not. allocated(nBCfiles)) allocate ( nBCfiles(Ngrids) )
+      IF (.not. allocated(nCLMfiles)) allocate ( nCLMfiles(Ngrids) )
+      IF (.not. allocated(nFfiles)) allocate ( nFfiles(Ngrids) )
+      IF (.not. allocated(nSSFfiles)) allocate ( nSSFfiles(Ngrids) )
 !
 !-----------------------------------------------------------------------
 !  Initialize I/O NetCDF files ID to close state.

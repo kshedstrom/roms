@@ -92,6 +92,7 @@
       USE interp_floats_mod
 # ifdef DIAPAUSE
       USE interp_floats_diapW_mod
+      USE dateclock_mod,   ONLY : caldate
 # endif
 !
 # ifdef FLOAT_BIOLOGY
@@ -154,8 +155,8 @@
 !      logical :: downward , upward
       real(r8) :: RiseStart,RiseEnd,SinkStart,SinkEnd
       real(r8) :: wNCsink,wNCrise
-      integer :: iday, month, year
-      real(r8) :: yday, hour, dtdays,cff,diapW
+      real(dp) :: yday, dtdays
+      real(r8) :: cff,diapW
       integer :: FloatPhase
 # endif
 
@@ -166,7 +167,7 @@
       real(r8), dimension(Nfloats(ng)*NFV(ng)*(NFT+1)) :: Fwrk
 # endif
 # ifdef DIAPAUSE
-      CALL caldate (r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate (tdays(ng), yd_dp=yday)
 # endif
 !
 !  Set tile array bounds.

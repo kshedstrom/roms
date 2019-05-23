@@ -119,11 +119,12 @@
       integer :: Nrec, mySize, ncINPid, nvatts, nvdim, status, varid
       integer :: Vsize(4), start(4), total(4)
 
-      real(r8), parameter :: Fscl = 1.0_r8
+      real(dp), parameter :: Fscl = 1.0_r8
 
-      real(r8) :: Fmax, Fmin, INPtime, Tmax, scale, time_scale
+      real(dp) :: INPtime, Tmax, scale, time_scale
+      real(r8) :: Fmax, Fmin
 
-      real(r8), allocatable :: TimeVar(:)
+      real(dp), allocatable :: TimeVar(:)
 
       character (len=6 ) :: string
       character (len=15) :: Tstring, attnam, tvarnam
@@ -324,13 +325,13 @@
 !
 !  Set input time scale by looking at the "units" attribute.
 !
-      time_scale=0.0_r8
+      time_scale=0.0_dp
       DO i=1,nvatts
         IF (TRIM(var_Aname(i)).eq.'units') THEN
           IF (INDEX(TRIM(var_Achar(i)),'day').ne.0) THEN
             time_scale=day2sec
           ELSE IF (INDEX(TRIM(var_Achar(i)),'second').ne.0) THEN
-            time_scale=1.0_r8
+            time_scale=1.0_dp
           END IF
         END IF
       END DO
@@ -566,7 +567,7 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,ibath)),           &
+              WRITE (stdout,80) string, TRIM(Vname(1,idbath)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
@@ -3056,7 +3057,7 @@
 !
 !  Read in ice-water momentum transfer coefficient.
 !
-          foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),    &
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idChuiw)),  &
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*r2dvar
@@ -3125,11 +3126,11 @@
             END IF
           ELSE
             IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,idS0mk)),            &
+              WRITE (stdout,80) string, TRIM(Vname(1,idS0mk)),          &
      &                          TRIM(ncname)
             END IF
             exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,               &
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
      &                     __FILE__)) THEN
               RETURN
             END IF
@@ -3137,22 +3138,22 @@
 !
 !  Read in temperature of molecular sub-layer under ice
 !
-          foundit=find_string(var_name, n_var, TRIM(Vname(1,idT0mk)),     &
+          foundit=find_string(var_name, n_var, TRIM(Vname(1,idT0mk)),   &
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*r2dvar
-            status=nf_fread2d(ng, IDmod, ncname, ncINPid,                 &
-     &                        Vname(1,idT0mk), varid, InpRec, gtype,      &
-     &                        Vsize, LBi, UBi, LBj, UBj,                  &
-     &                        Fscl, Fmin, Fmax,                           &
+            status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
+     &                        Vname(1,idT0mk), varid, InpRec, gtype,    &
+     &                        Vsize, LBi, UBi, LBj, UBj,                &
+     &                        Fscl, Fmin, Fmax,                         &
 #   ifdef MASKING
-     &                        GRID(ng) % rmask,                           &
+     &                        GRID(ng) % rmask,                         &
 #   endif
      &                        ICE(ng) % t0mk)
-            IF (FoundError(status, nf90_noerr, __LINE__,                  &
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
               IF (Master) THEN
-                WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),          &
+                WRITE (stdout,60) string, TRIM(Vname(1,idT0mk)),        &
      &                            InpRec, TRIM(ncname)
               END IF
               exit_flag=2
@@ -3182,25 +3183,25 @@
           IF (Perfect2D) THEN
             DO itrc=1,NAT
               IF (get_var(idTsur(itrc))) THEN
-                foundit=find_string(var_name, n_var,                      &
+                foundit=find_string(var_name, n_var,                    &
      &                              TRIM(Vname(1,idTsur(itrc))), varid)
                 IF (foundit) THEN
                   gtype=var_flag(varid)*r2dvar
                   scale=1.0_r8
-                  status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
-     &                              Vname(1,idTsur(itrc)), varid,         &
-     &                              InpRec, gtype, Vsize,                 &
-     &                              LBi, UBi, LBj, UBj,                   &
-     &                              scale, Fmin, Fmax,                    &
+                  status=nf_fread2d(ng, IDmod, ncname, ncINPid,         &
+     &                              Vname(1,idTsur(itrc)), varid,       &
+     &                              InpRec, gtype, Vsize,               &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              scale, Fmin, Fmax,                  &
 #   ifdef MASKING
-     &                              GRID(ng) % rmask,                     &
+     &                              GRID(ng) % rmask,                   &
 #   endif
      &                              FORCES(ng)% stflx_save(:,:,itrc))
-                  IF (FoundError(status, nf90_noerr, __LINE__,            &
+                  IF (FoundError(status, nf90_noerr, __LINE__,          &
      &                           __FILE__)) THEN
                     IF (Master) THEN
-                      WRITE (stdout,60) string,                           &
-     &                                  TRIM(Vname(1,idTsur(itrc))),      &
+                      WRITE (stdout,60) string,                         &
+     &                                  TRIM(Vname(1,idTsur(itrc))),    &
      &                                  InpRec, TRIM(ncname)
                     END IF
                     exit_flag=2
@@ -3208,18 +3209,18 @@
                     RETURN
                   ELSE
                     IF (Master) THEN
-                      WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//     &
-     &                                  ', saved stflx', Fmin, Fmax
+                      WRITE (stdout,70) TRIM(Vname(2,idTsur(itrc)))//   &
+     &                                   ', saved stflx', Fmin, Fmax
                     END IF
                   END IF
                 END IF
               ELSE
                 IF (Master) THEN
-                  WRITE (stdout,80) string, TRIM(Vname(1,idTsur(itrc))),  &
+                  WRITE (stdout,80) string, TRIM(Vname(1,idTsur(itrc))),&
      &                              TRIM(ncname)
                 END IF
                 exit_flag=4
-                IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+                IF (FoundError(exit_flag, nf90_noerr, __LINE__,         &
      &                         __FILE__)) THEN
                   RETURN
                 END IF
@@ -3229,24 +3230,24 @@
 !  Read in surface U-momentum stress.
 !
             IF (get_var(idUsms)) THEN
-              foundit=find_string(var_name, n_var, TRIM(Vname(1,idUsms)), &
-     &                            varid)
+              foundit=find_string(var_name, n_var,                      &
+     &                            TRIM(Vname(1,idUsms)), varid)
               IF (foundit) THEN
                 gtype=var_flag(varid)*u2dvar
                 scale=1.0_r8
-                status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
-     &                            Vname(1,idUsms), varid,                 &
-     &                            InpRec, gtype, Vsize,                   &
-     &                            LBi, UBi, LBj, UBj,                     &
-     &                            scale, Fmin, Fmax,                      &
+                status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
+     &                            Vname(1,idUsms), varid,               &
+     &                            InpRec, gtype, Vsize,                 &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            scale, Fmin, Fmax,                    &
 #  ifdef MASKING
-     &                            GRID(ng) % umask,                       &
+     &                            GRID(ng) % umask,                     &
 #  endif
      &                            FORCES(ng) % sustr_save)
-                IF (FoundError(status, nf90_noerr, __LINE__,              &
+                IF (FoundError(status, nf90_noerr, __LINE__,            &
      &                         __FILE__)) THEN
                   IF (Master) THEN
-                    WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),      &
+                    WRITE (stdout,60) string, TRIM(Vname(1,idUsms)),    &
      &                                InpRec, TRIM(ncname)
                   END IF
                   exit_flag=2
@@ -3254,18 +3255,18 @@
                   RETURN
                 ELSE
                   IF (Master) THEN
-                    WRITE (stdout,70) TRIM(Vname(2,idUsms))//             &
+                    WRITE (stdout,70) TRIM(Vname(2,idUsms))//           &
      &                                ', saved sustr', Fmin, Fmax
                   END IF
                 END IF
               END IF
             ELSE
               IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),          &
+                WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),        &
      &                            TRIM(ncname)
               END IF
               exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
      &                       __FILE__)) THEN
                 RETURN
               END IF
@@ -3274,24 +3275,24 @@
 !  Read in surface V-momentum stress.
 !
             IF (get_var(idVsms)) THEN
-              foundit=find_string(var_name, n_var, TRIM(Vname(1,idVsms)), &
-     &                            varid)
+              foundit=find_string(var_name, n_var,                      &
+     &                            TRIM(Vname(1,idVsms)), varid)
               IF (foundit) THEN
                 gtype=var_flag(varid)*v2dvar
                 scale=1.0_r8
-                status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
-     &                            Vname(1,idVsms), varid,                 &
-     &                            InpRec, gtype, Vsize,                   &
-     &                            LBi, UBi, LBj, UBj,                     &
-     &                            scale, Fmin, Fmax,                      &
+                status=nf_fread2d(ng, IDmod, ncname, ncINPid,           &
+     &                            Vname(1,idVsms), varid,               &
+     &                            InpRec, gtype, Vsize,                 &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            scale, Fmin, Fmax,                    &
 #  ifdef MASKING
-     &                            GRID(ng) % vmask,                       &
+     &                            GRID(ng) % vmask,                     &
 #  endif
      &                            FORCES(ng) % svstr_save)
-                IF (FoundError(status, nf90_noerr, __LINE__,              &
+                IF (FoundError(status, nf90_noerr, __LINE__,            &
      &                         __FILE__)) THEN
                   IF (Master) THEN
-                    WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),      &
+                    WRITE (stdout,60) string, TRIM(Vname(1,idVsms)),    &
      &                                InpRec, TRIM(ncname)
                   END IF
                   exit_flag=2
@@ -3299,21 +3300,21 @@
                   RETURN
                 ELSE
                   IF (Master) THEN
-                    WRITE (stdout,70) TRIM(Vname(2,idVsms))//             &
-     &                                ', saved svstr', Fmin, Fmax
+                    WRITE (stdout,70) TRIM(Vname(2,idVsms))//           &
+     &                                 ', saved svstr', Fmin, Fmax
                   END IF
                 END IF
               END IF
-            ELSE
-              IF (Master) THEN
-                WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),          &
-     &                            TRIM(ncname)
-              END IF
-              exit_flag=4
-              IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                       __FILE__)) THEN
-                RETURN
-              END IF
+            END IF
+          ELSE
+            IF (Master) THEN
+              WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),          &
+     &                          TRIM(ncname)
+            END IF
+            exit_flag=4
+            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                     __FILE__)) THEN
+              RETURN
             END IF
           END IF
 #   endif
@@ -4130,7 +4131,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -4175,7 +4176,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -4492,7 +4493,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
@@ -5087,7 +5088,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -5132,7 +5133,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -5447,7 +5448,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
@@ -7149,7 +7150,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u2dvar
-            scale=1.0_r8/rho0                   ! N/m2 (Pa) to m2/s2
+            scale=1.0_dp/rho0                   ! N/m2 (Pa) to m2/s2
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7200,7 +7201,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v2dvar
-            scale=1.0_r8/rho0                   ! N/m2 (Pa) to m2/s2
+            scale=1.0_dp/rho0                   ! N/m2 (Pa) to m2/s2
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7256,9 +7257,9 @@
             IF (foundit) THEN
               gtype=var_flag(varid)*r2dvar
               IF (itrc.eq.itemp) THEN
-                scale=1.0_r8/(rho0*Cp)        ! W/m2 to Celsius m/s
+                scale=1.0_dp/(rho0*Cp)        ! W/m2 to Celsius m/s
               ELSE
-                scale=1.0_r8
+                scale=1.0_dp
               END IF
               status=nf_fread2d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
@@ -7882,7 +7883,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*u3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idUsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7927,7 +7928,7 @@
      &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*v3dvar
-            scale=1.0_r8
+            scale=1.0_dp
             status=nf_fread3d(ng, IDmod, ncname, ncINPid,               &
      &                        Vname(1,idVsms), varid,                   &
      &                        InpRec, gtype, Vsize,                     &
@@ -7976,7 +7977,7 @@
      &                          TRIM(Vname(1,idTsur(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              scale=1.0_r8
+              scale=1.0_dp
               status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
      &                          Vname(1,idTsur(itrc)), varid,           &
      &                          InpRec, gtype, Vsize,                   &
