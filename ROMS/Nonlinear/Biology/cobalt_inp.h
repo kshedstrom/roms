@@ -11,6 +11,7 @@
       USE mod_biology
       USE mod_ncparam
       USE mod_scalars
+      USE inp_decode_mod
 !
       implicit none
 !
@@ -23,8 +24,6 @@
 !
       integer :: Npts, Nval, i, itrc, ng, status,ifield
 
-      integer :: decode_line, load_i, load_l, load_r,load_lbc
-
       integer ::  igrid, itracer,iTrcStr, iTrcEnd,nline
 
       logical, dimension(NBT,Ngrids) :: Ltrc
@@ -35,11 +34,11 @@
 #endif
       real(r8), dimension(NBT,Ngrids) :: Rbio
 
-      real(r8), dimension(200) :: Rval
+      real(dp), dimension(nRval) :: Rval
 
       character (len=40 ) :: KeyWord
       character (len=256) :: line
-      character (len=256), dimension(200) :: Cval
+      character (len=256), dimension(nCval) :: Cval
 !
 !-----------------------------------------------------------------------
 !  Initialize.
@@ -581,7 +580,7 @@
                Npts=load_r(Nval, Rval, Ngrids, lgz_ipa_mdp)
 #endif
             CASE ('TNU2')
-              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              Npts=load_r(Nval, Rval, NBT, Ngrids, Rbio)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -589,7 +588,7 @@
                 END DO
               END DO
             CASE ('TNU4')
-              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              Npts=load_r(Nval, Rval, NBT, Ngrids, Rbio)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -597,7 +596,7 @@
                 END DO
               END DO
             CASE ('AKT_BAK')
-              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              Npts=load_r(Nval, Rval, NBT, Ngrids, Rbio)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -605,7 +604,7 @@
                 END DO
               END DO
             CASE ('TNUDG')
-              Npts=load_r(Nval, Rval, NBT*Ngrids, Rbio)
+              Npts=load_r(Nval, Rval, NBT, Ngrids, Rbio)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -623,7 +622,7 @@
      &                      iTrcStr, iTrcEnd,                           &
      &                      Vname(1,idTvar(idbio(itracer))), LBC)
             CASE ('LtracerCLM')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -632,7 +631,7 @@
               END DO
 
             CASE ('LnudgeTCLM')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -640,7 +639,7 @@
                 END DO
               END DO
             CASE ('LtracerSrc')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idbio(itrc)
@@ -648,7 +647,7 @@
                 END DO
               END DO
             CASE ('Hout(idTvar)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idTvar(idbio(itrc))
@@ -662,7 +661,7 @@
                 END DO
               END DO
             CASE ('Hout(idTsur)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idTsur(idbio(itrc))
@@ -677,7 +676,7 @@
               END DO
 #ifdef BENTHIC
           CASE ('Hout(idBeTvar)')
-            Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
+            Npts=load_l(Nval, Cval,NBEN, Ngrids, Ltrc)
             DO ng=1,Ngrids
               DO itrc=1,NBEN
                 i=idBeTvar(idben(itrc))
@@ -687,7 +686,7 @@
 #endif
 #ifdef DIAGNOSTICS_BIO
             CASE ('Dout(iDbio2)')
-              Npts=load_l(Nval, Cval, NDbio2d*Ngrids, Lbio2d)
+              Npts=load_l(Nval, Cval, NDbio2d, Ngrids, Lbio2d)
               DO ng=1,Ngrids
                 DO itrc=1,NDbio2d
                   i=iDbio2(itrc)
@@ -702,7 +701,7 @@
               END DO
 ! obsolete but kept for backward compatibility with old namelist (for now)
             CASE ('Dout(iDbio3)')
-              Npts=load_l(Nval, Cval, NDbio3d*Ngrids, Lbio3d)
+              Npts=load_l(Nval, Cval, NDbio3d, Ngrids, Lbio3d)
               DO ng=1,Ngrids
                 DO itrc=1,NDbio3d
                   i=iDbio3(itrc)
@@ -1401,7 +1400,7 @@
 #endif
 #ifdef AVERAGES
             CASE ('Aout(idTvar)')
-              Npts=load_l(Nval, Cval, NBT*Ngrids, Ltrc)
+              Npts=load_l(Nval, Cval, NBT, Ngrids, Ltrc)
               DO ng=1,Ngrids
                 DO itrc=1,NBT
                   i=idTvar(idbio(itrc))
@@ -1415,7 +1414,7 @@
 # endif
 # ifdef BENTHIC
             CASE ('Aout(idBeTvar)')
-            Npts=load_l(Nval, Cval,NBEN*Ngrids, Ltrc)
+            Npts=load_l(Nval, Cval,NBEN, Ngrids, Ltrc)
             DO ng=1,Ngrids
               DO itrc=1,NBEN
                 i=idBeTvar(idben(itrc))
