@@ -121,6 +121,12 @@
 #  if defined OPTIC_MANIZZA && !defined BIO_COBALT
      &                   FORCES(ng) % chl,                              &
 #  endif
+#  if defined BULK_FLUXES || defined ATM_COUPLING
+     &                   FORCES(ng) % snhflx,                           &
+#  endif
+#  if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+     &                   FORCES(ng) % EminusP,                          &
+#  endif
      &                   FORCES(ng) % stflx,                            &
      &                   FORCES(ng) % btflx)
 #  ifdef PROFILE
@@ -200,6 +206,12 @@
 #  if defined OPTIC_MANIZZA && !defined BIO_COBALT
      &                         chl,                                     &
 #  endif
+#  if defined BULK_FLUXES || defined ATM_COUPLING
+     &                         snhflx,                                  &
+#  endif
+#  if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+     &                         EminusP,                                 &
+#  endif
      &                         stflx, btflx)
 !***********************************************************************
 !
@@ -266,6 +278,12 @@
 #   endif
 #   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:,LBj:)
+#   endif
+#   if defined BULK_FLUXES || defined ATM_COUPLING
+      real(r8), intent(in) :: snhflx(LBi:,LBj:)
+#   endif
+#   if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+      real(r8), intent(in) :: EminusP(LBi:,LBj:)
 #   endif
 #   if defined ICESHELF
 #    ifdef SHORTWAVE
@@ -339,6 +357,12 @@
 #   if defined SSSFLX
       real(r8), intent(inout) :: sssflx(LBi:UBi,LBj:UBj)
 #   endif
+#   if defined BULK_FLUXES || defined ATM_COUPLING
+      real(r8), intent(in) :: snhflx(LBi:UBi,LBj:UBj)
+#   endif
+#   if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+      real(r8), intent(in) :: EminusP(LBi:UBi,LBj:UBj)
+#   endif
 #   if defined ICESHELF
 #    ifdef SHORTWAVE
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
@@ -392,6 +416,7 @@
 #  endif
 # endif
 
+      real(r8) :: EmP
 #  if !defined BBL_MODEL || defined ICESHELF || \
        defined LIMIT_STFLX_COOLING
       real(r8) :: cff, cff1, cff2, cff3
@@ -407,6 +432,23 @@
       real(r8), parameter :: eps = 1.e-20_r8
 
 #  include "set_bounds.h"
+
+#  if defined BULK_FLUXES || defined ATM_COUPLING
+!
+!-----------------------------------------------------------------------
+!  If air-sea parameterization and or atmospheric coupling, assign
+!  surface net heat flux (degC m/s).  During model coupling, we need
+!  to make sure that this forcing is unaltered during the coupling
+!  interval when ROMS timestep size is smaller. Notice that further
+!  manipulations to state variable stflx(:,:,itemp)are allowed below.
+!-----------------------------------------------------------------------
+!
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+          stflx(i,j,itemp)=snhflx(i,j)
+        END DO
+      END DO
+#  endif
 
 #  ifdef QCORRECTION
 !
@@ -436,7 +478,7 @@
 !-----------------------------------------------------------------------
 !
 !  Below the surface heat flux stflx(:,:,itemp) is ZERO if cooling AND
-!  the SST is cooler that the threshold.  The value is retained if
+!  the SST is cooler than the threshold.  The value is retained if
 !  warming.
 !
 !    cff3 = 0      if SST warmer than threshold (cff1) - change nothing
@@ -464,6 +506,11 @@
 !
       DO j=JstrR,JendR
         DO i=IstrR,IendR
+#   if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+          EmP=EminusP(i,j)
+#   else
+          EmP=stflx(i,j,isalt)
+#   endif
 #   if defined SCORRECTION
 #     if defined ICE_MODEL || defined CICE_MODEL
 #      ifdef NO_SCORRECTION_ICE
@@ -474,12 +521,11 @@
           IF(ai(i,j).GE.0.1_r8) fac_ice = 0.0_r8
 #endif
 #      endif
-          stflx(i,j,isalt)=stflx(i,j,isalt) -                           &
+          stflx(i,j,isalt)=EmP -                                        &
 #     ifdef NO_SCORRECTION_ICE
      &                     fac_ice*                                     &
 #     endif
      &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
-
 #       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold(ng),              &
@@ -489,7 +535,7 @@
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #       endif
 #     else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)-    &
+          stflx(i,j,isalt)=EmP*t(i,j,N(ng),nrhs,isalt)-                 &
      &                     Tnudg_SSS(ng)*Hz(i,j,N(ng))*                 &
 #       if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
@@ -522,22 +568,13 @@
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt)
 #     else
-          stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N(ng),nrhs,isalt)
+          stflx(i,j,isalt)=EmP*t(i,j,N(ng),nrhs,isalt)
 #     endif
 #     ifdef WET_DRY
           stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
 #     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#   endif
-#   ifdef SSSFLX
-          stflx(i,j,isalt)=stflx(i,j,isalt)+sssflx(i,j)
-#     ifdef WET_DRY
-          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
-#     elif defined MASKING
-          stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
-#     endif
-
 #   endif
 #   if (defined SCORRECTION || defined SRELAXATION) && \
         defined SSSFLX
@@ -547,6 +584,14 @@
           sssflx(i,j) = rmask_wet(i,j)*sssflx(i,j)
 #     elif defined MASKING
           sssflx(i,j) = rmask(i,j)*sssflx(i,j)
+#     endif
+#   endif
+#   ifdef SSSFLX
+          stflx(i,j,isalt)=stflx(i,j,isalt)+sssflx(i,j)
+#     ifdef WET_DRY
+          stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
+#     elif defined MASKING
+          stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
 #   endif
           btflx(i,j,isalt)=btflx(i,j,isalt)*t(i,j,1,nrhs,isalt)
