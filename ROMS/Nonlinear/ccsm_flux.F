@@ -567,23 +567,23 @@ contains
       real(r8) :: cawdif
       real(r8), parameter :: albw_d=0.065_r8
 # endif
-#ifdef EVAP_SHALLOW
+# ifdef EVAP_SHALLOW
       real(r8), parameter :: coef_shallow = 5.28_r8
 !     real(r8), parameter :: coef_shallow = 4.69_r8
       real(r8) :: cffe
-#endif
+# endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uair
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vair
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: i0frac
       real(r8) :: fsnow
-#ifdef ICE_BOX
+# ifdef ICE_BOX
       real(r8), parameter :: sensible_MU(12) =                          &
      &        (/ 19.1, 12.3, 11.6, 4.7, -7.3, -6.3,                     &
      &           -4.8, -6.5, -2.7, 1.6, 9.0, 12.8     /)
       real(r8), parameter :: latent_MU(12) =                            &
      &        (/ 0.0, -0.32, -0.48, -1.45, -7.4, -11.3,                &
      &           -10.3, -10.7, -6.3, -3.1, -.16, -.16   /)
-#endif
+# endif
 
 ! ------------------------------------------------------------------
 ! !DESCRIPTION:
@@ -686,17 +686,17 @@ contains
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: u10n_tmp
-#ifdef ICE_THERMO
+# ifdef ICE_THERMO
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Coef_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: RHS_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Qai
-#endif
-#ifdef ICE_MODEL
+# endif
+# ifdef ICE_MODEL
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
-#endif
+# endif
 
 !--- local functions --------------------------------
       real(r8)    :: qsat   ! function: the saturation humididty of air (kg/m^3)
@@ -767,7 +767,7 @@ contains
 !   o The saturation humidity of air at T(K): qsat(T)  (kg/m^3)
 !-------------------------------------------------------------------------------
 
-#ifdef WIND_MINUS_CURRENT
+# ifdef WIND_MINUS_CURRENT
 !
 !  Modify near-surface (2m or 10m) effective winds by subtracting the
 !  ocean surface current (J Wilkin). See:
@@ -783,25 +783,25 @@ contains
      &               0.5_r8*(v(i,j,N(ng),nrhs)+v(i,j+1,N(ng),nrhs))
         END DO
       END DO
-#endif
+# endif
 
       al2 = log(zref/ztref)
-#if defined ICE_MODEL
+# if defined ICE_MODEL
       IF (PerfectRST(ng) .and. iic(ng).eq.ntstart(ng)) THEN
         listp = liold
       ELSE
         listp = linew
       END IF
-#endif
+# endif
 
-#ifdef ICE_BOX
+# ifdef ICE_BOX
       CALL caldate(tdays(ng), mmi=month)
-#endif
+# endif
 
-#ifdef WIND_MINUS_CURRENT
+# ifdef WIND_MINUS_CURRENT
 !
 !  Modify near-surface (2m or 10m) effective winds by subtracting the
-!  ocean surface current (J Wilkin). See: 
+!  ocean surface current (J Wilkin). See:
 !
 !  Bye, J.A.T. and J.-O. Wolff, 1999: Atmosphere-ocean momentum exchange
 !     in general circulation models. J. Phys. Oceanogr. 29, 671-691.
@@ -814,7 +814,7 @@ contains
      &              0.5_r8*(v(i,j,N(ng),nrhs)+v(i,j+1,N(ng),nrhs))
         END DO
       END DO
-#else
+# else
 !
 !  Load wind components to local arrays.
 !
@@ -824,7 +824,7 @@ contains
           Vair(i,j)=Vwind(i,j)
         END DO
       END DO
-#endif
+# endif
 
       Hscale = rho0*Cp
       Hscale2 = 1.0_r8/(rho0*Cp)
@@ -1217,43 +1217,7 @@ contains
 !          SW_thru_ice(i,j) = 0.0_r8
 !#  endif
 
-#  if defined BEST_NPZ && defined ICE_BIO
-        IF (IceLog(i,j,listp).gt.0) THEN
-!only attenuate light by ice when have more than thin smear of ice
-          IF (hi(i,j,listp).le.0.1_r8) THEN
-            cff1=hi(i,j,listp)*5._r8
-          ELSE
-            cff1=0.1_r8*5._r8+(hi(i,j,listp)-0.1_r8)*1._r8
-          ENDIF
-          cff1= cff1+hsn(i,j,listp)*20._r8
-        ELSE
-          cff1 = 0
-        ENDIF
-#  else
-          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+eps)
-          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
-
-          IF (ice_thick(i,j).le.0.1_r8) THEN
-            cff1=ice_thick(i,j)*5._r8
-          ELSE
-            cff1=0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-          ENDIF
-
-          cff1= cff1+snow_thick(i,j)*20._r8
-#  endif
-
-#  ifdef ICE_BIO
-          cff2=0.5*0.02_r8*0.005*it(i,j,nstp,iIcePhL)
-          srflx(i,j)=(1.0_r8-ai(i,j,listp))*srflx(i,j)                  &
-     &            +ai(i,j,listp)*srflx(i,j)*exp(-cff1-cff2)
-          SW_thru_ice(i,j) = qi_o_n(i,j)*exp(-cff1-cff2)
-          qi_o_n(i,j) = qi_o_n(i,j)*(1.0_r8 - exp(-cff1-cff2))
-#  elif !defined ICE_BOX
-          SW_thru_ice(i,j) = qi_o_n(i,j)*exp(-cff1)
-          qi_o_n(i,j) = qi_o_n(i,j)*(1.0_r8 - exp(-cff1))
-#  else
-          SW_thru_ice(i,j) = 0.0_r8
-#  endif
+# if defined ICE_MODEL
           qao_n(i,j) = -snhflx(i,j)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -1798,7 +1762,7 @@ contains
 #ifdef WIND_MINUS_CURRENT
 !
 !  Modify near-surface (2m or 10m) effective winds by subtracting the
-!  ocean surface current (J Wilkin). See: 
+!  ocean surface current (J Wilkin). See:
 !
 !  Bye, J.A.T. and J.-O. Wolff, 1999: Atmosphere-ocean momentum exchange
 !     in general circulation models. J. Phys. Oceanogr. 29, 671-691.
