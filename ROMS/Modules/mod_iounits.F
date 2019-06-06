@@ -53,6 +53,7 @@
 !    TIDE      Input tide forcing                                      !
 !    TLF       Input/output tangent linear model impulse forcing       !
 !    TLM       Output tangent linear model history                     !
+!    TMS       Output timeseries model history                         !
 !    SSF       Input Sources/Sinks forcing (river runoff)              !
 !    STA       Output station data                                     !
 !    STD       Input error covariance standard deviations              !
@@ -347,6 +348,9 @@
       IF (.not.allocated(TLM)) THEN
         allocate ( TLM(Ngrids) )
       END IF
+      IF (.not.allocated(TMS)) THEN
+        allocate ( TMS(Ngrids) )
+      END IF
 
       IF (.not.allocated(NRM)) THEN
         allocate ( NRM(4,Ngrids) )
@@ -398,6 +402,7 @@
         STA(ng)%ncid=-1
         TLF(ng)%ncid=-1
         TLM(ng)%ncid=-1
+        TMS(ng)%ncid=-1
 
         TIDE(ng)%ncid=-1
 
@@ -498,6 +503,9 @@
 
           TLM(ng)%base(i:i)=blank
           TLM(ng)%name(i:i)=blank
+
+          TMS(ng)%base(i:i)=blank
+          TMS(ng)%name(i:i)=blank
 
           TIDE(ng)%base(i:i)=blank
           TIDE(ng)%name(i:i)=blank
