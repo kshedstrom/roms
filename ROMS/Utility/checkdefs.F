@@ -2517,14 +2517,9 @@
       Coptions(is:is+10)=' SKIP_NLM,'
 #endif
 !
-<<<<<<< HEAD
 #ifdef SNOWFALL
       IF (Master) WRITE (stdout,20) 'SNOWFALL',                         &
      &   'Surface snow accumulation on ice.'
-=======
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux'
->>>>>>> 8b790518c... src:ticket:799
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' SNOWFALL,'
 #endif
