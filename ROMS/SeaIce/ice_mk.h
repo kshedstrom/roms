@@ -446,7 +446,7 @@
 
 #include "set_bounds.h"
 
-      CALL caldate(tdays(ng), dd_i=iday, h_r8=hour)
+      CALL caldate(tdays(ng), dd_i=iday, h_dp=hour)
       DO j=Jstr,Jend
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)

@@ -539,7 +539,7 @@
 
 # ifdef FLOAT_VWALK
       allocate ( MIXING(ng) % dAktdz(LBi:UBi,LBj:UBj,N(ng)) )
-      Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d
+      Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
 # endif
 
 # if defined LMD_SKPP    || defined LMD_BKPP         || \
@@ -1026,7 +1026,7 @@
           END DO
 # endif
 # if defined TKE_MIXING
-#  if defined NN_MIXING 
+#  if defined NN_MIXING
           cff = 20.0_r8 * 1.0d-20
           DO k=0,N(ng)
             DO i=Imin,Imax

@@ -12,6 +12,7 @@
       USE mod_scalars
       USE mod_stepping
       USE exchange_2d_mod
+      USE dateclock_mod,   ONLY : caldate
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
@@ -19,7 +20,7 @@
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, tile, model
-      integer, intent(in) :: LBi, UBi, LBj, UBj 
+      integer, intent(in) :: LBi, UBi, LBj, UBj
 # ifdef ASSUMED_SHAPE
 #  ifdef CICE_MODEL
       real(r8), intent(in) :: ai(LBi:,LBj:)
@@ -41,8 +42,7 @@
 !  Local variable declarations.
 !
       integer :: i, j
-      integer :: iday, month, year
-      real(r8) :: hour, yday
+      integer :: month
 
 !----------------------------------------------------------------------
 ! Values for Barrow from Walsh et al., 2009, J. Climate.
@@ -65,7 +65,7 @@
 !
 !----------------------------------------------------------------------
 !
-      CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
+      CALL caldate(tdays(ng), mm_i=month)
       fac1 = lw_off(month)/(rho0*Cp)
       fac2 = sw_off(month)/(rho0*Cp)
       DO j=JstrR,JendR

@@ -1122,7 +1122,7 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, MT*Ngrids, Ladsen)
+              Npts=load_l(Nval, Cval, MT, Ngrids, Ladsen)
               k=0
               DO ng=1,Ngrids
                 DO itrc=1,MT
@@ -1192,7 +1192,7 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, MT*Ngrids, Ladsen)
+              Npts=load_l(Nval, Cval, MT, Ngrids, Ladsen)
               k=0
               DO ng=1,Ngrids
                 DO itrc=1,MT
@@ -1229,7 +1229,7 @@
                 exit_flag=5
                 RETURN
               END IF
-              Npts=load_l(Nval, Cval, MT*Ngrids, Ladsen)
+              Npts=load_l(Nval, Cval, MT, Ngrids, Ladsen)
               k=0
               DO ng=1,Ngrids
                 DO itrc=1,MT
@@ -2678,7 +2678,7 @@
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Aout2(idv3dN,1:Ngrids)=Lswitch(1:Ngrids)
             CASE ('Aout2(idTvar)')
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, NAT, Ngrids, Ltracer)
               DO ng=1,Ngrids
                 DO itrc=1,NAT
                   i=idTvar(itrc)
@@ -2724,7 +2724,7 @@
 #  endif
 # endif
             CASE ('Aout2(idTsur)')
-              Npts=load_l(Nval, Cval, NAT*Ngrids, Ltracer)
+              Npts=load_l(Nval, Cval, NAT, Ngrids, Ltracer)
               DO ng=1,Ngrids
                 DO itrc=1,NAT
                   i=idTsur(itrc)
@@ -2772,7 +2772,7 @@
               Aout2(id3dPV,1:Ngrids)=Lswitch(1:Ngrids)
 # if defined SOLVE3D && defined T_PASSIVE
             CASE ('Aout2(inert)')
-              Npts=load_l(Nval, Cval, NPT*Ngrids, Linert)
+              Npts=load_l(Nval, Cval, NPT, Ngrids, Linert)
               DO ng=1,Ngrids
                 DO i=1,NPT
                   itrc=idTvar(inert(i))

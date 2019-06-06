@@ -157,7 +157,7 @@
 #endif
 #ifdef AKTCLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                     &
-     &   'Processing AKt climatology data.'
+     &   'Processing AKt climatology data'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' AKTCLIMATOLOGY,'
 #endif
@@ -170,37 +170,37 @@
 #endif
 #if defined ALBEDO_CLOUD
       IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                     &
-     &   'Albedo as a function of cloudiness.'
+     &   'Albedo as a function of cloudiness'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CLOUD,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
-     &   'Albedo computed according to CSIM3.'
+     &   'Albedo computed according to CSIM3'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_CSIM,'
 #endif
 #if defined ALBEDO_CURVE
       IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
-     &   'Shortwave radiation adjusted by albedo curve.'
+     &   'Shortwave radiation adjusted by albedo curve'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
 #endif
 #if defined ALBEDO_FILE
       IF (Master) WRITE (stdout,20) 'ALBEDO_FILE',                      &
-     &   'Albedo read from a forcing file.'
+     &   'Albedo read from a forcing file'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_FILE,'
 #endif
 #ifdef ANA_AICLIMA
       IF (Master) WRITE (stdout,20) 'ANA_AICLIMA',                      &
-     &   'Analytical ice tracer climatology.'
+     &   'Analytical ice tracer climatology'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_AICLIMA,'
 #endif
 #ifdef ANA_ALBEDO
       IF (Master) WRITE (stdout,20) 'ANA_ALBEDO',                       &
-     &   'Analytical surface albedo.'
+     &   'Analytical surface albedo'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_ALBEDO,'
 #endif
@@ -291,7 +291,7 @@
 #endif
 #ifdef ANA_ICE
       IF (Master) WRITE (stdout,20) 'ANA_ICE',                          &
-     &   'Analytical ice initial conditions.'
+     &   'Analytical ice initial conditions'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ANA_ICE,'
 #endif
@@ -304,7 +304,7 @@
 #endif
 #ifdef ANA_LRFLUX
       IF (Master) WRITE (stdout,20) 'ANA_LRFLUX',                       &
-     &   'Analytical incoming longwave radiation flux.'
+     &   'Analytical incoming longwave radiation flux'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ANA_LRFLUX,'
 #endif
@@ -345,7 +345,7 @@
 #endif
 #ifdef ANA_MICLIMA
       IF (Master) WRITE (stdout,20) 'ANA_MICLIMA',                      &
-     &   'Analytical ice momentum climatology.'
+     &   'Analytical ice momentum climatology'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_MICLIMA,'
 #endif
@@ -426,7 +426,7 @@
 #endif
 #if defined ANA_SNOW
       IF (Master) WRITE (stdout,20) 'ANA_SNOW',                         &
-     &   'Analytical snowfall rate.'
+     &   'Analytical snowfall rate'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' ANA_SNOW,'
 #endif
@@ -543,7 +543,7 @@
 #endif
 #if defined ARCTIC_MERRA_HACK
       IF (Master) WRITE (stdout,20) 'ARCTIC_MERRA_HACK',                &
-     &   'Tweaking MERRA over the Arctic.'
+     &   'Tweaking MERRA over the Arctic'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' ARCTIC_MERRA_HACK,'
 #endif
@@ -605,7 +605,7 @@
       Coptions(is:is+10)=' AVERAGES,'
 # ifdef AVERAGES2
       IF (Master) WRITE (stdout,20) 'AVERAGES2',                        &
-     &   'Writing out secondary time-averaged fields.'
+     &   'Writing out secondary time-averaged fields'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' AVERAGES2,'
 # endif
@@ -669,7 +669,7 @@
 #endif
 #ifdef BIO_GOANPZ
       IF (Master) WRITE(stdout,20) 'BIO_GOANPZ',                        &
-     &   'Gulf of Alaska biology from Sarah Hinckley.'
+     &   'Gulf of Alaska biology from Sarah Hinckley'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' BIO_GOANPZ,'
       ibiology=ibiology+1
@@ -691,7 +691,7 @@
 #endif
 #ifdef BIO_UMAINE
       IF (Master) WRITE (stdout,20) 'BIO_UMAINE',                       &
-     &   'UMaine CoSiNE ecosystem model.'
+     &   'UMaine CoSiNE ecosystem model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' BIO_UMAINE,'
       ibiology=ibiology+1
@@ -726,7 +726,7 @@
 #endif
 #ifdef BULK_FLUXES2D
       IF (Master) WRITE (stdout,20) 'BULK_FLUXES2D',                    &
-     &   'Surface bulk fluxes parameterization.'
+     &   'Surface bulk fluxes parameterization'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' BULK_FLUXES2D,'
 #endif
@@ -761,13 +761,13 @@
 #endif
 #ifdef CCSM_FLUXES
       IF (Master) WRITE (stdout,20) 'CCSM_FLUXES',                      &
-     &   'Surface bulk fluxes parameterization.'
+     &   'Surface bulk fluxes parameterization'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' CCSM_FLUXES,'
 #endif
 #ifdef CCSM_FLUXES2D
       IF (Master) WRITE (stdout,20) 'CCSM_FLUXES2D',                    &
-     &   'Surface bulk fluxes parameterization.'
+     &   'Surface bulk fluxes parameterization'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CCSM_FLUXES2D,'
 #endif
@@ -787,7 +787,7 @@
 #endif
 #ifdef CICE_MODEL
       IF (Master) WRITE (stdout,20) 'CICE_MODEL',                       &
-     &   'Include CICE Ice Model.'
+     &   'Include CICE Ice Model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' CICE_MODEL,'
 #endif
@@ -901,7 +901,7 @@
 #endif
 #ifdef CORE_FORCING
       IF (Master) WRITE (stdout,20) 'CORE_FORCING',                      &
-     &   'Humidity from CORE forcing files.'
+     &   'Humidity from CORE forcing files'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' CORE_FORCING,'
 #endif
@@ -977,7 +977,7 @@
 #endif
 #ifdef DIAPAUSE
       IF (Master) WRITE (stdout,20) 'DIAPAUSE',                   &
-     &   'Floats moving vertically to simulate diapause.'
+     &   'Floats moving vertically to simulate diapause'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' DIAPAUSE,'
 #endif
@@ -1014,7 +1014,7 @@
 #ifdef DOUBLE_PRECISION
 !
       IF (Master) WRITE (stdout,20) 'DOUBLE_PRECISION',                 &
-     &   'Double precision arithmetic numerical kernel.'
+     &   'Double precision arithmetic numerical kernel'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' DOUBLE_PRECISION,'
 #endif
@@ -1071,19 +1071,19 @@
 #endif
 #ifdef FASTICE_CLIMATOLOGY
       IF (Master) WRITE(stdout,20) 'FASTICE_CLIMATOLOGY',               &
-     &   'Climatology of landfast ice.'
+     &   'Climatology of landfast ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+21)=' FASTICE_CLIMATOLOGY,'
 #endif
 #ifdef FILTERED
       IF (Master) WRITE(stdout,20) 'FILTERED',                          &
-     &   'Writing out time-filtered output.'
+     &   'Writing out time-filtered output'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' FILTERED,'
 #endif
 #ifdef FILTERED_RST
       IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
-     &   'Writing out time-filtered output.'
+     &   'Writing out time-filtered output'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' FILTERED_RST,'
 #endif
@@ -1205,7 +1205,7 @@
 #endif
 #ifdef GLOBAL_PERIODIC
       IF (Master) WRITE (stdout,20) 'GLOBAL_PERIODIC',                  &
-     &   'Globally periodic domain when interpolating forcing.'
+     &   'Globally periodic domain when interpolating forcing'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' GLOBAL_PERIODIC,'
 #endif
@@ -1270,105 +1270,105 @@
 !
 #ifdef ICE_ADVECT
       IF (Master) WRITE (stdout,20) 'ICE_ADVECT',                       &
-     &   'Advection of ice tracers.'
+     &   'Advection of ice tracers'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_ADVECT,'
 #endif
 !
 #ifdef ICE_ALB_EC92
       IF (Master) WRITE (stdout,20) 'ICE_ALB_EC92',                     &
-     &   'Ebert and Curry albedo formula.'
+     &   'Ebert and Curry albedo formula'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_ALB_EC92,'
 #endif
 !
 #ifdef ICE_BULK_FLUXES
       IF (Master) WRITE (stdout,20) 'ICE_BULK_FLUXES',                  &
-     &   'Ice bulk fluxes from the atmosphere.'
+     &   'Ice bulk fluxes from the atmosphere'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' ICE_BULK_FLUXES,'
 #endif
 !
 #ifdef ICE_CONVSNOW
       IF (Master) WRITE (stdout,20) 'ICE_CONVSNOW',                     &
-     &   'Conversion of flooded snow to ice.'
+     &   'Conversion of flooded snow to ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_CONVSNOW,'
 #endif
 !
 #ifdef ICE_DIAGS
       IF (Master) WRITE (stdout,20) 'ICE_DIAGS',                        &
-     &   'Include extra diagnostic output from sea ice.'
+     &   'Include extra diagnostic output from sea ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ICE_DIAGS,'
 #endif
 !
 #ifdef ICE_EVP
       IF (Master) WRITE (stdout,20) 'ICE_EVP',                          &
-     &   'Elastic-viscous-plastic ice rheology.'
+     &   'Elastic-viscous-plastic ice rheology'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ICE_EVP,'
 #endif
 !
 #ifdef ICE_I_O
       IF (Master) WRITE (stdout,20) 'ICE_I_O',                          &
-     &   'Put shortwave heat into ice interior.'
+     &   'Put shortwave heat into ice interior'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' ICE_I_O,'
 #endif
 !
 #ifdef ICE_LANDFAST
       IF (Master) WRITE (stdout,20) 'ICE_LANDFAST',                    &
-     &   'Lemieux shorefast ice.'
+     &   'Lemieux shorefast ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_LANDFAST,'
 #endif
 !
 #ifdef ICE_MK
       IF (Master) WRITE (stdout,20) 'ICE_MK',                           &
-     &   'Mellor-Kantha ice thermodynamics.'
+     &   'Mellor-Kantha ice thermodynamics'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ICE_MK,'
 #endif
 !
 #ifdef ICE_MODEL
       IF (Master) WRITE (stdout,20) 'ICE_MODEL',                        &
-     &   'Include sea ice model.'
+     &   'Include sea ice model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' ICE_MODEL,'
 #endif
 !
 #ifdef ICE_MOMENTUM
       IF (Master) WRITE (stdout,20) 'ICE_MOMENTUM',                     &
-     &   'Compute ice momentum equations.'
+     &   'Compute ice momentum equations'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_MOMENTUM,'
 #endif
 !
 #ifdef ICE_SHOREFAST
       IF (Master) WRITE (stdout,20) 'ICE_SHOREFAST',                    &
-     &   'Motionless shorefast ice.'
+     &   'Motionless shorefast ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ICE_SHOREFAST,'
 #endif
 !
 #ifdef ICE_SMOLAR
       IF (Master) WRITE (stdout,20) 'ICE_SMOLAR',                       &
-     &   'Advect ice tracers with MPDATA scheme.'
+     &   'Advect ice tracers with MPDATA scheme'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_SMOLAR,'
 #endif
 !
 #ifdef ICE_STRENGTH_QUAD
       IF (Master) WRITE (stdout,20) 'ICE_STRENGTH_QUAD',                &
-     &   'Ice strength a quadratic function of thickness.'
+     &   'Ice strength a quadratic function of thickness'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' ICE_STRENGTH_QUAD,'
 #endif
 !
 #ifdef ICE_THERMO
       IF (Master) WRITE (stdout,20) 'ICE_THERMO',                       &
-     &   'Include ice thermodynamics.'
+     &   'Include ice thermodynamics'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' ICE_THERMO,'
 #endif
@@ -1382,7 +1382,7 @@
 !
 #ifdef ICESHELF_3EQ
       IF (Master) WRITE (stdout,20) 'ICESHELF_3EQ',                     &
-     &   'Include 3eq Ice Shelf Thermodynamics.'
+     &   'Include 3eq Ice Shelf Thermodynamics'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICESHELF_3EQ,'
 #endif
@@ -1412,7 +1412,7 @@
 !
 #if defined INI_GLORYS_ICE
       IF (Master) WRITE (stdout,20) 'INI_GLORYS_ICE',                    &
-     &   'Ice initial conditions from GLORYS.'
+     &   'Ice initial conditions from GLORYS'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' INI_GLORYS_ICE,'
 #endif
@@ -1462,7 +1462,7 @@
 #if defined IRON_LIMIT && (NPZD_IRON || defined NEMURO || \
              defined BIO_GOANPZ || defined BIO_UMAINE)
       IF (Master) WRITE (stdout,20) 'IRON LIMITATION',                  &
-     &   'Iron limitation on phytoplankton growth.'
+     &   'Iron limitation on phytoplankton growth'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' IRON_LIMIT,'
 #endif
@@ -1518,13 +1518,13 @@
 #endif
 #if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
       IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction.'
+     &   'Limit bottom stress to maintain bottom velocity direction'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
 #if defined LIMIT_STFLX_COOLING && defined SOLVE3D
       IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
+     &   'Suppress further cooling if SST is at freezing point'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
 #endif
@@ -1538,7 +1538,7 @@
 #if defined LI_FOX_KEMPER && defined LMD_MIXING
 !
       IF (Master) WRITE (stdout,20) 'LI_FOX_KEMPER',                    &
-     &   'Enhanced mixing due to Langmuir circulation.'
+     &   'Enhanced mixing due to Langmuir circulation'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LI_FOX_KEMPER,'
 #endif
@@ -1631,7 +1631,7 @@
 #endif
 #ifdef M2TIDE_DIFF
       IF (Master) WRITE (stdout,20) 'M2TIDE_DIFF',                      &
-     &   'Add barotropic tidal mixing parameterization.'
+     &   'Add barotropic tidal mixing parameterization'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' M2TIDE_DIFF,'
 #endif
@@ -1786,7 +1786,7 @@
 #endif
 #ifdef NEMURO_SED1
       IF (Master) WRITE (stdout,20) 'NEMURO_SED1',                      &
-     &   'Nemuro with sediment remineralization type 1.'
+     &   'Nemuro with sediment remineralization type 1'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' NEMURO_SED1,'
 #endif
@@ -1799,7 +1799,7 @@
 # ifdef NESTING_DEBUG
 !
       IF (Master) WRITE (stdout,20) 'NESTING_DEBUG',                    &
-     &   'Checking mass fluxes conservation in refinement.'
+     &   'Checking mass fluxes conservation in refinement'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' NESTING_DEBUG,'
 # endif
@@ -1821,7 +1821,7 @@
 #ifdef NN_MIXING
 !
       IF (Master) WRITE (stdout,20) 'NN_MIXING',                        &
-     &   'Nakanishi and Niino turbulence closure.'
+     &   'Nakanishi and Niino turbulence closure'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' NN_MIXING,'
       ivmix=ivmix+1
@@ -1857,7 +1857,7 @@
 #endif
 #ifdef NO_HIS
       IF (Master) WRITE (stdout,20) 'NO_HIS',                           &
-     &   'Turn off writing of history files.'
+     &   'Turn off writing of history files'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' NO_HIS,'
 #endif
@@ -1877,13 +1877,13 @@
 #endif
 #if defined NO_SCORRECTION_ICE
       IF (Master) WRITE (stdout,20) 'NO_SCORRECTION_ICE',               &
-     &   'Not including SCORRECTION under the ice.'
+     &   'Not including SCORRECTION under the ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+20)=' NO_SCORRECTION_ICE,'
 #endif
 #ifdef NO_SNOW
       IF (Master) WRITE (stdout,20) 'NO_SNOW',                           &
-     &   'Turn off snow in sea-ice model.'
+     &   'Turn off snow in sea-ice model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' NO_SNOW,'
 #endif
@@ -1948,25 +1948,25 @@
 #endif
 #ifdef OCLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'OCLIMATOLOGY',                     &
-     &   'Processing omega climatology data.'
+     &   'Processing omega climatology data'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' OCLIMATOLOGY,'
 #endif
 #if defined OFFLINE_FLOATS && defined CLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'OFFLINE_FLOATS',                   &
-     &   'Offline run (use model fields from history files).'
+     &   'Offline run (use model fields from history files)'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' OFFLINE_FLOATS,'
 #endif
 #if defined OFFLINE_BIOLOGY && defined CLIMATOLOGY
       IF (Master) WRITE (stdout,20) 'OFFLINE_BIOLOGY',                  &
-     &   'Offline run (use model fields from history files).'
+     &   'Offline run (use model fields from history files)'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' OFFLINE_BIOLOGY,'
 #endif
 #if defined ONE_TRACER_SOURCE
       IF (Master) WRITE (stdout,20) 'ONE_TRACER_SOURCE',                &
-     &   'One value per tracer for all sources.'
+     &   'One value per tracer for all sources'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' ONE_TRACER_SOURCE,'
 #endif
@@ -1994,7 +1994,7 @@
 #endif
 #ifdef OUTFLOW_MASK
       IF (Master) WRITE (stdout,20) 'OUTFLOW_MASK',                     &
-     &   'Hibler-style outflow ice cells.'
+     &   'Hibler-style outflow ice cells'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' OUTFLOW_MASK,'
 #endif
@@ -2023,13 +2023,13 @@
 #endif
 #ifdef OPTIC_MANIZZA
       IF (Master) WRITE (stdout,20) 'OPTIC_MANIZZA',                     &
-     &   'Optics subroutine from Manizza.'
+     &   'Optics subroutine from Manizza'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' OPTIC_MANIZZA,'
 #endif
 #ifdef OPTIC_UMAINE
       IF (Master) WRITE (stdout,20) 'OPTIC_UMAINE',                     &
-     &   'Optics subroutine from UMaine.'
+     &   'Optics subroutine from UMaine'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' OPTIC_UMAINE,'
 #endif
@@ -2070,13 +2070,13 @@
 #if defined PARALLEL_IN && defined DISTRIBUTE
 !
       IF (Master) WRITE (stdout,20) 'PARALLEL_IN',                      &
-     &   'Parallel I/O processing.'
+     &   'Parallel I/O processing'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' PARALLEL_IN,'
 #endif
 #if defined PARALLEL_OUT && defined DISTRIBUTE
       IF (Master) WRITE (stdout,20) 'PARALLEL_OUT',                      &
-     &   'Parallel I/O processing.'
+     &   'Parallel I/O processing'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' PARALLEL_OUT,'
 #endif
@@ -2153,7 +2153,7 @@
 #endif
 #ifdef POT_TIDES
       IF (Master) WRITE (stdout,20) 'POT_TIDES',                        &
-     &   'Add tidal potential terms to the forcing.'
+     &   'Add tidal potential terms to the forcing'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' POT_TIDES,'
 #endif
@@ -2174,7 +2174,7 @@
 #endif
 #ifdef PRIMARY_PROD
       IF (Master) WRITE (stdout,20) 'PRIMARY_PROD',                      &
-     &   'Nemuro or CoSiNE Net primary production.'
+     &   'Nemuro or CoSiNE Net primary production'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' PRIMARY_PROD,'
 #endif
@@ -2338,7 +2338,7 @@
 #endif
 #ifdef RESIDENCE_TIME
       IF (Master) WRITE (stdout,20) 'RESIDENCE_TIME',                   &
-     &   'Water/tracer residence time passive tracers simulation.'
+     &   'Water/tracer residence time passive tracers simulation'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' RESIDENCE_TIME,'
 #endif
@@ -2385,13 +2385,13 @@
 #endif
 #if defined RUNOFF
       IF (Master) WRITE (stdout,20) 'RUNOFF',                           &
-     &   'Surface flux of ungauged river runoff.'
+     &   'Surface flux of ungauged river runoff'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' RUNOFF,'
 #endif
 #if defined RUNOFF_SSH
       IF (Master) WRITE (stdout,20) 'RUNOFF_SSH',                       &
-     &   'Surface flux of ungauged river runoff affecting SSH.'
+     &   'Surface flux of ungauged river runoff affecting SSH'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' RUNOFF_SSH,'
 #endif
@@ -2512,7 +2512,7 @@
 #ifdef SINGLE_PRECISION
 !
       IF (Master) WRITE (stdout,20) 'SINGLE_PRECISION',                 &
-     &   'Single precision arithmetic numerical kernel.'
+     &   'Single precision arithmetic numerical kernel'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+18)=' SINGLE_PRECISION,'
 #endif
@@ -2524,20 +2524,15 @@
       Coptions(is:is+10)=' SKIP_NLM,'
 #endif
 !
-<<<<<<< HEAD
 #ifdef SNOWFALL
       IF (Master) WRITE (stdout,20) 'SNOWFALL',                         &
-     &   'Surface snow accumulation on ice.'
-=======
-      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux'
->>>>>>> 8b790518c... src:ticket:799
+     &   'Surface snow accumulation on ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' SNOWFALL,'
 #endif
 #ifdef SNOW_FROM_RAIN
       IF (Master) WRITE (stdout,20) 'SNOW_FROM_RAIN',                   &
-     &   'Subtract snow from total precip (rain).'
+     &   'Subtract snow from total precip (rain)'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' SNOW_FROM_RAIN,'
 #endif
@@ -2616,7 +2611,7 @@
 #endif
 #ifdef SRELAXATION
       IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
-     &   'Surface salinity relaxation as surface flux.'
+     &   'Surface salinity relaxation as surface flux'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' SRELAXATION,'
 #endif
@@ -2629,7 +2624,7 @@
 #endif
 #if defined SSSC_THRESHOLD
       IF (Master) WRITE (stdout,20) 'SSSC_THRESHOLD',                   &
-     &   'Limit to SCORRECTION nudging.'
+     &   'Limit to SCORRECTION nudging'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' SSSC_THRESHOLD,'
 #endif
@@ -2700,7 +2695,7 @@
 #ifdef SVN
 !
       IF (Master) WRITE (stdout,20) 'SVN',                              &
-     &   'Use svn source code control options.'
+     &   'Use svn source code control options'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+5)=' SVN,'
 #endif
@@ -2770,7 +2765,7 @@
 #endif
 #if defined TIDES_ASTRO
       IF (Master) WRITE (stdout,20) 'TIDES_ASTRO',                      &
-     &   'Compute astronomical (long-period tide) corrections.'
+     &   'Compute astronomical (long-period tide) corrections'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIDES_ASTRO,'
 #endif
@@ -3081,7 +3076,7 @@
 #endif
 #if defined TWO_D_TRACER_SOURCE
       IF (Master) WRITE (stdout,20) 'TWO_D_TRACER_SOURCE',              &
-     &   'One value per tracer per source.'
+     &   'One value per tracer per source'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' TWO_D_TRACER_SOURCE,'
 #endif
@@ -3220,7 +3215,7 @@
 #endif
 #ifdef UV_WAVEDRAG
       IF (Master) WRITE (stdout,20) 'UV_WAVEDRAG',                      &
-     &   'Linear bottom stress from internal tidal wave drag.'
+     &   'Linear bottom stress from internal tidal wave drag'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' UV_WAVEDRAG,'
 #endif
