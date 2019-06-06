@@ -462,6 +462,7 @@
         END DO
 # endif
 # ifdef DIAGNOSTICS_BIO
+#  if defined BIO_FENNEL || defined HYPOXIA_SRM || defined BIO_COBALT
         DO idiag=1,NDbio2d
           IF (idiag.ne.ipCO2) THEN
             DO j=JstrR,JendR
@@ -472,8 +473,8 @@
             END DO
           END IF
         END DO
-# endif
-# if defined BIO_FENNEL
+#  endif
+#  if defined BIO_FENNEL || defined BIO_COBALT
         DO idiag=1,NDbio3d
           DO k=1,N(ng)
             DO j=JstrR,JendR
@@ -613,6 +614,7 @@
 #   endif
 #  endif
 #  ifdef DIAGNOSTICS_BIO
+#   if defined BIO_FENNEL || defined HYPOXIA_SRM || defined BIO_COBALT
 !
 !  Biological terms 2D diagnostics.
 !
@@ -621,15 +623,15 @@
      &                      LBi, UBi, LBj, UBj,                         &
      &                      DIAGS(ng)%DiaBio2d(:,:,idiag))
         END DO
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange3d (ng, tile, iNLM, 1,                          &
      &                      LBi, UBi, LBj, UBj, 1, NDbio2d,             &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      DIAGS(ng)%DiaBio2d)
+#    endif
 #   endif
-#  endif
-#  if defined BIO_FENNEL
+#   if defined BIO_FENNEL || defined BIO_COBALT
 !
 !  Biological terms 3D diagnostics.
 !
@@ -638,14 +640,14 @@
      &                      LBi, UBi, LBj, UBj, 1, N(ng),               &
      &                      DIAGS(ng)%DiaBio3d(:,:,:,idiag))
         END DO
-#   ifdef DISTRIBUTE
+#    ifdef DISTRIBUTE
         CALL mp_exchange4d (ng, tile, iNLM, 1,                          &
      &                      LBi, UBi, LBj, UBj, 1, N(ng), 1, NDbio3d,   &
      &                      NghostPoints,                               &
      &                      EWperiodic(ng), NSperiodic(ng),             &
      &                      DIAGS(ng)%DiaBio3d)
-#    endif
-#   elif defined ECOSIM
+#     endif
+#    elif defined ECOSIM
 !
 !  Biological terms 3D diagnostics.
 !
