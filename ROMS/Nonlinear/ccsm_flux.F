@@ -5,7 +5,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -113,7 +113,7 @@ contains
      &                     FORCES(ng) % lrflx,                          &
      &                     FORCES(ng) % shflx,                          &
      &                     FORCES(ng) % srflx,                          &
-     &                     FORCES(ng) % stflx,                          &
+     &                     FORCES(ng) % snhflx,                         &
 # ifdef CICE_MODEL
      &                     FORCES(ng) % LW_down,                        &
      &                     FORCES(ng) % SW_down,                        &
@@ -220,7 +220,7 @@ contains
      &                           h, Zt_avg1,                            &
 # endif
      &                           rain, lhflx, lrflx, shflx,             &
-     &                           srflx, stflx,                          &
+     &                           srflx, snhflx,                         &
 # ifdef CICE_MODEL
      &                           LW_down, SW_down,                      &
 # endif
@@ -344,7 +344,7 @@ contains
       real(r8), intent(inout) :: lrflx(LBi:,LBj:)
       real(r8), intent(inout) :: shflx(LBi:,LBj:)
       real(r8), intent(inout) :: srflx(LBi:,LBj:)
-      real(r8), intent(inout) :: stflx(LBi:,LBj:,:)
+      real(r8), intent(inout) :: snhflx(LBi:,LBj:)
 # ifdef CICE_MODEL
       real(r8), intent(out) :: LW_down(LBi:,LBj:)
       real(r8), intent(out) :: SW_down(LBi:,LBj:)
@@ -454,7 +454,7 @@ contains
       real(r8), intent(inout) :: lrflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: shflx(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
+      real(r8), intent(inout) :: snhflx(LBi:UBi,LBj:UBj)
 # ifdef CICE_MODEL
       real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
@@ -548,9 +548,11 @@ contains
 # endif
 #ifdef EVAP_SHALLOW
       real(r8), parameter :: coef_shallow = 5.28_r8
-!      real(r8), parameter :: coef_shallow = 4.69_r8
+!     real(r8), parameter :: coef_shallow = 4.69_r8
       real(r8) :: cffe
 #endif
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uair
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vair
 #ifdef ICE_BOX
       real(r8), parameter :: sensible_MU(12) =                          &
      &        (/ 19.1, 12.3, 11.6, 4.7, -7.3, -6.3,                     &
@@ -754,6 +756,34 @@ contains
       CALL caldate(r_date, tdays(ng), year, yday, month, iday, hour)
 #endif
 
+#ifdef WIND_MINUS_CURRENT
+!
+!  Modify near-surface (2m or 10m) effective winds by subtracting the
+!  ocean surface current (J Wilkin). See: 
+!
+!  Bye, J.A.T. and J.-O. Wolff, 1999: Atmosphere-ocean momentum exchange
+!     in general circulation models. J. Phys. Oceanogr. 29, 671-691.
+!
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          Uair(i,j)=Uwind(i,j)-                                         &
+     &              0.5_r8*(u(i,j,N(ng),nrhs)+u(i+1,j,N(ng),nrhs))
+          Vair(i,j)=Vwind(i,j)-                                         &
+     &              0.5_r8*(v(i,j,N(ng),nrhs)+v(i,j+1,N(ng),nrhs))
+        END DO
+      END DO
+#else
+!
+!  Load wind components to local arrays.
+!
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          Uair(i,j)=Uwind(i,j)
+          Vair(i,j)=Vwind(i,j)
+        END DO
+      END DO
+#endif
+
       Hscale=rho0*Cp
       Hscale2=1.0_r8/(rho0*Cp)
 ! Note that this loop needs to be cleaned of all global arrays for
@@ -761,8 +791,7 @@ contains
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           !--- compute some needed quantities ---
-          vmag   = max(umin, sqrt( (Uwind(i,j)-u(i,j,N(ng),nrhs))**2 +  &
-     &                             (Vwind(i,j)-v(i,j,N(ng),nrhs))**2) )
+          vmag   = max(umin, sqrt( (Uair(i,j)**2 + Vair(i,j)**2)) )
           TairK(i) = Tair(i,j) + 273.16_r8
           TseaK = t(i,j,N(ng),nrhs,itemp) + 273.16_r8
           thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
@@ -863,8 +892,8 @@ contains
 # endif
 
           !--- momentum flux ---
-          Taux(i,j) = tau * (Uwind(i,j)-u(i,j,N(ng),nrhs)) / vmag
-          Tauy(i,j) = tau * (Vwind(i,j)-v(i,j,N(ng),nrhs)) / vmag
+          Taux(i,j) = tau * Uair(i,j) / vmag
+          Tauy(i,j) = tau * Vair(i,j) / vmag
 # ifdef ICE_MODEL
           Taux_Ice(i,j) = rhoAir(i)*cdai(ng)*Uwind(i,j)*vmag
           Tauy_Ice(i,j) = rhoAir(i)*cdai(ng)*Vwind(i,j)*vmag
@@ -1018,19 +1047,14 @@ contains
 # endif
           lhflx(i,j) = lhflx(i,j)*Hscale2
           shflx(i,j) = shflx(i,j)*Hscale2
-          stflx(i,j,itemp) = (srflx(i,j)+lrflx(i,j)+                    &
-     &                      lhflx(i,j)+shflx(i,j))
+          snhflx(i,j) = (srflx(i,j)+lrflx(i,j)+                         &
+     &                   lhflx(i,j)+shflx(i,j))
 # ifdef EMINUSP
 !  Compute latent heat of vaporization (J/kg) at sea surface, Hlv.
           Hlv = (2.501_r8-0.00237_r8*t(i,j,N(ng),nrhs,itemp))*1.0e+6_r8
           evap(i,j) = -LHeat(i,j)/Hlv
-          stflx(i,j,isalt) = cff*(evap(i,j)-rain(i,j))
-# ifdef ICE_DIAGS
-          saltflux_ocean(i,j) = stflx(i,j,isalt)
-# endif
 #  ifdef ICE_MODEL
           evap(i,j) = (1.0_r8-ai(i,j,listp))*evap(i,j)
-          stflx(i,j,isalt) = (1.0_r8-ai(i,j,listp))*stflx(i,j,isalt)
 #  endif
 #  ifdef EVAP_SHALLOW
           cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
@@ -1041,26 +1065,9 @@ contains
 #  endif
 # endif
 # ifdef WET_DRY
-          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
 #   ifdef EMINUSP
           evap(i,j)=evap(i,j)*rmask_wet(i,j)
-          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
 #   endif
-# elif defined MASKING
-          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
-#   ifdef EMINUSP
-          evap(i,j)=evap(i,j)*rmask(i,j)
-          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
-#   endif
-# endif
-# ifdef RUNOFF
-          stflx(i,j,isalt) = stflx(i,j,isalt) -                         &
-     &                        cff*runoff(i,j)
-#  ifdef WET_DRY
-          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
-#  elif defined MASKING
-          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
-#  endif
 # endif
 
 # if defined ICE_MODEL
@@ -1104,7 +1111,7 @@ contains
 #  else
           SW_thru_ice(i,j) = 0.0_r8
 #  endif
-          qao_n(i,j) = -stflx(i,j,itemp)*Hscale
+          qao_n(i,j) = -snhflx(i,j)*Hscale
 
 ! Net precipitation - evaporation in m/s
           IF (Tair(i,j).ge.0.0) THEN
@@ -1160,7 +1167,28 @@ contains
 !         duu10n(i,j) = u10n*u10n ! 10m wind speed squared
 
 # ifdef EMINUSP
-          EminusP(i,j)=stflx(i,j,isalt)
+#  ifdef MASKING
+          evap(i,j)=evap(i,j)*rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+          evap(i,j)=evap(i,j)*rmask_wet(i,j)
+#  endif
+          EminusP(i,j)=cff*(evap(i,j)-rain(i,j))
+#  ifdef RUNOFF
+          EminusP(i,j) = EminusP(i,j) - cff*runoff(i,j)
+#  endif
+#  ifdef MASKING
+          EminusP(i,j)=EminusP(i,j)*rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+          EminusP(i,j)=EminusP(i,j)*rmask_wet(i,j)
+#  endif
+#  ifdef ICE_MODEL
+          EminusP(i,j) = (1.0_r8-ai(i,j,listp))*EminusP(i,j)
+#  endif
+#  ifdef ICE_DIAGS
+          saltflux_ocean(i,j) = EminusP(i,j)
+#  endif
 # endif
         END DO
       END DO
@@ -1213,7 +1241,7 @@ contains
      &                          shflx)
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
-     &                          stflx(:,:,itemp))
+     &                          snhflx)
 # ifdef CICE_MODEL
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1263,9 +1291,6 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          EminusP)
-        CALL exchange_r2d_tile (ng, tile,                               &
-     &                          LBi, UBi, LBj, UBj,                     &
-     &                          stflx(:,:,isalt))
 #  endif
         CALL exchange_u2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1288,8 +1313,7 @@ contains
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    lrflx, lhflx, shflx,                          &
-     &                    stflx(:,:,itemp))
+     &                    lrflx, lhflx, shflx, snhflx)
 #  ifdef CICE_MODEL
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -1317,12 +1341,11 @@ contains
 #   endif
 #  endif
 #  if defined EMINUSP || (defined ICE_MODEL && defined ICE_THERMO)
-      CALL mp_exchange2d (ng, tile, iNLM, 3,                            &
+      CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
-     &                    evap, EminusP,                                &
-     &                    stflx(:,:,isalt))
+     &                    evap, EminusP)
 #  endif
       CALL mp_exchange2d (ng, tile, iNLM, 2,                            &
      &                    LBi, UBi, LBj, UBj,                           &
@@ -1562,7 +1585,8 @@ contains
      &         (shr_const_cpwv/shr_const_cpdair)-1.0_r8
 ! latent heat of evaporation ~ J/kg
       real(r8),parameter :: shr_const_latvap  = 2.501e6_r8
-
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uair
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vair
 
       qsat(Tk)   = 640380.0 / exp(5107.4/Tk)
       cdn(Umps)  = 0.0027 / Umps + 0.000142 + 0.0000764 * Umps
@@ -1591,6 +1615,34 @@ contains
 
       al2 = log(zref/ztref)
 
+#ifdef WIND_MINUS_CURRENT
+!
+!  Modify near-surface (2m or 10m) effective winds by subtracting the
+!  ocean surface current (J Wilkin). See: 
+!
+!  Bye, J.A.T. and J.-O. Wolff, 1999: Atmosphere-ocean momentum exchange
+!     in general circulation models. J. Phys. Oceanogr. 29, 671-691.
+!
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          Uair(i,j)=Uwind(i,j)-                                         &
+     &              0.5_r8*(ubar(i,j,knew)+ubar(i+1,j,knew))
+          Vair(i,j)=Vwind(i,j)-                                         &
+     &              0.5_r8*(vbar(i,j,knew)+vbar(i,j+1,knew))
+        END DO
+      END DO
+#else
+!
+!  Load wind components to local arrays.
+!
+      DO j=Jstr-1,JendR
+        DO i=Istr-1,IendR
+          Uair(i,j)=Uwind(i,j)
+          Vair(i,j)=Vwind(i,j)
+        END DO
+      END DO
+#endif
+
       Hscale=rho0*Cp
       Hscale2=1.0_r8/(rho0*Cp)
 ! Note that this loop needs to be cleaned of all global arrays for
@@ -1598,8 +1650,7 @@ contains
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           !--- compute some needed quantities ---
-          vmag   = max(umin, sqrt( (Uwind(i,j)-ubar(i,j,knew))**2 +  &
-     &                             (Vwind(i,j)-vbar(i,j,knew))**2) )
+          vmag   = max(umin, sqrt( Uair(i,j)**2 + Vair(i,j)**2) )
           TairK(i) = Tair(i,j) + 273.16_r8
           thvbot = TairK(i) * (1.0 + shr_const_zvir * Hair(i,j)) ! virtual temp (K)
           rhoAir(i) = Pair(i,j)*100.0_r8/(blk_Rgas*TairK(i)*            &
@@ -1696,8 +1747,8 @@ contains
           tau = rhoAir(i) * ustar * ustar
 
           !--- momentum flux ---
-          Taux(i,j) = tau * (Uwind(i,j)-ubar(i,j,knew)) / vmag
-          Tauy(i,j) = tau * (Vwind(i,j)-vbar(i,j,knew)) / vmag
+          Taux(i,j) = tau * Uair(i,j) / vmag
+          Tauy(i,j) = tau * Vair(i,j) / vmag
         END DO
       END DO
 !

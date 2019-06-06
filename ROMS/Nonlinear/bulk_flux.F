@@ -1349,7 +1349,7 @@
           lhflx(i,j) = -LHeat(i,j)*Hscale2
           shflx(i,j) = -SHeat(i,j)*Hscale2
           snhflx(i,j)=(srflx(i,j)+lrflx(i,j)+                           &
-     &                      lhflx(i,j)+shflx(i,j))
+     &                 lhflx(i,j)+shflx(i,j))
 # ifdef MASKING
           snhflx(i,j)=snhflx(i,j)*rmask(i,j)
 # endif
