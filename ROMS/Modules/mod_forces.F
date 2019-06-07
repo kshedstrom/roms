@@ -357,7 +357,7 @@
 #  ifdef ALBEDO_FILE
           real(r8), pointer :: albedoG(:,:,:)
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
           real(r8), pointer :: cawdir(:,:)
 #  endif
 # endif
@@ -376,7 +376,7 @@
           real(r8), pointer :: qi2_n(:,:)
           real(r8), pointer :: snow_n(:,:)
           real(r8), pointer :: p_e_n(:,:)
-# endif 
+# endif
 # if defined RED_TIDE && defined DAILY_SHORTWAVE
           real(r8), pointer :: srflx_avg(:,:)
           real(r8), pointer :: srflxG_avg(:,:,:)
@@ -889,7 +889,7 @@
       allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+2.0_r8*size2d
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
@@ -1580,7 +1580,7 @@
             FORCES(ng) % albedoG(i,j,1) = IniVal
             FORCES(ng) % albedoG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 # endif

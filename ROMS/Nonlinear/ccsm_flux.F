@@ -767,24 +767,6 @@ contains
 !   o The saturation humidity of air at T(K): qsat(T)  (kg/m^3)
 !-------------------------------------------------------------------------------
 
-# ifdef WIND_MINUS_CURRENT
-!
-!  Modify near-surface (2m or 10m) effective winds by subtracting the
-!  ocean surface current (J Wilkin). See:
-!
-!  Bye, J.A.T. and J.-O. Wolff, 1999: Atmosphere-ocean momentum exchange
-!     in general circulation models. J. Phys. Oceanogr. 29, 671-691.
-!
-      DO j=Jstr-1,JendR
-        DO i=Istr-1,IendR
-          Uwind(i,j)=Uwind(i,j)-                                        &
-     &               0.5_r8*(u(i,j,N(ng),nrhs)+u(i+1,j,N(ng),nrhs))
-          Vwind(i,j)=Vwind(i,j)-                                        &
-     &               0.5_r8*(v(i,j,N(ng),nrhs)+v(i,j+1,N(ng),nrhs))
-        END DO
-      END DO
-# endif
-
       al2 = log(zref/ztref)
 # if defined ICE_MODEL
       IF (PerfectRST(ng) .and. iic(ng).eq.ntstart(ng)) THEN
@@ -1028,6 +1010,8 @@ contains
 !          ELSE
 !            qi_o_n(i,j) = 0._r8
           END IF
+#    else
+          SW_thru_ice(i,j) = 0.0_r8
 #    endif
 #   endif
 ! Already in W/m**2

@@ -133,7 +133,7 @@
 
 #  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
       defined ECOSIM || \
-      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD)
+      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_DIRDIFF)
 !
 !-----------------------------------------------------------------------
 !  Set surface air temperature (degC).
@@ -154,7 +154,7 @@
 
 #  if (defined BULK_FLUXES && !defined NL_BULK_FLUXES) || \
       defined ECOSIM || \
-      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD)
+      (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_DIRDIFF)
 !
 !-----------------------------------------------------------------------
 !  Set surface air relative or specific humidity.

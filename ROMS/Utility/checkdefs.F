@@ -156,7 +156,7 @@
       idriver=idriver+1
 #endif
 #ifdef AKTCLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                     &
+      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                   &
      &   'Processing AKt climatology data'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' AKTCLIMATOLOGY,'
@@ -168,11 +168,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
-#if defined ALBEDO_CLOUD
-      IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                     &
+#if defined ALBEDO_DIRDIFF
+      IF (Master) WRITE (stdout,20) 'ALBEDO_DIRDIFF',                   &
      &   'Albedo as a function of cloudiness'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ALBEDO_CLOUD,'
+      Coptions(is:is+14)=' ALBEDO_DIRDIFF,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &

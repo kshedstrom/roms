@@ -823,7 +823,7 @@
 */
 
 #if (defined BULK_FLUXES && defined LONGWAVE) || defined ECOSIM || \
-    (defined ANA_SRFLUX  && defined ALBEDO_CLOUD)
+    (defined ANA_SRFLUX  && defined ALBEDO_DIRDIFF)
 # define CLOUDS
 #endif
 #if !defined CLOUDS && defined ANA_CLOUD
@@ -834,7 +834,7 @@
 ** Check for calling albedo function
 */
 
-#if defined ALBEDO_CLOUD   || defined ALBEDO_CSIM \
+#if defined ALBEDO_DIRDIFF || defined ALBEDO_CSIM \
   || defined ALBEDO_CURVE  || defined ALBEDO_FILE || defined ANA_ALBEDO
 # define ALBEDO
 #endif

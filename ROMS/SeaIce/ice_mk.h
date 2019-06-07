@@ -301,7 +301,7 @@
       real(r8), intent(in) :: qao_n(LBi:,LBj:)
       real(r8), intent(in) :: snow_n(LBi:,LBj:)
       real(r8), intent(in) :: rain(LBi:,LBj:)
-      real(r8), intent(inout) :: srflx(LBi:,LBj:)
+      real(r8), intent(in) :: srflx(LBi:,LBj:)
       real(r8), intent(in) :: SW_thru_ice(LBi:,LBj:)
       real(r8), intent(out) :: stflx(LBi:,LBj:,:)
 #else
@@ -360,7 +360,7 @@
       real(r8), intent(in) :: qao_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: snow_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: rain(LBi:UBi,LBj:UBj)
-      real(r8), intent(inout) :: srflx(LBi:UBi,LBj:UBj)
+      real(r8), intent(in) :: srflx(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: SW_thru_ice(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: stflx(LBi:UBi,LBj:UBj,NT(ng))
 #endif
@@ -794,8 +794,9 @@
      &                   + ai(i,j,linew)*(qio(i,j)-SW_thru_ice(i,j))    &
      &                   -xtot*hfus1(i,j)
 #endif
-              srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)              &
-     &            +ai(i,j,linew)*SW_thru_ice(i,j)*rhocpr
+! This went back to bulk_flux routines.
+!             srflx(i,j)=(1.0_r8-ai(i,j,linew))*srflx(i,j)              &
+!    &            +ai(i,j,linew)*SW_thru_ice(i,j)*rhocpr
 #ifdef ICE_DIAGS
               qio_n(i,j) = qio(i,j)
               qi2_n(i,j) = qi2(i,j)
