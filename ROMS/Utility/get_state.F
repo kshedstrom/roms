@@ -3196,11 +3196,11 @@
                 END IF
               ELSE
                 IF (Master) THEN
-                  WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),        &
+                  WRITE (stdout,80) string, TRIM(Vname(1,idUsms)),      &
      &                              TRIM(ncname)
                 END IF
                 exit_flag=4
-                IF (FoundError(exit_flag, nf90_noerr, __LINE__,           &
+                IF (FoundError(exit_flag, nf90_noerr, __LINE__,         &
      &                         __FILE__)) THEN
                   RETURN
                 END IF
@@ -3241,11 +3241,11 @@
                 END IF
               ELSE
                 IF (Master) THEN
-                  WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),          &
+                  WRITE (stdout,80) string, TRIM(Vname(1,idVsms)),      &
      &                              TRIM(ncname)
                 END IF
                 exit_flag=4
-                IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+                IF (FoundError(exit_flag, nf90_noerr, __LINE__,         &
      &                         __FILE__)) THEN
                   RETURN
                 END IF

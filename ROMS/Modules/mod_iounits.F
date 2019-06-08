@@ -67,10 +67,10 @@
 !  bparnam     Input biology parameters filename.                      !
 !  fbionam     Input floats biological behavior parameters filename.   !
 !  fposnam     Input initial floats positions filename.                !
-!  iparnam     Input ice parameters file name.                         !
+!  iparnam     Input ice parameters filename.                          !
 !  sparnam     Input sediment transport parameters filename.           !
-!  sposnam     Input station positions file name.                      !
-!  varname     Input IO variables information file name.               !
+!  sposnam     Input station positions filename.                       !
+!  varname     Input IO variables information filename.                !
 !                                                                      !
 !  stdinp      Unit number for standard input (often 5).               !
 !  stdout      Unit number for standard output (often 6).              !
@@ -83,10 +83,10 @@
 !  FRCids      NetCDF file ID associated with each forcing field.      !
 !  SSFids      NetCDF file ID associated with each river source field. !
 !  Rerror      Running error messages.                                 !
-!  SourceFile  Current executed file name. It is used for IO error     !
+!  SourceFile  Current executed filename. It is used for IO error      !
 !                purposes.                                             !
 !  ioerror     IO error flag.                                          !
-!  ncfile      Current NetCDF file name being processed.               !
+!  ncfile      Current NetCDF filename being processed.                !
 !  nFfiles     Number of forcing files.                                !
 !                                                                      !
 !=======================================================================
@@ -179,7 +179,7 @@
      &          ' ROMS/TOMS - Coupling error .......... exit_flag: ',   &
      &          ' ROMS/TOMS - Frazil ice problem ...... exit_flag: ' /)
 !
-!  Standard input scripts file names.
+!  Standard input scripts filenames.
 !
       character (len=256) :: Iname          ! ROMS physical parameters
       character (len=256) :: Wname          ! wave model standard input
@@ -215,7 +215,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: i, lstr, ng, nfile
+      integer :: i, lstr, ng
 
       character (len=1), parameter :: blank = ' '
 !
@@ -381,7 +381,7 @@
       END DO
 !
 !-----------------------------------------------------------------------
-!  Initialize file names to blanks.
+!  Initialize filenames to blanks.
 !-----------------------------------------------------------------------
 !
       DO ng=1,Ngrids

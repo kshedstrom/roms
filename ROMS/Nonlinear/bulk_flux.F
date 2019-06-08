@@ -207,6 +207,15 @@
      &                     FORCES(ng) % SW_up_ice,                      &
      &                     FORCES(ng) % saltflux_ocean,                 &
 # endif
+# ifdef ICE_DIAGS
+     &                     FORCES(ng) % LW_down,                        &
+     &                     FORCES(ng) % SW_down,                        &
+     &                     FORCES(ng) % lat_ice,                        &
+     &                     FORCES(ng) % sens_ice,                       &
+     &                     FORCES(ng) % LW_up_ice,                      &
+     &                     FORCES(ng) % SW_up_ice,                      &
+     &                     FORCES(ng) % saltflux_ocean,                 &
+# endif
      &                     FORCES(ng) % sustr,                          &
      &                     FORCES(ng) % svstr)
 # ifdef PROFILE
@@ -291,6 +300,12 @@
 # endif
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
+# endif
+# ifdef ICE_DIAGS
+     &                           LW_down, SW_down,                      &
+     &                           lat_ice, sens_ice,                     &
+     &                           LW_up_ice, SW_up_ice,                  &
+     &                           saltflux_ocean,                        &
 # endif
 # ifdef ICE_DIAGS
      &                           LW_down, SW_down,                      &
@@ -432,6 +447,15 @@
       real(r8), intent(out) :: SW_up_ice(LBi:,LBj:)
       real(r8), intent(out) :: saltflux_ocean(LBi:,LBj:)
 #  endif
+#  ifdef ICE_DIAGS
+      real(r8), intent(out) :: LW_down(LBi:,LBj:)
+      real(r8), intent(out) :: SW_down(LBi:,LBj:)
+      real(r8), intent(out) :: lat_ice(LBi:,LBj:)
+      real(r8), intent(out) :: sens_ice(LBi:,LBj:)
+      real(r8), intent(out) :: LW_up_ice(LBi:,LBj:)
+      real(r8), intent(out) :: SW_up_ice(LBi:,LBj:)
+      real(r8), intent(out) :: saltflux_ocean(LBi:,LBj:)
+#  endif
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 
@@ -537,6 +561,15 @@
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
+#  endif
+#  ifdef ICE_DIAGS
+      real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: lat_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: sens_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: LW_up_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: SW_up_ice(LBi:UBi,LBj:UBj)
+      real(r8), intent(out) :: saltflux_ocean(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef ICE_DIAGS
       real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
@@ -658,6 +691,7 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: SRad
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: u10n_tmp
 #ifdef ICE_THERMO
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Coef_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: RHS_Ice
@@ -924,12 +958,17 @@
 ! Incoming humidity is specific humidity in (kg/kg)
           Q(i)=RH
 #else
+# ifdef SPEC_HUM
+!JF: added "SPEC_HUM" cpp option to force RH to be g/kg
+          Q(i)=RH/1000.0_r8                          !Spec Hum (kg/kg)
+# else
           IF (RH.lt.2.0_r8) THEN                       !RH fraction
             cff=cff*RH                                 !Vapor pres (mb)
             Q(i)=0.62197_r8*(cff/(PairM-0.378_r8*cff)) !Spec hum (kg/kg)
           ELSE          !RH input was actually specific humidity in g/kg
             Q(i)=RH/1000.0_r8                          !Spec Hum (kg/kg)
           END IF
+# endif
 #endif
 !
 !  Compute water saturation vapor pressure (mb), using Teten formula.
@@ -989,6 +1028,11 @@
           Ct10(i)=Ch10(i)/sqrt(Cd10(i))
           ZoT10(i)=10.0_r8/EXP(vonKar/Ct10(i))
           Cd=(vonKar/LOG(blk_ZW(ng)/Zo10(i)))**2
+!
+!  Save neutral wind at 10 meters for gas transfer piston velocity
+!
+
+          u10n_tmp(i,j) = u10(i)
 !
 !  Compute Richardson number.
 !
@@ -1488,6 +1532,7 @@
 !#  else
 !          SW_thru_ice(i,j) = 0.0_r8
 !#  endif
+
           qao_n(i,j) = -snhflx(i,j)*Hscale
 
 ! Net precipitation - evaporation in m/s
@@ -1563,6 +1608,7 @@
 # endif
         END DO
       END DO
+
 !
 !-----------------------------------------------------------------------
 !  Exchange boundary data.

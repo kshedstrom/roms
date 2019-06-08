@@ -371,6 +371,10 @@
             END DO
           END IF
           exit_flag=4
+! Leaving this here because it helped one time when I told it 14 files
+! and gave it 13 file names.
+          IF (Master) print *, 'CHECK_MULTIFILE, Fcount', Fcount,       &
+     &                    TRIM(FRC(i,ng)%files(ifile))
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF

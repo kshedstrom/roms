@@ -112,7 +112,7 @@
 #   endif
 
 #   ifdef BENTHIC
-         real(r8), pointer :: bt(:,:,:,:,:)
+          real(r8), pointer :: bt(:,:,:,:,:)
 #   endif
 #   if defined ICE_BIO
           real(r8), pointer :: it(:,:,:,:)

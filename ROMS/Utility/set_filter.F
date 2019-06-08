@@ -1944,14 +1944,14 @@
               END DO
             END IF
 #   ifdef EMINUSP
-            IF (Aout(idShea,ng)) THEN
+            IF (Aout(idevap,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgevap(i,j)=FILTER(ng)%filevap(i,j,f)
                 END DO
               END DO
             END IF
-            IF (Aout(idShea,ng)) THEN
+            IF (Aout(idrain,ng)) THEN
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgrain(i,j)=FILTER(ng)%filrain(i,j,f)

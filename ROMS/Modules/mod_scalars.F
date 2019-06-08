@@ -2127,7 +2127,10 @@
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 #ifdef ICE_MODEL
-      IF (.not. allocated(Lice)) allocate ( Lice(Ngrids) )
+      IF (.not. allocated(Lice)) THEN
+        allocate ( Lice(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 #endif
       IF (.not.allocated(Lsediment)) THEN
         allocate ( Lsediment(Ngrids) )

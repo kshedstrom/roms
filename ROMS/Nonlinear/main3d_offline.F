@@ -89,7 +89,7 @@
 # ifdef WAVES_OCEAN
       USE ocean_coupler_mod,    ONLY : ocn2wav_coupling
 # endif
-      USE omega_mod, ONLY : omega
+      USE omega_mod,            ONLY : omega
 # ifdef NEARSHORE_MELLOR
       USE radiation_stress_mod, ONLY : radiation_stress
 # endif
@@ -282,7 +282,7 @@
               DO tile=first_tile(ng),last_tile(ng),+1
                 CALL set_massflux (ng, tile, iNLM)
 # ifndef TS_FIXED
-                CALL rho_eos (ng, tile)
+                CALL rho_eos (ng, tile, iNLM)
 # endif
                 CALL diag (ng, tile)
               END DO

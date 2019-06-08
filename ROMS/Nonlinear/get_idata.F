@@ -520,8 +520,8 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    TIDES(ng) % POT_Tamp)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__)) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           CALL get_2dfld (ng, iNLM, idTpph, TIDE(ng)%ncid,              &
      &                    1, TIDE(ng), update(1),                       &
@@ -530,8 +530,8 @@
      &                    GRID(ng) % rmask,                             &
 # endif
      &                    TIDES(ng) % POT_Tphase)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__)) RETURN
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
 
           time(ng)=time_save
           tdays(ng)=time(ng)*sec2day

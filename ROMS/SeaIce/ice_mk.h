@@ -1,7 +1,7 @@
      SUBROUTINE ice_thermo (ng, tile)
 !
 !*************************************************** W. Paul Budgell ***
-!  Copyright (c) 2002-2015 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2019 ROMS/TOMS Group                             !
 !************************************************** Hernan G. Arango ***
 !                                                                      !
 !  This subroutine evaluates the ice thermodynamic growth and decay    !
@@ -17,7 +17,7 @@
       USE mod_ice
       USE mod_forces
       USE mod_stepping
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
       USE mod_coupling
 #endif
 
@@ -44,7 +44,7 @@
 #ifdef ICESHELF
      &                      GRID(ng) % zice,                            &
 #endif
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
      &                      GRID(ng) % h,                               &
      &                      COUPLING(ng) % Zt_avg1,                     &
 #endif
@@ -113,7 +113,7 @@
 #ifdef ICESHELF
      &                        zice,                                     &
 #endif
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
      &                        h, Zt_avg1,                               &
 #endif
      &                        z_r, z_w, t,                              &
@@ -255,7 +255,7 @@
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:,LBj:)
 # endif
-# ifdef ICE_SHOREFAST
+# ifdef ICE_SHALLOW_LIMIT
       real(r8), intent(in) :: h(LBi:,LBj:)
       real(r8), intent(in) :: Zt_avg1(LBi:,LBj:)
 # endif
@@ -314,7 +314,7 @@
 # ifdef ICESHELF
       real(r8), intent(in) :: zice(LBi:UBi,LBj:UBj)
 # endif
-# ifdef ICE_SHOREFAST
+# ifdef ICE_SHALLOW_LIMIT
       real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Zt_avg1(LBi:UBi,LBj:UBj)
 # endif
@@ -435,7 +435,7 @@
 
       real(r8) :: fac_shflx
 
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
       real(r8) :: hh
       real(r8) :: clear
       real(r8) :: fac_sf
@@ -451,7 +451,8 @@
         DO i=Istr,Iend
           temp_top(i,j)=t(i,j,N(ng),nrhs,itemp)
           salt_top(i,j)=t(i,j,N(ng),nrhs,isalt)
-          salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
+!         salt_top(i,j) = MIN(MAX(0.0_r8,salt_top(i,j)),40.0_r8)
+          salt_top(i,j) = MAX(0.0_r8,salt_top(i,j))
           dztop(i,j)=z_w(i,j,N(ng))-z_r(i,j,N(ng))
           stflx(i,j,isalt) = stflx(i,j,isalt)*                          &
      &          MIN(MAX(t(i,j,N(ng),nrhs,isalt),0.0_r8),60.0_r8)
@@ -704,7 +705,8 @@
           zdz0 = dztop(i,j)/z0   !WPB
           zdz0 = MAX(zdz0,3._r8)
 
-          rno = utau(i,j)*0.09_r8/nu
+          rno = utau(i,j)*z0/nu
+!         rno = utau(i,j)*0.09_r8/nu
           termt = ykf*sqrt(rno)*prt**0.666667_r8
           terms = ykf*sqrt(rno)*prs**0.666667_r8
           cht(i,j) = utau(i,j)/(tpr*log(zdz0)/kappa+termt)
@@ -773,14 +775,15 @@
 #ifdef ICESHELF
           IF (zice(i,j).eq.0.0_r8) THEN
 #endif
-            IF(ai(i,j,linew).LE.min_a(ng)) THEN
-               stflx(i,j,itemp) = qao_n(i,j)*fac_shflx
+            IF (ai(i,j,linew).LE.min_a(ng)) THEN
+              stflx(i,j,itemp) = qao_n(i,j)*fac_shflx
+              fac_sf = 1.0_r8
             ELSE
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
               hh = h(i,j)+Zt_avg1(i,j)
               clear = hh-0.9_r8*hi(i,j,liold)
               clear = MAX(clear,0.0_r8)
-              IF (clear.lt.1.5_r8) THEN
+              IF (clear < 1.5_r8) THEN
                 fac_sf = MAX(clear-0.5_r8,0.0_r8)/1.0_r8
               ELSE
                 fac_sf = 1.0_r8
@@ -810,13 +813,12 @@
             stflx(i,j,itemp) = stflx(i,j,itemp)*rmask(i,j)
 #endif
 #ifdef WET_DRY
-!            stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
+!           stflx(i,j,itemp) = stflx(i,j,itemp)*rmask_wet(i,j)
 #endif
-#ifdef ICE_SHOREFAST
+#ifdef ICE_SHALLOW_LIMIT
             stflx(i,j,isalt) = stflx(i,j,isalt) +                       &
-     &        (- (xtot-ai(i,j,linew)*wro(i,j))*                         &
-     &          (sice(i,j)-MIN(MAX(s0mk(i,j),0.0_r8),60.0_r8)) )        &
-     &                     *fac_sf
+     &          ((xtot-ai(i,j,linew)*wro(i,j))*                         &
+     &          (salt_top(i,j)-sice(i,j)))*fac_sf
 #else
             stflx(i,j,isalt) = stflx(i,j,isalt)                         &
      &         + (xtot-ai(i,j,linew)*wro(i,j))*(salt_top(i,j)-sice(i,j))
@@ -840,8 +842,13 @@
             io_mflux(i,j) = io_mflux(i,j)*rmask_wet(i,j)
 #endif
 #ifdef ICE_DIAGS
+# ifdef ICE_SHALLOW_LIMIT
+            saltflux_ice(i,j) = (xtot-ai(i,j,linew)*wro(i,j))*        &
+     &                   (salt_top(i,j)-sice(i,j))*fac_sf
+# else
             saltflux_ice(i,j) = (xtot-ai(i,j,linew)*wro(i,j))*        &
      &                   (salt_top(i,j)-sice(i,j))
+# endif
 #endif
 #ifdef ICESHELF
           ELSE

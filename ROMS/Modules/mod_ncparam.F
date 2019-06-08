@@ -224,7 +224,7 @@
         integer  :: idMtke        ! turbulent kinetic energy
         integer  :: idMtls        ! turbulent length scale
         integer  :: idM2nc        ! 2D momentum nudging coefficients
-        integer  :: idM3nc        ! 2D momentum nudging coefficients
+        integer  :: idM3nc        ! 3D momentum nudging coefficients
         integer  :: idNLmi        ! initial NLM at observation locations
         integer  :: idNLmo        ! NLM at observations locations
         integer  :: idNobs        ! number of observations
@@ -650,8 +650,8 @@
 !
 !  Git revision and repository root URL
 !
-        character (len=256) :: git_url = ''
-        character (len=80 ) :: git_rev = ''
+        character (len=256) :: git_url = 'unknown'
+        character (len=80 ) :: git_rev = 'unknown'
         integer             :: git_status = 0
 
 !
@@ -1249,13 +1249,13 @@
 !  Set Git repository info
 !
 #ifdef GIT_URL
-          git_url=GIT_URL
+      git_url=GIT_URL
 #endif
 #ifdef GIT_REV
-          git_rev=GIT_REV
+      git_rev=GIT_REV
 #endif
 #ifdef GIT_STATUS
-          git_status=GIT_STATUS
+      git_status=GIT_STATUS
 #endif
 !
 !-----------------------------------------------------------------------

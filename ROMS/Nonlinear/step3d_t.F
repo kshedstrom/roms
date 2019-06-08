@@ -1493,7 +1493,9 @@
           END DO
         END DO
 # endif
-# define SALT_LIMIT
+# ifndef TS_MPDATA
+#  define SALT_LIMIT
+# endif
 # ifdef SALT_LIMIT
 !
 !  Apply clamp to salt

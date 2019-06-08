@@ -3074,42 +3074,6 @@
 
 !
 !------------------------------------------------------------------------------
-!  Nudging to climatology time scales. We can have a generic variable for all
-!  tracer nudging time scales or individual variables for each active and
-!  passive tracer. The metadata for the individual variables is set internally
-!  in "mod_ncparam".
-!------------------------------------------------------------------------------
-!
-
-'M2_NudgeCoef'                                     ! Input
-  '2D momentum inverse nudging coefficients'
-  'day-1'                                          ! [1/s]
-  'M2_NudgeCoef, scalar'
-  'nulvar'
-  'idM2nc'
-  'r2dvar'
-  1.157407d-5                                      ! 1/86400
-
-'M3_NudgeCoef'                                     ! Input
-  '3D momentum inverse nudging coefficients'
-  'day-1'                                          ! [1/s]
-  'M3_NudgeCoef, scalar'
-  'nulvar'
-  'idM3nc'
-  'r3dvar'
-  1.157407d-5                                      ! 1/86400
-
-'tracer_NudgeCoef'                                 ! Input
-  'generic tracer inverse nudging coefficients'
-  'day-1'                                          ! [1/s]
-  'tracer_NudgeCoef, scalar'
-  'nulvar'
-  'idgTnc'
-  'r3dvar'
-  1.157407d-5                                      ! 1/86400
-
-!
-!------------------------------------------------------------------------------
 !  Adjoint sensitivy variables.  The units below are the same as the state.
 !  However, the input functional can have squared, energy, nondimensional,
 !  or other units.

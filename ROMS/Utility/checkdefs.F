@@ -176,13 +176,13 @@
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
-     &   'Albedo computed according to CSIM3'
+     &   'Ice albedo computed according to CSIM3'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_CSIM,'
 #endif
 #if defined ALBEDO_CURVE
       IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
-     &   'Shortwave radiation adjusted by albedo curve'
+     &   'Ocean shortwave radiation adjusted by albedo curve'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
 #endif
@@ -778,6 +778,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CCSM_FLUXES2D,'
 #endif
+#ifdef CCSM_ICE_SHORTWAVE
+      IF (Master) WRITE (stdout,20) 'CCSM_ICE_SHORTWAVE',               &
+     &   'Surface bulk fluxes parameterization'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' CCSM_ICE_SHORTWAVE,'
+#endif
 #if defined CELERITY_READ && defined FORWARD_READ
 !
       IF (Master) WRITE (stdout,20) 'CELERITY_READ',                    &
@@ -1090,7 +1096,7 @@
 #endif
 #ifdef FILTERED_RST
       IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
-     &   'Writing out time-filtered output'
+     &   'Reading and writing out time-filtered output'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' FILTERED_RST,'
 #endif
@@ -1351,6 +1357,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_MOMENTUM,'
 #endif
+#ifdef ICE_SHALLOW_LIMIT
+      IF (Master) WRITE (stdout,20) 'ICE_SHALLOW_LIMIT',                &
+     &   "Grounded ice doesn't grow thermodynamically."
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ICE_SHALLOW_LIMIT,'
+#endif
 !
 #ifdef ICE_SHOREFAST
       IF (Master) WRITE (stdout,20) 'ICE_SHOREFAST',                    &
@@ -1422,20 +1434,6 @@
      &   'Ice initial conditions from GLORYS'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' INI_GLORYS_ICE,'
-#endif
-#if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
-!
-      IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+15)=' LIMIT_BSTRESS,'
-#endif
-#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-!
-      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
 #endif
 #if defined NPZD_IRON && defined IRON_LIMIT
 !

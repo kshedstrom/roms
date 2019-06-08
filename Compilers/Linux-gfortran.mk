@@ -63,6 +63,7 @@
 
 ifdef USE_ROMS
  ifdef USE_DEBUG
+         CPPFLAGS += -DUSE_DEBUG
            FFLAGS += -g
            FFLAGS += -fbounds-check
            FFLAGS += -fbacktrace
