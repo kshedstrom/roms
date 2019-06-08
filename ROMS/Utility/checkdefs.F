@@ -803,6 +803,12 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' CCSM_FLUXES2D,'
 #endif
+#ifdef CCSM_ICE_SHORTWAVE
+      IF (Master) WRITE (stdout,20) 'CCSM_ICE_SHORTWAVE',               &
+     &   'Surface bulk fluxes parameterization'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+20)=' CCSM_ICE_SHORTWAVE,'
+#endif
 #if defined CELERITY_READ && defined FORWARD_READ
 !
       IF (Master) WRITE (stdout,20) 'CELERITY_READ',                    &
