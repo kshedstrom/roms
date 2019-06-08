@@ -18,6 +18,10 @@
 !  from [-180 180] or [0 360].  Usually, the ROMS application have     !
 !  longitudes in the range [-180 180].                                 !
 !                                                                      !
+!  The Imin, Imax, Jmin, and Jmax indices are the global values of     !
+!  application domain in serial I/O. However, in parallel I/O they     !
+!  are the tiled values.                                               !
+!                                                                      !
 !  On Input:                                                           !
 !                                                                      !
 !     ng         Nested grid number (integer)                          !

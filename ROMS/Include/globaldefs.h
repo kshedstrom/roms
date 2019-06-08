@@ -208,6 +208,14 @@
 #endif
 
 /*
+** Single intrinsic Fortran functions.
+*/
+
+#ifdef SINGLE_PRECISION
+# define DSIGN SIGN
+#endif
+
+/*
 ** Set 4DVAR sensitivity switch.
 */
 
@@ -818,7 +826,7 @@
 */
 
 #if (defined BULK_FLUXES && defined LONGWAVE) || defined ECOSIM || \
-    (defined ANA_SRFLUX  && defined ALBEDO_CLOUD)
+    (defined ANA_SRFLUX  && defined ALBEDO_DIRDIFF)
 # define CLOUDS
 #endif
 #if !defined CLOUDS && defined ANA_CLOUD
@@ -829,7 +837,7 @@
 ** Check for calling albedo function
 */
 
-#if defined ALBEDO_CLOUD   || defined ALBEDO_CSIM \
+#if defined ALBEDO_DIRDIFF || defined ALBEDO_CSIM \
   || defined ALBEDO_CURVE  || defined ALBEDO_FILE || defined ANA_ALBEDO
 # define ALBEDO
 #endif
@@ -844,8 +852,9 @@
 #   undef DIAGNOSTICS_TS
 # endif
 #endif
-#if defined DIAGNOSTICS_BIO &&       \
-   !(defined BIO_FENNEL || defined HYPOXIA_SRM || defined BIO_COBALT)
+#if defined DIAGNOSTICS_BIO && \
+  !(defined BIO_FENNEL      || defined HYPOXIA_SRM || defined ECOSIM || \
+    defined BIO_COBALT)
 #  undef DIAGNOSTICS_BIO
 #endif
 #if defined DIAGNOSTICS_BIO || defined DIAGNOSTICS_TS || \

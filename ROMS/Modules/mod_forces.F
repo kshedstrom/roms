@@ -68,9 +68,10 @@
 !                                                                      !
 !  Surface heat fluxes, Atmosphere-Ocean bulk parameterization.        !
 !                                                                      !
-!  lhflx        Kinematic net latent heat flux (degC m/s).             !
-!  lrflx        Kinematic net longwave radiation (degC m/s).           !
-!  shflx        Kinematic net sensible heat flux (degC m/s).           !
+!  lhflx        Kinematic latent heat flux (degC m/s).                 !
+!  lrflx        Kinematic longwave radiation (degC m/s).               !
+!  snhflx       Kinematic surface net heat flux (degC m/s).            !
+!  shflx        Kinematic sensible heat flux (degC m/s).               !
 !                                                                      !
 !  Surface air humidity.                                               !
 !                                                                      !
@@ -356,7 +357,7 @@
 #  ifdef ALBEDO_FILE
           real(r8), pointer :: albedoG(:,:,:)
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
           real(r8), pointer :: cawdir(:,:)
 #  endif
 #  ifdef BIO_COBALT
@@ -413,7 +414,7 @@
           real(r8), pointer :: qi2_n(:,:)
           real(r8), pointer :: snow_n(:,:)
           real(r8), pointer :: p_e_n(:,:)
-# endif 
+# endif
 # if defined RED_TIDE && defined DAILY_SHORTWAVE
           real(r8), pointer :: srflx_avg(:,:)
           real(r8), pointer :: srflxG_avg(:,:,:)
@@ -446,13 +447,18 @@
 #  endif
 #  endif
 #  ifdef EMINUSP
-          real(r8), pointer :: EminusP(:,:)
           real(r8), pointer :: evap(:,:)
 #  endif
 #  ifdef RUNOFF
           real(r8), pointer :: runoff(:,:)
           real(r8), pointer :: runoffG(:,:,:)
 #  endif
+# endif
+# if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+          real(r8), pointer :: EminusP(:,:)
+# endif
+# if defined BULK_FLUXES || defined ATM_COUPLING
+          real(r8), pointer :: snhflx(:,:)
 # endif
 
           real(r8), pointer :: stflx(:,:,:)
@@ -794,7 +800,7 @@
       Dmem(ng)=Dmem(ng)+size2d
 # ifndef ANA_PAIR
       allocate ( FORCES(ng) % PairG(LBi:UBi,LBj:UBj,2) )
-      Dmem(ng)=Dmem(ng)+size2d
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
 # endif
 #endif
 
@@ -921,7 +927,7 @@
       allocate ( FORCES(ng) % albedoG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+2.0_r8*size2d
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
@@ -1079,9 +1085,6 @@
 #   endif
 #  endif
 #  ifdef EMINUSP
-      allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-
       allocate ( FORCES(ng) % evap(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
@@ -1090,7 +1093,15 @@
       allocate ( FORCES(ng) % runoffG(LBi:UBi,LBj:UBj,2) )
 #  endif
 # endif
+# if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+      allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+# endif
 
+# if defined BULK_FLUXES || defined ATM_COUPLING
+      allocate ( FORCES(ng) % snhflx(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+# endif
       allocate ( FORCES(ng) % stflx(LBi:UBi,LBj:UBj,NT(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(NT(ng),r8)*size2d
 
@@ -1645,7 +1656,7 @@
             FORCES(ng) % albedoG(i,j,1) = IniVal
             FORCES(ng) % albedoG(i,j,2) = IniVal
 #  endif
-#  if defined ALBEDO_CLOUD
+#  if defined ALBEDO_DIRDIFF
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
 #  ifdef BIO_COBALT
@@ -1748,7 +1759,6 @@
 #   endif
 #  endif
 #  ifdef EMINUSP
-            FORCES(ng) % EminusP(i,j) = IniVal
             FORCES(ng) % evap(i,j) = IniVal
 #  endif
 #  ifdef RUNOFF
@@ -1756,6 +1766,12 @@
             FORCES(ng) % runoffG(i,j,1) = IniVal
             FORCES(ng) % runoffG(i,j,2) = IniVal
 #  endif
+# endif
+# if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+            FORCES(ng) % EminusP(i,j) = IniVal
+# endif
+# if defined BULK_FLUXES || defined ATM_COUPLING
+            FORCES(ng) % snhflx(i,j) = IniVal
 # endif
 # if !defined LONGWAVE && defined BULK_FLUXES
             FORCES(ng) % lrflxG(i,j,1) = IniVal

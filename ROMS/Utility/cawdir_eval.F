@@ -1,6 +1,6 @@
 #include "cppdefs.h"
       MODULE cawdir_eval_mod
-#if defined NCEP_FLUXES || defined ALBEDO_CLOUD
+#if defined NCEP_FLUXES || defined ALBEDO_DIRDIFF
 ! ----------------------------------------------------------------------
 !  compute 24 hrs mean albedo at the marine surface layer
 ! ----------------------------------------------------------------------

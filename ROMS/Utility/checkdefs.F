@@ -156,7 +156,7 @@
       idriver=idriver+1
 #endif
 #ifdef AKTCLIMATOLOGY
-      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                     &
+      IF (Master) WRITE (stdout,20) 'AKTCLIMATOLOGY',                   &
      &   'Processing AKt climatology data'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' AKTCLIMATOLOGY,'
@@ -168,11 +168,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
-#if defined ALBEDO_CLOUD
-      IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                     &
+#if defined ALBEDO_DIRDIFF
+      IF (Master) WRITE (stdout,20) 'ALBEDO_DIRDIFF',                   &
      &   'Albedo as a function of cloudiness'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ALBEDO_CLOUD,'
+      Coptions(is:is+14)=' ALBEDO_DIRDIFF,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
@@ -692,6 +692,13 @@
      &   'Background normalization of Hessian singular vectors'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+7)=' BNORM,'
+#endif
+#if defined BIO_OPTIC && defined ECOSIM
+!
+      IF (Master) WRITE (stdout,20) 'BIO_OPTIC',                        &
+     &   'Underwater light field calculations'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' BIO_OPTIC,'
 #endif
 #if defined BIO_SEDIMENT && \
    (defined BIO_FENNEL   || defined NEMURO || defined ECOSIM)
@@ -2195,6 +2202,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' PJ_GRADPQ4,'
 #endif
+# if defined PRESS_COMPENSATE && defined ATM_PRESS
+!
+      IF (Master) WRITE (stdout,20) 'PRESS_COMPENSATE',                 &
+     &   'Compensate for boundary data without ATM pressure effect'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' PRESS_COMPENSATE,'
+# endif
 #ifdef POSITIVE_ZERO
 !
       IF (Master) WRITE (stdout,20) 'POSITIVE_ZERO',                    &
@@ -2858,8 +2872,8 @@
 #endif
 #if defined TIME_INTERP && defined MODEL_COUPLING
 !
-      IF (Master) WRITE (stdout,20) 'TIME_INTERP',                  &
-     &   'Time interpolation from coupling snapshots arrays'
+      IF (Master) WRITE (stdout,20) 'TIME_INTERP',                      &
+     &   'Time interpolation from imported coupling snapshots data'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' TIME_INTERP,'
 #endif

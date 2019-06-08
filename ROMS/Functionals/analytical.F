@@ -155,7 +155,7 @@
 # ifdef SOLVE3D
 #  if defined ANA_HUMIDITY && \
     (defined BULK_FLUXES || defined ECOSIM || \
-    (defined ANA_SRFLUX  && defined ALBEDO_CLOUD) )
+    (defined ANA_SRFLUX  && defined ALBEDO_DIRDIFF) )
 #   include <ana_humid.h>
 #  endif
 # endif
@@ -300,7 +300,7 @@
 # ifdef SOLVE3D
 #  if defined ANA_TAIR && \
     (defined BULK_FLUXES || defined ECOSIM || \
-    (defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
+    (defined ANA_SRFLUX && defined ALBEDO_DIRDIFF) )
 #   include <ana_tair.h>
 #  endif
 # endif

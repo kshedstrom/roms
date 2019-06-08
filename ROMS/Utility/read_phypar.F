@@ -109,8 +109,8 @@
 !
       ifile=1                            ! multiple file counter
       ibcfile=1                          ! multiple BC file counter
-      iclmfile=1                          ! multiple BC file counter
-      issffile=1                          ! multiple BC file counter
+      iclmfile=1                         ! multiple CLM file counter
+      issffile=1                         ! multiple Rivers file counter
       igrid=1                            ! nested grid counter
       itracer=0                          ! LBC tracer counter
       nline=0                            ! LBC multi-line counter
