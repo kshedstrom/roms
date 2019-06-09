@@ -278,20 +278,6 @@
      &                 __FILE__)) RETURN
 #endif
 
-#ifdef FOUR_DVAR
-        status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'Nstate',        &
-     &                 NstateVar(ng), DimIDs(29))
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-#endif
-
-#ifdef ADJUST_BOUNDARY
-        status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname, 'obc_adjust',    &
-     &                 Nbrec(ng), DimIDs(31))
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-#endif
-
         status=def_dim(ng, iNLM, QCK(ng)%ncid, ncname,                  &
      &                 TRIM(ADJUSTL(Vname(5,idtime))),                  &
      &                 nf90_unlimited, DimIDs(12))

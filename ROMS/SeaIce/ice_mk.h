@@ -752,19 +752,11 @@
      &                     (ai(i,j,linew)*wro(i,j)-xtot)*sice(i,j))     &
      &                /(chs(i,j)+ai(i,j,linew)*wro(i,j)-xtot -          &
      &                  (1._r8-ai(i,j,linew))*stflx(i,j,isalt))
-!     IF (i==549 .and. (j==533 .or. j==534)) THEN
-!       write(*,*) j, wio(i,j), xtot, chs(i,j), s0mk(i,j),          &
-!    &              utau(i,j), sustr(i,j), svstr(i,j)
-!     END IF
 	    if (s0mk(i,j) < 0.0) s0mk(i,j) = salt_top(i,j)
             s0mk(i,j) = max(s0mk(i,j),0._r8)
             s0mk(i,j) = min(s0mk(i,j),40._r8)
 
             t0mk(i,j) = frln*s0mk(i,j)
-!     IF (i==549 .and. (j==533 .or. j==534)) THEN
-!       write(*,*) j, s0mk(i,j), salt_top(i,j)
-!       print *
-!     END IF
 #endif
 
           END IF

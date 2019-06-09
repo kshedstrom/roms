@@ -931,44 +931,75 @@
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
-#  ifdef BIO_COBALT
+#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
       allocate ( FORCES(ng) % river_no3(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_no3G(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_ldon(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_ldonG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_sldon(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_sldonG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_srdon(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_srdonG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_ndet(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_ndetG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_po4(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_po4G(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_ldop(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_ldopG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_sldop(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_sldopG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % river_srdop(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_srdopG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 #  endif
 #  ifdef COBALT_CARBON
       allocate ( FORCES(ng) % atmCO2(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % atmCO2G(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 #  endif
 #  ifdef COBALT_IRON
       allocate ( FORCES(ng) % soluble_fe(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % soluble_feG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
       allocate ( FORCES(ng) % ironsed(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 #   ifndef NO_IRON_COAST
       allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 #   endif
+#   if defined BIO_COBALT_RUNOFF
       allocate ( FORCES(ng) % river_fed(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_fedG(LBi:UBi,LBj:UBj,2) )
-#  endif
+      Dmem(ng)=Dmem(ng)+size2d*2
+#   endif
       allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+size2d*2
 # endif
 
 # if defined ICE_BULK_FLUXES && !defined NCEP_FLUXES

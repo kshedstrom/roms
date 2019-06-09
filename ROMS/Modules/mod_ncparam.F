@@ -1176,14 +1176,11 @@
       logical :: load
 
       integer, parameter :: inp = 10
-#ifdef DISTRIBUTE
-      integer :: Itile, Jtile
-#endif
-      integer :: Lvar, Ntiles, i, ic, ie, is, j, ng
-      integer :: gtype, tile, varid
+      integer :: Lvar, i, ic, ie, is, j, ng
+      integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
-      real(r8) :: offset, scale
+      real(r8) :: scale
 
       character (len=120), dimension(7) :: Vinfo
 !

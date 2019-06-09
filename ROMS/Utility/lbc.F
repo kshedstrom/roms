@@ -55,7 +55,7 @@
       USE mod_netcdf
       USE mod_scalars
 !
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti, mp_bcasts
 #endif
       USE strings_mod,    ONLY : FoundError
@@ -73,7 +73,7 @@
 ! Local variable declarations
 !
       integer :: i, ibry, ie, ifield, is, ne, status
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
       integer, dimension(2) :: ibuffer
 #endif
 
@@ -101,7 +101,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_IN  && defined DISTRIBUTE
 !
 !  Broadcast error flags to all processors in the group.
 !

@@ -45,7 +45,7 @@
 !
       logical :: Lwrite
 
-      integer :: Itile, Jtile, Nghost, Ntiles, tile
+      integer :: Itile, Jtile, Nghost, tile
       integer :: Imin, Imax, Jmin, Jmax
       integer :: Uoff, Voff
 #ifdef DISTRIBUTE

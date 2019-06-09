@@ -446,7 +446,7 @@
      &                         tl_t(i,j,N(ng),nrhs,isalt))
 #   endif
 #  elif defined SRELAXATION
-!>        stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
+!>        stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
 !>   &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 !>
 #   ifdef TL_IOMS

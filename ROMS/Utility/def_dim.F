@@ -56,7 +56,7 @@
 
       integer :: def_dim
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer, dimension(3) :: buffer
 #endif
 !
@@ -76,7 +76,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
 !
 !  Broadcast information to all threads in the group.
 !

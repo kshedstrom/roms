@@ -176,13 +176,13 @@
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
-     &   'Ice albedo computed according to CSIM3.'
+     &   'Ice albedo computed according to CSIM3'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ALBEDO_CSIM,'
 #endif
 #if defined ALBEDO_CURVE
       IF (Master) WRITE (stdout,20) 'ALBEDO_CURVE',                     &
-     &   'Ocean shortwave radiation adjusted by albedo curve.'
+     &   'Ocean shortwave radiation adjusted by albedo curve'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
 #endif
@@ -206,7 +206,7 @@
 #endif
 #if defined ANA_ALK_DIC && defined BIO_COBALT
       IF (Master) WRITE (stdout,20) 'ANA_ALK_DIC',                      &
-     &   'Analytical DIC and Alkalinity BC/CLM.'
+     &   'Analytical DIC and Alkalinity BC/CLM'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' ANA_ALK_DIC,'
 #endif
@@ -438,7 +438,7 @@
 #endif
 #if defined ANA_SPAWN_DIST && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'ANA_SPAWN_DIST',                   &
-     &   'Analytic spawning distance.'
+     &   'Analytic spawning distance'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' ANA_SPAWN_DIST,'
 #endif
@@ -717,14 +717,14 @@
 #endif
 #ifdef BIO_COBALT
       IF (Master) WRITE (stdout,20) 'BIO_COBALT',                       &
-     &   'GFDL Cobalt ecosystem model.'
+     &   'GFDL Cobalt ecosystem model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' BIO_COBALT,'
       ibiology=ibiology+1
 #endif
 #ifdef BIO_COBALT_RUNOFF
       IF (Master) WRITE (stdout,20) 'BIO_COBALT_RUNOFF',                &
-     &   'GFDL Cobalt Runoff sources (like rain).'
+     &   'GFDL Cobalt Runoff sources (like rain)'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' BIO_COBALT_RUNOFF,'
 #endif
@@ -854,31 +854,31 @@
 #endif
 #ifdef COBALT_CARBON
       IF (Master) WRITE (stdout,20) 'COBALT_CARBON',                    &
-     &   'Turn on carbon chemistry in COBALT.'
+     &   'Turn on carbon chemistry in COBALT'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' COBALT_CARBON,'
 #endif
 #ifdef COBALT_IRON
       IF (Master) WRITE (stdout,20) 'COBALT_IRON',                      &
-     &   'Turn on iron limitation in COBALT.'
+     &   'Turn on iron limitation in COBALT'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' COBALT_IRON,'
 # ifdef NO_IRON_COAST
       IF (Master) WRITE (stdout,20) 'NO_IRON_COAST',                    &
-     &   'Turn off coastal iron sources in COBALT.'
+     &   'Turn off coastal iron sources in COBALT'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' NO_IRON_COAST,'
 # endif
 #endif
 #ifdef COBALT_MINERALS
       IF (Master) WRITE (stdout,20) 'COBALT_MINERALS',                  &
-     &   'Turn on mineral chemistry in COBALT.'
+     &   'Turn on mineral chemistry in COBALT'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' COBALT_MINERALS,'
 #endif
 #ifdef COBALT_PHOSPHORUS
       IF (Master) WRITE (stdout,20) 'COBALT_PHOSPHORUS',                &
-     &   'Turn on phosphorus chemistry in COBALT.'
+     &   'Turn on phosphorus chemistry in COBALT'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' COBALT_PHOSPHORUS,'
 #endif
@@ -969,7 +969,7 @@
 #endif
 #ifdef CORE_FORCING
       IF (Master) WRITE (stdout,20) 'CORE_FORCING',                      &
-     &   'Specific humidity as in CORE forcing files.'
+     &   'Specific humidity as in CORE forcing files'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' CORE_FORCING,'
 #endif
@@ -1096,13 +1096,13 @@
 #endif
 #if defined EGGS_BISECTION && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'EGGS_BISECTION',                   &
-     &   'Bisection method for egg distribution.'
+     &   'Bisection method for egg distribution'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' EGGS_BISECTION,'
 #endif
 #if defined EGGS_TREE_FORT && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'EGGS_TREE_FORT',                   &
-     &   'Binary tree method for egg distribution (Fortran).'
+     &   'Binary tree method for egg distribution (Fortran)'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+16)=' EGGS_TREE_FORT,'
 #endif
@@ -1163,26 +1163,26 @@
 #endif
 #ifdef FILTERED_RST
       IF (Master) WRITE(stdout,20) 'FILTERED_RST',                      &
-     &   'Reading and writing time-filtered restart files.'
+     &   'Reading and writing time-filtered restart files'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' FILTERED_RST,'
 #endif
 #if defined FISH_FEEDBACK && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'FISH_FEEDBACK',                    &
-     &   'Fish model feedback to NPZ model.'
+     &   'Fish model feedback to NPZ model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' FISH_FEEDBACK,'
 #endif
 #if defined FISHING_FLEET && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'FISHING_FLEET',                    &
-     &   'Fishing fleet preying on model fish.'
+     &   'Fishing fleet preying on model fish'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' FISHING_FLEET,'
 #endif
 #if defined EVOLVED_LCZ && defined FOUR_DVAR
 !
       IF (Master) WRITE (stdout,20) 'EVOLVED_LCZ',                      &
-     &   'Compute 4D-Var evolved Hessian singular vectors.'
+     &   'Compute 4D-Var evolved Hessian singular vectors'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' EVOLVED_LCZ,'
 #endif
@@ -1611,20 +1611,14 @@
 #if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
 !
       IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
-     &   'Limit bottom stress to maintain bottom velocity direction.'
+     &   'Limit bottom stress to maintain bottom velocity direction'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
 #if defined LIMIT_STFLX_COOLING && defined SOLVE3D
 !
       IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
-#endif
-#if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-      IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
-     &   'Suppress further cooling if SST is at freezing point.'
+     &   'Suppress further cooling if SST is at freezing point'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+21)=' LIMIT_STFLX_COOLING,'
 #endif
@@ -1872,7 +1866,7 @@
 #endif
 #ifdef NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'NEMURO_SAN',                       &
-     &   'Nemuro with sardine and anchovy fish model.'
+     &   'Nemuro with sardine and anchovy fish model'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' NEMURO_SAN,'
 #endif
@@ -1997,7 +1991,7 @@
 #ifdef NPZD_IRON
 !
       IF (Master) WRITE (stdout,20) 'NPZD_IRON',                        &
-     &   'NPZD Biological Model (Powell et al.) with iron limitation.'
+     &   'NPZD Biological Model (Powell et al.) with iron limitation'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' NPZD_IRON,'
       ibiology=ibiology+1
@@ -2266,7 +2260,7 @@
 #endif
 #if defined PREDATOR && defined NEMURO_SAN
       IF (Master) WRITE (stdout,20) 'PREDATOR',                         &
-     &   'Predators on the fish.'
+     &   'Predators on the fish'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+10)=' PREDATOR,'
 #endif
@@ -3693,7 +3687,7 @@
         exit_flag=5
       END IF
 #endif
-#ifdef PARALLEL_IO
+#ifdef PARALLEL_OUT
 # if !(defined HDF5 || defined PNETCDF)
       IF (Master) THEN
         WRITE (stdout,170) uppercase('hdf5'),                           &

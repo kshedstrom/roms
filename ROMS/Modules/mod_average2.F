@@ -9,6 +9,7 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
+!  FOR the AVERAGE2 option, these become surface only fields.          !
 !  The strategy here is  to define all possible pointers in the        !
 !  time-averaged structure and allocate only those requested by        !
 !  the user. This will facilitate a better management of memory.       !

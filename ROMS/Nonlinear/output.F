@@ -58,7 +58,7 @@
 !
       logical :: Ldefine, NewFile
 
-      integer :: Fcount, ifile, status, tile
+      integer :: Fcount, ifile, tile
 # ifdef FILTERED_RST
       integer :: i
 # endif

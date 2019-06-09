@@ -256,8 +256,6 @@
           Vinfo( 3)=Vname(3,idFsur)
           Vinfo(14)=Vname(4,idFsur)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idFsur),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
 # ifdef WET_DRY
@@ -280,8 +278,6 @@
           Vinfo( 3)=Vname(3,idbath)
           Vinfo(14)=Vname(4,idbath)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idbath),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .FALSE.,                          &
@@ -299,8 +295,6 @@
           Vinfo( 3)=Vname(3,idUbar)
           Vinfo(14)=Vname(4,idUbar)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbar),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -317,8 +311,6 @@
           Vinfo( 3)=Vname(3,idVbar)
           Vinfo(14)=Vname(4,idVbar)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbar),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -335,8 +327,6 @@
           Vinfo( 3)=Vname(3,idu2dE)
           Vinfo(14)=Vname(4,idu2dE)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idu2dE),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -353,8 +343,6 @@
           Vinfo( 3)=Vname(3,idv2dN)
           Vinfo(14)=Vname(4,idv2dN)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idv2dN),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -373,8 +361,6 @@
           Vinfo( 3)=Vname(3,idUvel)
           Vinfo(14)=Vname(4,idUvel)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUvel),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -391,8 +377,6 @@
           Vinfo( 3)=Vname(3,idVvel)
           Vinfo(14)=Vname(4,idVvel)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVvel),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -409,8 +393,6 @@
           Vinfo( 3)=Vname(3,idu3dE)
           Vinfo(14)=Vname(4,idu3dE)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idu3dE),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -427,8 +409,6 @@
           Vinfo( 3)=Vname(3,idv3dN)
           Vinfo(14)=Vname(4,idv3dN)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idv3dN),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -445,8 +425,6 @@
           Vinfo( 3)=Vname(3,idWvel)
           Vinfo(14)=Vname(4,idWvel)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWvel),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -463,8 +441,6 @@
           Vinfo( 3)='meter3 second-1'
           Vinfo(14)=Vname(4,idOvel)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idOvel),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -482,8 +458,6 @@
             Vinfo( 3)=Vname(3,idTvar(itrc))
             Vinfo(14)=Vname(4,idTvar(itrc))
             Vinfo(16)=Vname(1,idtime)
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
 #  ifdef SEDIMENT
             DO i=1,NST
               IF (itrc.eq.idsed(i)) THEN
@@ -508,8 +482,6 @@
           Vinfo( 3)=Vname(3,idDano)
           Vinfo(14)=Vname(4,idDano)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idDano),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -528,8 +500,6 @@
           Vinfo( 3)=Vname(3,idPONsed)
           Vinfo(14)=Vname(4,idPONsed)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idPONsed), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -546,8 +516,6 @@
           Vinfo( 3)=Vname(3,idOPALsed)
           Vinfo(14)=Vname(4,idOPALsed)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idOPALsed),&
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -564,8 +532,6 @@
           Vinfo( 3)=Vname(3,idDENITsed)
           Vinfo(14)=Vname(4,idDENITsed)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid,                        &
      &                   STA(ng)%Vid(idDENITsed),                       &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
@@ -583,8 +549,6 @@
           Vinfo( 3)=Vname(3,idPONbur)
           Vinfo(14)=Vname(4,idPONbur)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idPONbur), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -601,8 +565,6 @@
           Vinfo( 3)=Vname(3,idOPALbur)
           Vinfo(14)=Vname(4,idOPALbur)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idOPALbur),&
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -621,8 +583,6 @@
           Vinfo( 3)=Vname(3,idNPP)
           Vinfo(14)=Vname(4,idNPP)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idNPP),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -641,8 +601,6 @@
           Vinfo( 3)=Vname(3,idHsbl)
           Vinfo(14)=Vname(4,idHsbl)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idHsbl),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -661,8 +619,6 @@
           Vinfo( 3)=Vname(3,idHbbl)
           Vinfo(14)=Vname(4,idHbbl)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idHbbl),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -680,8 +636,6 @@
           Vinfo( 3)=Vname(3,idVvis)
           Vinfo(14)=Vname(4,idVvis)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVvis),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -698,8 +652,6 @@
           Vinfo( 3)=Vname(3,idTdif)
           Vinfo(14)=Vname(4,idTdif)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idTdif),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -718,8 +670,6 @@
           Vinfo( 3)=Vname(3,idSdif)
           Vinfo(14)=Vname(4,idSdif)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSdif),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -738,8 +688,6 @@
           Vinfo( 3)=Vname(3,idMtke)
           Vinfo(14)=Vname(4,idMtke)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idMtke),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -756,8 +704,6 @@
           Vinfo( 3)=Vname(3,idMtls)
           Vinfo(14)=Vname(4,idMtls)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idMtls),   &
      &                   NF_FOUT, 3, wgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -776,8 +722,6 @@
           Vinfo( 3)=Vname(3,idPair)
           Vinfo(14)=Vname(4,idPair)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idPair),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -796,8 +740,6 @@
           Vinfo( 3)=Vname(3,idUair)
           Vinfo(14)=Vname(4,idUair)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUair),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -812,8 +754,6 @@
           Vinfo( 3)=Vname(3,idVair)
           Vinfo(14)=Vname(4,idVair)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVair),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -830,8 +770,6 @@
           Vinfo( 3)=Vname(3,idUairE)
           Vinfo(14)=Vname(4,idUairE)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUairE),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -846,8 +784,6 @@
           Vinfo( 3)=Vname(3,idVairN)
           Vinfo(14)=Vname(4,idVairN)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVairN),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -867,8 +803,6 @@
           Vinfo(12)='downward flux, heating'
           Vinfo(14)=Vname(4,idTsur(itemp))
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid,                        &
      &                   STA(ng)%Vid(idTsur(itemp)), NF_FOUT,           &
      &                   2, pgrd, Aval, Vinfo, ncname,                  &
@@ -888,8 +822,6 @@
           Vinfo(12)='downward flux, salting (net evaporation)'
           Vinfo(14)=Vname(4,idTsur(isalt))
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid,                        &
      &                   STA(ng)%Vid(idTsur(isalt)), NF_FOUT,           &
      &                   2, pgrd, Aval, Vinfo, ncname,                  &
@@ -910,8 +842,6 @@
           Vinfo(12)='downward flux, heating'
           Vinfo(14)=Vname(4,idLhea)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idLhea),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -930,8 +860,6 @@
           Vinfo(12)='downward flux, heating'
           Vinfo(14)=Vname(4,idShea)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idShea),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -950,8 +878,6 @@
           Vinfo(12)='downward flux, heating'
           Vinfo(14)=Vname(4,idLrad)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idLrad),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -972,8 +898,6 @@
           Vinfo(12)='downward flux, heating'
           Vinfo(14)=Vname(4,idSrad)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSrad),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -994,8 +918,6 @@
           Vinfo(12)='downward flux, salting (net evaporation)'
           Vinfo(14)=Vname(4,idEmPf)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idEmPf),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1014,8 +936,6 @@
           Vinfo(12)='upward flux, salting (evaporation)'
           Vinfo(14)=Vname(4,idevap)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idevap),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1034,8 +954,6 @@
           Vinfo(12)='downward flux, freshening (precipitation)'
           Vinfo(14)=Vname(4,idrain)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idrain),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1054,8 +972,6 @@
           Vinfo( 3)=Vname(3,idUsms)
           Vinfo(14)=Vname(4,idUsms)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUsms),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1072,8 +988,6 @@
           Vinfo( 3)=Vname(3,idVsms)
           Vinfo(14)=Vname(4,idVsms)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVsms),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1090,8 +1004,6 @@
           Vinfo( 3)=Vname(3,idUbms)
           Vinfo(14)=Vname(4,idUbms)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbms),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1108,8 +1020,6 @@
           Vinfo( 3)=Vname(3,idVbms)
           Vinfo(14)=Vname(4,idVbms)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbms),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1129,8 +1039,6 @@
           Vinfo( 3)=Vname(3,idUbrs)
           Vinfo(14)=Vname(4,idUbrs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbrs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1147,8 +1055,6 @@
           Vinfo( 3)=Vname(3,idVbrs)
           Vinfo(14)=Vname(4,idVbrs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbrs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1165,8 +1071,6 @@
           Vinfo( 3)=Vname(3,idUbws)
           Vinfo(14)=Vname(4,idUbws)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbws),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1183,8 +1087,6 @@
           Vinfo( 3)=Vname(3,idVbws)
           Vinfo(14)=Vname(4,idVbws)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbws),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1201,8 +1103,6 @@
           Vinfo( 3)=Vname(3,idUbcs)
           Vinfo(14)=Vname(4,idUbcs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbcs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1219,8 +1119,6 @@
           Vinfo( 3)=Vname(3,idVbcs)
           Vinfo(14)=Vname(4,idVbcs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbcs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1237,8 +1135,6 @@
           Vinfo( 3)=Vname(3,idUbot)
           Vinfo(14)=Vname(4,idUbot)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbot),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1255,8 +1151,6 @@
           Vinfo( 3)=Vname(3,idVbot)
           Vinfo(14)=Vname(4,idVbot)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbot),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1273,8 +1167,6 @@
           Vinfo( 3)=Vname(3,idUbur)
           Vinfo(14)=Vname(4,idUbur)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUbur),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1291,8 +1183,6 @@
           Vinfo( 3)=Vname(3,idVbvr)
           Vinfo(14)=Vname(4,idVbvr)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVbvr),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1312,8 +1202,6 @@
             Vinfo( 3)=Vname(3,idfrac(i))
             Vinfo(14)=Vname(4,idfrac(i))
             Vinfo(16)=Vname(1,idtime)
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             WRITE (Vinfo(19),40) 1000.0_r8*Sd50(i,ng)
             status=def_var(ng, iNLM, STA(ng)%ncid,                      &
      &                     STA(ng)%Vid(idfrac(i)), NF_FOUT,             &
@@ -1332,8 +1220,6 @@
             Vinfo( 3)=Vname(3,idBmas(i))
             Vinfo(14)=Vname(4,idBmas(i))
             Vinfo(16)=Vname(1,idtime)
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             WRITE (Vinfo(19),40) 1000.0_r8*Sd50(i,ng)
             status=def_var(ng, iNLM, STA(ng)%ncid,                      &
      &                     STA(ng)%Vid(idBmas(i)), NF_FOUT,             &
@@ -1354,8 +1240,6 @@
             Vinfo( 3)=Vname(3,idSbed(i))
             Vinfo(14)=Vname(4,idSbed(i))
             Vinfo(16)=Vname(1,idtime)
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, iNLM, STA(ng)%ncid,                      &
      &                     STA(ng)%Vid(idSbed(i)), NF_FOUT,             &
      &                     3, bgrd, Aval, Vinfo, ncname,                &
@@ -1377,8 +1261,6 @@
             Vinfo( 3)=Vname(3,idBott(i))
             Vinfo(14)=Vname(4,idBott(i))
             Vinfo(16)=Vname(1,idtime)
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, iNLM, STA(ng)%ncid,                      &
      &                     STA(ng)%Vid(idBott(i)), NF_FOUT,             &
      &                     2, pgrd, Aval, Vinfo, ncname,                &
@@ -1400,8 +1282,6 @@
           Vinfo( 3)=Vname(3,idW2xx)
           Vinfo(14)=Vname(4,idW2xx)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW2xx),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1418,8 +1298,6 @@
           Vinfo( 3)=Vname(3,idW2xy)
           Vinfo(14)=Vname(4,idW2xy)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW2xy),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1436,8 +1314,6 @@
           Vinfo( 3)=Vname(3,idW2yy)
           Vinfo(14)=Vname(4,idW2yy)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW2yy),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1454,8 +1330,6 @@
           Vinfo( 3)=Vname(3,idU2rs)
           Vinfo(14)=Vname(4,idU2rs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idU2rs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1472,8 +1346,6 @@
           Vinfo( 3)=Vname(3,idV2rs)
           Vinfo(14)=Vname(4,idV2rs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idV2rs),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1490,8 +1362,6 @@
           Vinfo( 3)=Vname(3,idU2Sd)
           Vinfo(14)=Vname(4,idU2Sd)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idU2Sd),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1508,8 +1378,6 @@
           Vinfo( 3)=Vname(3,idV2Sd)
           Vinfo(14)=Vname(4,idV2Sd)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idV2Sd),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1528,8 +1396,6 @@
           Vinfo( 3)=Vname(3,idW3xx)
           Vinfo(14)=Vname(4,idW3xx)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW3xx),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1546,8 +1412,6 @@
           Vinfo( 3)=Vname(3,idW3xy)
           Vinfo(14)=Vname(4,idW3xy)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW3xy),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1564,8 +1428,6 @@
           Vinfo( 3)=Vname(3,idW3yy)
           Vinfo(14)=Vname(4,idW3yy)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW3yy),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1584,8 +1446,6 @@
           Vinfo( 3)=Vname(3,idW3zx)
           Vinfo(14)=Vname(4,idW3zx)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW3zx),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1602,8 +1462,6 @@
           Vinfo( 3)=Vname(3,idW3zy)
           Vinfo(14)=Vname(4,idW3zy)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idW3zy),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1621,8 +1479,6 @@
           Vinfo( 3)=Vname(3,idU3rs)
           Vinfo(14)=Vname(4,idU3rs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idU3rs),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1639,8 +1495,6 @@
           Vinfo( 3)=Vname(3,idV3rs)
           Vinfo(14)=Vname(4,idV3rs)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idV3rs),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1657,8 +1511,6 @@
           Vinfo( 3)=Vname(3,idU3Sd)
           Vinfo(14)=Vname(4,idU3Sd)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idU3Sd),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1675,8 +1527,6 @@
           Vinfo( 3)=Vname(3,idV3Sd)
           Vinfo(14)=Vname(4,idV3Sd)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idV3Sd),   &
      &                   NF_FOUT, 3, rgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1696,8 +1546,6 @@
           Vinfo( 3)=Vname(3,idWamp)
           Vinfo(14)=Vname(4,idWamp)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWamp),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1716,8 +1564,6 @@
           Vinfo( 3)=Vname(3,idWlen)
           Vinfo(14)=Vname(4,idWlen)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWlen),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1736,8 +1582,6 @@
           Vinfo( 3)=Vname(3,idWdir)
           Vinfo(14)=Vname(4,idWdir)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWdir),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1756,8 +1600,6 @@
           Vinfo( 3)=Vname(3,idWptp)
           Vinfo(14)=Vname(4,idWptp)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWptp),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1777,8 +1619,6 @@
           Vinfo( 3)=Vname(3,idWpbt)
           Vinfo(14)=Vname(4,idWpbt)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWpbt),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1798,8 +1638,6 @@
           Vinfo( 3)=Vname(3,idWorb)
           Vinfo(14)=Vname(4,idWorb)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWorb),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1818,8 +1656,6 @@
           Vinfo( 3)=Vname(3,idWdis)
           Vinfo(14)=Vname(4,idWdis)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWdis),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1841,8 +1677,6 @@
           Vinfo(14)=Vname(4,idRwet)
           Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           Aval(5)=REAL(Iinfo(1,idRwet,ng),r8)
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idRwet),     &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
@@ -1863,8 +1697,6 @@
           Vinfo(14)=Vname(4,idUwet)
           Vinfo(16)=Vname(1,idtime)
           Vinfo(22)='coordinates'
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           Aval(5)=REAL(Iinfo(1,idUwet,ng),r8)
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUwet),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
@@ -1885,8 +1717,6 @@
           Vinfo( 9)='land'
           Vinfo(10)='water'
           Vinfo(22)='coordinates'
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           Aval(5)=REAL(Iinfo(1,idVwet,ng),r8)
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVwet),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
@@ -1906,8 +1736,6 @@
           Vinfo( 3)=Vname(3,idUice)
           Vinfo(14)=Vname(4,idUice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUice),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1924,8 +1752,6 @@
           Vinfo( 3)=Vname(3,idVice)
           Vinfo(14)=Vname(4,idVice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idVice),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1942,8 +1768,6 @@
           Vinfo( 3)=Vname(3,idUiceE)
           Vinfo(14)=Vname(4,idUiceE)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idUiceE),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1960,8 +1784,6 @@
           Vinfo( 3)=Vname(3,idViceN)
           Vinfo(14)=Vname(4,idViceN)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idViceN),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1978,8 +1800,6 @@
           Vinfo( 3)=Vname(3,idAice)
           Vinfo(14)=Vname(4,idAice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idAice),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -1996,8 +1816,6 @@
           Vinfo( 3)=Vname(3,idHice)
           Vinfo(14)=Vname(4,idHice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idHice),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetParAccess = .TRUE.)
@@ -2013,8 +1831,6 @@
           Vinfo( 3)=Vname(3,idTice)
           Vinfo(14)=Vname(4,idTice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idTice),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2031,8 +1847,6 @@
           Vinfo( 3)=Vname(3,idHsno)
           Vinfo(14)=Vname(4,idHsno)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idHsno),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2049,8 +1863,6 @@
           Vinfo( 3)=Vname(3,idAgeice)
           Vinfo(14)=Vname(4,idAgeice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idAgeice), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2067,8 +1879,6 @@
           Vinfo( 3)=Vname(3,idIomflx)
           Vinfo(14)=Vname(4,idIomflx)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idIomflx), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2085,8 +1895,6 @@
           Vinfo( 3)=Vname(3,idTimid)
           Vinfo(14)=Vname(4,idTimid)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idTimid),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2103,8 +1911,6 @@
           Vinfo( 3)=Vname(3,idT2ice)
           Vinfo(14)=Vname(4,idT2ice)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idT2ice),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2121,8 +1927,6 @@
           Vinfo( 3)=Vname(3,idTauiw)
           Vinfo(14)=Vname(4,idTauiw)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idTauiw),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2139,8 +1943,6 @@
           Vinfo( 3)=Vname(3,idChuiw)
           Vinfo(14)=Vname(4,idChuiw)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idChuiw),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2157,8 +1959,6 @@
           Vinfo( 3)=Vname(3,idT0mk)
           Vinfo(14)=Vname(4,idT0mk)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idT0mk), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname, &
      &                   SetFillVal = .TRUE., &
@@ -2175,8 +1975,6 @@
           Vinfo( 3)=Vname(3,idS0mk)
           Vinfo(14)=Vname(4,idS0mk)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idS0mk), &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname, &
      &                   SetFillVal = .TRUE., &
@@ -2193,8 +1991,6 @@
           Vinfo( 3)=Vname(3,idWfr)
           Vinfo(14)=Vname(4,idWfr)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWfr),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2211,8 +2007,6 @@
           Vinfo( 3)=Vname(3,idWai)
           Vinfo(14)=Vname(4,idWai)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWai),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2230,8 +2024,6 @@
           Vinfo( 3)=Vname(3,idWao)
           Vinfo(14)=Vname(4,idWao)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWao),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2248,8 +2040,6 @@
           Vinfo( 3)=Vname(3,idWio)
           Vinfo(14)=Vname(4,idWio)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWio),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2266,8 +2056,6 @@
           Vinfo( 3)=Vname(3,idWro)
           Vinfo(14)=Vname(4,idWro)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWro),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2284,8 +2072,6 @@
           Vinfo( 3)=Vname(3,idWdiv)
           Vinfo(14)=Vname(4,idWdiv)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idWdiv),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2302,8 +2088,6 @@
           Vinfo( 3)=Vname(3,idSig11)
           Vinfo(14)=Vname(4,idSig11)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSig11),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2320,8 +2104,6 @@
           Vinfo( 3)=Vname(3,idSig12)
           Vinfo(14)=Vname(4,idSig12)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSig12),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2338,8 +2120,6 @@
           Vinfo( 3)=Vname(3,idSig22)
           Vinfo(14)=Vname(4,idSig22)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSig22),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2357,8 +2137,6 @@
           Vinfo( 3)=Vname(3,idAlbe)
           Vinfo(14)=Vname(4,idAlbe)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idAlbe),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2375,8 +2153,6 @@
           Vinfo( 3)=Vname(3,idAlbI)
           Vinfo(14)=Vname(4,idAlbI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idAlbI),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2393,8 +2169,6 @@
           Vinfo( 3)=Vname(3,idLWdn)
           Vinfo(14)=Vname(4,idLWdn)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idLWdn),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2411,8 +2185,6 @@
           Vinfo( 3)=Vname(3,idSWdn)
           Vinfo(14)=Vname(4,idSWdn)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSWdn),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2429,8 +2201,6 @@
           Vinfo( 3)=Vname(3,idLatI)
           Vinfo(14)=Vname(4,idLatI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idLatI),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2447,8 +2217,6 @@
           Vinfo( 3)=Vname(3,idSenI)
           Vinfo(14)=Vname(4,idSenI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSenI),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2465,8 +2233,6 @@
           Vinfo( 3)=Vname(3,idLWupI)
           Vinfo(14)=Vname(4,idLWupI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idLWupI),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2483,8 +2249,6 @@
           Vinfo( 3)=Vname(3,idSWupI)
           Vinfo(14)=Vname(4,idSWupI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSWupI),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2501,8 +2265,6 @@
           Vinfo( 3)=Vname(3,idSWinI)
           Vinfo(14)=Vname(4,idSWinI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSWinI),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2519,8 +2281,6 @@
           Vinfo( 3)=Vname(3,idSWthruI)
           Vinfo(14)=Vname(4,idSWthruI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSWthruI),&
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2537,8 +2297,6 @@
           Vinfo( 3)=Vname(3,idSaltI)
           Vinfo(14)=Vname(4,idSaltI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSaltI),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2555,8 +2313,6 @@
           Vinfo( 3)=Vname(3,idSaltL)
           Vinfo(14)=Vname(4,idSaltL)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSaltL),  &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2573,8 +2329,6 @@
           Vinfo( 3)=Vname(3,idQao)
           Vinfo(14)=Vname(4,idQao)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idQao),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2591,8 +2345,6 @@
           Vinfo( 3)=Vname(3,idQai)
           Vinfo(14)=Vname(4,idQai)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idQai),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2609,8 +2361,6 @@
           Vinfo( 3)=Vname(3,idQio)
           Vinfo(14)=Vname(4,idQio)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idQio),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2627,8 +2377,6 @@
           Vinfo( 3)=Vname(3,idQi2)
           Vinfo(14)=Vname(4,idQi2)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idQi2),    &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &
@@ -2645,8 +2393,6 @@
           Vinfo( 3)=Vname(3,idSnoI)
           Vinfo(14)=Vname(4,idSnoI)
           Vinfo(16)=Vname(1,idtime)
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idSnoI),   &
      &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
      &                   SetFillVal = .TRUE.,                           &

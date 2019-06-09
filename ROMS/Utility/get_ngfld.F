@@ -71,7 +71,7 @@
       logical :: Linquire, Liocycle, Lmulti, Lonerec
 
       integer :: Nrec, Tid, Tindex, Trec, Vid, Vtype
-      integer :: i, ic, j, job, lend, lstr, npts, status
+      integer :: i, ic, j, job, lend, lstr, npts
 
       real(r8) :: Aval, Fmax, Fmin
 

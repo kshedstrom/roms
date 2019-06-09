@@ -59,7 +59,7 @@
       real*8  :: adjust                ! Adjusting coefficient
       real*8  :: a1,b1,tol,fval        ! Parameters of equation solver
       real*8, allocatable :: phi(:,:)  ! Wave phases
-      real*8, parameter   :: pi=3.141592653589     
+      real*8, parameter   :: pi=3.141592653589
 !
 !  Saved variable declarations.
 !
@@ -70,7 +70,7 @@
       integer, save :: n1_save=0
       integer, save :: n2_save=0
 !
-!  Variables for FFTW 
+!  Variables for FFTW
 !
       real         :: real_part, imag_part
       type(C_PTR)  :: q,s             ! pointers for FFTW
@@ -80,7 +80,7 @@
 !-----------------------------------------------------------------------
 !  Get the dimensions of FFT
 !-----------------------------------------------------------------------
-! 
+!
       CALL initfftdim(nx,ny,n1,n2)
 !
 !-----------------------------------------------------------------------
@@ -99,7 +99,7 @@
 !-----------------------------------------------------------------------
 !  Compute equation parameters
 !-----------------------------------------------------------------------
-! 
+!
       pi2=2.0*pi
       deltak=pi2**2/(float(n1*n2)*dx*dy)
       kappa=pi2/(float(n1)*dx)
@@ -119,7 +119,7 @@
          b1=0.1e-06
          tol=0.1e-10
          CALL zeroin(func2D,sigma,a1,b1,tol,rh,dx,dy,fval,n1,n2)
-   
+
          sigma2=sigma**2
          asum=0.0
          DO p=-n2/2+1,n2/2
@@ -176,7 +176,7 @@
       adjust = SQRT( 1.00 / asum )
       Randmat(:,:) = Randmat(:,:) * adjust
 !
-!-----------------------------------------------------------------------     
+!-----------------------------------------------------------------------
 !  Deallocate arrays
 !-----------------------------------------------------------------------
 !
@@ -321,7 +321,7 @@
       real*8      :: tol  !  desired length of the interval of uncertainty of the
       real*8      :: a,b,c,d,e,eps,fa,fb,fc,tol1,xm,p,q,r,s
       real*8      :: fval
-   
+
      ! compute eps, the relative machine precision
       icorr=0
       eps = 1.0
@@ -413,9 +413,9 @@
       real*8  :: sigma2,pi2,kappa,kappa2,lambda,lambda2
       real*8  :: dx,dy
       integer :: l,p,n1,n2
-      
+
       real*8, parameter :: pi=3.141592653589
-   
+
       sigma2=sigma**2
       pi2=2.0*pi
       kappa=pi2/(float(n1)*dx)
@@ -431,7 +431,7 @@
      &          +lambda2*float(p*p))/sigma2)*cos(kappa*float(l)*length)
          ENDDO
       ENDDO
-   
+
       ! Calculate sum2
       sum2=0.0
       DO p=-n2/2+1,n2/2

@@ -599,7 +599,6 @@
                 ObsScale(iobs)=0.0_r8
               END IF
             END IF
-            END IF
           END DO
         END IF
 # endif

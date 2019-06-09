@@ -71,7 +71,7 @@
       USE mod_strings
 !
       USE def_var_mod, ONLY : def_var
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       USE distribute_mod, ONLY : mp_bcasti
 #endif
       USE strings_mod, ONLY : FoundError, join_string
@@ -102,7 +102,7 @@
 
       integer :: biodim(2)
 #endif
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       integer :: ibuffer(2)
 #endif
       integer :: p2dgrd(2), tbrydim(2)
@@ -1096,7 +1096,7 @@
 #endif
       END IF
 
-#if !defined PARALLEL_IO  && defined DISTRIBUTE
+#if !defined PARALLEL_OUT  && defined DISTRIBUTE
       ibuffer(1)=exit_flag
       ibuffer(2)=ioerror
       CALL mp_bcasti (ng, model, ibuffer)
@@ -3396,8 +3396,6 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
@@ -3477,8 +3475,6 @@
           Vinfo(14)='lon_rho, scalar'
           Vinfo(21)='longitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3496,8 +3492,6 @@
           Vinfo(14)='lat_rho, scalar'
           Vinfo(21)='latitude'
           IF (ncid.eq.STA(ng)%ncid) THEN
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo,  ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3514,8 +3508,6 @@
           Vinfo( 3)='meter'
           Vinfo(14)='x_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3532,8 +3524,6 @@
           Vinfo( 3)='meter'
           Vinfo(14)='y_rho, scalar'
           IF (ncid.eq.STA(ng)%ncid) THEN
-            Vinfo(24)='_FillValue'
-            Aval(6)=spval
             status=def_var(ng, model, ncid, varid, NF_TYPE,             &
      &                     1, (/stadim/), Aval, Vinfo, ncname)
             IF (FoundError(exit_flag, NoError, __LINE__,                &
@@ -3706,8 +3696,6 @@
         Vinfo(22)='coordinates'
         Aval(5)=REAL(r2dvar,r8)
         IF (ncid.eq.STA(ng)%ncid) THEN
-          Vinfo(24)='_FillValue'
-          Aval(6)=spval
           status=def_var(ng, model, ncid, varid, NF_TYPE,               &
      &                   1, (/stadim/), Aval, Vinfo,  ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &

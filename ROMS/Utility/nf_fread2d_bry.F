@@ -95,7 +95,7 @@
 
       real(r8), dimension(3) :: AttValue
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_IN && defined DISTRIBUTE
       real(r8), dimension(3) :: buffer
 #endif
       real(r8), dimension((UBij-LBij+1)*4*Nrec) :: wrk
@@ -241,7 +241,7 @@
         END IF
       END IF
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_IN && defined DISTRIBUTE
       buffer(1)=REAL(status,r8)
       buffer(2)=Amin
       buffer(3)=Amax
@@ -258,7 +258,7 @@
         RETURN
       END IF
 
-#if !defined PARALLEL_IO && defined DISTRIBUTE
+#if !defined PARALLEL_IN && defined DISTRIBUTE
 !
 !  Broadcast data to all spawned nodes.
 !
