@@ -523,6 +523,21 @@
 ** JELLY               use if jellyfish                                      **
 ** CLIM_ICE_1D         use if one-D with ice                                 **
 **                                                                           **
+** COBALT (Stock et al., 2014) options:                                      **
+**                                                                           **
+** BIO_COBALT          use if Stock et al. (2014) COBALT model               **
+** ANA_ALK_DIC         use if analytic alkalinity and DIC                    **
+** BENTHIC             use if benthic components (conflict with BEST_NPZ)    **
+** BIO_COBALT_RUNOFF   use if runoff includes COBALT fields                  **
+** COASTDIAT           use if coastal diatoms (md phyto) are included        **
+** COBALT_CARBON       use if carbon compents matter                         **
+** COBALT_CONSERVATION_TEST use for conservation of tracers                  **
+** COBALT_IRON         use for iron components                               **
+** COBALT_MINERALS     use for mineral components                            **
+** COBALT_PHOSPHORUS   use for phosphorus components                         **
+** NO_IRON_COAST       use for no coastal iron                               **
+** OPTIC_MANIZZA       use for light limitation from Chl                     **
+**                                                                           **
 ** Hypoxia ecosysten model OPTIONS:                                          **
 **                                                                           **
 ** HYPOXIA_SRM         use if Hypoxia Simple Respiration Model               **

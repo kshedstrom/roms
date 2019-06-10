@@ -852,6 +852,12 @@
       Coptions(is:is+17)=' COAMPS_COUPLING,'
       iatms=iatms+1
 #endif
+#ifdef COASTDIAT
+      IF (Master) WRITE (stdout,20) 'COASTDIAT',                         &
+     &   'Turn on coastal diatoms in COBALT'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' COASTDIAT,'
+#endif
 #ifdef COBALT_CARBON
       IF (Master) WRITE (stdout,20) 'COBALT_CARBON',                    &
      &   'Turn on carbon chemistry in COBALT'

@@ -1071,636 +1071,846 @@
 #ifdef NEMURO_SAN
       IF (.not.allocated(Fwwt0)) THEN
         allocate( Fwwt0(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fwth0)) THEN
         allocate( Fwth0(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fspstr)) THEN
         allocate( Fspstr(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fspend)) THEN
         allocate( Fspend(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(FspTmin)) THEN
         allocate( FspTmin(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(FspTmax)) THEN
         allocate( FspTmax(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Hbehave)) THEN
         allocate( Hbehave(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Vbehave)) THEN
         allocate( Vbehave(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZSpref)) THEN
         allocate( ZSpref(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZSpref_L)) THEN
         allocate( ZSpref_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZSpref_J)) THEN
         allocate( ZSpref_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZSpref_A)) THEN
         allocate( ZSpref_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZLpref)) THEN
         allocate( ZLpref(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZLpref_L)) THEN
         allocate( ZLpref_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZLpref_J)) THEN
         allocate( ZLpref_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZLpref_A)) THEN
         allocate( ZLpref_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZPpref)) THEN
         allocate( ZPpref(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZPpref_L)) THEN
         allocate( ZPpref_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZPpref_J)) THEN
         allocate( ZPpref_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(ZPpref_A)) THEN
         allocate( ZPpref_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZS)) THEN
         allocate( K_ZS(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZS_L)) THEN
         allocate( K_ZS_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZS_J)) THEN
         allocate( K_ZS_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZS_A)) THEN
         allocate( K_ZS_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZL)) THEN
         allocate( K_ZL(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZL_L)) THEN
         allocate( K_ZL_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZL_J)) THEN
         allocate( K_ZL_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZL_A)) THEN
         allocate( K_ZL_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZP)) THEN
         allocate( K_ZP(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZP_L)) THEN
         allocate( K_ZP_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZP_J)) THEN
         allocate( K_ZP_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(K_ZP_A)) THEN
         allocate( K_ZP_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Cal_Z)) THEN
         allocate( Cal_Z(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Cal_F)) THEN
         allocate( Cal_F(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_C)) THEN
         allocate( a_C(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_C_L)) THEN
         allocate( a_C_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_C_J)) THEN
         allocate( a_C_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_C_A)) THEN
         allocate( a_C_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_C)) THEN
         allocate( b_C(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_C_L)) THEN
         allocate( b_C_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_C_J)) THEN
         allocate( b_C_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_C_A)) THEN
         allocate( b_C_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pvalmax)) THEN
         allocate( pvalmax(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pvalmax_L)) THEN
         allocate( pvalmax_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pvalmax_J)) THEN
         allocate( pvalmax_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pvalmax_A)) THEN
         allocate( pvalmax_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_R)) THEN
         allocate( a_R(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_R_L)) THEN
         allocate( a_R_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_R_J)) THEN
         allocate( a_R_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_R_A)) THEN
         allocate( a_R_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_R)) THEN
         allocate( b_R(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_R_L)) THEN
         allocate( b_R_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_R_J)) THEN
         allocate( b_R_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_R_A)) THEN
         allocate( b_R_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(activity)) THEN
         allocate( activity(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(activity_L)) THEN
         allocate( activity_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(activity_J)) THEN
         allocate( activity_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(activity_A)) THEN
         allocate( activity_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(d_R)) THEN
         allocate( d_R(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(d_R_L)) THEN
         allocate( d_R_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(d_R_J)) THEN
         allocate( d_R_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(d_R_A)) THEN
         allocate( d_R_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fswim)) THEN
         allocate( Fswim(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fswim_L)) THEN
         allocate( Fswim_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fswim_J)) THEN
         allocate( Fswim_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fswim_A)) THEN
         allocate( Fswim_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_AE)) THEN
         allocate( a_AE(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_AE_L)) THEN
         allocate( a_AE_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_AE_J)) THEN
         allocate( a_AE_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(a_AE_A)) THEN
         allocate( a_AE_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_AE)) THEN
         allocate( b_AE(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_AE_L)) THEN
         allocate( b_AE_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_AE_J)) THEN
         allocate( b_AE_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(b_AE_A)) THEN
         allocate( b_AE_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(AEmax)) THEN
         allocate( AEmax(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(AEmax_L)) THEN
         allocate( AEmax_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(AEmax_J)) THEN
         allocate( AEmax_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(AEmax_A)) THEN
         allocate( AEmax_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te1)) THEN
         allocate( te1(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te1_L)) THEN
         allocate( te1_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te1_J)) THEN
         allocate( te1_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te1_A)) THEN
         allocate( te1_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te2)) THEN
         allocate( te2(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te2_L)) THEN
         allocate( te2_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te2_J)) THEN
         allocate( te2_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te2_A)) THEN
         allocate( te2_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te3)) THEN
         allocate( te3(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te3_L)) THEN
         allocate( te3_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te3_J)) THEN
         allocate( te3_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te3_A)) THEN
         allocate( te3_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te4)) THEN
         allocate( te4(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te4_L)) THEN
         allocate( te4_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te4_J)) THEN
         allocate( te4_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(te4_A)) THEN
         allocate( te4_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk1)) THEN
         allocate( xk1(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk1_L)) THEN
         allocate( xk1_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk1_J)) THEN
         allocate( xk1_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk1_A)) THEN
         allocate( xk1_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk2)) THEN
         allocate( xk2(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk2_L)) THEN
         allocate( xk2_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk2_J)) THEN
         allocate( xk2_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk2_A)) THEN
         allocate( xk2_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk3)) THEN
         allocate( xk3(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk3_L)) THEN
         allocate( xk3_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk3_J)) THEN
         allocate( xk3_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk3_A)) THEN
         allocate( xk3_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk4)) THEN
         allocate( xk4(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk4_L)) THEN
         allocate( xk4_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk4_J)) THEN
         allocate( xk4_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(xk4_A)) THEN
         allocate( xk4_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(cr)) THEN
         allocate( cr(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(cr_L)) THEN
         allocate( cr_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(cr_J)) THEN
         allocate( cr_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(cr_A)) THEN
         allocate( cr_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(tr)) THEN
         allocate( tr(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(tr_L)) THEN
         allocate( tr_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(tr_J)) THEN
         allocate( tr_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(tr_A)) THEN
         allocate( tr_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Wffeed)) THEN
         allocate( Wffeed(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Lffeed)) THEN
         allocate( Lffeed(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(WeightLJ)) THEN
         allocate( WeightLJ(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(LengthLJ)) THEN
         allocate( LengthLJ(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(WeightJA)) THEN
         allocate( WeightJA(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(LengthJA)) THEN
         allocate( LengthJA(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(aw2l)) THEN
         allocate( aw2l(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(aw2l_L)) THEN
         allocate( aw2l_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(aw2l_J)) THEN
         allocate( aw2l_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(aw2l_A)) THEN
         allocate( aw2l_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bw2l)) THEN
         allocate( bw2l(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bw2l_L)) THEN
         allocate( bw2l_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bw2l_J)) THEN
         allocate( bw2l_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bw2l_A)) THEN
         allocate( bw2l_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLk)) THEN
         allocate( dSLk(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLk_L)) THEN
         allocate( dSLk_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLk_J)) THEN
         allocate( dSLk_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLk_A)) THEN
         allocate( dSLk_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLinf)) THEN
         allocate( dSLinf(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLinf_L)) THEN
         allocate( dSLinf_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLinf_J)) THEN
         allocate( dSLinf_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(dSLinf_A)) THEN
         allocate( dSLinf_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(al2w)) THEN
         allocate( al2w(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(al2w_L)) THEN
         allocate( al2w_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(al2w_J)) THEN
         allocate( al2w_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(al2w_A)) THEN
         allocate( al2w_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bl2w)) THEN
         allocate( bl2w(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bl2w_L)) THEN
         allocate( bl2w_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bl2w_J)) THEN
         allocate( bl2w_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bl2w_A)) THEN
         allocate( bl2w_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(abatch)) THEN
         allocate( abatch(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bbatch)) THEN
         allocate( bbatch(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(T0batch)) THEN
         allocate( T0batch(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(apof)) THEN
         allocate( apof(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bpof)) THEN
         allocate( bpof(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(T0pof)) THEN
         allocate( T0pof(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(epg)) THEN
         allocate( epg(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(eegg)) THEN
         allocate( eegg(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(megg)) THEN
         allocate( megg(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(breed)) THEN
         allocate( breed(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(amature)) THEN
         allocate( amature(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(bmature)) THEN
         allocate( bmature(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pctxwt)) THEN
         allocate( pctxwt(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(pctgain)) THEN
         allocate( pctgain(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort)) THEN
         allocate( Nmort(max_lstages, max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_lstages*max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort_E)) THEN
         allocate( Nmort_E(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort_Y)) THEN
         allocate( Nmort_Y(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort_L)) THEN
         allocate( Nmort_L(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort_J)) THEN
         allocate( Nmort_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Nmort_A)) THEN
         allocate( Nmort_A(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fymort)) THEN
         allocate( Fymort(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(DDmort1_J)) THEN
         allocate( DDmort1_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(DDmort2_J)) THEN
         allocate( DDmort2_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(DDmort3_J)) THEN
         allocate( DDmort3_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(DDmort4_J)) THEN
         allocate( DDmort4_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(DDscale_J)) THEN
         allocate( DDscale_J(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
 # ifdef PREDATOR
       IF (.not.allocated(Pwwt0)) THEN
         allocate( Pwwt0(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Pwth0)) THEN
         allocate( Pwth0(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Pswim)) THEN
         allocate( Pswim(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(HIF)) THEN
         allocate( HIF(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(FEUE1)) THEN
         allocate( FEUE1(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(FEUE2)) THEN
         allocate( FEUE2(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(FEUE3)) THEN
         allocate( FEUE3(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(FEUE4)) THEN
         allocate( FEUE4(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(PED1)) THEN
         allocate( PED1(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(PED2)) THEN
         allocate( PED2(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(PED3)) THEN
         allocate( PED3(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(PED4)) THEN
         allocate( PED4(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Eprot)) THEN
         allocate( Eprot(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Efat)) THEN
         allocate( Efat(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(RefpFat)) THEN
         allocate( RefpFat(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(RefpPr)) THEN
         allocate( RefpPr(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Linf)) THEN
         allocate( Linf(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(vbk)) THEN
         allocate( vbk(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(vbt0)) THEN
         allocate( vbt0(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(al2m)) THEN
         allocate( al2m(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(bl2m)) THEN
         allocate( bl2m(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Pmgstr)) THEN
         allocate( Pmgstr(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(Pmgend)) THEN
         allocate( Pmgend(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
       IF (.not.allocated(K_Fish)) THEN
         allocate( K_Fish(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Fpref)) THEN
         allocate( Fpref(max_species, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_species*Ngrids,r8)
       END IF
       IF (.not.allocated(Pcmax)) THEN
         allocate( Pcmax(max_predspecies, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_predspecies*Ngrids,r8)
       END IF
 # endif
 # ifdef FISHING_FLEET
       IF (.not.allocated(iPort)) THEN
         allocate( iPort(max_ports, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_ports*Ngrids,r8)
       END IF
       IF (.not.allocated(jPort)) THEN
         allocate( jPort(max_ports, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_ports*Ngrids,r8)
       END IF
       IF (.not.allocated(EncMax)) THEN
         allocate( EncMax(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(CatchMax)) THEN
         allocate( CatchMax(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(TravCost)) THEN
         allocate( TravCost(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(BoatVel)) THEN
         allocate( BoatVel(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(Qcatch)) THEN
         allocate( Qcatch(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(FishTime)) THEN
         allocate( FishTime(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(EncRate)) THEN
         allocate( EncRate(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
       IF (.not.allocated(CatchPrice)) THEN
         allocate( CatchPrice(max_ports, Ngrids))
+        Dmem(1)=Dmem(1)+REAL(max_ports*Ngrids,r8)
       END IF
 # endif
 #endif
@@ -1713,44 +1923,70 @@
         Dmem(1)=Dmem(1)+REAL(NBT,r8)
       END IF
 #  ifdef NEMURO_SAN
-      IF (.not. allocated(idfish))                                      &
-     &                   allocate ( idfish(max_species) )
-      IF (.not. allocated(idfish_inv))                                  &
-     &                   allocate ( idfish_inv(max_species) )
+      IF (.not. allocated(idfish)) THEN
+        allocate ( idfish(max_species) )
+        Dmem(1)=Dmem(1)+REAL(max_species,r8)
+      END IF
+      IF (.not. allocated(idfish_inv)) THEN
+        allocate ( idfish_inv(max_species) )
+        Dmem(1)=Dmem(1)+REAL(max_species,r8)
+      END IF
 #   ifdef PREDATOR
-      IF (.not. allocated(idpred))                                      &
-     &                   allocate ( idpred(max_predspecies) )
-      IF (.not. allocated(idpred_inv))                                  &
-     &                   allocate ( idpred_inv(max_predspecies) )
+      IF (.not. allocated(idpred)) THEN
+        allocate ( idpred(max_predspecies) )
+        Dmem(1)=Dmem(1)+REAL(max_predspecies,r8)
+      END IF
+      IF (.not. allocated(idpred_inv)) THEN
+        allocate ( idpred_inv(max_predspecies) )
+        Dmem(1)=Dmem(1)+REAL(max_predspecies,r8)
+      END IF
 #   endif
 #  endif
 #ifdef NEMURO_SAN
 !
 ! NOTE: When adding variables, must update NFishV in mod_param.F
 !
-      IF (.not. allocated(Nfishperyear))                                &
-     &                   allocate(Nfishperyear(Ngrids))
-      IF (.not. allocated(Nspecies))                                    &
-     &                   allocate(Nspecies(Ngrids))
-      IF (.not. allocated(Nyearclass))                                  &
-     &                   allocate(Nyearclass(Ngrids))
+      IF (.not. allocated(Nfishperyear)) THEN
+        allocate(Nfishperyear(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(Nspecies)) THEN
+        allocate(Nspecies(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(Nyearclass)) THEN
+        allocate(Nyearclass(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 !   Nfish=Nfishperyear*Nspecies*Nyearclass
-      IF (.not. allocated(Nfish))                                       &
-     &                   allocate(Nfish(Ngrids))
+      IF (.not. allocated(Nfish)) THEN
+        allocate(Nfish(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
 # ifdef PREDATOR
-      IF (.not. allocated(Npredperspecies))                             &
-     &                   allocate(Npredperspecies(Ngrids))
-      IF (.not. allocated(Npredspecies))                                &
-     &                   allocate(Npredspecies(Ngrids))
-      IF (.not. allocated(Npred))                                       &
-     &                   allocate(Npred(Ngrids))
+      IF (.not. allocated(Npredperspecies)) THEN
+        allocate(Npredperspecies(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(Npredspecies)) THEN
+        allocate(Npredspecies(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(Npred)) THEN
+        allocate(Npred(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 # ifdef FISHING_FLEET
-      IF (.not. allocated(Nboats))                                      &
-     &                   allocate(Nboats(Ngrids))
-      IF (.not. allocated(Nports))                                      &
-     &                   allocate(Nports(Ngrids))
+      IF (.not. allocated(Nboats)) THEN
+        allocate(Nboats(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not. allocated(Nports)) THEN
+        allocate(Nports(Ngrids))
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 #endif
 !

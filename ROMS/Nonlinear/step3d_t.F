@@ -797,39 +797,6 @@
             END DO
           END DO
 # endif
-!
-!  Apply mass point sources (volume vertical influx), if any.
-!
-          IF (LwSrc(ng)) THEN
-            DO is=1,Nsrc(ng)
-              Isrc=SOURCES(ng)%Isrc(is)
-              Jsrc=SOURCES(ng)%Jsrc(is)
-              IF (                                                      &
-     &            ((IstrR.le.Isrc).and.(Isrc.le.IendR)).and.            &
-     &            ((JstrR.le.Jsrc).and.(Jsrc.le.JendR))) THEN
-                cff=dt(ng)*pm(Isrc,Jsrc)*pn(Isrc,Jsrc)
-                IF (LtracerSrc(itrc,ng)) THEN
-#  ifdef ONE_TRACER_SOURCE
-                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
-     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
-     &                           SOURCES(ng)%Tsrc(itrc)
-#  elif defined TWO_D_TRACER_SOURCE
-                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
-     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
-     &                           SOURCES(ng)%Tsrc(is,itrc)
-#  else
-                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
-     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
-     &                           SOURCES(ng)%Tsrc(is,k,itrc)
-#  endif
-                ELSE
-                  t(Isrc,Jsrc,k,nnew,itrc)=t(Isrc,Jsrc,k,nnew,itrc)+    &
-     &                           cff*SOURCES(ng)%Qsrc(is,k)*            &
-     &                           t(Isrc,Jsrc,k,3,itrc)
-                END IF
-              END IF
-            END DO
-          END IF
         END DO K_LOOP
       END DO T_LOOP
 !

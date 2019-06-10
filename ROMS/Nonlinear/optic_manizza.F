@@ -6,7 +6,7 @@ MODULE optic_manizza_mod
 !
 !svn $Id$
 !================================================== Raphael Dussin   ===
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================

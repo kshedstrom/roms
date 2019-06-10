@@ -56,7 +56,6 @@
 #ifdef ADJUST_BOUNDARY
       integer :: t2dobc(4)
 #endif
-      integer :: Vsize(4)
 
       integer :: def_dim
 

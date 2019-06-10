@@ -360,7 +360,7 @@
 #  if defined ALBEDO_DIRDIFF
           real(r8), pointer :: cawdir(:,:)
 #  endif
-#  ifdef BIO_COBALT
+#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
           real(r8), pointer :: river_no3(:,:)
           real(r8), pointer :: river_no3G(:,:,:)
           real(r8), pointer :: river_ldon(:,:)
@@ -1691,7 +1691,7 @@
 #  if defined ALBEDO_DIRDIFF
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
-#  ifdef BIO_COBALT
+#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
             FORCES(ng) % river_no3(i,j) = IniVal
             FORCES(ng) % river_no3G(i,j,1) = IniVal
             FORCES(ng) % river_no3G(i,j,2) = IniVal
