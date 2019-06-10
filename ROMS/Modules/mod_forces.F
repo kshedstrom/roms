@@ -772,6 +772,7 @@
 
       allocate ( FORCES(ng) % svstr(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
+#endif
 
 #if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
      BULK_FLUXES2D || defined NL_BULK_FLUXES
