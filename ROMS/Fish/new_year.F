@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -44,7 +44,7 @@
       logical, dimension(Lstr:Lend) :: MyFishThread
 # ifdef DISTRIBUTE
       real(r8) :: Xstr, Xend, Ystr, Yend
-      real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk 
+      real(r8), dimension(Nfish(ng)*NFV(ng)*(NFT+1)) :: Fwrk
       real(r8), dimension(Nfish(ng)*NFishV(ng)) :: FwrkF
       real(r8), dimension(Nfish(ng)*Nspecies(ng)) :: FwrkM
       logical,  dimension(Nfish(ng)) :: FwrkL

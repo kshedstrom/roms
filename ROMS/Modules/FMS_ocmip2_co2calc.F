@@ -1,14 +1,14 @@
 module FMS_ocmip2_co2calc_mod  !{
 !
 !This module is ported almost verbatim from GOLD_ocmip2_co2calc.F90
-!It is called FMS_ocmip2_co2calc_mod to avoid name collision with GOLD_ocmip2_co2calc.F90 
+!It is called FMS_ocmip2_co2calc_mod to avoid name collision with GOLD_ocmip2_co2calc.F90
 ! and ocmip2_co2calc.F90 of MOM
 !
 !Modifications:
-!1. mask check should surround all the calculations since MOM restart masks htotal on land 
-!   and htotal cannot be zero in this calculation (division by htotal) 
+!1. mask check should surround all the calculations since MOM restart masks htotal on land
+!   and htotal cannot be zero in this calculation (division by htotal)
 !2. if (mask(i,j) .eq. 0.0) --> if (mask(i,j) .gt. 0.0) for floating point comparison efficiency
-! 
+!
 !<CONTACT EMAIL="GFDL.Climate.Model.Info@noaa.gov"> Richard D. Slater
 !</CONTACT>
 !
@@ -75,19 +75,19 @@ contains
 !
 ! INPUT
 !
-!       dope_vec   = an array of indices corresponding to the compute 
+!       dope_vec   = an array of indices corresponding to the compute
 !                    and data domain boundaries.
 !
 !       mask       = land mask array (0.0 = land)
 !
-!       dic_in     = total inorganic carbon (mol/kg) 
+!       dic_in     = total inorganic carbon (mol/kg)
 !                    where 1 T = 1 metric ton = 1000 kg
 !
-!       ta_in      = total alkalinity (eq/kg) 
+!       ta_in      = total alkalinity (eq/kg)
 !
-!       pt_in      = inorganic phosphate (mol/kg) 
+!       pt_in      = inorganic phosphate (mol/kg)
 !
-!       sit_in     = inorganic silicate (mol/kg) 
+!       sit_in     = inorganic silicate (mol/kg)
 !
 !       htotallo   = lower limit of htotal range
 !
@@ -228,7 +228,7 @@ real(8) :: logf_of_s
 ! k1 = [H][HCO3]/[H2CO3]
 ! k2 = [H][CO3]/[HCO3]
 !
-! Millero p.664 (1995) using Mehrbach et al. data on seawater scale 
+! Millero p.664 (1995) using Mehrbach et al. data on seawater scale
 !
 
         k1 = 10.0**(-(3670.7 * invtk - 62.008 + 9.7944 * dlogtk -       &
@@ -358,7 +358,7 @@ real(8) :: logf_of_s
   &                             sit_in(i,j), st, ta_in(i,j),            &
   &                             htotalhi(i,j), htotallo(i,j),htotal(i,j), xacc)
 !
-! Calculate [CO2*] as defined in DOE Methods Handbook 1994 Ver.2, 
+! Calculate [CO2*] as defined in DOE Methods Handbook 1994 Ver.2,
 ! ORNL/CDIAC-74, Dickson and Goyet, eds. (Ch 2 p 10, Eq A.49)
 !
         htotal2 = htotal(i,j) * htotal(i,j)
@@ -515,7 +515,7 @@ end  function  drtsafe  !}
 !
 ! <DESCRIPTION>
 ! This routine expresses TA as a function of DIC, htotal and constants.
-! It also calculates the derivative of this function with respect to 
+! It also calculates the derivative of this function with respect to
 ! htotal. It is used in the iterative solution for htotal. In the call
 ! "x" is the input value for htotal, "fn" is the calculated value for TA
 ! and "df" is the value for dTA/dhtotal
@@ -565,10 +565,10 @@ xpkscm1 = 1.0/(x+ks*c)
 !
 !     fn = hco3+co3+borate+oh+hpo4+2*po4+silicate+hfree+hso4+hf+h3po4-ta
 !OR
-!fn = -ta  + kw/x - c x 
+!fn = -ta  + kw/x - c x
 !   + dic (k1 x + 2 k12)/(k12 + k1 x + x^2)
 !   + pt  (2 k123p + k12p x - x^3)/(k123p + k12p x + k1p x^2 + x^3)
-!   + bt/(1. + x/kb) + sit/(1. + x/ksi) 
+!   + bt/(1. + x/kb) + sit/(1. + x/ksi)
 !   - st/(1. + (c ks)/x) - ft/(1. + kf/x)
 
 fn = - ta + kw/x - c*x               &
@@ -577,7 +577,7 @@ fn = - ta + kw/x - c*x               &
   &  + bt *kb *xpkbm1                &
   &  + sit*ksi*xpksim1               &
   &  - st *x  *xpkscm1               &
-  &  - ft *x  *xpkfm1              
+  &  - ft *x  *xpkfm1
 
 !
 !     df = dfn/dx
@@ -588,8 +588,8 @@ df = - kw/x2 - c                                               &
   &  - bt*  kb  *xpkbm1 *xpkbm1                                &
   &  - sit* ksi *xpksim1*xpksim1                               &
   &  - st*  ks*c*xpkscm1*xpkscm1                               &
-  &  - ft*  kf  *xpkfm1 *xpkfm1                                
-     
+  &  - ft*  kf  *xpkfm1 *xpkfm1
+
 
 return
 
@@ -624,7 +624,7 @@ end subroutine  ta_iter_1  !}
 !     - Models may carry tracers in mol/m^3 (on a per volume basis)
 !
 !     - Conversely, this routine, which was written by observationalists
-!       (C. Sabine and R. Key), passes input arguments in umol/kg  
+!       (C. Sabine and R. Key), passes input arguments in umol/kg
 !       (i.e., on a per mass basis)
 !
 !     - Thus, if the input or output units need to be changed from/to mol/m^3
@@ -719,7 +719,7 @@ do j = dope_vec%jsc, dope_vec%jec  !{
       alpha(i,j) = ff / scale_factor
 
     else  !}{
-    
+
       alpha(i,j) = 0.0
 
     endif  !}

@@ -3,7 +3,7 @@
       SUBROUTINE ini_pred
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -312,7 +312,7 @@
         READ (inp,'(a)',ERR=20,END=30) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lpred') THEN 
+          IF (TRIM(KeyWord).eq.'Lpred') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lpred)
           ELSE IF (TRIM(KeyWord).eq.'Npredspecies') THEN
             Npts=load_i(Nval, Rval, Ngrids, Npredspecies)
@@ -382,7 +382,7 @@
         Fdy(nentry(igrid)+1,igrid)=0.0_r8
         Fdz(nentry(igrid)+1,igrid)=0.0_r8
         ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
-        nentry(igrid)=nentry(igrid)+1        
+        nentry(igrid)=nentry(igrid)+1
       END DO
 !
 !-----------------------------------------------------------------------

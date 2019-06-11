@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -256,9 +256,9 @@
                 Fbiomass=Fweight*Fworth
                 k=MIN(MAX(NINT(track(izgrd,itime,ifid)),1),N(ng))
                 ils=lifestage(ifid)
-                Csz(ifid)=Csz_fac(k)*Csz(ifid) 
-                Clz(ifid)=Clz_fac(k)*Clz(ifid) 
-                Cpz(ifid)=Cpz_fac(k)*Cpz(ifid) 
+                Csz(ifid)=Csz_fac(k)*Csz(ifid)
+                Clz(ifid)=Clz_fac(k)*Clz(ifid)
+                Cpz(ifid)=Cpz_fac(k)*Cpz(ifid)
                 Csum=Csz(ifid)+Clz(ifid)+Cpz(ifid)
                 pvalue=(Csz(ifid)+Clz(ifid)+Cpz(ifid))/(1.0_r8+Csum)
                 pvalue=MIN(pvalue,pvalmax(ils,isp,ng))
@@ -273,7 +273,7 @@
                   Actv=EXP(d_R(ils,isp,ng)*Fswim(ils,isp,ng)*           &
      &                                        0.1_r8*Flength)
                 END IF
-                fofT4R=EXP(cr(ils,isp,ng)*(Ftemp-tr(ils,isp,ng))) 
+                fofT4R=EXP(cr(ils,isp,ng)*(Ftemp-tr(ils,isp,ng)))
                 Resp=a_R(ils,isp,ng)*Fweight**(-b_R(ils,isp,ng))*       &
      &                                       foft4R*Actv*5.285_r8
 ! Fixed prey and fish density

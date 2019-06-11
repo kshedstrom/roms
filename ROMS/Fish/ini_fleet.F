@@ -3,7 +3,7 @@
       SUBROUTINE ini_fleet
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -157,7 +157,7 @@
         READ (inp,'(a)',ERR=20,END=30) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lfleet') THEN 
+          IF (TRIM(KeyWord).eq.'Lfleet') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lfleet)
           ELSE IF (TRIM(KeyWord).eq.'Nboats') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nboats)

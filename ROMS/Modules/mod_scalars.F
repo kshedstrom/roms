@@ -3261,23 +3261,65 @@
 #endif
 
 #if defined STOPERTURB
-      allocate ( grid_mean_dx(Ngrids) )
-      allocate ( grid_mean_dy(Ngrids) )
-      allocate ( seed_user(Ngrids) )
+      IF (.not.allocated(grid_mean_dx)) THEN
+        allocate ( grid_mean_dx(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(grid_mean_dy)) THEN
+        allocate ( grid_mean_dy(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(seed_user)) THEN
+        allocate ( seed_user(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # if defined FORCE_PERTURB
-      allocate ( var_perturb_swrad(Ngrids) )
-      allocate ( var_perturb_Tair(Ngrids) )
-      allocate ( var_perturb_Uwind(Ngrids) )
-      allocate ( var_perturb_Vwind(Ngrids) )
-      allocate ( force_pert_rcorr(Ngrids) )
-      allocate ( force_pert_tcorr(Ngrids) )
+      IF (.not.allocated(var_perturb_swrad)) THEN
+        allocate ( var_perturb_swrad(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(var_perturb_Tair)) THEN
+        allocate ( var_perturb_Tair(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(var_perturb_Uwind)) THEN
+        allocate ( var_perturb_Uwind(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(var_perturb_Vwind)) THEN
+        allocate ( var_perturb_Vwind(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(force_pert_rcorr)) THEN
+        allocate ( force_pert_rcorr(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(force_pert_tcorr)) THEN
+        allocate ( force_pert_tcorr(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 # if defined EOS_PERTURB
-      allocate ( var_perturb_dx(Ngrids) )
-      allocate ( var_perturb_dy(Ngrids) )
-      allocate ( var_perturb_dz(Ngrids) )
-      allocate ( eos_pert_rcorr(Ngrids) )
-      allocate ( eos_pert_tcorr(Ngrids) )
+      IF (.not.allocated(var_perturb_dx)) THEN
+        allocate ( var_perturb_dx(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(var_perturb_dy)) THEN
+        allocate ( var_perturb_dy(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(var_perturb_dz)) THEN
+        allocate ( var_perturb_dz(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(eos_pert_rcorr)) THEN
+        allocate ( eos_pert_rcorr(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+      IF (.not.allocated(eos_pert_tcorr)) THEN
+        allocate ( eos_pert_tcorr(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 # endif
 #endif
 

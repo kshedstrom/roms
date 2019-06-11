@@ -207,7 +207,7 @@ ifdef USE_DEBUG
          CXXFLAGS += -g
 else
            FFLAGS += -O3 -ffast-math -ffree-line-length-none
-           FFLAGS += -finit-real=nan
+#          FFLAGS += -finit-real=nan
 #          FFLAGS += -ffpe-trap=invalid,zero,overflow
            CFLAGS += -O3
          CXXFLAGS += -O3

@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -130,7 +130,7 @@
         END SUBROUTINE push_fish
 
         SUBROUTINE clone_fish(ng, fish1, fish2)
-        USE mod_param 
+        USE mod_param
         USE mod_fish
         USE mod_scalars
         USE nrutil

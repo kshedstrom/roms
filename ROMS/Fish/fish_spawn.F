@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -143,7 +143,7 @@
 !-----------------------------------------------------------------------
 !
 ! The strategy here is to build a switch that processes only the fish
-! contained within the node bounds. The trajectory data for the new 
+! contained within the node bounds. The trajectory data for the new
 ! time-level (nfp1) is initialized to Fspv. These values are used during
 ! recombining step at the end of the routine.  Since a SUM reduction is
 ! carried-out, setting Fspv to zero means the fish only contribute in

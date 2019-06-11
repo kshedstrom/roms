@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN && defined FISHING_FLEET
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -598,7 +598,7 @@
 !
 !          do i=0,Lm(ng)+1
 !          do j=0,Mm(ng)+1
-!            print*, 'CPUE', i, j, avgcpue_all(i,j) 
+!            print*, 'CPUE', i, j, avgcpue_all(i,j)
 !          end do
 !          end do
           BOATS(ng)%blocflag(ib)=0

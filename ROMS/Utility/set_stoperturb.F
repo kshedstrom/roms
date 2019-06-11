@@ -3,7 +3,7 @@
       MODULE set_stoperturb
 !
 !=======================================================================
-!  Copyright (c) 2002-2014 ROMS/TOMS Group                             !
+!  Copyright (c) 2002-2019 ROMS/TOMS Group                             !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !                                                                      !
@@ -97,10 +97,10 @@
 !-----------------------------------------------------------------------
 !
             RanField(LBi:UBi,LBj:UBj,Tindex) =                          &
-     &          RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
+     &          RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac
 
          END IF
-         
+
       ELSE
          CALL get_pseudo2D_field(LBi, UBi, LBj, UBj,                    &
      &               ILB,IUB,JLB,JUB,                                   &
@@ -116,7 +116,7 @@
 !-----------------------------------------------------------------------
 !
          RanField(LBi:UBi,LBj:UBj,Tindex) =                             &
-     &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac 
+     &       RanField(LBi:UBi,LBj:UBj,Tindex) * scal_fac
       END IF
 !
 !-----------------------------------------------------------------------
@@ -441,7 +441,7 @@
 !
 !=======================================================================
 ! Main routine that generate the random field for ROMS and
-! select the tile corresponding to the processor with no spatial 
+! select the tile corresponding to the processor with no spatial
 ! dependency (Gaussian distribution)
 !=======================================================================
 !

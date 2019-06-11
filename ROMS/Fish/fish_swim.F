@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group         Mark Hadfield   !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group         Mark Hadfield   !
 !    Licensed under a MIT/X style license             John M. Klinck   !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -400,7 +400,7 @@
 !                    xdis=0.0_r8
 !                    ydis=0.0_r8
 !
-                    IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN 
+                    IF ((MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0).and.(iic(ng).ne.ntstart(ng))) THEN
                     !IF (MOD(iic(ng)-1,24*steps_per_hour(ng)).eq.0) THEN ! RD bug
 ! Uswim is in cm/s, so multiply by 0.01 for m/s)
                       dist=0.01_r8*Uswim*dtfish

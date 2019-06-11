@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -102,7 +102,7 @@
 !-----------------------------------------------------------------------
 !
 ! The strategy here is to build a switch that processes only the fish
-! contained within the node bounds. The trajectory data for the new 
+! contained within the node bounds. The trajectory data for the new
 ! time-level (nfp1) is initialized to Fspv. These values are used during
 ! recombining step at the end of the routine.  Since a SUM reduction is
 ! carried-out, setting Fspv to zero means the fish only contribute in
@@ -191,7 +191,7 @@
         END DO
       END DO
 # endif
- 
+
       count = 0
       IF (Master) THEN
 
@@ -225,12 +225,12 @@
      &                FISHES(ng) % bioenergy(ifeggs,l),                 &
      &                FISHES(ng) % bioenergy(ifspwnloc, l), l)
                 FISHES(ng) % bioenergy(ifeggs, l) = 0.0_r8
-		count(isp2) = count(isp2) + 1
+                count(isp2) = count(isp2) + 1
               END IF
             END DO
 # elif defined EGGS_TREE_CXX
             CALL c_tree_init(isp)
-  
+
             DO l=1,Nfish(ng)
               IF (FISHES(ng) % bioenergy(ifeggs, l) .gt. 0.0_r8) THEN
                 isp = idfish(FISHES(ng) % species(l))

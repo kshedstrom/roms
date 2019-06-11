@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group        John M. Klinck   !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group        John M. Klinck   !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -846,9 +846,9 @@
 !          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
 !     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
 !            DO j=0,NFT
-!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
-!              track(iygrd,j,l)=Tinfo(iygrd,l) 
-!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l)
+!              track(iygrd,j,l)=Tinfo(iygrd,l)
+!              track(izgrd,j,l)=Tinfo(izgrd,l)
 !              track(ixrhs,j,l)=0.0_r8
 !              track(iyrhs,j,l)=0.0_r8
 !              track(izrhs,j,l)=0.0_r8
@@ -857,13 +857,13 @@
 ! JF: Crude reflective boundary condition for non-periodic case
           IF (track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-1.5_r8) THEN
             DO j=0,NFT
-              track(ixgrd,j,l)=REAL(Lm(ng)+1-2) 
+              track(ixgrd,j,l)=REAL(Lm(ng)+1-2)
               track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
             END DO
           END IF
           IF (track(ixgrd,nfp1,l).lt.1.5_r8) THEN
             DO j=0,NFT
-              track(ixgrd,j,l)=2.0_r8 
+              track(ixgrd,j,l)=2.0_r8
               track(ixrhs,j,l)=-track(ixrhs,nfp1,l)
             END DO
           END IF
@@ -947,9 +947,9 @@
 !          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
 !     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
 !            DO j=0,NFT
-!              track(ixgrd,j,l)=Tinfo(ixgrd,l) 
-!              track(iygrd,j,l)=Tinfo(iygrd,l) 
-!              track(izgrd,j,l)=Tinfo(izgrd,l) 
+!              track(ixgrd,j,l)=Tinfo(ixgrd,l)
+!              track(iygrd,j,l)=Tinfo(iygrd,l)
+!              track(izgrd,j,l)=Tinfo(izgrd,l)
 !              track(ixrhs,j,l)=0.0_r8
 !              track(iyrhs,j,l)=0.0_r8
 !              track(izrhs,j,l)=0.0_r8
@@ -958,13 +958,13 @@
 ! JF: Crude reflective boundary condition for non-periodic case
           IF (track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-1.5_r8) THEN
             DO j=0,NFT
-              track(iygrd,j,l)=REAL(Mm(ng)+1-2) 
+              track(iygrd,j,l)=REAL(Mm(ng)+1-2)
               track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
             END DO
           END IF
           IF (track(iygrd,nfp1,l).lt.1.5_r8) THEN
             DO j=0,NFT
-              track(iygrd,j,l)=2.0_r8 
+              track(iygrd,j,l)=2.0_r8
               track(iyrhs,j,l)=-track(iyrhs,nfp1,l)
             END DO
           END IF

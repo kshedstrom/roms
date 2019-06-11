@@ -222,26 +222,26 @@
 #  endif
 # endif
 # ifdef ICE_MODEL
-        get_var(idUice)=.true.
-        get_var(idVice)=.true.
-        get_var(idAice)=.true.
-        get_var(idHice)=.true.
-        get_var(idTice)=.true.
-        get_var(idHsno)=.true.
-        get_var(idAgeice)=.true.
-        get_var(idTimid)=.true.
-        get_var(idSig11)=.true.
-        get_var(idSig22)=.true.
-        get_var(idSig12)=.true.
-        get_var(idS0mk)=.true.
-        get_var(idT0mk)=.true.
+        get_var(idUice)=.TRUE.
+        get_var(idVice)=.TRUE.
+        get_var(idAice)=.TRUE.
+        get_var(idHice)=.TRUE.
+        get_var(idTice)=.TRUE.
+        get_var(idHsno)=.TRUE.
+        get_var(idAgeice)=.TRUE.
+        get_var(idTimid)=.TRUE.
+        get_var(idSig11)=.TRUE.
+        get_var(idSig22)=.TRUE.
+        get_var(idSig12)=.TRUE.
+        get_var(idS0mk)=.TRUE.
+        get_var(idT0mk)=.TRUE.
 #  ifndef ICE_MOM_BULK
-        get_var(idChuiw)=.true.
-        get_var(idTauiw)=.true.
+        get_var(idChuiw)=.TRUE.
+        get_var(idTauiw)=.TRUE.
 #  endif
 #  ifdef PERFECT_RESTART
-        get_var(idUsms)=.true.
-        get_var(idVsms)=.true.
+        get_var(idUsms)=.TRUE.
+        get_var(idVsms)=.TRUE.
         DO itrc=1,NT(ng)
           get_var(idTsur(itrc))=.TRUE.
         END DO
@@ -512,41 +512,41 @@
 # endif
 # ifdef ICE_MODEL
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUice))) THEN
-          have_var(idUice)=.true.
+          have_var(idUice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVice))) THEN
-          have_var(idVice)=.true.
+          have_var(idVice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAice))) THEN
-          have_var(idAice)=.true.
+          have_var(idAice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHice))) THEN
-          have_var(idHice)=.true.
+          have_var(idHice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTice))) THEN
-          have_var(idTice)=.true.
+          have_var(idTice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idHsno))) THEN
-          have_var(idHsno)=.true.
+          have_var(idHsno)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAgeice))) THEN
-          have_var(idAgeice)=.true.
+          have_var(idAgeice)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTimid))) THEN
-          have_var(idTimid)=.true.
+          have_var(idTimid)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig11))) THEN
-          have_var(idSig11)=.true.
+          have_var(idSig11)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig22))) THEN
-          have_var(idSig22)=.true.
+          have_var(idSig22)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSig12))) THEN
-          have_var(idSig12)=.true.
+          have_var(idSig12)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idS0mk))) THEN
-          have_var(idS0mk)=.true.
+          have_var(idS0mk)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idT0mk))) THEN
-          have_var(idT0mk)=.true.
+          have_var(idT0mk)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTauiw))) THEN
-          have_var(idTauiw)=.true.
+          have_var(idTauiw)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChuiw))) THEN
-          have_var(idChuiw)=.true.
+          have_var(idChuiw)=.TRUE.
         END IF
 #  if defined PERFECT_RESTART
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUsms))) THEN
-          have_var(idUsms)=.true.
+          have_var(idUsms)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
-          have_var(idVsms)=.true.
+          have_var(idVsms)=.TRUE.
         END IF
         DO itrc=1,NT(ng)
           IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idTsur(itrc)))) THEN
@@ -557,23 +557,23 @@
 # endif
 # ifdef NCEP_FLUXES
         IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWg2d))) THEN
-          have_var(idWg2d)=.true.
+          have_var(idWg2d)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCdd))) THEN
-          have_var(idCdd)=.true.
+          have_var(idCdd)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChd))) THEN
-          have_var(idChd)=.true.
+          have_var(idChd)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCed))) THEN
-          have_var(idCed)=.true.
+          have_var(idCed)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWg2m))) THEN
-          have_var(idWg2m)=.true.
+          have_var(idWg2m)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCdm))) THEN
-          have_var(idCdm)=.true.
+          have_var(idCdm)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idChm))) THEN
-          have_var(idChm)=.true.
+          have_var(idChm)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idCem))) THEN
-          have_var(idCem)=.true.
+          have_var(idCem)=.TRUE.
         ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRhoa))) THEN
-          have_var(idRhoa)=.true.
+          have_var(idRhoa)=.TRUE.
         END IF
 # endif
 #endif

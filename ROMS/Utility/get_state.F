@@ -3265,8 +3265,8 @@
      &                              TRIM(ncname)
                 END IF
                 exit_flag=4
-                  IF (FoundError(exit_flag, nf90_noerr, __LINE__,       &
-     &                           __FILE__)) THEN
+                IF (FoundError(exit_flag, nf90_noerr, __LINE__,       &
+     &                         __FILE__)) THEN
                   RETURN
                 END IF
               END IF

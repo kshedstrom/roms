@@ -3,7 +3,7 @@
       SUBROUTINE ini_fish
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -446,7 +446,7 @@
 
             ELSEIF (isp.eq.if_anchovy) THEN
 
-! anchovies (shinichi) : 
+! anchovies (shinichi) :
 ! lowest_point_j=166.
 ! lowest_point_i=152.
 ! extension_j=105.
@@ -461,7 +461,7 @@
 !                  xini = 197.0_r8 + (yini - 258.0_r8) * (183.0_r8 - 197.0_r8) / (279.0_r8 - 258.0_r8)
 !               ENDIF
 
-! anchovies (takaaki) : 
+! anchovies (takaaki) :
 ! west_point_j=172.
 ! lowest_point_i=160.
 ! extension_j=105.
@@ -548,7 +548,7 @@
               FISHES(ng)%lifestage(fid)=if_adult
             ELSE
               FISHES(ng)%lifestage(fid)=if_subadult
-            ENDIF 
+            ENDIF
           END DO
         END DO
       END DO
@@ -614,7 +614,7 @@
         READ (inp,'(a)',ERR=20,END=30) line
         status=decode_line(line, KeyWord, Nval, Cval, Rval)
         IF (status.gt.0) THEN
-          IF (TRIM(KeyWord).eq.'Lfish') THEN 
+          IF (TRIM(KeyWord).eq.'Lfish') THEN
             Npts=load_l(Nval, Cval, Ngrids, Lfish)
           ELSE IF (TRIM(KeyWord).eq.'Nspecies') THEN
             Npts=load_i(Nval, Rval, Ngrids, Nspecies)
@@ -953,7 +953,7 @@
         Fdy(nentry(igrid)+1,igrid)=0.0_r8
         Fdz(nentry(igrid)+1,igrid)=0.0_r8
         ncount(igrid)=ncount(igrid)+Fcount(nentry(igrid)+1,igrid)
-        nentry(igrid)=nentry(igrid)+1        
+        nentry(igrid)=nentry(igrid)+1
       END DO
 !
 !-----------------------------------------------------------------------
@@ -1188,13 +1188,13 @@
               WRITE (out,110) Lffeed(isp,ng), 'Lffeed',                 &
      &              'Length at first feeding'
               WRITE (out,110) WeightLJ(isp,ng), 'WeightLJ',             &
-     &              'Weight for L to J transition' 
+     &              'Weight for L to J transition'
               WRITE (out,110) LengthLJ(isp,ng), 'LengthLJ',             &
-     &              'Length for L to J transition' 
+     &              'Length for L to J transition'
               WRITE (out,110) WeightJA(isp,ng), 'WeightJA',             &
-     &              'Weight for J to A transition' 
+     &              'Weight for J to A transition'
               WRITE (out,110) LengthJA(isp,ng), 'LengthJA',             &
-     &              'Length for J to A transition' 
+     &              'Length for J to A transition'
               WRITE (out,110) aw2l_L(isp,ng), 'aw2l_L',                 &
      &              'Larva weight-length conversion'
               WRITE (out,110) aw2l_J(isp,ng), 'aw2l_J',                 &

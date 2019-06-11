@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN && defined EGGS_BISECTION
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2015 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -62,7 +62,7 @@
           USE mod_ncparam, ONLY : r3dvar
 # endif
           integer, intent(in) :: ng, model
-          integer, intent(in) :: LBi, UBi, LBj, UBj 
+          integer, intent(in) :: LBi, UBi, LBj, UBj
 # ifdef ASSUMED_SHAPE
           real(r8), intent(out) :: egg_count(LBi:,LBj:,:)
 # else
@@ -74,7 +74,7 @@
           real(r8), dimension((Lm(ng)+2)*(Mm(ng)+2)*Nspecies(ng))       &
      &                  :: eggs_line
 # endif
-          
+
 ! First, collect every tile's eggs into global array
 # ifdef DISTRIBUTE
           eggs_line = 0.0_r8
@@ -114,7 +114,7 @@
             END DO
           END DO
         END DO
-        
+
         IF (.not. ALLOCATED(egg_cells)) THEN
           ALLOCATE(egg_cells(Nspecies(ng)))
         END IF
@@ -298,7 +298,7 @@
             box => pop_box(isp, .false.)
             IF (.not. isLast(box)) THEN
               Nfound = Nfound + 1
-              eggs(Nfound) = box % egg_sum 
+              eggs(Nfound) = box % egg_sum
               CALL find_fish(isp, box, ifish(Nfound), jfish(Nfound))
               DEALLOCATE(box)
             ELSE

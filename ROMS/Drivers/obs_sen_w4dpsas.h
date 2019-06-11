@@ -281,6 +281,7 @@
      &                 __FILE__)) RETURN
       END DO
 #endif
+!
 !-----------------------------------------------------------------------
 !  Read in standard deviation factors for error covariance.
 !-----------------------------------------------------------------------
@@ -672,6 +673,7 @@
       END DO
 
 #endif /* !SKIP_NLM */
+!
 !  Set forward basic state NetCDF ID to nonlinear model trajectory to
 !  avoid the inquiring stage.
 !
