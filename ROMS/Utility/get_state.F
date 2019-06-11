@@ -2629,7 +2629,7 @@
 !  Read in ice/snow surface temperature.
 !
           foundit=find_string(var_name, n_var, TRIM(Vname(1,idTice)),   &
-     &                          varid)
+     &                        varid)
           IF (foundit) THEN
             gtype=var_flag(varid)*r2dvar
             status=nf_fread2d(ng, IDmod, ncname, ncINPid,               &

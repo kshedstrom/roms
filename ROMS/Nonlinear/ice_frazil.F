@@ -4,7 +4,7 @@
       || defined CICE_MODEL
 !
 !=======================================================================
-!  Copyright (c) 2002-2017 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
 !================================================== Hernan G. Arango ===
 !                                                                      !
 !  This routine computes the frazil ice growth in the water when the

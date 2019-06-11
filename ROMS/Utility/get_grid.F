@@ -711,7 +711,7 @@
             IF (LuvSponge(ng)) THEN
               gtype=r2dvar
               status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,        &
-     &                          var_name(i), var_id(i), 0,              &
+     &                          var_name(it), var_id(it), 0,            &
      &                          gtype, Vsize, LBi, UBi, LBj, UBj,       &
      &                          Fscl, Fmin, Fmax,                       &
 #  ifdef MASKING
@@ -753,7 +753,7 @@
             IF (ANY(LtracerSponge(:,ng))) THEN
               gtype=r2dvar
               status=nf_fread2d(ng, model, ncname, GRD(ng)%ncid,        &
-     &                          var_name(i), var_id(i), 0,              &
+     &                          var_name(it), var_id(it), 0,            &
      &                          gtype, Vsize, LBi, UBi, LBj, UBj,       &
      &                          Fscl, Fmin, Fmax,                       &
 #   ifdef MASKING

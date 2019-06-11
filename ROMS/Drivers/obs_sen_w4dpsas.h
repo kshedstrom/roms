@@ -268,7 +268,7 @@
 #ifdef SKIP_NLM
 !
 !-----------------------------------------------------------------------
-!  If skiping running nonlinear model, read in observation screening and
+!  If skipping running nonlinear model, read in observation screening and
 !  quality control flag.
 !-----------------------------------------------------------------------
 !
