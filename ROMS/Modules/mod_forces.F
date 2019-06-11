@@ -360,7 +360,8 @@
 #  if defined ALBEDO_DIRDIFF
           real(r8), pointer :: cawdir(:,:)
 #  endif
-#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
+# endif
+# if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
           real(r8), pointer :: river_no3(:,:)
           real(r8), pointer :: river_no3G(:,:,:)
           real(r8), pointer :: river_ldon(:,:)
@@ -379,23 +380,22 @@
           real(r8), pointer :: river_sldopG(:,:,:)
           real(r8), pointer :: river_srdop(:,:)
           real(r8), pointer :: river_srdopG(:,:,:)
-#  endif
-#  ifdef COBALT_CARBON
+# endif
+# ifdef COBALT_CARBON
           real(r8), pointer :: atmCO2(:,:)
           real(r8), pointer :: atmCO2G(:,:,:)
-#  endif
-#  ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
           real(r8), pointer :: soluble_fe(:,:)
           real(r8), pointer :: soluble_feG(:,:,:)
           real(r8), pointer :: ironsed(:,:)
           real(r8), pointer :: ironsedG(:,:,:)
-#   ifndef NO_IRON_COAST
+#  ifndef NO_IRON_COAST
           real(r8), pointer :: fecoast(:,:)
           real(r8), pointer :: fecoastG(:,:,:)
-#   endif
+#  endif
           real(r8), pointer :: river_fed(:,:)
           real(r8), pointer :: river_fedG(:,:,:)
-#  endif
           real(r8), pointer :: mineral_fe(:,:)
           real(r8), pointer :: mineral_feG(:,:,:)
 # endif
@@ -932,7 +932,8 @@
       allocate ( FORCES(ng) % cawdir(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
-#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
+# endif
+# if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
       allocate ( FORCES(ng) % river_no3(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_no3G(LBi:UBi,LBj:UBj,2) )
@@ -969,14 +970,14 @@
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_srdopG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
-#  endif
-#  ifdef COBALT_CARBON
+# endif
+# ifdef COBALT_CARBON
       allocate ( FORCES(ng) % atmCO2(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % atmCO2G(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
-#  endif
-#  ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
       allocate ( FORCES(ng) % soluble_fe(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % soluble_feG(LBi:UBi,LBj:UBj,2) )
@@ -985,18 +986,18 @@
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % ironsedG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
-#   ifndef NO_IRON_COAST
+#  ifndef NO_IRON_COAST
       allocate ( FORCES(ng) % fecoast(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
-#   endif
-#   if defined BIO_COBALT_RUNOFF
+#  endif
+#  if defined BIO_COBALT_RUNOFF
       allocate ( FORCES(ng) % river_fed(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_fedG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
-#   endif
+#  endif
       allocate ( FORCES(ng) % mineral_fe(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % mineral_feG(LBi:UBi,LBj:UBj,2) )
@@ -1066,7 +1067,7 @@
       Dmem(ng)=Dmem(ng)+size2d
 # endif
 
-#if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D ||  \
+# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D ||  \
     (defined SHORTWAVE && defined ANA_SRFLUX)
       allocate ( FORCES(ng) % Hair(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
@@ -1120,10 +1121,12 @@
       allocate ( FORCES(ng) % evap(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
-#  ifdef RUNOFF
+# endif
+# ifdef RUNOFF
       allocate ( FORCES(ng) % runoff(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % runoffG(LBi:UBi,LBj:UBj,2) )
-#  endif
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
 # endif
 # if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
       allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
@@ -1223,7 +1226,6 @@
 # if defined OPTIC_MANIZZA && !defined BIO_COBALT
       allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
-# endif
 # endif
 
 #endif
@@ -1691,7 +1693,8 @@
 #  if defined ALBEDO_DIRDIFF
             FORCES(ng) % cawdir(i,j) = IniVal
 #  endif
-#  if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
+# endif
+# if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
             FORCES(ng) % river_no3(i,j) = IniVal
             FORCES(ng) % river_no3G(i,j,1) = IniVal
             FORCES(ng) % river_no3G(i,j,2) = IniVal
@@ -1719,28 +1722,27 @@
             FORCES(ng) % river_srdop(i,j) = IniVal
             FORCES(ng) % river_srdopG(i,j,1) = IniVal
             FORCES(ng) % river_srdopG(i,j,2) = IniVal
-#  endif
-#  ifdef COBALT_CARBON
+# endif
+# ifdef COBALT_CARBON
             FORCES(ng) % atmCO2(i,j) = IniVal
             FORCES(ng) % atmCO2G(i,j,1) = IniVal
             FORCES(ng) % atmCO2G(i,j,2) = IniVal
-#  endif
-#  ifdef COBALT_IRON
+# endif
+# ifdef COBALT_IRON
             FORCES(ng) % soluble_fe(i,j) = IniVal
             FORCES(ng) % soluble_feG(i,j,1) = IniVal
             FORCES(ng) % soluble_feG(i,j,2) = IniVal
             FORCES(ng) % ironsed(i,j) = IniVal
             FORCES(ng) % ironsedG(i,j,1) = IniVal
             FORCES(ng) % ironsedG(i,j,2) = IniVal
-#   ifndef NO_IRON_COAST
+#  ifndef NO_IRON_COAST
             FORCES(ng) % fecoast(i,j) = IniVal
             FORCES(ng) % fecoastG(i,j,1) = IniVal
             FORCES(ng) % fecoastG(i,j,2) = IniVal
-#   endif
+#  endif
             FORCES(ng) % river_fed(i,j) = IniVal
             FORCES(ng) % river_fedG(i,j,1) = IniVal
             FORCES(ng) % river_fedG(i,j,2) = IniVal
-#  endif
             FORCES(ng) % mineral_fe(i,j) = IniVal
             FORCES(ng) % mineral_feG(i,j,1) = IniVal
             FORCES(ng) % mineral_feG(i,j,2) = IniVal
