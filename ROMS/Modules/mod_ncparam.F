@@ -654,7 +654,6 @@
         character (len=80 ) :: git_rev = 'unknown'
         integer             :: git_status = 0
 
-!
       CONTAINS
 !
       SUBROUTINE allocate_ncparam

@@ -734,6 +734,7 @@
 
       allocate ( FORCES(ng) % svstr(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
+#endif
 
 #if !defined ANA_SMFLUX && !defined BULK_FLUXES && !defined \
      BULK_FLUXES2D || defined NL_BULK_FLUXES
@@ -1012,10 +1013,12 @@
       allocate ( FORCES(ng) % evap(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #  endif
-#  ifdef RUNOFF
+# endif
+# ifdef RUNOFF
       allocate ( FORCES(ng) % runoff(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % runoffG(LBi:UBi,LBj:UBj,2) )
-#  endif
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
 # endif
 # if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
       allocate ( FORCES(ng) % EminusP(LBi:UBi,LBj:UBj) )
@@ -1116,8 +1119,6 @@
       allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
 # endif
-# endif
-
 #endif
 
 #if defined TANGENT || defined TL_IOMS

@@ -214,7 +214,7 @@
 !
 !            qai(i,j)        -  heat flux atmosphere/ice
 !                               (positive from ice to atm.)
-!            qio(i,j)        -  heat flux ice/oceam (possitive from ocean)
+!            qio(i,j)        -  heat flux ice/oceam (positive from ocean)
 !            hfus1(i,j)      -  heat of fusion (L_o or L_3)
 !            wro(i,j)        -  production rate of surface runoff
 !            t2(i,j)         -  temperature at ice/snow interface

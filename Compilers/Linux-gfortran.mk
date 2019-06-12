@@ -27,7 +27,7 @@
 # LD             Program to load the objects into an executable
 # LDFLAGS        Flags to the loader
 # RANLIB         Name of ranlib command
-# MDEPFLAGS      Flags for sfmakedepend  (-s if you keep .f files)
+# MDEPFLAGS      Flags for sfmakedepend
 #
 # First the defaults
 #
@@ -63,7 +63,6 @@
 
 ifdef USE_ROMS
  ifdef USE_DEBUG
-         CPPFLAGS += -DUSE_DEBUG
            FFLAGS += -g
            FFLAGS += -fbounds-check
            FFLAGS += -fbacktrace
@@ -199,6 +198,7 @@ ifdef USE_OpenMP
 endif
 
 ifdef USE_DEBUG
+         CPPFLAGS += -DUSE_DEBUG
 #          FFLAGS += -fcheck=all -fsanitize=address -fsanitize=undefined
            FFLAGS += -g -fbounds-check -fbacktrace
            FFLAGS += -finit-real=nan -ffpe-trap=invalid,zero,overflow
