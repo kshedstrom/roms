@@ -765,6 +765,7 @@
                  idRtrc(ifemd)=varid
 # endif
 
+# if defined BIO_COBALT && defined BIO_COBALT_RUNOFF
 ! river as external forcing
                CASE ('idriver_no3')
                  idriver_no3=varid
@@ -784,10 +785,11 @@
                  idriver_sldop=varid
                CASE ('idriver_srdop')
                  idriver_srdop=varid
-#ifdef COBALT_IRON
+#  ifdef COBALT_IRON
                CASE ('idriver_fed')
                  idriver_fed=varid
-#endif
+#  endif
+# endif
 #ifdef DIAGNOSTICS_BIO
 !------------------------------------------------------
 !---  Biological tracers term diagnostics.
