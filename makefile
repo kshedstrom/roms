@@ -362,6 +362,8 @@ CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 GITURL ?= $(shell git remote show origin | grep "Fetch URL" | tr -s ' ' | cut -d ' ' -f 4)
 GITREV ?= $(shell git rev-parse --abbrev-ref HEAD) $(shell git log -1 | head -n 1)
 GITSTATUS ?= $(shell git status --porcelain | wc -l)
+SVNURL := $(shell svn info | grep '^URL:' | sed 's/URL: //')
+SVNREV := $(shell svn info | grep '^Revision:' | sed 's/Revision: //')
 
 ROOTDIR := $(shell pwd)
 
@@ -415,6 +417,8 @@ endif
 ifdef GITSTATUS
   CPPFLAGS += -D'GIT_STATUS=$(GITSTATUS)'
 endif
+CPPFLAGS += -D'SVN_URL="$(SVNURL)"'
+CPPFLAGS += -D'SVN_REV="$(SVNREV)"'
 
 #--------------------------------------------------------------------------
 #  Build target directories.

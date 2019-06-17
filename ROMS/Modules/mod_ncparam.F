@@ -648,10 +648,11 @@
         character (len=256), dimension(4) :: BIONAME
 #endif
 !
-!  Git revision and repository root URL
+!  GIT and SVN revision and repository root URL.
 !
-        character (len=256) :: git_url = 'unknown'
-        character (len=80 ) :: git_rev = 'unknown'
+        character (len=80 ) :: git_rev, svn_rev
+        character (len=256) :: git_url, svn_url
+!
         integer             :: git_status = 0
 
       CONTAINS
@@ -1054,7 +1055,8 @@
       logical :: load
 
       integer, parameter :: inp = 10
-      integer :: Lvar, i, ic, ie, is, j, ng
+!     integer :: Lvar, i, ic, ie, is, j, ng
+      integer :: Lvar, i, ic, j, ng
       integer :: gtype, varid
 
       real(r8), parameter :: spv = 0.0_r8
@@ -1245,16 +1247,31 @@
         END DO
       END DO
 !
-!  Set Git repository info
+!  Set GIT and SVN Repository Root URL and revision.  Their values are
+!  assigned in the 'makefile' to the CPPFLAGS macro.
 !
 #ifdef GIT_URL
       git_url=GIT_URL
+#else
+      git_url='https://github.com:kshedstrom/roms.git'
 #endif
 #ifdef GIT_REV
       git_rev=GIT_REV
+#else
+      git_rev=' '
 #endif
 #ifdef GIT_STATUS
       git_status=GIT_STATUS
+#endif
+!
+#ifdef SVN_URL
+      svn_url=SVN_URL
+#else
+! Maybe I should put the COAWST URL here...
+      svn_url='https://myroms.org/svn'
+#endif
+#ifdef SVN_REV
+      svn_rev=SVN_REV
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1270,22 +1287,27 @@
       STOP
   20  CONTINUE
 !
-!  Read in variable information.  Ignore blank and comment [char(33)=!]
-!  input lines.
+!  Read in variable information.  Ignore blank, comment [char(33)=!]
+!  input lines, and URL line [char(36)=$].
 !
       varid=0
       DO WHILE (.TRUE.)
         READ (inp,*,ERR=30,END=40) Vinfo(1)
         Lvar=LEN_TRIM(Vinfo(1))
-!
-!  Ignore the Git repository URL, if any
-!
-        IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
-          CONTINUE
-!
+!!
+!!  Ignore the Git repository URL, if any
+!!
+!        IF ((Lvar.gt.0).and.(Vinfo(1)(1:1).eq.CHAR(36))) THEN
+!          CONTINUE
+!!
+!!  Read in other variable information.
+!!
+!        ELSEIF ((Lvar.gt.0).and.(Vinfo(1)(1:1).ne.CHAR(33))) THEN
 !  Read in other variable information.
 !
-        ELSEIF ((Lvar.gt.0).and.(Vinfo(1)(1:1).ne.CHAR(33))) THEN
+        IF ((Lvar.gt.0).and.                                            &
+     &      (Vinfo(1)(1:1).ne.CHAR(33)).and.                            &
+     &      (Vinfo(1)(1:1).ne.CHAR(36))) THEN
           READ (inp,*,ERR=30) Vinfo(2)
           READ (inp,*,ERR=30) Vinfo(3)
           READ (inp,*,ERR=30) Vinfo(4)
