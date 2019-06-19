@@ -438,8 +438,8 @@
 #ifdef ICE_SHALLOW_LIMIT
       real(r8) :: hh
       real(r8) :: clear
-      real(r8) :: fac_sf
 #endif
+      real(r8) :: fac_sf
 #ifdef ICE_CONVSNOW
       real(r8) :: hstar
 #endif

@@ -1828,7 +1828,8 @@
         real(r8) :: trans_coeff = 1.75E-3
         real(r8) :: sublim_latent_heat = 2.834E+6
         real(r8) :: t0deg = 273.15_r8                     ! [Kelvin]
-        real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
+!       real(r8), parameter :: sice_ref = 3.2_r8          ! [psu]
+        real(r8), parameter :: sice_ref = 7.0_r8          ! [psu]
 
         real(r8), allocatable :: dtice(:)
         real(r8), allocatable :: dte(:)
@@ -3183,8 +3184,10 @@
         allocate ( Tnudg_SSS(Ngrids) )
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
-      IF (.not. allocated(sss_mismatch_threshold)) &
-           allocate ( sss_mismatch_threshold(Ngrids) )
+      IF (.not. allocated(sss_mismatch_threshold)) THEN
+        allocate ( sss_mismatch_threshold(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
 #ifdef BULK_FLUXES
       IF (.not.allocated(blk_ZQ)) THEN
