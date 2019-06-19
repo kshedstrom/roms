@@ -721,7 +721,7 @@
       IF (Master) WRITE (stdout,20) '!BOUNDARY_ALLGATHER',               &
      &   'Using mpi_allreduce in mp_boundary routine'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+11)=' !BOUNDARY_ALLGATHER,'
+      Coptions(is:is+21)=' !BOUNDARY_ALLGATHER,'
 # endif
 #endif
 #ifdef BULK_FLUXES
