@@ -3458,8 +3458,10 @@
         allocate ( Tnudg_SSS(Ngrids) )
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
-      IF (.not. allocated(sss_mismatch_threshold)) &
-           allocate ( sss_mismatch_threshold(Ngrids) )
+      IF (.not. allocated(sss_mismatch_threshold)) THEN
+        allocate ( sss_mismatch_threshold(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
 
 #ifdef BULK_FLUXES
       IF (.not.allocated(blk_ZQ)) THEN

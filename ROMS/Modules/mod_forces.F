@@ -394,8 +394,10 @@
           real(r8), pointer :: fecoast(:,:)
           real(r8), pointer :: fecoastG(:,:,:)
 #  endif
+#  ifdef BIO_COBALT_RUNOFF
           real(r8), pointer :: river_fed(:,:)
           real(r8), pointer :: river_fedG(:,:,:)
+#  endif
           real(r8), pointer :: mineral_fe(:,:)
           real(r8), pointer :: mineral_feG(:,:,:)
 # endif
@@ -992,7 +994,7 @@
       allocate ( FORCES(ng) % fecoastG(LBi:UBi,LBj:UBj,2) )
       Dmem(ng)=Dmem(ng)+size2d*2
 #  endif
-#  if defined BIO_COBALT_RUNOFF
+#  ifdef BIO_COBALT_RUNOFF
       allocate ( FORCES(ng) % river_fed(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
       allocate ( FORCES(ng) % river_fedG(LBi:UBi,LBj:UBj,2) )
@@ -1740,9 +1742,11 @@
             FORCES(ng) % fecoastG(i,j,1) = IniVal
             FORCES(ng) % fecoastG(i,j,2) = IniVal
 #  endif
+#  ifdef BIO_COBALT_RUNOFF
             FORCES(ng) % river_fed(i,j) = IniVal
             FORCES(ng) % river_fedG(i,j,1) = IniVal
             FORCES(ng) % river_fedG(i,j,2) = IniVal
+#  endif
             FORCES(ng) % mineral_fe(i,j) = IniVal
             FORCES(ng) % mineral_feG(i,j,1) = IniVal
             FORCES(ng) % mineral_feG(i,j,2) = IniVal

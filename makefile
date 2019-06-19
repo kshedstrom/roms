@@ -379,7 +379,8 @@ OS := $(patsubst sn%,UNICOS-sn,$(OS))
 
 CPU := $(shell uname -m | sed 's/[\/ ]/-/g')
 
-GITURL ?= $(shell git remote show origin | grep "Fetch URL" | tr -s ' ' | cut -d ' ' -f 4)
+GITURL ?= $(shell git remote -v | grep ^origin.*\(fetch\)$ | cut -f 2 | cut -d ' ' -f 1)
+#GITURL ?= $(shell git remote show origin | grep "Fetch URL" | tr -s ' ' | cut -d ' ' -f 4)
 GITREV ?= $(shell git rev-parse --abbrev-ref HEAD) $(shell git log -1 | head -n 1)
 GITSTATUS ?= $(shell git status --porcelain | wc -l)
 
