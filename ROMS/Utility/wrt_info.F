@@ -142,6 +142,20 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 
+#ifdef W4DPSAS_FCT_SENSITIVITY
+      CALL netcdf_put_ivar (ng, model, ncname, 'ntimes_ana',            &
+     &                      ntimes_ana(ng), (/0/), (/0/),               &
+     &                      ncid = ncid)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
+
+      CALL netcdf_put_ivar (ng, model, ncname, 'ntimes_fct',            &
+     &                      ntimes_fct(ng), (/0/), (/0/),               &
+     &                      ncid = ncid)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
+#endif
+
 #if defined HDF5 && defined DEFLATE
       CALL netcdf_put_ivar (ng, model, ncname, 'shuffle',               &
      &                      shuffle, (/0/), (/0/),                      &
@@ -1026,8 +1040,8 @@
      &                        NpostI, (/0/), (/0/),                     &
      &                        ncid = ncid)
 # endif
-# if defined IS4DVAR_SENSITIVITY || defined W4DPSAS_SENSITIVITY || \
-     defined W4DVAR_SENSITIVITY
+# if defined IS4DVAR_SENSITIVITY     || defined W4DPSAS_SENSITIVITY || \
+     defined W4DPSAS_FCT_SENSITIVITY || defined W4DVAR_SENSITIVITY
         CALL netcdf_put_ivar (ng, model, ncname, 'Nimpact',             &
      &                        Nimpact, (/0/), (/0/),                    &
      &                        ncid = ncid)
