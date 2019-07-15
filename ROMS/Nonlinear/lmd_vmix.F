@@ -537,7 +537,6 @@
       real(r8) :: lmd_kz, lmd_ri
 # else
       real(r8), parameter :: eps = 1.0E-14_r8
-
 # endif
 
 # include "set_bounds.h"

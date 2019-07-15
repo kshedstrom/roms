@@ -975,7 +975,7 @@
 #endif
 #ifdef CORE_FORCING
       IF (Master) WRITE (stdout,20) 'CORE_FORCING',                      &
-     &   'Specific humidity as in CORE forcing files'
+     &   'Specific humidity from CORE forcing files'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' CORE_FORCING,'
 #endif
@@ -1448,6 +1448,12 @@
      &   'Compute ice momentum equations'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICE_MOMENTUM,'
+#endif
+#ifdef ICE_SHALLOW_LIMIT
+      IF (Master) WRITE (stdout,20) 'ICE_SHALLOW_LIMIT',                &
+     &   "Grounded ice doesn't grow thermodynamically."
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+19)=' ICE_SHALLOW_LIMIT,'
 #endif
 !
 #ifdef ICE_SHALLOW_LIMIT

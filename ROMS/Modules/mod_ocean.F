@@ -152,6 +152,10 @@
 #   ifdef PROD3
           real(r8), pointer :: pt3(:,:,:,:,:)
 #   endif
+
+#   ifdef BENTHIC_BEST
+          real(r8), pointer :: bt(:,:,:,:,:)
+#   endif
 #   if defined ICE_BIO
           real(r8), pointer :: it(:,:,:,:)
           real(r8), pointer :: itL(:,:,:,:)
