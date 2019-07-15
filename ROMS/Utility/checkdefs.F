@@ -1456,13 +1456,6 @@
       Coptions(is:is+19)=' ICE_SHALLOW_LIMIT,'
 #endif
 !
-#ifdef ICE_SHALLOW_LIMIT
-      IF (Master) WRITE (stdout,20) 'ICE_SHALLOW_LIMIT',                &
-     &   "Grounded ice doesn't grow thermodynamically."
-      is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+19)=' ICE_SHALLOW_LIMIT,'
-#endif
-!
 #ifdef ICE_SHOREFAST
       IF (Master) WRITE (stdout,20) 'ICE_SHOREFAST',                    &
      &   'Motionless shorefast ice'
@@ -1504,9 +1497,9 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ICESHELF_3EQ,'
 #endif
-#if defined IMPACT_INNER        && defined OBS_IMPACT          && \
-   (defined W4DVAR_SENSITIVITY  || defined W4DPSAS_SENSITIVITY || \
-    defined IS4DVAR_SENSITIVITY)
+#if defined IMPACT_INNER        && defined OBS_IMPACT              && \
+   (defined IS4DVAR_SENSITIVITY || defined W4DPSAS_FCT_SENSITIVITY || \
+    defined W4DPSAS_SENSITIVITY || defined W4DVAR_SENSITIVITY)
 !
       IF (Master) WRITE (stdout,20) 'IMPACT_INNER',                     &
      &   'Writing observations impacts for each inner loop'
@@ -1621,14 +1614,12 @@
       Coptions(is:is+15)=' LI_FOX_KEMPER,'
 #endif
 #if defined LIMIT_BSTRESS && defined SOLVE3D  && !defined BBL_MODEL
-!
       IF (Master) WRITE (stdout,20) 'LIMIT_BSTRESS',                    &
      &   'Limit bottom stress to maintain bottom velocity direction'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' LIMIT_BSTRESS,'
 #endif
 #if defined LIMIT_STFLX_COOLING && defined SOLVE3D
-!
       IF (Master) WRITE (stdout,20) 'LIMIT_STFLX_COOLING',              &
      &   'Suppress further cooling if SST is at freezing point'
       is=LEN_TRIM(Coptions)+1
@@ -3383,6 +3374,14 @@
      &   'Weak constraint 4D-PSAS data assimilation'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+9)=' W4DPSAS,'
+      idriver=idriver+1
+#endif
+#ifdef W4DPSAS_FCT_SENSITIVITY
+!
+      IF (Master) WRITE (stdout,20) 'W4DPSAS_FCT_SENSITIVITY',          &
+     &   'Weak constraint 4D-PSAS observation forecast sensitivity'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+25)=' W4DPSAS_FCT_SENSITIVITY,'
       idriver=idriver+1
 #endif
 #ifdef W4DPSAS_SENSITIVITY

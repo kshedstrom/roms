@@ -1124,8 +1124,9 @@
 !>
           ad_EmP=0.0_r8
 #   else
-!>        tl_EmP=0.0_r8
+!>        tl_EmP=tl_stflx(i,j,isalt)
 !>
+          ad_stflx(i,j,isalt)=ad_stflx(i,j,isalt)+ad_EmP
           ad_EmP=0.0_r8
 #   endif
         END DO
@@ -1209,9 +1210,9 @@
 !
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-!>        tl_stflx(i,j,itemp)=0.0_r8
+!>        tl_stflx(i,j,itemp)=0.0_r8      ! not needed in TLM
 !>
-          ad_stflx(i,j,itemp)=0.0_r8
+!!        ad_stflx(i,j,itemp)=0.0_r8      ! not needed in ADM
         END DO
       END DO
 #  endif

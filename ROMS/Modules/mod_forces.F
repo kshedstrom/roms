@@ -1229,7 +1229,6 @@
       allocate ( FORCES(ng) % chl(LBi:UBi,LBj:UBj,N(ng)) )
       Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
 # endif
-
 #endif
 
 #if defined TANGENT || defined TL_IOMS

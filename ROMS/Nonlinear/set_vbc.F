@@ -443,11 +443,21 @@
 !  manipulations to state variable stflx(:,:,itemp)are allowed below.
 !-----------------------------------------------------------------------
 !
+#   if defined FOUR_DVAR && defined NL_BULK_FLUXES
+      IF (Nrun.eq.1) THEN
+        DO j=JstrR,JendR
+          DO i=IstrR,IendR
+            stflx(i,j,itemp)=snhflx(i,j)
+          END DO
+        END DO
+      END IF
+#   else
       DO j=JstrR,JendR
         DO i=IstrR,IendR
           stflx(i,j,itemp)=snhflx(i,j)
         END DO
       END DO
+#   endif
 #  endif
 
 #  ifdef QCORRECTION
@@ -504,14 +514,40 @@
 !  apply correction.
 !-----------------------------------------------------------------------
 !
+#   if defined FOUR_DVAR && defined NL_BULK_FLUXES
       DO j=JstrR,JendR
         DO i=IstrR,IendR
-#   if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
-          EmP=EminusP(i,j)
+          IF (Nrun.eq.1) THEN
+#    if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+            EmP=EminusP(i,j)
+#    else
+            EmP=stflx(i,j,isalt)
+#    endif
+          ELSE
+            EmP=stflx(i,j,isalt)
+          END IF
+#    if defined SCORRECTION
+          stflx(i,j,isalt)=EmP*t(i,j,N(ng),nrhs,isalt)-                 &
+     &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &
+     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#    elif defined SRELAXATION
+          stflx(i,j,isalt)=-Tnudg(isalt,ng)*Hz(i,j,N(ng))*              &
+     &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
+#    else
+          stflx(i,j,isalt)=EmP*t(i,j,N(ng),nrhs,isalt)
+#    endif
+          btflx(i,j,isalt)=btflx(i,j,isalt)*t(i,j,1,nrhs,isalt)
+        END DO
+      END DO
 #   else
+      DO j=JstrR,JendR
+        DO i=IstrR,IendR
+#    if (defined BULK_FLUXES && defined EMINUSP) || defined ATM_COUPLING
+          EmP=EminusP(i,j)
+#    else
           EmP=stflx(i,j,isalt)
-#   endif
-#   if defined SCORRECTION
+#    endif
+#    if defined SCORRECTION
 #     if defined ICE_MODEL || defined CICE_MODEL
 #      ifdef NO_SCORRECTION_ICE
           fac_ice = 1.0_r8
@@ -550,9 +586,9 @@
 #     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#   elif defined SRELAXATION
+#    elif defined SRELAXATION
           stflx(i,j,isalt)=-Tnudg_SSS(ng)*Hz(i,j,N(ng))*                &
-#       if defined SSSC_THRESHOLD
+#     if defined SSSC_THRESHOLD
 ! limit mismatch to avoid too strong relaxation fluxes
      &                     MIN(sss_mismatch_threshold(ng),              &
      &                         (t(i,j,N(ng),nrhs,isalt)-sss(i,j)))
@@ -564,7 +600,7 @@
 #     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#   else
+#    else
 #     ifdef ICE_THERMO
           stflx(i,j,isalt)=stflx(i,j,isalt)
 #     else
@@ -575,9 +611,9 @@
 #     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#   endif
-#   if (defined SCORRECTION || defined SRELAXATION) && \
-        defined SSSFLX
+#    endif
+#    if (defined SCORRECTION || defined SRELAXATION) && \
+         defined SSSFLX
           sssflx(i,j) = -Tnudg_SSS(ng)*Hz(i,j,N(ng))*                   &
      &                     (t(i,j,N(ng),nrhs,isalt)-sss(i,j))
 #     ifdef WET_DRY
@@ -585,18 +621,19 @@
 #     elif defined MASKING
           sssflx(i,j) = rmask(i,j)*sssflx(i,j)
 #     endif
-#   endif
-#   ifdef SSSFLX
+#    endif
+#    ifdef SSSFLX
           stflx(i,j,isalt)=stflx(i,j,isalt)+sssflx(i,j)
 #     ifdef WET_DRY
           stflx(i,j,isalt) = rmask_wet(i,j)*stflx(i,j,isalt)
 #     elif defined MASKING
           stflx(i,j,isalt) = rmask(i,j)*stflx(i,j,isalt)
 #     endif
-#   endif
+#    endif
           btflx(i,j,isalt)=btflx(i,j,isalt)*t(i,j,1,nrhs,isalt)
         END DO
       END DO
+#   endif
 #  endif
 #  ifdef ICESHELF
 !

@@ -26,7 +26,17 @@
 !    FIL       Filter restart files                                    !
 !    FISH      Fish trajectory data                                    !
 !    FLEET     Fishing fleet data                                      !
+#ifdef W4DPSAS_FCT_SENSITIVITY
+!    FCTA      Input basic state forecast solution                     !
+!    FCTB      Input basic state forecast solution                     !
+#endif
 !    FLT       Output Lagrangian trajectories data                     !
+#if defined W4DPSAS_FCT_SENSITIVITY && !defined OBS_SPACE
+!    FOIA      Input Forecast Observation Impacts forcing data when    !
+!                initialized from the 4D-Var Analysis (red curve)      !
+!    FOIB      Input Forecast Observation Impacts forcing data when    !
+!                initialized from the 4D-Var Background (blue curve)   !
+#endif
 !    FRC       Input forcing data                                      !
 !    FWD       Input basic state forward solution                      !
 !    GRD       Input grid data                                         !
@@ -48,6 +58,12 @@
 !    NUD       Input climatology nudging coefficients                  !
 !    OBS       Input/output 4D-Var observations                        !
 !    PRED      Predatory fish trajectory data                          !
+#if defined W4DPSAS_FCT_SENSITIVITY && defined OBS_SPACE
+!    OIFA      Input Observations Impact Forcing at datum locations if !
+!                initialized from the 4D-Var Analysis (red curve)      !
+!    OIFB      Input Observations Impact Forcing at datum locations if !
+!                initialized from the 4D-Var Background (blue curve)   !
+#endif
 !    QCK       Output nonlinear model brief snpashots data             !
 !    RST       Output restart data                                     !
 !    TIDE      Input tide forcing                                      !
@@ -74,8 +90,8 @@
 !  fposnam     Input initial floats positions filename.                !
 !  fishposnam  Input initial fish positions filename.                  !
 !  fleetposnam Input initial fleet parameters filename.                !
-!  iparnam     Input ice parameters filename.                          !
 !  predposnam  Input initial predtor positions filename.               !
+!  iparnam     Input ice parameters filename.                          !
 !  sparnam     Input sediment transport parameters filename.           !
 !  sposnam     Input station positions filename.                       !
 !  varname     Input IO variables information filename.                !
@@ -124,6 +140,14 @@
       TYPE(T_IO), allocatable :: FISH(:)    ! fish trajectories
       TYPE(T_IO), allocatable :: FLEET(:)   ! fishing fleet
       TYPE(T_IO), allocatable :: FLT(:)     ! Lagrangian trajectories
+#ifdef W4DPSAS_FCT_SENSITIVITY
+      TYPE(T_IO), allocatable :: FCTA(:)    ! forecast for impacts, A
+      TYPE(T_IO), allocatable :: FCTB(:)    ! forecast for impacts, B
+#endif
+#if defined W4DPSAS_FCT_SENSITIVITY && !defined OBS_SPACE
+      TYPE(T_IO), allocatable :: FOIA(:)    ! observation impacts, A
+      TYPE(T_IO), allocatable :: FOIB(:)    ! observation impacts, B
+#endif
       TYPE(T_IO), allocatable :: FWD(:)     ! forward solution
       TYPE(T_IO), allocatable :: GRD(:)     ! grid data
       TYPE(T_IO), allocatable :: GST(:)     ! generalized stability
@@ -140,6 +164,10 @@
       TYPE(T_IO), allocatable :: NUD(:)     ! nudging coefficients
       TYPE(T_IO), allocatable :: OBS(:)     ! observations
       TYPE(T_IO), allocatable :: PRED(:)    ! predatory fish
+#if defined W4DPSAS_FCT_SENSITIVITY && defined OBS_SPACE
+      TYPE(T_IO), allocatable :: OIFA(:)    ! observation impacts, A
+      TYPE(T_IO), allocatable :: OIFB(:)    ! observation impacts, B
+#endif
       TYPE(T_IO), allocatable :: QCK(:)     ! quicksave fields
       TYPE(T_IO), allocatable :: RST(:)     ! restart fields
       TYPE(T_IO), allocatable :: STA(:)     ! stations data
@@ -288,6 +316,22 @@
       IF (.not.allocated(FLT)) THEN
         allocate ( FLT(Ngrids) )
       END IF
+#ifdef W4DPSAS_FCT_SENSITIVITY
+      IF (.not.allocated(FCTA)) THEN
+        allocate ( FCTA(Ngrids) )
+      END IF
+      IF (.not.allocated(FCTB)) THEN
+        allocate ( FCTB(Ngrids) )
+      END IF
+#endif
+#if defined W4DPSAS_FCT_SENSITIVITY && !defined OBS_SPACE
+      IF (.not.allocated(FOIA)) THEN
+        allocate ( FOIA(Ngrids) )
+      END IF
+      IF (.not.allocated(FOIB)) THEN
+        allocate ( FOIB(Ngrids) )
+      END IF
+#endif
       IF (.not.allocated(FWD)) THEN
         allocate ( FWD(Ngrids) )
       END IF
@@ -330,6 +374,14 @@
       IF (.not.allocated(OBS)) THEN
         allocate ( OBS(Ngrids) )
       END IF
+#if defined W4DPSAS_FCT_SENSITIVITY && defined OBS_SPACE
+      IF (.not.allocated(OIFA)) THEN
+        allocate ( OIFA(Ngrids) )
+      END IF
+      IF (.not.allocated(OIFB)) THEN
+        allocate ( OIFB(Ngrids) )
+      END IF
+#endif
       IF (.not.allocated(QCK)) THEN
         allocate ( QCK(Ngrids) )
       END IF
@@ -383,6 +435,14 @@
         DIA(ng)%ncid=-1
         ERR(ng)%ncid=-1
         FLT(ng)%ncid=-1
+#ifdef W4DPSAS_FCT_SENSITIVITY
+        FCTA(ng)%ncid=-1
+        FCTB(ng)%ncid=-1
+#endif
+#if defined W4DPSAS_FCT_SENSITIVITY && !defined OBS_SPACE
+        FOIA(ng)%ncid=-1
+        FOIB(ng)%ncid=-1
+#endif
         FWD(ng)%ncid=-1
         GRD(ng)%ncid=-1
         GST(ng)%ncid=-1
@@ -397,6 +457,10 @@
         LZE(ng)%ncid=-1
         NUD(ng)%ncid=-1
         OBS(ng)%ncid=-1
+#if defined W4DPSAS_FCT_SENSITIVITY && defined OBS_SPACE
+        OIFA(ng)%ncid=-1
+        OIFB(ng)%ncid=-1
+#endif
         QCK(ng)%ncid=-1
         RST(ng)%ncid=-1
         STA(ng)%ncid=-1
@@ -447,6 +511,22 @@
           FLT(ng)%base(i:i)=blank
           FLT(ng)%name(i:i)=blank
 
+#ifdef W4DPSAS_FCT_SENSITIVITY
+          FCTA(ng)%base(i:i)=blank
+          FCTA(ng)%name(i:i)=blank
+
+          FCTB(ng)%base(i:i)=blank
+          FCTB(ng)%name(i:i)=blank
+#endif
+
+#if defined W4DPSAS_FCT_SENSITIVITY && !defined OBS_SPACE
+          FOIA(ng)%base(i:i)=blank
+          FOIA(ng)%name(i:i)=blank
+
+          FOIB(ng)%base(i:i)=blank
+          FOIB(ng)%name(i:i)=blank
+#endif
+
           FWD(ng)%base(i:i)=blank
           FWD(ng)%name(i:i)=blank
 
@@ -488,6 +568,14 @@
 
           OBS(ng)%base(i:i)=blank
           OBS(ng)%name(i:i)=blank
+
+#if defined W4DPSAS_FCT_SENSITIVITY && defined OBS_SPACE
+          OIFA(ng)%base(i:i)=blank
+          OIFA(ng)%name(i:i)=blank
+
+          OIFB(ng)%base(i:i)=blank
+          OIFB(ng)%name(i:i)=blank
+#endif
 
           QCK(ng)%base(i:i)=blank
           QCK(ng)%name(i:i)=blank

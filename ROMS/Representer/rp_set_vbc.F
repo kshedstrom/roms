@@ -468,7 +468,7 @@
 !>
 #   ifdef TL_IOMS
           tl_stflx(i,j,isalt)=EmP*tl_t(i,j,N(ng),nrhs,isalt)+           &
-     &                        (tl_EmP-EmP))*                            &
+     &                        (tl_EmP-EmP)*                             &
      &                        t(i,j,N(ng),nrhs,isalt)
 #   else
           tl_stflx(i,j,isalt)=EmP*tl_t(i,j,N(ng),nrhs,isalt)+           &

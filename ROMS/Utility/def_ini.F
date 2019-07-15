@@ -347,7 +347,7 @@
 !  in addition to initialization time.
 !-----------------------------------------------------------------------
 
-#  ifdef ADJUST_BOUNDARY
+#  if defined ADJUST_BOUNDARY && !defined W4DPSAS_FCT_SENSITIVITY
 !
 !  Define free-surface open boundaries.
 !
