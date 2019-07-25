@@ -831,6 +831,9 @@
 #  ifdef RPM_RELAXATION
         logical, allocatable :: LweakRelax(:)
 #  endif
+#  ifdef W4DPSAS_FCT_SENSITIVITY
+        logical, allocatable :: LsenFCT(:)
+#  endif
 #  if defined W4DPSAS_SENSITIVITY || defined W4DPSAS_FCT_SENSITIVITY ||\
       defined W4DVAR_SENSITIVITY
 !
@@ -1029,6 +1032,12 @@
 #  ifdef RPM_RELAXATION
       IF (.not.allocated(LweakRelax)) THEN
         allocate ( LweakRelax(Ngrids) )
+        Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
+      END IF
+#  endif
+#  ifdef W4DPSAS_FCT_SENSITIVITY
+      IF (.not.allocated(LsenFCT)) THEN
+        allocate ( LsenFCT(Ngrids) )
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 #  endif

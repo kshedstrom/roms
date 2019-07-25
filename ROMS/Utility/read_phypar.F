@@ -521,9 +521,6 @@
 #endif
             CASE ('NTIMES')
               Npts=load_i(Nval, Rval, Ngrids, ntimes)
-#ifdef CORRELATION
-              ntimes=1                 ! no time-stepping required
-#endif
 #ifdef W4DPSAS_FCT_SENSITIVITY
             CASE ('NTIMES_ANA')
               Npts=load_i(Nval, Rval, Ngrids, ntimes_ana)
@@ -3832,6 +3829,9 @@
         ELSE
           NSA=1
         END IF
+#  ifdef CORRELATION
+        ntimes=1                 ! no time-stepping required
+#  endif
 # else
         NSA=1
 # endif
