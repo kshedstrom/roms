@@ -1041,7 +1041,8 @@
      &                        ncid = ncid)
 # endif
 # if defined IS4DVAR_SENSITIVITY     || defined W4DPSAS_SENSITIVITY || \
-     defined W4DPSAS_FCT_SENSITIVITY || defined W4DVAR_SENSITIVITY
+     defined W4DPSAS_FCT_SENSITIVITY || defined W4DVAR_SENSITIVITY  || \
+     defined ARRAY_MODES
         CALL netcdf_put_ivar (ng, model, ncname, 'Nimpact',             &
      &                        Nimpact, (/0/), (/0/),                    &
      &                        ncid = ncid)

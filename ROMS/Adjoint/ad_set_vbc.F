@@ -1162,7 +1162,7 @@
 !>
           ad_cff2=ad_cff2+                                              &
      &            (1.0_r8-cff3*0.5_r8*(1.0_r8-SIGN(1.0_r8,cff2)))*      &
-     &            ad_stfx(i,j,itemp)
+     &            ad_stflx(i,j,itemp)
           ad_stflx(i,j,itemp)=0.0_r8
 !>        tl_cff3=0.5_r8*SIGN(1.0_r8, cff1-t(i,j,N(ng),nrhs,itemp))*0.0
 !>        tl_cff3=0.0_r8

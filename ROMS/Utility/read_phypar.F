@@ -524,9 +524,6 @@
 #endif
             CASE ('NTIMES')
               Npts=load_i(Nval, Rval, Ngrids, ntimes)
-#ifdef CORRELATION
-              ntimes=1                 ! no time-stepping required
-#endif
 #ifdef W4DPSAS_FCT_SENSITIVITY
             CASE ('NTIMES_ANA')
               Npts=load_i(Nval, Rval, Ngrids, ntimes_ana)
@@ -3469,7 +3466,7 @@
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
      &                      Nfiles, FCTA)
             CASE ('FCTnameB')
-              label='FCTB - forecast state forward trajectory A'
+              label='FCTB - forecast state forward trajectory B'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
      &                      Nfiles, FCTB)
 #endif
@@ -3945,11 +3942,15 @@
         ELSE
           NSA=1
         END IF
+#  ifdef CORRELATION
+        ntimes=1                 ! no time-stepping required
+#  endif
 # else
         NSA=1
 # endif
 #endif
 #ifdef WEAK_CONSTRAINT
+# ifndef ARRAY_MODES
 !
 !  If weak constraint assimilation, set tangent linear number of
 !  time-steps between writing of fields the same as the basic
@@ -3957,6 +3958,7 @@
 !
         nTLM(ng)=nHIS(ng)
         LcycleTLM(ng)=.FALSE.
+# endif
 #endif
 #if defined TIME_CONV && defined WEAK_CONSTRAINT
 !

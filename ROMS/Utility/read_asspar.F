@@ -834,6 +834,18 @@
             RETURN
           END IF
 #   endif
+#   if defined ARRAY_MODES
+          WRITE (out,80) Nimpact, 'Nimpact',                             &
+     &            'Array mode outer loop.'
+          IF (Nimpact.gt.Nouter) THEN
+            IF (Master) THEN
+              WRITE (out,240) 'Nimpact', Nimpact,                        &
+     &              'must be less or equal than Nouter'
+            END IF
+            exit_flag=5
+            RETURN
+          END IF
+#   endif
 #   ifndef TLM_CHECK
 #    ifndef IS4DVAR_SENSITIVITY
           WRITE (out,170) LdefNRM(1:4,ng), 'LdefNRM',                   &

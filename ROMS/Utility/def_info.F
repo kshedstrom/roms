@@ -2485,7 +2485,8 @@
      &               __FILE__)) RETURN
 # endif
 # if defined IS4DVAR_SENSITIVITY     || defined W4DPSAS_SENSITIVITY || \
-     defined W4DPSAS_FCT_SENSITIVITY || defined W4DVAR_SENSITIVITY
+     defined W4DPSAS_FCT_SENSITIVITY || defined W4DVAR_SENSITIVITY  || \
+     defined ARRAY_MODES
       Vinfo( 1)='Nimpact'
       Vinfo( 2)='Observations impact/sensitivity outer loop to use'
       status=def_var(ng, model, ncid, varid, nf90_int,                  &

@@ -29,10 +29,10 @@
       USE mod_grid
       USE mod_iounits
       USE mod_ncparam
-#if defined HYPOXIA_SRM         || defined NLM_OUTER || \
-    defined RED_TIDE            || defined TLM_CHECK || \
-    defined TL_W4DPSAS          || defined W4DPSAS   || \
-    defined W4DPSAS_SENSITIVITY
+#if defined HYPOXIA_SRM         || defined NLM_OUTER               ||\
+    defined RED_TIDE            || defined TLM_CHECK               ||\
+    defined TL_W4DPSAS          || defined W4DPSAS                 ||\
+    defined W4DPSAS_SENSITIVITY || defined W4DPSAS_FCT_SENSITIVITY
       USE mod_ocean
 #endif
       USE mod_scalars
@@ -2183,8 +2183,9 @@
       END IF
 #endif
 
-#if defined NLM_OUTER || defined TL_W4DPSAS           || \
-    defined W4DPSAS   || defined W4DPSAS_SENSITIVITY
+#if defined NLM_OUTER               || defined TL_W4DPSAS          ||\
+    defined W4DPSAS                 || defined W4DPSAS_SENSITIVITY ||\
+    defined W4DPSAS_FCT_SENSITIVITY
 !
 !-----------------------------------------------------------------------
 !  Read weak contraint forcing snapshots. Notice that the forward
