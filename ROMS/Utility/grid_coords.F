@@ -103,7 +103,7 @@
           IF (DRIFTER(ng)%Findex(0).gt.0) THEN
 #ifdef ARCTIC
 !            IF (Jend .lt. 340) THEN    ! ARCTIC1
-            IF (Jend .lt. 760) THEN     ! ARCTIC2
+            IF (Jend < 760 .or. IstrR > 300) THEN     ! ARCTIC2
 #endif
             CALL hindices (ng, LBi, UBi, LBj, UBj,                      &
      &                     IstrR, Iend+1, JstrR, Jend+1,                &
@@ -283,7 +283,7 @@
         IF (mc.gt.0) THEN
 #ifdef ARCTIC
 !            IF (Jend .lt. 340) THEN    ! ARCTIC1
-            IF (Jend .lt. 760) THEN     ! ARCTIC2
+            IF (Jend < 760 .or. IstrR > 300) THEN     ! ARCTIC2
 #endif
           CALL hindices (ng, LBi, UBi, LBj, UBj,                        &
      &                   IstrR, Iend+1, JstrR, Jend+1,                  &
