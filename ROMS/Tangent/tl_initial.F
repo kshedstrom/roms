@@ -91,6 +91,8 @@
       integer :: LBi, UBi, LBj, UBj
       integer :: Fcount, IniRec, Tindex, wrtRec
       integer :: thread, tile
+
+      real(dp) :: my_dstart
 !
 !=======================================================================
 !   Initialize model variables.
@@ -142,7 +144,27 @@
       IF (ANY(tl_VolCons(:,ng))) THEN
         tl_ubar_xs=0.0_r8
       END IF
+
+# ifdef GENERIC_DSTART
+!
+!  Rarely, the tangent linear model is initialized from a NetCDF file,
+!  so we do not know its actual initialization time. Usually, it is
+!  computed from DSTART, implying that its value is correct in the ROMS
+!  input script. Therefore, the user needs to check and update its value
+!  to every time that ROMS is executed. Alternatively, if available, we
+!  can use the initialization time from the nonlinear model, INItime.
+!  This variable is assigned when computing or processing the basic
+!  state trajectory needed to linearize the adjoint model.
+!
+      IF (INItime(ng).lt.0.0_dp) THEN
+        my_dstart=dstart                    ! ROMS input script
+      ELSE
+        my_dstart=INItime(ng)/86400.0_dp    ! NLM IC time is known
+      END IF
+      tdays(ng)=my_dstart
+# else
       tdays(ng)=dstart
+# endif
       time(ng)=tdays(ng)*day2sec
 !$OMP MASTER
       ntstart(ng)=INT((time(ng)-dstart*day2sec)/dt(ng))+1
@@ -248,18 +270,6 @@
       Fcount=TLM(ng)%Fcount
       TLM(ng)%Nrec(Fcount)=0
       LwrtTLM(ng)=.TRUE.
-!
-!  Insure that forward and history file names are the same. In 4DVar,
-!  the forward solution is computed by the nonlinear model and stored
-!  on HISNAME NetCDF file.
-!
-#    ifdef TLM_CHECK
-      FWD(ng)%name=TRIM(HIS(ng)%base)//'.nc'
-      FWD(ng)%ncid=-1
-#    else
-      FWD(ng)%name=HIS(ng)%name
-      FWD(ng)%ncid=HIS(ng)%ncid
-#    endif
 #   endif
 #  endif
 !$OMP BARRIER

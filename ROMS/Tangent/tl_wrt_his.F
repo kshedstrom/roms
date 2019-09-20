@@ -102,7 +102,7 @@
 !  Set time record index.
 !
       TLM(ng)%Rindex=TLM(ng)%Rindex+1
-      Fcount=TLM(ng)%Fcount
+      Fcount=TLM(ng)%load
       TLM(ng)%Nrec(Fcount)=TLM(ng)%Nrec(Fcount)+1
 !
 !  If requested, set time index to recycle time records in the tangent

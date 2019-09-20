@@ -1216,8 +1216,8 @@
             IF (MOD(NVsteps(rec,is),2).ne.0) THEN
               NVsteps(rec,is)=NVsteps(rec,is)+1
             END IF
-# endif
           END IF
+# endif
         END DO
       END DO
 

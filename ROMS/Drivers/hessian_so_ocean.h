@@ -186,10 +186,25 @@
 !  routine "wpoints".
 !-----------------------------------------------------------------------
 !
-      DO ng=1,Ngrids
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
-        BLK(ng)%name=FWD(ng)%name
+!  Set structure for the nonlinear surface fluxes to be processed by
+!  by the tangent linear and adjoint models. Also, set switches to
+!  process the BLK structure in routine "check_multifile".  Notice that
+!  it is possible to split solution into multiple NetCDF files to reduce
+!  their size.
+!
+      CALL edit_multifile ('FWD2BLK')
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
+      DO ng=1,Ngrids
+        LreadBLK(ng)=.TRUE.
+      END DO
 #endif
+!
+!  Initialize perturbation tangent linear model.
+!
+      DO ng=1,Ngrids
+        LreadFWD(ng)=.TRUE
 !$OMP PARALLEL
         CALL tl_initial (ng)
 !$OMP END PARALLEL
@@ -682,7 +697,7 @@
             IF (Master) WRITE (stdout,10)
  10         FORMAT (/,' Blowing-up: Saving latest model state into ',   &
      &                ' RESTART file',/)
-            Fcount=RST(ng)%Fcount
+            Fcount=RST(ng)%load
             IF (LcycleRST(ng).and.(RST(ng)%Nrec(Fcount).ge.2)) THEN
               RST(ng)%Rindex=2
               LcycleRST(ng)=.FALSE.
@@ -723,6 +738,9 @@
 !
 !  Close IO files.
 !
+      DO ng=1,Ngrids
+        CALL close_inp (ng, iTLM)
+      END DO
       CALL close_out
 
       RETURN

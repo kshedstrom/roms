@@ -783,9 +783,6 @@
       integer :: Tindex3d, itrc
 # endif
       integer :: LBi, UBi, LBj, UBj
-# ifdef NESTING_DEBUG
-      real :: IniTime
-# endif
 !
 !-----------------------------------------------------------------------
 !  Get donor grid data needed to process refinement grid contact points.
@@ -849,7 +846,6 @@
                 first=.FALSE.
                 WRITE (101,10)
               END IF
-              IniTime=dstart*86400.0_r8
               WRITE (101,20) ng, cr, dg, rg, iic(dg), iic(rg),          &
      &                       3-tnew, tnew, Tindex2d, Tindex3d,          &
      &                       INT(time(rg)),                             &

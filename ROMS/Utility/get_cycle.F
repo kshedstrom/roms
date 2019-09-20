@@ -239,14 +239,19 @@
         IF (job.gt.0) THEN     ! forward:   Tval(i) =< mday =< Tval(i+1)
           IF (Linside) THEN
             tstart=Tmin
-            DO i=2,ntime
-              IF ((tstart.le.mday).and.(mday.le.Tval(i))) THEN
-                Tstr=tstart
-                Tindex=i-1     ! one is added when processing
-                EXIT
-              END IF
-              tstart=Tval(i)
-            END DO
+            IF (ntime.eq.1) THEN
+              Tstr=Tmin
+              Tindex=1
+            ELSE
+              DO i=2,ntime
+                IF ((tstart.le.mday).and.(mday.le.Tval(i))) THEN
+                  Tstr=tstart
+                  Tindex=i-1   ! one is added when processing
+                  EXIT
+                END IF
+                tstart=Tval(i)
+              END DO
+            END IF
           ELSE
             Tstr=Tmax
             Tindex=ntime
@@ -254,14 +259,19 @@
         ELSE                   ! backward:  Tval(i) =< mday =< Tval(i+1)
           IF (Linside) THEN
             tstart=Tmin
-            DO i=2,ntime
-              IF ((tstart.le.mday).and.(mday.le.Tval(i))) THEN
-                Tstr=Tval(i)
-                Tindex=i
-                EXIT
-              END IF
-              tstart=Tval(i)
-            END DO
+            IF (ntime.eq.1) THEN
+              Tstr=Tmin
+              Tindex=1
+            ELSE
+              DO i=2,ntime
+                IF ((tstart.le.mday).and.(mday.le.Tval(i))) THEN
+                  Tstr=Tval(i)
+                  Tindex=i
+                  EXIT
+                END IF
+                tstart=Tval(i)
+              END DO
+            END IF
           ELSE IF (LowerBound) THEN
             Tstr=Tmax
             Tindex=ntime

@@ -8,7 +8,7 @@
 !    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
-! This subroutine checks some input files are in close state.  It is   !
+! This subroutine checks if input files are in close state.  It is     !
 ! used during initialization to force all multi-file input fields to   !
 ! in close state. This is important in iterative algorithms that run   !
 ! the full model repetitevely.                                         !
@@ -31,9 +31,9 @@
 !
 !  Local variable declarations.
 !
-      integer :: Fcount, i, j, lstr
+      integer :: Fcount, i
 !
-      SourceFile=__FILE__ // ", close_io.F"
+      SourceFile=__FILE__ // ", close_inp.F"
 !
 !-----------------------------------------------------------------------
 !  If multi-file input fields, close several input files.
@@ -45,32 +45,16 @@
 !  to closed state.
 !
       DO i=1,nFfiles(ng)
-        IF ((FRC(i,ng)%Nfiles.gt.1).and.(FRC(i,ng)%ncid.ge.0)) THEN
-          FRCids(i,ng)=-1
-          DO j=1,NV
-            IF (ncFRCid(j,ng).eq.FRC(i,ng)%ncid) THEN
-              ncFRCid(j,ng)=-1
-            END IF
-          END DO
-          IF (model.eq.iADM) THEN
-            DO j=1,FRC(i,ng)%Nfiles
-              IF ((FRC(i,ng)%time_min(j).le.tdays(ng)).and.             &
-     &            (tdays(ng).le.FRC(i,ng)%time_max(j))) THEN
-                Fcount=j
-                EXIT
-              END IF
-            END DO
-          ELSE
-            Fcount=1
-          END IF
-          FRC(i,ng)%Fcount=Fcount
-          FRC(i,ng)%name=TRIM(FRC(i,ng)%files(Fcount))
-          lstr=LEN_TRIM(FRC(i,ng)%name)
-          FRC(i,ng)%base=FRC(i,ng)%name(1:lstr-3)
+        IF ((FRC(i,ng)%Nfiles.gt.0).and.(FRC(i,ng)%ncid.ne.-1)) THEN
           CALL netcdf_close (ng, model, FRC(i,ng)%ncid,                 &
      &                       FRC(i,ng)%name, .FALSE.)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
+          FRCids=-1
+          ncFRCid=-1
+          Fcount=1
+          FRC(i,ng)%Fcount=Fcount
+          FRC(i,ng)%name=TRIM(FRC(i,ng)%files(Fcount))
         END IF
       END DO
 #endif
@@ -80,25 +64,11 @@
       IF (ObcData(ng)) THEN
         DO i=1,nBCfiles(ng)
           IF ((BRY(i,ng)%Nfiles.gt.1).and.(BRY(i,ng)%ncid.ge.0)) THEN
-            IF (model.eq.iADM) THEN
-              DO j=1,BRY(i,ng)%Nfiles
-                IF ((BRY(i,ng)%time_min(j).le.tdays(ng)).and.           &
-     &              (tdays(ng).le.BRY(i,ng)%time_max(j))) THEN
-                  Fcount=j
-                  EXIT
-                END IF
-              END DO
-            ELSE
-              Fcount=1
-            END IF
+            CALL netcdf_close (ng, model, BRY(i,ng)%ncid,               &
+     &                         BRY(i,ng)%name,  .FALSE.)
+            Fcount=1
             BRY(i,ng)%Fcount=Fcount
             BRY(i,ng)%name=TRIM(BRY(i,ng)%files(Fcount))
-            lstr=LEN_TRIM(BRY(i,ng)%name)
-            BRY(i,ng)%base=BRY(i,ng)%name(1:lstr-3)
-            CALL netcdf_close (ng, model, BRY(i,ng)%ncid,               &
-     &                         BRY(i,ng)%files(i),  .FALSE.)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -108,25 +78,11 @@
       IF (CLM_FILE(ng)) THEN
         DO i=1,nCLMfiles(ng)
           IF ((CLM(i,ng)%Nfiles.gt.1).and.(CLM(i,ng)%ncid.ge.0)) THEN
-            IF (model.eq.iADM) THEN
-              DO j=1,CLM(i,ng)%Nfiles
-                IF ((CLM(i,ng)%time_min(i).le.tdays(ng)).and.           &
-     &            (tdays(ng).le.CLM(i,ng)%time_max(i))) THEN
-                  Fcount=j
-                  EXIT
-                END IF
-              END DO
-            ELSE
-              Fcount=1
-            END IF
+            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,               &
+     &                     CLM(i,ng)%name,  .FALSE.)
+            Fcount=1
             CLM(i,ng)%Fcount=Fcount
             CLM(i,ng)%name=TRIM(CLM(i,ng)%files(Fcount))
-            lstr=LEN_TRIM(CLM(i,ng)%name)
-            CLM(i,ng)%base=CLM(i,ng)%name(1:lstr-3)
-            CALL netcdf_close (ng, model, CLM(i,ng)%ncid,               &
-     &                     CLM(i,ng)%files(i),  .FALSE.)
-            IF (FoundError(exit_flag, NoError, __LINE__,                &
-     &                     __FILE__)) RETURN
           END IF
         END DO
       END IF
@@ -221,11 +177,14 @@
 !
       DO ng=1,Ngrids
         IF (RST(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, RST(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, RST(ng)%ncid, RST(ng)%name)
         END IF
 #if defined FOUR_DVAR || defined ENKF_RESTART
         IF (DAI(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, DAI(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, DAI(ng)%ncid, DAI(ng)%name)
+        END IF
+        IF (DAV(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, DAV(ng)%ncid, DAV(ng)%name)
         END IF
 #endif
 #if defined FORWARD_READ || defined FORWARD_WRITE
@@ -233,23 +192,44 @@
           FWD(ng)%ncid=-1
         END IF
         IF (FWD(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, FWD(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, FWD(ng)%ncid, FWD(ng)%name)
         END IF
 #endif
         IF (HIS(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, HIS(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, HIS(ng)%ncid, HIS(ng)%name)
         END IF
         IF (QCK(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, QCK(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, QCK(ng)%ncid, QCK(ng)%name)
         END IF
 #ifdef ADJOINT
         IF (ADM(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iADM, ADM(ng)%ncid)
+          CALL netcdf_close (ng, iADM, ADM(ng)%ncid, ADM(ng)%name)
         END IF
 #endif
 #ifdef TANGENT
+        IF (ITL(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iTLM, ITL(ng)%ncid, ITL(ng)%name)
+        END IF
         IF (TLM(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iTLM, TLM(ng)%ncid)
+          CALL netcdf_close (ng, iTLM, TLM(ng)%ncid, TLM(ng)%name)
+        END IF
+#endif
+#if defined TL_IOMS && defined FOUR_DVAR
+        IF (IRP(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iRPM, IRP(ng)%ncid, IRP(ng)%name)
+        END IF
+#endif
+#ifdef WEAK_CONSTRAINT
+        IF (TLF(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iTLM, TLF(ng)%ncid, TLF(ng)%name)
+        END IF
+#endif
+#ifdef FOUR_DVAR
+        IF (HSS(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iADM, HSS(ng)%ncid, HSS(ng)%name)
+        END IF
+        IF (LCZ(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iADM, LCZ(ng)%ncid, LCZ(ng)%name)
         END IF
 #endif
 #if defined AVERAGES    || \
@@ -257,29 +237,36 @@
    (defined RP_AVERAGES && defined TL_IOMS) || \
    (defined TL_AVERAGES && defined TANGENT)
         IF (AVG(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, AVG(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, AVG(ng)%ncid, AVG(ng)%name)
+        END IF
+#endif
+#if defined AVERAGES  && defined AVERAGES_DETIDE && \
+   (defined SSH_TIDES || defined UV_TIDES)
+        IF (HAR(ng)%ncid.ne.-1) THEN
+          CALL netcdf_close (ng, iNLM, HAR(ng)%ncid, HAR(ng)%name)
         END IF
 #endif
 #ifdef AVERAGES2
         IF (AVG2(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, AVG2(ng)%ncid, AVG2(ng)%name)
         END IF
 #endif
 #ifdef FILTERED_RST
         DO ifile=1,nfile
           IF (FIL(ifile,ng)%ncid.ne.-1) THEN
-            CALL netcdf_close (ng, iNLM, FIL(ifile,ng)%ncid)
+            CALL netcdf_close (ng, iNLM, FIL(ifile,ng)%ncid,            &
+     &                         FIL(ifile,ng)%name)
           END IF
         END DO
 #endif
 #ifdef DIAGNOSTICS
         IF (DIA(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, DIA(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, DIA(ng)%ncid, DIA(ng)%name)
         END IF
 #endif
 #ifdef FLOATS
         IF (FLT(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iNLM, FLT(ng)%ncid)
+          CALL netcdf_close (ng, iNLM, FLT(ng)%ncid, FLT(ng)%name)
         END IF
 #endif
 #ifdef STATIONS
@@ -290,7 +277,7 @@
 #if defined WEAK_CONSTRAINT   && \
    (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
         IF (ERR(ng)%ncid.ne.-1) THEN
-          CALL netcdf_close (ng, iTLM, ERR(ng)%ncid)
+          CALL netcdf_close (ng, iTLM, ERR(ng)%ncid, ERR(ng)%name)
         END IF
 #endif
 !
@@ -300,14 +287,13 @@
           WRITE (stdout,10) ng
 
           IF (associated(HIS(ng)%Nrec)) THEN
-            Fcount=HIS(ng)%Fcount
-            IF (HIS(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'HISTORY', HIS(ng)%Nrec(Fcount)
+            IF (ANY(HIS(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'HISTORY', SUM(HIS(ng)%Nrec)
             END IF
           END IF
 
           IF (associated(RST(ng)%Nrec)) THEN
-            Fcount=RST(ng)%Fcount
+            Fcount=RST(ng)%load
             IF (RST(ng)%Nrec(Fcount).gt.0) THEN
               IF (LcycleRST(ng)) THEN
                 IF (RST(ng)%Nrec(Fcount).gt.1) THEN
@@ -322,27 +308,24 @@
 
 #if defined FOUR_DVAR || defined ENKF_RESTART
           IF (associated(DAI(ng)%Nrec)) THEN
-            Fcount=DAI(ng)%Fcount
-            IF (DAI(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'DA IC  ', DAI(ng)%Nrec(Fcount)
+            IF (ANY(DAI(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'DA IC  ', SUM(DAI(ng)%Nrec)
             END IF
           END IF
 #endif
 
 #ifdef ADJOINT
           IF (associated(ADM(ng)%Nrec)) THEN
-            Fcount=ADM(ng)%Fcount
-            IF (ADM(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'ADJOINT', ADM(ng)%Nrec(Fcount)
+            IF (ANY(ADM(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'ADJOINT', SUM(ADM(ng)%Nrec)
             END IF
           END IF
 #endif
 
 #ifdef TANGENT
           IF (associated(TLM(ng)%Nrec)) THEN
-            Fcount=TLM(ng)%Fcount
-            IF (TLM(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'TANGENT', TLM(ng)%Nrec(Fcount)
+            IF (ANY(TLM(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'TANGENT', SUM(TLM(ng)%Nrec)
             END IF
           END IF
 #endif
@@ -352,9 +335,8 @@
    (defined RP_AVERAGES && defined TL_IOMS) || \
    (defined TL_AVERAGES && defined TANGENT)
           IF (associated(AVG(ng)%Nrec)) THEN
-            Fcount=AVG(ng)%Fcount
-            IF (AVG(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'AVERAGE', AVG(ng)%Nrec(Fcount)
+            IF (ANY(AVG(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'AVERAGE', SUM(AVG(ng)%Nrec)
             END IF
           END IF
 #endif
@@ -380,9 +362,8 @@
 
 #ifdef STATIONS
           IF (associated(STA(ng)%Nrec)) THEN
-            Fcount=STA(ng)%Fcount
-            IF (STA(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'STATION', STA(ng)%Nrec(Fcount)
+            IF (ANY(STA(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'STATION', SUM(STA(ng)%Nrec)
             END IF
           END IF
 #endif
@@ -390,9 +371,8 @@
 #if defined WEAK_CONSTRAINT   && \
    (defined POSTERIOR_ERROR_F || defined POSTERIOR_ERROR_I)
           IF (associated(ERR(ng)%Nrec)) THEN
-            Fcount=ERR(ng)%Fcount
-            IF (ERR(ng)%Nrec(Fcount).gt.0) THEN
-              WRITE (stdout,20) 'ERROR  ', ERR(ng)%Nrec(Fcount)
+            IF (ANY(ERR(ng)%Nrec.gt.0)) THEN
+              WRITE (stdout,20) 'ERROR  ', SUM(ERR(ng)%Nrec)
             END IF
           END IF
 #endif

@@ -92,22 +92,22 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idObsT))) THEN
             got_var(idObsT)=.TRUE.
             OBS(ng)%Vid(idObsT)=var_id(i)
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idObsD))) THEN
             got_var(idObsD)=.TRUE.
             OBS(ng)%Vid(idObsD)=var_id(i)
-#  endif
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idObsX))) THEN
             got_var(idObsX)=.TRUE.
             OBS(ng)%Vid(idObsX)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idObsY))) THEN
             got_var(idObsY)=.TRUE.
             OBS(ng)%Vid(idObsY)=var_id(i)
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idObsZ))) THEN
             got_var(idObsZ)=.TRUE.
             OBS(ng)%Vid(idObsZ)=var_id(i)
-#  endif
+# endif
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvar))) THEN
             got_var(idOvar)=.TRUE.
             OBS(ng)%Vid(idOvar)=var_id(i)
@@ -150,14 +150,14 @@
           exit_flag=2
           RETURN
         END IF
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
         IF (.not.got_var(idObsD)) THEN
           IF (Master) WRITE (stdout,20) TRIM(Vname(1,idObsD)),          &
      &                                  TRIM(OBS(ng)%name)
           exit_flag=2
           RETURN
         END IF
-#  endif
+# endif
         IF (.not.got_var(idObsX)) THEN
           IF (Master) WRITE (stdout,20) TRIM(Vname(1,idObsX)),          &
      &                                  TRIM(OBS(ng)%name)
@@ -170,14 +170,14 @@
           exit_flag=2
           RETURN
         END IF
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
         IF (.not.got_var(idObsZ)) THEN
           IF (Master) WRITE (stdout,20) TRIM(Vname(1,idObsZ)),          &
      &                                  TRIM(OBS(ng)%name)
           exit_flag=2
           RETURN
         END IF
-#  endif
+# endif
         IF (.not.got_var(idOvar)) THEN
           IF (Master) WRITE (stdout,20) TRIM(Vname(1,idOvar)),          &
      &                                  TRIM(OBS(ng)%name)
@@ -207,7 +207,11 @@
 !
       IF (backward) THEN
         Ifirst=0
+# ifdef GENERIC_DSTART
+        tend=(time(ng)-ntimes(ng)*dt(ng))*sec2day
+# else
         tend=(time(ng)-(ntstart(ng)-1)*dt(ng))*sec2day
+# endif
         DO i=1,Nsurvey(ng)
           IF ((tend.le.FOURDVAR(ng)%SurveyTime(i)).and.                 &
      &        (FOURDVAR(ng)%SurveyTime(i).le.tdays(ng))) THEN
