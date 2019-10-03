@@ -26,7 +26,7 @@
 #  To submit a job in the batch queue.  Use the following command     #
 #  in MPI applications to avoid running on the head node NO_LOCAL:    #
 #                                                                     #
-#      batch now -f submit_is4dvar.bash                               #
+#      batch now -f submit_i4dvar.bash                                #
 #                                                                     #
 #  To check batch use:                                                #
 #                                                                     #
