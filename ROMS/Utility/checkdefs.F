@@ -168,11 +168,11 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+8)=' ALBEDO,'
 #endif
-#if defined ALBEDO_DIRDIFF
-      IF (Master) WRITE (stdout,20) 'ALBEDO_DIRDIFF',                   &
+#if defined ALBEDO_CLOUD
+      IF (Master) WRITE (stdout,20) 'ALBEDO_CLOUD',                   &
      &   'Albedo as a function of cloudiness'
       is=LEN_TRIM(Coptions)+1
-      Coptions(is:is+14)=' ALBEDO_DIRDIFF,'
+      Coptions(is:is+14)=' ALBEDO_CLOUD,'
 #endif
 #if defined ALBEDO_CSIM
       IF (Master) WRITE (stdout,20) 'ALBEDO_CSIM',                      &
@@ -185,6 +185,12 @@
      &   'Ocean shortwave radiation adjusted by albedo curve'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+14)=' ALBEDO_CURVE,'
+#endif
+#if defined ALBEDO_DIRDIFF
+      IF (Master) WRITE (stdout,20) 'ALBEDO_DIRDIFF',                   &
+     &   'Albedo as a function of direct vs diffuse.'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+16)=' ALBEDO_DIRDIFF,'
 #endif
 #if defined ALBEDO_FILE
       IF (Master) WRITE (stdout,20) 'ALBEDO_FILE',                      &
@@ -1369,6 +1375,13 @@
      &   'Motionless shorefast ice'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' ICE_SHOREFAST,'
+#endif
+!
+#ifdef ICE_SHORTWAVE_R
+      IF (Master) WRITE (stdout,20) 'ICE_SHORTWAVE_R',                  &
+     &   'Ice impact on shortwave spectral quality'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+17)=' ICE_SHORTWAVE_R,'
 #endif
 !
 #ifdef ICE_SMOLAR

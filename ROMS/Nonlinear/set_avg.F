@@ -1146,6 +1146,28 @@
             END DO
           END DO
         END IF
+        IF (Aout(idfrswp,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgfrswp(i,j)=FORCES(ng)%frswpen(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgfrswp(i,j)=AVERAGE(ng)%avgfrswp(i,j)*      &
+     &                                   GRID(ng)%rmask_full(i,j)
+#  endif
+            END DO
+          END DO
+        END IF
+        IF (Aout(idrfaci,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgrfaci(i,j)=ICE(ng)%rfaci(i,j)
+#  ifdef WET_DRY
+              AVERAGE(ng)%avgrfaci(i,j)=AVERAGE(ng)%avgrfaci(i,j)*      &
+     &                                   GRID(ng)%rmask_full(i,j)
+#  endif
+            END DO
+          END DO
+        END IF
 # endif
 # ifdef ICE_DIAGS
         IF (Aout(idAlbe,ng)) THEN
@@ -2888,6 +2910,28 @@
      &                                 GRID(ng)%rmask_full(i,j)*        &
 #  endif
      &                                 ICE(ng)%chu_iw(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idfrswp,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgfrswp(i,j)=AVERAGE(ng)%avgfrswp(i,j)+      &
+#  ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+#  endif
+     &                                 FORCES(ng)%frswpen(i,j)
+            END DO
+          END DO
+        END IF
+        IF (Aout(idrfaci,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=Istr,IendR
+              AVERAGE(ng)%avgrfaci(i,j)=AVERAGE(ng)%avgrfaci(i,j)+      &
+#  ifdef WET_DRY
+     &                                 GRID(ng)%rmask_full(i,j)*        &
+#  endif
+     &                                 ICE(ng)%rfaci(i,j)
             END DO
           END DO
         END IF
@@ -5291,6 +5335,46 @@
      &                          NghostPoints,                           &
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          AVERAGE(ng)%avgchu_iw)
+#   endif
+          END IF
+        END IF
+        IF (Aout(idfrswp,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgfrswp(i,j)=rfac(i,j)*                      &
+     &                   AVERAGE(ng)%avgfrswp(i,j)
+            END DO
+          END DO
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              AVERAGE(ng)%avgfrswp)
+#   ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          AVERAGE(ng)%avgfrswp)
+#   endif
+          END IF
+        END IF
+        IF (Aout(idrfaci,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgrfaci(i,j)=rfac(i,j)*                      &
+     &                   AVERAGE(ng)%avgrfaci(i,j)
+            END DO
+          END DO
+          IF (EWperiodic(ng).or.NSperiodic(ng)) THEN
+            CALL exchange_r2d_tile (ng, tile,                           &
+     &                              LBi, UBi, LBj, UBj,                 &
+     &                              AVERAGE(ng)%avgrfaci)
+#   ifdef DISTRIBUTE
+            CALL mp_exchange2d (ng, tile, iNLM, 1,                      &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          NghostPoints,                           &
+     &                          EWperiodic(ng), NSperiodic(ng),         &
+     &                          AVERAGE(ng)%avgrfaci)
 #   endif
           END IF
         END IF

@@ -826,7 +826,8 @@
 */
 
 #if (defined BULK_FLUXES && defined LONGWAVE) || defined ECOSIM || \
-    (defined ANA_SRFLUX  && defined ALBEDO_DIRDIFF)
+    (defined ANA_SRFLUX  && defined ALBEDO_CLOUD) || \
+    defined ALBEDO_DIRDIFF
 # define CLOUDS
 #endif
 #if !defined CLOUDS && defined ANA_CLOUD
@@ -837,9 +838,19 @@
 ** Check for calling albedo function
 */
 
-#if defined ALBEDO_DIRDIFF || defined ALBEDO_CSIM \
-  || defined ALBEDO_CURVE  || defined ALBEDO_FILE || defined ANA_ALBEDO
+#if defined ALBEDO_CLOUD   || defined ALBEDO_DIRDIFF || \
+    defined ALBEDO_CSIM || defined ALBEDO_CURVE  || \
+    defined ALBEDO_FILE || defined ANA_ALBEDO
 # define ALBEDO
+#endif
+
+/*
+** Activate CCSM albedo is using CCSM treatment of shortwave
+** interactions with ice/snow
+*/
+
+#if defined CCSM_ICE_SHORTWAVE
+# define ALBEDO_CSIM
 #endif
 
 /*

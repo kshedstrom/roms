@@ -120,6 +120,7 @@
 !  avgUU      Quadratic term <u*u> for 3D momentum at U-points.        !
 !  avgVV      Quadratic term <v*v> for 3D momentum at V-points.        !
 !  avgUV      Quadratic term <u*v> for 3D momentum at RHO-points.      !
+!  avgSUV     Quadratic term <sqrt(u*u+v*v)> for speed at RHO-points.  !
 !  avgHuon    U-momentum flux, Hz*u/pn (m3/s).                         !
 !  avgHvom    V-momentum flux, Hz*v/pm (m3/s).                         !
 !  avgTT      Quadratic term <t*t> for tracers.                        !
@@ -316,6 +317,7 @@
           real(r8), pointer :: avgUU(:,:,:)
           real(r8), pointer :: avgUV(:,:,:)
           real(r8), pointer :: avgVV(:,:,:)
+          real(r8), pointer :: avgSUV(:,:,:)
 
           real(r8), pointer :: avgHuon(:,:,:)
           real(r8), pointer :: avgHvom(:,:,:)
@@ -370,6 +372,8 @@
           real(r8), pointer :: avgQio(:,:)
           real(r8), pointer :: avgQi2(:,:)
           real(r8), pointer :: avgSnoI(:,:)
+          real(r8), pointer :: avgfrswp(:,:)
+          real(r8), pointer :: avgrfaci(:,:)
 #endif
 #  endif
 # endif
@@ -959,6 +963,14 @@
         allocate ( AVERAGE(ng) % avgSnoI(LBi:UBi,LBj:UBj) )
         Dmem(ng)=Dmem(ng)+size2d
       END IF
+      IF (Aout(idfrswp,ng)) THEN
+        allocate ( AVERAGE(ng) % avgfrswp(LBi:UBi,LBj:UBj) )
+        Dmem(ng)=Dmem(ng)+size2d
+      END IF
+      IF (Aout(idrfaci,ng)) THEN
+        allocate ( AVERAGE(ng) % avgrfaci(LBi:UBi,LBj:UBj) )
+        Dmem(ng)=Dmem(ng)+size2d
+      END IF
 #endif
 # endif
 !
@@ -984,6 +996,10 @@
       END IF
       IF (Aout(idVVav,ng)) THEN
         allocate ( AVERAGE(ng) % avgVV(LBi:UBi,LBj:UBj,N(ng)) )
+        Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
+      END IF
+      IF (Aout(idSUVav,ng)) THEN
+        allocate ( AVERAGE(ng) % avgSUV(LBi:UBi,LBj:UBj,N(ng)) )
         Dmem(ng)=Dmem(ng)+REAL(N(ng),r8)*size2d
       END IF
       IF (Aout(idUVav,ng)) THEN
@@ -1712,6 +1728,15 @@
           END DO
         END DO
       END IF
+      IF (Aout(idSUVav,ng)) THEN
+        DO k=1,N(ng)
+          DO j=Jmin,Jmax
+            DO i=Imin,Imax
+              AVERAGE(ng) % avgSUV(i,j,k) = IniVal
+            END DO
+          END DO
+        END DO
+      END IF
       IF (Aout(idUVav,ng)) THEN
         DO k=1,N(ng)
           DO j=Jmin,Jmax
@@ -2230,6 +2255,20 @@
         DO j=Jmin,Jmax
           DO i=Imin,Imax
             AVERAGE(ng) % avgSnoI(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idfrswp,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgfrswp(i,j) = IniVal
+          END DO
+        END DO
+      END IF
+      IF (Aout(idrfaci,ng)) THEN
+        DO j=Jmin,Jmax
+          DO i=Imin,Imax
+            AVERAGE(ng) % avgrfaci(i,j) = IniVal
           END DO
         END DO
       END IF

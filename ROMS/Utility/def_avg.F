@@ -1597,6 +1597,25 @@
      &                   __FILE__)) RETURN
         END IF
 !
+!  Define <sqrt(u*u+v*v)> term.
+!
+        IF (Aout(idSUVav,ng)) THEN
+          Vinfo( 1)=Vname(1,idSUVav)
+          Vinfo( 2)=TRIM(Vname(2,idSUVav))
+          Vinfo( 3)=Vname(3,idSUVav)
+          Vinfo(14)=Vname(4,idSUVav)
+          Vinfo(16)=Vname(1,idtime)
+#  if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#  endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(r3dvar,r8)
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSUVav), &
+     &                   NF_FOUT, nvd4, t3dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
 !  Define quadratic <t*t> terms.
 !
         DO itrc=1,NT(ng)
@@ -2691,6 +2710,44 @@
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF
+!
+!  Define fraction of shortwave penetrating into the ice
+!
+        IF (Aout(idfrswp,ng)) THEN
+          Vinfo( 1)=Vname(1,idfrswp)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idfrswp))
+          Vinfo( 3)=Vname(3,idfrswp)
+          Vinfo(14)=Vname(4,idfrswp)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idfrswp,ng),r8)
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idfrswp), &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define reduction factor for near-IR fraction of SW under ice
+!
+        IF (Aout(idrfaci,ng)) THEN
+          Vinfo( 1)=Vname(1,idrfaci)
+          WRITE (Vinfo( 2),'(a,1x,a)') Prefix, TRIM(Vname(2,idrfaci))
+          Vinfo( 3)=Vname(3,idrfaci)
+          Vinfo(14)=Vname(4,idrfaci)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idrfaci,ng),r8)
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idrfaci), &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
 # endif
 #ifdef ICE_DIAGS
 !
@@ -3012,7 +3069,7 @@
 #endif
           Vinfo(22)='coordinates'
           Aval(5)=REAL(Iinfo(1,idSnoI,ng),r8)
-          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSnoI),   &
+          status=def_var(ng, model, AVG(ng)%ncid, AVG(ng)%Vid(idSnoI),  &
      &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
@@ -3538,6 +3595,9 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVVav))) THEN
             got_var(idVVav)=.TRUE.
             AVG(ng)%Vid(idVVav)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSUVav))) THEN
+            got_var(idSUVav)=.TRUE.
+            AVG(ng)%Vid(idSUVav)=var_id(i)
 #  if defined LMD_MIXING || defined TKE_MIXING
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvis))) THEN
             got_var(idVvis)=.TRUE.
@@ -3628,6 +3688,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idWdiv))) THEN
             got_var(idWdiv)=.true.
             AVG(ng)%Vid(idWdiv)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfrswp))) THEN
+            got_var(idfrswp)=.true.
+            AVG(ng)%Vid(idfrswp)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrfaci))) THEN
+            got_var(idrfaci)=.true.
+            AVG(ng)%Vid(idrfaci)=var_id(i)
 #  endif
 #  ifdef ICE_DIAGS
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idAlbe))) THEN
@@ -4136,6 +4202,12 @@
           exit_flag=3
           RETURN
         END IF
+        IF (.not.got_var(idSUVav).and.Aout(idSUVav,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idSUVav)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
 #  if defined LMD_MIXING || defined TKE_MIXING
         IF (.not.got_var(idVvis).and.Aout(idVvis,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idVvis)),          &
@@ -4325,6 +4397,18 @@
         END IF
         IF (.not.got_var(idWdiv).and.Aout(idWdiv,ng)) THEN
           IF (Master) WRITE (stdout,60) TRIM(Vname(1,idWdiv)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idfrswp).and.Aout(idfrswp,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idfrswp)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idrfaci).and.Aout(idrfaci,ng)) THEN
+          IF (Master) WRITE (stdout,60) TRIM(Vname(1,idrfaci)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

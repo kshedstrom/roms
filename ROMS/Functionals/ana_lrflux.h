@@ -28,7 +28,7 @@
      &                      IminS, ImaxS, JminS, JmaxS,                 &
      &                      GRID(ng) % lonr,                            &
      &                      GRID(ng) % latr,                            &
-#ifdef ALBEDO_DIRDIFF
+#ifdef ALBEDO_CLOUD
      &                      FORCES(ng) % cloud,                         &
      &                      FORCES(ng) % Hair,                          &
      &                      FORCES(ng) % Tair,                          &
@@ -54,7 +54,7 @@
      &                            LBi, UBi, LBj, UBj,                   &
      &                            IminS, ImaxS, JminS, JmaxS,           &
      &                            lonr, latr,                           &
-#ifdef ALBEDO_DIRDIFF
+#ifdef ALBEDO_CLOUD
      &                            cloud, Hair, Tair, Pair,              &
 #endif
      &                            lrflx)
@@ -77,7 +77,7 @@
 #ifdef ASSUMED_SHAPE
       real(r8), intent(in) :: lonr(LBi:,LBj:)
       real(r8), intent(in) :: latr(LBi:,LBj:)
-# ifdef ALBEDO_DIRDIFF
+# ifdef ALBEDO_CLOUD
       real(r8), intent(in) :: cloud(LBi:,LBj:)
       real(r8), intent(in) :: Hair(LBi:,LBj:)
       real(r8), intent(in) :: Tair(LBi:,LBj:)
@@ -87,7 +87,7 @@
 #else
       real(r8), intent(in) :: lonr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: latr(LBi:UBi,LBj:UBj)
-# ifdef ALBEDO_DIRDIFF
+# ifdef ALBEDO_CLOUD
       real(r8), intent(in) :: cloud(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Hair(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Tair(LBi:UBi,LBj:UBj)
@@ -99,11 +99,11 @@
 !  Local variable declarations.
 !
       integer :: i, j
-#if defined ALBEDO_DIRDIFF || defined DIURNAL_SRFLUX
+#if defined ALBEDO_CLOUD || defined DIURNAL_SRFLUX
       integer :: iday, month, year
       real(r8) :: Dangle, Hangle, LatRad
       real(r8) :: cff1, cff2, hour, yday
-# ifdef ALBEDO_DIRDIFF
+# ifdef ALBEDO_CLOUD
       real(r8) :: Rsolar, e_sat, vap_p, zenith
 # endif
 #endif

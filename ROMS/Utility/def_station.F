@@ -2400,6 +2400,38 @@
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF
+!
+!  Define fraction of shortwave penetrating into the ice
+!
+        IF (Sout(idfrswp,ng)) THEN
+          Vinfo( 1)=Vname(1,idfrswp)
+          Vinfo( 2)=Vname(2,idfrswp)
+          Vinfo( 3)=Vname(3,idfrswp)
+          Vinfo(14)=Vname(4,idfrswp)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idfrswp),  &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .TRUE.,                           &
+     &                   SetParAccess = .TRUE.)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define reduction factor for near-IR fraction of SW under ice
+!
+        IF (Sout(idrfaci,ng)) THEN
+          Vinfo( 1)=Vname(1,idrfaci)
+          Vinfo( 2)=Vname(2,idrfaci)
+          Vinfo( 3)=Vname(3,idrfaci)
+          Vinfo(14)=Vname(4,idrfaci)
+          Vinfo(16)=Vname(1,idtime)
+          status=def_var(ng, iNLM, STA(ng)%ncid, STA(ng)%Vid(idrfaci),  &
+     &                   NF_FOUT, 2, pgrd, Aval, Vinfo, ncname,         &
+     &                   SetFillVal = .TRUE.,                           &
+     &                   SetParAccess = .TRUE.)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
 # endif
 #endif
 !
@@ -2790,6 +2822,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSnoI))) THEN
             got_var(idSnoI)=.TRUE.
             STA(ng)%Vid(idSnoI)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfrswp))) THEN
+            got_var(idfrswp)=.TRUE.
+            STA(ng)%Vid(idfrswp)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrfaci))) THEN
+            got_var(idrfaci)=.TRUE.
+            STA(ng)%Vid(idrfaci)=var_id(i)
 #   endif
 #  endif
 # endif

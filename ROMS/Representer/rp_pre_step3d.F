@@ -52,6 +52,9 @@
       USE mod_mixing
       USE mod_ocean
       USE mod_stepping
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
 !
 !  Imported variable declarations.
 !
@@ -127,6 +130,9 @@
 !!   &                         DIAGS(ng) % DiaRU,                       &
 !!   &                         DIAGS(ng) % DiaRV,                       &
 # endif
+# ifdef ICE_MODEL
+     &                         ICE(ng) % rfaci,                         &
+# endif
      &                         OCEAN(ng) % t,                           &
      &                         OCEAN(ng) % tl_t,                        &
      &                         OCEAN(ng) % u,                           &
@@ -182,6 +188,9 @@
 !!   &                               DiaU3wrk, DiaV3wrk,                &
 !!   &                               DiaRU, DiaRV,                      &
 # endif
+# ifdef ICE_MODEL
+     &                               rfaci,                             &
+# endif
      &                               t, tl_t,                           &
      &                               u, tl_u,                           &
      &                               v, tl_v)
@@ -230,6 +239,9 @@
 #  endif
       real(r8), intent(in) :: Akv(LBi:,LBj:,0:)
       real(r8), intent(in) :: W(LBi:,LBj:,0:)
+#  ifdef ICE_MODEL
+      real(r8), intent(in) :: rfaci(LBi:,LBj:)
+#  endif
 #  ifdef SUN
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
 #  else
@@ -310,6 +322,9 @@
       real(r8), intent(in) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
       real(r8), intent(in) :: Akv(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
+#  ifdef ICE_MODEL
+      real(r8), intent(in) :: rfaci(LBi:UBi,LBj:UBj)
+#  endif
       real(r8), intent(in) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
       real(r8), intent(in) :: u(LBi:UBi,LBj:UBj,N(ng),2)
       real(r8), intent(in) :: v(LBi:UBi,LBj:UBj,N(ng),2)
@@ -427,6 +442,9 @@
         CALL rp_lmd_swfrac_tile (ng, tile,                              &
      &                           LBi, UBi, LBj, UBj,                    &
      &                           IminS, ImaxS, JminS, JmaxS,            &
+# ifdef ICE_MODEL
+     &                           rfaci,                                 &
+# endif
      &                           -1.0_r8, FX, tl_FX, tl_FE)
         DO j=Jstr,Jend
           DO i=Istr,Iend
