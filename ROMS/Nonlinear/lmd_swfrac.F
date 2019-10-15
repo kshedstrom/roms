@@ -1,12 +1,7 @@
 #include "cppdefs.h"
-
+      MODULE lmd_swfrac_mod
 #if defined NONLINEAR && (defined LMD_SKPP || defined SOLAR_SOURCE) && \
     defined SOLVE3D
-
-      SUBROUTINE lmd_swfrac_tile (ng, tile,                             &
-     &                            LBi, UBi, LBj, UBj,                   &
-     &                            IminS, ImaxS, JminS, JmaxS,           &
-     &                            Zscale, Z, swdk)
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -38,6 +33,20 @@
 !                                                                      !
 !=======================================================================
 !
+      implicit none
+!
+      CONTAINS
+!
+!***********************************************************************
+      SUBROUTINE lmd_swfrac_tile (ng, tile,                             &
+     &                            LBi, UBi, LBj, UBj,                   &
+     &                            IminS, ImaxS, JminS, JmaxS,           &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                            rfaci,                                &
+# endif
+     &                            Zscale, Z, swdk)
+!***********************************************************************
+!
       USE mod_param
       USE mod_mixing
       USE mod_scalars
@@ -50,8 +59,14 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+#  ifdef ASSUMED_SHAPE
+      real(r8), intent(in) :: rfaci(LBi:,LBj:)
+#  else
+      real(r8), intent(in) :: rfaci(LBi:UBi,LBj:UBj)
+#  endif
+# endif
       real(r8), intent(in) :: Zscale
-
       real(r8), intent(in) :: Z(IminS:ImaxS,JminS:JmaxS)
       real(r8), intent(out) :: swdk(IminS:ImaxS,JminS:JmaxS)
 !
@@ -62,6 +77,7 @@
       real(r8), dimension(IminS:ImaxS) :: fac1, fac2, fac3
 
 # include "set_bounds.h"
+
 !
 !-----------------------------------------------------------------------
 !  Use Paulson and Simpson (1977) two wavelength bands solar
@@ -73,7 +89,11 @@
           Jindex=INT(MIXING(ng)%Jwtype(i,j))
           fac1(i)=Zscale/lmd_mu1(Jindex)
           fac2(i)=Zscale/lmd_mu2(Jindex)
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+          fac3(i)=lmd_r1(Jindex)*rfaci(i,j)
+# else
           fac3(i)=lmd_r1(Jindex)
+# endif
         END DO
 !!DIR$ VECTOR ALWAYS
         DO i=Istr,Iend
@@ -89,3 +109,4 @@
       END SUBROUTINE lmd_swfrac
 #endif
 
+      END MODULE lmd_swfrac_mod

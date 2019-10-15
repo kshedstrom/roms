@@ -61,6 +61,9 @@
       USE mod_ocean
       USE mod_stepping
       USE mod_clima
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
 !
 !  Imported variable declarations.
 !
@@ -113,6 +116,9 @@
      &                    FORCES(ng) % Uwind,                           &
      &                    FORCES(ng) % Vwind,                           &
 # endif
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                    ICE(ng) % rfaci,                              &
+# endif
      &                    MIXING(ng) % hsbl,                            &
      &                    MIXING(ng) % ksbl)
       RETURN
@@ -142,7 +148,7 @@
      &                          ghats,                                  &
 # endif
      &                          Akt, Akv,                               &
-#ifdef AKT_3D
+# ifdef AKT_3D
      &                          tclm,                                   &
 #endif
 # ifdef OPTIC_MANIZZA
@@ -151,6 +157,9 @@
 # ifdef LI_FOX_KEMPER
      &                          Uwind, Vwind,                           &
 # endif
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                          rfaci,                                  &
+# endif
      &                          hsbl, ksbl)
 !***********************************************************************
 !
@@ -158,6 +167,7 @@
       USE mod_scalars
 !
       USE bc_2d_mod, ONLY : bc_r2d_tile
+      USE lmd_swfrac_mod, ONLY : lmd_swfrac_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
@@ -185,9 +195,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:,LBj:)
 #  endif
-# ifdef WET_DRY
+#  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:,LBj:)
-# endif
+#  endif
       real(r8), intent(in) :: f(LBi:,LBj:)
       real(r8), intent(in) :: Hz(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
@@ -218,6 +228,9 @@
       real(r8), intent(in) :: Uwind(LBi:,LBj:)
       real(r8), intent(in) :: Vwind(LBi:,LBj:)
 #  endif
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:,LBj:)
+#  endif
       real(r8), intent(inout) :: hsbl(LBi:,LBj:)
       integer,  intent(out) :: ksbl(LBi:,LBj:)
 #  ifdef LMD_NONLOCAL
@@ -227,9 +240,9 @@
 #  ifdef MASKING
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
 #  endif
-# ifdef WET_DRY
+#  ifdef WET_DRY
       real(r8), intent(in) :: rmask_wet(LBi:UBi,LBj:UBj)
-# endif
+#  endif
       real(r8), intent(in) :: f(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Hz(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
@@ -250,7 +263,7 @@
       real(r8), intent(in) :: bvf(LBi:UBi,LBj:UBj,0:N(ng))
       real(r8), intent(inout) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
       real(r8), intent(inout) :: Akv(LBi:UBi,LBj:UBj,0:N(ng))
-#ifdef AKT_3D
+#  ifdef AKT_3D
       real(r8), intent(in) :: tclm(LBi:UBi,LBj:UBj,N(ng),NT(ng)+2)
 # endif
 #  ifdef OPTIC_MANIZZA
@@ -259,6 +272,9 @@
 #  ifdef LI_FOX_KEMPER
       real(r8), intent(in) :: Uwind(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: Vwind(LBi:UBi,LBj:UBj)
+#  endif
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(inout) :: hsbl(LBi:UBi,LBj:UBj)
       integer,  intent(out) :: ksbl(LBi:UBi,LBj:UBj)
@@ -410,6 +426,9 @@
         CALL lmd_swfrac_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                        rfaci,                                    &
+# endif
      &                        -1.0_r8, zgrid, swdk)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -836,6 +855,9 @@
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                      rfaci,                                      &
+# endif
      &                      -1.0_r8, zgrid, swdk)
 !# endif
       DO j=Jstr,Jend
@@ -960,6 +982,9 @@
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                      rfaci,                                      &
+# endif
      &                      -1.0_r8, zgrid, swdk)
 !# endif
       DO j=Jstr,Jend

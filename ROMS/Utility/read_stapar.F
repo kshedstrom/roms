@@ -456,6 +456,12 @@
             CASE ('Sout(idSnoI)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Sout(idSnoI,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Sout(idfrswp)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Sout(idfrswp,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Sout(idrfaci)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Sout(idrfaci,1:Ngrids)=Lswitch(1:Ngrids)
 #   endif
 #  endif
 #  if defined BBL_MODEL || defined SEDIMENT
@@ -1062,6 +1068,12 @@
           IF (Sout(idSnoI,ng)) WRITE (out,90) Sout(idSnoI,ng),          &
      &       'Sout(idSnoI)',                                            &
      &       'Write out snow-ice conversion rate.'
+          IF (Sout(idfrswp,ng)) WRITE (out,90) Sout(idfrswp,ng),        &
+     &       'Sout(idfrswp)',                                           &
+     &       'Write out fraction of shortwave penetrating into the ice.'
+          IF (Sout(idrfaci,ng)) WRITE (out,90) Sout(idrfaci,ng),        &
+     &       'Sout(idrfaci)',                                           &
+     &       'Write out reduction factor for near-IR fraction of SW under ice.'
 #   endif
 #  endif
 # endif

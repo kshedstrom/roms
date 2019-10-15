@@ -460,6 +460,22 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Hout(idSnoI,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Hout(idfrswp)')
+              IF (idfrswp.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idfrswp'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(idfrswp,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Hout(idrfaci)')
+              IF (idrfaci.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idrfaci'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(idrfaci,1:Ngrids)=Lswitch(1:Ngrids)
 #endif
 #ifdef AVERAGES
             CASE ('Aout(idUice)')
@@ -799,6 +815,22 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Aout(idSnoI,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Aout(idfrswp)')
+              IF (idfrswp.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idfrswp'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout(idfrswp,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Aout(idrfaci)')
+              IF (idrfaci.eq.0) THEN
+                IF (Master) WRITE (out,80) 'idrfaci'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Aout(idrfaci,1:Ngrids)=Lswitch(1:Ngrids)
 # endif
 #endif
 #ifdef AVERAGES2
@@ -1186,6 +1218,12 @@
           IF (Hout(idSnoI,ng)) WRITE (out,70) Hout(idSnoI,ng),          &
      &       'Hout(idSnoI)',                                            &
      &       'Write out heat flux into ice.'
+          IF (Hout(idfrswp,ng)) WRITE (out,70) Hout(idfrswp,ng),        &
+     &       'Hout(idfrswp)',                                           &
+     &       'Write out fraction of shortwave penetrating into the ice.'
+          IF (Hout(idrfaci,ng)) WRITE (out,70) Hout(idrfaci,ng),        &
+     &       'Hout(idrfaci)',                                           &
+     &       'Write out reduction factor for near-IR fraction of SW under ice.'
 #endif
 #ifdef AVERAGES
           IF (Aout(idUice,ng)) WRITE (out,70) Aout(idUice,ng),          &
@@ -1315,6 +1353,12 @@
           IF (Aout(idSnoI,ng)) WRITE (out,70) Aout(idSnoI,ng),          &
      &       'Aout(idSnoI)',                                            &
      &       'Write out heat flux into ice.'
+          IF (Aout(idfrswp,ng)) WRITE (out,70) Aout(idfrswp,ng),        &
+     &       'Aout(idfrswp)',                                           &
+     &       'Write out fraction of shortwave penetrating into the ice.'
+          IF (Aout(idrfaci,ng)) WRITE (out,70) Aout(idrfaci,ng),        &
+     &       'Aout(idrfaci)',                                           &
+     &       'Write out reduction factor for near-IR fraction of SW under ice.'
 # endif
 #endif
 #ifdef AVERAGES2

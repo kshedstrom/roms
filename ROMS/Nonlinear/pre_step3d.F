@@ -48,6 +48,9 @@
       USE mod_mixing
       USE mod_ocean
       USE mod_stepping
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
 !
 !  Imported variable declarations.
 !
@@ -105,6 +108,9 @@
      &                      DIAGS(ng) % DiaRU,                          &
      &                      DIAGS(ng) % DiaRV,                          &
 # endif
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                      ICE(ng) % rfaci,                            &
+# endif
 # ifdef OPTIC_MANIZZA
      &                      OCEAN(ng) % decayW,                         &
 # endif
@@ -150,6 +156,9 @@
      &                            DiaU3wrk, DiaV3wrk,                   &
      &                            DiaRU, DiaRV,                         &
 # endif
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                            rfaci,                                &
+# endif
 # ifdef OPTIC_MANIZZA
      &                            decayW,                               &
 # endif
@@ -166,6 +175,7 @@
 # endif
       USE mod_sources
 !
+      USE lmd_swfrac_mod, ONLY : lmd_swfrac_tile
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange4d
@@ -228,6 +238,9 @@
       real(r8), intent(inout) :: DiaRU(LBi:,LBj:,:,:,:)
       real(r8), intent(inout) :: DiaRV(LBi:,LBj:,:,:,:)
 #  endif
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:,LBj:)
+#  endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in)    :: decayW(LBi:,LBj:,0:,:)
 #  endif
@@ -282,6 +295,9 @@
       real(r8), intent(inout) :: DiaV3wrk(LBi:UBi,LBj:UBj,N(ng),NDM3d)
       real(r8), intent(inout) :: DiaRU(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
       real(r8), intent(inout) :: DiaRV(LBi:UBi,LBj:UBj,N(ng),2,NDrhs)
+#  endif
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:UBi,LBj:UBj)
 #  endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in)    :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
@@ -358,6 +374,9 @@
         CALL lmd_swfrac_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                        rfaci,                                    &
+# endif
      &                        -1.0_r8, FX, FE)
         DO j=Jstr,Jend
           DO i=Istr,Iend

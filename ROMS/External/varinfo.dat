@@ -7364,6 +7364,15 @@
   'v3dvar'
   1.0d0
 
+'speed'                                            ! Output
+  'time-averaged speed'
+  'meter2 second-2'                                ! [m2/s2]
+  'speed, scalar, series'
+  'ocean_time'
+  'idSUVav'
+  'r3dvar'
+  1.0d0
+
 'tracer2'                                          ! Output
   'time-averaged squared tracer'
   'tracer2'                                        ! [tracer2]

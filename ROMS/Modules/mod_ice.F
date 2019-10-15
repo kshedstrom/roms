@@ -33,6 +33,7 @@
           real(r8), pointer :: coef_ice_heat(:,:)
           real(r8), pointer :: rhs_ice_heat(:,:)
           real(r8), pointer :: pice(:,:)
+          real(r8), pointer :: rfaci(:,:)
 #ifdef ICE_STRENGTH_QUAD
           real(r8), pointer :: pstar_grid(:,:)
 #endif
@@ -53,7 +54,7 @@
           real(r8), pointer :: sig22(:,:,:)
           real(r8), pointer :: sig12(:,:,:)
 
-#if defined ICE_BIO  
+#if defined ICE_BIO
           real(r8), pointer ::IcePhL(:,:,:)
           real(r8), pointer ::IceNO3(:,:,:)
           real(r8), pointer ::IceNH4(:,:,:)
@@ -115,6 +116,7 @@
       allocate ( ICE(ng) % coef_ice_heat(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % rhs_ice_heat(LBi:UBi,LBj:UBj) )
       allocate ( ICE(ng) % pice(LBi:UBi,LBj:UBj) )
+      allocate ( ICE(ng) % rfaci(LBi:UBi,LBj:UBj) )
 #ifdef ICE_STRENGTH_QUAD
       allocate ( ICE(ng) % pstar_grid(LBi:UBi,LBj:UBj) )
 #endif
@@ -135,7 +137,7 @@
       allocate ( ICE(ng) % sig22(LBi:UBi,LBj:UBj,2) )
       allocate ( ICE(ng) % sig12(LBi:UBi,LBj:UBj,2) )
 
-# if defined ICE_BIO  
+# if defined ICE_BIO
       allocate (ICE(ng) % IcePhL(LBi:UBi,LBj:UBj,2) )
       allocate (ICE(ng) % IceNO3(LBi:UBi,LBj:UBj,2) )
       allocate (ICE(ng) % IceNH4(LBi:UBi,LBj:UBj,2) )
@@ -250,6 +252,7 @@
           ICE(ng) % coef_ice_heat(i,j) = IniVal
           ICE(ng) % rhs_ice_heat(i,j) = IniVal
           ICE(ng) % pice(i,j) = IniVal
+          ICE(ng) % rfaci(i,j) = 1.0_r8
 #ifdef ICE_STRENGTH_QUAD
           ICE(ng) % pstar_grid(i,j) = IniVal
 #endif
@@ -273,7 +276,7 @@
           ICE(ng) % sig12(i,j,1) = IniVal
           ICE(ng) % sig12(i,j,2) = IniVal
 
-# if defined ICE_BIO  
+# if defined ICE_BIO
           ICE(ng) % IcePhL(i,j,1) = IniVal
           ICE(ng) % IcePhL(i,j,2) = IniVal
           ICE(ng) % IceNO3(i,j,1) = IniVal
