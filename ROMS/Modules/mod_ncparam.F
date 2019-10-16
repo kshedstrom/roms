@@ -500,6 +500,8 @@
         integer  :: idQio          ! heat flux ocean to ice
         integer  :: idQi2          ! heat flux ocean to ice
         integer  :: idSnoI         ! snow-ice conversion
+        integer  :: idfrswp        ! fraction of shortwave penetrating into the ice
+        integer  :: idrfaci        ! reduction factor for near-IR fraction of SW under ice
 
 ! NEMURO_SAN variables
         integer  :: idFwwt         ! fish wet weight
@@ -600,6 +602,7 @@
         integer  :: idUUav                    ! <u*u>
         integer  :: idUVav                    ! <u*v>
         integer  :: idVVav                    ! <v*v>
+        integer  :: idSUVav                   ! <sqrt(u*u+v*v)>
 
         integer, allocatable :: iHUTav(:)     ! <Huon*t> for active tracers
         integer, allocatable :: iHVTav(:)     ! <Hvom*t> for active tracers
@@ -2070,6 +2073,8 @@
               idUVav=varid
             CASE ('idVVav')
               idVVav=varid
+            CASE ('idSUVav')
+              idSUVav=varid
 #endif
 #ifdef T_PASSIVE
             CASE ('idTvar(inert(i))')
@@ -2441,6 +2446,10 @@
                 idQi2=varid
               CASE ('idSnoI')
                 idSnoI=varid
+              CASE ('idfrswp')
+                idfrswp=varid
+              CASE ('idrfaci')
+                idrfaci=varid
 #endif
 
 #ifdef BIOLOGY

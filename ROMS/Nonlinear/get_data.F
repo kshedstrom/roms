@@ -561,7 +561,7 @@
 
 # if !(defined ANA_TAIR   || defined FRC_COUPLING) && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE   && defined ANA_SRFLUX && defined ALBEDO_DIRDIFF) )
+     (defined SHORTWAVE   && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 !
 !-----------------------------------------------------------------------
 !  Surface air temperature.
@@ -594,7 +594,7 @@
 
 #if !(defined ANA_HUMIDITY || defined FRC_COUPLING) && \
     ( defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D || \
-     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_DIRDIFF) )
+     (defined SHORTWAVE && defined ANA_SRFLUX && defined ALBEDO_CLOUD) )
 
 !
 !-----------------------------------------------------------------------

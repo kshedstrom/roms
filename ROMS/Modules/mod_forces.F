@@ -352,6 +352,9 @@
           real(r8), pointer :: albedo(:,:)
 #   ifdef ICE_MODEL
           real(r8), pointer :: albedo_ice(:,:)
+#    ifdef ALBEDO_CSIM
+          real(r8), pointer :: frswpen(:,:)
+#    endif
 #   endif
 #  endif
 #  ifdef ALBEDO_FILE
@@ -924,6 +927,10 @@
 #   ifdef ICE_MODEL
       allocate ( FORCES(ng) % albedo_ice(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
+#    ifdef ALBEDO_CSIM
+      allocate ( FORCES(ng) % frswpen(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+#    endif
 #   endif
 #  endif
 #  ifdef ALBEDO_FILE
@@ -1685,6 +1692,9 @@
             FORCES(ng) % albedo(i,j) = IniVal
 #   ifdef ICE_MODEL
             FORCES(ng) % albedo_ice(i,j) = IniVal
+#    ifdef ALBEDO_CSIM
+            FORCES(ng) % frswpen(i,j) = IniVal
+#    endif
 #   endif
 #  endif
 #  ifdef ALBEDO_FILE

@@ -3316,6 +3316,44 @@
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF
+!
+!  Define fraction of shortwave penetrating into the ice
+!
+        IF (Hout(idfrswp,ng)) THEN
+          Vinfo( 1)=Vname(1,idfrswp)
+          Vinfo( 2)=Vname(2,idfrswp)
+          Vinfo( 3)=Vname(3,idfrswp)
+          Vinfo(14)=Vname(4,idfrswp)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idfrswp,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idfrswp),  &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define reduction factor for near-IR fraction of SW under ice
+!
+        IF (Hout(idrfaci,ng)) THEN
+          Vinfo( 1)=Vname(1,idrfaci)
+          Vinfo( 2)=Vname(2,idrfaci)
+          Vinfo( 3)=Vname(3,idrfaci)
+          Vinfo(14)=Vname(4,idrfaci)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_rho'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idrfaci,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idrfaci),  &
+     &                     NF_FOUT, nvd3, t2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
 #endif
 #ifdef NEARSHORE_MELLOR
 !
@@ -4274,6 +4312,12 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idSnoI))) THEN
             got_var(idSnoI)=.true.
             HIS(ng)%Vid(idSnoI)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idfrswp))) THEN
+            got_var(idfrswp)=.true.
+            HIS(ng)%Vid(idfrswp)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idrfaci))) THEN
+            got_var(idrfaci)=.true.
+            HIS(ng)%Vid(idrfaci)=var_id(i)
 # endif
 #endif
 #if defined NEARSHORE_MELLOR
@@ -5147,6 +5191,18 @@
         END IF
         IF (.not.got_var(idSnoI).and.Hout(idSnoI,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idSnoI)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idfrswp).and.Hout(idfrswp,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idfrswp)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(idrfaci).and.Hout(idrfaci,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idrfaci)),         &
      &                                  TRIM(ncname)
           exit_flag=3
           RETURN

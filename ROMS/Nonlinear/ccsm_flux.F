@@ -124,6 +124,9 @@ contains
      &                     FORCES(ng) % albedo,                         &
 #  ifdef ICE_MODEL
      &                     FORCES(ng) % albedo_ice,                     &
+#   ifdef CCSM_ICE_SHORTWAVE
+     &                     FORCES(ng) % frswpen,                        &
+#   endif
 #  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_DIRDIFF
@@ -132,6 +135,7 @@ contains
 # ifdef ICE_MODEL
      &                     ICE(ng) % ai,                                &
      &                     ICE(ng) % hi,                                &
+     &                     ICE(ng) % rfaci,                             & !!!Inserted PWA 25/09/2019
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
      &                     FORCES(ng) % qi_o_n,                         &
@@ -234,13 +238,16 @@ contains
      &                           albedo,                                &
 #  ifdef ICE_MODEL
      &                           albedo_ice,                            &
+#   ifdef CCSM_ICE_SHORTWAVE
+     &                           frswpen,                               &
+#   endif
 #  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_DIRDIFF
      &                           cawdir,                                &
 # endif
 # ifdef ICE_MODEL
-     &                           ai, hi,                                &
+     &                           ai, hi, rfaci,                         & !!!Inserted PWA 25/09/2019, rfaci
 #  ifdef ICE_THERMO
      &                           qai_n, qi_o_n, SW_thru_ice, qswi_n,    &
      &                           hsn, tis, coef_ice_heat,               &
@@ -370,6 +377,9 @@ contains
       real(r8), intent(inout) :: albedo(LBi:,LBj:)
 #  ifdef ICE_MODEL
       real(r8), intent(inout) :: albedo_ice(LBi:,LBj:)
+#   ifdef CCSM_ICE_SHORTWAVE
+      real(r8), intent(in) :: frswpen(LBi:,LBj:)
+#   endif
 #  endif
 # endif
 #  if defined SHORTWAVE && defined ALBEDO_DIRDIFF
@@ -382,6 +392,7 @@ contains
       real(r8), intent(out) :: qao_n(LBi:,LBj:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
+      real(r8), intent(out) :: rfaci(LBi:,LBj:)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
       real(r8), intent(out) :: qi_o_n(LBi:,LBj:)
@@ -488,6 +499,9 @@ contains
       real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
 #  ifdef ICE_MODEL
       real(r8), intent(inout) :: albedo_ice(LBi:UBi,LBj:UBj)
+#   ifdef CCSM_ICE_SHORTWAVE
+      real(r8), intent(in) :: frswpen(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
 # endif
 # if defined SHORTWAVE && defined ALBEDO_DIRDIFF
@@ -500,6 +514,7 @@ contains
       real(r8), intent(out) :: qao_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: rfaci(LBi:UBi,LBj:UBj)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qi_o_n(LBi:UBi,LBj:UBj)
@@ -561,6 +576,9 @@ contains
       real(r8) :: Hscale, Hscale2
       real(r8) :: RH, cff1, cff2
       real(r8) :: cff
+# ifdef ICE_MODEL
+      real(r8) :: transw, transi, rtransi
+# endif
 # ifdef ICE_BULK_FLUXES
       real(r8) :: qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
@@ -578,7 +596,6 @@ contains
 # endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uair
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vair
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: i0frac
       real(r8) :: fsnow
 # ifdef ICE_BOX
       real(r8), parameter :: sensible_MU(12) =                          &
@@ -696,10 +713,15 @@ contains
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Qai
 # endif
 # ifdef ICE_MODEL
+      real(r8), parameter :: fv=0.43_r8 !visual fraction of total shortwave (Aumont et al., 2015)
+# ifdef CCSM_ICE_SHORTWAVE
+      real(r8), parameter :: kappav = 1.4_r8 !vis extnctn coef in ice (1/m); CESM2/CICE5.1 default, DuVivier et al., 2018 (cf. 0.73 in Briegleb et al., 2004)
+# endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: i0frac
 # endif
 
 !--- local functions --------------------------------
@@ -984,39 +1006,39 @@ contains
 !
 ! Short-wave radiation to ice
 #   if defined ALBEDO && defined SHORTWAVE
-          qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
+          qswi = (1.0_r8-albedo_ice(i,j))*qswi_n(i,j) !Total absorbed shortwave (W/m2 ice)
 #    ifdef ICE_DIAGS
           SW_up_ice(i,j) = albedo_ice(i,j)*qswi_n(i,j)
 #    endif
 #   else
           qswi = qswi_n(i,j)
 #   endif
+
 #   if defined CCSM_ICE_SHORTWAVE
-          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
-          fsnow = snow_thick(i,j)/(snow_thick(i,j)+0.02_r8)
-          i0frac(i,j) = 0.43_r8*0.70_r8*(1-fsnow) !Briegleb et al.  (2004) Eq. 76
-! Note: Only the visible fraction (0.43, Aumont et al., 2015) is assumed to penetrate (i0frac = 0 for near-IR)
+          i0frac(i,j) = frswpen(i,j) ! Note: ALBEDO_CSIM option is activated if CCSM_ICE_SHORTWAVE is (see globaldefs.h, albedo.F)
 #   else
-          i0frac(i,j) = 1.0_r8
+          i0frac(i,j) = (1.0_r8-albedo_ice(i,j))*fv ! Assume only visual part penetrates (Briegleb et al., 2004)
 #   endif
+
 #   ifdef ICE_I_O
 !!!Modified PWA 14/03/2019 to account for CCSM_ICE_SHORTWAVE option
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
 #    if defined CCSM_ICE_SHORTWAVE
-          qi_o_n(i,j) = qswi * i0frac(i,j)
-          qswi = qswi - qi_o_n(i,j)
+            qi_o_n(i,j) = qswi_n(i,j) * i0frac(i,j) !Penetrating SW = frswpen*SW (W/m2 ice)
+            qswi = qswi - qi_o_n(i,j)               !SW absorbed in surface layer (W/m2 ice)
 #    elif !defined ICE_BOX
-          IF (hsn(i,j,listp) > 1.e-3_r8) THEN
-            qi_o_n(i,j) = 0._r8
-          ELSE
-!          IF (ai(i,j,listp).gt.min_a(ng)) THEN
-            qi_o_n(i,j) = qswi * Io_frac
-            qswi = qswi - qi_o_n(i,j)
-!          ELSE
-!            qi_o_n(i,j) = 0._r8
-          END IF
+            IF (hsn(i,j,listp) > 1.e-3_r8) THEN
+              qi_o_n(i,j) = 0._r8
+            ELSE
+              qi_o_n(i,j) = qswi * Io_frac
+              qswi = qswi - qi_o_n(i,j)
+            END IF
 #    else
-          SW_thru_ice(i,j) = 0.0_r8
+            SW_thru_ice(i,j) = 0.0_r8
 #    endif
+          ELSE
+            qi_o_n(i,j) = 0.0_r8 !This should be arbitrary
+          ENDIF
 #   endif
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
@@ -1053,18 +1075,18 @@ contains
 ! Net heat flux from ice to atmosphere
           Qai(i,j) = -qsh_i - qlh_i - qswi - qlwi
 #  endif
-# endif
           !--- heat flux ---
-# ifdef ICE_BOX
+#  ifdef ICE_BOX
           SHeat(i,j) = sensible_MU(month)
           LHeat(i,j) = latent_MU(month)
-# else
+#  else
           SHeat(i,j) = cpair * tau * tstar / ustar
           LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
           SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
      &                    ai(i,j,listp)*qsh_i
           LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
      &                    ai(i,j,listp)*qlh_i
+#  endif
 # endif
         END DO
       END DO
@@ -1081,58 +1103,72 @@ contains
           LW_down(i,j) = lrflx(i,j)*Hscale
           SW_down(i,j) = srflx(i,j)*Hscale
 # endif
-!!! Modified PWA 07/03/2019 to allow correction of SRad for ice and correction of srflx for ice/snow albedo
-! This code has been moved to earlier in the file to allow ice correction of SRad
-! Note that qswi is corrected separately for ice albedo below
+!!! Modified PWA 25/09/2019 to allow correction of srflx for ice/snow albedo
+! Note that qswi is corrected separately for ice albedo above
 # if defined ICE_MODEL
-          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+eps)
-          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+0.001_r8)
+            snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+0.001_r8)
 ! Note: This is necessary because hi,hsn are average thickness over the full cell
 #  if defined CCSM_ICE_SHORTWAVE
-          cff1 = 1.4_r8*ice_thick(i,j) !DuVivier (2018) CICE documention p. 52
-! Note: The attenuation due to snow is here accounted for in the "i0frac" term, which uses fsnow
+            cff1 = kappav*ice_thick(i,j) ! Note: The attenuation due to snow is here accounted for in i0frac=frswpen, which uses asnow (see albedo.F)
 #  else
-          IF (ice_thick(i,j).le.0.1_r8) THEN
-            cff1 = ice_thick(i,j)*5._r8
-          ELSE
-            cff1 = 0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-          ENDIF
-          cff1 = cff1+snow_thick(i,j)*20._r8
+            IF (ice_thick(i,j).le.0.1_r8) THEN
+              cff1 = ice_thick(i,j)*5._r8
+            ELSE
+              cff1 = 0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+            ENDIF
+            cff1 = cff1+snow_thick(i,j)*20._r8
 #  endif
 #  if defined ALBEDO && defined SHORTWAVE
 #   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
-          cawdif = 1._r8-albw_d
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)*(cawdir(i,j)*  &
-     & (1._r8-cloud(i,j))+cawdif*cloud(i,j))                            &
-     & +ai(i,j,listp)*(1._r8-albedo_ice(i,j))*srflx(i,j)*               &
-     & i0frac(i,j)*exp(-cff1)
-! Note: Assume no internal reflection (albedo) at the ice-water boundary
+            cawdif = 1._r8-albw_d
+            transw = cawdir(i,j)*(1.0_r8-cloud(i,j))+cawdif*cloud(i,j)
+            transi = i0frac(i,j)*exp(-cff1)
+            rtransi = transi/transw
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))*transw      &
+     &                   + ai(i,j,listp)*transi)
 #   else
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)*               &
-     & (1._r8-albedo(i,j))                                              &
-     & +ai(i,j,listp)*(1._r8-albedo_ice(i,j))*srflx(i,j)*               &
-     &           i0frac(i,j)*exp(-cff1)
-          SW_thru_ice(i,j) = (1._r8-albedo_ice(i,j))*srflx(i,j)*        &
-     &           i0frac(i,j)*exp(-cff1)*Hscale
+            transw = 1.0_r8-albedo(i,j)
+            transi = i0frac(i,j)*exp(-cff1)
+            rtransi = transi/transw
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))*transw      &
+     &                   + ai(i,j,listp)*transi)
 #   endif
 #  else
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)                &
-     & +ai(i,j,listp)*srflx(i,j)*i0frac(i,j)*exp(-cff1)
+            rtransi = i0frac(i,j)*exp(-cff1)
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))             &
+     &                   + ai(i,j,listp)*rtransi)
 #  endif
+            rfaci(i,j) = (1.0_r8-ai(i,j,listp)) /                       &
+     &        ((1.0_r8-ai(i,j,listp)) + ai(i,j,listp)*MAX(eps,rtransi)) !Correction factor for lmd_r1 (near IR fraction of total SW)
+          ELSE
+#  if defined ALBEDO && defined SHORTWAVE
+#   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
+            cawdif = 1._r8-albw_d
+            transw = cawdir(i,j)*(1.0_r8-cloud(i,j))+cawdif*cloud(i,j)
+            srflx(i,j) = srflx(i,j)*transw
+#   else
+            transw = 1.0_r8-albedo(i,j)
+            srflx(i,j) = srflx(i,j)*transw
+#   endif
+#  endif
+            rfaci(i,j) = 1.0_r8
+          ENDIF
 
 # else
 
 #  if defined ALBEDO && defined SHORTWAVE
 #   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
-          cawdif = 1._r8-albw_d
+          cawdif = 1.0_r8-albw_d
           srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
-     &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
+     &                 (1.0_r8-cloud(i,j))+cawdif*cloud(i,j))
 #   else
-          srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
+          srflx(i,j) = srflx(i,j)*(1.0_r8-albedo(i,j))
 #   endif
 #  endif
 # endif
-!!! End modification PWA 07/03/2019
+!!! End modification PWA 25/09/2019
 
 # if defined LONGWAVE_OUT || defined LONGWAVE
           lrflx(i,j) = lwup*Hscale2 + lrflx(i,j)
@@ -1152,7 +1188,7 @@ contains
           cffe = 1._r8/(h(i,j)+Zt_avg1(i,j))
           cffe = min(cffe,0.2_r8)
           IF (evap(i,j).GT.0._r8) THEN
-             evap(i,j) = (1.0_r8+coef_shallow*cffe)*evap(i,j)
+            evap(i,j) = (1.0_r8+coef_shallow*cffe)*evap(i,j)
           END IF
 #  endif
 # endif
@@ -1221,7 +1257,7 @@ contains
           coef_ice_heat(i,j) = Coef_Ice(i,j)
           rhs_ice_heat(i,j) = RHS_Ice(i,j)
           qai_n(i,j) = Qai(i,j)
-#endif  /* ICE_MODEL */
+# endif  /* ICE_MODEL */
 
 !# elif defined BEST_NPZ && defined CLIM_ICE_1D
 !
@@ -1361,6 +1397,9 @@ contains
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qao_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rfaci)
 #  ifdef ICE_THERMO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1431,6 +1470,11 @@ contains
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    srflx, qao_n, tau_aix_n, tau_aiy_n )
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    rfaci )
 #   ifdef ICE_THERMO
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &

@@ -156,6 +156,9 @@
      &                     FORCES(ng) % albedo,                         &
 #  ifdef ICE_MODEL
      &                     FORCES(ng) % albedo_ice,                     &
+#   ifdef CCSM_ICE_SHORTWAVE
+     &                     FORCES(ng) % frswpen,                        &
+#   endif
 #  endif
 # endif
 # if defined ALBEDO_DIRDIFF && defined SHORTWAVE && !defined BENCHMARK
@@ -164,6 +167,7 @@
 # ifdef ICE_MODEL
      &                     ICE(ng) % ai,                                &
      &                     ICE(ng) % hi,                                &
+     &                     ICE(ng) % rfaci,                             & !!!Inserted PWA 25/09/2019
 #  ifdef ICE_THERMO
      &                     FORCES(ng) % qai_n,                          &
      &                     FORCES(ng) % qi_o_n,                         &
@@ -272,13 +276,16 @@
      &                           albedo,                                &
 #  ifdef ICE_MODEL
      &                           albedo_ice,                            &
+#   ifdef CCSM_ICE_SHORTWAVE
+     &                           frswpen,                               &
+#   endif
 #  endif
 # endif
 # if defined ALBEDO_DIRDIFF && defined SHORTWAVE && !defined BENCHMARK
      &                           cawdir,                                &
 # endif
 # ifdef ICE_MODEL
-     &                           ai, hi,                                &
+     &                           ai, hi, rfaci,                         & !!!Inserted PWA 25/09/2019, rfaci
 #  ifdef ICE_THERMO
      &                           qai_n, qi_o_n, SW_thru_ice, qswi_n,    &
      &                           hsn, tis, coef_ice_heat,               &
@@ -402,6 +409,9 @@
       real(r8), intent(inout) :: albedo(LBi:,LBj:)
 #  ifdef ICE_MODEL
       real(r8), intent(inout) :: albedo_ice(LBi:,LBj:)
+#   ifdef CCSM_ICE_SHORTWAVE
+      real(r8), intent(in) :: frswpen(LBi:,LBj:)
+#   endif
 #  endif
 # endif
 # if defined ALBEDO_DIRDIFF && defined SHORTWAVE && !defined BENCHMARK
@@ -414,6 +424,7 @@
       real(r8), intent(out) :: qao_n(LBi:,LBj:)
       real(r8), intent(in) :: ai(LBi:,LBj:,:)
       real(r8), intent(in) :: hi(LBi:,LBj:,:)
+      real(r8), intent(out) :: rfaci(LBi:,LBj:)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:,LBj:)
       real(r8), intent(out) :: qi_o_n(LBi:,LBj:)
@@ -527,6 +538,9 @@
       real(r8), intent(inout) :: albedo(LBi:UBi,LBj:UBj)
 #  ifdef ICE_MODEL
       real(r8), intent(inout) :: albedo_ice(LBi:UBi,LBj:UBj)
+#   ifdef CCSM_ICE_SHORTWAVE
+      real(r8), intent(in) :: frswpen(LBi:UBi,LBj:UBj)
+#   endif
 #  endif
 # endif
 # if defined ALBEDO_DIRDIFF && defined SHORTWAVE && !defined BENCHMARK
@@ -539,6 +553,7 @@
       real(r8), intent(out) :: qao_n(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
       real(r8), intent(in) :: hi(LBi:UBi,LBj:UBj,2)
+      real(r8), intent(out) :: rfaci(LBi:UBi,LBj:UBj)
 #   ifdef ICE_THERMO
       real(r8), intent(out) :: qai_n(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: qi_o_n(LBi:UBi,LBj:UBj)
@@ -611,6 +626,9 @@
       real(r8) :: Bf, Cd, Ch, Hl, Hlw, Hscale, Hscale2, Hs, Hsr, IER
       real(r8) :: PairM,  RH, Taur
       real(r8) :: Wspeed, ZQoL, ZToL
+# ifdef ICE_MODEL
+      real(r8) :: transw, transi, rtransi
+# endif
 # ifdef ICE_BULK_FLUXES
       real(r8) :: qswi, qlwi, qlh_i, qsh_i
       real(r8) :: le_i, dq_i,fqlat1, sfc_temp, slp, Qsati
@@ -702,18 +720,21 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Qai
 #endif
 #ifdef ICE_MODEL
+      real(r8), parameter :: fv=0.43_r8 !visual fraction of total shortwave (Aumont et al., 2015)
+# ifdef CCSM_ICE_SHORTWAVE
+      real(r8), parameter :: kappav = 1.4_r8 !vis extnctn coef in ice (1/m); CESM2/CICE5.1 default, DuVivier et al., 2018 (cf. 0.73 in Briegleb et al., 2004)
+# endif
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Taux_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Tauy_Ice
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: ice_thick
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: snow_thick
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: i0frac
 #endif
 #ifdef EVAP_SHALLOW
       real(r8), parameter :: coef_shallow = 5.28_r8
 !      real(r8), parameter :: coef_shallow = 4.69_r8
       real(r8) :: cffe
 #endif
-      real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: i0frac
-      real(r8) :: fsnow
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Uair
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: Vair
 
@@ -793,7 +814,7 @@
 # if defined ICE_MODEL && defined ICE_THERMO
           qswi_n(i,j) = srflx(i,j)*Hscale
 # endif
-!!! Modified PWA 07/03/2019 to allow correction of SRad for ice and correction of srflx for ice/snow albedo
+!!! Modified PWA 25/09/2019 to allow correction of SRad for ice and correction of srflx for ice/snow albedo
 ! This code has been moved to earlier in the file to allow ice correction of SRad
 ! Note that qswi is corrected separately for ice albedo below
 # ifdef CICE_MODEL
@@ -801,58 +822,72 @@
           SW_down(i,j) = srflx(i,j)*Hscale
 # endif
 # if defined ICE_MODEL
-          ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+eps)
-          snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+eps)
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
+            ice_thick(i,j) = hi(i,j,listp)/(ai(i,j,listp)+0.001_r8)
+            snow_thick(i,j) = hsn(i,j,listp)/(ai(i,j,listp)+0.001_r8)
 ! Note: This is necessary because hi,hsn are average thickness over the full cell
 #  if defined CCSM_ICE_SHORTWAVE
-          fsnow = snow_thick(i,j)/(snow_thick(i,j)+0.02_r8)
-          i0frac(i,j) = 0.43_r8*0.70_r8*(1-fsnow) !Briegleb et al.  (2004) Eq. 76
-! Note: Only the visible fraction (0.43, Aumont et al., 2015) is assumed to penetrate (i0frac = 0 for near-IR)
-          cff1 = 1.4_r8*ice_thick(i,j) !DuVivier (2018) CICE documention p. 52
-! Note: The attenuation due to snow is here accounted for in the "i0frac" term, which uses fsnow
+            i0frac(i,j) = frswpen(i,j) ! Note: ALBEDO_CSIM option is activated if CCSM_ICE_SHORTWAVE is (see globaldefs.h, albedo.F)
+            cff1 = kappav*ice_thick(i,j) ! Note: The attenuation due to snow is here accounted for in i0frac=frswpen, which uses asnow (see albedo.F)
 #  else
-          i0frac(i,j) = 1.0_r8
-          IF (ice_thick(i,j).le.0.1_r8) THEN
-            cff1 = ice_thick(i,j)*5._r8
-          ELSE
-            cff1 = 0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
-          ENDIF
-          cff1 = cff1+snow_thick(i,j)*20._r8
+            i0frac(i,j) = (1.0_r8-albedo_ice(i,j))*fv ! Assume only visual part penetrates (Briegleb et al., 2004)
+            IF (ice_thick(i,j).le.0.1_r8) THEN
+              cff1 = ice_thick(i,j)*5._r8
+            ELSE
+              cff1 = 0.1_r8*5._r8+(ice_thick(i,j)-0.1_r8)*1._r8
+            ENDIF
+            cff1 = cff1+snow_thick(i,j)*20._r8
 #  endif
 #  if defined ALBEDO && defined SHORTWAVE
 #   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
-          cawdif = 1._r8-albw_d
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)*(cawdir(i,j)*  &
-     & (1._r8-cloud(i,j))+cawdif*cloud(i,j))                            &
-     & +ai(i,j,listp)*(1._r8-albedo_ice(i,j))*srflx(i,j)*               &
-     & i0frac(i,j)*exp(-cff1)
-! Note: Assume no internal reflection (albedo) at the ice-water boundary
+            cawdif = 1._r8-albw_d
+            transw = cawdir(i,j)*(1.0_r8-cloud(i,j))+cawdif*cloud(i,j)
+            transi = i0frac(i,j)*exp(-cff1)
+            rtransi = transi/transw
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))*transw      &
+     &                   + ai(i,j,listp)*transi)
 #   else
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)*               &
-     & (1._r8-albedo(i,j))                                              &
-     & +ai(i,j,listp)*(1._r8-albedo_ice(i,j))*srflx(i,j)*               &
-     & i0frac(i,j)*exp(-cff1)
+            transw = 1.0_r8-albedo(i,j)
+            transi = i0frac(i,j)*exp(-cff1)
+            rtransi = transi/transw
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))*transw      &
+     &                   + ai(i,j,listp)*transi)
 #   endif
 #  else
-          srflx(i,j) = (1.0_r8-ai(i,j,listp))*srflx(i,j)                &
-     & +ai(i,j,listp)*srflx(i,j)*i0frac(i,j)*exp(-cff1)
+            rtransi = i0frac(i,j)*exp(-cff1)
+            srflx(i,j) = srflx(i,j)*((1.0_r8-ai(i,j,listp))             &
+     &                   + ai(i,j,listp)*rtransi)
 #  endif
+            rfaci(i,j) = (1.0_r8-ai(i,j,listp)) /                       &
+     &        ((1.0_r8-ai(i,j,listp)) + ai(i,j,listp)*MAX(eps,rtransi)) !Correction factor for lmd_r1 (near IR fraction of total SW)
+          ELSE
+#  if defined ALBEDO && defined SHORTWAVE
+#   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
+            cawdif = 1._r8-albw_d
+            transw = cawdir(i,j)*(1.0_r8-cloud(i,j))+cawdif*cloud(i,j)
+            srflx(i,j) = srflx(i,j)*transw
+#   else
+            transw = 1.0_r8-albedo(i,j)
+            srflx(i,j) = srflx(i,j)*transw
+#   endif
+#  endif
+            rfaci(i,j) = 1.0_r8
+          ENDIF
 
 # else
 
 #  if defined ALBEDO && defined SHORTWAVE
 #   if defined ALBEDO_DIRDIFF && !defined BENCHMARK
-          cawdif = 1._r8-albw_d
-          srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                         &
-     &                 (1._r8-cloud(i,j))+cawdif*cloud(i,j))
-! The original code had a different correction here for SRad - I have assumed this was a mistake (PWA)
+            cawdif = 1.0_r8-albw_d
+            srflx(i,j) = srflx(i,j)*(cawdir(i,j)*                       &
+     &                   (1.0_r8-cloud(i,j))+cawdif*cloud(i,j))
 #   else
-          srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
+            srflx(i,j) = srflx(i,j)*(1._r8-albedo(i,j))
 #   endif
 #  endif
 # endif
           SRad(i,j)=srflx(i,j)*Hscale
-!!! End modification PWA 07/03/2019
+!!! End modification PWA 25/09/2019
           Tcff(i)=alpha(i,j)
           Scff(i)=beta(i,j)
 !
@@ -882,14 +917,14 @@
 !  specific humidity in units of kg/kg
           vap_p=PairM*RH/(1.0_r8+0.378_r8*RH)             !WPB
 #  else
-      IF(RH.lt.2.0_r8) THEN                               !WPB
-          cff=(0.7859_r8+0.03477_r8*TairC(i))/                          &
-     &        (1.0_r8+0.00412_r8*TairC(i))
-          e_sat=10.0_r8**cff   ! saturation vapor pressure (hPa or mbar)
-          vap_p=e_sat*RH       ! water vapor pressure (hPa or mbar)
-      ELSE                                                !WPB
-          vap_p=0.001_r8*PairM*RH/(1.0_r8+0.000378_r8*RH) !WPB
-      ENDIF                                               !WPB
+          IF(RH.lt.2.0_r8) THEN                               !WPB
+            cff=(0.7859_r8+0.03477_r8*TairC(i))/                        &
+     &          (1.0_r8+0.00412_r8*TairC(i))
+            e_sat=10.0_r8**cff   ! saturation vapor pressure (hPa or mbar)
+            vap_p=e_sat*RH       ! water vapor pressure (hPa or mbar)
+          ELSE                                                !WPB
+            vap_p=0.001_r8*PairM*RH/(1.0_r8+0.000378_r8*RH) !WPB
+          ENDIF                                               !WPB
 #  endif
           cff2=TairK(i)*TairK(i)*TairK(i)
           cff1=cff2*TairK(i)
@@ -1354,7 +1389,7 @@
 !          SRad(i,j) = SRad(i,j) * 1.075269_r8
 !#   endif
 #   if defined ALBEDO && defined SHORTWAVE
-          qswi = (1._r8-albedo_ice(i,j))*qswi_n(i,j)
+          qswi = (1.0_r8-albedo_ice(i,j))*qswi_n(i,j) !Total absorbed shortwave (W/m2 ice)
 #    ifdef ICE_DIAGS
           SW_up_ice(i,j) = albedo_ice(i,j)*qswi_n(i,j)
 #    endif
@@ -1363,19 +1398,23 @@
 #   endif
 #   ifdef ICE_I_O
 !!!Modified PWA 14/03/2019 to account for CCSM_ICE_SHORTWAVE option
+          IF (ai(i,j,listp) .gt. min_a(ng)) THEN
 #    if defined CCSM_ICE_SHORTWAVE
-          qi_o_n(i,j) = qswi * i0frac(i,j)
-          qswi = qswi - qi_o_n(i,j)
+            qi_o_n(i,j) = qswi_n(i,j) * i0frac(i,j) !Penetrating SW = frswpen*SW (W/m2 ice)
+            qswi = qswi - qi_o_n(i,j)               !SW absorbed in surface layer (W/m2 ice)
 #    elif !defined ICE_BOX
-          IF (hsn(i,j,listp) > 1.e-3_r8) THEN
-            qi_o_n(i,j) = 0._r8
-          ELSE
-            qi_o_n(i,j) = qswi * Io_frac
-            qswi = qswi - qi_o_n(i,j)
-          END IF
+            IF (hsn(i,j,listp) > 1.e-3_r8) THEN
+              qi_o_n(i,j) = 0._r8
+            ELSE
+              qi_o_n(i,j) = qswi * Io_frac
+              qswi = qswi - qi_o_n(i,j)
+            END IF
 #    else
-          SW_thru_ice(i,j) = 0.0_r8
+            SW_thru_ice(i,j) = 0.0_r8
 #    endif
+          ELSE
+            qi_o_n(i,j) = 0.0_r8 !This should be arbitrary
+          ENDIF
 #   endif
 ! Already in W/m**2
           RHS_Ice(i,j) = RHS_Ice(i,j) + qswi
@@ -1654,6 +1693,9 @@
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
      &                          qao_n)
+        CALL exchange_r2d_tile (ng, tile,                               &
+     &                          LBi, UBi, LBj, UBj,                     &
+     &                          rfaci)
 #  ifdef ICE_THERMO
         CALL exchange_r2d_tile (ng, tile,                               &
      &                          LBi, UBi, LBj, UBj,                     &
@@ -1724,6 +1766,11 @@
      &                    NghostPoints,                                 &
      &                    EWperiodic(ng), NSperiodic(ng),               &
      &                    srflx, qao_n, tau_aix_n, tau_aiy_n )
+      CALL mp_exchange2d (ng, tile, iNLM, 1,                            &
+     &                    LBi, UBi, LBj, UBj,                           &
+     &                    NghostPoints,                                 &
+     &                    EWperiodic(ng), NSperiodic(ng),               &
+     &                    rfaci )
 #   ifdef ICE_THERMO
       CALL mp_exchange2d (ng, tile, iNLM, 4,                            &
      &                    LBi, UBi, LBj, UBj,                           &

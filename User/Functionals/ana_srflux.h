@@ -104,7 +104,7 @@
       real(dp) :: hour, yday
       real(r8) :: Dangle, Hangle, LatRad
       real(r8) :: cff1, cff2, hour, yday
-# ifdef ALBEDO_CLOUD
+# ifdef ALBEDO
       real(r8) :: Rsolar, e_sat, vap_p, zenith
 # endif
 #endif

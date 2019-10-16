@@ -50,6 +50,9 @@
       USE mod_mixing
       USE mod_ocean
       USE mod_stepping
+# ifdef ICE_MODEL
+      USE mod_ice
+# endif
 !
 !  Imported variable declarations.
 !
@@ -78,6 +81,9 @@
      &                    FORCES(ng) % btflx,                           &
      &                    FORCES(ng) % bustr,                           &
      &                    FORCES(ng) % bvstr,                           &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                    ICE(ng) % rfaci,                              &
+# endif
 # ifdef OPTIC_MANIZZA
      &                    OCEAN(ng) % decayW,                           &
 # endif
@@ -105,6 +111,9 @@
      &                          f, h, Hz, z_r, z_w,                     &
      &                          u, v, pden,                             &
      &                          srflx, btflx,  bustr, bvstr,            &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                          rfaci,                                  &
+# endif
 # ifdef OPTIC_MANIZZA
      &                          decayW,                                 &
 # endif
@@ -120,6 +129,7 @@
       USE mod_scalars
 !
       USE bc_2d_mod, ONLY : bc_r2d_tile
+      USE lmd_swfrac_mod, ONLY : lmd_swfrac_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange2d
 # endif
@@ -150,6 +160,9 @@
       real(r8), intent(in) :: btflx(LBi:,LBj:,:)
       real(r8), intent(in) :: bustr(LBi:,LBj:)
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:,LBj:)
+#  endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in) :: decayW(LBi:,LBj:,0:,:)
 #  endif
@@ -179,6 +192,9 @@
       real(r8), intent(in) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(in) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
+#  if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+      real(r8), intent(in) :: rfaci(LBi:UBi,LBj:UBj)
+#  endif
 #  ifdef OPTIC_MANIZZA
       real(r8), intent(in) :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
 #  endif
@@ -306,6 +322,9 @@
         CALL lmd_swfrac_tile (ng, tile,                                 &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        IminS, ImaxS, JminS, JmaxS,               &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                        rfaci,                                    &
+# endif
      &                        -1.0_r8, zgrid, swdk)
         DO j=Jstr,Jend
           DO i=Istr,Iend
@@ -528,6 +547,9 @@
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                      rfaci,                                      &
+# endif
      &                      -1.0_r8, zgrid, swdk)
 !# endif
       DO j=Jstr,Jend
@@ -636,6 +658,9 @@
       CALL lmd_swfrac_tile (ng, tile,                                   &
      &                      LBi, UBi, LBj, UBj,                         &
      &                      IminS, ImaxS, JminS, JmaxS,                 &
+# if defined ICE_MODEL && defined ICE_SHORTWAVE_R
+     &                      rfaci,                                      &
+# endif
      &                      -1.0_r8, zgrid, swdk)
 !# endif
       DO j=Jstr,Jend
