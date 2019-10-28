@@ -1,5 +1,9 @@
 #include "cppdefs.h"
       MODULE lmd_swfrac_mod
+!
+      implicit none
+!
+      CONTAINS
 #if defined NONLINEAR && (defined LMD_SKPP || defined SOLAR_SOURCE) && \
     defined SOLVE3D
 !
@@ -32,10 +36,6 @@
 !  This routine was adapted from Bill Large 1995 code.                 !
 !                                                                      !
 !=======================================================================
-!
-      implicit none
-!
-      CONTAINS
 !
 !***********************************************************************
       SUBROUTINE lmd_swfrac_tile (ng, tile,                             &

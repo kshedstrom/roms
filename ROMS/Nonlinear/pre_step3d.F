@@ -175,7 +175,10 @@
 # endif
       USE mod_sources
 !
+# if defined NONLINEAR && (defined LMD_SKPP || defined SOLAR_SOURCE) && \
+    defined SOLVE3D
       USE lmd_swfrac_mod, ONLY : lmd_swfrac_tile
+# endif
       USE exchange_3d_mod, ONLY : exchange_r3d_tile
 # ifdef DISTRIBUTE
       USE mp_exchange_mod, ONLY : mp_exchange4d
