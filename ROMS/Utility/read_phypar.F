@@ -6731,6 +6731,8 @@
 #endif
           fname=varname
           IF (.not.find_file(ng, fname, 'VARNAME')) GO TO 30
+          WRITE (out,230) 'ROMS I/O variables Metadata File:  ',        &
+     &                    TRIM(fname)
           GO TO 40
   30      IF (Master) THEN
             IF (LEN_TRIM(fname).eq.0) THEN

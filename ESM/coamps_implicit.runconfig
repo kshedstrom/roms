@@ -24,7 +24,7 @@
 #                                                                       :::
 # It is not necessary to specify options to the connectors here for     :::
 # the "remapMethod" since it is specified in the input coupling         :::
-# metada file (keyword CPLname) for each exchanged field.               :::
+# metadata file (keyword CPLname) for each exchanged field.             :::
 #                                                                       :::
 # The component label is specific to how is known in the ESMF driver.   :::
 # It is set in subroutine allocate_esmf_esm, variable MODELS(:)%name.   :::
