@@ -1053,18 +1053,18 @@ contains
 ! Net heat flux from ice to atmosphere
           Qai(i,j) = -qsh_i - qlh_i - qswi - qlwi
 #  endif
-# endif
           !--- heat flux ---
-# ifdef ICE_BOX
+#  ifdef ICE_BOX
           SHeat(i,j) = sensible_MU(month)
           LHeat(i,j) = latent_MU(month)
-# else
+#  else
           SHeat(i,j) = cpair * tau * tstar / ustar
           LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
           SHeat(i,j) = SHeat(i,j)*(1-ai(i,j,listp)) +                   &
      &                    ai(i,j,listp)*qsh_i
           LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
      &                    ai(i,j,listp)*qlh_i
+#  endif
 # endif
         END DO
       END DO

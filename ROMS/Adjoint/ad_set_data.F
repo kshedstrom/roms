@@ -66,6 +66,7 @@
 # endif
       USE exchange_2d_mod
       USE set_2dfldr_mod
+      USE set_ngfld_mod
 # ifdef SOLVE3D
       USE set_3dfldr_mod
 # endif
