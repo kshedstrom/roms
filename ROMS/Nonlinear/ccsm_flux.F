@@ -1083,6 +1083,9 @@ contains
           LHeat(i,j) = LHeat(i,j)*(1-ai(i,j,listp)) +                   &
      &                    ai(i,j,listp)*qlh_i
 #  endif
+# else
+          SHeat(i,j) = cpair * tau * tstar / ustar
+          LHeat(i,j) = shr_const_latvap * tau * qstar / ustar
 # endif
         END DO
       END DO
