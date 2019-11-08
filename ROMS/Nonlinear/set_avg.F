@@ -1146,6 +1146,8 @@
             END DO
           END DO
         END IF
+# endif
+# ifdef ICE_DIAGS
         IF (Aout(idfrswp,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -1168,8 +1170,6 @@
             END DO
           END DO
         END IF
-# endif
-# ifdef ICE_DIAGS
         IF (Aout(idAlbe,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -2913,6 +2913,8 @@
             END DO
           END DO
         END IF
+# endif
+# ifdef ICE_DIAGS
         IF (Aout(idfrswp,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -2935,8 +2937,6 @@
             END DO
           END DO
         END IF
-# endif
-# ifdef ICE_DIAGS
         IF (Aout(idAlbe,ng)) THEN
           DO j=JstrR,JendR
             DO i=Istr,IendR
@@ -5338,6 +5338,8 @@
 #   endif
           END IF
         END IF
+#  endif
+#  ifdef ICE_DIAGS
         IF (Aout(idfrswp,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR
@@ -5378,8 +5380,6 @@
 #   endif
           END IF
         END IF
-#  endif
-#  ifdef ICE_DIAGS
         IF (Aout(idAlbe,ng)) THEN
           DO j=JstrR,JendR
             DO i=IstrR,IendR

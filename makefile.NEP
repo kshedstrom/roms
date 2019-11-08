@@ -28,16 +28,17 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-NEED_VERSION := 3.80 3.81 3.82
-$(if $(filter $(MAKE_VERSION),$(NEED_VERSION)),,        \
- $(error This makefile requires one of GNU make version $(NEED_VERSION).))
+ifneq (3.80,$(firstword $(sort $(MAKE_VERSION) 3.80)))
+ $(error This makefile requires GNU make version 3.80 or higher. \
+		Your current version is: $(MAKE_VERSION))
+endif
 
 #--------------------------------------------------------------------------
 #  Initialize some things.
 #--------------------------------------------------------------------------
 
   sources    :=
-  c_sources  := 
+  c_sources  :=
 
 #==========================================================================
 #  Start of user-defined options. In some macro definitions below: "on" or
@@ -64,7 +65,7 @@ ROMS_APPLICATION ?= NEP6
 #  If application header files is not located in "ROMS/Include",
 #  provide an alternate directory FULL PATH.
 
-MY_HEADER_DIR ?= Apps/NEP
+MY_HEADER_DIR ?= Apps_sub/NEP
 
 #  If your application requires analytical expressions and they are
 #  not located in "ROMS/Functionals", provide an alternate directory.
@@ -74,7 +75,7 @@ MY_HEADER_DIR ?= Apps/NEP
 #  If applicable, also used this directory to place your customized
 #  biology model header file (like fennel.h, nemuro.h, ecosim.h, etc).
 
-MY_ANALYTICAL_DIR ?= Apps/NEP
+MY_ANALYTICAL_DIR ?= Apps_sub/NEP
 
 # If applicable, where does CICE put its binary files?
 
@@ -143,7 +144,7 @@ MY_CPP_FLAGS ?=
 #  NetCDF and so on.
 #--------------------------------------------------------------------------
 
-        FORT ?= pgi
+        FORT ?= ifort
 
 #--------------------------------------------------------------------------
 #  Set directory for executable.
@@ -160,7 +161,7 @@ MY_CPP_FLAGS ?=
 #  Set directory for temporary objects.
 #--------------------------------------------------------------------------
 
-SCRATCH_DIR ?= /center/w/kate/Build_NEP
+SCRATCH_DIR ?= /center1/AKWATERS/kshedstrom/Build_NEP
  clean_list := core *.ipo $(SCRATCH_DIR)
 
 ifeq "$(strip $(SCRATCH_DIR))" "."
