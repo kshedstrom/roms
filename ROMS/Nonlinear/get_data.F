@@ -935,22 +935,24 @@
 !  Rain fall rate.  Snow fall rate.
 !-----------------------------------------------------------------------
 !
+#  ifndef ANA_RAIN
       CALL get_2dfld (ng, iNLM, idrain, ncFRCid(idrain,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
+#   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#  endif
+#   endif
      &                FORCES(ng) % rainG)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
+#  endif
 #  if defined SNOWFALL && !defined ANA_SNOW
       CALL get_2dfld (ng, iNLM, idsnow, ncFRCid(idsnow,ng),             &
      &                nFfiles(ng), FRC(1,ng), update(1),                &
      &                LBi, UBi, LBj, UBj, 2, 1,                         &
-#  ifdef MASKING
+#   ifdef MASKING
      &                GRID(ng) % rmask,                                 &
-#  endif
+#   endif
      &                FORCES(ng) % snowG)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
