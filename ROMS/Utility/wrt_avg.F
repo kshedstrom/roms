@@ -2187,6 +2187,8 @@
           RETURN
         END IF
       END IF
+#  endif
+#  ifdef ICE_DIAGS
 !
 !  Write out fraction of shortwave penetrating into the ice
 !
@@ -2237,8 +2239,6 @@
           RETURN
         END IF
       END IF
-#  endif
-#  ifdef ICE_DIAGS
 !
 !  Write out ocean albedo
 !
