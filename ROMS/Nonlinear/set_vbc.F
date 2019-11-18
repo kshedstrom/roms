@@ -1148,6 +1148,7 @@
      &                   LBi, UBi, LBj, UBj,                            &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   krhs(ng), kstp(ng), knew(ng),                  &
+     &                   GRID(ng) % h,                                  &
 #  if defined UV_LDRAG
      &                   GRID(ng) % rdrag,                              &
 #  elif defined UV_QDRAG
@@ -1155,6 +1156,7 @@
 #  endif
      &                   OCEAN(ng) % ubar,                              &
      &                   OCEAN(ng) % vbar,                              &
+     &                   OCEAN(ng) % zeta,                              &
      &                   FORCES(ng) % bustr,                            &
      &                   FORCES(ng) % bvstr)
 #  ifdef PROFILE
@@ -1169,12 +1171,13 @@
      &                         LBi, UBi, LBj, UBj,                      &
      &                         IminS, ImaxS, JminS, JmaxS,              &
      &                         krhs, kstp, knew,                        &
+     &                         h,                                       &
 #  if defined UV_LDRAG
      &                         rdrag,                                   &
 #  elif defined UV_QDRAG
      &                         rdrag2,                                  &
 #  endif
-     &                         ubar, vbar, bustr, bvstr)
+     &                         ubar, vbar, zeta, bustr, bvstr)
 !***********************************************************************
 !
       USE mod_param
@@ -1193,6 +1196,7 @@
       integer, intent(in) :: krhs, kstp, knew
 !
 #  ifdef ASSUMED_SHAPE
+      real(r8), intent(in) :: h(LBi:,LBj:)
 #   ifdef UV_LDRAG
       real(r8), intent(in) :: rdrag(LBi:,LBj:)
 #   endif
@@ -1201,9 +1205,11 @@
 #   endif
       real(r8), intent(in) :: ubar(LBi:,LBj:,:)
       real(r8), intent(in) :: vbar(LBi:,LBj:,:)
+      real(r8), intent(in) :: zeta(LBi:,LBj:,:)
       real(r8), intent(inout) :: bustr(LBi:,LBj:)
       real(r8), intent(inout) :: bvstr(LBi:,LBj:)
 #  else
+      real(r8), intent(in) :: h(LBi:UBi,LBj:UBj)
 #   ifdef UV_LDRAG
       real(r8), intent(in) :: rdrag(LBi:UBi,LBj:UBj)
 #   endif
@@ -1212,6 +1218,7 @@
 #   endif
       real(r8), intent(in) :: ubar(LBi:UBi,LBj:UBj,3)
       real(r8), intent(in) :: vbar(LBi:UBi,LBj:UBj,3)
+      real(r8), intent(in) :: zeta(LBi:UBi,LBj:UBj,3)
       real(r8), intent(inout) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(inout) :: bvstr(LBi:UBi,LBj:UBj)
 #  endif
@@ -1220,7 +1227,7 @@
 !
       integer :: i, j
 
-      real(r8) :: cff1, cff2
+      real(r8) :: cff, cff1, cff2, cff3
 
 #  include "set_bounds.h"
 !
@@ -1228,6 +1235,14 @@
 !  Set kinematic barotropic bottom momentum stress (m2/s2).
 !-----------------------------------------------------------------------
 
+#  ifdef LIMIT_BSTRESS
+!
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.3_r8/dt(ng)
+#  endif
 #  if defined UV_LDRAG
 !
 !  Set linear bottom stress.
@@ -1236,12 +1251,26 @@
         DO i=IstrU,Iend
           bustr(i,j)=0.5_r8*(rdrag(i-1,j)+rdrag(i,j))*                  &
      &               ubar(i,j,krhs)
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(h(i-1,j)+h(i,j)+                             &
+     &             zeta(i-1,j,krhs)+zeta(i,j,krhs))
+          bustr(i,j)=SIGN(1.0_r8, bustr(i,j))*                          &
+     &               MIN(ABS(bustr(i,j)),                               &
+     &                   ABS(ubar(i,j,krhs))*cff3)
+#    endif
         END DO
       END DO
       DO j=JstrV,Jend
         DO i=Istr,Iend
           bvstr(i,j)=0.5_r8*(rdrag(i,j-1)+rdrag(i,j))*                  &
      &               vbar(i,j,krhs)
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(h(i,j-1)+h(i,j)+                             &
+     &             zeta(i,j-1,krhs)+zeta(i,j,krhs))
+          bvstr(i,j)=SIGN(1.0_r8, bvstr(i,j))*                          &
+     &               MIN(ABS(bvstr(i,j)),                               &
+     &                   ABS(vbar(i,j,krhs))*cff3)
+#    endif
         END DO
       END DO
 #  elif defined UV_QDRAG
@@ -1257,6 +1286,13 @@
           cff2=SQRT(ubar(i,j,krhs)*ubar(i,j,krhs)+cff1*cff1)
           bustr(i,j)=0.5_r8*(rdrag2(i-1,j)+rdrag2(i,j))*                &
      &               ubar(i,j,krhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(h(i-1,j)+h(i,j)+                             &
+     &             zeta(i-1,j,krhs)+zeta(i,j,krhs))
+          bustr(i,j)=SIGN(1.0_r8, bustr(i,j))*                          &
+     &               MIN(ABS(bustr(i,j)),                               &
+     &                   ABS(ubar(i,j,krhs))*cff3)
+#    endif
         END DO
       END DO
       DO j=JstrV,Jend
@@ -1268,6 +1304,13 @@
           cff2=SQRT(cff1*cff1+vbar(i,j,krhs)*vbar(i,j,krhs))
           bvstr(i,j)=0.5_r8*(rdrag2(i,j-1)+rdrag2(i,j))*                &
      &               vbar(i,j,krhs)*cff2
+#    ifdef LIMIT_BSTRESS
+          cff3=cff*0.5_r8*(h(i,j-1)+h(i,j)+                             &
+     &             zeta(i,j-1,krhs)+zeta(i,j,krhs))
+          bvstr(i,j)=SIGN(1.0_r8, bvstr(i,j))*                          &
+     &               MIN(ABS(bvstr(i,j)),                               &
+     &                   ABS(vbar(i,j,krhs))*cff3)
+#    endif
         END DO
       END DO
 #  endif

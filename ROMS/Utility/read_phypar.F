@@ -900,7 +900,7 @@
               Npts=load_r(Nval, Rval, Ngrids, Zob)
             CASE ('Zos')
               Npts=load_r(Nval, Rval, Ngrids, Zos)
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
             CASE ('BLK_ZQ')
               Npts=load_r(Nval, Rval, Ngrids, blk_ZQ)
             CASE ('BLK_ZT')
@@ -4555,7 +4555,7 @@
           WRITE (out,200) Zos(ng), 'Zos',                               &
      &          'Surface roughness (m).'
 # endif
-# ifdef BULK_FLUXES
+# if defined BULK_FLUXES || defined BULK_FLUXES2D
           WRITE (out,200) blk_ZQ(ng), 'blk_ZQ',                         &
      &          'Height (m) of surface air humidity measurement.'
           IF (blk_ZQ(ng).le.0.0_r8) THEN

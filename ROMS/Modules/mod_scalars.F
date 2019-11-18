@@ -3463,7 +3463,7 @@
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)
       END IF
 
-#ifdef BULK_FLUXES
+#if defined BULK_FLUXES || defined BULK_FLUXES2D
       IF (.not.allocated(blk_ZQ)) THEN
         allocate ( blk_ZQ(Ngrids) )
         Dmem(1)=Dmem(1)+REAL(Ngrids,r8)

@@ -911,6 +911,42 @@
       Dmem(ng)=Dmem(ng)+size2d
 #endif
 
+#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM \
+    || defined CCSM_FLUXES2D
+      allocate ( FORCES(ng) % Uwind(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+
+      allocate ( FORCES(ng) % Vwind(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+
+# ifndef ANA_WINDS
+      allocate ( FORCES(ng) % UwindG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
+
+      allocate ( FORCES(ng) % VwindG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
+# endif
+#endif
+
+#if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D ||  \
+    (defined SHORTWAVE && defined ANA_SRFLUX)
+      allocate ( FORCES(ng) % Hair(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+
+# ifndef ANA_HUMIDITY
+      allocate ( FORCES(ng) % HairG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
+# endif
+
+      allocate ( FORCES(ng) % Tair(LBi:UBi,LBj:UBj) )
+      Dmem(ng)=Dmem(ng)+size2d
+
+# ifndef ANA_TAIR
+      allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
+      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
+# endif
+#endif
+
 #ifdef SOLVE3D
 
 # ifdef SHORTWAVE
@@ -1074,41 +1110,6 @@
 
       allocate ( FORCES(ng) % shflx(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
-# endif
-
-# if defined BULK_FLUXES || defined ECOSIM || defined CCSM_FLUXES2D ||  \
-    (defined SHORTWAVE && defined ANA_SRFLUX)
-      allocate ( FORCES(ng) % Hair(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-
-#  ifndef ANA_HUMIDITY
-      allocate ( FORCES(ng) % HairG(LBi:UBi,LBj:UBj,2) )
-      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
-#  endif
-
-      allocate ( FORCES(ng) % Tair(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-
-#  ifndef ANA_TAIR
-      allocate ( FORCES(ng) % TairG(LBi:UBi,LBj:UBj,2) )
-      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
-#  endif
-# endif
-
-# if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
-      allocate ( FORCES(ng) % Uwind(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-
-      allocate ( FORCES(ng) % Vwind(LBi:UBi,LBj:UBj) )
-      Dmem(ng)=Dmem(ng)+size2d
-
-#  ifndef ANA_WINDS
-      allocate ( FORCES(ng) % UwindG(LBi:UBi,LBj:UBj,2) )
-      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
-
-      allocate ( FORCES(ng) % VwindG(LBi:UBi,LBj:UBj,2) )
-      Dmem(ng)=Dmem(ng)+2.0_r8*size2d
-#  endif
 # endif
 
 # ifdef BULK_FLUXES
@@ -1633,7 +1634,8 @@
 # endif
 #endif
 
-#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM
+#if defined BULK_FLUXES || defined BULK_FLUXES2D || defined ECOSIM \
+    || defined CCSM_FLUXES2D
             FORCES(ng) % Uwind(i,j) = IniVal
             FORCES(ng) % Vwind(i,j) = IniVal
 # ifndef ANA_WINDS
