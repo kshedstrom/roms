@@ -1976,7 +1976,7 @@
      &                     GRID(ng) % rmask,                            &
      &                     GRID(ng) % umask,                            &
      &                     GRID(ng) % vmask,                            &
-     &                     GRID(ng) % mask2,                            &
+!    &                     GRID(ng) % mask2,                            &
 # endif
      &                     FORCES(ng) % Uwind,                          &
      &                     FORCES(ng) % Vwind,                          &
@@ -1999,7 +1999,7 @@
 # endif
 # ifdef MASKING
      &                           rmask, umask, vmask,                   &
-     &                           mask2,                                 &
+!    &                           mask2,                                 &
 # endif
      &                           Uwind, Vwind, sustr, svstr)
 !***********************************************************************
@@ -2028,10 +2028,10 @@
       real(r8), intent(in) :: rmask(LBi:,LBj:)
       real(r8), intent(in) :: umask(LBi:,LBj:)
       real(r8), intent(in) :: vmask(LBi:,LBj:)
-      real(r8), intent(in) :: mask2(LBi:,LBj:)
+!     real(r8), intent(in) :: mask2(LBi:,LBj:)
 #  endif
-      real(r8), intent(out) :: Uwind(LBi:,LBj:)
-      real(r8), intent(out) :: Vwind(LBi:,LBj:)
+      real(r8), intent(in) :: Uwind(LBi:,LBj:)
+      real(r8), intent(in) :: Vwind(LBi:,LBj:)
       real(r8), intent(out) :: sustr(LBi:,LBj:)
       real(r8), intent(out) :: svstr(LBi:,LBj:)
 # else
@@ -2039,10 +2039,10 @@
       real(r8), intent(in) :: rmask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: umask(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: vmask(LBi:UBi,LBj:UBj)
-      real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
+!     real(r8), intent(in) :: mask2(LBi:UBi,LBj:UBj)
 #  endif
-      real(r8), intent(out) :: Uwind(LBi:,LBj:)
-      real(r8), intent(out) :: Vwind(LBi:,LBj:)
+      real(r8), intent(in) :: Uwind(LBi:,LBj:)
+      real(r8), intent(in) :: Vwind(LBi:,LBj:)
       real(r8), intent(out) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: svstr(LBi:UBi,LBj:UBj)
 # endif

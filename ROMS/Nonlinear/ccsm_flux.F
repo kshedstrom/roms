@@ -1845,6 +1845,8 @@ contains
           ssq    = 0.98_r8 * qsat(TairK(i)) / rhoAir(i)  ! sea surf hum (kg/kg)
 !          ssq    = 0.98_r8 * qsat(TseaK) / rhoAir(i)    ! sea surf hum (kg/kg)
           delq   = Hair(i,j) - ssq                     ! spec hum dif (kg/kg)
+          ! Note: this whole option is untested and unimplemented due to this.
+          delt = ???
           alz    = log(blk_ZW(ng)/zref)
           cpair     = shr_const_cpdair*(1.0 + shr_const_cpvir*ssq)
 

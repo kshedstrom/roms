@@ -244,7 +244,7 @@
           real(r8), pointer :: rmask(:,:)
           real(r8), pointer :: umask(:,:)
           real(r8), pointer :: vmask(:,:)
-# ifdef BERING_STRAIT
+# ifdef MASK_HACK
           real(r8), pointer :: mask2(:,:)
 # endif
 # ifdef ALBEDO_HACK
@@ -592,7 +592,7 @@
       allocate ( GRID(ng) % vmask(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 
-#ifdef BERING_STRAIT
+#ifdef MASK_HACK
       allocate ( GRID(ng) % mask2(LBi:UBi,LBj:UBj) )
       Dmem(ng)=Dmem(ng)+size2d
 #endif
@@ -927,7 +927,7 @@
             GRID(ng) % rmask(i,j) = IniMetricVal
             GRID(ng) % umask(i,j) = IniMetricVal
             GRID(ng) % vmask(i,j) = IniMetricVal
-#ifdef BERING_STRAIT
+#ifdef MASK_HACK
             GRID(ng) % mask2(i,j) = IniVal
 #endif
 #ifdef ALBEDO_HACK
