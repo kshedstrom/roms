@@ -748,7 +748,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        !---------------------------------------------------------------------
 
        ! RD dev notes : replaced namelist values by values in TABLE A1 from Wanninkhof (1992)
-       !co2_sc_no(i,j) = ( 2073.1d0 - 125.62d0 * ST + 3.6276d0 * ST**2 - 0.043219d0 * ST**3 ) * rmask(i,j)
+       !co2_sc_no(i,j) = ( 2073.1d0 - 125.62d0 * ST + 3.6276d0 * ST**2 - 0.043219d0 * ST**3 ) * rmask_local(i,j)
        co2_sc_no = ( 2073.1d0 - 125.62d0 * ST + 3.6276d0 * ST**2 - 0.043219d0 * ST**3 )
 
        ! RD dev notes : use 10 meters neutral wind and not wind from forcing
@@ -781,7 +781,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! co2_alpha = L [mol.m-3.atm-1]
        ! pCO2atm and pCO2surface [atm]
        !airsea_co2_flx(i,j) = co2_piston_vel(i,j) * co2_alpha(i,j) * (pCO2atm(i,j) - pCO2surf(i,j))
-       airsea_co2_flx(i,j) = co2_piston_vel * co2_alpha * (pCO2atm - pCO2surface) * rmask(i,j)
+       airsea_co2_flx(i,j) = co2_piston_vel * co2_alpha * (pCO2atm - pCO2surface) * rmask_local(i,j)
 
        ! convert airsea_co2_flx from mol.m-2.s-1 to mol.kg-1.s-1
        airsea_co2_flx(i,j) = airsea_co2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
@@ -832,10 +832,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ts4 = ts3 * ts
        ts5 = ts4 * ts
 
-       o2_saturation = (1000.0/22391.6) * rmask(i,j) *                   & !convert from ml/l to mol m-3
- &           exp( cobalt%a_0 + cobalt%a_1*ts + cobalt%a_2*ts2 +          &
- &           cobalt%a_3*ts3 + cobalt%a_4*ts4 + cobalt%a_5*ts5 +          &
- &           (cobalt%b_0 + cobalt%b_1*ts + cobalt%b_2*ts2 +              &
+       o2_saturation = (1000.0/22391.6) * rmask_local(i,j) *            & !convert from ml/l to mol m-3
+ &           exp( cobalt%a_0 + cobalt%a_1*ts + cobalt%a_2*ts2 +         &
+ &           cobalt%a_3*ts3 + cobalt%a_4*ts4 + cobalt%a_5*ts5 +         &
+ &           (cobalt%b_0 + cobalt%b_1*ts + cobalt%b_2*ts2 +             &
  &           cobalt%b_3*ts3 + cobalt%c_0*sal)*sal)
 
        !---------------------------------------------------------------------
@@ -846,7 +846,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        !
 
        ! RD dev notes : took values from Sarmiento/Gruber table 3.3.1 (verif reference above)
-       !o2_sc_no(i,j)  = (1638.0d0 - 81.83d0 * ST + 1.483d0 * ST**2 - 0.008004 * ST**3) * rmask(i,j)
+       !o2_sc_no(i,j)  = (1638.0d0 - 81.83d0 * ST + 1.483d0 * ST**2 - 0.008004 * ST**3) * rmask_local(i,j)
        o2_sc_no  = (1638.0d0 - 81.83d0 * ST + 1.483d0 * ST**2 - 0.008004 * ST**3)
 
        ! RD dev notes : piston/transfer velocity also from Wanninkhof (1992) eq. 3 (valid for short-term
@@ -865,7 +865,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
        ! flux is k.(O2sat - [O2]) and is in mol.m-2.s-1
        !airsea_o2_flx(i,j) = o2_piston_vel(i,j) * (o2_saturation - o2_csurf(i,j))
-       airsea_o2_flx(i,j) = o2_piston_vel * (o2_saturation - o2_csurf) * rmask(i,j)
+       airsea_o2_flx(i,j) = o2_piston_vel * (o2_saturation - o2_csurf) * rmask_local(i,j)
 
        ! convert flux in mol.kg-1.s-1
        airsea_o2_flx(i,j) = airsea_o2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
@@ -1551,7 +1551,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 !         cobalt%irr_mix(i,j,k) = cobalt%irr_inst(i,j,k)
 !      ENDDO
 !      ! update irr_mix in the mix layer to the integrated value
-!      cobalt%irr_mix(i,j,kblt:UBk) = tmp_irrad_ML * rmask(i,j) / mxl_depth(i,j)
+!      cobalt%irr_mix(i,j,kblt:UBk) = tmp_irrad_ML * rmask_local(i,j) / mxl_depth(i,j)
 !
 !     ENDDO
 !   ENDDO
@@ -2078,7 +2078,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO j=Jstr,Jend
       DO i=Istr,Iend
 
-      ! IF (rmask(i,j) == 1) THEN
+      ! IF (rmask_local(i,j) == 1) THEN
        ! some optimization here
        zfn_zoo1 = zoo(1)%f_n(i,j,k)
        zfn_zoo2 = zoo(2)%f_n(i,j,k)
@@ -2400,7 +2400,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
     DO j=Jstr,Jend
       DO i=Istr,Iend
 
-      ! IF (rmask(i,j) == 1) THEN
+      ! IF (rmask_local(i,j) == 1) THEN
        ! some optimization here
        zfn_zoo1 = zoo(1)%f_n(i,j,k)
        zfn_zoo2 = zoo(2)%f_n(i,j,k)
@@ -5105,7 +5105,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 !  DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
 !  DO j=Jstr,Jend ; DO k=1,UBk ; DO i=Istr,Iend
 
-!   cff_ts = dt(ng) * rmask(i,j) * Hz(i,j,k)
+!   cff_ts = dt(ng) * rmask_local(i,j) * Hz(i,j,k)
 
 !   call system_clock(clock1start)
 
