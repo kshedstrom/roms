@@ -178,7 +178,7 @@
 !
 !  Determine the number of ghost-points in the halo region.
 !
-#if defined TS_MPDATA || defined UV_VIS4
+#if defined TS_MPDATA || defined UV_VIS4 || defined TS_HSIMT
       NghostPoints=3
 #else
       NghostPoints=2
