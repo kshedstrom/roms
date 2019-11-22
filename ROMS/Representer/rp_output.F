@@ -96,7 +96,11 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN                     ! create new file or
-            Fcount=TLM(ng)%Fcount               ! inquire existing file
+            IF (iic(ng).eq.ntstart(ng)) THEN    ! inquire existing file
+              TLM(ng)%load=0                    ! reset filename counter
+            END IF
+            TLM(ng)%load=TLM(ng)%load+1
+            Fcount=TLM(ng)%load
             TLM(ng)%Nrec(Fcount)=0
             ifile=(iic(ng)-1)/ndefTLM(ng)+1
             IF (Master) THEN
@@ -106,6 +110,7 @@
 # ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iRPM, TLM(ng)%name)
 # endif
+            TLM(ng)%files(Fcount)=TRIM(TLM(ng)%name)
             IF (TLM(ng)%ncid.ne.-1) THEN
               CALL netcdf_close (ng, iRPM, TLM(ng)%ncid)
             END IF
@@ -189,7 +194,11 @@
             Ldefine=.FALSE.
           END IF
           IF (Ldefine) THEN
-            Fcount=AVG(ng)%Fcount
+            IF (iic(ng).eq.ntstart(ng)) THEN
+              AVG(ng)%load=0                  ! reset filename counter
+            END IF
+            AVG(ng)%load=AVG(ng)%load+1
+            Fcount=AVG(ng)%load
             AVG(ng)%Nrec(Fcount)=0
             IF (ndefAVG(ng).eq.nAVG(ng)) THEN
               ifile=(iic(ng)-1)/ndefAVG(ng)
@@ -203,6 +212,7 @@
 #  ifdef DISTRIBUTE
             CALL mp_bcasts (ng, iRPM, AVG(ng)%name)
 #  endif
+            AVG(ng)%files(Fcount)=TRIM(AVG(ng)%name)
             IF (AVG(ng)%ncid.ne.-1) THEN
               CALL netcdf_close (ng, iRPM, AVG(ng)%ncid)
             END IF

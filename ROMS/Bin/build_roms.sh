@@ -162,6 +162,7 @@ setenv MY_PROJECT_DIR        ${PWD}
  setenv USE_MPIF90          on          # compile with mpif90 script
 #setenv which_MPI           mpich       # compile with MPICH library
 #setenv which_MPI           mpich2      # compile with MPICH2 library
+#setenv which_MPI           mvapich2    # compile with MVAPICH2 library
  setenv which_MPI           openmpi     # compile with OpenMPI library
 
 #setenv USE_OpenMP          on          # shared-memory parallelism

@@ -505,11 +505,13 @@
 !
 !  Open impulse forcing file for read/write.
 !
-        CALL netcdf_open (ng, iTLM, ncname, 1, TLF(ng)%ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) THEN
-          WRITE (stdout,30) TRIM(ncname)
-          RETURN
+        IF (TLF(ng)%ncid.eq.-1) THEN
+          CALL netcdf_open (ng, iTLM, ncname, 1, TLF(ng)%ncid)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) THEN
+            WRITE (stdout,30) TRIM(ncname)
+            RETURN
+          END IF
         END IF
 !
 !  Inquire about the dimensions and check for consistency.

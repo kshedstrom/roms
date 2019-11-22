@@ -82,6 +82,14 @@
      &                      GRID(ng) % Hvom,                            &
      &                      GRID(ng) % z_r,                             &
      &                      GRID(ng) % z_w,                             &
+# ifdef TS_HSIMT
+     &                      GRID(ng) % omn,                             &
+     &                      GRID(ng) % om_u,                            &
+     &                      GRID(ng) % om_v,                            &
+     &                      GRID(ng) % on_u,                            &
+     &                      GRID(ng) % on_v,                            &
+
+# endif
      &                      FORCES(ng) % btflx,                         &
      &                      FORCES(ng) % bustr,                         &
      &                      FORCES(ng) % bvstr,                         &
@@ -138,6 +146,9 @@
      &                            pm, pn,                               &
      &                            Hz, Huon, Hvom,                       &
      &                            z_r, z_w,                             &
+# ifdef TS_HSIMT
+     &                             omn,om_u,om_v,on_u,on_v,             &
+# endif
      &                            btflx, bustr, bvstr,                  &
      &                            stflx, sustr, svstr,                  &
 # ifdef SOLAR_SOURCE
@@ -187,6 +198,9 @@
 # ifdef T_PASSIVE
       USE pt3dbc_mod, ONLY : pt3dbc_tile
 # endif
+# ifdef TS_HSIMT
+        USE hsimt_tvd_mod
+# endif
 !
 !  Imported variable declarations.
 !
@@ -211,6 +225,13 @@
       real(r8), intent(in) :: Hvom(LBi:,LBj:,:)
       real(r8), intent(in) :: z_r(LBi:,LBj:,:)
       real(r8), intent(in) :: z_w(LBi:,LBj:,0:)
+# ifdef TS_HSIMT
+      real(r8), intent(in) :: omn(LBi:,LBj:)
+      real(r8), intent(in) :: om_u(LBi:,LBj:)
+      real(r8), intent(in) :: om_v(LBi:,LBj:)
+      real(r8), intent(in) :: on_u(LBi:,LBj:)
+      real(r8), intent(in) :: on_v(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: btflx(LBi:,LBj:,:)
       real(r8), intent(in) :: bustr(LBi:,LBj:)
       real(r8), intent(in) :: bvstr(LBi:,LBj:)
@@ -272,6 +293,13 @@
       real(r8), intent(in) :: Hvom(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
+# ifdef TS_HSIMT
+      real(r8), intent(in) :: omn(LBi:,LBj:)
+      real(r8), intent(in) :: om_u(LBi:,LBj:)
+      real(r8), intent(in) :: om_v(LBi:,LBj:)
+      real(r8), intent(in) :: on_u(LBi:,LBj:)
+      real(r8), intent(in) :: on_v(LBi:,LBj:)
+# endif
       real(r8), intent(in) :: btflx(LBi:UBi,LBj:UBj,NT(ng))
       real(r8), intent(in) :: bustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: bvstr(LBi:UBi,LBj:UBj)
@@ -320,7 +348,7 @@
 # if defined DIAGNOSTICS_TS || defined DIAGNOSTICS_UV
       integer :: idiag
 # endif
-# ifdef TS_MPDATA
+# if defined TS_MPDATA || defined TS_HSIMT
       real(r8), parameter :: Gamma = 0.5_r8
 # else
       real(r8), parameter :: Gamma = 1.0_r8/6.0_r8
@@ -340,6 +368,11 @@
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: FX
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: curv
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: grad
+
+# ifdef TS_HSIMT
+      real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: kaz
+      real(r8):: rd,rkad,a1,b1,betad,sw,rru,rkau,betau,epson,cc1,cc2,cc3
+# endif
 
 # include "set_bounds.h"
 
@@ -424,7 +457,7 @@
             END DO
           END DO
 
-#  elif defined TS_MPDATA
+#  elif defined TS_MPDATA || defined TS_HSIMT
 !
 !  First-order, upstream differences horizontal advective fluxes.
 !
@@ -806,7 +839,7 @@
             FC(i,N(ng))=0.0_r8
           END DO
 
-#  elif defined TS_MPDATA
+#  elif defined TS_MPDATA || defined TS_HSIMT
 !
 !  First_order, upstream differences vertical advective flux.
 !

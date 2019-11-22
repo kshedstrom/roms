@@ -835,6 +835,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+12)=' CICE_MODEL,'
 #endif
+#ifdef CHECK_OPEN_FILES
+!
+      IF (Master) WRITE (stdout,20) 'CHECK_OPEN_FILES',                 &
+     &   'Monitor the number opened, closed, and created NetCDF files'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+18)=' CHECK_OPEN_FILES,'
+#endif
 #ifdef CLIPPING
 !
       IF (Master) WRITE (stdout,20) 'CLIPPING',                         &
@@ -2071,6 +2078,13 @@
      &   'One value per tracer for all sources'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+19)=' ONE_TRACER_SOURCE,'
+#endif
+#if defined OBS_SPACE && defined W4DPSAS_FCT_SENSITIVITY
+!
+      IF (Master) WRITE (stdout,20) 'OBS_SPACE',                        &
+     &   'Forecast metric in obsrvation-space instead of state-space'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' OBS_SPACE,'
 #endif
 #ifdef NESTING
 # ifdef ONE_WAY

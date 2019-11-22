@@ -1023,6 +1023,7 @@
 !
       DO ng=1,Ngrids
         iic(ng)=ntstart(ng)-1
+        INItime(ng)=time(ng)         ! Save NLM initial conditions time
         time(ng)=time(ng)-dt(ng)
       END DO
 

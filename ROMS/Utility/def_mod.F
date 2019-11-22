@@ -106,11 +106,16 @@
 !
 !  Open input observations NetCDF.
 !
-      CALL netcdf_open (ng, iNLM, OBS(ng)%name, 0, OBSncid)
-      IF (FoundError(exit_flag, NoError, __LINE__,                      &
-     &               __FILE__)) THEN
-        WRITE (stdout,30) TRIM(OBS(ng)%name)
-        RETURN
+      IF (OBS(ng)%ncid.eq.-1) THEN
+        CALL netcdf_open (ng, iNLM, OBS(ng)%name, 0, OBSncid)
+        IF (FoundError(exit_flag, NoError, __LINE__,                    &
+     &                 __FILE__)) THEN
+          WRITE (stdout,30) TRIM(OBS(ng)%name)
+          RETURN
+        END IF
+        OBS(ng)%ncid=OBSncid
+      ELSE
+        OBSncid=OBS(ng)%ncid
       END IF
 !
 !  Inquire about input observations variables.
@@ -1863,13 +1868,6 @@
         CALL netcdf_enddef (ng, iNLM, ncname, DAV(ng)%ncid)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
-!
-!  Close input observations NetCDF file.
-!
-        CALL netcdf_close (ng, iNLM, OBSncid, OBS(ng)%name, .FALSE.)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) RETURN
-
       END IF DEFINE
 !
 !=======================================================================

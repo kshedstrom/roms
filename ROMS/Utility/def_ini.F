@@ -543,11 +543,13 @@
 !
 !  Open initialization file for read/write.
 !
-        CALL netcdf_open (ng, iNLM, ncname, 1, INI(ng)%ncid)
-        IF (FoundError(exit_flag, NoError, __LINE__,                    &
-     &                 __FILE__)) THEN
-          WRITE (stdout,10) TRIM(ncname)
-          RETURN
+        IF (INI(ng)%ncid.eq.-1) THEN
+          CALL netcdf_open (ng, iNLM, ncname, 1, INI(ng)%ncid)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) THEN
+            WRITE (stdout,10) TRIM(ncname)
+            RETURN
+          END IF
         END IF
 !
 !  Inquire about the dimensions and check for consistency.

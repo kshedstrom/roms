@@ -77,7 +77,7 @@
 !  Set time and time-record index.
 !
       DIA(ng)%Rindex=DIA(ng)%Rindex+1
-      Fcount=DIA(ng)%Fcount
+      Fcount=DIA(ng)%load
       DIA(ng)%Nrec(Fcount)=DIA(ng)%Nrec(Fcount)+1
 !
 !  Write out averaged time.

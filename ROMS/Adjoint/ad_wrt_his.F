@@ -128,7 +128,7 @@
 !  Set time record index.
 !
       ADM(ng)%Rindex=ADM(ng)%Rindex+1
-      Fcount=ADM(ng)%Fcount
+      Fcount=ADM(ng)%load
       ADM(ng)%Nrec(Fcount)=ADM(ng)%Nrec(Fcount)+1
 !
 !  If requested, set time index to recycle time records in the adjoint

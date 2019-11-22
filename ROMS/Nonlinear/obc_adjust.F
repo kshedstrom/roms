@@ -102,7 +102,11 @@
         fac1=1.0_r8
         fac2=0.0_r8
       ELSE
+# ifdef GENERIC_DSTART
+        it1=MAX(0,(iic(ng)-ntstart(ng))/nOBC(ng))+1
+# else
         it1=MAX(0,(iic(ng)-1)/nOBC(ng))+1
+# endif
         it2=MIN(it1+1,Nbrec(ng))
         fac1=OBC_time(it2,ng)-(time(ng)+dt(ng))
         fac2=(time(ng)+dt(ng))-OBC_time(it1,ng)

@@ -73,7 +73,7 @@
 !  Set time record index.
 !
       AVG2(ng)%Rindex=AVG2(ng)%Rindex+1
-      Fcount=AVG2(ng)%Fcount
+      Fcount=AVG2(ng)%load
       AVG2(ng)%Nrec(Fcount)=AVG2(ng)%Nrec(Fcount)+1
 !
 !  Write out averaged time.

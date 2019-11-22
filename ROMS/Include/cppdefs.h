@@ -74,6 +74,7 @@
 ** TS_C2HADVECTION     use if 2nd-order centered horizontal advection        **
 ** TS_C4HADVECTION     use if 4th-order centered horizontal advection        **
 ** TS_MPDATA           use if recursive MPDATA 3D advection                  **
+** TS_HSIMT            use if scheme by Wu and Zhu (2010)                    **
 ** TS_U3HADVECTION     use if 3rd-order upstream horiz. advection            **
 ** TS_A4VADVECTION     use if 4th-order Akima vertical advection             **
 ** TS_C2VADVECTION     use if 2nd-order centered vertical advection          **

@@ -121,7 +121,7 @@
 
       real(dp), parameter :: Fscl = 1.0_r8
 
-      real(dp) :: INPtime, Tmax, scale, time_scale
+      real(dp) :: INPtime, Tmax, my_dstart, scale, time_scale
       real(r8) :: Fmax, Fmin
 
       real(dp), allocatable :: TimeVar(:)
@@ -224,7 +224,6 @@
       DO i=1,4
         Vsize(i)=0
       END DO
-      SourceFile=__FILE__
 !
 !-----------------------------------------------------------------------
 !  Open input NetCDF file and check time variable.
@@ -250,6 +249,7 @@
      &                tvarnam, get_var, have_var)
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
+      SourceFile=__FILE__
 
 #if defined DEBUGGING || defined NO_LBC_ATT
 !
@@ -345,10 +345,22 @@
 !
       IF ((model.eq.0).or.(model.eq.iNLM).or.                           &
      &    (model.eq.iTLM).or.(model.eq.iRPM)) THEN
+#ifdef GENERIC_DSTART
+        IF (INItime(ng).lt.0.0_dp) THEN
+          my_dstart=dstart                  ! ROMS input script
+        ELSE
+          my_dstart=INItime(ng)/86400.0_dp  ! NLM IC time is known
+        END IF
+        IF (((model.eq.iTLM).or.(model.eq.iRPM)).and.(msg.eq.1).and.    &
+     &      (INPtime.ne.(my_dstart*day2sec))) THEN
+          INPtime=my_dstart*day2sec
+        END IF
+#else
         IF (((model.eq.iTLM).or.(model.eq.iRPM)).and.(msg.eq.1).and.    &
      &      (INPtime.ne.(dstart*day2sec))) THEN
           INPtime=dstart*day2sec
         END IF
+#endif
         IF (msg.eq.1) THEN            ! processing initial conditions
           time(ng)=INPtime
           tdays(ng)=time(ng)*sec2day
@@ -407,15 +419,24 @@
           t_code=' '              ! time is meaningless for these fields
         END IF
         WRITE (Tstring,'(f15.4)') tdays(ng)
+#if defined IS4DVAR         || defined IS4DVAR_SENSITIVITY || \
+    defined WEAK_CONSTRAINT
+        WRITE (stdout,40) string, 'Reading '//TRIM(StateMsg(msg)),      &
+     &                    t_code, ng, ', Outer=', outer,                &
+     &                    TRIM(ADJUSTL(Tstring)), ncname(lstr:lend),    &
+     &                    InpRec, Tindex
+#else
         IF (ERend.gt.ERstr) THEN
           WRITE (stdout,40) string, 'Reading '//TRIM(StateMsg(msg)),    &
-     &                      t_code, ng, Nrun, TRIM(ADJUSTL(Tstring)),   &
-     &                      ncname(lstr:lend), InpRec, Tindex
+     &                      t_code, ng, ', Iter=', Nrun,                &
+     &                      TRIM(ADJUSTL(Tstring)),  ncname(lstr:lend), &
+     &                      InpRec, Tindex
         ELSE
           WRITE (stdout,50) string, 'Reading '//TRIM(StateMsg(msg)),    &
      &                      t_code, ng, TRIM(ADJUSTL(Tstring)),         &
      &                      ncname(lstr:lend), InpRec, Tindex
         END IF
+#endif
       END IF
 
 #ifdef NONLINEAR
@@ -8331,7 +8352,7 @@
      &        18x,'not found in input NetCDF: ',a,/,                    &
      &        18x,'number of available records = ',i3)
   40  FORMAT (/,a,'GET_STATE - ',a,t75,a,                               &
-     &        /,19x,'(Grid ',i2.2,', Iter=',i4.4, ', t = ',a,           &
+     &        /,19x,'(Grid ',i2.2,a,i4.4, ', t = ',a,                   &
      &        ', File: ',a, ', Rec=',i4.4,', Index=',i1,')')
   50  FORMAT (/,a,'GET_STATE - ',a,t75,a,                               &
      &        /,19x,'(Grid ',i2.2, ', t = ',a,                          &
