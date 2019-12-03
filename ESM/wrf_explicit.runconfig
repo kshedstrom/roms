@@ -24,6 +24,18 @@
 # the "remapMethod" since it is specified in the input coupling         :::
 # metadata file (keyword CPLname) for each exchanged field.             :::
 #                                                                       :::
+# If the timeStep value (in seconds) coupling interval is a wildcard    :::
+# (*) character used for a single outer time loop in the run sequence,  :::
+# then the associated run clock is identical to the driver clock, which :::
+# is set up in standard input configuration script "coupling_esmf.in":  :::
+#                                                                       :::
+#     @*                                                                :::
+#       ...                                                             :::
+#       ...                                                             :::
+#     @                                                                 :::
+#                                                                       :::
+# Check NUOPC reference manual for more information (Chapter 3, API).   :::
+#                                                                       :::
 # The component label is specific to how is known in the ESMF driver.   :::
 # It is set in subroutine allocate_esmf_esm, variable MODELS(:)%name.   :::
 #                                                                       :::
@@ -32,12 +44,12 @@
 # Hurricane Irene Application
 
 runSeq::
-  @240                       # 4 min coupling time step, single time loop
-    DATA -> WRF_01           # DATA to WRF connector
+  @240                       # timeStep = 4 min interval, single time loop
+    DATA -> WRF              # DATA to WRF connector
     DATA
-    WRF_01 -> ROMS_01        # WRF to ROMS connector
-    ROMS_01 -> WRF_01        # ROMS to WRF connector
-    ROMS_01
-    WRF_01
+    WRF -> ROMS              # WRF to ROMS connector
+    ROMS -> WRF              # ROMS to WRF connector
+    ROMS
+    WRF
   @
 ::

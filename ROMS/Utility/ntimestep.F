@@ -48,7 +48,7 @@
 !
 !  Local variable declarations.
 !
-      integer :: gn, ig, il, ng, ngm1
+      integer :: extra, gn, ig, il, ng, ngm1
       integer, dimension(Ngrids) :: WindowSteps, my_Nsteps
 !
 !=======================================================================
@@ -102,6 +102,28 @@
 !
         DO ig=1,GridsInLayer(nl)
           ng=GridNumber(ig,nl)
+
+#if defined MODEL_COUPLING && !defined MCT_LIB
+!
+!  Set extra step parameter needed to finish the simulation due to ROMS
+!  delayed output until the next half step. If RunInterval (seconds) is
+!  less than full simulation interval because of model coupling, extra=1
+!  for last coupling interval and extra=0 otherwise.
+!
+          NEXTtime=time(ng)+RunInterval
+          ENDtime=INItime(ng)+(ntimes(ng)-1)*dt(ng)
+          IF (NEXTtime.eq.ENDtime) THEN
+            extra=1
+          ELSE
+            extra=0
+          END IF
+#else
+!
+!  Here, extra=1, indicates that the RunInterval is the same as
+!  simulation interval.
+!
+          extra=1
+#endif
 !
 !  Determine number of steps in time-interval window.
 !
@@ -113,9 +135,10 @@
           IF ((model.eq.iNLM).or.                                       &
      &        (model.eq.iTLM).or.                                       &
      &        (model.eq.iRPM)) THEN
+
 #ifdef NESTING
             IF (ANY(CompositeGrid(:,ng))) THEN
-              IF (step_counter(ng).le.(WindowSteps(ig)+1)) THEN
+              IF (step_counter(ng).le.(WindowSteps(ig)+extra)) THEN
                 my_Nsteps(ig)=1
                 step_counter(ng)=step_counter(ng)+1
               ELSE
@@ -123,7 +146,7 @@
               END IF
             ELSE IF (RefinedGrid(ng).and.(RefineScale(ng).eq.0)) THEN
               RefineStepsCounter=0    ! The coarser grid, reset counters
-              IF (step_counter(ng).le.(WindowSteps(ig)+1)) THEN
+              IF (step_counter(ng).le.(WindowSteps(ig)+extra)) THEN
                 my_Nsteps(ig)=1
                 step_counter(ng)=step_counter(ng)+1
                 RefineStepsCounter(ng)=RefineStepsCounter(ng)+1
@@ -131,7 +154,7 @@
                 my_Nsteps(ig)=0
               END IF
             ELSE IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
-              IF (step_counter(ng).le.(WindowSteps(ig)+1)) THEN
+              IF (step_counter(ng).le.(WindowSteps(ig)+extra)) THEN
                 IF (Telescoping(ng)) THEN
                   my_Nsteps(ig)=1
                   step_counter(ng)=step_counter(ng)+1
@@ -153,8 +176,8 @@
               END IF
            END IF
 #else
-           my_Nsteps(ig)=MAX(my_Nsteps(ig), WindowSteps(ig)+1)
-           step_counter(ng)=step_counter(ng)+WindowSteps(ig)+1
+           my_Nsteps(ig)=MAX(my_Nsteps(ig), WindowSteps(ig)+extra)
+           step_counter(ng)=step_counter(ng)+WindowSteps(ig)+extra
 #endif
 
 #ifdef ADJOINT
@@ -166,7 +189,7 @@
             ELSE IF (RefinedGrid(ng).and.(RefineScale(ng).eq.0)) THEN
             ELSE IF (RefinedGrid(ng).and.(RefineScale(ng).gt.0)) THEN
             ELSE
-              my_Nsteps(ig)=MAX(my_Nsteps(ig), WindowSteps(ig)+1)
+              my_Nsteps(ig)=MAX(my_Nsteps(ig), WindowSteps(ig)+extra)
             END IF
 #endif
           END IF
@@ -193,10 +216,10 @@
 !  Set number of time-steps to execute. Choose minimum values.
 !
         Nsteps=my_Nsteps(1)
-        Rsteps=WindowSteps(1)+1
+        Rsteps=WindowSteps(1)+extra
         DO ig=2,GridsInLayer(nl)
           Nsteps=MIN(Nsteps, my_Nsteps(ig))
-          Rsteps=MIN(Rsteps, WindowSteps(ig)+1)
+          Rsteps=MIN(Rsteps, WindowSteps(ig)+extra)
         END DO
       END IF
 

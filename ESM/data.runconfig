@@ -6,15 +6,19 @@
 #   See License_ROMS.txt                                                :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::: Hernan G. Arango :::
 #                                                                       :::
-# DATA-COAMPS-ROMS semi-implicit ESMF coupling:                         :::
+# DATA-ROMS ESMF coupling: DATA Exports Fields at every ROMS time step  :::
 #                                                                       :::
-# This ESMF configuration file includes the Run Sequence to couple      :::
-# DATA, COAMPS, and ROMS components. All the components interact with   :::
-# the same coupling time step. The connectors from ROMS to COAMPS and   :::
-# COAMPS to ROMS are explicit. It is recommended to use the semi-       :::
-# implicit RunSequence configuration to ensure conservation. Usually,   :::
-# the timestep of the atmosphere kernel is smaller than that for the    :::
-# ocean.                                                                :::
+# This ESMF configuration file includes the Run Sequence to couple the  :::
+# DATA and ROMS components. All the components interact with the same   :::
+# coupling time step.                                                   :::
+#                                                                       :::
+# The coupling between DATA and ROMS components is used to test the     :::
+# ROMS ESMF coupling framework. The atmospheric forcing fields are      :::
+# exported to ROMS from the DATA component instead of processing the    :::
+# directly the input NetCDF files specified in "roms.in". The time       :::
+# interpolation is done in the NUOPC "cap" module "esmf_data.F".        :::
+# Therefore, the CPP option TIME_INTERP must be deactivated in          :::
+# ROMS.  The coupling is done at every ROMS time step.                  :::
 #                                                                       :::
 # The User needs to check that the single coupling interval specified   :::
 # here is the same as for the ROMS coupling standard input script       :::
@@ -41,15 +45,12 @@
 #                                                                       :::
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-# Indian Ocean Application
+# DOPPIO Application
 
 runSeq::
-  @300                       # timeStep = 5 min interval, single time loop
-    DATA -> COAMPS           # DATA to COAMPS connector
+  @360                       # timeStep = 6 min interval, single time loop
+    DATA -> ROMS             # DATA to ROMS connector
     DATA
-    COAMPS -> ROMS           # COAMPS to ROMS connector
-    ROMS -> COAMPS           # ROMS to COAMPS connector
     ROMS
-    COAMPS
   @
 ::

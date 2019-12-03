@@ -10,11 +10,13 @@
 #                                                                       :::
 # This ESMF configuration file includes the Run Sequence to couple      :::
 # DATA, COAMPS, and ROMS components. All the components interact with   :::
-# the same coupling time step. The connectors from ROMS to COAMPS and   :::
-# COAMPS to ROMS are explicit. It is recommended to use the semi-       :::
-# implicit RunSequence configuration to ensure conservation. Usually,   :::
-# the timestep of the atmosphere kernel is smaller than that for the    :::
-# ocean.                                                                :::
+# the same coupling time step. The connector from ROMS to COAMP is      :::
+# explicit, whereas the connector from COAMPS to ROMS is semi-implicit. :::
+# Usually, the timestep of the atmosphere kernel is smaller than that   :::
+# for the ocean. COAMPS export fields are always time-averaged over     :::
+# the coupling interval, which is the same as the ROMS timestep. It     :::
+# is semi-implicit because ROMS right-hand-side terms are forced with   :::
+# n+1/2 COAMPS fields because of the time-averaging.                    :::
 #                                                                       :::
 # The User needs to check that the single coupling interval specified   :::
 # here is the same as for the ROMS coupling standard input script       :::
@@ -44,12 +46,12 @@
 # Indian Ocean Application
 
 runSeq::
-  @300                       # timeStep = 5 min interval, single time loop
+  @*                         # timeStep = wildcard (*), single time loop
     DATA -> COAMPS           # DATA to COAMPS connector
     DATA
-    COAMPS -> ROMS           # COAMPS to ROMS connector
     ROMS -> COAMPS           # ROMS to COAMPS connector
-    ROMS
     COAMPS
+    COAMPS -> ROMS           # COAMPS to ROMS connector
+    ROMS
   @
 ::
