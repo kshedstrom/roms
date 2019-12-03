@@ -335,7 +335,7 @@
 !
 !-----------------------------------------------------------------------
 !  If appropriate, convert depth in vertical fractional coordinates to
-!  actual depths in meted (negative: downwards).
+!  actual depths in meters (negative: downwards).
 !-----------------------------------------------------------------------
 !
       obs_work(1:Ndatum(ng))=IniVal

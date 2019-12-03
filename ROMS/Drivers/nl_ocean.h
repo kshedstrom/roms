@@ -250,19 +250,20 @@
 !
 !  Local variable declarations.
 !
-#if defined MODEL_COUPLING && !defined MCT_LIB
-      logical, save :: FirstPass = .TRUE.
-#endif
       integer :: ng
 #if defined MODEL_COUPLING && !defined MCT_LIB
-      integer :: NstrStep, NendStep
+      integer :: NstrStep, NendStep, extra
+!
+      real(dp) :: ENDtime, NEXTtime
 #endif
 !
 !-----------------------------------------------------------------------
-!  Time-step nonlinear model over all nested grids, if applicable.
+!  Time-step nonlinear model over nested grids, if applicable.
 #if defined MODEL_COUPLING && !defined MCT_LIB
-!  On first pass, add a timestep to the coupling interval to account
-!  for ROMS kernel delayed delayed output until next timestep.
+!  Since the ROMS kernel has a delayed output and line diagnostics by
+!  one timestep, subtact an extra value to the report of starting and
+!  ending timestep for clarity. Usually, the model coupling interval
+!  is of the same size as ROMS timestep.
 #endif
 !-----------------------------------------------------------------------
 !
@@ -270,15 +271,16 @@
       IF (Master) WRITE (stdout,'(1x)')
       DO ng=1,Ngrids
 #if defined MODEL_COUPLING && !defined MCT_LIB
+        NEXTtime=time(ng)+RunInterval
+        ENDtime=INItime(ng)+(ntimes(ng)-1)*dt(ng)
+        IF ((NEXTtime.eq.ENDtime).and.(ng.eq.1)) THEN
+          extra=0                                   ! last time interval
+        ELSE
+          extra=1
+        END IF
         step_counter(ng)=0
         NstrStep=iic(ng)
-        IF (FirstPass) THEN
-          NendStep=NstrStep+INT((RunInterval+dt(ng))/dt(ng))
-          IF (ng.eq.1) MyRunInterval=MyRunInterval+dt(ng)
-          FirstPass=.FALSE.
-        ELSE
-          NendStep=NstrStep+INT(MyRunInterval/dt(ng))
-        END IF
+        NendStep=NstrStep+INT((MyRunInterval)/dt(ng))-extra
         IF (Master) WRITE (stdout,10) 'NL', ng, NstrStep, NendStep
 #else
         IF (Master) WRITE (stdout,10) 'NL', ng, ntstart(ng), ntend(ng)
