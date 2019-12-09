@@ -61,9 +61,7 @@
       real(r8) :: df1, df2, Thresh
 # endif
       real(r8) :: misfit(Mobs), uradial(Mobs), vradial(Mobs)
-# ifdef BGQC
       real(r8) :: uBgErr(Mobs), vBgErr(Mobs)
-# endif
 
       character (len=50) :: string
 
@@ -184,7 +182,6 @@
      &                        GRID(ng)%rmask,                           &
 #  endif
      &                        NLmodVal)
-#  ifdef BGQC
           CALL extract_obs2d (ng, 0, Lm(ng)+1, 0, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ObsState2Type(isFsur),                    &
@@ -195,13 +192,12 @@
      &                        ObsType, ObsVetting,                      &
      &                        Tobs, Xobs, Yobs,                         &
      &                        OCEAN(ng)%e_zeta(:,:,1),                  &
-#   ifdef MASKING
+#  ifdef MASKING
      &                        GRID(ng)%rmask,                           &
-#   endif
-     &                        BgErr)
 #  endif
-        END IF
+     &                        BgErr)
 # endif
+        END IF
 # ifdef TLM_OBS
         IF ((wrtTLmod(ng).or.(wrtRPmod(ng))).and.                       &
      &      (FOURDVAR(ng)%ObsCount(isFsur).gt.0)) THEN
@@ -243,7 +239,6 @@
      &                        GRID(ng)%umask,                           &
 #  endif
      &                        NLmodVal)
-#  ifdef BGQC
           CALL extract_obs2d (ng, 1, Lm(ng)+1, 0, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ObsState2Type(isUbar),                    &
@@ -254,11 +249,10 @@
      &                        ObsType, ObsVetting,                      &
      &                        Tobs, Xobs, Yobs,                         &
      &                        OCEAN(ng)%e_ubar(:,:,1),                  &
-#   ifdef MASKING
+#  ifdef MASKING
      &                        GRID(ng)%umask,                           &
-#   endif
-     &                        BgErr)
 #  endif
+     &                        BgErr)
         END IF
 # endif
 # ifdef TLM_OBS
@@ -302,7 +296,6 @@
      &                        GRID(ng)%vmask,                           &
 #  endif
      &                        NLmodVal)
-#  ifdef BGQC
           CALL extract_obs2d (ng, 0, Lm(ng)+1, 1, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj,                       &
      &                        ObsState2Type(isVbar),                    &
@@ -313,11 +306,10 @@
      &                        ObsType, ObsVetting,                      &
      &                        Tobs, Xobs, Yobs,                         &
      &                        OCEAN(ng)%e_vbar(:,:,1),                  &
-#   ifdef MASKING
+#  ifdef MASKING
      &                        GRID(ng)%vmask,                           &
-#   endif
-     &                        BgErr)
 #  endif
+     &                        BgErr)
         END IF
 # endif
 # ifdef TLM_OBS
@@ -372,7 +364,6 @@
      &                        GRID(ng)%umask,                           &
 #   endif
      &                        NLmodVal)
-#   ifdef BGQC
           CALL extract_obs3d (ng, 1, Lm(ng)+1, 0, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        ObsState2Type(isUvel),                    &
@@ -384,11 +375,10 @@
      &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%e_u(:,:,:,1),                   &
      &                        GRID(ng)%z_v,                             &
-#    ifdef MASKING
+#   ifdef MASKING
      &                        GRID(ng)%umask,                           &
-#    endif
-     &                        BgErr)
 #   endif
+     &                        BgErr)
         END IF
 #  endif
 #  ifdef TLM_OBS
@@ -450,7 +440,6 @@
      &                        GRID(ng)%vmask,                           &
 #   endif
      &                        NLmodVal)
-#   ifdef BGQC
           CALL extract_obs3d (ng, 0, Lm(ng)+1, 1, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        ObsState2Type(isVvel),                    &
@@ -462,11 +451,10 @@
      &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%e_v(:,:,:,1),                   &
      &                        GRID(ng)%z_v,                             &
-#    ifdef MASKING
+#   ifdef MASKING
      &                        GRID(ng)%vmask,                           &
-#    endif
-     &                        BgErr)
 #   endif
+     &                        BgErr)
         END IF
 #  endif
 #  ifdef TLM_OBS
@@ -564,34 +552,32 @@
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        ObsState2Type(isRadial),                  &
      &                        Mobs, Mstr, Mend,                         &
-     &                        uXmin(ng)+0.5_r8, uXmax(ng)+0.5_r8,       &
+     &                        uXmin(ng), uXmax(ng),                     &
      &                        uYmin(ng), uYmax(ng),                     &
      &                        time(ng), dt(ng),                         &
      &                        ObsType,  ObsVetting,                     &
-     &                        Tobs, Xobs+0.5_r8, Yobs, Zobs,            &
+     &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%u(:,:,:,NOUT),                  &
      &                        GRID(ng)%z_v,                             &
 #   ifdef MASKING
      &                        GRID(ng)%umask,                           &
 #   endif
      &                        uradial)
-#   ifdef BGQC
             CALL extract_obs3d (ng, 1, Lm(ng)+1, 0, Mm(ng)+1,           &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          ObsState2Type(isRadial),                &
      &                          Mobs, Mstr, Mend,                       &
-     &                          uXmin(ng)+0.5_r8, rXmax(ng)+0.5_r8,     &
+     &                          uXmin(ng), uXmax(ng),                   &
      &                          uYmin(ng), uYmax(ng),                   &
      &                          time(ng), dt(ng),                       &
      &                          ObsType, ObsVetting,                    &
-     &                          Tobs, Xobs+0.5_r8, Yobs, Zobs,          &
+     &                          Tobs, Xobs, Yobs, Zobs,                 &
      &                          OCEAN(ng)%e_u(:,:,:,1),                 &
      &                          GRID(ng)%z_v,                           &
-#    ifdef MASKING
+#   ifdef MASKING
      &                          GRID(ng)%umask,                         &
-#    endif
-     &                          uBgErr)
 #   endif
+     &                          uBgErr)
 !
 !  Radial NLM v-component.
 !
@@ -608,17 +594,16 @@
      &                        ObsState2Type(isRadial),                  &
      &                        Mobs, Mstr, Mend,                         &
      &                        vXmin(ng), vXmax(ng),                     &
-     &                        vYmin(ng)+0.5_r8, vYmax(ng)+0.5_r8,       &
+     &                        vYmin(ng), vYmax(ng),                     &
      &                        time(ng), dt(ng),                         &
      &                        ObsType, ObsVetting,                      &
-     &                        Tobs, Xobs, Yobs+0.5_r8, Zobs,            &
+     &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%v(:,:,:,NOUT),                  &
      &                        GRID(ng)%z_v,                             &
 #   ifdef MASKING
      &                        GRID(ng)%vmask,                           &
 #   endif
      &                        vradial)
-#   ifdef BGQC
           CALL extract_obs3d (ng, 0, Lm(ng)+1, 1, Mm(ng)+1,             &
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        ObsState2Type(isRadial),                  &
@@ -627,14 +612,13 @@
      &                        vYmin(ng), vYmax(ng),                     &
      &                        time(ng), dt(ng),                         &
      &                        ObsType, ObsVetting,                      &
-     &                        Tobs, Xobs, Yobs+0.5_r8, Zobs,            &
+     &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%e_v(:,:,:,1),                   &
      &                        GRID(ng)%z_v,                             &
-#    ifdef MASKING
+#   ifdef MASKING
      &                        GRID(ng)%vmask,                           &
-#    endif
-     &                        vBgErr)
 #   endif
+     &                        vBgErr)
 !
 !  Compute NLM radial velocity.
 !
@@ -659,9 +643,7 @@
      &                       vradial(iobs)*COS(ObsMeta(iobs))
 #    endif
 #   endif
-#   ifdef BGQC
               BgErr(iobs)=MAX(uBgErr(iobs), vBgErr(iobs))
-#   endif
             END IF
           END DO
         END IF
@@ -712,11 +694,11 @@
      &                        LBi, UBi, LBj, UBj, 1, N(ng),             &
      &                        ObsState2Type(isRadial),                  &
      &                        Mobs, Mstr, Mend,                         &
-     &                        uXmin(ng)+0.5_r8, uXmax(ng)+0.5_r8,       &
+     &                        uXmin(ng), uXmax(ng),                     &
      &                        uYmin(ng), uYmax(ng),                     &
      &                        time(ng), dt(ng),                         &
      &                        ObsType,  ObsVetting,                     &
-     &                        Tobs, Xobs+0.5_r8, Yobs, Zobs,            &
+     &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%tl_u(:,:,:,NOUT),               &
      &                        GRID(ng)%z_v,                             &
 #   ifdef MASKING
@@ -739,10 +721,10 @@
      &                        ObsState2Type(isRadial),                  &
      &                        Mobs, Mstr, Mend,                         &
      &                        vXmin(ng), vXmax(ng),                     &
-     &                        vYmin(ng)+0.5_r8, vYmax(ng)+0.5_r8,       &
+     &                        vYmin(ng), vYmax(ng),                     &
      &                        time(ng), dt(ng),                         &
      &                        ObsType, ObsVetting,                      &
-     &                        Tobs, Xobs, Yobs+0.5_r8, Zobs,            &
+     &                        Tobs, Xobs, Yobs, Zobs,                   &
      &                        OCEAN(ng)%tl_v(:,:,:,NOUT),               &
      &                        GRID(ng)%z_v,                             &
 #   ifdef MASKING
@@ -801,7 +783,6 @@
      &                          GRID(ng)%rmask,                         &
 #   endif
      &                          NLmodVal)
-#   ifdef BGQC
             CALL extract_obs3d (ng, 0, Lm(ng)+1, 0, Mm(ng)+1,           &
      &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
      &                          ObsState2Type(isTvar(itrc)),            &
@@ -813,11 +794,10 @@
      &                          Tobs, Xobs, Yobs, Zobs,                 &
      &                          OCEAN(ng)%e_t(:,:,:,1,itrc),            &
      &                          GRID(ng)%z_r,                           &
-#    ifdef MASKING
+#   ifdef MASKING
      &                          GRID(ng)%rmask,                         &
-#    endif
-     &                          BgErr)
 #   endif
+     &                          BgErr)
           END IF
 #  endif
 #  ifdef TLM_OBS
@@ -976,16 +956,14 @@
 #   endif
         END IF
 
-#   ifdef BGQC
         IF (wrtObsScale(ng).and.wrtNLmod(ng)) THEN
           CALL mp_collect (ng, model, Ncollect, IniVal,                 &
 #    if defined WEAK_CONSTRAINT
      &                     BgErr(Mstr:))
-#    else
+#   else
      &                     BgErr)
-#    endif
-        END IF
 #   endif
+        END IF
 #  endif
 
 #  ifdef TLM_OBS
@@ -1060,15 +1038,9 @@
      &                     __FILE__)) RETURN
           END IF
         END IF
+
 #  ifdef BGQC
         IF (wrtObsScale(ng).and.wrtNLmod(ng)) THEN
-          CALL netcdf_put_fvar (ng, model, DAV(ng)%name,                &
-     &                          Vname(1,idBgEr), BgErr(Mstr:),          &
-     &                          (/NstrObs(ng)/), (/Nobs(ng)/),          &
-     &                          ncid = DAV(ng)%ncid,                    &
-     &                          varid = DAV(ng)%Vid(idBgEr))
-          IF (FoundError(exit_flag, NoError, __LINE__,                  &
-     &                   __FILE__)) RETURN
           CALL netcdf_put_fvar (ng, model, DAV(ng)%name,                &
      &                          Vname(1,idBgTh), BgThresh(Mstr:),       &
      &                          (/NstrObs(ng)/), (/Nobs(ng)/),          &
@@ -1078,6 +1050,70 @@
      &                   __FILE__)) RETURN
         END IF
 #  endif
+# endif
+
+# if defined FOUR_DVAR && !defined IS4DVAR_SENSITIVITY
+!
+!-----------------------------------------------------------------------
+!  Write out variables needed to compute Desroziers et al. (2005)
+!  statistics.
+!-----------------------------------------------------------------------
+!
+        IF (wrtNLmod(ng)) THEN
+!
+! 4D-Var background error standard deviation at observation locations.
+!
+          IF (wrtObsScale(ng)) THEN
+            CALL netcdf_put_fvar (ng, model, DAV(ng)%name,              &
+     &                            Vname(1,idBgEr), BgErr(Mstr:),        &
+     &                            (/NstrObs(ng)/), (/Nobs(ng)/),        &
+     &                            ncid = DAV(ng)%ncid,                  &
+     &                            varid = DAV(ng)%Vid(idBgEr))
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                      __FILE__)) RETURN
+          END IF
+!
+!  4D-Var innovation vector: observation minus background. Save initial
+!  background in the innovation vector.
+!
+          IF (Nrun.eq.1) THEN
+            DO iobs=Mstr,Mend
+              innovation(iobs)=ObsVal(iobs)-NLmodVal(iobs)
+              increment(iobs)=NLmodVal(iobs)
+            END DO
+            CALL netcdf_put_fvar (ng, model, DAV(ng)%name,              &
+     &                            Vname(1,idInno), innovation(Mstr:),   &
+     &                            (/NstrObs(ng)/), (/Nobs(ng)/),        &
+     &                            ncid = DAV(ng)%ncid,                  &
+     &                            varid = DAV(ng)%Vid(idInno))
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+!
+!  4D-Var increment (analysis minus background) and residual
+!  (observation minus analysis).
+!
+          IF (outer.eq.Nouter) THEN
+            DO iobs=Mstr,Mend
+              increment(iobs)=NLmodVal(iobs)-increment(iobs)
+              residual(iobs)=ObsVal(iobs)-NLmodVal(iobs)
+            END DO
+            CALL netcdf_put_fvar (ng, model, DAV(ng)%name,              &
+     &                            Vname(1,idIncr), increment(Mstr:),    &
+     &                            (/NstrObs(ng)/), (/Nobs(ng)/),        &
+     &                            ncid = DAV(ng)%ncid,                  &
+     &                            varid = DAV(ng)%Vid(idIncr))
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+            CALL netcdf_put_fvar (ng, model, DAV(ng)%name,              &
+     &                            Vname(1,idResi), residual(Mstr:),     &
+     &                            (/NstrObs(ng)/), (/Nobs(ng)/),        &
+     &                            ncid = DAV(ng)%ncid,                  &
+     &                            varid = DAV(ng)%Vid(idResi))
+            IF (FoundError(exit_flag, NoError, __LINE__,                &
+     &                     __FILE__)) RETURN
+          END IF
+        END IF
 # endif
 !
 !-----------------------------------------------------------------------
