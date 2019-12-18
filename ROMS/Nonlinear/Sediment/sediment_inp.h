@@ -209,7 +209,7 @@
                 DO itrc=1,NCS
                   i=idsed(itrc)
                   ad_tnu4(i,ng)=Rmud(itrc,ng)
-                  nl_tnu4(i,ng)=Rmud(itrc,ng)
+                  tl_tnu4(i,ng)=Rmud(itrc,ng)
                 END DO
               END DO
             CASE ('MUD_Sponge')
