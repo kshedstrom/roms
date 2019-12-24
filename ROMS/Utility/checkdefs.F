@@ -1731,6 +1731,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' M2TIDE_DIFF,'
 #endif
+#ifdef MASK_HACK
+!
+      IF (Master) WRITE (stdout,20) 'MASK_HACK',                        &
+     &   'Land/Sea masking'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' MASK_HACK,'
+#endif
 #ifdef MASKING
 !
       IF (Master) WRITE (stdout,20) 'MASKING',                          &
@@ -2944,6 +2951,15 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+11)=' T_PASSIVE,'
 # endif
+# ifdef TS_HSIMT
+!
+      IF (Master) WRITE (stdout,20) 'TS_HSIMT',                         &
+     &   'Flux corrected HSIMT 3D advection of tracers'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+10)=' TS_HSIMT,'
+      itrcHadv=itrcHadv+1
+      itrcVadv=itrcVadv+1
+# endif
 # if defined TS_MIX_CLIMA && \
     (defined TS_DIF2      || defined TS_DIF4)
 !
@@ -3062,7 +3078,7 @@
 # endif
 # if !(defined TS_MPDATA       || defined TS_A4HADVECTION || \
        defined TS_C2HADVECTION || defined TS_C4HADVECTION || \
-       defined TS_U3HADVECTION)
+       defined TS_U3HADVECTION || defined TS_HSIMT)
 !
       IF (Master) WRITE (stdout,20) 'TS_C4HADVECTION',                  &
      &   'Fourth-order centered horizontal advection of tracers'
@@ -3140,7 +3156,7 @@
 # endif
 # if !(defined TS_MPDATA       || defined TS_A4VADVECTION || \
        defined TS_C2VADVECTION || defined TS_C4VADVECTION || \
-       defined TS_SVADVECTION)
+       defined TS_SVADVECTION  || defined TS_HSIMT)
 !
       IF (Master) WRITE (stdout,20) 'TS_C4VADVECTION',                  &
      &   'Fourth-order centered vertical advection of tracers'

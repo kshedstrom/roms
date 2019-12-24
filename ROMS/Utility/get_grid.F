@@ -209,9 +209,9 @@
         exit_flag=2
         RETURN
       END IF
-#  ifdef BERING_STRAIT
-      IF (.not.find_string(var_name,n_var,'mask2',vindex)) THEN
-        IF (Master) WRITE (stdout,10) 'mask2', TRIM(ncname)
+#  ifdef MASK_HACK
+      IF (.not.find_string(var_name,n_var,'mask3',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask3', TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
@@ -568,7 +568,7 @@
      &                          EWperiodic(ng), NSperiodic(ng),         &
      &                          GRID(ng) % pmask)
 #  endif
-#  ifdef BERING_STRAIT
+#  ifdef MASK_HACK
 !
 !  Read in Land/Sea masking at PSI-points.
 !
