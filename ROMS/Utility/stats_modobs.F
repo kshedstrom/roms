@@ -251,7 +251,7 @@
       IF (FoundError(exit_flag, NoError, __LINE__,                      &
      &               __FILE__)) RETURN
 !
-!  Read in and write out observations total error
+!  Read in and write out observations total error covariance
 !  (instrument + sampling + representation).
 !
       CALL netcdf_get_fvar (ng, iNLM, OBS(ng)%name, Vname(1,idOerr),    &
@@ -335,7 +335,7 @@
 !
 !-----------------------------------------------------------------------
 !  If appropriate, convert depth in vertical fractional coordinates to
-!  actual depths in meted (negative: downwards).
+!  actual depths in meters (negative: downwards).
 !-----------------------------------------------------------------------
 !
       obs_work(1:Ndatum(ng))=IniVal

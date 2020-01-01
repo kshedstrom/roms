@@ -108,9 +108,6 @@
             got_var(idObsZ)=.TRUE.
             OBS(ng)%Vid(idObsZ)=var_id(i)
 # endif
-          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOvar))) THEN
-            got_var(idOvar)=.TRUE.
-            OBS(ng)%Vid(idOvar)=var_id(i)
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idOerr))) THEN
             got_var(idOerr)=.TRUE.
             OBS(ng)%Vid(idOerr)=var_id(i)
@@ -178,12 +175,6 @@
           RETURN
         END IF
 # endif
-        IF (.not.got_var(idOvar)) THEN
-          IF (Master) WRITE (stdout,20) TRIM(Vname(1,idOvar)),          &
-     &                                  TRIM(OBS(ng)%name)
-          exit_flag=2
-          RETURN
-        END IF
         IF (.not.got_var(idOerr)) THEN
           IF (Master) WRITE (stdout,20) TRIM(Vname(1,idOerr)),          &
      &                                  TRIM(OBS(ng)%name)

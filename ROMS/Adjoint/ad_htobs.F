@@ -484,10 +484,10 @@
      &                           ObsState2Type(isRadial),               &
      &                           Mobs, Mstr, Mend,                      &
      &                           vXmin(ng), vXmax(ng),                  &
-     &                           vYmin(ng)+0.5_r8, vYmax(ng)+0.5_r8,    &
+     &                           vYmin(ng), vYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
      &                           ObsType, ObsVetting,                   &
-     &                           Tobs, Xobs, Yobs+0.5_r8, Zobs,         &
+     &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_v, z_v,                              &
 #  ifdef MASKING
      &                           vmask,                                 &
@@ -505,11 +505,11 @@
      &                           LBi, UBi, LBj, UBj, 1, N(ng),          &
      &                           ObsState2Type(isRadial),               &
      &                           Mobs, Mstr, Mend,                      &
-     &                           uXmin(ng)+0.5_r8, uXmax(ng)+0.5_r8,    &
+     &                           uXmin(ng), uXmax(ng),                  &
      &                           uYmin(ng), uYmax(ng),                  &
      &                           time(ng), dt(ng),                      &
      &                           ObsType, ObsVetting,                   &
-     &                           Tobs, Xobs+0.5_r8, Yobs, Zobs,         &
+     &                           Tobs, Xobs, Yobs, Zobs,                &
      &                           f_u, z_v,                              &
 #  ifdef MASKING
      &                           umask,                                 &
