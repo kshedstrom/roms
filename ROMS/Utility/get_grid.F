@@ -212,8 +212,8 @@
         RETURN
       END IF
 #  ifdef MASK_HACK
-      IF (.not.find_string(var_name,n_var,'mask3',vindex)) THEN
-        IF (Master) WRITE (stdout,10) 'mask3', TRIM(ncname)
+      IF (.not.find_string(var_name,n_var,'mask2',vindex)) THEN
+        IF (Master) WRITE (stdout,10) 'mask2', TRIM(ncname)
         exit_flag=2
         RETURN
       END IF
