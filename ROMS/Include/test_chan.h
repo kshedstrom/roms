@@ -29,7 +29,6 @@
 #define ANA_BSFLUX
 #define ANA_SPFLUX
 #define ANA_BPFLUX
-#define TS_U3HADVECTION
 #define ANA_FSOBC
 #define ANA_M2OBC
 #define SEDIMENT

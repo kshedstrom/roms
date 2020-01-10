@@ -869,6 +869,34 @@
 #endif
 
 #ifndef DEBUGGING
+# ifdef SOLVE3D
+!
+!  NLM tracer advection scheme.
+!
+        IF (exit_flag.eq.NoError) THEN
+          CALL tadv_putatt (ng, ncid, ncname, 'NLM_TADV',               &
+     &                      Hadvection, Vadvection, status)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'NLM_TADV', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+
+#  if defined ADJOINT || defined TANGENT || defined TL_IOMS
+        IF (exit_flag.eq.NoError) THEN
+          CALL tadv_putatt (ng, ncid, ncname, 'ADM_TADV',               &
+     &                      ad_Hadvection, ad_Vadvection, status)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__)) THEN
+            IF (Master) WRITE (stdout,20) 'NLM_TADV', TRIM(ncname)
+            exit_flag=3
+            ioerror=status
+          END IF
+        END IF
+#  endif
+# endif
 !
 !  NLM Lateral boundary conditions.
 !

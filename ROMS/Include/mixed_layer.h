@@ -26,7 +26,6 @@
 #define ANA_BTFLUX
 #define ANA_SSFLUX
 #define ANA_BSFLUX
-#define TS_U3HADVECTION
 
 #undef  MY25_MIXING
 #define GLS_MIXING

@@ -20,8 +20,6 @@
 #define DJ_GRADPS
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_U3HADVECTION
-#define TS_SVADVECTION
 #define TS_DIF2
 #define MIX_ISO_TS
 #define SOLVE3D

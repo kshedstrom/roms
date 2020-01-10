@@ -19,8 +19,6 @@
 #define MIX_S_UV
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_U3HADVECTION
-#define TS_C4VADVECTION
 #define TS_DIF4
 #define MIX_S_TS
 #define SALINITY

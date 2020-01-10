@@ -22,7 +22,6 @@
 #undef  UV_COR
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_MPDATA
 #define DJ_GRADPS
 #define FSOBC_REDUCED
 #define SOLVE3D

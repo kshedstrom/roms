@@ -20,9 +20,6 @@
 #define MIX_S_UV
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_U3HADVECTION
-#define TS_C4VADVECTION
-#undef  TS_MPDATA
 #define DJ_GRADPS
 #define TS_DIF2
 #undef  TS_DIF4

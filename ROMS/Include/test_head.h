@@ -22,7 +22,6 @@
 #define OUT_DOUBLE
 #define UV_ADV
 #undef  UV_COR
-#define TS_MPDATA
 #define DJ_GRADPS
 #undef  SALINITY
 #define SOLVE3D

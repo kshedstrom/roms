@@ -16,9 +16,6 @@
 #undef  BODYFORCE
 #undef  LOG_PROFILE
 #define DJ_GRADPS
-#undef  TS_U3HADVECTION
-#undef  TS_C2VADVECTION
-#define TS_MPDATA
 #undef  SALINITY
 #define OUT_DOUBLE
 #define ANA_GRID

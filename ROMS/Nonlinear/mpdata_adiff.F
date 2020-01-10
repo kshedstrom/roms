@@ -2,7 +2,7 @@
 #define MPDATA_HOT
 
       MODULE mpdata_adiff_mod
-#if defined NONLINEAR && defined TS_MPDATA && defined SOLVE3D
+#if defined NONLINEAR && defined SOLVE3D
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===

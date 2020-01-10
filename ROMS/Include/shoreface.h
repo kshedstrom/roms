@@ -22,7 +22,6 @@
 #define NEARSHORE_MELLOR08
 #define OUT_DOUBLE
 #define UV_ADV
-#define TS_MPDATA
 #define DJ_GRADPS
 #define SALINITY
 #define SPLINES_VDIFF

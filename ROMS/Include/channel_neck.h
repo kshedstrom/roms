@@ -26,8 +26,6 @@
 #define UV_VIS2
 #define MIX_GEO_UV
 #define DJ_GRADPS
-#undef  TS_A4HADVECTION
-#undef  TS_A4VADVECTION
 #undef  TS_DIF2
 #undef  MIX_GEO_TS
 #define SOLVE3D

@@ -20,8 +20,6 @@
 #undef  MIX_S_UV
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_A4HADVECTION
-#define TS_A4VADVECTION
 #undef  TS_DIF4
 #undef  MIX_GEO_TS
 #define SOLVE3D

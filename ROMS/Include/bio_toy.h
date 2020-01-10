@@ -20,8 +20,6 @@
 #define DJ_GRADPS
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_U3HADVECTION
-#define TS_C4VADVECTION
 #define SOLAR_SOURCE
 #define NONLIN_EOS
 #define SALINITY

@@ -19,8 +19,6 @@
 #define DJ_GRADPS
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_A4HADVECTION
-#define TS_A4VADVECTION
 #define TS_DIF2
 #define MIX_GEO_TS
 #define NONLIN_EOS
