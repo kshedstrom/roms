@@ -3364,20 +3364,20 @@
             CASE ('FOInameA')
               label='FOIA - adjoint sensitivity functional A'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, FOIA)
+     &                      Ngrids, Nfiles, FOIA)
             CASE ('FOInameB')
               label='FOIB - adjoint sensitivity functional B'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, FOIB)
+     &                      Ngrids, Nfiles, FOIB)
 # endif
             CASE ('FCTnameA')
               label='FCTA - forecast state forward trajectory A'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, FCTA)
+     &                      Ngrids, Nfiles, FCTA)
             CASE ('FCTnameB')
               label='FCTB - forecast state forward trajectory B'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, FCTB)
+     &                      Ngrids, Nfiles, FCTB)
 #endif
             CASE ('NGCNAME')
               DO i=1,LEN(NGCname)
