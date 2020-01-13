@@ -307,7 +307,6 @@ ad_Hadvection == U3                             ! idbio(:), compact
 
 ad_Vadvection == C4                             ! idbio(:), compact
 
-
 ! Set lateral boundary conditions keyword. Notice that a value is expected
 ! for each boundary segment per nested grid for each state variable.
 !
