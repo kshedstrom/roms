@@ -781,6 +781,8 @@
       OPEN (inp, FILE=TRIM(iparnam), FORM='formatted', STATUS='old')
 
       CALL read_IcePar (inp, out, Lwrite)
+      IF (FoundError(exit_flag, NoError, __LINE__,                      &
+     &               __FILE__)) RETURN
 #endif
 #ifdef SEDIMENT
 !
