@@ -3,7 +3,7 @@
 #if defined NEMURO_SAN && defined EGGS_BISECTION
 !
 !================================================== Kate Hedstrom ======
-!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2020 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
