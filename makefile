@@ -498,6 +498,7 @@ ifdef USE_REPRESENTER
 endif
 ifdef USE_SEAICE
  includes +=	ROMS/Nonlinear/SeaIce
+ includes +=	ROMS/SeaIce
 endif
 ifdef USE_TANGENT
  includes +=	ROMS/Tangent \

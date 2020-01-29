@@ -1734,6 +1734,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+13)=' M2TIDE_DIFF,'
 #endif
+#ifdef MASK_HACK
+!
+      IF (Master) WRITE (stdout,20) 'MASK_HACK',                        &
+     &   'Land/Sea masking'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+11)=' MASK_HACK,'
+#endif
 #ifdef MASKING
 !
       IF (Master) WRITE (stdout,20) 'MASKING',                          &
@@ -2992,6 +2999,7 @@
      &   'Further limiter in upwind corrector fluxes for stability'
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+17)=' TS_MPDATA_LIMIT,'
+#  endif
 # endif
 #endif
 #if defined TS_DIF2 && defined SOLVE3D

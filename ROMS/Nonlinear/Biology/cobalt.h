@@ -22,6 +22,9 @@
       USE mod_diags
       USE mod_mixing
       USE shapiro_mod
+# if defined ICE_MODEL || defined CICE_MODEL
+      USE mod_ice
+# endif
 !
 !  Imported variable declarations.
 !
@@ -38,6 +41,9 @@
      &                   LBi, UBi, LBj, UBj, N(ng), NT(ng),             &
      &                   IminS, ImaxS, JminS, JmaxS,                    &
      &                   nstp(ng), nnew(ng),                            &
+#ifdef ICE_MODEL
+     &                   liold(ng),                                     &
+#endif
 #ifdef MASKING
      &                   GRID(ng) % rmask,                              &
 # if defined WET_DRY
@@ -74,6 +80,9 @@
 #endif
 #ifdef COBALT_CARBON
      &                   FORCES(ng) % atmCO2,                           &
+# if defined ICE_MODEL || defined CICE_MODEL
+     &                   ICE(ng) % ai,                                  &
+# endif
 #endif
 #ifdef COBALT_IRON
      &                   FORCES(ng) % soluble_fe,                       &
@@ -113,6 +122,9 @@
      &                         LBi, UBi, LBj, UBj, UBk, UBt,            &
      &                         IminS, ImaxS, JminS, JmaxS,              &
      &                         nstp, nnew,                              &
+#ifdef ICE_MODEL
+     &                         liold,                                   &
+#endif
 #ifdef MASKING
      &                         rmask,                                   &
 # if defined WET_DRY
@@ -143,6 +155,9 @@
 #endif
 #ifdef COBALT_CARBON
      &                         atmCO2,                                  &
+# if defined ICE_MODEL || defined CICE_MODEL
+     &                         ai,                                      &
+# endif
 #endif
 #ifdef COBALT_IRON
      &                         soluble_fe, ironsed,                     &
@@ -193,6 +208,9 @@
       integer, intent(in) :: LBi, UBi, LBj, UBj, UBk, UBt
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
       integer, intent(in) :: nstp, nnew
+#ifdef ICE_MODEL
+      integer, intent(in) :: liold
+#endif
 
 ! RD: cleaning of CPP  keys needed ASSUME_SHAPE, OXYGEN, CARBON !!!
 #ifdef ASSUMED_SHAPE
@@ -232,6 +250,11 @@
 #endif
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:,LBj:)
+#  ifdef ICE_MODEL
+      real(r8), intent(in) :: ai(LBi:,LBj:,:)
+#  elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:,LBj:)
+#  endif
 # endif
 # ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:,LBj:)
@@ -296,6 +319,11 @@
 #endif
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:UBi,LBj:UBj)
+#  if defined ICE_MODEL
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj,2)
+#  elif defined CICE_MODEL
+      real(r8), intent(in) :: ai(LBi:UBi,LBj:UBj)
+#  endif
 # endif
 # ifdef COBALT_IRON
       real(r8), intent(in) :: soluble_fe(LBi:UBi,LBj:UBj)
@@ -771,7 +799,13 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
        ! convert ppmv to partial pressure in atm
        !pCO2atm(i,j)  = atmCO2(i,j) * 1.0e-6
+#ifdef ICE_MODEL
+       pCO2atm  = (1.0 - ai(i,j,liold)) * atmCO2(i,j) * 1.0e-6
+#elif defined CICE_MODEL
+       pCO2atm  = (1.0 - ai(i,j)) * atmCO2(i,j) * 1.0e-6
+#else
        pCO2atm  = atmCO2(i,j) * 1.0e-6
+#endif
        !pCO2surf(i,j) = cobalt%pco2_csurf(i,j) * 1.0e-6
        pCO2surface = cobalt%pco2_csurf(i,j) * 1.0e-6
 
