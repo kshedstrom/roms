@@ -4,7 +4,7 @@
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2019 The ROMS/TOMS Group                         !
+!  Copyright (c) 2002-2020 The ROMS/TOMS Group                         !
 !    Licensed under a MIT/X style license                              !
 !    See License_ROMS.txt                                              !
 !=======================================================================
@@ -632,11 +632,11 @@
             CASE ('OIFnameA')
               label='OIFA - observartion impacts forecast, analysis'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, OIFA)
+     &                      Ngrids, Nfiles, OIFA)
             CASE ('OIFnameB')
               label='OIFB - observartion impacts forecast, background'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &
-     &                      Nfiles, OIFB)
+     &                      Ngrids, Nfiles, OIFB)
 #endif
           END SELECT
         END IF

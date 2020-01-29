@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2020 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -26,7 +26,6 @@
 #define ANA_BTFLUX
 #define ANA_SSFLUX
 #define ANA_BSFLUX
-#define TS_U3HADVECTION
 
 #undef  MY25_MIXING
 #define GLS_MIXING
