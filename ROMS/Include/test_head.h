@@ -1,7 +1,7 @@
 /*
 ** svn $Id$
 *******************************************************************************
-** Copyright (c) 2002-2019 The ROMS/TOMS Group                               **
+** Copyright (c) 2002-2020 The ROMS/TOMS Group                               **
 **   Licensed under a MIT/X style license                                    **
 **   See License_ROMS.txt                                                    **
 *******************************************************************************
@@ -22,7 +22,6 @@
 #define OUT_DOUBLE
 #define UV_ADV
 #undef  UV_COR
-#define TS_MPDATA
 #define DJ_GRADPS
 #undef  SALINITY
 #define SOLVE3D
