@@ -45,7 +45,7 @@
 # include "tile.h"
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 10)
+      CALL wclock_on (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
 
       CALL gather_array(ng, iNLM, LBi, UBi, LBj, UBj,                   &
@@ -82,7 +82,7 @@
      &                   OCEAN(ng)%climcpue)
 !
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 10)
+      CALL wclock_off (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE new_year_fleet

@@ -57,7 +57,7 @@
 # endif
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 10)
+      CALL wclock_on (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
 
 # ifdef DISTRIBUTE
@@ -229,7 +229,7 @@
 # endif
 
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 10)
+      CALL wclock_off (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE new_year

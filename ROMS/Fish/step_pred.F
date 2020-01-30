@@ -46,7 +46,7 @@
       integer, intent(in) :: ng, tile, Lstr, Lend
 !
 # ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 10)
+      CALL wclock_on (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
       CALL step_pred_tile (ng, tile, Lstr, Lend,                        &
      &                       knew(ng), nnew(ng), nfm3(ng), nfm2(ng),    &
@@ -61,7 +61,7 @@
      &                       PREDS(ng) % alive,                         &
      &                       PREDS(ng) % track)
 # ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 10)
+      CALL wclock_off (ng, iNLM, 10, __LINE__, __FILE__)
 # endif
       RETURN
       END SUBROUTINE step_pred

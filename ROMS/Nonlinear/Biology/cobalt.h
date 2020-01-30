@@ -22,9 +22,9 @@
       USE mod_diags
       USE mod_mixing
       USE shapiro_mod
-# if defined ICE_MODEL || defined CICE_MODEL
+#if defined ICE_MODEL || defined CICE_MODEL
       USE mod_ice
-# endif
+#endif
 !
 !  Imported variable declarations.
 !
@@ -191,9 +191,9 @@
       USE shapiro_mod
       USE FMS_ocmip2_co2calc_mod, only : FMS_ocmip2_co2calc, CO2_dope_vector
       USE mod_iounits, only : stdout
-# ifdef SOLVE3D
+#ifdef SOLVE3D
       USE bc_3d_mod
-# endif
+#endif
 
 #ifdef DISTRIBUTE
       USE distribute_mod, ONLY : mp_reduce
@@ -235,19 +235,19 @@
       real(r8), intent(in) :: sustr(LBi:,LBj:)
       real(r8), intent(in) :: svstr(LBi:,LBj:)
 # endif
-#if defined BIO_COBALT_RUNOFF
+# if defined BIO_COBALT_RUNOFF
       real(r8), intent(in) :: river_no3(LBi:,LBj:)
       real(r8), intent(in) :: river_ldon(LBi:,LBj:)
       real(r8), intent(in) :: river_sldon(LBi:,LBj:)
       real(r8), intent(in) :: river_srdon(LBi:,LBj:)
       real(r8), intent(in) :: river_ndet(LBi:,LBj:)
-# ifdef COBALT_PHOSPHORUS
+#  ifdef COBALT_PHOSPHORUS
       real(r8), intent(in) :: river_po4(LBi:,LBj:)
       real(r8), intent(in) :: river_ldop(LBi:,LBj:)
       real(r8), intent(in) :: river_sldop(LBi:,LBj:)
       real(r8), intent(in) :: river_srdop(LBi:,LBj:)
+#  endif
 # endif
-#endif
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:,LBj:)
 #  ifdef ICE_MODEL
@@ -304,19 +304,19 @@
       real(r8), intent(in) :: sustr(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: svstr(LBi:UBi,LBj:UBj)
 # endif
-#if defined BIO_COBALT_RUNOFF
+# if defined BIO_COBALT_RUNOFF
       real(r8), intent(in) :: river_no3(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_ldon(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_sldon(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_srdon(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_ndet(LBi:UBi,LBj:UBj)
-# ifdef COBALT_PHOSPHORUS
+#  ifdef COBALT_PHOSPHORUS
       real(r8), intent(in) :: river_po4(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_ldop(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_sldop(LBi:UBi,LBj:UBj)
       real(r8), intent(in) :: river_srdop(LBi:UBi,LBj:UBj)
+#  endif
 # endif
-#endif
 # ifdef COBALT_CARBON
       real(r8), intent(in) :: atmCO2(LBi:UBi,LBj:UBj)
 #  if defined ICE_MODEL
@@ -695,11 +695,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
            cobalt%f_po4(i,j,k)    = max( t(i,j,k,nstp,ipo4) ,  0.0d0 )
-#else
+# else
            cobalt%f_po4(i,j,k)    = max( tclm(i,j,k,ipo4) ,  0.0d0 )
-#endif
+# endif
            cobalt%f_sio4(i,j,k)   = max( t(i,j,k,nstp,isio4),  0.0d0 )
            cobalt%f_dic(i,j,k)    = max( t(i,j,k,nstp,idic) ,  0.0d0 )
            cobalt%f_alk(i,j,k)    = max( t(i,j,k,nstp,ialk) ,  0.0d0 )
@@ -714,10 +714,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
     cobalt%htotallo(:,:) = cobalt%htotal_scale_lo * cobalt%f_htotal(:,:,k)
     cobalt%htotalhi(:,:) = cobalt%htotal_scale_hi * cobalt%f_htotal(:,:,k)
 
-#ifdef DEBUG_COBALT
+# ifdef DEBUG_COBALT
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(htotal)  =', MINVAL(cobalt%f_htotal(:,:,k)),  MAXVAL(cobalt%f_htotal(:,:,k))
 IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =', MINVAL(cobalt%f_co3_ion(:,:,k)), MAXVAL(cobalt%f_co3_ion(:,:,k))
-#endif
+# endif
 
   CALL FMS_ocmip2_co2calc(CO2_dope_vec,rmask_local,    &
  &       cobalt%f_temp(:,:,k),                         &
@@ -735,15 +735,15 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(co3_ion) =
  &       pCO2surf=cobalt%pco2_csurf(:,:),              &
  &       co3_ion=cobalt%f_co3_ion(:,:,k))
 !
-#ifdef DEBUG_COBALT
+# ifdef DEBUG_COBALT
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(htotal)  =', MINVAL(cobalt%f_htotal(:,:,k)),  MAXVAL(cobalt%f_htotal(:,:,k))
 IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) =', MINVAL(cobalt%f_co3_ion(:,:,k)), MAXVAL(cobalt%f_co3_ion(:,:,k))
-#endif
+# endif
    cobalt%co2_alpha(:,:) = cobalt%co2_alpha(:,:) * rmask_local(:,:)
    cobalt%co2_csurf(:,:) = cobalt%co2_csurf(:,:) * rmask_local(:,:)
    cobalt%pco2_csurf(:,:) = cobalt%pco2_csurf(:,:) * rmask_local(:,:)
 !
-#ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
 ! RD dev notes:
 ! save diagnostics on carbon chemistry
    DO j=Jstr,Jend
@@ -753,7 +753,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j)
      ENDDO
    ENDDO
-#endif
+# endif
 !
 ! RD dev notes : gas transfer for CO2
 ! code adapted from cobalt set_boundary_values
@@ -799,13 +799,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
        ! convert ppmv to partial pressure in atm
        !pCO2atm(i,j)  = atmCO2(i,j) * 1.0e-6
-#ifdef ICE_MODEL
-       pCO2atm  = (1.0 - ai(i,j,liold)) * atmCO2(i,j) * 1.0e-6
-#elif defined CICE_MODEL
-       pCO2atm  = (1.0 - ai(i,j)) * atmCO2(i,j) * 1.0e-6
-#else
        pCO2atm  = atmCO2(i,j) * 1.0e-6
-#endif
        !pCO2surf(i,j) = cobalt%pco2_csurf(i,j) * 1.0e-6
        pCO2surface = cobalt%pco2_csurf(i,j) * 1.0e-6
 
@@ -816,17 +810,23 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! pCO2atm and pCO2surface [atm]
        !airsea_co2_flx(i,j) = co2_piston_vel(i,j) * co2_alpha(i,j) * (pCO2atm(i,j) - pCO2surf(i,j))
        airsea_co2_flx(i,j) = co2_piston_vel * co2_alpha * (pCO2atm - pCO2surface) * rmask_local(i,j)
+!      airsea_co2_flx(i,j) = co2_piston_vel * co2_alpha * (pCO2atm - pCO2surface) * rmask(i,j)
+# ifdef ICE_MODEL
+       airsea_co2_flx(i,j)  = (1.0 - ai(i,j,liold)) * airsea_co2_flx(i,j)
+# elif defined CICE_MODEL
+       airsea_co2_flx(i,j)  = (1.0 - ai(i,j)) * airsea_co2_flx(i,j)
+# endif
 
        ! convert airsea_co2_flx from mol.m-2.s-1 to mol.kg-1.s-1
        airsea_co2_flx(i,j) = airsea_co2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
 
-#ifdef COBALT_CONSERVATION_TEST
+# ifdef COBALT_CONSERVATION_TEST
        airsea_co2_flx(i,j) = 0.0d0
-#endif
+# endif
 
-#ifdef DIAGNOSTICS_BIO
+# ifdef DIAGNOSTICS_BIO
        DiaBio2d(i,j,ico2_flx) = DiaBio2d(i,j,ico2_flx) + airsea_co2_flx(i,j) * n_dt
-#endif
+# endif
      ENDDO
    ENDDO
 
@@ -866,6 +866,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ts4 = ts3 * ts
        ts5 = ts4 * ts
 
+!      o2_saturation = (1000.0/22391.6) * rmask(i,j) *                  & !convert from ml/l to mol m-3
        o2_saturation = (1000.0/22391.6) * rmask_local(i,j) *            & !convert from ml/l to mol m-3
  &           exp( cobalt%a_0 + cobalt%a_1*ts + cobalt%a_2*ts2 +         &
  &           cobalt%a_3*ts3 + cobalt%a_4*ts4 + cobalt%a_5*ts5 +         &
@@ -900,6 +901,11 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! flux is k.(O2sat - [O2]) and is in mol.m-2.s-1
        !airsea_o2_flx(i,j) = o2_piston_vel(i,j) * (o2_saturation - o2_csurf(i,j))
        airsea_o2_flx(i,j) = o2_piston_vel * (o2_saturation - o2_csurf) * rmask_local(i,j)
+# ifdef ICE_MODEL
+       airsea_o2_flx(i,j)  = (1.0 - ai(i,j,liold)) * airsea_o2_flx(i,j)
+# elif defined CICE_MODEL
+       airsea_o2_flx(i,j)  = (1.0 - ai(i,j)) * airsea_o2_flx(i,j)
+# endif
 
        ! convert flux in mol.kg-1.s-1
        airsea_o2_flx(i,j) = airsea_o2_flx(i,j) / cobalt%Rho_0 / Hz(i,j,UBk) * rmask_local(i,j)
@@ -907,12 +913,12 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! don't think I need this now
        !o2_alpha(i,j) = (o2_saturation / 0.21)
 
-#ifdef COBALT_CONSERVATION_TEST
+# ifdef COBALT_CONSERVATION_TEST
         airsea_o2_flx(i,j) = 0.0d0
-#endif
-#ifdef DIAGNOSTICS_BIO
+# endif
+# ifdef DIAGNOSTICS_BIO
         DiaBio2d(i,j,io2_flx) = DiaBio2d(i,j,io2_flx) + airsea_o2_flx(i,j) * n_dt
-#endif
+# endif
      ENDDO
    ENDDO
 
@@ -942,7 +948,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
    ENDDO
    k=overflow
 
-#endif
+#endif /* CARBON */
 
 !   call system_clock(clock1stop)
 !   time_clock1 = elapsed_time(clock1start,clock1stop)
@@ -989,9 +995,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
       cobalt%f_sio4(i,j,k)       = max( t(i,j,k,nstp,isio4),       0.0d0 )
       cobalt%f_silg(i,j,k)       = max( t(i,j,k,nstp,isilg),       0.0d0 )
       cobalt%f_sidet(i,j,k)      = max( t(i,j,k,nstp,isidet),      0.0d0 )
-#ifdef COASTDIAT
+# ifdef COASTDIAT
       cobalt%f_simd(i,j,k)       = max( t(i,j,k,nstp,isimd),       0.0d0 )
-#endif
+# endif
       cobalt%f_cadet_calc(i,j,k) = max( t(i,j,k,nstp,icadet_calc), 0.0d0 )
       cobalt%f_cadet_arag(i,j,k) = max( t(i,j,k,nstp,icadet_arag), 0.0d0 )
       cobalt%f_lith(i,j,k)       = max( t(i,j,k,nstp,ilith),       0.0d0 )
@@ -1021,9 +1027,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
       ! Iron Dynamics
       phyto(SMALL)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifesm),  0.0d0 )
       phyto(DIAZO)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifedi),  0.0d0 )
-#ifdef COASTDIAT
+# ifdef COASTDIAT
       phyto(MEDIUM)%f_fe(i,j,k)  = max( t(i,j,k,nstp,ifemd),  0.0d0 )
-#endif
+# endif
       phyto(LARGE_)%f_fe(i,j,k)   = max( t(i,j,k,nstp,ifelg),  0.0d0 )
       cobalt%f_fed(i,j,k)        = max( t(i,j,k,nstp,ifed),   0.0d0 )
       cobalt%f_fedet(i,j,k)      = max( t(i,j,k,nstp,ifedet), 0.0d0 )
@@ -1103,9 +1109,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
        ! units g/kg/s         = [g.m-2.s-1]     / [kg.m-3] * [m]
 
 #ifdef COBALT_CONSERVATION_TEST
-#ifdef COBALT_IRON
+# ifdef COBALT_IRON
         iron_dust_src(i,j,UBk) = 0.0d0
-#endif
+# endif
         lith_dust_src(i,j,UBk) = 0.0d0
 #endif
 #if defined DIAGNOSTICS_BIO && defined COBALT_IRON
@@ -1128,9 +1134,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #endif
           lith_dust_src(i,j,k) = 0.0d0
 #ifdef COBALT_CONSERVATION_TEST
-#ifdef COBALT_IRON
+# ifdef COBALT_IRON
           iron_dust_src(i,j,k) = 0.0d0
-#endif
+# endif
           lith_dust_src(i,j,k) = 0.0d0
 #endif
 
@@ -1293,9 +1299,9 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
      phyto(DIAZO)%po4lim(:,:,k) = phyto(DIAZO)%po4lim(:,:,k) * rmask_local(:,:)
      phyto(LARGE_)%po4lim(:,:,k) = phyto(LARGE_)%po4lim(:,:,k) * rmask_local(:,:)
      phyto(SMALL)%po4lim(:,:,k) = phyto(SMALL)%po4lim(:,:,k) * rmask_local(:,:)
-# ifdef COASTDIAT
+#ifdef COASTDIAT
      phyto(MEDIUM)%po4lim(:,:,k) = phyto(MEDIUM)%po4lim(:,:,k) * rmask_local(:,:)
-# endif
+#endif
    ENDDO
 
 #ifdef COBALT_IRON
@@ -1340,10 +1346,10 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
      phyto(DIAZO)%felim(:,:,k) = phyto(DIAZO)%felim(:,:,k) * rmask_local(:,:)
      phyto(LARGE_)%felim(:,:,k) = phyto(LARGE_)%felim(:,:,k) * rmask_local(:,:)
      phyto(SMALL)%felim(:,:,k) = phyto(SMALL)%felim(:,:,k) * rmask_local(:,:)
-# ifdef COASTDIAT
+#ifdef COASTDIAT
      phyto(MEDIUM)%def_fe(:,:,k) = phyto(MEDIUM)%def_fe(:,:,k) * rmask_local(:,:)
      phyto(MEDIUM)%felim(:,:,k) = phyto(MEDIUM)%felim(:,:,k) * rmask_local(:,:)
-# endif
+#endif
    ENDDO
 
 !
@@ -4105,11 +4111,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 ! RD :this somehow has to be passed to bt
 
 #ifdef COBALT_IRON
-#ifdef COBALT_CONSERVATION_TEST
+# ifdef COBALT_CONSERVATION_TEST
     cobalt%b_fed(i,j) = - cobalt%f_fedet_btf(i,j,1)
-#else
+# else
     cobalt%b_fed(i,j) = - cobalt%ffe_sed(i,j)
-#endif
+# endif
 #endif
     cobalt%b_nh4(i,j) = (- cobalt%f_ndet_btf(i,j,1) + cobalt%fndet_burial(i,j)) * rmask_local(i,j)
     cobalt%b_no3(i,j) = cobalt%fno3denit_sed(i,j) * rmask_local(i,j)
@@ -4155,7 +4161,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
-#ifdef COASTDIAT
+# ifdef COASTDIAT
          cobalt%f_npp(i,j,k) =   phyto(DIAZO)%juptake_no3(i,j,k) +       &
 &                                phyto(LARGE_)%juptake_no3(i,j,k) +       &
 &                                phyto(MEDIUM)%juptake_no3(i,j,k) +      &
@@ -4165,7 +4171,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                                phyto(MEDIUM)%juptake_nh4(i,j,k) +      &
 &                                phyto(SMALL)%juptake_nh4(i,j,k) +       &
 &                                phyto(DIAZO)%juptake_n2(i,j,k)
-#else
+# else
          cobalt%f_npp(i,j,k) =   phyto(DIAZO)%juptake_no3(i,j,k) +       &
 &                                phyto(LARGE_)%juptake_no3(i,j,k) +       &
 &                                phyto(SMALL)%juptake_no3(i,j,k) +       &
@@ -4173,7 +4179,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 &                                phyto(LARGE_)%juptake_nh4(i,j,k) +       &
 &                                phyto(SMALL)%juptake_nh4(i,j,k) +       &
 &                                phyto(DIAZO)%juptake_n2(i,j,k)
-#endif
+# endif
          ! convert in mgC m-3 day-1
          ! uptake in mol/kg/s, we multiply by 1035 kg/m3 * 86400 s/day *
          ! C/N ratio = 6.625 * Molar Mass Carbon = 12 g/mol * 1000 g/mg
@@ -4222,11 +4228,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       phyto(SMALL)%jzloss_n_100(i,j) = 0.0d0
       phyto(LARGE_)%jzloss_n_100(i,j) = 0.0d0
       phyto(DIAZO)%jzloss_n_100(i,j) = 0.0d0
-#ifdef COASTDIAT
+# ifdef COASTDIAT
       phyto(MEDIUM)%jprod_n_100(i,j) = 0.0d0
       phyto(MEDIUM)%jaggloss_n_100(i,j) = 0.0d0
       phyto(MEDIUM)%jzloss_n_100(i,j) = 0.0d0
-#endif
+# endif
       zoo(1)%jprod_n_100(i,j)    = 0.0d0
       zoo(2)%jprod_n_100(i,j)    = 0.0d0
       zoo(3)%jprod_n_100(i,j)    = 0.0d0
@@ -4259,9 +4265,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          cobalt%juptake_din_100(i,j) = cobalt%juptake_din_100(i,j) +          &
                                        1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
                                      ( phyto(SMALL)%juptake_no3(i,j,k) + phyto(SMALL)%juptake_nh4(i,j,k) + &
-#ifdef COASTDIAT
+# ifdef COASTDIAT
                                        phyto(MEDIUM)%juptake_no3(i,j,k)+ phyto(MEDIUM)%juptake_nh4(i,j,k)+ &
-#endif
+# endif
                                        phyto(LARGE_)%juptake_no3(i,j,k) + phyto(LARGE_)%juptake_nh4(i,j,k) + &
                                        phyto(DIAZO)%juptake_no3(i,j,k) + phyto(DIAZO)%juptake_n2(i,j,k)  + &
                                        phyto(DIAZO)%juptake_nh4(i,j,k) ) * rmask_local(i,j)
@@ -4269,9 +4275,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          cobalt%juptake_no3_n2_100(i,j) = cobalt%juptake_no3_n2_100(i,j) +       &
                                           1035 * 86400 * cobalt%c_2_n * 12 * 1000 * Hz(i,j,k) * &
                                         ( phyto(SMALL)%juptake_no3(i,j,k) +                     &
-#ifdef COASTDIAT
+# ifdef COASTDIAT
                                           phyto(MEDIUM)%juptake_no3(i,j,k)+                     &
-#endif
+# endif
                                           phyto(LARGE_)%juptake_no3(i,j,k) +                     &
                                           phyto(DIAZO)%juptake_no3(i,j,k) +                     &
                                           phyto(DIAZO)%juptake_n2(i,j,k)  ) * rmask_local(i,j)
@@ -4294,11 +4300,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          phyto(SMALL)%jzloss_n_100(i,j)   = phyto(SMALL)%jzloss_n_100(i,j)   + 1035 * phyto(SMALL)%jzloss_n(i,j,k)   * Hz(i,j,k)
          phyto(LARGE_)%jzloss_n_100(i,j)   = phyto(LARGE_)%jzloss_n_100(i,j)   + 1035 * phyto(LARGE_)%jzloss_n(i,j,k)   * Hz(i,j,k)
          phyto(DIAZO)%jzloss_n_100(i,j)   = phyto(DIAZO)%jzloss_n_100(i,j)   + 1035 * phyto(DIAZO)%jzloss_n(i,j,k)   * Hz(i,j,k)
-#ifdef COASTDIAT
+# ifdef COASTDIAT
          phyto(MEDIUM)%jprod_n_100(i,j)    = phyto(MEDIUM)%jprod_n_100(i,j)    + 1035 * phyto(MEDIUM)%jprod_n(i,j,k)    * Hz(i,j,k)
          phyto(MEDIUM)%jaggloss_n_100(i,j) = phyto(MEDIUM)%jaggloss_n_100(i,j) + 1035 * phyto(MEDIUM)%jaggloss_n(i,j,k) * Hz(i,j,k)
          phyto(MEDIUM)%jzloss_n_100(i,j)   = phyto(MEDIUM)%jzloss_n_100(i,j)   + 1035 * phyto(MEDIUM)%jzloss_n(i,j,k)   * Hz(i,j,k)
-#endif
+# endif
          zoo(1)%jprod_n_100(i,j)    = zoo(1)%jprod_n_100(i,j)    + 1035 * zoo(1)%jprod_n(i,j,k)    * Hz(i,j,k)
          zoo(2)%jprod_n_100(i,j)    = zoo(2)%jprod_n_100(i,j)    + 1035 * zoo(2)%jprod_n(i,j,k)    * Hz(i,j,k)
          zoo(3)%jprod_n_100(i,j)    = zoo(3)%jprod_n_100(i,j)    + 1035 * zoo(3)%jprod_n(i,j,k)    * Hz(i,j,k)
@@ -4368,11 +4374,11 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
       DiaBio2d(i,j,iprod_n_100_bact)   = DiaBio2d(i,j,iprod_n_100_bact)   + bact(1)%jprod_n_100(i,j)
       DiaBio2d(i,j,izloss_n_100_bact)  = DiaBio2d(i,j,izloss_n_100_bact)  + bact(1)%jzloss_n_100(i,j)
 
-#ifdef COASTDIAT
+# ifdef COASTDIAT
       DiaBio2d(i,j,iprod_n_100_md)     = DiaBio2d(i,j,iprod_n_100_md)     + phyto(MEDIUM)%jprod_n_100(i,j)
       DiaBio2d(i,j,iaggloss_n_100_md)  = DiaBio2d(i,j,iaggloss_n_100_md)  + phyto(MEDIUM)%jaggloss_n_100(i,j)
       DiaBio2d(i,j,izloss_n_100_md)    = DiaBio2d(i,j,izloss_n_100_md)    + phyto(MEDIUM)%jzloss_n_100(i,j)
-#endif
+# endif
 
       DiaBio2d(i,j,iuptake_din_100)      = DiaBio2d(i,j,iuptake_din_100)    + cobalt%juptake_din_100(i,j)
       DiaBio2d(i,j,iuptake_no3_n2_100)   = DiaBio2d(i,j,iuptake_no3_n2_100) + cobalt%juptake_no3_n2_100(i,j)
@@ -4611,9 +4617,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   cobalt%jpo4(:,:,:) = cobalt%jprod_po4(:,:,:)         -                 &
 &                      phyto(DIAZO)%juptake_po4(:,:,:) -                 &
 &                      phyto(LARGE_)%juptake_po4(:,:,:) -                 &
-#ifdef COASTDIAT
+# ifdef COASTDIAT
 &                      phyto(MEDIUM)%juptake_po4(:,:,:) -                &
-#endif
+# endif
 &                      phyto(SMALL)%juptake_po4(:,:,:)
 #else
   cobalt%jpo4(:,:,:) = 0.0
@@ -5032,10 +5038,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
          DiaBio2d(i,j,io2_btf)         = DiaBio2d(i,j,io2_btf)         + cobalt%b_o2(i,j)
          DiaBio2d(i,j,isio4_btf)       = DiaBio2d(i,j,isio4_btf)       + cobalt%b_sio4(i,j)
          DiaBio2d(i,j,ino3denit_sed)  = DiaBio2d(i,j,ino3denit_sed)    + cobalt%fno3denit_sed(i,j)
-#ifdef COBALT_PHOSPHORUS
+# ifdef COBALT_PHOSPHORUS
          DiaBio2d(i,j,ipo4_btf)        = DiaBio2d(i,j,ipo4_btf)        + cobalt%b_po4(i,j)
          DiaBio2d(i,j,ipdet_btf)       = DiaBio2d(i,j,ipdet_btf)       + cobalt%f_pdet_btf(i,j,1)
-#endif
+# endif
 
       ENDDO
     ENDDO
@@ -5067,10 +5073,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            DiaBio3d(i,j,k,iC_2_chl_sm) = DiaBio3d(i,j,k,iC_2_chl_sm) + phyto(SMALL)%C_2_chl(i,j,k)
            DiaBio3d(i,j,k,ichl_lg)     = DiaBio3d(i,j,k,ichl_lg)     + phyto(LARGE_)%chl(i,j,k)
            DiaBio3d(i,j,k,iC_2_chl_lg) = DiaBio3d(i,j,k,iC_2_chl_lg) + phyto(LARGE_)%C_2_chl(i,j,k)
-#ifdef COASTDIAT
+# ifdef COASTDIAT
            DiaBio3d(i,j,k,ichl_md)     = DiaBio3d(i,j,k,ichl_md)     + phyto(MEDIUM)%chl(i,j,k)
            DiaBio3d(i,j,k,iC_2_chl_md) = DiaBio3d(i,j,k,iC_2_chl_md) + phyto(MEDIUM)%C_2_chl(i,j,k)
-#endif
+# endif
         ENDDO
       ENDDO
     ENDDO
@@ -5114,9 +5120,9 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
            DiaBio3d(i,j,k,ivirloss_di) = DiaBio3d(i,j,k,ivirloss_di) + phyto(DIAZO)%jvirloss_n(i,j,k)  * n_dt
 
            DiaBio3d(i,j,k,izloss_lg)   = DiaBio3d(i,j,k,izloss_lg)   + phyto(LARGE_)%jzloss_n(i,j,k)    * n_dt
-#ifdef COASTDIAT
+# ifdef COASTDIAT
            DiaBio3d(i,j,k,izloss_md)   = DiaBio3d(i,j,k,izloss_md)   + phyto(MEDIUM)%jzloss_n(i,j,k)   * n_dt
-#endif
+# endif
            DiaBio3d(i,j,k,izloss_sm)   = DiaBio3d(i,j,k,izloss_sm)   + phyto(SMALL)%jzloss_n(i,j,k)    * n_dt
            DiaBio3d(i,j,k,izloss_di)   = DiaBio3d(i,j,k,izloss_di)   + phyto(DIAZO)%jzloss_n(i,j,k)    * n_dt
 
@@ -5175,15 +5181,15 @@ DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
     cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
-#ifdef COBALT_NOSOURCE
+# ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
-#endif
+# endif
     ! Biogenic Minerals and Lithogenic Materials
     t(i,j,k,nnew,isio4)       = t(i,j,k,nnew,isio4)       + cobalt%jsio4(i,j,k)       * cff_ts
     t(i,j,k,nnew,isilg)       = t(i,j,k,nnew,isilg)       + cobalt%jsilg(i,j,k)       * cff_ts
-#ifdef COASTDIAT
+# ifdef COASTDIAT
     t(i,j,k,nnew,isimd)       = t(i,j,k,nnew,isimd)       + cobalt%jsimd(i,j,k)       * cff_ts
-#endif
+# endif
     t(i,j,k,nnew,isidet)      = t(i,j,k,nnew,isidet)      + cobalt%jsidet(i,j,k)      * cff_ts
     t(i,j,k,nnew,icadet_calc) = t(i,j,k,nnew,icadet_calc) + cobalt%jcadet_calc(i,j,k) * cff_ts
     t(i,j,k,nnew,icadet_arag) = t(i,j,k,nnew,icadet_arag) + cobalt%jcadet_arag(i,j,k) * cff_ts
@@ -5198,9 +5204,9 @@ DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
     cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
-#ifdef COBALT_NOSOURCE
+# ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
-#endif
+# endif
     ! Phosporus Dynamics
     t(i,j,k,nnew,ildop)  = t(i,j,k,nnew,ildop)  + cobalt%jldop(i,j,k)  * cff_ts
     t(i,j,k,nnew,isldop) = t(i,j,k,nnew,isldop) + cobalt%jsldop(i,j,k) * cff_ts
@@ -5216,15 +5222,15 @@ DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
     cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
-#ifdef COBALT_NOSOURCE
+# ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
-#endif
+# endif
     ! Iron Dynamics
     t(i,j,k,nnew,ifesm)  = t(i,j,k,nnew,ifesm)  + cobalt%jfesm(i,j,k)  * cff_ts
     t(i,j,k,nnew,ifedi)  = t(i,j,k,nnew,ifedi)  + cobalt%jfedi(i,j,k)  * cff_ts
-#ifdef COASTDIAT
+# ifdef COASTDIAT
     t(i,j,k,nnew,ifemd)  = t(i,j,k,nnew,ifemd)  + cobalt%jfemd(i,j,k)  * cff_ts
-#endif
+# endif
     t(i,j,k,nnew,ifelg)  = t(i,j,k,nnew,ifelg)  + cobalt%jfelg(i,j,k)  * cff_ts
     t(i,j,k,nnew,ifed)   = t(i,j,k,nnew,ifed)   + cobalt%jfed(i,j,k)   * cff_ts
     t(i,j,k,nnew,ifedet) = t(i,j,k,nnew,ifedet) + cobalt%jfedet(i,j,k) * cff_ts
@@ -5237,9 +5243,9 @@ DO k=1,UBk
   DO j=Jstr,Jend
     DO i=Istr,Iend
     cff_ts = n_dt * rmask_local(i,j) * Hz(i,j,k)
-#ifdef COBALT_NOSOURCE
+# ifdef COBALT_NOSOURCE
     cff_ts = 0.0d0
-#endif
+# endif
     ! Oxygen, Carbon and Alkalinity
     t(i,j,k,nnew,io2)  = t(i,j,k,nnew,io2)  + cobalt%jo2(i,j,k)  * cff_ts
     t(i,j,k,nnew,idic) = t(i,j,k,nnew,idic) + cobalt%jdic(i,j,k) * cff_ts

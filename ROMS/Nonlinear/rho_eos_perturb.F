@@ -64,7 +64,7 @@
 #  include "tile.h"
 !
 #  ifdef PROFILE
-      CALL wclock_on (ng, iNLM, 14)
+      CALL wclock_on (ng, iNLM, 14, __LINE__, __FILE__)
 #  endif
       CALL rho_eos_perturb_tile (ng, tile,                              &
      &                   LBi, UBi, LBj, UBj,                            &
@@ -99,7 +99,7 @@
      &                   OCEAN(ng) % pden,                              &
      &                   OCEAN(ng) % rho)
 #  ifdef PROFILE
-      CALL wclock_off (ng, iNLM, 14)
+      CALL wclock_off (ng, iNLM, 14, __LINE__, __FILE__)
 #  endif
 
       RETURN
@@ -329,7 +329,7 @@
      &               (k2-k1)
               deltaSz = (t(i,j,k2,nrhs,isalt) - t(i,j,k1,nrhs,isalt))/  &
      &               (k2-k1)
-            END IF 
+            END IF
 !
 !-----------------------------------------------------------------------
 !  Multiply by perturbation
@@ -403,7 +403,7 @@
      &                         den1_pert2,den_pert2)
 !
 !-----------------------------------------------------------------------
-!  Compute Non linear density without perturbations 
+!  Compute Non linear density without perturbations
 !-----------------------------------------------------------------------
 !
             CALL nonlinear_rho(t(i,j,k,nrhs,itemp),                     &
@@ -686,7 +686,7 @@
 #   ifdef SALINITY
       real(r8), intent(in)  :: salt     ! Local
 #   endif
-      real(r8), intent(in)  :: zdepth   ! Local 
+      real(r8), intent(in)  :: zdepth   ! Local
 #   ifdef EOS_TDERIVATIVE
       real(r8), intent(out) :: Ddens1DS,Ddens1DT  ! Local d(dens1)/d(S,T)
       real(r8), intent(out) :: DbulkDS,DbulkDT    ! Local d(bulk)/d(S)

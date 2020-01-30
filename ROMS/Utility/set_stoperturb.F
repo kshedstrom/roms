@@ -55,7 +55,7 @@
 !  Turn on input data time wall clock.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, iNLM, 57)
+      CALL wclock_on (ng, iNLM, 57, __LINE__, __FILE__)
 !
 !-----------------------------------------------------------------------
 !  Get ROMS grid size
@@ -123,7 +123,7 @@
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, iNLM, 57)
+      CALL wclock_off (ng, iNLM, 57, __LINE__, __FILE__)
 
       IF (Master) WRITE(6,*) "RE: (get_pseudo) max( ",                  &
      &       TRIM(Vname(1,ifield)),",t) = ",                            &
@@ -176,7 +176,7 @@
 !  Turn on input data time wall clock.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_on (ng, iNLM, 58)
+      CALL wclock_on (ng, iNLM, 58, __LINE__, __FILE__)
 !
 !-----------------------------------------------------------------------
 !  Get ROMS grid size
@@ -220,7 +220,7 @@
 !  Turn off input data time wall clock.
 !-----------------------------------------------------------------------
 !
-      CALL wclock_off (ng, iNLM, 58)
+      CALL wclock_off (ng, iNLM, 58, __LINE__, __FILE__)
 
 
       END SUBROUTINE get_pseudo2D_delta
