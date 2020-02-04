@@ -3479,8 +3479,6 @@
      &                      Ngrids, Nfiles, FLEET)
 # endif
 #endif
-=======
->>>>>>> kate_svn
             CASE ('GRDNAME')
               label='GRD - application grid'
               Npts=load_s1d(Nval, Cval, Cdim, line, label, igrid,       &

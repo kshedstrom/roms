@@ -373,13 +373,6 @@
       real(r8), allocatable :: Va(:,:,:)
       real(r8), allocatable :: Wa(:,:,:)
 
-# ifdef TS_HSIMT
-       real(r8), dimension(IminS:ImaxS,JminS:JmaxS,0:N(ng)) :: kaz
-       real(r8):: rd,rkad,a1,b1,betad,sw,ru,rkau,betau,epson,cc1,cc2,cc3
-       real(r8):: u_k(LBi:UBi,LBj:UBj)
-       real(r8):: v_k(LBi:UBi,LBj:UBj)
-# endif
-
 # ifdef AGE_DISTRIBUTION
       real(r8) :: fac
 # endif
@@ -1741,9 +1734,7 @@
           END DO
         END DO
 # endif
-# if !defined TS_MPDATA && !defined TS_HSIMT
-#  define SALT_LIMIT
-# endif
+# define SALT_LIMIT
 # ifdef SALT_LIMIT
 !
 !  Apply limiter to salt - and maybe other tracers

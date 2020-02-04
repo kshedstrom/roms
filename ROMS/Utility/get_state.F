@@ -2337,16 +2337,16 @@
      &                               Fmin, Fmax
                 END IF
               END IF
-            END IF
-          ELSE
-            IF (Master) THEN
-              WRITE (stdout,80) string, TRIM(Vname(1,iDobgc(itrc))),    &
-     &                          TRIM(ncname)
-            END IF
-            exit_flag=4
-            IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
-     &                     __FILE__)) THEN
-              RETURN
+            ELSE
+              IF (Master) THEN
+                WRITE (stdout,80) string, TRIM(Vname(1,iDobgc(itrc))),    &
+     &                            TRIM(ncname)
+              END IF
+              exit_flag=4
+              IF (FoundError(exit_flag, nf90_noerr, __LINE__,             &
+     &                       __FILE__)) THEN
+                RETURN
+              END IF
             END IF
           END IF
         END DO

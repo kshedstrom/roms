@@ -19,7 +19,6 @@
 #define DJ_GRADPS
 #define SPLINES_VDIFF
 #define SPLINES_VVISC
-#define TS_MPDATA
 #define SALINITY
 #define SOLVE3D
 #define MASKING

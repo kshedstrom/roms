@@ -2140,13 +2140,6 @@
      &                               (Bio(i,k,indx)-Bio_bak(i,k,indx))* &
      &                               Hz(i,j,k),                         &
      &                               Minval)
-!#ifdef TS_MPDATA
-!              t(i,j,k,3,indx)=t(i,j,k,nnew,indx)*Hz_inv(i,k)
-!#endif
-!
-!             t(i,j,k,nnew,indx)=t(i,j,k,nnew,indx)+                   &
-!     &                (Bio(i,k,indx)-Bio_bak(i,k,indx))*  Hz(i,j,k)
-
             END DO
           END DO
         END DO
