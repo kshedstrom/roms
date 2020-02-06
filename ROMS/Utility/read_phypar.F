@@ -3589,11 +3589,10 @@
 !
 #ifdef UV_VIS4
       ThreeGhostPoints=.TRUE.
-#else
+#endif
       IF (ANY(Hadvection(:,:)%MPDATA)) THEN
         ThreeGhostPoints=.TRUE.
       END IF
-#endif
 !
 !  Check if nesting parameters "NestLayers", "GridsInLayer", and
 !  "GridNumber" have been assigned.  The code below is necessary
