@@ -3590,7 +3590,8 @@
 #ifdef UV_VIS4
       ThreeGhostPoints=.TRUE.
 #endif
-      IF (ANY(Hadvection(:,:)%MPDATA)) THEN
+      IF (ANY(Hadvection(:,:)%MPDATA) .or.                              &
+     &    ANY(Hadvection(:,:)%HSIMT)) THEN
         ThreeGhostPoints=.TRUE.
       END IF
 !
