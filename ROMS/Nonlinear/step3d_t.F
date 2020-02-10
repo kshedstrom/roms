@@ -297,11 +297,13 @@
       real(r8), intent(in) :: z_r(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(in) :: Akt(LBi:UBi,LBj:UBj,0:N(ng),NAT)
       real(r8), intent(in) :: W(LBi:UBi,LBj:UBj,0:N(ng))
+
 #  ifdef DIAGNOSTICS_TS
       real(r8), intent(inout) :: DiaTwrk(LBi:UBi,LBj:UBj,N(ng),NT(ng),  &
      &                                   NDT)
 #  endif
       real(r8), intent(inout) :: t(LBi:UBi,LBj:UBj,N(ng),3,NT(ng))
+
 #  if defined FLOATS && defined FLOAT_VWALK
       real(r8), intent(out) :: dAktdz(LBi:UBi,LBj:UBj,N(ng))
 #  endif
@@ -482,7 +484,6 @@
      &                        EWperiodic(ng), NSperiodic(ng),           &
      &                        t(:,:,:,nnew,itrc))
 # endif
-
         END IF
 !
 !  Compute horizontal tracer advection fluxes.
@@ -851,11 +852,11 @@
                   IF (LtracerSrc(itrc,ng)) THEN
                     FX(Isrc,Jsrc)=Huon(Isrc,Jsrc,k)*                    &
 # ifdef ONE_TRACER_SOURCE
-     &                      SOURCES(ng)%Tsrc(itrc)
+     &                            SOURCES(ng)%Tsrc(itrc)
 # elif defined TWO_D_TRACER_SOURCE
-     &                      SOURCES(ng)%Tsrc(is,itrc)
+     &                            SOURCES(ng)%Tsrc(is,itrc)
 # else
-     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+     &                            SOURCES(ng)%Tsrc(is,k,itrc)
 # endif
 # ifdef MASKING
                   ELSE
@@ -888,11 +889,11 @@
                   IF (LtracerSrc(itrc,ng)) THEN
                     FE(Isrc,Jsrc)=Hvom(Isrc,Jsrc,k)*                    &
 # ifdef ONE_TRACER_SOURCE
-     &                      SOURCES(ng)%Tsrc(itrc)
+     &                            SOURCES(ng)%Tsrc(itrc)
 # elif defined TWO_D_TRACER_SOURCE
-     &                      SOURCES(ng)%Tsrc(is,itrc)
+     &                            SOURCES(ng)%Tsrc(is,itrc)
 # else
-     &                      SOURCES(ng)%Tsrc(is,k,itrc)
+     &                            SOURCES(ng)%Tsrc(is,k,itrc)
 # endif
 # ifdef MASKING
                   ELSE
@@ -1651,16 +1652,22 @@
       DO itp=1,NPT
         itrc=inert(itp)
         DO is=1,Nsrcpt
-          i=Isrcpt(is)
-          j=Jsrcpt(is)
+          Isrc=Isrcpt(is)
+          Jsrc=Jsrcpt(is)
           DO k=1,N(ng)
-#  ifdef TS_MPDATA
-            IF (((Istr-2.le.i).and.(i.le.Iend+2)).and.                  &
-     &          ((Jstr-2.le.j).and.(j.le.Jend+2))) THEN
-#  else
-            IF (((Istr.le.i).and.(i.le.Iend+1)).and.                    &
-     &          ((Jstr.le.j).and.(j.le.Jend))) THEN
-#  endif
+            IF ((Hadvection(itrc,ng)%MPDATA).or.                    &
+     &          (Hadvection(itrc,ng)%HSIMT)) THEN
+              LapplySrc=(IstrUm2.le.Isrc).and.                      &
+     &                  (Isrc.le.Iendp2i).and.                      &
+     &                  (JstrVm2.le.Jsrc).and.                      &
+     &                  (Jsrc.le.Jendp2i)
+            ELSE
+              LapplySrc=(Istr.le.Isrc).and.                         &
+     &                  (Isrc.le.Iend+1).and.                       &
+     &                  (Jstr.le.Jsrc).and.                         &
+     &                  (Jsrc.le.Jend)
+            END IF
+            IF (LapplySrc) THEN
 !
               IF (Lsrcpt(is,itrc)) THEN
                 t(i,j,k,3,itrc)=0.
@@ -1687,8 +1694,8 @@
 !  to the NTCLM fields that need to be processed. This is done to
 !  reduce memory.
 !
-!
       ic=0
+!
       DO itrc=1,NT(ng)
 #endif
 !
