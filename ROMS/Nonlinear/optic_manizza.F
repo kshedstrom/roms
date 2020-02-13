@@ -50,7 +50,7 @@ MODULE optic_manizza_mod
      &                            GRID(ng) % rmask,                     &
 #endif
 #ifdef BIO_COBALT
-     &                            OCEAN(ng) % obgc(:,:,:,nstp,iochl),   &
+     &                            OCEAN(ng) % obgc(:,:,:,iochl),        &
 #else
      &                            FORCES(ng) % chl,                     &
 #endif
@@ -108,14 +108,14 @@ MODULE optic_manizza_mod
 !  Imported variable declarations.
 !
       integer, intent(in) :: ng, tile
-      integer, intent(in) :: LBi, UBi, LBj, UBj 
+      integer, intent(in) :: LBi, UBi, LBj, UBj
       integer, intent(in) :: IminS, ImaxS, JminS, JmaxS
 
       real(r8), intent(in)  :: z_w(LBi:UBi,LBj:UBj,0:N(ng))
 #ifdef MASKING
       real(r8), intent(in)  :: rmask(LBi:UBi,LBj:UBj)
 #endif
-      real(r8), intent(in)  :: chl(LBi:UBi,LBj:UBj,N(ng)) 
+      real(r8), intent(in)  :: chl(LBi:UBi,LBj:UBj,N(ng))
       real(r8), intent(out) :: decayW(LBi:UBi,LBj:UBj,0:N(ng),4)
 !
 !  Local variable declarations.
@@ -258,9 +258,9 @@ MODULE optic_manizza_mod
            ! IR
            decayW(i,j,k,2) = ir_frac * exp( - k_ir * depth_w(i,j,k) )
            ! Blue band
-           decayW(i,j,k,3) = swdk_blue(i,j,k) 
+           decayW(i,j,k,3) = swdk_blue(i,j,k)
            ! Red band
-           decayW(i,j,k,4) = swdk_red(i,j,k) 
+           decayW(i,j,k,4) = swdk_red(i,j,k)
 
            ! Total
            decayW(i,j,k,1) = decayW(i,j,k,2) + decayW(i,j,k,3) + decayW(i,j,k,4)

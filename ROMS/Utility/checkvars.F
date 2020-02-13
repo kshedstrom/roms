@@ -154,14 +154,14 @@
           get_var(idTvar(idbio(itrc)))=.TRUE.
         END DO
 #   if defined BIO_COBALT
-          DO itrc=1,NOBGC
-           get_var(iDobgc(itrc))=.TRUE.
-          END DO
+        DO itrc=1,NOBGC
+          get_var(iDobgc(itrc))=.TRUE.
+        END DO
 #   endif
 #   if defined BENTHIC
-          DO itrc=1,NBeT(ng)
-           get_var(idBeTvar(itrc))=.TRUE.
-          END DO
+        DO itrc=1,NBeT(ng)
+          get_var(idBeTvar(itrc))=.TRUE.
+        END DO
 #   endif
 #  endif
 # endif

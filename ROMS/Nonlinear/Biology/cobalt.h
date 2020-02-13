@@ -273,7 +273,7 @@
 # endif
       real(r8), intent(in)    :: rho(LBi:,LBj:,:)
       real(r8), intent(in)    :: zeta(LBi:,LBj:,:)
-      real(r8), intent(inout) :: obgc(LBi:,LBj:,:,:,:)
+      real(r8), intent(inout) :: obgc(LBi:,LBj:,:,:)
       real(r8), intent(in)    :: tclm(LBi:,LBj:,:,:)
 # ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:,LBj:,:,:,:)
@@ -342,7 +342,7 @@
 # endif
       real(r8), intent(in)    :: rho(LBi:UBi,LBj:UBj,UBk)
       real(r8), intent(in)    :: zeta(LBi:UBi,LBj:UBj,3)
-      real(r8), intent(inout) :: obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) ! RD: not sure it'd work
+      real(r8), intent(inout) :: obgc(LBi:UBi,LBj:UBj,N(ng),NOBGC) ! RD: not sure it'd work
       real(r8), intent(in)    :: tclm(LBi:UBi,LBj:UBj,N(ng),NTCLM) ! RD: not sure it'd work
 # ifdef BENTHIC
       real(r8), intent(inout) :: bt(LBi:UBi,LBj:UBj,NBL(ng),3,UBt) ! RD: not sure it'd work
@@ -650,12 +650,12 @@ IF ( Master ) WRITE(stdout,*) '>>>   --------------- Cobalt debugging prints ---
     DO k=1,UBk
       DO j=Jstr,Jend
         DO i=Istr,Iend
-           phyto(SMALL)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_sm) , 0.0d0 )
-           phyto(DIAZO)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_di) , 0.0d0 )
+           phyto(SMALL)%f_mu_mem(i,j,k) = max( obgc(i,j,k,iomu_mem_sm) , 0.0d0 )
+           phyto(DIAZO)%f_mu_mem(i,j,k) = max( obgc(i,j,k,iomu_mem_di) , 0.0d0 )
 #ifdef COASTDIAT
-           phyto(MEDIUM)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_md) , 0.0d0 )
+           phyto(MEDIUM)%f_mu_mem(i,j,k) = max( obgc(i,j,k,iomu_mem_md) , 0.0d0 )
 #endif
-           phyto(LARGE_)%f_mu_mem(i,j,k) = max( obgc(i,j,k,nstp,iomu_mem_lg) , 0.0d0 )
+           phyto(LARGE_)%f_mu_mem(i,j,k) = max( obgc(i,j,k,iomu_mem_lg) , 0.0d0 )
         ENDDO
       ENDDO
     ENDDO
@@ -682,8 +682,8 @@ IF ( Master ) WRITE(stdout,*) '>>>    Before CALL FMS surface min/max(salt) =', 
        DO k=1,UBk
          DO j=Jstr,Jend
            DO i=Istr,Iend
-              cobalt%f_htotal(i,j,k)  = max( obgc(i,j,k,nstp,iohtotal) , 1.0d-30 )
-              cobalt%f_co3_ion(i,j,k) = max( obgc(i,j,k,nstp,ioco3_ion) , 0.0d0 )
+              cobalt%f_htotal(i,j,k)  = max( obgc(i,j,k,iohtotal) , 1.0d-30 )
+              cobalt%f_co3_ion(i,j,k) = max( obgc(i,j,k,ioco3_ion) , 0.0d0 )
            ENDDO
          ENDDO
        ENDDO
@@ -1090,7 +1090,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
   DO k=1,UBk
     DO j=Jstr,Jend
       DO i=Istr,Iend
-      cobalt%f_irr_mem(i,j,k)      = max( obgc(i,j,k,nstp,ioirr_mem) , 0.0d0 )
+      cobalt%f_irr_mem(i,j,k)      = max( obgc(i,j,k,ioirr_mem) , 0.0d0 )
       ENDDO
     ENDDO
   ENDDO
@@ -4952,15 +4952,15 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   ! RD dev notes : Copy other BGC variables to new step (this array is not passed to dynamics)
   ! RD : Sanity check with values = iic done and successful, array with index nstp is previous step
   DO k=1,UBk ; DO j=Jstr,Jend ; DO i=Istr,Iend
-         obgc(i,j,k,nnew,iochl)          = cobalt%f_chl(i,j,k)
-         obgc(i,j,k,nnew,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
-         obgc(i,j,k,nnew,iohtotal)       = cobalt%f_htotal(i,j,k)
-         obgc(i,j,k,nnew,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_sm)    = phyto(SMALL)%f_mu_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_di)    = phyto(DIAZO)%f_mu_mem(i,j,k)
-         obgc(i,j,k,nnew,iomu_mem_lg)    = phyto(LARGE_)%f_mu_mem(i,j,k)
+         obgc(i,j,k,iochl)          = cobalt%f_chl(i,j,k)
+         obgc(i,j,k,ioco3_ion)      = cobalt%f_co3_ion(i,j,k)
+         obgc(i,j,k,iohtotal)       = cobalt%f_htotal(i,j,k)
+         obgc(i,j,k,ioirr_mem)      = cobalt%f_irr_mem(i,j,k)
+         obgc(i,j,k,iomu_mem_sm)    = phyto(SMALL)%f_mu_mem(i,j,k)
+         obgc(i,j,k,iomu_mem_di)    = phyto(DIAZO)%f_mu_mem(i,j,k)
+         obgc(i,j,k,iomu_mem_lg)    = phyto(LARGE_)%f_mu_mem(i,j,k)
 #ifdef COASTDIAT
-         obgc(i,j,k,nnew,iomu_mem_md)    = phyto(MEDIUM)%f_mu_mem(i,j,k)
+         obgc(i,j,k,iomu_mem_md)    = phyto(MEDIUM)%f_mu_mem(i,j,k)
 #endif
   ENDDO ; ENDDO ; ENDDO
 
@@ -4968,7 +4968,7 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
   DO it=1,NOBGC
      CALL bc_r3d_tile (ng, tile,                                     &
   &                      LBi, UBi, LBj, UBj, 1, UBk,                 &
-  &                      obgc(:,:,:,nnew,it))
+  &                      obgc(:,:,:,it))
   END DO
 
 #ifdef BENTHIC

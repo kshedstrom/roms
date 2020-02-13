@@ -2301,27 +2301,15 @@
      &                          TRIM(Vname(1,iDobgc(itrc))), varid)
             IF (foundit) THEN
               gtype=var_flag(varid)*r3dvar
-              IF (Perfect3D) THEN
-                status=nf_fread4d(ng, IDmod, ncname, ncINPid,           &
-     &                            Vname(1,iDobgc(itrc)), varid,         &
-     &                            InpRec, gtype, Vsize,                 &
-     &                            LBi, UBi, LBj, UBj, 1, N(ng), 1, 2,   &
-     &                            Fscl, Fmin, Fmax,                     &
+              status=nf_fread3d(ng, IDmod, ncname, ncINPid,             &
+     &                          Vname(1,iDobgc(itrc)), varid,           &
+     &                          InpRec, gtype, Vsize,                   &
+     &                          LBi, UBi, LBj, UBj, 1, N(ng),           &
+     &                          Fscl, Fmin, Fmax,                       &
 #   ifdef MASKING
-     &                            GRID(ng) % rmask,                     &
+     &                          GRID(ng) % rmask,                       &
 #   endif
-     &                            OCEAN(ng) % obgc(:,:,:,:,itrc))
-              ELSE
-                status=nf_fread3d(ng, IDmod, ncname, ncINPid,           &
-     &                            Vname(1,iDobgc(itrc)), varid,         &
-     &                            InpRec, gtype, Vsize,                 &
-     &                            LBi, UBi, LBj, UBj, 1, N(ng),         &
-     &                            Fscl, Fmin, Fmax,                     &
-#   ifdef MASKING
-     &                            GRID(ng) % rmask,                     &
-#   endif
-     &                            OCEAN(ng) % obgc(:,:,:,Tindex,itrc))
-              END IF
+     &                          OCEAN(ng) % obgc(:,:,:,itrc))
               IF (FoundError(status, nf90_noerr, __LINE__,              &
      &                       __FILE__)) THEN
                 IF (Master) THEN

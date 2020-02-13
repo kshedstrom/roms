@@ -538,11 +538,12 @@
 #ifdef FILTERED
 # define AVERAGES
 # undef  FILTRIM            /* define for fewer time-filtered fields */
-# if !defined ARCTIC && !defined USE_DEBUG
+# ifndef USE_DEBUG
 #  define FILTERED_RST       /* define if use restart files for time-filtering */
 # endif
-# if defined ARCTIC && defined BIO_COBALT
-#  define FILTERED_RST       /* define if use restart files for time-filtering */
+/* # if defined ARCTIC || defined NGOA */
+# if defined ARCTIC
+#  undef FILTERED_RST       /* define if use restart files for time-filtering */
 # endif
 #endif
 

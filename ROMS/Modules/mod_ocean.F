@@ -128,7 +128,7 @@
           real(r8), pointer :: decayW(:,:,:,:)
 # endif
 # ifdef BIO_COBALT
-          real(r8), pointer :: obgc(:,:,:,:,:)
+          real(r8), pointer :: obgc(:,:,:,:)
 # endif
 # ifdef BENTHIC
           real(r8), pointer :: bt(:,:,:,:,:)
@@ -511,8 +511,8 @@
       Dmem(ng)=Dmem(ng)+REAL(N(ng)+1,r8)*size2d*4.0_r8
 # endif
 # ifdef BIO_COBALT
-      allocate ( OCEAN(ng) % obgc(LBi:UBi,LBj:UBj,N(ng),3,NOBGC) )
-      Dmem(ng)=Dmem(ng)+3.0_r8*REAL(N(ng)*NOBGC,r8)*size2d
+      allocate ( OCEAN(ng) % obgc(LBi:UBi,LBj:UBj,N(ng),NOBGC) )
+      Dmem(ng)=Dmem(ng)+REAL(N(ng)*NOBGC,r8)*size2d
 # endif
 # ifdef BENTHIC
       allocate ( OCEAN(ng) % bt(LBi:UBi,LBj:UBj,NBL(ng),3,NBeT(ng)) )
@@ -1215,9 +1215,9 @@
           DO itrc=1,NOBGC
             DO k=1,N(ng)
               DO i=Imin,Imax
-                OCEAN(ng) % obgc(i,j,k,1,itrc) = IniVal
-                OCEAN(ng) % obgc(i,j,k,2,itrc) = IniVal
-                OCEAN(ng) % obgc(i,j,k,3,itrc) = IniVal
+                OCEAN(ng) % obgc(i,j,k,itrc) = IniVal
+                OCEAN(ng) % obgc(i,j,k,itrc) = IniVal
+                OCEAN(ng) % obgc(i,j,k,itrc) = IniVal
               END DO
             END DO
           END DO

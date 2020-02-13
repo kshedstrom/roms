@@ -1176,7 +1176,7 @@
           Aval(5)=REAL(r3dvar,r8)
           status=def_var(ng,iNLM,RST(ng)%ncid,                        &
    &                     RST(ng)%Vid(iDobgc(itrc)),NF_FOUT,           &
-   &                     nvd4,t3dgrd,Aval,Vinfo,ncname)
+   &                     nvd4,r3dgrd,Aval,Vinfo,ncname)
 
         ENDDO
 

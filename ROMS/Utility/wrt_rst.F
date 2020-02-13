@@ -659,25 +659,14 @@
       DO itrc=1,NOBGC
         scale=1.0_r8
         gtype=gfactor*r3dvar
-# ifdef PERFECT_RESTART
-        status=nf_fwrite4d(ng, iNLM, RST(ng)%ncid,                      &
-     &                     RST(ng)%Vid(iDobgc(itrc)),                   &
-     &                     RST(ng)%Rindex, gtype,                       &
-     &                     LBi, UBi, LBj, UBj, 1, N(ng), 1, 2, scale,   &
-#  ifdef MASKING
-     &                     GRID(ng) % rmask,                            &
-#  endif
-     &                     OCEAN(ng) % obgc(:,:,:,:,itrc))
-# else
         status=nf_fwrite3d(ng, iNLM, RST(ng)%ncid,                      &
                            RST(ng)%Vid(iDobgc(itrc)),                   &
      &                     RST(ng)%Rindex, gtype,                       &
      &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
-#  ifdef MASKING
+# ifdef MASKING
      &                     GRID(ng) % rmask,                            &
-#  endif
-     &                     OCEAN(ng) % obgc(:,:,:,NOUT,itrc))
 # endif
+     &                     OCEAN(ng) % obgc(:,:,:,itrc))
         IF (FoundError(status, nf90_noerr, __LINE__,                    &
      &                 __FILE__)) THEN
           IF (Master) THEN
