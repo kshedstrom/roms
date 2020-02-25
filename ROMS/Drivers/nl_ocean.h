@@ -374,9 +374,9 @@
       IF (exit_flag==1 .or. exit_flag==9) THEN
         DO ng=1,Ngrids
           IF (LwrtRST(ng)) THEN
-            IF (Master) WRITE (stdout,10)
+            IF (Master) WRITE (stdout,10), TRIM(blowup_string)
  10         FORMAT (/,' Blowing-up: Saving latest model state into ',   &
-     &                ' RESTART file',/)
+     &                ' RESTART file',/,'     REASON: ',a,/)
             Fcount=RST(ng)%load
             IF (LcycleRST(ng).and.(RST(ng)%Nrec(Fcount).ge.2)) THEN
               RST(ng)%Rindex=2

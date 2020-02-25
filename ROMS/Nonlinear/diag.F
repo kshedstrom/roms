@@ -204,7 +204,7 @@
       integer :: ii_max, jj_max, kk_max
       real(r8) :: uv_max, ts_min
 
-      character (len=8 ) :: kechar, pechar
+      character (len=8 ) :: kechar, pechar, maxvalchar
       character (len=60) :: frmt
 
 #include "set_bounds.h"
@@ -586,6 +586,7 @@
      &          (kechar(i:i).eq.'n').or.(pechar(i:i).eq.'n').or.        &
      &          (kechar(i:i).eq.'*').or.(pechar(i:i).eq.'*')) THEN
               exit_flag=1
+              blowup_string='KEchar = '//kechar//', PEchar = '//pechar
             END IF
           END DO
 !
@@ -630,6 +631,8 @@
               print *, 'DIAG speed ij ', uv_max, ii_max, jj_max, ng
             END IF
 #endif
+            WRITE (maxvalchar,'(1pe8.1)') maxspeed(ng)
+            blowup_string='MaxSpeed = '//maxvalchar
           END IF
 #ifdef SOLVE3D
 !
@@ -664,6 +667,8 @@
             IF (ts_min .lt. min_temp) THEN
               print *, 'DIAG temp ijk ', ts_min, ii_max, jj_max, kk_max, ng
             END IF
+            WRITE (maxvalchar,'(1pe8.1)') maxrho(ng)
+            blowup_string='MaxDensity = '//maxvalchar
           END IF
 # ifdef BIOLOGY
           DO ibt=1,NBT
