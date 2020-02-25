@@ -372,8 +372,7 @@
 !
 !  Compute reciprocal thickness, 1/Hz.
 !
-      IF (ANY(tl_Vadvection(:,ng)%MPDATA).or.                           &
-     &    ANY(tl_Vadvection(:,ng)%HSIMT)) THEN
+      IF (Lmpdata) THEN
         DO k=1,N(ng)
           DO j=Jstrm2,Jendp2
             DO i=Istrm2,Iendp2
