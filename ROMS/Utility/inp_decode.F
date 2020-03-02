@@ -33,9 +33,11 @@
 !  load_s2d       Processes and loads I/O parameters into 2D derived   !
 !                   type structure, TYPE(T_IO).                        !
 !                                                                      !
+#ifdef SOLVE3D
 !  load_tadv      Processes and loads tracers horizontal and vertical  !
 !                   advection switches into derived type structure,    !
 !                   TYPE(T_ADV).                                       !
+#endif
 !                                                                      !
 !=======================================================================
 !
@@ -2160,6 +2162,7 @@
       RETURN
       END FUNCTION load_s2d
 !
+#ifdef SOLVE3D
       FUNCTION load_tadv (Ninp, Vinp, line, nline, itrc, igrid,         &
      &                    itracer, iTrcStr, iTrcEnd, svname, S)
 !
@@ -2327,5 +2330,6 @@
 !
       RETURN
       END FUNCTION load_tadv
+#endif
 !
       END MODULE inp_decode_mod

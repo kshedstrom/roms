@@ -645,6 +645,7 @@ Hout(idWorb) == 2*F     ! Ub_swan            wave bottom orbital velocity
 Hout(idWdis) == 2*F     ! Wave_dissip        wave dissipation
 
 Hout(idPair) == 2*F     ! Pair               surface air pressure
+Hout(idTair) == 2*F     ! Tair               surface air temperature
 Hout(idUair) == 2*F     ! Uair               surface U-wind component
 Hout(idVair) == 2*F     ! Vair               surface V-wind component
 
@@ -749,6 +750,7 @@ Qout(idWorb) == F       ! Ub_swan            wave bottom orbital velocity
 Qout(idWdis) == F       ! Wave_dissip        wave dissipation
 
 Qout(idPair) == F       ! Pair               surface air pressure
+Qout(idTair) == F       ! Tair               surface air temperature
 Qout(idUair) == F       ! Uair               surface U-wind component
 Qout(idVair) == F       ! Vair               surface V-wind component
 
@@ -821,6 +823,7 @@ Aout(idU3Sd) == 2*F     ! u_stokes           3D U-Stokes velocity
 Aout(idV3Sd) == 2*F     ! v_stokes           3D V-Stokes velocity
 
 Aout(idPair) == 2*F     ! Pair               surface air pressure
+Aout(idTair) == 2*F     ! Tair               surface air temperature
 Aout(idUair) == 2*F     ! Uair               surface U-wind component
 Aout(idVair) == 2*F     ! Vair               surface V-wind component
 
@@ -2501,6 +2504,7 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! Hout(idWdis)   Write out wave dissipation.
 !
 ! Hout(idPair)   Write out surface air pressure.
+! Hout(idTair)   Write out surface air temperature.
 ! Hout(idUair)   Write out surface U-wind component.
 ! Hout(idVair)   Write out surface V-wind component.
 !
@@ -2600,6 +2604,7 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! Qout(idWdis)   Write out wave dissipation.
 !
 ! Qout(idPair)   Write out surface air pressure.
+! Qout(idTair)   Write out surface air temperature.
 ! Qout(idUair)   Write out surface U-wind component.
 ! Qout(idVair)   Write out surface V-wind component.
 !
@@ -2667,6 +2672,7 @@ Dout(iTvdif) == 2*T 2*T ! temp_vdiff, ...    vertical diffusion
 ! Aout(idV3Sd)   Write out 3D V-Stokes velocity.
 !
 ! Aout(idPair)   Write out surface air pressure.
+! Aout(idTair)   Write out surface air temperature.
 ! Aout(idUair)   Write out surface U-wind component.
 ! Aout(idVair)   Write out surface V-wind component.
 !

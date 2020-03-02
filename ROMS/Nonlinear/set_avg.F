@@ -732,6 +732,19 @@
           END DO
         END IF
 #  endif
+#  if defined BULK_FLUXES
+        IF (Aout(idTair,ng)) THEN
+          DO j=JstrR,JendR
+            DO i=IstrR,IendR
+              AVERAGE(ng)%avgTair(i,j)=FORCES(ng)%Tair(i,j)
+#   ifdef WET_DRY
+              AVERAGE(ng)%avgTair(i,j)=AVERAGE(ng)%avgTair(i,j)*        &
+     &                                 GRID(ng)%rmask_full(i,j)
+#   endif
+            END DO
+          END DO
+        END IF
+#  endif
 #  if defined BULK_FLUXES || defined ECOSIM
         IF (Aout(idUair,ng)) THEN
           DO j=JstrR,JendR
