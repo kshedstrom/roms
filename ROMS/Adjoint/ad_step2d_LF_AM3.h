@@ -222,6 +222,7 @@
 !
       USE mod_param
       USE mod_clima
+      USE mod_ncparam
       USE mod_scalars
 # if defined SEDIMENT_NOT_YET && defined SED_MORPH_NOT_YET
       USE mod_sediment

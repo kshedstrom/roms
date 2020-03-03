@@ -1265,17 +1265,17 @@ ad_LBC(isTvar) ==   Per     Per     Per     Per      ! idbio(:), compact
 ! or in nested applications
 !
 !  Hadvection == U3       \                     ! temperature, Grid 1
-!                U3       \                     ! temperature, Grid 2
-!                U3       \                     ! temperature, Grid 3
 !                HSIMT    \                     ! salinity,    Grid 1
+!                U3       \                     ! temperature, Grid 2
 !                HSIMT    \                     ! salinity,    Grid 2
+!                U3       \                     ! temperature, Grid 3
 !                HSIMT                          ! salinity,    Grid 3
 !
 !  Vadvection == C4       \                     ! temperature, Grid 1
-!                C4       \                     ! temperature, Grid 2
-!                C4       \                     ! temperature, Grid 3
 !                HSIMT    \                     ! salinity,    Grid 1
+!                C4       \                     ! temperature, Grid 2
 !                HSIMT    \                     ! salinity,    Grid 2
+!                C4       \                     ! temperature, Grid 3
 !                HSIMT                          ! salinity,    Grid 3
 !
 ! It is convinient to use the compact specification format for biological and
