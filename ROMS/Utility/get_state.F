@@ -3853,6 +3853,13 @@
 # endif
       END IF NLM_STATE
 #endif
+#ifdef FILTERED_RST
+      IF (nrrec(ng).ne.0) THEN
+        DO i=1,FILN
+          CALL get_filter (ng, i)
+        END DO
+      END IF
+#endif
 
 #if defined TANGENT || defined TL_IOMS
 !
@@ -6372,13 +6379,6 @@
         END DO
 # endif
       END IF NRM_STATE
-#endif
-#ifdef FILTERED_RST
-      IF (nrrec(ng).ne.0) THEN
-        DO i=1,FILN
-          CALL get_filter (ng, i)
-        END DO
-      END IF
 #endif
 
 #if defined FORCE_PERTURB

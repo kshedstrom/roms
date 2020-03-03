@@ -464,12 +464,12 @@
         END IF
 #  endif
       END IF
-!     IF (Master) THEN
-!       print *, 'SET_FILTER  nw:',nw,'dtfil',dtfil,'dt',INT(dt(ng))
-!       print *, 'SET_FILTER  nfil:',nfil,'navg',navg,'nfil/nw',nfil/nw
-!       print *, 'SET_FILTER  iic-1:',iic-1
-!       print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
-!     END IF
+      IF (Master) THEN
+        print *, 'SET_FILTER  nw:',nw,'dtfil',dtfil,'dt',INT(dt(ng))
+        print *, 'SET_FILTER  nfil:',nfil,'navg',navg,'nfil/nw',nfil/nw
+        print *, 'SET_FILTER  iic-1:',iic-1
+        print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
+      END IF
       IF (Aout(id2dPV,ng).or.Aout(id2dRV,ng).or.                        &
      &    Aout(id3dPV,ng).or.Aout(id3dRV,ng)) THEN
         CALL vorticity_tile (ng, tile,                                  &
@@ -504,7 +504,7 @@
      &                       potvor, relvor,                            &
 # endif
      &                       potvor_bar, relvor_bar)
-        END IF
+      END IF
       IF ((iic(ng).gt.ntsAVG(ng)).and.                                  &
      &     (MOD(iic(ng)-ntstart(ng),nfil/nw).eq.0).and.                 &
      &    ((iic(ng).ne.ntstart(ng)))) THEN
@@ -521,6 +521,8 @@
                 DO i=IstrR,IendR
                   FILTER(ng)%filzeta(i,j,f)=                            &
      &                                   OCEAN(ng)%zeta(i,j,Kout)*fw(iw)
+             if (i==1 .and. j==1) print *, 'Inside set_filter 1',       &
+     &                FILTER(ng)%filzeta(i,j,f), f
                 END DO
               END DO
             END IF
@@ -1111,6 +1113,8 @@
                   DO i=IstrR,IendR
                     FILTER(ng)%filzeta(i,j,f)=FILTER(ng)%filzeta(i,j,f)+&
      &                               OCEAN(ng)%zeta(i,j,Kout)*fw(iw)
+             if (i==1 .and. j==1) print *, 'Inside set_filter 2',       &
+     &                FILTER(ng)%filzeta(i,j,f), f
                   END DO
                 END DO
               END IF
@@ -1759,6 +1763,8 @@
               DO j=JstrR,JendR
                 DO i=IstrR,IendR
                   AVERAGE(ng)%avgzeta(i,j)=FILTER(ng)%filzeta(i,j,f)
+             if (i==1 .and. j==1) print *, 'Inside set_filter 3',       &
+     &                FILTER(ng)%filzeta(i,j,f), f
                 END DO
               END DO
             END IF
