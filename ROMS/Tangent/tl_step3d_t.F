@@ -318,12 +318,14 @@
 !-----------------------------------------------------------------------
 !  Time-step horizontal advection term.
 !-----------------------------------------------------------------------
+!
+      Lmpdata=ANY(tl_Hadvection(:,ng)%MPDATA).and.                      &
+     &        ANY(tl_Vadvection(:,ng)%MPDATA)
+
 # ifdef TL_SUPPORTED
 !
 !  Allocate local arrays for MPDATA.
 !
-      Lmpdata=ANY(tl_Hadvection(:,ng)%MPDATA).and.                      &
-     &        ANY(tl_Vadvection(:,ng)%MPDATA)
       IF (Lmpdata) THEN
 #  ifdef DIAGNOSTICS_TS
         IF (.not.allocated(Dhadv)) THEN
