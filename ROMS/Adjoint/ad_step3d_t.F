@@ -324,12 +324,14 @@
 !-----------------------------------------------------------------------
 !  Initialize adjoint private variables.
 !-----------------------------------------------------------------------
+!
+      Lmpdata=ANY(ad_Hadvection(:,ng)%MPDATA).and.                      &
+     &        ANY(ad_Vadvection(:,ng)%MPDATA)
+
 # ifdef AD_SUPPORTED
 !
 !  Allocate local arrays for MPDATA.
 !
-      Lmpdata=ANY(ad_Hadvection(:,ng)%MPDATA).and.                      &
-     &        ANY(ad_Vadvection(:,ng)%MPDATA)
       IF (Lmpdata) THEN
 #  ifdef DIAGNOSTICS_TS
         IF (.not.allocated(Dhadv)) THEN

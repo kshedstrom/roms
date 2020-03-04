@@ -3718,14 +3718,6 @@
 !  Process input parameters.
 !-----------------------------------------------------------------------
 !
-!  Set switch for three ghost-points in the halo region.
-!
-      ThreeGhostPoints=ANY(Hadvection(:,:)%MPDATA).or.                  &
-     &                 ANY(Hadvection(:,:)%HSIMT)
-#ifdef UV_VIS4
-      ThreeGhostPoints=.TRUE.
-#endif
-!
 !  Check if nesting parameters "NestLayers", "GridsInLayer", and
 !  "GridNumber" have been assigned.  The code below is necessary
 !  for compatability with old "roms.in" input scripts.
