@@ -264,7 +264,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: LapplySrc, Lmpdata
+      logical :: LapplySrc, Lhsimt, Lmpdata
 !
       integer :: IminT, ImaxT, JminT, JmaxT
       integer :: Isrc, Jsrc
@@ -319,6 +319,8 @@
 !  Time-step horizontal advection term.
 !-----------------------------------------------------------------------
 !
+      Lhsimt =ANY(tl_Hadvection(:,ng)%HSIMT).and.                       &
+     &        ANY(tl_Vadvection(:,ng)%HSIMT)
       Lmpdata=ANY(tl_Hadvection(:,ng)%MPDATA).and.                      &
      &        ANY(tl_Vadvection(:,ng)%MPDATA)
 
@@ -374,7 +376,7 @@
 !
 !  Compute reciprocal thickness, 1/Hz.
 !
-      IF (Lmpdata) THEN
+      IF (Lmpdata.or.Lhsimt) THEN
         DO k=1,N(ng)
           DO j=Jstrm2,Jendp2
             DO i=Istrm2,Iendp2

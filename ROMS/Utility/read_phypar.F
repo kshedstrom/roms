@@ -4152,7 +4152,7 @@
     defined HESSIAN_SV        || defined HESSIAN_SO          || \
     defined HESSIAN_FSV
           WRITE (out,120) Ninner, 'Ninner',                             &
-     &          'Maximun number of 4DVAR inner loop iterations.'
+     &          'Maximum number of 4DVAR inner loop iterations.'
 #endif
 #ifdef STOCHASTIC_OPT
           WRITE (out,120) Nintervals, 'Nintervals',                     &

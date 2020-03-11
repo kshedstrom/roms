@@ -265,7 +265,7 @@
 !
 !  Local variable declarations.
 !
-      logical :: LapplySrc, Lmpdata
+      logical :: LapplySrc, Lhsimt, Lmpdata
 !
       integer :: IminT, ImaxT, JminT, JmaxT
       integer :: Isrc, Jsrc
@@ -325,6 +325,8 @@
 !  Initialize adjoint private variables.
 !-----------------------------------------------------------------------
 !
+      Lhsimt =ANY(ad_Hadvection(:,ng)%HSIMT).and.                       &
+     &        ANY(ad_Vadvection(:,ng)%HSIMT)
       Lmpdata=ANY(ad_Hadvection(:,ng)%MPDATA).and.                      &
      &        ANY(ad_Vadvection(:,ng)%MPDATA)
 
@@ -3031,8 +3033,7 @@
 !
 !  Compute adjoint inverse thickness.
 !
-      IF (ANY(ad_Vadvection(:,ng)%MPDATA).or.                           &
-     &    ANY(ad_Vadvection(:,ng)%HSIMT)) THEN
+      IF (Lmpdata.or.Lhsimt) THEN
         IminT=Istrm2
         ImaxT=Iendp2
         JminT=Jstrm2
