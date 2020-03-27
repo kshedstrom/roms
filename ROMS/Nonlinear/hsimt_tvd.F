@@ -111,7 +111,7 @@
 !  Local variable declarations.
 !
       integer :: i, is, j, k
-	  real(r8) :: cc1,cc2,cc3
+!  real(r8) :: cc1,cc2,cc3
 	  real(r8) :: sl,rl,rkal,a1,b1,betal,sr,rtr,rkar,betar
 	  real(r8) :: sd,rd,rkad,betad,su,ru,rkau,betau,epson
       real(r8), dimension(IminS:ImaxS,JminS:JmaxS) :: kax
@@ -207,7 +207,7 @@
 				FX(i,j)=sr*huon_k(i,j)
 	 		 endif
 #  ifdef MASKING
-			 else 
+			 else
 				 FX(i,j)=0.0_r8
 			 endif
 #  endif
