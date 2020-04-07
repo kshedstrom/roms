@@ -2623,6 +2623,13 @@
       is=LEN_TRIM(Coptions)+1
       Coptions(is:is+15)=' SPLINES_VVISC,'
 #endif
+#ifdef SRELAXATION
+!
+      IF (Master) WRITE (stdout,20) 'SRELAXATION',                      &
+     &   'Surface salinity relaxation as surface flux'
+      is=LEN_TRIM(Coptions)+1
+      Coptions(is:is+13)=' SRELAXATION,'
+#endif
 #if defined SSH_TIDES
 !
       IF (Master) WRITE (stdout,20) 'SSH_TIDES',                        &
