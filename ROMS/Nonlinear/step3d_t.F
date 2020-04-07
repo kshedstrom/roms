@@ -267,7 +267,8 @@
 !
 !  Local variable declarations.
 !
-      logical :: LapplySrc, Lmpdata
+      logical :: LapplySrc, Lhsimt, Lmpdata
+!
 # ifdef NESTING
       integer :: ILB, IUB, JLB, JUB
       integer :: dg, cr, rg
@@ -336,10 +337,13 @@
 !  Time-step horizontal advection term.
 !-----------------------------------------------------------------------
 !
-!  Allocate local arrays for MPDATA.
-!
+      Lhsimt =ANY(Hadvection(:,ng)%HSIMT).and.                          &
+     &        ANY(Vadvection(:,ng)%HSIMT)
       Lmpdata=ANY(Hadvection(:,ng)%MPDATA).and.                         &
      &        ANY(Vadvection(:,ng)%MPDATA)
+!
+!  Allocate local arrays for MPDATA.
+!
       IF (Lmpdata) THEN
 # ifdef DIAGNOSTICS_TS
         IF (.not.allocated(Dhadv)) THEN
@@ -371,7 +375,7 @@
 !
 !  Compute reciprocal thickness, 1/Hz.
 !
-      IF (Lmpdata) THEN
+      IF (Lmpdata.or.Lhsimt) THEN
         DO k=1,N(ng)
           DO j=Jstrm2,Jendp2
             DO i=Istrm2,Iendp2
@@ -1179,7 +1183,8 @@
               Isrc=SOURCES(ng)%Isrc(is)
               Jsrc=SOURCES(ng)%Jsrc(is)
               IF (LtracerSrc(itrc,ng)) THEN
-                IF (Vadvection(itrc,ng)%MPDATA) THEN
+                IF ((Vadvection(itrc,ng)%MPDATA).or.                    &
+     &              (Vadvection(itrc,ng)%HSIMT)) THEN
                   LapplySrc=(IstrUm2.le.Isrc).and.                      &
      &                      (Isrc.le.Iendp2i).and.(j.eq.Jsrc)
                 ELSE

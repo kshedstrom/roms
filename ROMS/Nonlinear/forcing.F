@@ -204,22 +204,6 @@
 
 # else
 !
-!  Tangent linear 2D momentum.
-!
-      DO j=JstrR,JendR
-        DO i=Istr,IendR
-          ubar(i,j,1)=ubar(i,j,1)+f_ubar(i,j)
-          ubar(i,j,2)=ubar(i,j,2)+f_ubar(i,j)
-        END DO
-      END DO
-!
-      DO j=Jstr,JendR
-        DO i=IstrR,IendR
-          vbar(i,j,1)=vbar(i,j,1)+f_vbar(i,j)
-          vbar(i,j,2)=vbar(i,j,2)+f_vbar(i,j)
-        END DO
-      END DO
-!
 !  3D momentum.
 !
       DO k=1,N(ng)

@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#ifdef SOLVE3D
 !
 !svn $Id$
 !================================================== Hernan G. Arango ===
@@ -409,3 +410,8 @@
 !
       RETURN
       END SUBROUTINE tadv_report
+#else
+      SUBROUTINE tadv
+      RETURN
+      END SUBROUTINE tadv
+#endif

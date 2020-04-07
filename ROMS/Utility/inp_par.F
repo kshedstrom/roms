@@ -59,6 +59,8 @@
       real(r8), parameter :: spv = 0.0_r8
       character*2 :: ngnumber
 !
+      SourceFile=__FILE__
+!
 !-----------------------------------------------------------------------
 !  Read in and report input model parameters.
 !-----------------------------------------------------------------------
@@ -204,8 +206,10 @@
 !
 !  Set switch for three ghost-points in the halo region.
 !
+#ifdef SOLVE3D
       ThreeGhostPoints=ANY(Hadvection(:,:)%MPDATA).or.                  &
      &                 ANY(Hadvection(:,:)%HSIMT)
+#endif
 #ifdef UV_VIS4
       ThreeGhostPoints=.TRUE.
 #endif
@@ -887,23 +891,23 @@
 !
       DO ng=1,Ngrids
         DO i=1,NT(ng)
-          tl_Hadvection(i,ng)%AKIMA4    = Hadvection(i,ng)%AKIMA4
-          tl_Hadvection(i,ng)%CENTERED2 = Hadvection(i,ng)%CENTERED2
-          tl_Hadvection(i,ng)%CENTERED4 = Hadvection(i,ng)%CENTERED4
-          tl_Hadvection(i,ng)%HSIMT     = Hadvection(i,ng)%HSIMT
-          tl_Hadvection(i,ng)%MPDATA    = Hadvection(i,ng)%MPDATA
-          tl_Hadvection(i,ng)%SPLINES   = Hadvection(i,ng)%SPLINES
-          tl_Hadvection(i,ng)%SPLIT_U3  = Hadvection(i,ng)%SPLIT_U3
-          tl_Hadvection(i,ng)%UPSTREAM3 = Hadvection(i,ng)%UPSTREAM3
+          tl_Hadvection(i,ng)%AKIMA4    = ad_Hadvection(i,ng)%AKIMA4
+          tl_Hadvection(i,ng)%CENTERED2 = ad_Hadvection(i,ng)%CENTERED2
+          tl_Hadvection(i,ng)%CENTERED4 = ad_Hadvection(i,ng)%CENTERED4
+          tl_Hadvection(i,ng)%HSIMT     = ad_Hadvection(i,ng)%HSIMT
+          tl_Hadvection(i,ng)%MPDATA    = ad_Hadvection(i,ng)%MPDATA
+          tl_Hadvection(i,ng)%SPLINES   = ad_Hadvection(i,ng)%SPLINES
+          tl_Hadvection(i,ng)%SPLIT_U3  = ad_Hadvection(i,ng)%SPLIT_U3
+          tl_Hadvection(i,ng)%UPSTREAM3 = ad_Hadvection(i,ng)%UPSTREAM3
 !
-          tl_Vadvection(i,ng)%AKIMA4    = Vadvection(i,ng)%AKIMA4
-          tl_Vadvection(i,ng)%CENTERED2 = Vadvection(i,ng)%CENTERED2
-          tl_Vadvection(i,ng)%CENTERED4 = Vadvection(i,ng)%CENTERED4
-          tl_Vadvection(i,ng)%HSIMT     = Vadvection(i,ng)%HSIMT
-          tl_Vadvection(i,ng)%MPDATA    = Vadvection(i,ng)%MPDATA
-          tl_Vadvection(i,ng)%SPLINES   = Vadvection(i,ng)%SPLINES
-          tl_Vadvection(i,ng)%SPLIT_U3  = Vadvection(i,ng)%SPLIT_U3
-          tl_Vadvection(i,ng)%UPSTREAM3 = Vadvection(i,ng)%UPSTREAM3
+          tl_Vadvection(i,ng)%AKIMA4    = ad_Vadvection(i,ng)%AKIMA4
+          tl_Vadvection(i,ng)%CENTERED2 = ad_Vadvection(i,ng)%CENTERED2
+          tl_Vadvection(i,ng)%CENTERED4 = ad_Vadvection(i,ng)%CENTERED4
+          tl_Vadvection(i,ng)%HSIMT     = ad_Vadvection(i,ng)%HSIMT
+          tl_Vadvection(i,ng)%MPDATA    = ad_Vadvection(i,ng)%MPDATA
+          tl_Vadvection(i,ng)%SPLINES   = ad_Vadvection(i,ng)%SPLINES
+          tl_Vadvection(i,ng)%SPLIT_U3  = ad_Vadvection(i,ng)%SPLIT_U3
+          tl_Vadvection(i,ng)%UPSTREAM3 = ad_Vadvection(i,ng)%UPSTREAM3
         END DO
       END DO
 #endif

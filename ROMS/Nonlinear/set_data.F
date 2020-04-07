@@ -2621,6 +2621,8 @@
      &                       update)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+
+#  ifndef SOLVE3D
 !
 !  Set 2D momentum forcing.
 !
@@ -2640,7 +2642,7 @@
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
 
-#  ifdef SOLVE3D
+#  else
 !
 !  Set 3D momentum.
 !

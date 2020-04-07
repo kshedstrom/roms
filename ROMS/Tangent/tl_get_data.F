@@ -1368,15 +1368,17 @@
      &                  OCEAN(ng) % f_zetaG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
+
+#   ifndef SOLVE3D
 !
 !  Read 2D momentum forcing.
 !
         CALL get_2dfld (ng, iTLM, idUbtf, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#   ifdef MASKING
+#    ifdef MASKING
      &                  GRID(ng) % umask,                               &
-#   endif
+#    endif
      &                  OCEAN(ng) % f_ubarG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
@@ -1384,14 +1386,13 @@
         CALL get_2dfld (ng, iTLM, idVbtf, TLF(ng)%ncid,                 &
      &                  1, TLF(ng), update(1),                          &
      &                  LBi, UBi, LBj, UBj, 2, 1,                       &
-#   ifdef MASKING
+#     ifdef MASKING
      &                  GRID(ng) % vmask,                               &
-#   endif
+#     endif
      &                  OCEAN(ng) % f_vbarG)
         IF (FoundError(exit_flag, NoError, __LINE__,                    &
      &                 __FILE__)) RETURN
-
-#   ifdef SOLVE3D
+#   else
 !
 !  Read in 3D momentum forcing.
 !
