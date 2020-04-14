@@ -1622,6 +1622,9 @@
               S(ibry,isFsur,igrid)%acquire = .TRUE.
             CASE ('GRA')
               S(ibry,ifield,igrid)%gradient = .TRUE.
+            CASE ('MIX')
+              S(ibry,ifield,igrid)%mixed = .TRUE.
+              S(ibry,ifield,igrid)%acquire = .TRUE.
             CASE ('NES')
               S(ibry,ifield,igrid)%nested = .TRUE.
             CASE ('PER')
