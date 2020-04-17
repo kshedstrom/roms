@@ -53,6 +53,7 @@
 #endif
       integer :: DimIDs(nDimID)
       integer :: t2dgrd(3), u2dgrd(3), v2dgrd(3)
+      integer :: p2dgrd(3)
 
       integer :: def_dim
 
@@ -367,6 +368,21 @@
         v3dgrd(4)=DimIDs(12)
 # endif
 #endif
+
+! JGP add
+!
+!  Define dimension vectors for psi-grid type variables.
+!
+#if defined WRITE_WATER && defined MASKING
+        p2dgrd(1)=DimIDs(18)
+        p2dgrd(2)=DimIDs(12)
+#else
+        p2dgrd(1)=DimIDs( 4)
+        p2dgrd(2)=DimIDs( 8)
+        p2dgrd(3)=DimIDs(12)
+#endif
+! JGP end
+
 #ifdef SOLVE3D
 !
 !  Define dimension vector for staggered w-momentum type variables.
@@ -1430,6 +1446,139 @@
         END IF
 # endif
 #endif
+!
+!  Define Ekman buoyancy flux at PSI-points.
+!
+        IF (Qout(idEBF,ng)) THEN
+          Vinfo( 1)=Vname(1,idEBF)
+          Vinfo( 2)=Vname(2,idEBF)
+          Vinfo( 3)=Vname(3,idEBF)
+          Vinfo(14)=Vname(4,idEBF)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idEBF,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idEBF),   &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define surface strain at PSI-points.
+!
+        IF (Qout(idStr2,ng)) THEN
+          Vinfo( 1)=Vname(1,idStr2)
+          Vinfo( 2)=Vname(2,idStr2)
+          Vinfo( 3)=Vname(3,idStr2)
+          Vinfo(14)=Vname(4,idStr2)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idStr2,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idStr2),   &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define relative vorticity at PSI-points.
+!
+        IF (Qout(idRVsu,ng)) THEN
+          Vinfo( 1)=Vname(1,idRVsu)
+          Vinfo( 2)=Vname(2,idRVsu)
+          Vinfo( 3)=Vname(3,idRVsu)
+          Vinfo(14)=Vname(4,idRVsu)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idRVsu,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idRVsu),   &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define potential vorticity at PSI-points.
+!
+        IF (Qout(idPVsu,ng)) THEN
+          Vinfo( 1)=Vname(1,idPVsu)
+          Vinfo( 2)=Vname(2,idPVsu)
+          Vinfo( 3)=Vname(3,idPVsu)
+          Vinfo(14)=Vname(4,idPVsu)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPVsu,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idPVsu),   &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define potential vorticity at PSI-points, i component.
+!
+        IF (Qout(idPVIsu,ng)) THEN
+          Vinfo( 1)=Vname(1,idPVIsu)
+          Vinfo( 2)=Vname(2,idPVIsu)
+          Vinfo( 3)=Vname(3,idPVIsu)
+          Vinfo(14)=Vname(4,idPVIsu)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPVIsu,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idPVIsu),  &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define potential vorticity at PSI-points, j component.
+!
+        IF (Qout(idPVJsu,ng)) THEN
+          Vinfo( 1)=Vname(1,idPVJsu)
+          Vinfo( 2)=Vname(2,idPVJsu)
+          Vinfo( 3)=Vname(3,idPVJsu)
+          Vinfo(14)=Vname(4,idPVJsu)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPVJsu,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idPVJsu),  &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
+!
+!  Define potential vorticity at PSI-points, k component.
+!
+        IF (Qout(idPVKsu,ng)) THEN
+          Vinfo( 1)=Vname(1,idPVKsu)
+          Vinfo( 2)=Vname(2,idPVKsu)
+          Vinfo( 3)=Vname(3,idPVKsu)
+          Vinfo(14)=Vname(4,idPVKsu)
+          Vinfo(16)=Vname(1,idtime)
+#if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+#endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idPVKsu,ng),r8)
+          status=def_var(ng, iNLM, QCK(ng)%ncid, QCK(ng)%Vid(idPVKsu),  &
+     &                   NF_FOUT, nvd3, p2dgrd, Aval, Vinfo, ncname)
+          IF (FoundError(exit_flag, NoError, __LINE__,                  &
+     &                   __FILE__)) RETURN
+        END IF
 !
 !  Define surface U-momentum stress.
 !
@@ -2990,6 +3139,29 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVsms))) THEN
             got_var(idVsms)=.TRUE.
             QCK(ng)%Vid(idVsms)=var_id(i)
+
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idEBF))) THEN
+            got_var(idEBF)=.TRUE.
+            QCK(ng)%Vid(idEBF)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idStr2))) THEN
+            got_var(idStr2)=.TRUE.
+            QCK(ng)%Vid(idStr2)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idRVsu))) THEN
+            got_var(idRVsu)=.TRUE.
+            QCK(ng)%Vid(idRVsu)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPVsu))) THEN
+            got_var(idPVsu)=.TRUE.
+            QCK(ng)%Vid(idPVsu)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPVIsu))) THEN
+            got_var(idPVIsu)=.TRUE.
+            QCK(ng)%Vid(idPVIsu)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPVJsu))) THEN
+            got_var(idPVJsu)=.TRUE.
+            QCK(ng)%Vid(idPVJsu)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idPVKsu))) THEN
+            got_var(idPVKsu)=.TRUE.
+            QCK(ng)%Vid(idPVKsu)=var_id(i)
+
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idUbms))) THEN
             got_var(idUbms)=.TRUE.
             QCK(ng)%Vid(idUbms)=var_id(i)
@@ -3753,6 +3925,56 @@
           exit_flag=3
           RETURN
         END IF
+
+        IF (.not.got_var(idEBF).and.Qout(idEBF,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idEBF)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+        IF (.not.got_var(idStr2).and.Qout(idStr2,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idStr2)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+        IF (.not.got_var(idRVsu).and.Qout(idRVsu,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idRVsu)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+        IF (.not.got_var(idPVsu).and.Qout(idPVsu,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idPVsu)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+        IF (.not.got_var(idPVIsu).and.Qout(idPVIsu,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idPVIsu)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+                    IF (.not.got_var(idPVJsu).and.Qout(idPVJsu,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idPVJsu)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
+        IF (.not.got_var(idPVKsu).and.Qout(idPVKsu,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idPVKsu)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
         IF (.not.got_var(idUbms).and.Qout(idUbms,ng)) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idUbms)),          &
      &                                  TRIM(ncname)

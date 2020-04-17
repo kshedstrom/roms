@@ -64,6 +64,8 @@
       integer :: b3dgrd(4)
 # endif
       integer :: t3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4)
+      integer :: p3dgrd(4),p2dgrd(3)
+
 # ifdef ADJUST_BOUNDARY
       integer :: t3dobc(5)
 # endif
@@ -389,6 +391,28 @@
         v3dgrd(4)=DimIDs(12)
 # endif
 #endif
+!
+!  Define dimension vector for staggered psi grid.
+!
+#if defined WRITE_WATER && defined MASKING
+        p2dgrd(1)=DimIDs(19)
+        p2dgrd(2)=DimIDs(12)
+# ifdef SOLVE3D
+        p3dgrd(1)=DimIDs(22)
+        p3dgrd(2)=DimIDs(12)
+# endif
+#else
+        p2dgrd(1)=DimIDs( 4)
+        p2dgrd(2)=DimIDs( 8)
+        p2dgrd(3)=DimIDs(12)
+# ifdef SOLVE3D
+        p3dgrd(1)=DimIDs( 4)
+        p3dgrd(2)=DimIDs( 8)
+        p3dgrd(3)=DimIDs( 9)
+        p3dgrd(4)=DimIDs(12)
+# endif
+#endif
+
 #ifdef SOLVE3D
 !
 !  Define dimension vector for staggered w-momentum type variables.
@@ -628,6 +652,99 @@
           IF (FoundError(exit_flag, NoError, __LINE__,                  &
      &                   __FILE__)) RETURN
         END IF
+
+#ifdef SOLVE3D
+!
+!  Define strain on PSI grid.
+!
+        IF (Hout(idStr,ng)) THEN
+          Vinfo( 1)=Vname(1,idStr)
+          Vinfo( 2)=Vname(2,idStr)
+          Vinfo( 3)=Vname(3,idStr)
+          Vinfo(14)=Vname(4,idStr)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,idStr,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idStr),    &
+     &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define potential vorticity on PSI grid.
+!
+        IF (Hout(id3dPV,ng)) THEN
+          Vinfo( 1)=Vname(1,id3dPV)
+          Vinfo( 2)=Vname(2,id3dPV)
+          Vinfo( 3)=Vname(3,id3dPV)
+          Vinfo(14)=Vname(4,id3dPV)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,id3dPV,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(id3dPV),   &
+     &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define i componenent of potential vorticity on PSI grid.
+!
+        IF (Hout(id3dPVI,ng)) THEN
+          Vinfo( 1)=Vname(1,id3dPVI)
+          Vinfo( 2)=Vname(2,id3dPVI)
+          Vinfo( 3)=Vname(3,id3dPVI)
+          Vinfo(14)=Vname(4,id3dPVI)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,id3dPVI,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(id3dPVI),  &
+     &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define j componenent of potential vorticity on PSI grid.
+!
+        IF (Hout(id3dPVJ,ng)) THEN
+          Vinfo( 1)=Vname(1,id3dPVJ)
+          Vinfo( 2)=Vname(2,id3dPVJ)
+          Vinfo( 3)=Vname(3,id3dPVJ)
+          Vinfo(14)=Vname(4,id3dPVJ)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,id3dPVJ,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(id3dPVJ),  &
+     &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+!
+!  Define k componenent of potential vorticity on PSI grid.
+!
+        IF (Hout(id3dPVK,ng)) THEN
+          Vinfo( 1)=Vname(1,id3dPVK)
+          Vinfo( 2)=Vname(2,id3dPVK)
+          Vinfo( 3)=Vname(3,id3dPVK)
+          Vinfo(14)=Vname(4,id3dPVK)
+          Vinfo(16)=Vname(1,idtime)
+# if defined WRITE_WATER && defined MASKING
+          Vinfo(20)='mask_psi'
+# endif
+          Vinfo(22)='coordinates'
+          Aval(5)=REAL(Iinfo(1,id3dPVK,ng),r8)
+          status=def_var(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(id3dPVK),  &
+     &                   NF_FOUT, nvd4, p3dgrd, Aval, Vinfo, ncname)
+          IF (exit_flag.ne.NoError) RETURN
+        END IF
+#endif
 !
 !  Define time-varying depth of W-points.
 !
@@ -3990,6 +4107,23 @@
           ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idVvel))) THEN
             got_var(idVvel)=.TRUE.
             HIS(ng)%Vid(idVvel)=var_id(i)
+
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,idStr))) THEN
+            got_var(idStr)=.TRUE.
+            HIS(ng)%Vid(idStr)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dPV))) THEN
+            got_var(id3dPV)=.TRUE.
+            HIS(ng)%Vid(id3dPV)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dPVI))) THEN
+            got_var(id3dPVI)=.TRUE.
+            HIS(ng)%Vid(id3dPVI)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dPVJ))) THEN
+            got_var(id3dPVJ)=.TRUE.
+            HIS(ng)%Vid(id3dPVJ)=var_id(i)
+          ELSE IF (TRIM(var_name(i)).eq.TRIM(Vname(1,id3dPVK))) THEN
+            got_var(id3dPVK)=.TRUE.
+            HIS(ng)%Vid(id3dPVK)=var_id(i)
+
 # ifdef ADJUST_BOUNDARY
           ELSE IF (TRIM(var_name(i)).eq.                                &
      &             TRIM(Vname(1,idSbry(isUvel)))) THEN
@@ -4606,6 +4740,38 @@
           exit_flag=3
           RETURN
         END IF
+
+        IF (.not.got_var(idStr).and.Hout(idStr,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,idStr)),           &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(id3dPV).and.Hout(id3dPV,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,id3dPV)),          &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(id3dPVI).and.Hout(id3dPVI,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,id3dPVI)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(id3dPVJ).and.Hout(id3dPVJ,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,id3dPVJ)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+        IF (.not.got_var(id3dPVK).and.Hout(id3dPVK,ng)) THEN
+          IF (Master) WRITE (stdout,70) TRIM(Vname(1,id3dPVK)),         &
+     &                                  TRIM(ncname)
+          exit_flag=3
+          RETURN
+        END IF
+
 # ifdef ADJUST_BOUNDARY
         IF (.not.got_var(idSbry(isUvel))) THEN
           IF (Master) WRITE (stdout,70) TRIM(Vname(1,idSbry(isUvel))),  &

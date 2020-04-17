@@ -247,6 +247,7 @@
         integer  :: idOpro        ! observations provenance
         integer  :: idOtyp        ! observations type
         integer  :: idOval        ! observations value
+        integer  :: idOvar        ! observations global variance
         integer  :: idOvel        ! omega vertical velocity
         integer  :: idOclm        ! omega vertical velocity climatology
         integer  :: idQair        ! surface air humidity
@@ -312,6 +313,19 @@
         integer  :: idUads        ! 3D U-velocity adjoint sensitivity
         integer  :: idUair        ! surface U-wind
         integer  :: idUairE       ! surface U-wind
+
+        integer  :: idEBF         ! Ekman buoyancy flux
+        integer  :: idStr2        ! surface strain
+        integer  :: idStr         ! vol strain
+        integer  :: idRVsu        ! surface relative vorticity
+        integer  :: idPVsu        ! surface relative vorticity
+        integer  :: idPVIsu       ! surface relative vorticity, i component
+        integer  :: idPVJsu       ! surface relative vorticity, j component
+        integer  :: idPVKsu       ! surface relative vorticity, k component
+        integer  :: id3dPVK       ! relative vorticity, k component
+        integer  :: id3dPVI       ! relative vorticity, i component
+        integer  :: id3dPVJ       ! relative vorticity, j component
+
         integer  :: idUbar        ! 2D U-velocity
         integer  :: idUbas        ! 2D U-velocity adjoint sensitivity
         integer  :: idUbcl        ! 2D U-velocity climatology
@@ -1389,6 +1403,30 @@
               idUvel=varid
             CASE ('idu3dE')
               idu3dE=varid
+
+            CASE ('idEBF')
+              idEBF=varid
+            CASE ('idStr2')
+              idStr2=varid
+            CASE ('idStr')
+              idStr=varid
+            CASE ('idRVsu')
+              idRVsu=varid
+            CASE ('idPVsu')
+              idPVsu=varid
+            CASE ('idPVIsu')
+              idPVIsu=varid
+            CASE ('idPVJsu')
+              idPVJsu=varid
+            CASE ('idPVKsu')
+              idPVKsu=varid
+            CASE ('id3dPVK')
+              id3dPVK=varid
+            CASE ('id3dPVI')
+              id3dPVI=varid
+            CASE ('id3dPVJ')
+              id3dPVJ=varid
+
             CASE ('idRu3d')
               idRu3d=varid
             CASE ('idVsur')
@@ -2142,6 +2180,8 @@
               idOval=varid
             CASE ('idResi')
               idResi=varid
+            CASE ('idOvar')
+              idOvar=varid
             CASE ('idKhor')
               idKhor=varid
             CASE ('idKver')

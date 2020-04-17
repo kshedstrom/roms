@@ -1934,6 +1934,52 @@
               END IF
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Hout(idDano,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Hout(idStr)')
+              IF (idStr.eq.0) THEN
+                IF (Master) WRITE (out,280) 'idStr'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(idStr,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Hout(id3dPV)')
+              IF (id3dPV.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dPV'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(id3dPV,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Hout(id3dPVK)')
+              IF (id3dPVK.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dPVK'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(id3dPVK,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Hout(id3dPVI)')
+              IF (id3dPVI.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dPVI'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(id3dPVI,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Hout(id3dPVJ)')
+              IF (id3dPVJ.eq.0) THEN
+                IF (Master) WRITE (out,280) 'id3dPVJ'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Hout(id3dPVJ,1:Ngrids)=Lswitch(1:Ngrids)
+
             CASE ('Hout(idVvis)')
               IF (idVvis.eq.0) THEN
                 IF (Master) WRITE (out,280) 'idVvis'
@@ -2103,6 +2149,29 @@
             CASE ('Qout(idpthW)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Qout(idpthW,1:Ngrids)=Lswitch(1:Ngrids)
+
+            CASE ('Qout(idEBF)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idEBF,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idStr2)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idStr2,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idRVsu)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idRVsu,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idPVsu)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idPVsu,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idPVIsu)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idPVIsu,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idPVJsu)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idPVJsu,1:Ngrids)=Lswitch(1:Ngrids)
+            CASE ('Qout(idPVKsu)')
+              Npts=load_l(Nval, Cval, Ngrids, Lswitch)
+              Qout(idPVKsu,1:Ngrids)=Lswitch(1:Ngrids)
+
             CASE ('Qout(idUsms)')
               Npts=load_l(Nval, Cval, Ngrids, Lswitch)
               Qout(idUsms,1:Ngrids)=Lswitch(1:Ngrids)
@@ -3652,6 +3721,29 @@
       END DO
 
 #if defined BULK_FLUXES && defined NL_BULK_FLUXES
+!
+!  Allocate and initialize BLK I/O structure with the same values as
+!  HIS.
+!
+      DO ng=1,Ngrids
+        Nfiles(ng)=MAX(1,HIS(ng)%Nfiles)
+        allocate ( BLK(ng)%Nrec(Nfiles(ng)) )
+        allocate ( BLK(ng)%time_min(Nfiles(ng)) )
+        allocate ( BLK(ng)%time_max(Nfiles(ng)) )
+        allocate ( BLK(ng)%Vid(NV) )
+        allocate ( BLK(ng)%Tid(MT) )
+        allocate ( BLK(ng)%files(Nfiles(ng)) )
+        BLK(ng)%Nfiles=Nfiles(ng)
+        BLK(ng)%Fcount=1
+        BLK(ng)%Rindex=0
+        BLK(ng)%ncid=-1
+        BLK(ng)%Vid(1:NV)=-1
+        BLK(ng)%Tid(1:MT)=-1
+        BLK(ng)%Nrec(1:Nfiles(ng))=0
+        BLK(ng)%time_min(1:Nfiles(ng))=0.0_r8
+        BLK(ng)%time_max(1:Nfiles(ng))=0.0_r8
+        BLK(ng)%label='BLK - nonlinear model bulk fluxes'
+      END DO
 !
 !  Make sure that logical output switches are activated for wind
 !  stress and surface active tracers fluxes when using fluxes from
@@ -5342,6 +5434,27 @@
             IF (Hout(idDano,ng)) WRITE (out,170) Hout(idDano,ng),       &
      &         'Hout(idDano)',                                          &
      &         'Write out density anomaly.'
+
+            IF (Hout(idStr,ng)) WRITE (out,170) Hout(idStr,ng),         &
+     &         'Hout(idStr)',                                           &
+     &         'Write out strain.'
+
+            IF (Hout(id3dPV,ng)) WRITE (out,170) Hout(id3dPV,ng),       &
+     &         'Hout(id3dPV)',                                          &
+     &         'Write out potential vorticity.'
+
+            IF (Hout(id3dPVK,ng)) WRITE (out,170) Hout(id3dPVK,ng),     &
+     &         'Hout(id3dPVK)',                                         &
+     &         'Write out k component of  potential vorticity.'
+
+            IF (Hout(id3dPVJ,ng)) WRITE (out,170) Hout(id3dPVJ,ng),     &
+     &         'Hout(id3dPVJ)',                                         &
+     &         'Write out j component of potential vorticity.'
+
+            IF (Hout(id3dPVI,ng)) WRITE (out,170) Hout(id3dPVI,ng),     &
+     &         'Hout(id3dPVI)',                                         &
+     &         'Write out i component of  potential vorticity.'
+
             IF (Hout(idVvis,ng)) WRITE (out,170) Hout(idVvis,ng),       &
      &         'Hout(idVvis)',                                          &
      &         'Write out vertical viscosity: AKv.'
@@ -5449,6 +5562,29 @@
      &         'Qout(idpthW)',                                          &
      &         'Write out time-varying dephts of W-points.'
 #endif
+
+            IF (Qout(idEBF,ng)) WRITE (out,170) Qout(idEBF,ng),        &
+     &         'Qout(idEBF)',                                          &
+     &         'Write out Ekman buoyancy flux.'
+            IF (Qout(idStr2,ng)) WRITE (out,170) Qout(idStr2,ng),      &
+     &         'Qout(idStr2)',                                         &
+     &         'Write out surface strain.'
+            IF (Qout(idRVsu,ng)) WRITE (out,170) Qout(idRVsu,ng),      &
+     &         'Qout(idRVsu)',                                         &
+     &         'Write out surface relative vorticity.'
+            IF (Qout(idPVsu,ng)) WRITE (out,170) Qout(idPVsu,ng),      &
+     &         'Qout(idPVsu)',                                         &
+     &         'Write out surface potential vorticity.'
+            IF (Qout(idPVIsu,ng)) WRITE (out,170) Qout(idPVIsu,ng),    &
+     &         'Qout(idPVIsu)',                                        &
+     &         'Write out surface potential vorticity, i component.'
+            IF (Qout(idPVJsu,ng)) WRITE (out,170) Qout(idPVJsu,ng),    &
+     &         'Qout(idPVJsu)',                                        &
+     &         'Write out surface potential vorticity, j component.'
+            IF (Qout(idPVKsu,ng)) WRITE (out,170) Qout(idPVKsu,ng),    &
+     &         'Qout(idPVKsu)',                                        &
+     &         'Write out surface potential vorticity, k component.'
+
             IF (Qout(idUsms,ng)) WRITE (out,170) Qout(idUsms,ng),       &
      &         'Qout(idUsms)',                                          &
      &         'Write out surface U-momentum stress.'

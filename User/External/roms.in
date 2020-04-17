@@ -658,6 +658,12 @@ Hout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Hout(idMtke) == F       ! tke                turbulent kinetic energy
 Hout(idMtls) == F       ! gls                turbulent length scale
 
+Hout(idStr) == T        ! strain             strain
+Hout(id3dPV) == T       ! pvor               potential vorticity
+Hout(id3dPVI) == T      ! pvorti             i component of potential vorticity
+Hout(id3dPVJ) == T      ! pvortj             j component of potential vorticity
+Hout(id3dPVK) == T      ! pvortk             k component of potential vorticity
+
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the HISTORY
 ! output file. An inert passive tracer is one that it is only advected and
@@ -764,6 +770,14 @@ Qout(idHsbl) == F       ! Hsbl               depth of surface boundary layer
 Qout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Qout(idMtke) == F       ! tke                turbulent kinetic energy
 Qout(idMtls) == F       ! gls                turbulent length scale
+
+Qout(idEBF)  == T       ! EBF                Ekman buoyancy flux
+Qout(idStr2) == T       ! strain_sur         surface strain
+Qout(idRVsu) == T       ! rvort_sur          surface relative vorticity
+Qout(idPVsu) == T       ! pvort_sur          surface potential vorticity
+Qout(idPVIsu) == T      ! pvorti_sur         surface potential vorticity, i component
+Qout(idPVJsu) == T      ! pvortj_sur         surface potential vorticity, j component
+Qout(idPVKsu) == T      ! pvortk_sur         surface potential vorticity, k component
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the QUICKSAVE
