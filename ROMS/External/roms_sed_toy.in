@@ -197,8 +197,6 @@ ad_Vadvection == C4       \                     ! temperature
    LBC(isHice) ==   Per     Per     Per     Per         ! ice thickness
    LBC(isHsno) ==   Per     Per     Per     Per         ! snow thickness
    LBC(isTice) ==   Per     Per     Per     Per         ! ice temperature
-   LBC(isApond)==   Per     Per     Per     Per         ! surface water
-   LBC(isHpond)==   Per     Per     Per     Per         ! surface water
    LBC(isSig11)==   Per     Per     Per     Per         ! sigma-11
    LBC(isSig12)==   Per     Per     Per     Per         ! sigma-12
    LBC(isSig22)==   Per     Per     Per     Per         ! sigma-22

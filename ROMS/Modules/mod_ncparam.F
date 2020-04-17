@@ -431,8 +431,6 @@
         integer  :: idWio          ! ice growth/melt rate
         integer  :: idWro          ! ice pond runoff
         integer  :: idWdiv         ! ice advective change
-        integer  :: idApond        ! surface melt water fraction on ice
-        integer  :: idHpond        ! surface melt water thickness on ice
         integer  :: idAgeice       ! age of sea ice (time since formation)
         integer  :: idIomflx       ! ice-ocean mass flux
         integer  :: idWg2d         ! wind gustiness from NCEP
@@ -566,8 +564,6 @@
         integer  :: isHice                    ! ice thickness
         integer  :: isHsno                    ! snow thickness
         integer  :: isTice                    ! ice temperature
-        integer  :: isApond                   ! melt pond fraction
-        integer  :: isHpond                   ! melt pond depth
         integer  :: isSig11                   ! ice 11-stress
         integer  :: isSig12                   ! ice 12-stress
         integer  :: isSig22                   ! ice 22-stress
@@ -1177,12 +1173,10 @@
       isHice=ic+4
       isTice=ic+5
       isHsno=ic+6
-      isApond=ic+7
-      isHpond=ic+8
-      isSig11=ic+9
-      isSig12=ic+10
-      isSig22=ic+11
-      ic=ic+11
+      isSig11=ic+7
+      isSig12=ic+8
+      isSig22=ic+9
+      ic=ic+9
 #endif
       isWvel=ic+1
 !
@@ -2228,10 +2222,6 @@
                 idWro=varid
               CASE ('idWdiv')
                 idWdiv=varid
-              CASE ('idApond')
-                idApond=varid
-              CASE ('idHpond')
-                idHpond=varid
               CASE ('idAgeice')
                 idAgeice=varid
               CASE ('idIomflx')
@@ -3192,15 +3182,13 @@
       idBvar(ic)=idMtke
 # endif
 # if defined ICE_MODEL
-      ic=ic+11
+      ic=ic+9
       idBvar(isUice)=idUice
       idBvar(isVice)=idVice
       idBvar(isAice)=idAice
       idBvar(isHice)=idHice
       idBvar(isTice)=idTice
       idBvar(isHsno)=idHsno
-      idBvar(isApond)=idApond
-      idBvar(isHpond)=idHpond
       idBvar(isSig11)=idSig11
       idBvar(isSig12)=idSig12
       idBvar(isSig22)=idSig22

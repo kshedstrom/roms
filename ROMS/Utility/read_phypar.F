@@ -486,12 +486,6 @@
             CASE ('LBC(isHsno)')
               Npts=load_lbc(Nval, Cval, line, nline, isHsno, igrid,     &
      &                      0, 0, Vname(1,idHsno), LBC)
-            CASE ('LBC(isApond)')
-              Npts=load_lbc(Nval, Cval, line, nline, isApond, igrid,    &
-     &                      0, 0, Vname(1,idApond), LBC)
-            CASE ('LBC(isHpond)')
-              Npts=load_lbc(Nval, Cval, line, nline, isHpond, igrid,    &
-     &                      0, 0, Vname(1,idHpond), LBC)
             CASE ('LBC(isSig11)')
               Npts=load_lbc(Nval, Cval, line, nline, isSig11, igrid,    &
      &                      0, 0, Vname(1,idSig11), LBC)

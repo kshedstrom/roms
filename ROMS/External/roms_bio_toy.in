@@ -197,8 +197,6 @@ ad_Vadvection == C4       \                     ! temperature
    LBC(isHice) ==   Per     Per     Per     Per         ! ice thickness
    LBC(isHsno) ==   Per     Per     Per     Per         ! snow thickness
    LBC(isTice) ==   Per     Per     Per     Per         ! ice temperature
-   LBC(isApond)==   Per     Per     Per     Per         ! surface water
-   LBC(isHpond)==   Per     Per     Per     Per         ! surface water
    LBC(isSig11)==   Per     Per     Per     Per         ! sigma-11
    LBC(isSig12)==   Per     Per     Per     Per         ! sigma-12
    LBC(isSig22)==   Per     Per     Per     Per         ! sigma-22
@@ -1337,8 +1335,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !  LBC(isHice) Ice thickness,     [1:4, Ngrids] values are expected.
 !  LBC(isHsno) Snow thickness,    [1:4, Ngrids] values are expected.
 !  LBC(isTice) Ice temperature,   [1:4, Ngrids] values are expected.
-!  LBC(isApond)Surface water,     [1:4, Ngrids] values are expected.
-!  LBC(isHpond)Surface water,     [1:4, Ngrids] values are expected.
 !  LBC(isSig11)Sigma-11,          [1:4, Ngrids] values are expected.
 !  LBC(isSig12)Sigma-12,          [1:4, Ngrids] values are expected.
 !  LBC(isSig22)Sigma-22,          [1:4, Ngrids] values are expected.
