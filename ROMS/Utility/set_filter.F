@@ -464,12 +464,12 @@
         END IF
 #  endif
       END IF
-      IF (Master) THEN
-        print *, 'SET_FILTER  nw:',nw,'dtfil',dtfil,'dt',INT(dt(ng))
-        print *, 'SET_FILTER  nfil:',nfil,'navg',navg,'nfil/nw',nfil/nw
-        print *, 'SET_FILTER  iic-1:',iic-1
-        print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
-      END IF
+!     IF (Master) THEN
+!       print *, 'SET_FILTER  nw:',nw,'dtfil',dtfil,'dt',INT(dt(ng))
+!       print *, 'SET_FILTER  nfil:',nfil,'navg',navg,'nfil/nw',nfil/nw
+!       print *, 'SET_FILTER  iic-1:',iic-1
+!       print *, 'SET_FILTER  ntstart:',ntstart,'nrrec',nrrec
+!     END IF
       IF (Aout(id2dPV,ng).or.Aout(id2dRV,ng).or.                        &
      &    Aout(id3dPV,ng).or.Aout(id3dRV,ng)) THEN
         CALL vorticity_tile (ng, tile,                                  &

@@ -154,7 +154,7 @@ endif
           LDFLAGS := $(FFLAGS)
 
 ifdef USE_NETCDF4
-        NF_CONFIG ?= /import/home/kshedstrom/bin/nf-config
+        NF_CONFIG ?= /import/home/kshedstrom/gnu_8.3/bin/nf-config
     NETCDF_INCDIR ?= $(shell $(NF_CONFIG) --prefix)/include
              LIBS += $(shell $(NF_CONFIG) --flibs)
            INCDIR += $(NETCDF_INCDIR) $(INCDIR)
