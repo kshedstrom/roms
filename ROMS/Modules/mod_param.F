@@ -1139,7 +1139,7 @@
       nLBCvar=nLBCvar+1
 # endif
 # ifdef ICE_MODEL
-      nLBCvar=nLBCvar+11
+      nLBCvar=nLBCvar+9
 # endif
 #else
       nLBCvar=3

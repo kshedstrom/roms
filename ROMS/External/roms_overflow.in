@@ -196,8 +196,6 @@ ad_Vadvection == C4       \                     ! temperature
    LBC(isHice) ==   Clo     Clo     Clo     Clo         ! ice thickness
    LBC(isHsno) ==   Clo     Clo     Clo     Clo         ! snow thickness
    LBC(isTice) ==   Clo     Clo     Clo     Clo         ! ice temperature
-   LBC(isApond)==   Clo     Clo     Clo     Clo         ! surface water
-   LBC(isHpond)==   Clo     Clo     Clo     Clo         ! surface water
    LBC(isSig11)==   Clo     Clo     Clo     Clo         ! sigma-11
    LBC(isSig12)==   Clo     Clo     Clo     Clo         ! sigma-12
    LBC(isSig22)==   Clo     Clo     Clo     Clo         ! sigma-22
@@ -653,6 +651,12 @@ Hout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Hout(idMtke) == F       ! tke                turbulent kinetic energy
 Hout(idMtls) == F       ! gls                turbulent length scale
 
+Hout(idStr) == T        ! strain             strain
+Hout(id3dPV) == T       ! pvor               potential vorticity
+Hout(id3dPVI) == T      ! pvorti             i component of potential vorticity
+Hout(id3dPVJ) == T      ! pvortj             j component of potential vorticity
+Hout(id3dPVK) == T      ! pvortk             k component of potential vorticity
+
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the HISTORY
 ! output file. An inert passive tracer is one that it is only advected and
@@ -757,6 +761,14 @@ Qout(idHsbl) == F       ! Hsbl               depth of surface boundary layer
 Qout(idHbbl) == F       ! Hbbl               depth of bottom boundary layer
 Qout(idMtke) == F       ! tke                turbulent kinetic energy
 Qout(idMtls) == F       ! gls                turbulent length scale
+
+Qout(idEBF)  == T       ! EBF                Ekman buoyancy flux
+Qout(idStr2) == T       ! strain_sur         surface strain
+Qout(idRVsu) == T       ! rvort_sur          surface relative vorticity
+Qout(idPVsu) == T       ! pvort_sur          surface potential vorticity
+Qout(idPVIsu) == T      ! pvorti_sur         surface potential vorticity, i component
+Qout(idPVJsu) == T      ! pvortj_sur         surface potential vorticity, j component
+Qout(idPVKsu) == T      ! pvortk_sur         surface potential vorticity, k component
 
 ! Logical switches (TRUE/FALSE) to activate writing of extra inert passive
 ! tracers other than biological and sediment tracers into the QUICKSAVE
@@ -1328,8 +1340,6 @@ Dout(iTvdif) == T T     ! temp_vdiff, ...    vertical diffusion
 !  LBC(isHice) Ice thickness,     [1:4, Ngrids] values are expected.
 !  LBC(isHsno) Snow thickness,    [1:4, Ngrids] values are expected.
 !  LBC(isTice) Ice temperature,   [1:4, Ngrids] values are expected.
-!  LBC(isApond)Surface water,     [1:4, Ngrids] values are expected.
-!  LBC(isHpond)Surface water,     [1:4, Ngrids] values are expected.
 !  LBC(isSig11)Sigma-11,          [1:4, Ngrids] values are expected.
 !  LBC(isSig12)Sigma-12,          [1:4, Ngrids] values are expected.
 !  LBC(isSig22)Sigma-22,          [1:4, Ngrids] values are expected.

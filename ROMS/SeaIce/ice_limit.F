@@ -37,7 +37,7 @@
      &                     ICE(ng) % IceNO3,                            &
      &                     ICE(ng) % IceNH4,                            &
      &                     ICE(ng) % IceLog,                            &
-# endif 
+# endif
      &                     ICE(ng) % ui,                                &
      &                     ICE(ng) % vi,                                &
      &                     ICE(ng) % ai,                                &
@@ -147,10 +147,10 @@
           IcePhL(i,j,linew) = MAX(IcePhL(i,j,linew),0.0_r8)
           IceNO3(i,j,linew) = MAX(IceNO3(i,j,linew),0.0_r8)
           IceNH4(i,j,linew) = MAX(IceNH4(i,j,linew),0.0_r8)
-        
+
           IF (hi(i,j,linew).le. 0.02.or.ai(i,j,linew).le.0.5) THEN
             IceLog(i,j,linew) = -1
-          ELSE 
+          ELSE
             IceLog(i,j,linew) = 1  !min(IceLog(i,j,linew),1)
           END IF
         END DO
@@ -188,24 +188,6 @@
      &                LBi, UBi, LBj, UBj,                               &
      &                liold, linew,                                     &
      &                ui, vi, hi, ti, enthalpi)
-!      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
-!     &                  LBi, UBi, LBj, UBj,                             &
-!     &                  IminS, ImaxS, JminS, JmaxS,                     &
-!     &                  liold, linew,                                   &
-!     &                  BOUNDARY(ng)%apond_west(LBj:UBj),               &
-!     &                  BOUNDARY(ng)%apond_east(LBj:UBj),               &
-!     &                  BOUNDARY(ng)%apond_north(LBi:UBi),              &
-!     &                  BOUNDARY(ng)%apond_south(LBi:UBi),              &
-!     &                  ui, vi, apond, LBC(:,isApond,ng))
-!      CALL i2d_bc_tile (ng, tile, iNLM,                                 &
-!     &                  LBi, UBi, LBj, UBj,                             &
-!     &                  IminS, ImaxS, JminS, JmaxS,                     &
-!     &                  liold, linew,                                   &
-!     &                  BOUNDARY(ng)%hpond_west(LBj:UBj),               &
-!     &                  BOUNDARY(ng)%hpond_east(LBj:UBj),               &
-!     &                  BOUNDARY(ng)%hpond_north(LBi:UBi),              &
-!     &                  BOUNDARY(ng)%hpond_south(LBi:UBi),              &
-!     &                  ui, vi, hpond, LBC(:,isHpond,ng))
 # if defined ICE_BIO && defined BERING_10K
 FOOO
 ! Need to change these over to i2d_bc_tile calls

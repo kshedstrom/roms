@@ -89,6 +89,28 @@
       real(r8), allocatable :: Ur3d(:,:,:)
       real(r8), allocatable :: Vr3d(:,:,:)
       real(r8), allocatable :: Wr3d(:,:,:)
+
+      real(r8) :: cff
+      real(r8), allocatable :: strain(:,:,:)
+      real(r8), allocatable :: dUde(:,:), dVdx(:,:)
+      real(r8), allocatable :: dUdx(:,:), dVde(:,:)
+
+      real(r8), allocatable :: pvor(:,:,:), pvork(:,:,:)
+      real(r8), allocatable :: pvori(:,:,:), pvorj(:,:,:)
+
+      real(r8), allocatable :: dUde2d(:,:), dVdx2d(:,:)
+!     real(r8), allocatable :: dUdx2d(:,:), dVde2d(:,:)
+
+      real(r8), allocatable :: rdVdx(:,:), rdUde(:,:)
+      real(r8), allocatable :: dRdx(:,:), dRde(:,:)
+
+      integer :: k1,k2
+      real(r8) :: orho0, fomn_p
+      real(r8) :: dRde_pr, dRdx_pr, dRdz_pr, dUdz_pr, dVdz_pr
+      real(r8), allocatable :: dUdz(:,:), dVdz(:,:), dRdz(:,:)
+
+      real(r8), allocatable :: dz_r(:,:,:),dz_u(:,:,:),dz_v(:,:,:)
+
 #endif
 
 # include "set_bounds.h"
@@ -274,6 +296,366 @@
           exit_flag=3
           ioerror=status
           RETURN
+        END IF
+      END IF
+
+!-----------------------------------------------------------------------
+!  Write strain.
+!-----------------------------------------------------------------------
+!
+      IF (Hout(idStr,ng)) THEN
+        IF (.not.allocated(strain)) THEN
+          allocate (strain(LBi:UBi,LBj:UBj,N(ng)))
+                    strain(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+          allocate (dUde(LBi:UBi,LBj:UBj))
+                    dUde(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dVdx(LBi:UBi,LBj:UBj))
+                    dVdx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dUdx(LBi:UBi,LBj:UBj))
+                    dUdx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dVde(LBi:UBi,LBj:UBj))
+                    dVde(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        DO k=1,N(ng)
+          DO i=LBi+1,UBi-1
+            DO j=LBj+1,UBj-1
+
+            dVdx(i,j)= ( OCEAN(ng) % v(i  ,j, k, NOUT) -                &
+     &                   OCEAN(ng) % v(i-1,j, k, NOUT)    )             &
+     &               / GRID(ng) % om_v(i  ,j)
+
+            dUde(i,j)= ( OCEAN(ng) % u(i  ,j, k, NOUT) -                &
+     &                   OCEAN(ng) % u(i,j-1, k, NOUT)    )             &
+     &               / GRID(ng) % on_u(i  ,j)
+
+            dUdx(i,j)= ( OCEAN(ng) % u(i  ,j, k, NOUT) -                &
+     &                   OCEAN(ng) % u(i-1,j, k, NOUT)    )             &
+     &               / GRID(ng) % om_v(i  ,j)
+
+            dVde(i,j)= ( OCEAN(ng) % v(i  ,j, k, NOUT) -                &
+     &                   OCEAN(ng) % v(i,j-1, k, NOUT)    )             &
+     &               / GRID(ng) % on_u(i  ,j)
+
+            strain(i,j,k)=sqrt(  (dUdx(i,j) - dVde(i,j) )**2 +          &
+     &                       (  dVdx(i,j) + dUde(i,j) )**2  )
+            END DO
+          END DO
+        END DO
+
+        scale=1.0_r8
+        gtype=gfactor*p3dvar
+        status=nf_fwrite3d(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(idStr),  &
+     &                     HIS(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
+# ifdef MASKING
+     &                     GRID(ng) % pmask,                            &
+# endif
+     &                     strain)
+          IF (FoundError(status, nf90_noerr,                            &
+     &        __LINE__,   __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idStr)), HIS(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+!-----------------------------------------------------------------------
+!  Write potential vorticity.
+!-----------------------------------------------------------------------
+!
+      IF (Hout(id3dPVI,ng).or.Hout(id3dPVJ,ng).or.                      &
+     &      Hout(id3dPVK,ng).or.Hout(id3dPV,ng)) THEN
+
+        IF (.not.allocated(pvor)) THEN
+          allocate (pvor(LBi:UBi,LBj:UBj,N(ng)))
+                    pvor(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvori)) THEN
+          allocate (pvori(LBi:UBi,LBj:UBj,N(ng)))
+                    pvori(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvorj)) THEN
+          allocate (pvorj(LBi:UBi,LBj:UBj,N(ng)))
+                    pvorj(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvork)) THEN
+          allocate (pvork(LBi:UBi,LBj:UBj,N(ng)))
+                    pvork(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_r)) THEN
+          allocate (dz_r(LBi:UBi,LBj:UBj,N(ng)))
+                    dz_r(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_u)) THEN
+          allocate (dz_u(LBi:UBi,LBj:UBj,N(ng)))
+                    dz_u(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_v)) THEN
+          allocate (dz_v(LBi:UBi,LBj:UBj,N(ng)))
+                    dz_v(LBi:UBi,LBj:UBj,1:N(ng))=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRdx)) THEN
+          allocate (dRdx(LBi:UBi,LBj:UBj))
+            dRdx(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRde)) THEN
+          allocate (dRde(LBi:UBi,LBj:UBj))
+            dRde(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRdz)) THEN
+          allocate (dRdz(LBi:UBi,LBj:UBj))
+            dRdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dUdz)) THEN
+          allocate (dUdz(LBi:UBi,LBj:UBj))
+            dUdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dVdz)) THEN
+          allocate (dVdz(LBi:UBi,LBj:UBj))
+            dVdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dUde)) THEN
+          allocate (dUde(LBi:UBi,LBj:UBj))
+                    dUde(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dVdx)) THEN
+          allocate (dVdx(LBi:UBi,LBj:UBj))
+                    dVdx(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+!
+! Find dz on the various grids
+!
+      DO j=Jstr,JendR
+        DO i=Istr,IendR
+          DO k=1,N(ng)
+            dz_r(i,j,k)= GRID(ng) % z_w(i,j,k) - GRID(ng) % z_w(i,j,k-1)
+          END DO
+        END DO
+      END DO
+
+      DO k=1,N(ng)
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            dz_u(i,j,k) = ( dz_r(i,j,k) + dz_r(i+1,j  ,k) ) / 2
+            dz_v(i,j,k) = ( dz_r(i,j,k) + dz_r(i  ,j+1,k) ) / 2
+          END DO
+        END DO
+      END DO
+
+      DO k=1,N(ng)
+        DO j=Jstr,JendR
+          dz_r(Istr-1,j,k) = dz_r(Istr,j,k)
+          dz_u(Istr-1,j,k) = dz_u(Istr,j,k)
+          dz_v(Istr-1,j,k) = dz_v(Istr,j,k)
+        END DO
+        DO i=Istr,IendR
+          dz_r(i,Jstr-1,k) = dz_r(i,Jstr,k)
+          dz_u(i,Jstr-1,k) = dz_u(i,Jstr,k)
+          dz_v(i,Jstr-1,k) = dz_v(i,Jstr,k)
+        END DO
+        dz_r(Istr-1,Jstr-1,k) = dz_r(Istr,Jstr,k)
+        dz_u(Istr-1,Jstr-1,k) = dz_u(Istr,Jstr,k)
+        dz_v(Istr-1,Jstr-1,k) = dz_v(Istr,Jstr,k)
+      END DO
+!
+! Start of main loop
+!
+      DO k=2,N(ng)
+!
+! find the horizontal derivatives on the psi grid
+!
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
+              cff = ( OCEAN(ng) % rho(i  ,j  , k) -                     &
+     &                OCEAN(ng) % rho(i-1,j  , k)    )                  &
+     &               / GRID(ng) % om_r(i  ,j)  +                        &
+     &              ( OCEAN(ng) % rho(i  ,j-1, k) -                     &
+     &                OCEAN(ng) % rho(i-1,j-1, k)    )                  &
+     &               / GRID(ng) % om_r(i  ,j-1)
+              dRdx(i,j) = cff / 2
+
+              cff = ( OCEAN(ng) % rho(i  ,j  , k) -                     &
+     &                OCEAN(ng) % rho(i,  j-1, k)    )                  &
+     &               / GRID(ng) % on_r(i  ,j)  +                        &
+     &              ( OCEAN(ng) % rho(i-1,j  , k) -                     &
+     &                OCEAN(ng) % rho(i-1,j-1, k)    )                  &
+     &               / GRID(ng) % om_r(i-1,j  )
+              dRde(i,j) = cff / 2
+
+              dVdx(i,j)= ( OCEAN(ng) % v(i  ,j, k, NOUT) -              &
+     &                   OCEAN(ng) % v(i-1,j, k, NOUT)    )             &
+     &               / GRID(ng) % om_v(i  ,j)
+              dUde(i,j)= ( OCEAN(ng) % u(i  ,j, k, NOUT) -              &
+     &                   OCEAN(ng) % u(i,j-1, k, NOUT)    )             &
+     &               / GRID(ng) % on_u(i  ,j)
+#  ifdef MASKING
+              dUde(i,j)=dUde(i,j)*GRID(ng)%pmask(i,j)
+              dVdx(i,j)=dVdx(i,j)*GRID(ng)%pmask(i,j)
+              dRde(i,j)=dRde(i,j)*GRID(ng)%pmask(i,j)
+              drdx(i,j)=drdx(i,j)*GRID(ng)%pmask(i,j)
+#  endif
+            END DO
+          END DO
+!
+! vertical derivatives
+!
+
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
+              cff = ( OCEAN(ng) % rho(i  ,j  ,k  ) -                    &
+     &                OCEAN(ng) % rho(i  ,j  ,k-1)   )  /               &
+     &              (   GRID(ng) % z_r(i  ,j  ,k  ) -                   &
+     &                  GRID(ng) % z_r(i  ,j  ,k-1)   )
+
+              cff = cff +                                               &
+     &              ( OCEAN(ng) % rho(i-1,j  ,k  ) -                    &
+     &                OCEAN(ng) % rho(i-1,j  ,k-1)   )   /              &
+     &              (   GRID(ng) % z_r(i-1,j  ,k  ) -                   &
+     &                  GRID(ng) % z_r(i-1,j  ,k-1)   )
+
+              cff = cff +                                               &
+     &              ( OCEAN(ng) % rho(i  ,j-1,k  ) -                    &
+     &                OCEAN(ng) % rho(i  ,j-1,k-1)   )   /              &
+     &              (   GRID(ng) % z_r(i  ,j-1,k  ) -                   &
+     &                  GRID(ng) % z_r(i  ,j-1,k-1)   )
+
+              cff = cff +                                               &
+     &              ( OCEAN(ng) % rho(i-1,j-1,k  ) -                    &
+     &                OCEAN(ng) % rho(i-1,j-1,k-1)   )   /              &
+     &              (   GRID(ng) % z_r(i-1,j-1,k  ) -                   &
+     &                  GRID(ng) % z_r(i-1,j-1,k-1)   )
+              dRdz(i,j) = cff / 4
+
+              cff = ( OCEAN(ng) % v(i  ,j  ,k  ,NOUT) -                 &
+     &                OCEAN(ng) % v(i  ,j  ,k-1,NOUT)   ) / dz_v(i,j,k)
+              cff = cff +                                               &
+     &           ( OCEAN(ng) % v(i-1,j  ,k  ,NOUT) -                    &
+     &             OCEAN(ng) % v(i-1,j  ,k-1,NOUT)   ) / dz_v(i-1,j,k)
+              dVdz(i,j) = cff / 2
+
+              cff = ( OCEAN(ng) % u(i  ,j  ,k  ,NOUT) -                 &
+     &                OCEAN(ng) % u(i  ,j  ,k-1,NOUT)   ) / dz_u(i,j,k)
+              cff = cff +                                               &
+     &           ( OCEAN(ng) % u(i  ,j-1,k  ,NOUT) -                    &
+     &             OCEAN(ng) % u(i  ,j-1,k-1,NOUT)   ) / dz_u(i,j-1,k)
+              dUdz(i,j) = cff / 2
+            END DO
+          END DO
+!
+!  Compute potential vorticity (meter-1 second-1)
+!  at horizontal PSI-points and vertical RHO-points.
+!
+          DO j=Jstr,JendR
+            DO i=Istr,IendR
+              fomn_p=0.25_r8*(GRID(ng)%f(i-1,j-1)+GRID(ng)%f(i-1,j)+    &
+     &                  GRID(ng)%f(i,j-1)+GRID(ng)%f(i,j))
+              pvori(i,j,k) = -dVdz(i,j) * dRdx(i,j) / rho0
+              pvorj(i,j,k) =  dUdz(i,j) * dRde(i,j) / rho0
+              pvork(i,j,k) =  dRdz(i,j) *                               &
+     &                       (fomn_p + dVdx(i,j) - dUde(i,j) ) / rho0
+              pvor(i,j,k) = pvori(i,j,k) + pvorj(i,j,k) + pvork(i,j,k)
+            END DO
+          END DO
+        END DO
+!
+        IF (Hout(id3dPV,ng)) THEN
+        scale=1.0_r8
+        gtype=gfactor*p3dvar
+        status=nf_fwrite3d(ng, iNLM, HIS(ng)%ncid, HIS(ng)%Vid(id3DPV), &
+     &                     HIS(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, 1, N(ng), scale,         &
+# ifdef MASKING
+     &                     GRID(ng) % pmask,                            &
+# endif
+     &                     pvor)
+          IF (FoundError(status, nf90_noerr,                            &
+     &          __LINE__, __FILE__)) THEN
+            IF (Master) THEN
+                WRITE (stdout,10) TRIM(Vname(1,id3DPV)), HIS(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Hout(id3dPVI,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p3dvar
+          status=nf_fwrite3d(ng, iNLM, HIS(ng)%ncid,                    &
+     &                       HIS(ng)%Vid(id3dPVI),HIS(ng)%Rindex, gtype,&
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+# ifdef MASKING
+     &                       GRID(ng) % pmask,                          &
+# endif
+     &                       pvori)
+          IF (FoundError(status, nf90_noerr,                            &
+     &        __LINE__, __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,id3dPVI)), HIS(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Hout(id3dPVJ,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p3dvar
+          status=nf_fwrite3d(ng, iNLM, HIS(ng)%ncid,                    &
+     &                       HIS(ng)%Vid(id3dPVJ),HIS(ng)%Rindex, gtype,&
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+# ifdef MASKING
+     &                     GRID(ng) % pmask,                            &
+# endif
+     &                     pvorj)
+          IF (FoundError(status, nf90_noerr,                            &
+     &          __LINE__, __FILE__)) THEN
+            IF (Master) THEN
+                WRITE (stdout,10) TRIM(Vname(1,id3dPVJ)), HIS(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Hout(id3dPVK,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p3dvar
+          status=nf_fwrite3d(ng, iNLM, HIS(ng)%ncid,                    &
+     &                       HIS(ng)%Vid(id3dPVK),HIS(ng)%Rindex, gtype,&
+     &                       LBi, UBi, LBj, UBj, 1, N(ng), scale,       &
+# ifdef MASKING
+     &                       GRID(ng) % pmask,                          &
+# endif
+     &                       pvork)
+          IF (FoundError(status, nf90_noerr,                            &
+     &          __LINE__, __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,id3dPVK)), HIS(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
         END IF
       END IF
 !

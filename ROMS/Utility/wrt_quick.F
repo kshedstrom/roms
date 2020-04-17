@@ -70,6 +70,31 @@
 
       real(r8), allocatable :: Ur2d(:,:)
       real(r8), allocatable :: Vr2d(:,:)
+
+      real(r8), allocatable :: EBF(:,:)
+      real(r8), allocatable :: dRdx(:,:), dRde(:,:)
+      real(r8), allocatable :: dx(:,:), dy(:,:), frho(:,:)
+      real(r8), allocatable :: tauXpsi(:,:), tauYpsi(:,:)
+
+      real(r8) :: cff
+      real(r8), allocatable :: strain(:,:)
+      real(r8), allocatable :: dUdx(:,:), dUde(:,:)
+      real(r8), allocatable :: dVdx(:,:), dVde(:,:)
+
+      real(r8), allocatable :: rvor(:,:)
+      real(r8), allocatable :: rdVdx(:,:), rdUde(:,:)
+
+      real(r8), allocatable :: dz_r(:,:), dz_u(:,:), dz_v(:,:)
+
+      integer :: k1,k2
+      real(r8) :: orho0, fomn_p
+      real(r8) :: dRde_pr, dRdx_pr, dRdz_pr, dUdz_pr, dVdz_pr
+
+      real(r8), allocatable :: pvor(:,:),pvork(:,:)
+      real(r8), allocatable :: pvori(:,:), pvorj(:,:)
+
+      real(r8), allocatable :: dUdz(:,:), dVdz(:,:), dRdz(:,:)
+
 #ifdef SOLVE3D
       real(r8), allocatable :: Ur3d(:,:,:)
       real(r8), allocatable :: Vr3d(:,:,:)
@@ -415,6 +440,559 @@
           exit_flag=3
           ioerror=status
           RETURN
+        END IF
+      END IF
+!
+!  Write out Ekman buoyancy flux at PSI-points.
+!
+      IF (Qout(idEBF,ng)) THEN
+        IF (.not.allocated(EBF)) THEN
+          allocate (EBF(LBi:UBi,LBj:UBj))
+            EBF(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dRdx(LBi:UBi,LBj:UBj))
+            dRdx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dRde(LBi:UBi,LBj:UBj))
+            dRde(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (tauXpsi(LBi:UBi,LBj:UBj))
+            tauXpsi(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (tauYpsi(LBi:UBi,LBj:UBj))
+            tauYpsi(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dx(LBi:UBi,LBj:UBj))
+            dx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dy(LBi:UBi,LBj:UBj))
+            dy(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (frho(LBi:UBi,LBj:UBj))
+            frho(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        DO i=LBi+1,UBi-1
+          DO j=LBj+1,UBj-1
+
+! Now do Ekman buoyancy flux
+
+! Subtract 1 in the y direction to get sustr
+!            EBF(i,j) = FORCES(ng) % sustr(i,j-1)/rho0
+! Subtract 1 in the x direction to get svstr
+!            EBF(i,j) = FORCES(ng) % svstr(i-1,j)/rho0
+! Subtract 1 in both the x direction and the y direction to get rho, same with pm and pn
+!            EBF(i,j) = OCEAN(ng) % rho(i-1,j-1,N(ng))
+
+! Calculate tau_x on psi grid
+             tauXpsi(i,j) =                                           &
+                   (  FORCES(ng) % sustr(i,j-1)                       &
+                    + FORCES(ng) % sustr(i,j)   ) * rho0 /2.
+!             EBF(i,j) = tauXpsi(i,j)
+
+! Calculate tau_y on psi grid
+             tauYpsi(i,j) =                                           &
+                   (  FORCES(ng) % svstr(i-1,j)                       &
+                    + FORCES(ng) % svstr(i,j)   ) * rho0 /2.
+!             EBF(i,j) = tauYpsi(i,j)
+
+! Calculate dx on psi grid
+             dx(i,j) =                                                &
+                   (  1./GRID(ng) % pm(i-1,j-1)                       &
+                    + 1./GRID(ng) % pm(i  ,j-1)                       &
+                    + 1./GRID(ng) % pm(i-1,j  )                       &
+                    + 1./GRID(ng) % pm(i  ,j  ) ) /4.
+!             EBF(i,j) = dx(i,j)
+
+! Calculate dy on psi grid
+             dy(i,j) =                                                &
+                   (  1./GRID(ng) % pn(i-1,j-1)                       &
+                    + 1./GRID(ng) % pn(i  ,j-1)                       &
+                    + 1./GRID(ng) % pn(i-1,j  )                       &
+                    + 1./GRID(ng) % pn(i  ,j  ) ) /4.
+!             EBF(i,j) = dy(i,j)
+
+! Calculate f * rho on psi grid
+             frho(i,j) =                                              &
+                   (  (OCEAN(ng) % rho(i-1,j-1,N(ng)) + rho0)         &
+                       * GRID(ng) % f(i-1,j-1)                        &
+                    + (OCEAN(ng) % rho(i  ,j-1,N(ng)) + rho0)         &
+                       * GRID(ng) % f(i  ,j-1)                        &
+                    + (OCEAN(ng) % rho(i-1,j  ,N(ng)) + rho0)         &
+                       * GRID(ng) % f(i-1,j  )                        &
+                    + (OCEAN(ng) % rho(i  ,j  ,N(ng)) + rho0)         &
+                       * GRID(ng) % f(i  ,j  )                        &
+                    ) /4.
+!             EBF(i,j) = frho(i,j)
+
+! Calculate (d rho)/dx on psi grid
+             dRdx(i,j) =                                              &
+                   (   OCEAN(ng) % rho(i,j,N(ng)) -                   &
+                            OCEAN(ng) % rho(i-1,j,N(ng))              &
+                     + OCEAN(ng) % rho(i,j-1,N(ng)) -                 &
+                             OCEAN(ng) % rho(i-1,j-1,N(ng))  ) /2.    &
+                   / dx(i,j)
+!             EBF(i,j) = dRdx(i,j)
+
+! Calculate (d rho)/dy on psi grid
+             dRde(i,j) =                                              &
+                   (   OCEAN(ng) % rho(i,j,N(ng)) -                   &
+                            OCEAN(ng) % rho(i,j-1,N(ng))              &
+                     + OCEAN(ng) % rho(i-1,j,N(ng)) -                 &
+                             OCEAN(ng) % rho(i-1,j-1,N(ng))  ) /2.    &
+                   / dy(i,j)
+!             EBF(i,j) = dRde(i,j)
+
+! Now do Ekman buoyancy flux
+
+             EBF(i,j) = - 9.81 / rho0 *                               &
+                   (   tauYpsi(i,j) * dRdx(i,j)                     &
+                     - tauXpsi(i,j) * dRde(i,j) )                   &
+                   / frho(i,j)
+
+          END DO
+        END DO
+
+        scale=1.0_r8
+        gtype=gfactor*p2dvar
+        status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                      &
+     &                     QCK(ng)%Vid(idEBF),                          &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     EBF)
+
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idEBF)), QCK(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+!-----------------------------------------------------------------------
+!  Compute surface strain.
+!-----------------------------------------------------------------------
+!
+      IF (Qout(idStr2,ng)) THEN
+        IF (.not.allocated(strain)) THEN
+          allocate (dUde(LBi:UBi,LBj:UBj))
+            dUde(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dVdx(LBi:UBi,LBj:UBj))
+            dVdx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dUdx(LBi:UBi,LBj:UBj))
+            dUdx(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (dVde(LBi:UBi,LBj:UBj))
+            dVde(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (strain(LBi:UBi,LBj:UBj))
+            strain(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+! Compute surface strain
+
+      DO i=LBi+1,UBi-1
+        DO j=LBj+1,UBj-1
+          cff=GRID(ng)%pm(i,j) * GRID(ng)%pn(i,j)
+
+          dUde(i,j)=                                                    &
+     &      GRID(ng)%om_u(i,j  ) * OCEAN(ng)%u(i,j  ,N(ng),NOUT) -      &
+     &      GRID(ng)%om_u(i,j-1) * OCEAN(ng)%u(i,j-1,N(ng),NOUT)
+
+          dVdx(i,j)=                                                    &
+     &      GRID(ng)%on_v(i  ,j) * OCEAN(ng)%v(i  ,j,N(ng),NOUT) -      &
+     &      GRID(ng)%on_v(i-1,j) * OCEAN(ng)%v(i-1,j,N(ng),NOUT)
+
+          dVde(i,j)=                                                    &
+     &      GRID(ng)%om_v(i,j  ) * OCEAN(ng)%v(i,j  ,N(ng),NOUT) -      &
+     &      GRID(ng)%om_v(i,j-1) * OCEAN(ng)%v(i,j-1,N(ng),NOUT)
+
+          dUdx(i,j)=                                                    &
+     &      GRID(ng)%on_u(i  ,j) * OCEAN(ng)%u(i  ,j,N(ng),NOUT) -      &
+     &      GRID(ng)%on_u(i-1,j) * OCEAN(ng)%u(i-1,j,N(ng),NOUT)
+
+          strain(i,j)=sqrt(  (  dUdx(i,j) - dVde(i,j)  )**2 +           &
+     &                       (  dVdx(i,j) + dUde(i,j)  )**2  ) * cff
+
+        END DO
+      END DO
+
+      scale=1.0_r8
+      gtype=gfactor*p2dvar
+      status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                        &
+     &                   QCK(ng)%Vid(idStr2),                           &
+     &                   QCK(ng)%Rindex, gtype,                         &
+     &                   LBi, UBi, LBj, UBj, scale,                     &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     strain)
+
+      IF (FoundError(status, nf90_noerr, __LINE__,                      &
+     &               __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idStr2)), QCK(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+!-----------------------------------------------------------------------
+!  Compute surface relative vorticity.
+!-----------------------------------------------------------------------
+!
+      IF (Qout(idRVsu,ng)) THEN
+        IF (.not.allocated(rvor)) THEN
+          allocate (rvor(LBi:UBi,LBj:UBj))
+            rvor(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (rdUde(LBi:UBi,LBj:UBj))
+            rdUde(LBi:UBi,LBj:UBj)=0.0_r8
+          allocate (rdVdx(LBi:UBi,LBj:UBj))
+            rdVdx(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+! Compute surface strain
+
+        DO i=LBi+1,UBi-1
+          DO j=LBj+1,UBj-1
+            rdUde(i,j)=                                                 &
+     &        GRID(ng)%om_u(i,j  ) * OCEAN(ng)%u(i,j  ,N(ng),NOUT) -    &
+     &        GRID(ng)%om_u(i,j-1) * OCEAN(ng)%u(i,j-1,N(ng),NOUT)
+
+            rdVdx(i,j)=                                                 &
+     &        GRID(ng)%on_v(i  ,j) * OCEAN(ng)%v(i  ,j,N(ng),NOUT) -    &
+     &        GRID(ng)%on_v(i-1,j) * OCEAN(ng)%v(i-1,j,N(ng),NOUT)
+
+            cff=GRID(ng)%pm(i,j) * GRID(ng)%pn(i,j)
+            rvor(i,j)=cff*(rdVdx(i,j)-rdUde(i,j))
+          END DO
+        END DO
+
+
+        scale=1.0_r8
+        gtype=gfactor*p2dvar
+        status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                      &
+     &                     QCK(ng)%Vid(idRVsu),                         &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     rvor)
+
+        IF (FoundError(status, nf90_noerr, __LINE__,                    &
+     &                 __FILE__)) THEN
+          IF (Master) THEN
+            WRITE (stdout,10) TRIM(Vname(1,idRVsu)), QCK(ng)%Rindex
+          END IF
+          exit_flag=3
+          ioerror=status
+          RETURN
+        END IF
+      END IF
+
+!-----------------------------------------------------------------------
+!  Compute surface potential vorticity.
+!-----------------------------------------------------------------------
+!
+      IF (Qout(idPVsu,ng).or.Qout(idPVIsu,ng).or.Qout(idPVJsu,          &
+     &          ng).or.Qout(idPVKsu,ng) ) THEN
+
+        IF (.not.allocated(pvor)) THEN
+          allocate (pvor(LBi:UBi,LBj:UBj))
+                    pvor(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvori)) THEN
+          allocate (pvori(LBi:UBi,LBj:UBj))
+                    pvori(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvorj)) THEN
+          allocate (pvorj(LBi:UBi,LBj:UBj))
+                    pvorj(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(pvork)) THEN
+          allocate (pvork(LBi:UBi,LBj:UBj))
+                    pvork(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_r)) THEN
+          allocate (dz_r(LBi:UBi,LBj:UBj))
+                    dz_r(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_u)) THEN
+          allocate (dz_u(LBi:UBi,LBj:UBj))
+                    dz_u(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dz_v)) THEN
+          allocate (dz_v(LBi:UBi,LBj:UBj))
+                    dz_v(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRdx)) THEN
+          allocate (dRdx(LBi:UBi,LBj:UBj))
+            dRdx(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRde)) THEN
+          allocate (dRde(LBi:UBi,LBj:UBj))
+            dRde(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dRdz)) THEN
+          allocate (dRdz(LBi:UBi,LBj:UBj))
+            dRdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dUdz)) THEN
+          allocate (dUdz(LBi:UBi,LBj:UBj))
+            dUdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dVdz)) THEN
+          allocate (dVdz(LBi:UBi,LBj:UBj))
+            dVdz(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dUde)) THEN
+          allocate (dUde(LBi:UBi,LBj:UBj))
+                    dUde(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+
+        IF (.not.allocated(dVdx)) THEN
+          allocate (dVdx(LBi:UBi,LBj:UBj))
+                    dVdx(LBi:UBi,LBj:UBj)=0.0_r8
+        END IF
+!
+! Find dz on the various grids
+!
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            dz_r(i,j)= GRID(ng)%z_w(i,j,N(ng))-GRID(ng)%z_w(i,j,N(ng)-1)
+          END DO
+        END DO
+
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            dz_u(i,j) = ( dz_r(i,j) + dz_r(i+1,j  ) ) / 2
+            dz_v(i,j) = ( dz_r(i,j) + dz_r(i  ,j+1) ) / 2
+          END DO
+        END DO
+
+        DO j=Jstr,JendR
+          dz_r(Istr-1,j) = dz_r(Istr,j)
+          dz_u(Istr-1,j) = dz_u(Istr,j)
+          dz_v(Istr-1,j) = dz_v(Istr,j)
+        END DO
+
+        DO i=Istr,IendR
+          dz_r(i,Jstr-1) = dz_r(i,Jstr)
+          dz_u(i,Jstr-1) = dz_u(i,Jstr)
+          dz_v(i,Jstr-1) = dz_v(i,Jstr)
+        END DO
+
+        dz_r(Istr-1,Jstr-1) = dz_r(Istr,Jstr)
+        dz_u(Istr-1,Jstr-1) = dz_u(Istr,Jstr)
+        dz_v(Istr-1,Jstr-1) = dz_v(Istr,Jstr)
+!
+! find the horizontal derivatives on the psi grid
+!
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+
+            cff = ( OCEAN(ng) % rho( i  ,j  , N(ng) ) -                 &
+     &              OCEAN(ng) % rho( i-1,j  , N(ng) )    )              &
+     &             / GRID(ng) % om_r(i  ,j  )  +                        &
+     &            ( OCEAN(ng) % rho( i  ,j-1, N(ng) ) -                 &
+     &              OCEAN(ng) % rho( i-1,j-1, N(ng) )    )              &
+     &             / GRID(ng) % om_r(i  ,j-1)
+
+            dRdx(i,j) = cff / 2
+
+            cff = ( OCEAN(ng) % rho( i  ,j  , N(ng) ) -                 &
+     &              OCEAN(ng) % rho( i,  j-1, N(ng) )    )              &
+     &             / GRID(ng) % on_r(i  ,j  )  +                        &
+     &            ( OCEAN(ng) % rho( i-1,j  , N(ng) ) -                 &
+     &              OCEAN(ng) % rho( i-1,j-1, N(ng) )    )              &
+     &             / GRID(ng) % om_r(i-1,j  )
+
+            dRde(i,j) = cff / 2
+
+            dVdx(i,j)= ( OCEAN(ng) % v(i  ,j, N(ng) , NOUT) -           &
+     &                   OCEAN(ng) % v(i-1,j, N(ng) , NOUT)    )        &
+     &             / GRID(ng) % om_v(i  ,j)
+
+            dUde(i,j)= ( OCEAN(ng) % u(i  ,j, N(ng) , NOUT) -           &
+     &                   OCEAN(ng) % u(i,j-1, N(ng) , NOUT)    )        &
+     &             / GRID(ng) % on_u(i  ,j)
+
+#  ifdef MASKING
+            dUde(i,j)=dUde(i,j)*GRID(ng)%pmask(i,j)
+            dVdx(i,j)=dVdx(i,j)*GRID(ng)%pmask(i,j)
+            dRde(i,j)=dRde(i,j)*GRID(ng)%pmask(i,j)
+            drdx(i,j)=drdx(i,j)*GRID(ng)%pmask(i,j)
+#  endif
+          END DO
+        END DO
+!
+! vertical derivatives
+!
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            cff = ( OCEAN(ng) % rho(i  ,j  ,N(ng)  ) -                  &
+     &              OCEAN(ng) % rho(i  ,j  ,N(ng)-1)   )  /             &
+     &            (  GRID(ng) % z_r(i  ,j  ,N(ng)  ) -                  &
+     &               GRID(ng) % z_r(i  ,j  ,N(ng)-1)   )
+
+            cff = cff +                                                 &
+     &            ( OCEAN(ng) % rho(i-1,j  ,N(ng)  ) -                  &
+     &              OCEAN(ng) % rho(i-1,j  ,N(ng)-1)   )   /            &
+     &            (  GRID(ng) % z_r(i-1,j  ,N(ng)  ) -                  &
+     &               GRID(ng) % z_r(i-1,j  ,N(ng)-1)   )
+
+            cff = cff +                                                 &
+     &            ( OCEAN(ng) % rho(i  ,j-1,N(ng)  ) -                  &
+     &              OCEAN(ng) % rho(i  ,j-1,N(ng)-1)   )   /            &
+     &            (  GRID(ng) % z_r(i  ,j-1,N(ng)  ) -                  &
+     &               GRID(ng) % z_r(i  ,j-1,N(ng)-1)   )
+
+            cff = cff +                                                 &
+     &            ( OCEAN(ng) % rho(i-1,j-1,N(ng)  ) -                  &
+     &              OCEAN(ng) % rho(i-1,j-1,N(ng)-1)   )   /            &
+     &            (  GRID(ng) % z_r(i-1,j-1,N(ng)  ) -                  &
+     &               GRID(ng) % z_r(i-1,j-1,N(ng)-1)   )
+
+            dRdz(i,j) = cff / 4
+
+            cff = ( OCEAN(ng) % v(i  ,j  ,N(ng)  ,NOUT) -               &
+     &              OCEAN(ng) % v(i  ,j  ,N(ng)-1,NOUT)   ) / dz_v(i,j)
+
+            cff = cff +                                                 &
+     &         ( OCEAN(ng) % v(i-1,j  ,N(ng)  ,NOUT) -                  &
+     &           OCEAN(ng) % v(i-1,j  ,N(ng)-1,NOUT)   ) / dz_v(i-1,j)
+
+            dVdz(i,j) = cff / 2
+
+            cff = ( OCEAN(ng) % u(i  ,j  ,N(ng)  ,NOUT) -               &
+     &              OCEAN(ng) % u(i  ,j  ,N(ng)-1,NOUT)   ) / dz_u(i,j)
+
+            cff = cff +                                                 &
+     &         ( OCEAN(ng) % u(i  ,j-1,N(ng)  ,NOUT) -                  &
+     &           OCEAN(ng) % u(i  ,j-1,N(ng)-1,NOUT)   ) / dz_u(i,j-1)
+
+            dUdz(i,j) = cff / 2
+          END DO
+        END DO
+!
+!  Compute potential vorticity (meter-1 second-1)
+!  at horizontal PSI-points and vertical RHO-points.
+!
+        DO j=Jstr,JendR
+          DO i=Istr,IendR
+            fomn_p=0.25_r8*(GRID(ng)%f(i-1,j-1)+GRID(ng)%f(i-1,j)+      &
+     &                GRID(ng)%f(i,j-1)+GRID(ng)%f(i,j))
+
+            pvori(i,j) = -dVdz(i,j) * dRdx(i,j) / rho0
+
+            pvorj(i,j) =  dUdz(i,j) * dRde(i,j) / rho0
+
+            pvork(i,j) =  dRdz(i,j) *                                   &
+     &                     (fomn_p + dVdx(i,j) - dUde(i,j) ) / rho0
+
+            pvor(i,j) = pvori(i,j) + pvorj(i,j) + pvork(i,j)
+          END DO
+        END DO
+!
+        IF (Qout(idPVsu,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p2dvar
+          status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                    &
+     &                     QCK(ng)%Vid(idPVsu),                         &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     pvor)
+
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                 __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPVsu)), QCK(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Qout(idPVIsu,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p2dvar
+          status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                    &
+     &                     QCK(ng)%Vid(idPVIsu),                        &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     pvori)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                 __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPVIsu)), QCK(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Qout(idPVJsu,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p2dvar
+          status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                    &
+     &                     QCK(ng)%Vid(idPVJsu),                        &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     pvorj)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                 __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPVJsu)), QCK(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
+        END IF
+!
+        IF (Qout(idPVKsu,ng)) THEN
+          scale=1.0_r8
+          gtype=gfactor*p2dvar
+          status=nf_fwrite2d(ng, iNLM, QCK(ng)%ncid,                    &
+     &                     QCK(ng)%Vid(idPVKsu),                        &
+     &                     QCK(ng)%Rindex, gtype,                       &
+     &                     LBi, UBi, LBj, UBj, scale,                   &
+# ifdef MASKING
+     &                     GRID(ng) % pmask_full,                       &
+# endif
+     &                     pvork)
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                 __FILE__)) THEN
+            IF (Master) THEN
+              WRITE (stdout,10) TRIM(Vname(1,idPVKsu)), QCK(ng)%Rindex
+            END IF
+            exit_flag=3
+            ioerror=status
+            RETURN
+          END IF
         END IF
       END IF
 !

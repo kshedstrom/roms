@@ -657,24 +657,6 @@
   'r2dvar'
   1.0d0
 
-'apond'
-  'surface melt water fraction on ice'
-  'meter'
-  'melt water fraction, scalar, series'
-  'ocean_time'
-  'idApond'
-  'r2dvar'
-  1.0d0
-
-'hpond'
-  'surface melt water thickness on ice'
-  'meter'
-  'melt water thickness, scalar, series'
-  'ocean_time'
-  'idHpond'
-  'r2dvar'
-  1.0d0
-
 'iomflx'
   'ice-ocean mass flux'
   'metre/sec'
@@ -1582,7 +1564,7 @@
   'qair_time'
   'idQair'
   'r2dvar'
-  1.0d0                                            ! 
+  1.0d0                                            !
 
 'cloud'                                            ! Input
   'cloud fraction'
@@ -3400,7 +3382,7 @@
 
 !
 !  Diagnostic variables.
-! 
+!
 
 'CO2_airsea'                                       ! Input/Output
   'CO2 air-sea flux'
@@ -3458,7 +3440,7 @@
 
 !
 !  Boundary variables.
-! 
+!
 
 'NO3_east'                                         ! Input
   'nitrate eastern boundary condition'
@@ -4806,7 +4788,7 @@
 !
 !  3D momentum diagnostic terms.
 !
- 
+
 'u_accel'                                          ! Input/Output
   '3D u-momentum, acceleration term'
   'meter second-2'                                 ! [m/s2]
