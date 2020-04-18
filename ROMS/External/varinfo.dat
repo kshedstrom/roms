@@ -1010,24 +1010,6 @@
   'r2dvar'
   1.0d0
 
-'apond'
-  'surface melt water fraction on ice'
-  'meter'
-  'melt water fraction, scalar, series'
-  'ocean_time'
-  'idApond'
-  'r2dvar'
-  1.0d0
-
-'hpond'
-  'surface melt water thickness on ice'
-  'meter'
-  'melt water thickness, scalar, series'
-  'ocean_time'
-  'idHpond'
-  'r2dvar'
-  1.0d0
-
 'iomflx'
   'ice-ocean mass flux'
   'meter second-1'
