@@ -276,6 +276,19 @@
      &                                cff2*track(iyrhs,nfm1,l)+         &
      &                                cff1*track(iyrhs,nfm2,l))
 
+!
+! set bounded to false if the new position exits legal bounds
+!
+          IF ((track(ixgrd,nfp1,l).ge.REAL(Lm(ng)+1,r8)-0.5_r8).or.     &
+     &        (track(ixgrd,nfp1,l).lt.0.5_r8)) THEN
+            bounded(l)=.FALSE.
+          END IF
+
+          IF ((track(iygrd,nfp1,l).ge.REAL(Mm(ng)+1,r8)-0.5_r8).or.     &
+     &        (track(iygrd,nfp1,l).lt.0.5_r8)) THEN
+            bounded(l)=.FALSE.
+          END IF
+
 # if defined SOLVE3D && !defined FLOAT_VWALK
 !
 !  Compute vertical position (grid units) 3D Lagrangian floats.
