@@ -526,6 +526,10 @@
           ELSE
             EmP=stflx(i,j,isalt)
           END IF
+#    if defined COBALT_CARBON
+          stflx(i,j,ialk)=EmP*t(i,j,N(ng),nrhs,ialk)
+          stflx(i,j,idic)=EmP*t(i,j,N(ng),nrhs,idic)
+#    endif
 #    if defined SCORRECTION
           stflx(i,j,isalt)=EmP*t(i,j,N(ng),nrhs,isalt)-                 &
      &                     Tnudg(isalt,ng)*Hz(i,j,N(ng))*               &

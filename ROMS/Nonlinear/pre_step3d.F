@@ -1020,7 +1020,7 @@
                  cff2=0.0_r8
              END IF
 
-!     -Remove effects of mixing on biology - usefull for model testing
+!     -Remove effects of mixing on biology - useful for model testing
 !g              IF ( itrc.gt.2)    THEN
 !g               cff2=0.0_r8
 !g               END IF
