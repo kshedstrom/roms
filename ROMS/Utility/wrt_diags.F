@@ -220,8 +220,8 @@
 #  ifdef MASKING
      &                         GRID(ng) % rmask,                        &
 #  endif
-     &                         DIAGS(ng) % DiaTrc(:,:,:,itrc,ivar),     &
-     &                         SetFillVal = .FALSE.)
+     &                         DIAGS(ng) % DiaTrc(:,:,:,itrc,ivar))
+!    &                         SetFillVal = .FALSE.)
             IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                     __FILE__)) THEN
               IF (Master) THEN
@@ -262,8 +262,8 @@
 #  ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #  endif
-     &                       DIAGS(ng) % DiaBio2d(:,:,ivar),            &
-     &                       SetFillVal = .FALSE.)
+     &                       DIAGS(ng) % DiaBio2d(:,:,ivar))
+!    &                       SetFillVal = .FALSE.)
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
             IF (Master) THEN
@@ -296,8 +296,8 @@
 #   ifdef MASKING
      &                       GRID(ng) % rmask,                          &
 #   endif
-     &                       DIAGS(ng) % DiaBio3d(:,:,:,ivar),          &
-     &                       SetFillVal = .FALSE.)
+     &                       DIAGS(ng) % DiaBio3d(:,:,:,ivar))
+!    &                       SetFillVal = .FALSE.)
           IF (FoundError(status, nf90_noerr, __LINE__,                  &
      &                   __FILE__)) THEN
             IF (Master) THEN
