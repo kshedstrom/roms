@@ -315,6 +315,105 @@
   'w3dvar'
   1.0d0
 
+'EBF'                                           ! Output
+  'Ekman buoyancy flux at PSI-points'
+  'Watt kg-1'                                   ! [m/s]
+  'EBF, scalar, series'
+  'ocean_time'
+  'idEBF'
+  'p2dvar'
+  1.0d0
+
+'strain'                                           ! Output
+  'strain'
+  'second-1'                                       ! [1/s]
+  'strain, scalar, series'
+  'ocean_time'
+  'idStr'
+  'p3dvar'
+  1.0d0
+
+'strain_sur'                                       ! Output
+  'surface strain'
+  'second-1'                                       ! [1/s]
+  'strain_sur, scalar, series'
+  'ocean_time'
+  'idStr2'
+  'p2dvar'
+  1.0d0
+
+'rvort_sur'                                        ! Output
+  'surface relative vorticity'
+  'second-1'                                       ! [1/s]
+  'rvort_sur, scalar, series'
+  'ocean_time'
+  'idRVsu'
+  'p2dvar'
+  1.0d0
+
+'pvort_sur'                                        ! Output
+  'surface potential vorticity'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvort_sur, scalar, series'
+  'ocean_time'
+  'idPVsu'
+  'p2dvar'
+  1.0d0
+
+'pvortk_sur'                                        ! Output
+  'surface potential vorticity, k component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvortk_sur, scalar, series'
+  'ocean_time'
+  'idPVKsu'
+  'p2dvar'
+  1.0d0
+
+'pvortk'                                       ! Input/Output
+  'potential vorticity, k component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity k component, scalar, series'
+  'ocean_time'
+  'id3dPVK'
+  'p3dvar'
+  1.0d0
+
+'pvorti'                                       ! Input/Output
+  'potential vorticity, i component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity, i component, scalar, series'
+  'ocean_time'
+  'id3dPVI'
+  'p3dvar'
+  1.0d0
+
+'pvortj'                                       ! Input/Output
+  'potential vorticity, j component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorticity, j component, scalar, series'
+  'ocean_time'
+  'id3dPVJ'
+  'p3dvar'
+  1.0d0
+
+'pvorti_sur'                                        ! Output
+  'surface potential vorticity, i component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvorti_sur, scalar, series'
+  'ocean_time'
+  'idPVIsu'
+  'p2dvar'
+  1.0d0
+
+'pvortj_sur'                                        ! Output
+  'surface potential vorticity, j component'
+  'meter-1 second-1'                               ! [1/m/s]
+  'pvortj_sur, scalar, series'
+  'ocean_time'
+  'idPVJsu'
+  'p2dvar'
+  1.0d0
+
 !
 !------------------------------------------------------------------------------
 !  Wet/dry masks.
@@ -902,6 +1001,15 @@
   'r2dvar'
   1.0d0
 
+'snow_thick'
+  'thickness of snow cover'
+  'meter'
+  'snow thickness, scalar, series'
+  'ocean_time'
+  'idHSNclm'
+  'r2dvar'
+  1.0d0
+
 'tisrf'
   'temperature of ice surface'
   'degrees Celcius'
@@ -917,6 +1025,15 @@
   'interior temperature, scalar, series'
   'ocean_time'
   'idTimid'
+  'r2dvar'
+  1.0d0
+
+'t2'
+  'top of ice temperature'
+  'degrees Celcius'
+  'top of ice temperature, scalar, series'
+  'ocean_time'
+  'idT2ice'
   'r2dvar'
   1.0d0
 
@@ -1052,6 +1169,195 @@
   'ice stress 12, scalar, series'
   'ocean_time'
   'idSig12'
+  'r2dvar'
+  1.0d0
+
+'sig11'
+  'internal ice stress 11 component'
+  'Newton meter-1'
+  'ice stress 11, scalar, series'
+  'ocean_time'
+  'idS11clm'
+  'r2dvar'
+  1.0d0
+
+'sig22'
+  'internal ice stress 22 component'
+  'Newton meter-1'
+  'ice stress 22, scalar, series'
+  'ocean_time'
+  'idS22clm'
+  'r2dvar'
+  1.0d0
+
+'sig12'
+  'internal ice stress 12 component'
+  'Newton meter-1'
+  'ice stress 12, scalar, series'
+  'ocean_time'
+  'idS12clm'
+  'r2dvar'
+  1.0d0
+
+'albedo_ice'
+  'ice albedo'
+  'fraction'
+  'ice albedo, scalar, series'
+  'ocean_time'
+  'idAlbI'
+  'r2dvar'
+  1.0d0
+
+'LW_down'
+  'downward longwave radiation'
+  'W m-2'
+  'LW_down, scalar, series'
+  'ocean_time'
+  'idLWdn'
+  'r2dvar'
+  1.0d0
+
+'SW_down'
+  'downward shortwave radiation'
+  'W m-2'
+  'SW_down, scalar, series'
+  'ocean_time'
+  'idSWdn'
+  'r2dvar'
+  1.0d0
+
+'lat_ice'
+  'latent heat flux over ice'
+  'W m-2'
+  'lat_ice, scalar, series'
+  'ocean_time'
+  'idLatI'
+  'r2dvar'
+  1.0d0
+
+'sens_ice'
+  'sensible heat flux over ice'
+  'W m-2'
+  'sens_ice, scalar, series'
+  'ocean_time'
+  'idSenI'
+  'r2dvar'
+  1.0d0
+
+'LW_up_ice'
+  'upward longwave radiation over ice'
+  'W m-2'
+  'LW_up_ice, scalar, series'
+  'ocean_time'
+  'idLWupI'
+  'r2dvar'
+  1.0d0
+
+'SW_up_ice'
+  'upward shortwave radiation over ice'
+  'W m-2'
+  'SW_up_ice, scalar, series'
+  'ocean_time'
+  'idSWupI'
+  'r2dvar'
+  1.0d0
+
+'SW_in_ice'
+  'shortwave radiation into ice'
+  'W m-2'
+  'SW_in_ice, scalar, series'
+  'ocean_time'
+  'idSWinI'
+  'r2dvar'
+  1.0d0
+
+'SW_thru_ice'
+  'shortwave radiation through ice'
+  'W m-2'
+  'SW_thru_ice, scalar, series'
+  'ocean_time'
+  'idSWthruI'
+  'r2dvar'
+  1.0d0
+
+'saltflux_ice'
+  'salt flux under ice'
+  'meter second-1'                                 ! [PSU m/s]
+  'saltflux_ice, scalar, series'
+  'ocean_time'
+  'idSaltI'
+  'r2dvar'
+  1.0d0
+
+'saltflux_leads'
+  'salt flux in leads'
+  'meter second-1'                                 ! [PSU m/s]
+  'saltflux_leads, scalar, series'
+  'ocean_time'
+  'idSaltL'
+  'r2dvar'
+  1.0d0
+
+'qao'
+  'air-ocean heat flux'
+  'W m-2'
+  'qao, scalar, series'
+  'ocean_time'
+  'idQao'
+  'r2dvar'
+  1.0d0
+
+'qai'
+  'ice-air heat flux'
+  'W m-2'
+  'qai, scalar, series'
+  'ocean_time'
+  'idQai'
+  'r2dvar'
+  1.0d0
+
+'qio'
+  'ice-ocean heat flux'
+  'W m-2'
+  'qio, scalar, series'
+  'ocean_time'
+  'idQio'
+  'r2dvar'
+  1.0d0
+
+'qi2'
+  'ice heat flux'
+  'W m-2'
+  'qi2, scalar, series'
+  'ocean_time'
+  'idQi2'
+  'r2dvar'
+  1.0d0
+
+'snoice'
+  'snow-ice conversion'
+  'm s-1'
+  'snoice, scalar, series'
+  'ocean_time'
+  'idSnoI'
+  'r2dvar'
+  1.0d0
+
+'frswpen'
+  'shortwave penetration into ice'
+  'm s-1'
+  'frswpen, scalar, series'
+  'ocean_time'
+  'idfrswp'
+  'r2dvar'
+  1.0d0
+
+'rfaci'
+  'reduction factor for near-IR fraction of SW under ice'
+  'm s-1'
+  'rfaci, scalar, series'
+  'ocean_time'
+  'idrfaci'
   'r2dvar'
   1.0d0
 
@@ -1640,78 +1946,6 @@
   'ti_south, scalar, series'
   'bry_time'
   'idTibc(isouth)'
-  'nulvar'
-  1.0d0
-
-'apond_west'
-  'surface meltwater fraction western boundary condition'
-  ' '
-  'apond_west, scalar, series'
-  'bry_time'
-  'idApdbc(iwest)'
-  'nulvar'
-  1.0d0
-
-'apond_east'
-  'surface meltwater fraction eastern boundary condition'
-  ' '
-  'apond_east, scalar, series'
-  'bry_time'
-  'idApdbc(ieast)'
-  'nulvar'
-  1.0d0
-
-'apond_north'
-  'surface meltwater fraction northern boundary condition'
-  ' '
-  'apond_north, scalar, series'
-  'bry_time'
-  'idApdbc(inorth)'
-  'nulvar'
-  1.0d0
-
-'apond_south'
-  'surface meltwater fraction southern boundary condition'
-  ' '
-  'apond_south, scalar, series'
-  'bry_time'
-  'idApdbc(isouth)'
-  'nulvar'
-  1.0d0
-
-'hpond_west'
-  'surface meltwater thickness western boundary condition'
-  'meter'
-  'hpond_west, scalar, series'
-  'bry_time'
-  'idHpdbc(iwest)'
-  'nulvar'
-  1.0d0
-
-'hpond_east'
-  'surface meltwater thickness eastern boundary condition'
-  'meter'
-  'hpond_east, scalar, series'
-  'bry_time'
-  'idHpdbc(ieast)'
-  'nulvar'
-  1.0d0
-
-'hpond_north'
-  'surface meltwater thickness northern boundary condition'
-  'meter'
-  'hpond_north, scalar, series'
-  'bry_time'
-  'idHpdbc(inorth)'
-  'nulvar'
-  1.0d0
-
-'hpond_south'
-  'surface meltwater thickness southern boundary condition'
-  'meter'
-  'hpond_south, scalar, series'
-  'bry_time'
-  'idHpdbc(isouth)'
   'nulvar'
   1.0d0
 
