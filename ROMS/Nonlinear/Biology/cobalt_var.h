@@ -1087,6 +1087,8 @@
                 iDbio3(ichl_lg)=varid
               CASE ('iDbio3(iC_2_chl_lg)')
                 iDbio3(iC_2_chl_lg)=varid
+              CASE ('iDbio3(ipCO2)')
+                iDbio3(ipco2)=varid
 #ifdef COASTDIAT
               CASE ('iDbio3(imu_mem_md)')
                 iDbio3(imu_mem_md)=varid

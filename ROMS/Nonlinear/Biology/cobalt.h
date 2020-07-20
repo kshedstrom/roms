@@ -751,6 +751,7 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
         DiaBio2d(i,j,ialpha)    = DiaBio2d(i,j,ialpha)    + cobalt%co2_alpha(i,j)
         DiaBio2d(i,j,ico2star)  = DiaBio2d(i,j,ico2star)  + cobalt%co2_csurf(i,j)
         DiaBio2d(i,j,ipco2surf) = DiaBio2d(i,j,ipco2surf) + cobalt%pco2_csurf(i,j)
+        DiaBio3d(i,j,k,ipCO2)   = DiaBio3d(i,j,k,ipCO2)   + cobalt%pco2_csurf(i,j)
      ENDDO
    ENDDO
 # endif
@@ -943,8 +944,19 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
                                     !InOut
      &       cobalt%f_htotal(:,:,k),                       &
                                     !OUT
+
+# ifdef DIAGNOSTICS_BIO
+     &       pCO2surf=cobalt%pco2_csurf(:,:),              &
+# endif
      &       co3_ion=cobalt%f_co3_ion(:,:,k))
 
+# ifdef DIAGNOSTICS_BIO
+     DO j=Jstr,Jend
+       DO i=Istr,Iend
+         DiaBio3d(i,j,k,ipCO2)   = DiaBio3d(i,j,k,ipCO2)   + cobalt%pco2_csurf(i,j)
+       ENDDO
+     ENDDO
+# endif
    ENDDO
    k=overflow
 

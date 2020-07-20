@@ -649,7 +649,7 @@
       integer :: iprod_n_100_md, iaggloss_n_100_md, izloss_n_100_md
 #endif
 
-      integer :: ipCO2=-99999 ! is never used, for compatibility issues
+      integer :: ipCO2
 
 ! Biological Parameters read in the bio_cobalt.in
 
@@ -1882,10 +1882,10 @@
       ! Diagnostic tracers
 # ifdef COASTDIAT
       NDbio2d = 65
-      NDbio3d = 60
+      NDbio3d = 61
 # else
       NDbio2d = 62
-      NDbio3d = 48
+      NDbio3d = 49
 # endif
 #endif
 #ifdef BENTHIC
@@ -3011,20 +3011,21 @@
       iC_2_chl_sm=46
       ichl_lg=47
       iC_2_chl_lg=48
+      ipCO2=49
 
 # ifdef COASTDIAT
-      imu_mem_md=49
-      iagg_lim_md=50
-      iaggloss_md=51
-      ivirloss_md=52
-      izloss_md=53
-      idef_fe_md=54
-      ifelim_md=55
-      ino3lim_md=56
-      inh4lim_md=57
-      ipo4lim_md=58
-      ichl_md=59
-      iC_2_chl_md=60
+      imu_mem_md=50
+      iagg_lim_md=51
+      iaggloss_md=52
+      ivirloss_md=53
+      izloss_md=54
+      idef_fe_md=55
+      ifelim_md=56
+      ino3lim_md=57
+      inh4lim_md=58
+      ipo4lim_md=59
+      ichl_md=60
+      iC_2_chl_md=61
 # endif
 
 

@@ -858,6 +858,17 @@
               DO ng=1,Ngrids
                 Dout(i,ng)=Lbio(ng)
               END DO
+            CASE ('Dout(ipCO2)')
+              IF (iDbio3(ipCO2).eq.0) THEN
+                IF (Master) WRITE (out,120) 'iDbio3(ipCO2)'
+                exit_flag=5
+                RETURN
+              END IF
+              Npts=load_l(Nval, Cval, Ngrids, Lbio)
+              i=iDbio3(ipCO2)
+              DO ng=1,Ngrids
+                Dout(i,ng)=Lbio(ng)
+              END DO
             CASE ('Dout(ife_bulk_flx)')
               IF (iDbio3(ife_bulk_flx).eq.0) THEN
                 IF (Master) WRITE (out,120) 'iDbio3(ife_bulk_flx)'
