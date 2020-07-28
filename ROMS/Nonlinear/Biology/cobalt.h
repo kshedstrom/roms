@@ -93,8 +93,8 @@
 # if defined BIO_COBALT_RUNOFF
      &                   FORCES(ng) % river_fed,                        &
 # endif
-#endif
      &                   FORCES(ng) % mineral_fe,                       &
+#endif
 #ifdef DIAGNOSTICS_BIO
      &                   DIAGS(ng) % DiaBio2d,                          &
      &                   DIAGS(ng) % DiaBio3d,                          &
@@ -167,8 +167,8 @@
 # if defined BIO_COBALT_RUNOFF
      &                         river_fed,                               &
 # endif
-#endif
      &                         mineral_fe,                              &
+#endif
 #ifdef DIAGNOSTICS_BIO
      &                         DiaBio2d, DiaBio3d,                      &
 #endif
@@ -265,8 +265,8 @@
 #  if defined BIO_COBALT_RUNOFF
       real(r8), intent(in) :: river_fed(LBi:,LBj:)
 #  endif
-# endif
       real(r8), intent(in) :: mineral_fe(LBi:,LBj:)
+# endif
 # ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:,LBj:,:)
       real(r8), intent(inout) :: DiaBio3d(LBi:,LBj:,:,:)
@@ -334,8 +334,8 @@
 #  if defined BIO_COBALT_RUNOFF
       real(r8), intent(in) :: river_fed(LBi:UBi,LBj:UBj)
 #  endif
-# endif
       real(r8), intent(in) :: mineral_fe(LBi:UBi,LBj:UBj)
+# endif
 # ifdef DIAGNOSTICS_BIO
       real(r8), intent(inout) :: DiaBio2d(LBi:UBi,LBj:UBj,NDbio2d)
       real(r8), intent(inout) :: DiaBio3d(LBi:UBi,LBj:UBj,UBk,NDbio3d)
@@ -1115,16 +1115,16 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 #ifdef COBALT_IRON
        iron_dust_src(i,j,UBk) = soluble_fe(i,j) / (rho0 * Hz(i,j,UBk) ) * rmask_local(i,j)
        ! units mol/kg/s       =  [mol.m-2.s-1]  / [kg.m-3] * [m]
-#endif
 
        lith_dust_src(i,j,UBk) = mineral_fe(i,j) / (rho0 * Hz(i,j,UBk) ) * rmask_local(i,j)
        ! units g/kg/s         = [g.m-2.s-1]     / [kg.m-3] * [m]
+#endif
 
 #ifdef COBALT_CONSERVATION_TEST
 # ifdef COBALT_IRON
         iron_dust_src(i,j,UBk) = 0.0d0
-# endif
         lith_dust_src(i,j,UBk) = 0.0d0
+# endif
 #endif
 #if defined DIAGNOSTICS_BIO && defined COBALT_IRON
         DiaBio3d(i,j,UBk,ife_bulk_flx) = DiaBio3d(i,j,UBk,ife_bulk_flx) + iron_dust_src(i,j,UBk) * n_dt
@@ -1143,13 +1143,13 @@ IF ( Master ) WRITE(stdout,*) '>>>    After CALL FMS surface min/max(co3_ion) ='
 
 #ifdef COBALT_IRON
           iron_dust_src(i,j,k) = 0.0d0
-#endif
           lith_dust_src(i,j,k) = 0.0d0
+#endif
 #ifdef COBALT_CONSERVATION_TEST
 # ifdef COBALT_IRON
           iron_dust_src(i,j,k) = 0.0d0
-# endif
           lith_dust_src(i,j,k) = 0.0d0
+# endif
 #endif
 
 #if defined DIAGNOSTICS_BIO && defined COBALT_IRON
@@ -4729,8 +4729,10 @@ IF( Master ) WRITE(stdout,*) '>>>   max irr_mix is = ', MAXVAL(cobalt%irr_mix)
 
   cobalt%jlith(:,:,:) = - cobalt%jlithdet(:,:,:)
 
+#ifdef COBALT_IRON
   ! RD dev notes : add dust source from atmosphere
   cobalt%jlith(:,:,:) = cobalt%jlith(:,:,:) + lith_dust_src(:,:,:)
+#endif
 
 #ifdef DIAGNOSTICS_BIO
   ! diag on production term
