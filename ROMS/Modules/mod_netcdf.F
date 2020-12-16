@@ -8425,7 +8425,7 @@
 #else
           IF (InpThread) THEN
             status=nf90_open(TRIM(ncname), nf90_nowrite, ncid)
-            IF (FoundError(status, nf90_noerr, __LINE__,                  &
+            IF (FoundError(status, nf90_noerr, __LINE__,                &
      &                   __FILE__ //                                    &
      &                   ", netcdf_open")) THEN
               IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
@@ -8474,8 +8474,8 @@
      &                     ncid = ncid,                                 &
      &                     comm = OCN_COMM_WORLD,                       &
      &                     info = MP_INFO)
-          IF (FoundError(status, nf90_noerr, __LINE__,                      &
-     &                   __FILE__ //                                        &
+          IF (FoundError(status, nf90_noerr, __LINE__,                  &
+     &                   __FILE__ //                                    &
      &                   ", netcdf_open")) THEN
             IF (Master) WRITE (stdout,10) TRIM(ncname), TRIM(SourceFile)
             exit_flag=3
