@@ -23,6 +23,20 @@
 !  Hunter, J.R, P.D. Craig, and H.E. Philips, 1993: On the use of      !
 !    random walk models with spatially variable diffusivity,           !
 !    Journal of Computational Physics, 106, 366-376.                   !
+!
+!  Rose, K.A., Fiechter, J., Curchitser, E.N., Hedstrom, K., Bernal, M.,
+!    Creekmore, S., Haynie, A., Ito, S., Lluch-Cota, S., Megrey, B.A.,
+!    Edwards, C.A., Checkley, D., Koslow, T., McClatchie, S., Werner, F.,
+!    MacCall, A. and Agostini, V.. (2015). Demonstration of a
+!    fully-coupled end-to-end model for small pelagic fish using sardine
+!    and anchovy in the California Current Progress in Oceanography.
+!    doi: 10.1016/j.pocean.2015.01.012
+!
+!  Fiechter, J., D. D. Huff, B. T. Martin, D. W. Jackson, C. A. Edwards, K.
+!    A. Rose, E. N. Curchitser, K. S. Hedstrom, S. T. Lindley, and B. K.
+!    Wells. (2015). "Environmental conditions impacting juvenile Chinook
+!    salmon growth off central California: An ecosystem model analysis".
+!    Geophys. Res. Lett.. 42, doi: 10.1002/2015GL063046 !
 !                                                                      !
 !=======================================================================
 !

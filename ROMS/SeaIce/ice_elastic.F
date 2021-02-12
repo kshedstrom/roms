@@ -587,8 +587,8 @@
               cff4 = 0.0_r8
             END IF
             IF (cff4 == 0.0_r8) THEN
-              v_u = min(vie(i,j,lieol), vie(i,j-1,lieol),               &
-     &                  vie(i-1,j,lieol), vie(i-1,j-1,lieol))
+              v_u = min(abs(vie(i,j,lieol)), abs(vie(i,j-1,lieol)),     &
+     &                  abs(vie(i-1,j,lieol)), abs(vie(i-1,j-1,lieol)))
               speed = sqrt(uie(i,j,lieol)**2 + v_u**2)
               udrag = lf_k2(ng)/(speed + lf_u0(ng))*h_loadu(i,j)
               alfa = alfa + udrag
@@ -813,8 +813,8 @@
               cff4 = 0.0_r8
             END IF
             IF (cff4 == 0.0_r8) THEN
-              u_v = min(uie(i,j,lieol), uie(i,j-1,lieol),               &
-     &                  uie(i-1,j,lieol), uie(i-1,j-1,lieol))
+              u_v = min(abs(uie(i,j,lieol)), abs(uie(i,j-1,lieol)),     &
+     &                  abs(uie(i-1,j,lieol)), abs(uie(i-1,j-1,lieol)))
               speed = sqrt(vie(i,j,lieol)**2 + u_v**2)
               vdrag = (lf_k2(ng)/(speed + lf_u0(ng)))*h_loadv(i,j)
               alfa = alfa + vdrag
