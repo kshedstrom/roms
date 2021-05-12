@@ -47,10 +47,10 @@ nc.variables['kmt'][:] = kmt
 dx = 100.0 / pm
 dy = 100.0 / pn
 
-htn = 0.5*(dy[1:-1,1:-1] + dy[2:,1:-1])
+htn = 0.5*(dx[1:-1,1:-1] + dx[2:,1:-1])
 hus = 0.5*(dx[1:-1,1:-1] + dx[1:-1,2:])
 hte = 0.5*(dy[1:-1,1:-1] + dy[1:-1,2:])
-huw = 0.5*(dx[1:-1,1:-1] + dx[2:,1:-1])
+huw = 0.5*(dy[1:-1,1:-1] + dy[2:,1:-1])
 
 nc.createVariable('htn', 'f8', ('y', 'x'))
 nc.variables['htn'].units = 'cm'
