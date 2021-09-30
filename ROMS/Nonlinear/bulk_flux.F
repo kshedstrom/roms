@@ -202,15 +202,6 @@
      &                     FORCES(ng) % EminusP,                        &
      &                     FORCES(ng) % evap,                           &
 # endif
-# ifdef ICE_DIAGS
-     &                     FORCES(ng) % LW_down,                        &
-     &                     FORCES(ng) % SW_down,                        &
-     &                     FORCES(ng) % lat_ice,                        &
-     &                     FORCES(ng) % sens_ice,                       &
-     &                     FORCES(ng) % LW_up_ice,                      &
-     &                     FORCES(ng) % SW_up_ice,                      &
-     &                     FORCES(ng) % saltflux_ocean,                 &
-# endif
      &                     OCEAN(ng) % u10_neutral,                     &
 # ifdef ICE_DIAGS
      &                     FORCES(ng) % LW_down,                        &
@@ -308,12 +299,6 @@
 # endif
 # ifdef EMINUSP
      &                           EminusP, evap,                         &
-# endif
-# ifdef ICE_DIAGS
-     &                           LW_down, SW_down,                      &
-     &                           lat_ice, sens_ice,                     &
-     &                           LW_up_ice, SW_up_ice,                  &
-     &                           saltflux_ocean,                        &
 # endif
      &                           u10_neutral,                           &
 # ifdef ICE_DIAGS
@@ -451,15 +436,6 @@
       real(r8), intent(out) :: EminusP(LBi:,LBj:)
       real(r8), intent(out) :: evap(LBi:,LBj:)
 #  endif
-#  ifdef ICE_DIAGS
-      real(r8), intent(out) :: LW_down(LBi:,LBj:)
-      real(r8), intent(out) :: SW_down(LBi:,LBj:)
-      real(r8), intent(out) :: lat_ice(LBi:,LBj:)
-      real(r8), intent(out) :: sens_ice(LBi:,LBj:)
-      real(r8), intent(out) :: LW_up_ice(LBi:,LBj:)
-      real(r8), intent(out) :: SW_up_ice(LBi:,LBj:)
-      real(r8), intent(out) :: saltflux_ocean(LBi:,LBj:)
-#  endif
       real(r8), intent(out) :: u10_neutral(LBi:,LBj:)
 #  ifdef ICE_DIAGS
       real(r8), intent(out) :: LW_down(LBi:,LBj:)
@@ -579,15 +555,6 @@
 #  ifdef EMINUSP
       real(r8), intent(out) :: EminusP(LBi:UBi,LBj:UBj)
       real(r8), intent(out) :: evap(LBi:UBi,LBj:UBj)
-#  endif
-#  ifdef ICE_DIAGS
-      real(r8), intent(out) :: LW_down(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: SW_down(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: lat_ice(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: sens_ice(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: LW_up_ice(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: SW_up_ice(LBi:UBi,LBj:UBj)
-      real(r8), intent(out) :: saltflux_ocean(LBi:UBi,LBj:UBj)
 #  endif
       real(r8), intent(out) :: u10_neutral(LBi:UBi,LBj:UBj)
 #  ifdef ICE_DIAGS

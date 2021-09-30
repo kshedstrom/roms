@@ -1,10 +1,11 @@
 Regional Ocean Modeling System
 
 This is a branch of the ROMS code kept at myroms.org
-(https://www.myroms.org/), containing sea ice and several other
-changes people have contributed, notably the CoSiNE ecosystem model
-and some ice shelf fixes. You are strongly encouraged to register with
-myroms.org for access to the forum where this code is discussed.
+(https://www.myroms.org/), containing sea ice and several other changes
+people have contributed, notably the CoSiNE and COBALT ecosystem models,
+a floats-like fish model and some ice shelf fixes. You are strongly
+encouraged to register with myroms.org for access to the forum where
+this code is discussed.
 
 This ice branch can be obtained at:
 https://github.com/kshedstrom/roms
@@ -12,11 +13,18 @@ https://github.com/kshedstrom/roms
 Note: I have created a separate repository for my application files at:
 https://github.com/kshedstrom/Apps
 
+Some are also in
+
+https://github.com/kshedstrom/Apps_master
+
 The idea is that this should be a submodule of the ROMS repository.
 
 Of the ocean.in files in the main code, I've been hit or miss on updating
 things to be consistent with changes from my branch. The one to compare
 to is in User/External/ocean.in which should be up to date.
+
+Speaking of being hit or miss in updating, I seemed to have stopped
+updating altogether, instead focussing on MOM6 development.
 
 Kate Hedstrom
 kshedstrom@alaska.edu
